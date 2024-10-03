@@ -1,0 +1,23 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+
+</h:head>
+
+<h:body>
+	<h:form>
+		<p:clock />
+		<h:panelGroup layout="block" id="buttons">
+			<p:commandButton id="clockIn" value="Clock in"
+				action="#{clockInOutView.clockIn}"
+				rendered="#{clockInOutView.clockInEnabled}" update="buttons" />
+			<p:commandButton id="clockOut" value="Clock out"
+				action="#{clockInOutView.clockOut}"
+				rendered="#{clockInOutView.clockOutEnabled}" update="buttons" />
+		</h:panelGroup>
+	</h:form>
+</h:body>
+</html>

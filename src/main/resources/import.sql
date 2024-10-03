@@ -1,0 +1,1 @@
+insert into Employee( Id, Name, Surname, Email ) values ( 1, 'Name',  'Surname',  'name@test.com');

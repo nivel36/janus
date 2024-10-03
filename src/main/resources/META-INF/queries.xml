@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings
+	xmlns="https://jakarta.ee/xml/ns/persistence/orm"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence/orm
+        https://jakarta.ee/xml/ns/persistence/orm/orm_3_1.xsd"
+	version="3.1">
+
+	<named-query name="Employee.findByEmail">
+		<query><![CDATA[
+			SELECT e 
+			FROM Employee e 
+			WHERE e.email = :email
+		]]></query>
+	</named-query>
+
+	<named-query name="TimeLog.findTimeLogsByEmployee">
+		<query><![CDATA[
+			SELECT t 
+			FROM TimeLog t 
+			WHERE t.employee = :employee 
+			ORDER BY t.entryTime DESC
+		]]></query>
+	</named-query>
+
+</entity-mappings>
