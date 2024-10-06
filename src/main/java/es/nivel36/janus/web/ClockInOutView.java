@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.omnifaces.cdi.Param;
 import org.omnifaces.cdi.ViewScoped;
+import org.primefaces.model.LazyDataModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +27,11 @@ public class ClockInOutView extends AbstractView {
 	private @Param Employee employee;
 	private TimeLog lastTimeLog;
 	private boolean clockInEnabled;
+	private LazyDataModel<TimeLog> timeLogs;
 
 	@PostConstruct
 	public void init() {
+		timeLogs = new LazyTimeLogDataModel(timeLogService, employee);
 		final Optional<TimeLog> timeLogOpt = this.timeLogService.findLastTimeLogByEmployee(employee);
 
 		if (hasExitTime(timeLogOpt)) {
@@ -71,6 +74,10 @@ public class ClockInOutView extends AbstractView {
 
 	public Employee getEmployee() {
 		return employee;
+	}
+
+	public LazyDataModel<TimeLog> getTimeLogs() {
+		return timeLogs;
 	}
 
 	public void setEmployee(final Employee employee) {

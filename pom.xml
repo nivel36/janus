@@ -27,6 +27,7 @@
 		<primefaces.version>14.0.5</primefaces.version>
 		<omnifaces.version>4.5.1</omnifaces.version>
 		<mockito.version>5.12.0</mockito.version>
+		<slf4j.version>2.0.13</slf4j.version>
 	</properties>
 
 	<dependencyManagement>
@@ -123,6 +124,13 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>

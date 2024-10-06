@@ -13,11 +13,22 @@
 		<h:panelGroup layout="block" id="buttons">
 			<p:commandButton id="clockIn" value="Clock in"
 				action="#{clockInOutView.clockIn}"
-				rendered="#{clockInOutView.clockInEnabled}" update="buttons" />
+				rendered="#{clockInOutView.clockInEnabled}" update="buttons, timeLogs" />
 			<p:commandButton id="clockOut" value="Clock out"
 				action="#{clockInOutView.clockOut}"
-				rendered="#{clockInOutView.clockOutEnabled}" update="buttons" />
+				rendered="#{clockInOutView.clockOutEnabled}" update="buttons, timeLogs" />
 		</h:panelGroup>
+		
+		<p:dataTable var="timelog" value="#{clockInOutView.timeLogs}" paginator="true" rows="10"
+                     paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                     rowsPerPageTemplate="5,10,15" id="timeLogs">
+            <p:column headerText="Entry time">
+                <h:outputText value="#{timelog.entryTime}"/>
+            </p:column>
+            <p:column headerText="Exit time">
+                <h:outputText value="#{timelog.exitTime}"/>
+            </p:column>
+        </p:dataTable>
 	</h:form>
 </h:body>
 </html>

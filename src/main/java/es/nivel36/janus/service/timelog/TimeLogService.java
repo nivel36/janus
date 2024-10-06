@@ -84,7 +84,6 @@ public class TimeLogService {
 				.orElseThrow(() -> new IllegalStateException("No TimeLog found for the employee."));
 
 		lastTimeLog.setExitTime(exitTime);
-		this.timeLogRepository.updateTimeLog(lastTimeLog);
 
 		return lastTimeLog;
 	}
@@ -121,26 +120,41 @@ public class TimeLogService {
 	 * Finds a list of time logs for the specified employee with pagination.
 	 *
 	 * @param employee the employee whose time logs are to be found
-	 * @param page     the page number (0-based)
+	 * @param startPosition the initial position of the search from which to start
+	 *                      returning values.
 	 * @param pageSize the size of each page
 	 * @return a list of {@link TimeLog} entries for the employee
 	 * @throws NullPointerException     if the employee is null
 	 * @throws IllegalArgumentException if the page is negative or the pageSize is
 	 *                                  less than 1
 	 */
-	public List<TimeLog> findTimeLogsByEmployee(final Employee employee, int page, int pageSize) {
+	public List<TimeLog> findTimeLogsByEmployee(final Employee employee, int startPosition, int pageSize) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 
-		if (page < 0) {
-			throw new IllegalArgumentException(String.format("Page number is %s, but cannot be less than 0.", page));
+		if (startPosition < 0) {
+			throw new IllegalArgumentException(String.format("Start position is %s, but cannot be less than 0.", startPosition));
 		}
 
 		if (pageSize < 1) {
 			throw new IllegalArgumentException(String.format("Page size is %s, but must be greater than 0.", pageSize));
 		}
 
-		logger.debug("Finding TimeLogs for employee: {} with page: {}, pageSize: {}", employee, page, pageSize);
-		return this.timeLogRepository.findTimeLogsByEmployee(employee, page, pageSize);
+		logger.debug("Finding TimeLogs for employee: {} with startPosition: {}, pageSize: {}", employee, startPosition, pageSize);
+		return this.timeLogRepository.findTimeLogsByEmployee(employee, startPosition, pageSize);
+	}
+
+	/**
+	 * Counts a list of time logs for the specified employee.
+	 *
+	 * @param employee the employee whose time logs are to be found
+	 * @return the number of {@link TimeLog} entries for the employee
+	 * @throws NullPointerException if the employee is null
+	 */
+	public long countTimeLogsByEmployee(final Employee employee) {
+		Objects.requireNonNull(employee, "Employee cannot be null.");
+
+		logger.debug("Counting TimeLogs for employee: {} ", employee);
+		return this.timeLogRepository.countTimeLogsByEmployee(employee);
 	}
 
 	/**

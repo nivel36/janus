@@ -27,6 +27,7 @@ class TimeLogRepository {
 		if (id < 0) {
 			throw new IllegalArgumentException(String.format("Id is %s, but cannot be less than 0.", id));
 		}
+		
 		return entityManager.find(TimeLog.class, id);
 	}
 
@@ -39,42 +40,62 @@ class TimeLogRepository {
 	 */
 	public Optional<TimeLog> findLastTimeLogByEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "Employee can't be null");
+		
 		final TypedQuery<TimeLog> query = entityManager.createNamedQuery("TimeLog.findTimeLogsByEmployee",
 				TimeLog.class);
 		query.setParameter("employee", employee);
 		query.setMaxResults(1);
+		
 		return query.getResultStream().findFirst();
 	}
 
 	/**
 	 * Retrieves all {@link TimeLog} entries for a given employee, with pagination.
 	 * 
-	 * @param employee the employee whose time logs are to be retrieved
-	 * @param page     the page number (0-based index)
-	 * @param pageSize the number of entries per page
+	 * @param employee      the employee whose time logs are to be retrieved
+	 * @param startPosition the initial position of the search from which to start
+	 *                      returning values.
+	 * @param pageSize      the number of entries per page
 	 * @return a list of time logs for the specified employee
 	 * @throws NullPointerException     if the employee is null
 	 * @throws IllegalArgumentException if the page is less than 0 or pageSize is
 	 *                                  less than 1
 	 */
-	public List<TimeLog> findTimeLogsByEmployee(final Employee employee, int page, int pageSize) {
-		Objects.requireNonNull(employee);
+	public List<TimeLog> findTimeLogsByEmployee(final Employee employee, int startPosition, int pageSize) {
+		Objects.requireNonNull(employee, "Employee can't be null");
 
-		if (page < 0) {
-			throw new IllegalArgumentException("Page number cannot be less than 0.");
+		if (startPosition < 0) {
+			throw new IllegalArgumentException(
+					String.format("Start position is %s, but cannot be less than 0.", startPosition));
 		}
 
 		if (pageSize < 1) {
-			throw new IllegalArgumentException("Page size must be greater than 0.");
+			throw new IllegalArgumentException(String.format("Page size is %s, but must be greater than 0.", pageSize));
 		}
 
 		final TypedQuery<TimeLog> query = entityManager.createNamedQuery("TimeLog.findTimeLogsByEmployee",
 				TimeLog.class);
 		query.setParameter("employee", employee);
-		query.setFirstResult(page * pageSize);
+		query.setFirstResult(startPosition);
 		query.setMaxResults(pageSize);
 
 		return query.getResultList();
+	}
+
+	/**
+	 * Counts all {@link TimeLog} entries for a given employee.
+	 * 
+	 * @param employee the employee whose time logs are to be retrieved
+	 * @return the number of time logs for the specified employee
+	 * @throws NullPointerException if the employee is null
+	 */
+	public long countTimeLogsByEmployee(final Employee employee) {
+		Objects.requireNonNull(employee, "Employee can't be null");
+
+		final TypedQuery<Long> query = entityManager.createNamedQuery("TimeLog.countTimeLogsByEmployee", Long.class);
+		query.setParameter("employee", employee);
+
+		return query.getSingleResult();
 	}
 
 	/**
@@ -85,7 +106,7 @@ class TimeLogRepository {
 	 * @throws NullPointerException if the time log is null
 	 */
 	public TimeLog createTimeLog(final TimeLog timeLog) {
-		Objects.requireNonNull(timeLog);
+		Objects.requireNonNull(timeLog, "TimeLog can't be null");
 		entityManager.persist(timeLog);
 		return timeLog;
 	}
@@ -114,8 +135,12 @@ class TimeLogRepository {
 		final TimeLog reference = entityManager.getReference(TimeLog.class, timeLog.getId());
 		entityManager.remove(reference);
 	}
-	
 
+	/**
+	 * Sets the entity manager to be used as persistence context
+	 * @param entityManager to be used as persistence context
+	 * @throws NullPointerException if entityManager is null
+	 */
 	public void setEntityManager(final EntityManager entityManager) {
 		this.entityManager = Objects.requireNonNull(entityManager, "Entity manager can't be null");
 	}

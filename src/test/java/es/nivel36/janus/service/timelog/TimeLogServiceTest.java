@@ -72,7 +72,6 @@ class TimeLogServiceTest {
 		// Assert
 		assertNotNull(result);
 		assertEquals(now, result.getExitTime());
-		verify(this.timeLogRepository, times(1)).updateTimeLog(result);
 	}
 
 	@Test
