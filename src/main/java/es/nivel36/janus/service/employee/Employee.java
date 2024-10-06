@@ -1,10 +1,19 @@
 package es.nivel36.janus.service.employee;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 import es.nivel36.janus.service.timelog.TimeLog;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -18,7 +27,9 @@ import jakarta.validation.constraints.NotNull;
 }, uniqueConstraints = { //
 		@UniqueConstraint(name = "uk_employee_email", columnNames = { "email" }) //
 })
-public class Employee {
+public class Employee implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

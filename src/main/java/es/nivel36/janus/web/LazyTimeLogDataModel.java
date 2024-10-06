@@ -34,7 +34,7 @@ public class LazyTimeLogDataModel extends LazyDataModel<TimeLog> {
 
 	private static final long serialVersionUID = 1L;
 
-	private TimeLogService timeLogService;
+	private transient TimeLogService timeLogService;
 	private Employee employee;
 
 	/**

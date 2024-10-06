@@ -1,5 +1,6 @@
 package es.nivel36.janus.service.timelog;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -22,7 +23,9 @@ import jakarta.validation.constraints.NotNull;
 }, uniqueConstraints = { //
 		@UniqueConstraint(name = "uk_employee_entry_time", columnNames = { "employee_id", "entryTime" }) //
 })
-public class TimeLog {
+public class TimeLog implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
