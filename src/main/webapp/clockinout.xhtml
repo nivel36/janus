@@ -2,8 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui"
-	lang="en">
+	xmlns:p="http://primefaces.org/ui" lang="en">
 
 <h:head>
 
@@ -15,22 +14,35 @@
 		<h:panelGroup layout="block" id="buttons">
 			<p:commandButton id="clockIn" value="Clock in"
 				action="#{clockInOutView.clockIn}"
-				rendered="#{clockInOutView.clockInEnabled}" update="buttons, timeLogs" />
+				rendered="#{clockInOutView.clockInEnabled}"
+				update="buttons, timeLogs" />
 			<p:commandButton id="clockOut" value="Clock out"
 				action="#{clockInOutView.clockOut}"
-				rendered="#{clockInOutView.clockOutEnabled}" update="buttons, timeLogs" />
+				rendered="#{clockInOutView.clockOutEnabled}"
+				update="buttons, timeLogs" />
 		</h:panelGroup>
-		
-		<p:dataTable var="timelog" value="#{clockInOutView.timeLogs}" paginator="true" rows="10"
-                     paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                     rowsPerPageTemplate="5,10,15" id="timeLogs">
-            <p:column headerText="Entry time">
-                <h:outputText value="#{timelog.entryTime}"/>
-            </p:column>
-            <p:column headerText="Exit time">
-                <h:outputText value="#{timelog.exitTime}"/>
-            </p:column>
-        </p:dataTable>
+
+		<p:dataTable var="timeLog" value="#{clockInOutView.timeLogs}"
+			paginator="true" rows="10"
+			paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+			rowsPerPageTemplate="5,10,15" id="timeLogs">
+			<p:column headerText="Entry time">
+				<h:outputText value="#{timeLog.entryTime}">
+					<f:convertDateTime type="localDateTime" pattern="HH:mm dd/MM/YY" />
+				</h:outputText>
+			</p:column>
+			<p:column headerText="Exit time">
+				<h:outputText value="#{timeLog.exitTime}">
+					<f:convertDateTime type="localDateTime" pattern="HH:mm dd/MM/YY" />
+				</h:outputText>
+			</p:column>
+			<p:column headerText="Hours Worked">
+				<h:outputText value="#{clockInOutView.getHoursWorked(timeLog)}">
+					<f:converter converterId="durationConverter" />
+				</h:outputText>
+			</p:column>
+		</p:dataTable>
+		<p:poll interval="1" update="timeLogs" />
 	</h:form>
 </h:body>
 </html>

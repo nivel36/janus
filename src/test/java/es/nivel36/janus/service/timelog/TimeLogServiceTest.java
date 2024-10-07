@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -80,6 +81,44 @@ class TimeLogServiceTest {
 
 		assertThrows(IllegalStateException.class, () -> {
 			this.timeLogService.clockOut(this.employee, LocalDateTime.now());
+		});
+	}
+	
+	@Test
+	void testGetHoursWorkedWithExitTime() {
+		// Arrange
+		final LocalDateTime entryTime = LocalDateTime.now().minusHours(5);
+		final LocalDateTime exitTime = LocalDateTime.now();
+		final TimeLog timeLog = new TimeLog(this.employee, entryTime);
+		timeLog.setExitTime(exitTime);
+
+		// Act
+		final Duration duration = this.timeLogService.getHoursWorked(timeLog);
+
+		// Assert
+		assertNotNull(duration);
+		assertEquals(Duration.between(entryTime, exitTime), duration);
+	}
+
+	@Test
+	void testGetHoursWorkedWithoutExitTime() {
+		// Arrange
+		final LocalDateTime entryTime = LocalDateTime.now().minusHours(3);
+		final TimeLog timeLog = new TimeLog(this.employee, entryTime);
+
+		// Act
+		final Duration duration = this.timeLogService.getHoursWorked(timeLog);
+
+		// Assert
+		assertNotNull(duration);
+		assertEquals(Duration.between(entryTime, LocalDateTime.now()).toHours(), duration.toHours(), 1);
+	}
+
+	@Test
+	void testGetHoursWorkedWithNullTimeLog() {
+		// Act & Assert
+		assertThrows(NullPointerException.class, () -> {
+			this.timeLogService.getHoursWorked(null);
 		});
 	}
 

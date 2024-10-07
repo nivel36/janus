@@ -1,5 +1,6 @@
 package es.nivel36.janus.service.timelog;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -88,6 +89,31 @@ public class TimeLogService {
 		return lastTimeLog;
 	}
 
+    /**
+     * Calculates the total hours worked for a given time log. If the employee
+     * hasn't clocked out yet, the duration will be calculated from the entry time
+     * to the current time.
+     *
+     * @param timeLog the {@link TimeLog} entry containing the clock-in and clock-out times
+     * @return a {@link Duration} representing the total hours worked
+     * @throws NullPointerException if the timeLog is null
+     */
+    public Duration getHoursWorked(final TimeLog timeLog) {
+        Objects.requireNonNull(timeLog, "TimeLog cannot be null.");
+        logger.debug("Calculating hours worked for TimeLog: {}", timeLog);
+
+        if (timeLog.getExitTime() == null) {
+            Duration duration = Duration.between(timeLog.getEntryTime(), LocalDateTime.now());
+            logger.trace("TimeLog has no exit time. Calculating duration until now: {}", duration);
+            return duration;
+        } else {
+            Duration duration = Duration.between(timeLog.getEntryTime(), timeLog.getExitTime());
+            logger.trace("TimeLog has exit time. Calculating duration between entry and exit: {}", duration);
+            return duration;
+        }
+    }
+
+
 	/**
 	 * Finds a time log by its primary key (id).
 	 *
@@ -119,10 +145,10 @@ public class TimeLogService {
 	/**
 	 * Finds a list of time logs for the specified employee with pagination.
 	 *
-	 * @param employee the employee whose time logs are to be found
+	 * @param employee      the employee whose time logs are to be found
 	 * @param startPosition the initial position of the search from which to start
 	 *                      returning values.
-	 * @param pageSize the size of each page
+	 * @param pageSize      the size of each page
 	 * @return a list of {@link TimeLog} entries for the employee
 	 * @throws NullPointerException     if the employee is null
 	 * @throws IllegalArgumentException if the page is negative or the pageSize is
@@ -132,14 +158,16 @@ public class TimeLogService {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 
 		if (startPosition < 0) {
-			throw new IllegalArgumentException(String.format("Start position is %s, but cannot be less than 0.", startPosition));
+			throw new IllegalArgumentException(
+					String.format("Start position is %s, but cannot be less than 0.", startPosition));
 		}
 
 		if (pageSize < 1) {
 			throw new IllegalArgumentException(String.format("Page size is %s, but must be greater than 0.", pageSize));
 		}
 
-		logger.debug("Finding TimeLogs for employee: {} with startPosition: {}, pageSize: {}", employee, startPosition, pageSize);
+		logger.debug("Finding TimeLogs for employee: {} with startPosition: {}, pageSize: {}", employee, startPosition,
+				pageSize);
 		return this.timeLogRepository.findTimeLogsByEmployee(employee, startPosition, pageSize);
 	}
 

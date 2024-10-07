@@ -1,5 +1,6 @@
 package es.nivel36.janus.web;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -58,6 +59,11 @@ public class ClockInOutView extends AbstractView {
 		this.timeLogService.clockOut(employee);
 		lastTimeLog = new TimeLog(employee);
 		clockInEnabled = true;
+	}
+	
+	public Duration getHoursWorked(final TimeLog timeLog) {
+		Objects.requireNonNull(timeLog, "TimeLog can't be null");
+		return timeLogService.getHoursWorked(timeLog);
 	}
 
 	public boolean isClockInEnabled() {
