@@ -22,6 +22,20 @@
 				update="buttons, timeLogs" />
 		</h:panelGroup>
 
+		<h:panelGroup layout="block"
+			rendered="${not empty clockInOutView.timeRange}">
+			<h:outputText value="Start Hour" />
+			<h:outputText value="${clockInOutView.timeRange.startTime}" />
+			<h:outputText value="End Hour" />
+			<h:outputText value="${clockInOutView.timeRange.endTime}" />
+		</h:panelGroup>
+		
+		<h:panelGroup layout="block"
+			rendered="${empty clockInOutView.timeRange}">
+			<h:outputText value="Off day!" />
+		</h:panelGroup>
+		
+
 		<p:dataTable var="timeLog" value="#{clockInOutView.timeLogs}"
 			paginator="true" rows="10"
 			paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"

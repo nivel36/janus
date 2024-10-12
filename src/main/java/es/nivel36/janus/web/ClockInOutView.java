@@ -1,6 +1,7 @@
 package es.nivel36.janus.web;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -11,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.schedule.ScheduleService;
+import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
 import jakarta.annotation.PostConstruct;
@@ -25,15 +28,18 @@ public class ClockInOutView extends AbstractView {
 	private static final Logger logger = LoggerFactory.getLogger(ClockInOutView.class);
 
 	private transient @Inject TimeLogService timeLogService;
+	private transient @Inject ScheduleService scheduleService;
 	private @Param Employee employee;
 	private TimeLog lastTimeLog;
 	private boolean clockInEnabled;
 	private LazyDataModel<TimeLog> timeLogs;
+	private TimeRange timeRange;
 
 	@PostConstruct
 	public void init() {
 		timeLogs = new LazyTimeLogDataModel(timeLogService, employee);
 		final Optional<TimeLog> timeLogOpt = this.timeLogService.findLastTimeLogByEmployee(employee);
+		timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, LocalDate.now()).orElse(null);
 
 		if (hasExitTime(timeLogOpt)) {
 			lastTimeLog = timeLogOpt.get();
@@ -60,7 +66,7 @@ public class ClockInOutView extends AbstractView {
 		lastTimeLog = new TimeLog(employee);
 		clockInEnabled = true;
 	}
-	
+
 	public Duration getHoursWorked(final TimeLog timeLog) {
 		Objects.requireNonNull(timeLog, "TimeLog can't be null");
 		return timeLogService.getHoursWorked(timeLog);
@@ -86,6 +92,10 @@ public class ClockInOutView extends AbstractView {
 		return timeLogs;
 	}
 
+	public TimeRange getTimeRange() {
+		return timeRange;
+	}
+
 	public void setEmployee(final Employee employee) {
 		this.employee = employee;
 	}
@@ -96,5 +106,9 @@ public class ClockInOutView extends AbstractView {
 
 	public void setTimeLogService(final TimeLogService timeLogService) {
 		this.timeLogService = Objects.requireNonNull(timeLogService);
+	}
+
+	public void setScheduleService(final ScheduleService scheduleService) {
+		this.scheduleService = Objects.requireNonNull(scheduleService);
 	}
 }

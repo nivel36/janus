@@ -12,7 +12,7 @@
 			WHERE e.email = :email
 		]]></query>
 	</named-query>
-	
+
 	<named-query name="TimeLog.countTimeLogsByEmployee">
 		<query><![CDATA[
 			SELECT COUNT (t) 
@@ -27,6 +27,20 @@
 			FROM TimeLog t 
 			WHERE t.employee = :employee 
 			ORDER BY t.entryTime DESC
+		]]></query>
+	</named-query>
+
+
+	<named-query name="TimeRange.findTimeRangeForEmployeeByDate">
+		<query><![CDATA[
+			SELECT d.timeRange 
+			FROM Employee e 
+			JOIN e.schedule s
+			JOIN s.rules r
+			JOIN r.dayOfWeekRanges d
+			WHERE e = :employee 
+			AND :date BETWEEN r.startDate AND r.endDate
+			AND d.dayOfWeek = :dayOfWeek
 		]]></query>
 	</named-query>
 </entity-mappings>

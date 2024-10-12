@@ -19,146 +19,158 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(indexes = { //
-		@Index(name = "idx_employee_entry_time", columnList = "employee_id, entryTime") //
+        @Index(name = "idx_employee_entry_time", columnList = "employee_id, entryTime") //
 }, uniqueConstraints = { //
-		@UniqueConstraint(name = "uk_employee_entry_time", columnNames = { "employee_id", "entryTime" }) //
+        @UniqueConstraint(name = "uk_employee_entry_time", columnNames = { "employee_id", "entryTime" }) //
 })
 public class TimeLog implements Serializable {
-	
-	private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+    private static final long serialVersionUID = 1L;
 
-	@NotNull
-	@ManyToOne
-	@JoinColumn(name = "employee_id", nullable = false)
-	private Employee employee;
+    /**
+     * Unique identifier of the time log.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-	@NotNull
-	@Column(nullable = false)
-	private LocalDateTime entryTime;
+    /**
+     * The employee associated with this time log.
+     */
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
-	private LocalDateTime exitTime;
+    /**
+     * The clock-in time for this time log.
+     */
+    @NotNull
+    @Column(nullable = false)
+    private LocalDateTime entryTime;
 
-	/**
-	 * Default constructor for the {@link TimeLog} entity. Initializes an empty
-	 * {@link TimeLog} instance.
-	 */
-	public TimeLog() {
-	}
-	
-	/**
-	 * Constructor for the {@link TimeLog} entity that initializes the time log with
-	 * the given employee.
-	 *
-	 * @param employee  the employee associated with this time log, must not be null
-	 * @throws NullPointerException if the employee or entryTime is null
-	 */
-	public TimeLog(final Employee employee) {
-		this.employee = Objects.requireNonNull(employee);
-	}
+    /**
+     * The clock-out time for this time log.
+     */
+    private LocalDateTime exitTime;
 
-	/**
-	 * Constructor for the {@link TimeLog} entity that initializes the time log with
-	 * the given employee and entry time.
-	 *
-	 * @param employee  the employee associated with this time log, must not be null
-	 * @param entryTime the entry (clock-in) time for this time log, must not be
-	 *                  null
-	 * @throws NullPointerException if the employee or entryTime is null
-	 */
-	public TimeLog(final Employee employee, final LocalDateTime entryTime) {
-		this.employee = Objects.requireNonNull(employee);
-		this.entryTime = Objects.requireNonNull(entryTime);
-	}
+    /**
+     * Default constructor for the {@link TimeLog} entity. Initializes an empty
+     * {@link TimeLog} instance.
+     */
+    public TimeLog() {
+    }
 
-	/**
-	 * Gets the unique identifier of the time log.
-	 *
-	 * @return the id of the time log
-	 */
-	public long getId() {
-		return id;
-	}
+    /**
+     * Constructor for the {@link TimeLog} entity that initializes the time log with
+     * the given employee.
+     *
+     * @param employee  the employee associated with this time log, must not be null
+     * @throws NullPointerException if the employee or entryTime is null
+     */
+    public TimeLog(final Employee employee) {
+        this.employee = Objects.requireNonNull(employee);
+    }
 
-	/**
-	 * Gets the employee associated with this time log.
-	 *
-	 * @return the employee for this time log
-	 */
-	public Employee getEmployee() {
-		return employee;
-	}
+    /**
+     * Constructor for the {@link TimeLog} entity that initializes the time log with
+     * the given employee and entry time.
+     *
+     * @param employee  the employee associated with this time log, must not be null
+     * @param entryTime the entry (clock-in) time for this time log, must not be
+     *                  null
+     * @throws NullPointerException if the employee or entryTime is null
+     */
+    public TimeLog(final Employee employee, final LocalDateTime entryTime) {
+        this.employee = Objects.requireNonNull(employee);
+        this.entryTime = Objects.requireNonNull(entryTime);
+    }
 
-	/**
-	 * Gets the clock-in time for this time log.
-	 *
-	 * @return the clock-in time as a {@link LocalDateTime}, or null if the employee
-	 *         has not clocked in
-	 */
-	public LocalDateTime getEntryTime() {
-		return entryTime;
-	}
+    /**
+     * Gets the unique identifier of the time log.
+     *
+     * @return the id of the time log
+     */
+    public long getId() {
+        return id;
+    }
 
-	/**
-	 * Gets the clock-out time for this time log.
-	 *
-	 * @return the clock-out time as a {@link LocalDateTime}, or null if the
-	 *         employee has not clocked out
-	 */
-	public LocalDateTime getExitTime() {
-		return exitTime;
-	}
+    /**
+     * Gets the employee associated with this time log.
+     *
+     * @return the employee for this time log
+     */
+    public Employee getEmployee() {
+        return employee;
+    }
 
-	/**
-	 * Sets the unique identifier for this time log.
-	 *
-	 * @param id the ID to set for this time log
-	 */
-	public void setId(final long id) {
-		this.id = id;
-	}
+    /**
+     * Gets the clock-in time for this time log.
+     *
+     * @return the clock-in time as a {@link LocalDateTime}, or null if the employee
+     *         has not clocked in
+     */
+    public LocalDateTime getEntryTime() {
+        return entryTime;
+    }
 
-	/**
-	 * Sets the employee for this time log.
-	 *
-	 * @param employee the employee to associate with this time log
-	 */
-	public void setEmployee(final Employee employee) {
-		this.employee = employee;
-	}
+    /**
+     * Gets the clock-out time for this time log.
+     *
+     * @return the clock-out time as a {@link LocalDateTime}, or null if the
+     *         employee has not clocked out
+     */
+    public LocalDateTime getExitTime() {
+        return exitTime;
+    }
 
-	/**
-	 * Sets the clock-in time for this time log.
-	 *
-	 * @param entryTime the clock-in time to set as a {@link LocalDateTime}
-	 */
-	public void setEntryTime(final LocalDateTime entryTime) {
-		this.entryTime = entryTime;
-	}
+    /**
+     * Sets the unique identifier for this time log.
+     *
+     * @param id the ID to set for this time log
+     */
+    public void setId(final long id) {
+        this.id = id;
+    }
 
-	/**
-	 * Sets the clock-out time for this time log.
-	 *
-	 * @param exitTime the clock-out time to set as a {@link LocalDateTime}, or null
-	 *                 if the employee has not clocked out yet
-	 */
-	public void setExitTime(LocalDateTime exitTime) {
-		this.exitTime = exitTime;
-	}
+    /**
+     * Sets the employee for this time log.
+     *
+     * @param employee the employee to associate with this time log
+     */
+    public void setEmployee(final Employee employee) {
+        this.employee = employee;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-	    if (this == obj) return true;
-	    if (obj == null || getClass() != obj.getClass()) return false;
-	    TimeLog other = (TimeLog) obj;
-	    return Objects.equals(employee, other.employee) && Objects.equals(entryTime, other.entryTime);
-	}
+    /**
+     * Sets the clock-in time for this time log.
+     *
+     * @param entryTime the clock-in time to set as a {@link LocalDateTime}
+     */
+    public void setEntryTime(final LocalDateTime entryTime) {
+        this.entryTime = entryTime;
+    }
 
-	@Override
-	public int hashCode() {
-	    return Objects.hash(employee, entryTime);
-	}
+    /**
+     * Sets the clock-out time for this time log.
+     *
+     * @param exitTime the clock-out time to set as a {@link LocalDateTime}, or null
+     *                 if the employee has not clocked out yet
+     */
+    public void setExitTime(LocalDateTime exitTime) {
+        this.exitTime = exitTime;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        TimeLog other = (TimeLog) obj;
+        return Objects.equals(employee, other.employee) && Objects.equals(entryTime, other.entryTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(employee, entryTime);
+    }
 }
