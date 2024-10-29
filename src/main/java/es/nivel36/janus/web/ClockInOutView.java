@@ -37,16 +37,17 @@ public class ClockInOutView extends AbstractView {
 
 	@PostConstruct
 	public void init() {
-		timeLogs = new LazyTimeLogDataModel(timeLogService, employee);
-		final Optional<TimeLog> timeLogOpt = this.timeLogService.findLastTimeLogByEmployee(employee);
-		timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, LocalDate.now()).orElse(null);
+		this.timeLogs = new LazyTimeLogDataModel(this.timeLogService, this.employee);
+		final Optional<TimeLog> timeLogOpt = this.timeLogService.findLastTimeLogByEmployee(this.employee);
+		this.timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, LocalDate.now())
+				.orElse(null);
 
-		if (hasExitTime(timeLogOpt)) {
-			lastTimeLog = timeLogOpt.get();
-			clockInEnabled = false;
+		if (this.hasExitTime(timeLogOpt)) {
+			this.lastTimeLog = timeLogOpt.get();
+			this.clockInEnabled = false;
 		} else {
-			lastTimeLog = new TimeLog(employee);
-			clockInEnabled = true;
+			this.lastTimeLog = new TimeLog(this.employee);
+			this.clockInEnabled = true;
 		}
 	}
 
@@ -56,44 +57,44 @@ public class ClockInOutView extends AbstractView {
 
 	public void clockIn() {
 		logger.debug("ClockIn ACTION performed");
-		lastTimeLog = this.timeLogService.clockIn(employee);
-		clockInEnabled = false;
+		this.lastTimeLog = this.timeLogService.clockIn(this.employee);
+		this.clockInEnabled = false;
 	}
 
 	public void clockOut() {
 		logger.debug("ClockOut ACTION performed");
-		this.timeLogService.clockOut(employee);
-		lastTimeLog = new TimeLog(employee);
-		clockInEnabled = true;
+		this.timeLogService.clockOut(this.employee);
+		this.lastTimeLog = new TimeLog(this.employee);
+		this.clockInEnabled = true;
 	}
 
 	public Duration getHoursWorked(final TimeLog timeLog) {
 		Objects.requireNonNull(timeLog, "TimeLog can't be null");
-		return timeLogService.getHoursWorked(timeLog);
+		return this.timeLogService.getHoursWorked(timeLog);
 	}
 
 	public boolean isClockInEnabled() {
-		return clockInEnabled;
+		return this.clockInEnabled;
 	}
 
 	public boolean isClockOutEnabled() {
-		return !clockInEnabled;
+		return !this.clockInEnabled;
 	}
 
 	public TimeLog getLastTimeLog() {
-		return lastTimeLog;
+		return this.lastTimeLog;
 	}
 
 	public Employee getEmployee() {
-		return employee;
+		return this.employee;
 	}
 
 	public LazyDataModel<TimeLog> getTimeLogs() {
-		return timeLogs;
+		return this.timeLogs;
 	}
 
 	public TimeRange getTimeRange() {
-		return timeRange;
+		return this.timeRange;
 	}
 
 	public void setEmployee(final Employee employee) {

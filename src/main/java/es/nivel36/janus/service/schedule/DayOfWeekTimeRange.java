@@ -21,19 +21,22 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Represents a time range for a specific day of the week within a schedule
- * rule.
- * 
+ * rule, where the work shift can start on the specified day and extend into the
+ * next day if necessary.
+ *
  * <p>
  * A {@code DayOfWeekTimeRange} defines the working hours or other time
  * configurations for a specific {@link DayOfWeek} within a
  * {@link ScheduleRule}. Each instance contains a {@code TimeRange} that
- * specifies the start and end times for the given day.
+ * specifies the start and end times for the given day. It's important to note
+ * that the shift may start late in the day (e.g., 8:00 PM) and end on the
+ * following day.
  * </p>
- * 
+ *
  * <p>
  * This class is part of a schedule rule, allowing flexible time definitions for
  * different days of the week (e.g., different work hours on Mondays versus
- * Fridays).
+ * Fridays), including shifts that span multiple calendar days.
  * </p>
  */
 @Table(name = "DAY_OF_WEEK_TIME_RANGE", //
@@ -70,8 +73,9 @@ public class DayOfWeekTimeRange implements Serializable {
 	private List<ScheduleRule> scheduleRules;
 
 	/**
-	 * The day of the week (e.g., Monday, Tuesday) for which this time range is
-	 * defined.
+	 * The day of the week (e.g., Monday, Tuesday) on which the work shift starts.
+	 * The shift may extend into the next calendar day if the end time is after
+	 * midnight.
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "DAY_OF_WEEK")
@@ -85,118 +89,120 @@ public class DayOfWeekTimeRange implements Serializable {
 
 	/**
 	 * Returns the unique identifier of the day-of-week time range.
-	 * 
+	 *
 	 * @return the unique identifier
 	 */
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	/**
 	 * Sets the unique identifier of the day-of-week time range.
-	 * 
+	 *
 	 * @param id the new identifier
 	 */
-	public void setId(Long id) {
+	public void setId(final Long id) {
 		this.id = id;
 	}
 
 	/**
 	 * Returns the unique name of the day-of-week time range.
-	 * 
+	 *
 	 * @return the name of the time range
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
 	 * Sets the unique name of the day-of-week time range. The name cannot be null
 	 * and must be unique.
-	 * 
+	 *
 	 * @param name the new name
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
 	/**
 	 * Returns the list of {@link ScheduleRule} objects that are associated with
 	 * this time range.
-	 * 
+	 *
 	 * @return the list of schedule rules
 	 */
 	public List<ScheduleRule> getScheduleRules() {
-		return scheduleRules;
+		return this.scheduleRules;
 	}
 
 	/**
 	 * Sets the list of {@link ScheduleRule} objects that are associated with this
 	 * time range.
-	 * 
+	 *
 	 * @param scheduleRules the list of schedule rules to associate with this time
 	 *                      range
 	 */
-	public void setScheduleRules(List<ScheduleRule> scheduleRules) {
+	public void setScheduleRules(final List<ScheduleRule> scheduleRules) {
 		this.scheduleRules = scheduleRules;
 	}
 
 	/**
-	 * Returns the day of the week for which this time range is defined.
-	 * 
-	 * @return the day of the week
+	 * Returns the day of the week on which the work shift starts. The shift may
+	 * extend into the next calendar day if the end time is after midnight.
+	 *
+	 * @return the day of the week on which the work shift starts.
 	 */
 	public DayOfWeek getDayOfWeek() {
-		return dayOfWeek;
+		return this.dayOfWeek;
 	}
 
 	/**
-	 * Sets the day of the week for which this time range is defined.
-	 * 
-	 * @param dayOfWeek the new day of the week
+	 * Sets the day of the week for which the work shift starts. The shift may
+	 * extend into the next calendar day if the end time is after midnight.
+	 *
+	 * @param dayOfWeek the new day of the week on which the work shift starts.
 	 */
-	public void setDayOfWeek(DayOfWeek dayOfWeek) {
+	public void setDayOfWeek(final DayOfWeek dayOfWeek) {
 		this.dayOfWeek = dayOfWeek;
 	}
 
 	/**
 	 * Returns the time range (start and end times) for the specified day of the
 	 * week.
-	 * 
+	 *
 	 * @return the time range for the day
 	 */
 	public TimeRange getTimeRange() {
-		return timeRange;
+		return this.timeRange;
 	}
 
 	/**
 	 * Sets the time range (start and end times) for the specified day of the week.
-	 * 
+	 *
 	 * @param timeRange the new time range
 	 */
-	public void setTimeRange(TimeRange timeRange) {
+	public void setTimeRange(final TimeRange timeRange) {
 		this.timeRange = timeRange;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name);
+		return Objects.hash(this.name);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(final Object obj) {
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if ((obj == null) || (this.getClass() != obj.getClass())) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DayOfWeekTimeRange other = (DayOfWeekTimeRange) obj;
-		return Objects.equals(name, other.name);
+		}
+		final DayOfWeekTimeRange other = (DayOfWeekTimeRange) obj;
+		return Objects.equals(this.name, other.name);
 	}
 
 	@Override
 	public String toString() {
-		return name;
+		return this.name;
 	}
 }

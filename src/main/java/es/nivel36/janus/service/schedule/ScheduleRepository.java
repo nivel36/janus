@@ -15,13 +15,12 @@ import jakarta.persistence.TypedQuery;
  */
 class ScheduleRepository {
 
-	
 	private @PersistenceContext EntityManager entityManager;
 
 	/**
 	 * Finds the {@link TimeRange} for a given {@link Employee} on a specific
 	 * {@link LocalDate}.
-	 * 
+	 *
 	 * @param employee the employee whose time range is to be found. Cannot be
 	 *                 {@code null}.
 	 * @param date     the date for which the time range is to be found. Cannot be
@@ -32,8 +31,8 @@ class ScheduleRepository {
 	 *                              {@code null}.
 	 */
 	public Optional<TimeRange> findTimeRangeForEmployeeByDate(final Employee employee, final LocalDate date) {
-		final TypedQuery<TimeRange> query = entityManager.createNamedQuery("TimeRange.findTimeRangeForEmployeeByDate",
-				TimeRange.class);
+		final TypedQuery<TimeRange> query = this.entityManager
+				.createNamedQuery("TimeRange.findTimeRangeForEmployeeByDate", TimeRange.class);
 		query.setParameter("employee", employee);
 		query.setParameter("date", date);
 		query.setParameter("dayOfWeek", date.getDayOfWeek());
@@ -43,7 +42,7 @@ class ScheduleRepository {
 
 	/**
 	 * Sets the entity manager to be used as the persistence context.
-	 * 
+	 *
 	 * @param entityManager the entity manager to be used as the persistence
 	 *                      context.
 	 * @throws NullPointerException if the {@code entityManager} is {@code null}.

@@ -17,16 +17,16 @@ import es.nivel36.janus.service.timelog.TimeLogService;
  * associated with an {@link Employee}. This class is used in conjunction with
  * PrimeFaces DataTable to handle server-side pagination, sorting, and filtering
  * of time log records for a specific employee.
- * 
+ *
  * <p>
  * It extends {@link LazyDataModel} to override methods that support pagination
  * and loading of data on demand.
  * </p>
- * 
+ *
  * <p>
  * It relies on {@link TimeLogService} for retrieving the data from the backend.
  * </p>
- * 
+ *
  * @see LazyDataModel
  * @see TimeLogService
  */
@@ -35,7 +35,7 @@ public class LazyTimeLogDataModel extends LazyDataModel<TimeLog> {
 	private static final long serialVersionUID = 1L;
 
 	private transient TimeLogService timeLogService;
-	private Employee employee;
+	private final Employee employee;
 
 	/**
 	 * Constructs a new {@code LazyTimeLogDataModel} for the given {@code employee}
@@ -62,8 +62,8 @@ public class LazyTimeLogDataModel extends LazyDataModel<TimeLog> {
 	 * @return the total number of time logs associated with the employee.
 	 */
 	@Override
-	public int count(Map<String, FilterMeta> filterBy) {
-		return (int) timeLogService.countTimeLogsByEmployee(employee);
+	public int count(final Map<String, FilterMeta> filterBy) {
+		return (int) this.timeLogService.countTimeLogsByEmployee(this.employee);
 	}
 
 	/**
@@ -81,7 +81,8 @@ public class LazyTimeLogDataModel extends LazyDataModel<TimeLog> {
 	 *                                  {@code pageSize} is less than 1.
 	 */
 	@Override
-	public List<TimeLog> load(int first, int pageSize, Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
+	public List<TimeLog> load(final int first, final int pageSize, final Map<String, SortMeta> sortBy,
+			final Map<String, FilterMeta> filterBy) {
 		if (first < 0) {
 			throw new IllegalArgumentException(
 					String.format("First position is %s, but cannot be less than 0.", first));
@@ -91,6 +92,6 @@ public class LazyTimeLogDataModel extends LazyDataModel<TimeLog> {
 			throw new IllegalArgumentException(String.format("Page size is %s, but must be greater than 0.", pageSize));
 		}
 
-		return timeLogService.findTimeLogsByEmployee(employee, first, pageSize);
+		return this.timeLogService.findTimeLogsByEmployee(this.employee, first, pageSize);
 	}
 }

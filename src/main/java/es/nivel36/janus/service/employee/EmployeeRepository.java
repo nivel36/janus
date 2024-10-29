@@ -21,7 +21,7 @@ class EmployeeRepository {
 	 *         found
 	 */
 	public Employee findEmployeeById(final long id) {
-		return entityManager.find(Employee.class, id);
+		return this.entityManager.find(Employee.class, id);
 	}
 
 	/**
@@ -32,7 +32,7 @@ class EmployeeRepository {
 	 *         is found
 	 */
 	public Employee findEmployeeByEmail(final String email) {
-		final TypedQuery<Employee> query = entityManager.createNamedQuery("Employee.findByEmail", Employee.class);
+		final TypedQuery<Employee> query = this.entityManager.createNamedQuery("Employee.findByEmail", Employee.class);
 		query.setParameter("email", email);
 
 		return query.getSingleResult();
@@ -45,7 +45,7 @@ class EmployeeRepository {
 	 * @return the created employee
 	 */
 	public Employee createEmployee(final Employee employee) {
-		entityManager.persist(employee);
+		this.entityManager.persist(employee);
 		return employee;
 	}
 
@@ -56,7 +56,7 @@ class EmployeeRepository {
 	 * @return the updated employee
 	 */
 	public Employee updateEmployee(final Employee employee) {
-		return entityManager.merge(employee);
+		return this.entityManager.merge(employee);
 	}
 
 	/**
@@ -65,13 +65,13 @@ class EmployeeRepository {
 	 * @param employee the employee to be deleted
 	 */
 	public void deleteEmployee(final Employee employee) {
-		final Employee reference = entityManager.getReference(Employee.class, employee.getId());
-		entityManager.remove(reference);
+		final Employee reference = this.entityManager.getReference(Employee.class, employee.getId());
+		this.entityManager.remove(reference);
 	}
 
 	/**
 	 * Sets the entity manager to be used as the persistence context.
-	 * 
+	 *
 	 * @param entityManager the entity manager to be used as the persistence
 	 *                      context.
 	 * @throws NullPointerException if the {@code entityManager} is {@code null}.

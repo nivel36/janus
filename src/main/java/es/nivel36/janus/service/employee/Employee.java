@@ -22,188 +22,193 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Entity representing an employee. This entity contains personal information
  * about the employee and maintains a list of time logs associated with the
- * employee. 
- * 
+ * employee.
+ *
  * <p>
- * Each employee is uniquely identified by their email address. In addition to 
- * time logs, the employee also has an associated work schedule represented 
- * by a {@link Schedule} entity, which is mandatory and cannot be null.
+ * Each employee is uniquely identified by their email address. In addition to
+ * time logs, the employee also has an associated work schedule represented by a
+ * {@link Schedule} entity, which is mandatory and cannot be null.
  * </p>
- * 
+ *
  * @see TimeLog
  */
 @Entity
 @Table(indexes = { //
-        @Index(name = "idx_employee_email", columnList = "email") //
+		@Index(name = "idx_employee_email", columnList = "email") //
 }, uniqueConstraints = { //
-        @UniqueConstraint(name = "uk_employee_email", columnNames = { "email" }) //
+		@UniqueConstraint(name = "uk_employee_email", columnNames = { "email" }) //
 })
 public class Employee implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * Unique identifier for the employee. Auto-generated.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	/**
+	 * Unique identifier for the employee. Auto-generated.
+	 */
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    /**
-     * The first name of the employee.
-     */
-    private String name;
+	/**
+	 * The first name of the employee.
+	 */
+	private String name;
 
-    /**
-     * The surname of the employee.
-     */
-    private String surname;
+	/**
+	 * The surname of the employee.
+	 */
+	private String surname;
 
-    /**
-     * The email of the employee. It must be unique and cannot be null.
-     */
-    @NotNull
-    @Column(nullable = false, unique = true)
-    private String email;
+	/**
+	 * The email of the employee. It must be unique and cannot be null.
+	 */
+	@NotNull
+	@Column(nullable = false, unique = true)
+	private String email;
 
-    /**
-     * The list of time logs associated with the employee. Represents the time
-     * entries recorded by the employee.
-     */
-    @OneToMany(mappedBy = "employee", orphanRemoval = true)
-    private List<TimeLog> timeLogs;
+	/**
+	 * The list of time logs associated with the employee. Represents the time
+	 * entries recorded by the employee.
+	 */
+	@OneToMany(mappedBy = "employee", orphanRemoval = true)
+	private List<TimeLog> timeLogs;
 
-    /**
-     * The work schedule associated with this employee. This field is mandatory
-     * and cannot be null.
-     */
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "schedule_id", nullable = false)
-    private Schedule schedule;
+	/**
+	 * The work schedule associated with this employee. This field is mandatory and
+	 * cannot be null.
+	 */
+	@NotNull
+	@ManyToOne
+	@JoinColumn(name = "schedule_id", nullable = false)
+	private Schedule schedule;
 
-    /**
-     * Gets the unique identifier of the employee.
-     *
-     * @return the id of the employee
-     */
-    public Long getId() {
-        return id;
-    }
+	/**
+	 * Gets the unique identifier of the employee.
+	 *
+	 * @return the id of the employee
+	 */
+	public Long getId() {
+		return this.id;
+	}
 
-    /**
-     * Sets the unique identifier for the employee.
-     *
-     * @param id the id to set for the employee
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
+	/**
+	 * Sets the unique identifier for the employee.
+	 *
+	 * @param id the id to set for the employee
+	 */
+	public void setId(final Long id) {
+		this.id = id;
+	}
 
-    /**
-     * Gets the name of the employee.
-     *
-     * @return the name of the employee
-     */
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Gets the name of the employee.
+	 *
+	 * @return the name of the employee
+	 */
+	public String getName() {
+		return this.name;
+	}
 
-    /**
-     * Sets the name of the employee.
-     *
-     * @param name the name to set for the employee
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+	/**
+	 * Sets the name of the employee.
+	 *
+	 * @param name the name to set for the employee
+	 */
+	public void setName(final String name) {
+		this.name = name;
+	}
 
-    /**
-     * Gets the surname of the employee.
-     *
-     * @return the surname of the employee
-     */
-    public String getSurname() {
-        return surname;
-    }
+	/**
+	 * Gets the surname of the employee.
+	 *
+	 * @return the surname of the employee
+	 */
+	public String getSurname() {
+		return this.surname;
+	}
 
-    /**
-     * Sets the surname of the employee.
-     *
-     * @param surname the surname to set for the employee
-     */
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
+	/**
+	 * Sets the surname of the employee.
+	 *
+	 * @param surname the surname to set for the employee
+	 */
+	public void setSurname(final String surname) {
+		this.surname = surname;
+	}
 
-    /**
-     * Gets the email of the employee.
-     *
-     * @return the email of the employee
-     */
-    public String getEmail() {
-        return email;
-    }
+	/**
+	 * Gets the email of the employee.
+	 *
+	 * @return the email of the employee
+	 */
+	public String getEmail() {
+		return this.email;
+	}
 
-    /**
-     * Sets the email of the employee.
-     *
-     * @param email the email to set for the employee
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	/**
+	 * Sets the email of the employee.
+	 *
+	 * @param email the email to set for the employee
+	 */
+	public void setEmail(final String email) {
+		this.email = email;
+	}
 
-    /**
-     * Gets the list of time logs associated with the employee.
-     *
-     * @return the list of time logs for the employee
-     */
-    public List<TimeLog> getTimeLogs() {
-        return timeLogs;
-    }
+	/**
+	 * Gets the list of time logs associated with the employee.
+	 *
+	 * @return the list of time logs for the employee
+	 */
+	public List<TimeLog> getTimeLogs() {
+		return this.timeLogs;
+	}
 
-    /**
-     * Sets the list of time logs for the employee.
-     *
-     * @param timeLogs the time logs to associate with the employee
-     */
-    public void setTimeLogs(List<TimeLog> timeLogs) {
-        this.timeLogs = timeLogs;
-    }
+	/**
+	 * Sets the list of time logs for the employee.
+	 *
+	 * @param timeLogs the time logs to associate with the employee
+	 */
+	public void setTimeLogs(final List<TimeLog> timeLogs) {
+		this.timeLogs = timeLogs;
+	}
 
-    /**
-     * Gets the work schedule associated with the employee.
-     *
-     * @return the schedule associated with the employee
-     */
-    public Schedule getSchedule() {
-        return schedule;
-    }
+	/**
+	 * Gets the work schedule associated with the employee.
+	 *
+	 * @return the schedule associated with the employee
+	 */
+	public Schedule getSchedule() {
+		return this.schedule;
+	}
 
-    /**
-     * Sets the work schedule for the employee. The schedule cannot be null.
-     *
-     * @param schedule the schedule to set for the employee
-     */
-    public void setSchedule(Schedule schedule) {
-        this.schedule = schedule;
-    }
+	/**
+	 * Sets the work schedule for the employee. The schedule cannot be null.
+	 *
+	 * @param schedule the schedule to set for the employee
+	 */
+	public void setSchedule(final Schedule schedule) {
+		this.schedule = schedule;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(email);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.email);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Employee other = (Employee) obj;
-        return Objects.equals(email, other.email);
-    }
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if ((obj == null) || (this.getClass() != obj.getClass())) {
+			return false;
+		}
+		final Employee other = (Employee) obj;
+		return Objects.equals(this.email, other.email);
+	}
+
+	@Override
+	public String toString() {
+		return this.email;
+	}
 }

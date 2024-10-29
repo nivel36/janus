@@ -1,6 +1,7 @@
 package es.nivel36.janus.service.timelog;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +34,7 @@ public class TimeLogService {
 	 * @throws NullPointerException if the employee is {@code null}
 	 */
 	public TimeLog clockIn(final Employee employee) {
-		return clockIn(employee, LocalDateTime.now());
+		return this.clockIn(employee, LocalDateTime.now());
 	}
 
 	/**
@@ -61,7 +62,7 @@ public class TimeLogService {
 	 * @throws NullPointerException if the employee is {@code null}
 	 */
 	public TimeLog clockOut(final Employee employee) {
-		return clockOut(employee, LocalDateTime.now());
+		return this.clockOut(employee, LocalDateTime.now());
 	}
 
 	/**
@@ -104,11 +105,11 @@ public class TimeLogService {
 		logger.debug("Calculating hours worked for TimeLog: {}", timeLog);
 
 		if (timeLog.getExitTime() == null) {
-			Duration duration = Duration.between(timeLog.getEntryTime(), LocalDateTime.now());
+			final Duration duration = Duration.between(timeLog.getEntryTime(), LocalDateTime.now());
 			logger.trace("TimeLog has no exit time. Calculating duration until now: {}", duration);
 			return duration;
 		} else {
-			Duration duration = Duration.between(timeLog.getEntryTime(), timeLog.getExitTime());
+			final Duration duration = Duration.between(timeLog.getEntryTime(), timeLog.getExitTime());
 			logger.trace("TimeLog has exit time. Calculating duration between entry and exit: {}", duration);
 			return duration;
 		}
@@ -155,7 +156,7 @@ public class TimeLogService {
 	 * @throws IllegalArgumentException if the page is negative or the pageSize is
 	 *                                  less than 1
 	 */
-	public List<TimeLog> findTimeLogsByEmployee(final Employee employee, int startPosition, int pageSize) {
+	public List<TimeLog> findTimeLogsByEmployee(final Employee employee, final int startPosition, final int pageSize) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 
 		if (startPosition < 0) {
@@ -170,6 +171,34 @@ public class TimeLogService {
 		logger.debug("Finding TimeLogs for employee: {} with startPosition: {}, pageSize: {}", employee, startPosition,
 				pageSize);
 		return this.timeLogRepository.findTimeLogsByEmployee(employee, startPosition, pageSize);
+	}
+
+	/**
+	 * Retrieves all {@link TimeLog} entries for a given {@link Employee} within a
+	 * date range centered around the specified date.
+	 *
+	 * <p>
+	 * This method searches for all time logs for the specified employee within a
+	 * 3-day range: the day before the given date, the day of the date, and the day
+	 * after the date. This can be useful when the exact time entry may span across
+	 * multiple days or if there are related time logs around the specified date.
+	 * </p>
+	 *
+	 * @param employee the employee whose time logs are to be retrieved. Cannot be
+	 *                 {@code null}.
+	 * @param date     the date for which the time logs are to be searched, along
+	 *                 with the adjacent days. Cannot be {@code null}.
+	 * @return a list of {@link TimeLog} entries for the specified employee and date
+	 *         range.
+	 * @throws NullPointerException if the {@code employee} or {@code date} is
+	 *                              {@code null}.
+	 */
+	public List<TimeLog> findTimeLogsByEmployeeAndDate(final Employee employee, final LocalDate date) {
+		Objects.requireNonNull(employee, "Employee cannot be null.");
+		Objects.requireNonNull(date, "Date cannot be null.");
+
+		logger.debug("Finding TimeLogs for employee: {} with date: {}", employee, date);
+		return this.timeLogRepository.findTimeLogsByEmployeeAndDateRange(employee, date.minusDays(1), date.plusDays(1));
 	}
 
 	/**
