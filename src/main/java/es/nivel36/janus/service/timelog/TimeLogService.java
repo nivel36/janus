@@ -82,8 +82,8 @@ public class TimeLogService {
 		final Optional<TimeLog> lastTimeLogOpt = this.timeLogRepository.findLastTimeLogByEmployee(employee);
 
 		// Check if TimeLog is present, otherwise throw an IllegalStateException
-		final TimeLog lastTimeLog = lastTimeLogOpt
-				.orElseThrow(() -> new IllegalStateException("No TimeLog found for the employee."));
+		final TimeLog lastTimeLog = lastTimeLogOpt.orElseThrow(
+				() -> new IllegalStateException(String.format("No time log found for the employee %s", employee)));
 
 		lastTimeLog.setExitTime(exitTime);
 

@@ -37,10 +37,13 @@ public class TimeRange implements Serializable {
 	 */
 	@Column(name = "END_TIME")
 	private LocalTime endTime;
+	
+	public TimeRange() {
+	}
 
 	public TimeRange(final LocalTime startTime, final LocalTime endTime) {
-		this.startTime = startTime;
-		this.endTime = endTime;
+		this.startTime = Objects.requireNonNull(startTime);
+		this.endTime = Objects.requireNonNull(endTime);
 	}
 
 	/**

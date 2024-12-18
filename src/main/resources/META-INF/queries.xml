@@ -26,6 +26,7 @@
 			SELECT t 
 			FROM TimeLog t 
 			WHERE t.employee = :employee
+			ORDER BY t.entryTime DESC
 		]]></query>
 	</named-query>
 
@@ -34,8 +35,8 @@
 			SELECT t 
 			FROM TimeLog t 
 			WHERE t.employee = :employee 
-			AND t.date BETWEEN :startDate 
-			AND :endDate"
+			AND t.entryTime BETWEEN :startDate 
+			AND :endDate
 			ORDER BY t.entryTime ASC
 		]]></query>
 	</named-query>

@@ -17,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -58,7 +59,8 @@ public class WorkShift implements Serializable {
 	/**
 	 * The list of time logs (clock-ins and clock-outs) that define the work shift.
 	 */
-	@OneToMany(mappedBy = "workShift", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinTable(name = "workshift_timelog", joinColumns = @JoinColumn(name = "workshift_id"), inverseJoinColumns = @JoinColumn(name = "timelog_id"))
 	private List<TimeLog> timeLogs = new ArrayList<>();
 
 	@Id

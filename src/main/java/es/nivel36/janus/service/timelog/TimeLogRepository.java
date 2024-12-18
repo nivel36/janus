@@ -58,8 +58,8 @@ class TimeLogRepository {
 		final TypedQuery<TimeLog> query = this.entityManager
 				.createNamedQuery("TimeLog.findTimeLogsByEmployeeAndDateRange", TimeLog.class);
 		query.setParameter("employee", employee);
-		query.setParameter("startDate", startDate);
-		query.setParameter("endDate", endDate);
+		query.setParameter("startDate", startDate.atStartOfDay());
+		query.setParameter("endDate", endDate.atStartOfDay().plusDays(1));
 
 		return query.getResultList();
 	}

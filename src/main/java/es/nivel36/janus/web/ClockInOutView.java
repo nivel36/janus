@@ -41,14 +41,17 @@ public class ClockInOutView extends AbstractView {
 		final Optional<TimeLog> timeLogOpt = this.timeLogService.findLastTimeLogByEmployee(this.employee);
 		this.timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, LocalDate.now())
 				.orElse(null);
-
 		if (this.hasExitTime(timeLogOpt)) {
 			this.lastTimeLog = timeLogOpt.get();
 			this.clockInEnabled = false;
 		} else {
-			this.lastTimeLog = new TimeLog(this.employee);
-			this.clockInEnabled = true;
+			createNewTimeLog();
 		}
+	}
+	
+	private void createNewTimeLog() {
+		this.lastTimeLog = new TimeLog(this.employee);
+		this.clockInEnabled = true;
 	}
 
 	private boolean hasExitTime(final Optional<TimeLog> timeLogOpt) {
@@ -64,8 +67,7 @@ public class ClockInOutView extends AbstractView {
 	public void clockOut() {
 		logger.debug("ClockOut ACTION performed");
 		this.timeLogService.clockOut(this.employee);
-		this.lastTimeLog = new TimeLog(this.employee);
-		this.clockInEnabled = true;
+		createNewTimeLog();
 	}
 
 	public Duration getHoursWorked(final TimeLog timeLog) {

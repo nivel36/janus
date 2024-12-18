@@ -52,7 +52,9 @@ public class WorkShiftService {
 
 		final List<TimeLog> timeLogs = this.timeLogservice.findTimeLogsByEmployeeAndDate(employee, date);
 		if (timeLogs.isEmpty()) {
-			return null;
+			final WorkShift workShift = new WorkShift();
+			workShift.setEmployee(employee);
+			return workShift;
 		}
 		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, date);
 
@@ -119,6 +121,9 @@ public class WorkShiftService {
 		}
 
 		final List<TimeLog> workShiftTimeLogs = workShift.getTimeLogs();
+		if(workShiftTimeLogs.isEmpty() ) {
+			return workShift;
+		}
 		workShift.setTotalPauseTime(this.calculateTotalPauseDuration(workShiftTimeLogs));
 		workShift.setStartDateTime(workShiftTimeLogs.getFirst().getEntryTime());
 		workShift.setEndDateTime(workShiftTimeLogs.getLast().getExitTime());
@@ -238,17 +243,17 @@ public class WorkShiftService {
 			final List<PauseInfo> pauses) {
 		List<TimeLog> workShiftTimeLogs;
 		if (pauses.size() >= 2) {
-			// We have at least two breaks longer than four hours. This means that we are on
+			// We have at least two breaks longer than four hours. This means that,maybe, we are on
 			// a day where the worker has worked the previous day and the next one.
 			workShiftTimeLogs = this.extractTimeLogsOfWorkWeekday(timeLogs, pauses);
 		} else if (pauses.size() == 1) {
 			// We only have one break in a day. We need to determine if the break is at the
-			// start or the end of the week.
+			// start or the end of the working week.
 			if (timeLogs.getFirst().getExitTime().toLocalDate().isBefore(date)) {
-				// It is the start of the week (usually between Monday and Tuesday).
+				// It is the start of the working week (usually between Monday and Tuesday).
 				workShiftTimeLogs = this.extractTimeLogsOfWorkWeekStart(timeLogs, pauses);
 			} else {
-				// It is the end of the week (usually between Thursday and Friday).
+				// It is the end of the working week (usually between Thursday and Friday).
 				workShiftTimeLogs = this.extractTimeLogsOfWorkWeekEnd(timeLogs, pauses);
 			}
 		} else {

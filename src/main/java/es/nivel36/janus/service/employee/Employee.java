@@ -81,6 +81,14 @@ public class Employee implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "schedule_id", nullable = false)
 	private Schedule schedule;
+	
+	public Employee() {
+	}
+	
+	public Employee(final String email, final Schedule schedule) {
+		this.email = Objects.requireNonNull(email);
+		this.schedule = Objects.requireNonNull(schedule);
+	}
 
 	/**
 	 * Gets the unique identifier of the employee.

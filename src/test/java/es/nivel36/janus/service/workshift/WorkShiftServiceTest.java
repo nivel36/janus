@@ -49,6 +49,7 @@ class WorkShiftServiceTest {
 		final LocalDate previousDay = date.minusDays(1);
 		final LocalDate nextDay = date.plusDays(1);
 		final Employee employee = new Employee();
+		employee.setEmail("aaron@test,com");
 
 		final LocalDateTime[] normalDay = { //
 				LocalDateTime.of(previousDay, LocalTime.of(8, 0)), // 0
@@ -98,7 +99,33 @@ class WorkShiftServiceTest {
 				LocalDateTime.of(nextDay, LocalTime.of(12, 30)), // 8
 				LocalDateTime.of(nextDay, LocalTime.of(16, 30)) // 9
 		}; //
-		
+
+		final LocalDateTime[] halfDayWithCrunch = { //
+				LocalDateTime.of(previousDay, LocalTime.of(7, 30)), // 0
+				LocalDateTime.of(previousDay, LocalTime.of(11, 30)), // 1
+				LocalDateTime.of(previousDay, LocalTime.of(12, 30)), // 2
+				LocalDateTime.of(previousDay, LocalTime.of(16, 30)), // 3
+				LocalDateTime.of(date, LocalTime.of(8, 30)), // 4
+				LocalDateTime.of(date, LocalTime.of(13, 30)), // 5
+				LocalDateTime.of(date, LocalTime.of(16, 30)), // 6
+				LocalDateTime.of(date, LocalTime.of(22, 30)), // 7
+				LocalDateTime.of(nextDay, LocalTime.of(7, 30)), // 8
+				LocalDateTime.of(nextDay, LocalTime.of(11, 30)), // 9
+				LocalDateTime.of(nextDay, LocalTime.of(12, 30)), // 10
+				LocalDateTime.of(nextDay, LocalTime.of(16, 30)) // 11
+		}; //
+
+		final LocalDateTime[] frydayWithHalfDayAndCrunch = { //
+				LocalDateTime.of(previousDay, LocalTime.of(7, 30)), // 0
+				LocalDateTime.of(previousDay, LocalTime.of(11, 30)), // 1
+				LocalDateTime.of(previousDay, LocalTime.of(12, 30)), // 2
+				LocalDateTime.of(previousDay, LocalTime.of(16, 30)), // 3
+				LocalDateTime.of(date, LocalTime.of(8, 30)), // 4
+				LocalDateTime.of(date, LocalTime.of(13, 30)), // 5
+				LocalDateTime.of(date, LocalTime.of(16, 30)), // 6
+				LocalDateTime.of(date, LocalTime.of(22, 30)), // 7
+		}; //
+
 		final LocalDateTime[] monday = { //
 				LocalDateTime.of(date, LocalTime.of(7, 30)), // 0
 				LocalDateTime.of(date, LocalTime.of(8, 30)), // 1
@@ -111,7 +138,7 @@ class WorkShiftServiceTest {
 				LocalDateTime.of(nextDay, LocalTime.of(14, 0)), // 8
 				LocalDateTime.of(nextDay, LocalTime.of(18, 0)) // 9
 		};
-		
+
 		final LocalDateTime[] friday = { //
 				LocalDateTime.of(previousDay, LocalTime.of(8, 0)), // 0
 				LocalDateTime.of(previousDay, LocalTime.of(12, 0)), // 1
@@ -124,7 +151,7 @@ class WorkShiftServiceTest {
 				LocalDateTime.of(date, LocalTime.of(14, 30)), // 8
 				LocalDateTime.of(date, LocalTime.of(17, 30)), // 9
 		};
-		
+
 		final LocalDateTime[] isolatedDay = { //
 				LocalDateTime.of(date, LocalTime.of(8, 0)), // 0
 				LocalDateTime.of(date, LocalTime.of(12, 0)), // 1
@@ -146,7 +173,9 @@ class WorkShiftServiceTest {
 						Duration.ofHours(8).plusMinutes(45), //
 						Duration.ofHours(1).plusMinutes(15), //
 						normalDay[4], //
-						normalDay[9] //
+						normalDay[9], //
+						LocalTime.of(8, 0), //
+						LocalTime.of(18, 0) //
 				), //
 				Arguments.of( //
 						Arrays.asList( //
@@ -162,7 +191,9 @@ class WorkShiftServiceTest {
 						Duration.ofHours(16).plusMinutes(45), //
 						Duration.ofHours(2).plusMinutes(15), //
 						crunchDay[4], //
-						crunchDay[11] //
+						crunchDay[11], //
+						LocalTime.of(8, 0), //
+						LocalTime.of(18, 0) //
 				), Arguments.of( //
 						Arrays.asList( //
 								new TimeLog(employee, halfDay[0], halfDay[1]), //
@@ -174,7 +205,37 @@ class WorkShiftServiceTest {
 						Duration.ofHours(5), //
 						Duration.ofHours(0), //
 						halfDay[4], //
-						halfDay[5] //
+						halfDay[5], //
+						LocalTime.of(8, 0), //
+						LocalTime.of(18, 0) //
+				), Arguments.of( //
+						Arrays.asList( //
+								new TimeLog(employee, halfDayWithCrunch[0], halfDayWithCrunch[1]), //
+								new TimeLog(employee, halfDayWithCrunch[2], halfDayWithCrunch[3]), //
+								new TimeLog(employee, halfDayWithCrunch[4], halfDayWithCrunch[5]), //
+								new TimeLog(employee, halfDayWithCrunch[6], halfDayWithCrunch[7]), //
+								new TimeLog(employee, halfDayWithCrunch[8], halfDayWithCrunch[9]), //
+								new TimeLog(employee, halfDayWithCrunch[10], halfDayWithCrunch[11]) //
+						), //
+						Duration.ofHours(11), //
+						Duration.ofHours(3), //
+						halfDayWithCrunch[4], //
+						halfDayWithCrunch[7], //
+						LocalTime.of(8, 0), //
+						LocalTime.of(18, 0) //
+				), Arguments.of( //
+						Arrays.asList( //
+								new TimeLog(employee, frydayWithHalfDayAndCrunch[0], frydayWithHalfDayAndCrunch[1]), //
+								new TimeLog(employee, frydayWithHalfDayAndCrunch[2], frydayWithHalfDayAndCrunch[3]), //
+								new TimeLog(employee, frydayWithHalfDayAndCrunch[4], frydayWithHalfDayAndCrunch[5]), //
+								new TimeLog(employee, frydayWithHalfDayAndCrunch[6], frydayWithHalfDayAndCrunch[7]) //
+						), //
+						Duration.ofHours(11), //
+						Duration.ofHours(3), //
+						frydayWithHalfDayAndCrunch[4], //
+						frydayWithHalfDayAndCrunch[7], //
+						LocalTime.of(8, 0), //
+						LocalTime.of(18, 0) //
 				), Arguments.of( //
 						Arrays.asList( //
 								new TimeLog(employee, monday[0], monday[1]), //
@@ -186,7 +247,9 @@ class WorkShiftServiceTest {
 						Duration.ofHours(8).plusMinutes(45), //
 						Duration.ofHours(1).plusMinutes(15), //
 						monday[0], //
-						monday[5] //
+						monday[5], //
+						LocalTime.of(8, 0), //
+						LocalTime.of(18, 0) //
 				), Arguments.of( //
 						Arrays.asList( //
 								new TimeLog(employee, friday[0], friday[1]), //
@@ -198,7 +261,9 @@ class WorkShiftServiceTest {
 						Duration.ofHours(8).plusMinutes(45), //
 						Duration.ofHours(1).plusMinutes(15), //
 						friday[4], //
-						friday[9] //
+						friday[9], //
+						LocalTime.of(8, 0), //
+						LocalTime.of(18, 0) //
 				), Arguments.of( //
 						Arrays.asList( //
 								new TimeLog(employee, isolatedDay[0], isolatedDay[1]), //
@@ -207,7 +272,9 @@ class WorkShiftServiceTest {
 						Duration.ofHours(8), //
 						Duration.ofHours(1), //
 						isolatedDay[0], //
-						isolatedDay[3] //
+						isolatedDay[3], //
+						LocalTime.of(8, 0), //
+						LocalTime.of(18, 0) //
 				) //
 		); //
 	}
@@ -215,10 +282,11 @@ class WorkShiftServiceTest {
 	@ParameterizedTest
 	@MethodSource("provideTimeLogArguments")
 	void testGetWorkShiftForWorkingDay(final List<TimeLog> timeLogs, final Duration expectedTotalWorkTime,
-			final Duration expectedTotalPauseTime, LocalDateTime startWorkShiftTime, LocalDateTime endWorkShiftTime) {
+			final Duration expectedTotalPauseTime, LocalDateTime startWorkShiftTime, LocalDateTime endWorkShiftTime,
+			LocalTime startTime, LocalTime endTime) {
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
-		final TimeRange timeRange = new TimeRange(LocalTime.of(8, 0), LocalTime.of(18, 0));
+		final TimeRange timeRange = new TimeRange(startTime,endTime);
 
 		when(this.timeLogService.findTimeLogsByEmployeeAndDate(this.employee, date)).thenReturn(timeLogs);
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))

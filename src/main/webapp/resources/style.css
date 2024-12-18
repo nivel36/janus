@@ -1,0 +1,54 @@
+html, body {
+	margin: 0;
+}
+
+.work-shift {
+	display: flex;
+}
+
+.work-shift .work-shift-bar {
+	display: flex;
+	flex-direction: column;
+	height: 30vh;
+	width: 8rem;
+}
+
+.work-shift .work-shift-bar .segment {
+	width: 100%;
+}
+
+.work-shift .work-shift-bar .segment.work-segment {
+	background-image: linear-gradient(135deg, #ABDCFF 10%, #0396FF 100%);
+}
+
+.work-shift .work-shift-bar .segment.pause-segment {
+	background-image: linear-gradient(135deg, #FDEB71 10%, #F8D800 100%);
+}
+
+.work-shift .work-shift-bar .start-timelog-hour, .work-shift .work-shift-bar .end-timelog-hour
+	{
+	font-family: Verdana;
+	font-size: 0.8rem;
+	text-align: center;
+}
+
+.work-shift .work-shift-sidebar {
+	display: flex;
+	flex-direction: column;
+	height: 30vh;
+	width: 5rem;
+}
+
+.work-shift .work-shift-sidebar .segment {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	height: 100%;
+}
+
+.work-shift .work-shift-sidebar .start-hour, .work-shift .work-shift-sidebar .end-hour
+	{
+	font-family: Verdana;
+	text-align: center;
+}
