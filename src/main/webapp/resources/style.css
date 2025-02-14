@@ -2,6 +2,19 @@ html, body {
 	margin: 0;
 }
 
+body {
+	height: 100vh;
+	background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
+}
+
+.card {
+	background-color: rgba(255, 255, 255, 0.7);
+	border-radius: 0.5rem;
+	padding: 0.5rem;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+	margin: 1rem;
+}
+
 .work-shift {
 	display: flex;
 }
