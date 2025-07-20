@@ -23,8 +23,12 @@ class TimeLogRepository {
 	 * @param id the primary key of the time log
 	 * @return the time log with the specified id, or {@code null} if no time log is
 	 *         found
+	 * @throws IllegalArgumentException if the id is negative
 	 */
 	public TimeLog findTimeLogById(final long id) {
+		if (id < 0) {
+			throw new IllegalArgumentException(String.format("Id is %s, but cannot be less than 0.", id));
+		}
 		return this.entityManager.find(TimeLog.class, id);
 	}
 

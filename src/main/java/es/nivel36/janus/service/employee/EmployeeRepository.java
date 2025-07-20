@@ -19,8 +19,12 @@ class EmployeeRepository {
 	 * @param id the primary key of the employee
 	 * @return the employee with the specified id, or {@code null} if no employee is
 	 *         found
+	 * @throws IllegalArgumentException if the id is negative
 	 */
 	public Employee findEmployeeById(final long id) {
+		if (id < 0) {
+			throw new IllegalArgumentException(String.format("Id is %s, but cannot be less than 0.", id));
+		}
 		return this.entityManager.find(Employee.class, id);
 	}
 

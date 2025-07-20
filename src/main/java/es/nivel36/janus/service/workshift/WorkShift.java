@@ -65,7 +65,7 @@ public class WorkShift implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private long id;
 
 	/**
 	 * The date and time when the work shift started.

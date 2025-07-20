@@ -69,7 +69,7 @@ public class TimeLog implements Serializable {
 	 * @throws NullPointerException if the employee or entryTime is null
 	 */
 	public TimeLog(final Employee employee) {
-		this.employee = Objects.requireNonNull(employee);
+		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
 	}
 
 	/**
@@ -82,8 +82,8 @@ public class TimeLog implements Serializable {
 	 * @throws NullPointerException if the employee or entryTime is null
 	 */
 	public TimeLog(final Employee employee, final LocalDateTime entryTime) {
-		this.employee = Objects.requireNonNull(employee);
-		this.entryTime = Objects.requireNonNull(entryTime);
+		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
+		this.entryTime = Objects.requireNonNull(entryTime, "EntryTime can't be null");
 	}
 
 	/**
@@ -98,9 +98,9 @@ public class TimeLog implements Serializable {
 	 * @throws NullPointerException if the employee or entryTime is null
 	 */
 	public TimeLog(final Employee employee, final LocalDateTime entryTime, final LocalDateTime exitTime) {
-		this.employee = Objects.requireNonNull(employee);
-		this.entryTime = Objects.requireNonNull(entryTime);
-		this.exitTime = Objects.requireNonNull(exitTime);
+		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
+		this.entryTime = Objects.requireNonNull(entryTime, "EntryTime can't be null");
+		this.exitTime = Objects.requireNonNull(exitTime, "ExitTime can't be null");
 	}
 
 	/**

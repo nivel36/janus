@@ -26,6 +26,7 @@ public class ClockInOutView extends AbstractView {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(ClockInOutView.class);
+	public static final String URL = "/clockInOut";
 
 	private transient @Inject TimeLogService timeLogService;
 	private transient @Inject ScheduleService scheduleService;
@@ -48,7 +49,7 @@ public class ClockInOutView extends AbstractView {
 			createNewTimeLog();
 		}
 	}
-	
+
 	private void createNewTimeLog() {
 		this.lastTimeLog = new TimeLog(this.employee);
 		this.clockInEnabled = true;
@@ -108,10 +109,10 @@ public class ClockInOutView extends AbstractView {
 	}
 
 	public void setTimeLogService(final TimeLogService timeLogService) {
-		this.timeLogService = Objects.requireNonNull(timeLogService);
+		this.timeLogService = Objects.requireNonNull(timeLogService, "TimeLogService can't  be null");
 	}
 
 	public void setScheduleService(final ScheduleService scheduleService) {
-		this.scheduleService = Objects.requireNonNull(scheduleService);
+		this.scheduleService = Objects.requireNonNull(scheduleService, "ScheduleService can't  be null");
 	}
 }

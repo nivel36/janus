@@ -30,6 +30,7 @@ public class WorkShiftView extends AbstractView {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(WorkShiftView.class);
+	public static final String URL = "/workshift";
 
 	private transient @Inject TimeLogService timeLogService;
 	private transient @Inject WorkShiftService workShiftService;

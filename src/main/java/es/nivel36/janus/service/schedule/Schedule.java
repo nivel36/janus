@@ -49,7 +49,7 @@ public class Schedule implements Serializable {
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private long id;
 
 	/**
 	 * Unique name of the schedule. Cannot be null and must be unique across all

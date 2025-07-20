@@ -47,7 +47,7 @@ public class Employee implements Serializable {
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private long id;
 
 	/**
 	 * The first name of the employee.
@@ -86,8 +86,8 @@ public class Employee implements Serializable {
 	}
 	
 	public Employee(final String email, final Schedule schedule) {
-		this.email = Objects.requireNonNull(email);
-		this.schedule = Objects.requireNonNull(schedule);
+		this.email = Objects.requireNonNull(email, "Email can't  be null");
+		this.schedule = Objects.requireNonNull(schedule, "Schedule can't  be null");
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class Employee implements Serializable {
 
 	/**
 	 * Gets the email of the employee.
-	 *
+	 * 
 	 * @return the email of the employee
 	 */
 	public String getEmail() {

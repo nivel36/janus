@@ -339,7 +339,7 @@ public class WorkShiftService {
 	 * @throws NullPointerException if the timeLogservice is {@code null}
 	 */
 	public void setTimeLogservice(final TimeLogService timeLogservice) {
-		this.timeLogservice = Objects.requireNonNull(timeLogservice);
+		this.timeLogservice = Objects.requireNonNull(timeLogservice, "TimeLogService cannot be null");
 	}
 
 	/**
@@ -350,6 +350,6 @@ public class WorkShiftService {
 	 * @throws NullPointerException if the scheduleService is {@code null}
 	 */
 	public void setScheduleService(final ScheduleService scheduleService) {
-		this.scheduleService = Objects.requireNonNull(scheduleService);
+		this.scheduleService = Objects.requireNonNull(scheduleService, "ScheduleService cannot be null");
 	}
 }

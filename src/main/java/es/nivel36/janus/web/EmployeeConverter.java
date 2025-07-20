@@ -80,6 +80,6 @@ public class EmployeeConverter implements Converter<Employee> {
 	 * @throws NullPointerException if the provided service is null
 	 */
 	public void setEmployeeService(final EmployeeService employeeService) {
-		this.employeeService = Objects.requireNonNull(employeeService);
+		this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService can't be null");
 	}
 }
