@@ -1,8 +1,24 @@
-
+/*
+ * Copyright 2025 Abel Ferrer Jiménez
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package es.nivel36.janus.service.workshift;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
@@ -23,6 +39,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.schedule.ScheduleService;
@@ -286,10 +305,13 @@ class WorkShiftServiceTest {
 			LocalTime startTime, LocalTime endTime) {
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
-		final TimeRange timeRange = new TimeRange(startTime,endTime);
+		final TimeRange timeRange = new TimeRange(startTime, endTime);
 
-		when(this.timeLogService.findTimeLogsByEmployeeAndDate(this.employee, date)).thenReturn(timeLogs);
-		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))
+		final Page<TimeLog> page = new PageImpl<>(timeLogs);
+
+		when(timeLogService.findTimeLogsByEmployeeAndDate(eq(employee), eq(date), any(Pageable.class)))
+				.thenReturn(page);
+		when(this.scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date)))
 				.thenReturn(Optional.of(timeRange));
 
 		// Act
@@ -311,8 +333,11 @@ class WorkShiftServiceTest {
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 
-		when(this.timeLogService.findTimeLogsByEmployeeAndDate(this.employee, date)).thenReturn(timeLogs);
-		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date)).thenReturn(Optional.empty());
+		final Page<TimeLog> page = new PageImpl<>(timeLogs);
+
+		when(timeLogService.findTimeLogsByEmployeeAndDate(eq(employee), eq(date), any(Pageable.class)))
+				.thenReturn(page);
+		when(scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date))).thenReturn(Optional.empty());
 
 		// Act
 		final WorkShift result = this.workShiftService.getWorkShift(this.employee, date);

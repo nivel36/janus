@@ -1,23 +1,42 @@
+/*
+ * Copyright 2025 Abel Ferrer Jiménez
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package es.nivel36.janus.service.employee;
 
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
+import jakarta.persistence.EntityNotFoundException;
 
 /**
  * Service class responsible for managing {@link Employee} entities and
  * interacting with the {@link EmployeeRepository}.
  */
-@Stateless
+@Service
 public class EmployeeService {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
-	private @Inject EmployeeRepository employeeRepository;
+	private final EmployeeRepository employeeRepository;
+
+	public EmployeeService(final EmployeeRepository employeeRepository) {
+		this.employeeRepository = Objects.requireNonNull(employeeRepository, "EmployeeRepository cannot be null.");
+	}
 
 	/**
 	 * Finds an {@link Employee} by its primary key (Id).
@@ -31,7 +50,8 @@ public class EmployeeService {
 			throw new IllegalArgumentException(String.format("Id is %s, but cannot be less than 0.", id));
 		}
 		logger.debug("Finding Employee by id: {}", id);
-		return this.employeeRepository.findEmployeeById(id);
+		return this.employeeRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("There is no employee with id " + id));
 	}
 
 	/**
@@ -58,7 +78,7 @@ public class EmployeeService {
 	public Employee createEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 		logger.debug("Creating new Employee: {}", employee);
-		return this.employeeRepository.createEmployee(employee);
+		return this.employeeRepository.save(employee);
 	}
 
 	/**
@@ -71,7 +91,7 @@ public class EmployeeService {
 	public Employee updateEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 		logger.debug("Updating Employee: {}", employee);
-		return this.employeeRepository.updateEmployee(employee);
+		return this.employeeRepository.save(employee);
 	}
 
 	/**
@@ -83,16 +103,6 @@ public class EmployeeService {
 	public void deleteEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 		logger.debug("Deleting Employee: {}", employee);
-		this.employeeRepository.deleteEmployee(employee);
-	}
-
-	/**
-	 * Sets the {@link EmployeeService}.
-	 * 
-	 * @param employeeRepository the repository used to manage employee records
-	 * @throws NullPointerException if the employeeRepository is null
-	 */
-	public void setEmployeeService(final EmployeeRepository employeeRepository) {
-		this.employeeRepository = Objects.requireNonNull(employeeRepository, "EmployeeRepository cannot be null.");
+		this.employeeRepository.delete(employee);
 	}
 }

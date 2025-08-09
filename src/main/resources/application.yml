@@ -1,0 +1,35 @@
+# Copyright 2025 Abel Ferrer Jiménez
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+spring:
+  application:
+    name: Janus
+  data:
+    web:
+      pageable:
+        default-page-size: 20
+        max-page-size: 100
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    open-in-view: false
+    database-platform: org.hibernate.dialect.H2Dialect
+server:
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/plain,text/html,text/css,application/javascript
+    min-response-size: 1024

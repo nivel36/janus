@@ -1,3 +1,18 @@
+/*
+ * Copyright 2025 Abel Ferrer Jiménez
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package es.nivel36.janus.service.workshift;
 
 import java.time.Duration;
@@ -10,14 +25,16 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
-import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
+
 
 /**
  * Service class responsible for managing work shifts for employees. This class
@@ -25,14 +42,19 @@ import jakarta.inject.Inject;
  * determine the work shifts of employees based on their time logs and
  * schedules.
  */
-@Stateless
+@Service
 public class WorkShiftService {
 
 	private static final Logger logger = LoggerFactory.getLogger(WorkShiftService.class);
 	private static final Duration FOUR_HOURS = Duration.ofHours(4);
-
-	private @Inject TimeLogService timeLogservice;
-	private @Inject ScheduleService scheduleService;
+	
+	private TimeLogService timeLogservice;
+	private ScheduleService scheduleService;
+	
+	public WorkShiftService(final TimeLogService timeLogService, final ScheduleService scheduleService) {
+		this.timeLogservice = Objects.requireNonNull(timeLogService, "TimeLog Service can't be null");
+		this.scheduleService = Objects.requireNonNull(scheduleService, "Schedule Service can't be null");
+	}
 
 	/**
 	 * Retrieves the work shift for a specified employee on a given date.
@@ -50,16 +72,19 @@ public class WorkShiftService {
 		Objects.requireNonNull(date, "Date cant be null");
 		logger.debug("Getting work shift for employee {} at {}", employee, date);
 
-		final List<TimeLog> timeLogs = this.timeLogservice.findTimeLogsByEmployeeAndDate(employee, date);
+		final Page<TimeLog> timeLogs = this.timeLogservice.findTimeLogsByEmployeeAndDate(employee, date, Pageable.ofSize(100));
 		if (timeLogs.isEmpty()) {
 			final WorkShift workShift = new WorkShift();
 			workShift.setEmployee(employee);
 			return workShift;
 		}
+		if(timeLogs.hasNext()) {
+			
+		}
 		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, date);
 
-		return timeRange.map(tr -> this.buildWorkShift(employee, date, tr, timeLogs))
-				.orElseGet(() -> this.buildWorkShiftForNonWorkingDay(employee, date, timeLogs));
+		return timeRange.map(tr -> this.buildWorkShift(employee, date, tr, timeLogs.getContent()))
+				.orElseGet(() -> this.buildWorkShiftForNonWorkingDay(employee, date, timeLogs.getContent()));
 	}
 
 	/**
@@ -330,26 +355,5 @@ public class WorkShiftService {
 			this.index = index;
 			this.duration = duration;
 		}
-	}
-
-	/**
-	 * Sets the TimeLogService used by this WorkShiftService.
-	 *
-	 * @param timeLogservice the TimeLogService to be used. Can not be {@code null}
-	 * @throws NullPointerException if the timeLogservice is {@code null}
-	 */
-	public void setTimeLogservice(final TimeLogService timeLogservice) {
-		this.timeLogservice = Objects.requireNonNull(timeLogservice, "TimeLogService cannot be null");
-	}
-
-	/**
-	 * Sets the ScheduleService used by this WorkShiftService.
-	 *
-	 * @param scheduleService the ScheduleService to be used. Can not be
-	 *                        {@code null}
-	 * @throws NullPointerException if the scheduleService is {@code null}
-	 */
-	public void setScheduleService(final ScheduleService scheduleService) {
-		this.scheduleService = Objects.requireNonNull(scheduleService, "ScheduleService cannot be null");
 	}
 }

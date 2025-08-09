@@ -1,3 +1,18 @@
+/*
+ * Copyright 2025 Abel Ferrer Jiménez
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package es.nivel36.janus.service.timelog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,7 +58,7 @@ class TimeLogServiceTest {
 		assertNotNull(timeLog);
 		assertEquals(this.employee, timeLog.getEmployee());
 		assertEquals(now, timeLog.getEntryTime());
-		verify(this.timeLogRepository, times(1)).createTimeLog(timeLog);
+		verify(this.timeLogRepository, times(1)).save(timeLog);
 	}
 
 	@Test
@@ -127,7 +142,7 @@ class TimeLogServiceTest {
 		final long validId = 1L;
 		final TimeLog expectedTimeLog = new TimeLog(this.employee, LocalDateTime.now());
 
-		when(this.timeLogRepository.findTimeLogById(validId)).thenReturn(expectedTimeLog);
+		when(this.timeLogRepository.findById(validId)).thenReturn(Optional.of(expectedTimeLog));
 
 		// Act
 		final TimeLog result = this.timeLogService.findTimeLogById(validId);

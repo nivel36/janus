@@ -1,37 +1,37 @@
+/*
+ * Copyright 2025 Abel Ferrer Jiménez
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package es.nivel36.janus.service.timelog;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
 import es.nivel36.janus.service.employee.Employee;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 
 /**
  * Repository class for managing {@link TimeLog} entities.
  */
-class TimeLogRepository {
-
-	private @PersistenceContext EntityManager entityManager;
-
-	/**
-	 * Finds a {@link TimeLog} by its primary key (id).
-	 *
-	 * @param id the primary key of the time log
-	 * @return the time log with the specified id, or {@code null} if no time log is
-	 *         found
-	 * @throws IllegalArgumentException if the id is negative
-	 */
-	public TimeLog findTimeLogById(final long id) {
-		if (id < 0) {
-			throw new IllegalArgumentException(String.format("Id is %s, but cannot be less than 0.", id));
-		}
-		return this.entityManager.find(TimeLog.class, id);
-	}
-
+@Repository
+interface TimeLogRepository extends CrudRepository<TimeLog, Long> {
+	
 	/**
 	 * Finds the last {@link TimeLog} for the specified employee.
 	 *
@@ -39,14 +39,7 @@ class TimeLogRepository {
 	 * @return an {@link Optional} containing the last time log of the employee if
 	 *         present
 	 */
-	public Optional<TimeLog> findLastTimeLogByEmployee(final Employee employee) {
-		final TypedQuery<TimeLog> query = this.entityManager.createNamedQuery("TimeLog.findTimeLogsByEmployee",
-				TimeLog.class);
-		query.setParameter("employee", employee);
-		query.setMaxResults(1);
-
-		return query.getResultStream().findFirst();
-	}
+	Optional<TimeLog> findLastTimeLogByEmployee(final Employee employee);
 
 	/**
 	 * Retrieves all {@link TimeLog} entries for a given employee within a specified
@@ -55,92 +48,29 @@ class TimeLogRepository {
 	 * @param employee  the employee whose time logs are to be retrieved
 	 * @param startDate the start date of the range (inclusive)
 	 * @param endDate   the end date of the range (inclusive)
-	 * @return a list of time logs for the specified employee within the date range
+	 * @param page      the page on which to search for the elements. It includes
+	 *                  both the offset and the size and order.
+	 * @return a page of time logs for the specified employee within the date range
 	 */
-	public List<TimeLog> findTimeLogsByEmployeeAndDateRange(final Employee employee, final LocalDate startDate,
-			final LocalDate endDate) {
-		final TypedQuery<TimeLog> query = this.entityManager
-				.createNamedQuery("TimeLog.findTimeLogsByEmployeeAndDateRange", TimeLog.class);
-		query.setParameter("employee", employee);
-		query.setParameter("startDate", startDate.atStartOfDay());
-		query.setParameter("endDate", endDate.atStartOfDay().plusDays(1));
-
-		return query.getResultList();
-	}
+	@Query("""
+			SELECT t 
+			FROM TimeLog t 
+			WHERE t.employee = :employee 
+			AND t.entryTime BETWEEN :startDate 
+			AND :endDate
+			ORDER BY t.entryTime ASC
+			""")
+	Page<TimeLog> findTimeLogsByEmployeeAndDateRange(final Employee employee, final LocalDateTime startDate,
+			final LocalDateTime endDate, final Pageable page);
 
 	/**
 	 * Retrieves all {@link TimeLog} entries for a given employee, with pagination.
 	 *
-	 * @param employee      the employee whose time logs are to be retrieved
-	 * @param startPosition the initial position of the search from which to start
-	 *                      returning values.
-	 * @param pageSize      the number of entries per page
-	 * @return a list of time logs for the specified employee
-	 */
-	public List<TimeLog> findTimeLogsByEmployee(final Employee employee, final int startPosition, final int pageSize) {
-		final TypedQuery<TimeLog> query = this.entityManager.createNamedQuery("TimeLog.findTimeLogsByEmployee",
-				TimeLog.class);
-		query.setParameter("employee", employee);
-		query.setFirstResult(startPosition);
-		query.setMaxResults(pageSize);
-
-		return query.getResultList();
-	}
-
-	/**
-	 * Counts all {@link TimeLog} entries for a given employee.
-	 *
 	 * @param employee the employee whose time logs are to be retrieved
-	 * @return the number of time logs for the specified employee
+	 * @param page     the page on which to search for the elements. It includes
+	 *                 both the offset and the size and order.
+	 * @return a page of time logs for the specified employee
 	 */
-	public long countTimeLogsByEmployee(final Employee employee) {
-		final TypedQuery<Long> query = this.entityManager.createNamedQuery("TimeLog.countTimeLogsByEmployee",
-				Long.class);
-		query.setParameter("employee", employee);
+	Page<TimeLog> findTimeLogsByEmployeeOrderByEntryTimeDesc(final Employee employee, final Pageable page);
 
-		return query.getSingleResult();
-	}
-
-	/**
-	 * Creates a new {@link TimeLog} entry in the database.
-	 *
-	 * @param timeLog the time log to be created
-	 * @return the created time log
-	 */
-	public TimeLog createTimeLog(final TimeLog timeLog) {
-		this.entityManager.persist(timeLog);
-		return timeLog;
-	}
-
-	/**
-	 * Updates an existing {@link TimeLog} entry in the database.
-	 *
-	 * @param timeLog the time log to be updated
-	 * @return the updated time log
-	 */
-	public TimeLog updateTimeLog(final TimeLog timeLog) {
-		return this.entityManager.merge(timeLog);
-	}
-
-	/**
-	 * Deletes a {@link TimeLog} entry from the database.
-	 *
-	 * @param timeLog the time log to be deleted
-	 */
-	public void deleteTimeLog(final TimeLog timeLog) {
-		// Get a reference to the entity, assuming it exists in the database
-		final TimeLog reference = this.entityManager.getReference(TimeLog.class, timeLog.getId());
-		this.entityManager.remove(reference);
-	}
-
-	/**
-	 * Sets the entity manager to be used as the persistence context.
-	 *
-	 * @param entityManager the entity manager to be used as the persistence
-	 *                      context.
-	 * @throws NullPointerException if the {@code entityManager} is {@code null}.
-	 */
-	public void setEntityManager(final EntityManager entityManager) {
-		this.entityManager = Objects.requireNonNull(entityManager, "Entity manager can't be null");
-	}
 }
