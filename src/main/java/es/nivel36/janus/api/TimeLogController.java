@@ -18,7 +18,6 @@ package es.nivel36.janus.api;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -38,7 +37,6 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
-import jakarta.persistence.EntityNotFoundException;
 
 /**
  * REST controller responsible for exposing time log operations.
@@ -92,20 +90,15 @@ public class TimeLogController {
 	@PostMapping("/clock-in-at")
 	public ResponseEntity<TimeLogResponse> clockInAt(final String employeeEmail, final String entryTime) {
 		logger.debug("Clock-in-at ACTION performed");
-		try {
-			final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-			if (employee == null) {
-				logger.warn("No employee found with email: {}", employeeEmail);
-				return ResponseEntity.notFound().build();
-			}
-			final LocalDateTime entry = LocalDateTime.parse(entryTime);
-			final TimeLog timeLog = this.timeLogService.clockIn(employee, entry);
-			final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
-			return ResponseEntity.status(HttpStatus.CREATED).body(timeLogResponse);
-		} catch (DateTimeParseException e) {
-			logger.error("Invalid entryTime format: {}", entryTime);
-			return ResponseEntity.badRequest().build();
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		if (employee == null) {
+			logger.warn("No employee found with email: {}", employeeEmail);
+			return ResponseEntity.notFound().build();
 		}
+		final LocalDateTime entry = LocalDateTime.parse(entryTime);
+		final TimeLog timeLog = this.timeLogService.clockIn(employee, entry);
+		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
+		return ResponseEntity.status(HttpStatus.CREATED).body(timeLogResponse);
 	}
 
 	/**
@@ -138,20 +131,15 @@ public class TimeLogController {
 	@PostMapping("/clock-out-at")
 	public ResponseEntity<TimeLogResponse> clockOutAt(final String employeeEmail, final String exitTime) {
 		logger.debug("Clock-out-at ACTION performed");
-		try {
-			final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-			if (employee == null) {
-				logger.warn("No employee found with email: {}", employeeEmail);
-				return ResponseEntity.notFound().build();
-			}
-			final LocalDateTime exit = LocalDateTime.parse(exitTime);
-			final TimeLog timeLog = this.timeLogService.clockOut(employee, exit);
-			final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
-			return ResponseEntity.ok(timeLogResponse);
-		} catch (DateTimeParseException e) {
-			logger.error("Invalid exitTime format: {}", exitTime);
-			return ResponseEntity.badRequest().build();
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		if (employee == null) {
+			logger.warn("No employee found with email: {}", employeeEmail);
+			return ResponseEntity.notFound().build();
 		}
+		final LocalDateTime exit = LocalDateTime.parse(exitTime);
+		final TimeLog timeLog = this.timeLogService.clockOut(employee, exit);
+		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
+		return ResponseEntity.ok(timeLogResponse);
 	}
 
 	/**
@@ -163,28 +151,9 @@ public class TimeLogController {
 	@GetMapping("/{id}/hours-worked")
 	public ResponseEntity<String> getHoursWorked(final long id) {
 		logger.debug("Hours-worked ACTION performed");
-		try {
-			final TimeLog timeLog = this.timeLogService.findTimeLogById(id);
-			final Duration duration = this.timeLogService.getHoursWorked(timeLog);
-			return ResponseEntity.ok(duration.toString());
-		} catch (EntityNotFoundException e) {
-			logger.warn("TimeLog not found with i/*\n"
-					+ " * Copyright 2025 Abel Ferrer Jiménez\n"
-					+ " *\n"
-					+ " * Licensed under the Apache License, Version 2.0 (the \"License\");\n"
-					+ " * you may not use this file except in compliance with the License.\n"
-					+ " * You may obtain a copy of the License at\n"
-					+ " *\n"
-					+ " *     http://www.apache.org/licenses/LICENSE-2.0\n"
-					+ " *\n"
-					+ " * Unless required by applicable law or agreed to in writing, software\n"
-					+ " * distributed under the License is distributed on an \"AS IS\" BASIS,\n"
-					+ " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n"
-					+ " * See the License for the specific language governing permissions and\n"
-					+ " * limitations under the License.\n"
-					+ " */d: {}", id);
-			return ResponseEntity.notFound().build();
-		}
+		final TimeLog timeLog = this.timeLogService.findTimeLogById(id);
+		final Duration duration = this.timeLogService.getHoursWorked(timeLog);
+		return ResponseEntity.ok(duration.toString());
 	}
 
 	/**
@@ -218,20 +187,15 @@ public class TimeLogController {
 	@GetMapping("/employee/by-date")
 	public ResponseEntity<Page<TimeLogResponse>> findTimeLogsByEmployeeAndDate(final String employeeEmail,
 			final String date, final Pageable pageable) {
-		try {
-			final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-			if (employee == null) {
-				logger.warn("No employee found with email: {}", employeeEmail);
-				return ResponseEntity.notFound().build();
-			}
-			final LocalDate localDate = LocalDate.parse(date);
-			final Page<TimeLogResponse> logs = this.timeLogService
-					.findTimeLogsByEmployeeAndDate(employee, localDate, pageable).map(this.timeLogResponseMapper::map);
-			return ResponseEntity.ok(logs);
-		} catch (DateTimeParseException e) {
-			logger.error("Invalid date format: {}", date);
-			return ResponseEntity.badRequest().build();
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		if (employee == null) {
+			logger.warn("No employee found with email: {}", employeeEmail);
+			return ResponseEntity.notFound().build();
 		}
+		final LocalDate localDate = LocalDate.parse(date);
+		final Page<TimeLogResponse> logs = this.timeLogService
+				.findTimeLogsByEmployeeAndDate(employee, localDate, pageable).map(this.timeLogResponseMapper::map);
+		return ResponseEntity.ok(logs);
 	}
 
 	/**
