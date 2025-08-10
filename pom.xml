@@ -12,19 +12,16 @@
 	
 	<groupId>es.nivel36</groupId>
 	<artifactId>janus</artifactId>
-	<version>0.3.1-SNAPSHOT</version>
+	<version>0.3.3-SNAPSHOT</version>
 	<name>Janus</name>
 	<description>Timetable management application.</description>
 	
 	<properties>
 		<java.version>24</java.version>
 		<jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
+		<springdoc-openapi.version>2.8.9</springdoc-openapi.version>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-artemis</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -39,6 +36,11 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.openapitools</groupId>
 			<artifactId>jackson-databind-nullable</artifactId>
 			<version>${jackson-databind-nullable.version}</version>
@@ -47,7 +49,7 @@
 		<dependency>
 		    <groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.5.0</version>
+			<version>${springdoc-openapi.version}</version>
 		</dependency>
 
 		<dependency>
@@ -78,5 +80,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
