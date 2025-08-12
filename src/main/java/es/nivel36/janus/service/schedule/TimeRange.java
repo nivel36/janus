@@ -21,6 +21,8 @@ import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Represents a time range with a start and end time.
@@ -44,15 +46,17 @@ public class TimeRange implements Serializable {
 	/**
 	 * The start time of the time range.
 	 */
-	@Column(name = "START_TIME")
+	@NotNull
+	@Column(nullable = false)
 	private LocalTime startTime;
 
 	/**
 	 * The end time of the time range.
 	 */
-	@Column(name = "END_TIME")
+	@NotNull
+	@Column(nullable = false)
 	private LocalTime endTime;
-	
+
 	public TimeRange() {
 	}
 
@@ -95,6 +99,11 @@ public class TimeRange implements Serializable {
 	 */
 	public void setEndTime(final LocalTime endTime) {
 		this.endTime = endTime;
+	}
+
+	@AssertTrue(message = "startTime and endTime must differ")
+	public boolean isValidRange() {
+		return startTime != null && endTime != null && !startTime.equals(endTime);
 	}
 
 	@Override

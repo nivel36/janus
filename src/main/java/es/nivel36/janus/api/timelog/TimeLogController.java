@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.api;
+package es.nivel36.janus.api.timelog;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.TimeLog;
@@ -149,7 +150,7 @@ public class TimeLogController {
 	 * @return a string representation of the duration (ISO-8601, e.g. PT8H30M)
 	 */
 	@GetMapping("/{id}/hours-worked")
-	public ResponseEntity<String> getHoursWorked(final long id) {
+	public ResponseEntity<String> getHoursWorked(final Long id) {
 		logger.debug("Hours-worked ACTION performed");
 		final TimeLog timeLog = this.timeLogService.findTimeLogById(id);
 		final Duration duration = this.timeLogService.getHoursWorked(timeLog);
@@ -205,7 +206,7 @@ public class TimeLogController {
 	 * @return the {@link TimeLogResponse} entry
 	 */
 	@GetMapping("/{id}")
-	public ResponseEntity<TimeLogResponse> findTimeLogById(final long id) {
+	public ResponseEntity<TimeLogResponse> findTimeLogById(final Long id) {
 		final TimeLog timeLog = this.timeLogService.findTimeLogById(id);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
 		return ResponseEntity.ok(timeLogResponse);
@@ -219,7 +220,7 @@ public class TimeLogController {
 	 * @return the updated {@link TimeLogResponse}
 	 */
 	@PutMapping("/{id}")
-	public ResponseEntity<TimeLogResponse> updateTimeLog(final long id, final UpdateTimeLogRequest timeLog) {
+	public ResponseEntity<TimeLogResponse> updateTimeLog(final Long id, final UpdateTimeLogRequest timeLog) {
 		final TimeLog updatedTimeLog = this.timeLogService.updateTimeLog(id, timeLog);
 		final TimeLogResponse updatedTimeLogResponse = this.timeLogResponseMapper.map(updatedTimeLog);
 		return ResponseEntity.ok(updatedTimeLogResponse);
@@ -232,7 +233,7 @@ public class TimeLogController {
 	 * @return a {@link ResponseEntity} with no content
 	 */
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteTimeLog(final long id) {
+	public ResponseEntity<Void> deleteTimeLog(final Long id) {
 		final TimeLog timeLog = timeLogService.findTimeLogById(id);
 		this.timeLogService.deleteTimeLog(timeLog);
 		return ResponseEntity.noContent().build();

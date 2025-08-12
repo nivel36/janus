@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.service.schedule;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -29,20 +30,36 @@ import es.nivel36.janus.service.employee.Employee;
  * manage schedule-related data.
  */
 @Repository
-interface ScheduleRepository extends CrudRepository<Schedule, Long> { 
+interface ScheduleRepository extends CrudRepository<Schedule, Long> {
 
 	/**
-	 * Finds the {@link TimeRange} for a given {@link Employee} on a specific
-	 * {@link LocalDate}.
+	 * Retrieves the {@link TimeRange} for a given {@link Employee} on a specific
+	 * {@link LocalDate}, considering only the shift that starts on that date.
+	 * <p>
+	 * Business rules assumed for this query:
+	 * <ul>
+	 * <li>Within a {@link Schedule}, {@link ScheduleRule} date ranges never
+	 * overlap. The end date of one rule is followed by the start date of the next
+	 * (if any) on a later day.</li>
+	 * <li>Each {@link ScheduleRule} can have at most one {@link DayOfWeekTimeRange}
+	 * starting on a given day of the week.</li>
+	 * <li>Night shifts that start on the previous day and extend past midnight into
+	 * the given date are not considered; only shifts whose {@code dayOfWeek}
+	 * matches the queried date are returned.</li>
+	 * </ul>
+	 * These invariants guarantee that at most one matching {@link TimeRange} can
+	 * exist for any given date.
 	 *
-	 * @param employee the employee whose time range is to be found. Cannot be
-	 *                 {@code null}.
-	 * @param date     the date for which the time range is to be found. Cannot be
-	 *                 {@code null}.
-	 * @return an {@code Optional} containing the {@link TimeRange} if one is
-	 *         defined, or an empty {@code Optional} if no time range exists.
-	 * @throws NullPointerException if either {@code employee} or {@code date} is
-	 *                              {@code null}.
+	 * @param employee  the employee whose time range is to be retrieved; must not
+	 *                  be {@code null}.
+	 * @param date      the date for which the time range is to be retrieved; must
+	 *                  not be {@code null}.
+	 * @param dayOfWeek the {@link DayOfWeek} corresponding to {@code date}; must
+	 *                  not be {@code null}.
+	 * @return an {@code Optional} containing the {@link TimeRange} if one starts on
+	 *         that date, or an empty {@code Optional} if no shift starts on that
+	 *         date.
+	 * @throws NullPointerException if any of the parameters are {@code null}.
 	 */
 	@Query("""
 			SELECT d.timeRange
@@ -51,8 +68,9 @@ interface ScheduleRepository extends CrudRepository<Schedule, Long> {
 			JOIN s.rules r
 			JOIN r.dayOfWeekRanges d
 			WHERE e = :employee
-			AND :date BETWEEN r.startDate AND r.endDate
+			AND (r.startDate IS NULL OR r.startDate <= :date)
+			AND (r.endDate   IS NULL OR r.endDate   >= :date)
 			AND d.dayOfWeek = :dayOfWeek
 			""")
-	Optional<TimeRange> findTimeRangeForEmployeeByDate(final Employee employee, final LocalDate date);
+	Optional<TimeRange> findTimeRangeForDate(Employee employee, LocalDate date, DayOfWeek dayOfWeek);
 }

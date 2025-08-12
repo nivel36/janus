@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.api;
+package es.nivel36.janus.api.timelog;
 
-import org.springframework.stereotype.Component;
+import java.time.LocalDateTime;
 
-import es.nivel36.janus.service.timelog.TimeLog;
+import org.openapitools.jackson.nullable.JsonNullable;
 
-@Component
-public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
-
-	@Override
-	public TimeLogResponse map(final TimeLog entity) {
-		if (entity == null) {
-			return null;
-		}
-		return new TimeLogResponse(entity.getEmployee(), entity.getEntryTime(), entity.getExitTime());
-	}
+public record UpdateTimeLogRequest(
+		JsonNullable<LocalDateTime> entryTime, 
+		JsonNullable<LocalDateTime> exitTime) {
 }

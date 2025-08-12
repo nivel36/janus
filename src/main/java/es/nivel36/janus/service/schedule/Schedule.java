@@ -64,14 +64,14 @@ public class Schedule implements Serializable {
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 
 	/**
 	 * Unique name of the schedule. Cannot be null and must be unique across all
 	 * schedules.
 	 */
 	@NotNull
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = true, length = 255)
 	private String name;
 
 	/**
@@ -79,7 +79,7 @@ public class Schedule implements Serializable {
 	 * represents a specific time configuration (e.g., Monday to Thursday 9:00 to
 	 * 18:00, Friday 8:00 to 15:00).
 	 */
-	@OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ScheduleRule> rules = new ArrayList<>();
 
 	/**

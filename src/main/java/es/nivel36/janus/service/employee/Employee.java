@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.employee;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +24,7 @@ import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.timelog.TimeLog;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -62,23 +64,25 @@ public class Employee implements Serializable {
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 
 	/**
 	 * The first name of the employee.
 	 */
+	@Column(length = 255)
 	private String name;
 
 	/**
 	 * The surname of the employee.
 	 */
+	@Column(length = 255)
 	private String surname;
 
 	/**
 	 * The email of the employee. It must be unique and cannot be null.
 	 */
 	@NotNull
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = true, length = 254)
 	private String email;
 
 	/**
@@ -86,14 +90,14 @@ public class Employee implements Serializable {
 	 * entries recorded by the employee.
 	 */
 	@OneToMany(mappedBy = "employee", orphanRemoval = true)
-	private List<TimeLog> timeLogs;
+	private List<TimeLog> timeLogs = new ArrayList<>();
 
 	/**
 	 * The work schedule associated with this employee. This field is mandatory and
 	 * cannot be null.
 	 */
 	@NotNull
-	@ManyToOne
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "schedule_id", nullable = false)
 	private Schedule schedule;
 	

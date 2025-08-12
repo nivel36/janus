@@ -45,10 +45,8 @@ public class EmployeeService {
 	 * @return the employee with the specified Id, or null if no employee is found
 	 * @throws IllegalArgumentException if the Id is negative
 	 */
-	public Employee findEmployeeById(final long id) {
-		if (id < 0) {
-			throw new IllegalArgumentException(String.format("Id is %s, but cannot be less than 0.", id));
-		}
+	public Employee findEmployeeById(final Long id) {
+		Objects.requireNonNull(id, "Id can't be null");
 		logger.debug("Finding Employee by id: {}", id);
 		return this.employeeRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("There is no employee with id " + id));

@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.service.schedule;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
@@ -70,6 +71,8 @@ public class ScheduleService {
 		Objects.requireNonNull(employee, "Employee can't be null");
 		Objects.requireNonNull(date, "Date can't be null");
 		logger.debug("Finding time range for employee {} by date {}", employee, date);
-		return this.scheduleRepository.findTimeRangeForEmployeeByDate(employee, date);
+
+	    final DayOfWeek dayOfWeek = date.getDayOfWeek();
+	    return this.scheduleRepository.findTimeRangeForDate(employee, date, dayOfWeek);
 	}
 }

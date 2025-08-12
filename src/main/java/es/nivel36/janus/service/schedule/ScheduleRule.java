@@ -24,14 +24,14 @@ import java.util.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -53,12 +53,16 @@ import jakarta.validation.constraints.NotNull;
  * different days or special periods like summer hours.
  * </p>
  */
-@Entity(name = "SCHEDULE_RULE")
-@Table(indexes = { //
-		@Index(name = "idx_schedule_rule_name", columnList = "name") //
-}, uniqueConstraints = { //
-		@UniqueConstraint(name = "uk_schedule_rule_name", columnNames = { "name" }) //
-})
+@Entity
+@Table( //
+		indexes = { //
+				@Index(name = "idx_schedule_rule_name", columnList = "name"), //
+				@Index(name = "idx_schedule_rule_sched_dates", columnList = "schedule_id,startDate,endDate") //
+		}, //
+		uniqueConstraints = { //
+				@UniqueConstraint(name = "uk_schedule_rule_name", columnNames = "name") //
+		} //
+) //
 public class ScheduleRule implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -75,28 +79,27 @@ public class ScheduleRule implements Serializable {
 	 * all schedule rules.
 	 */
 	@NotNull
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = true, length = 255)
 	private String name;
 
 	/**
-	 * The schedule to which this rule belongs.
+	 * The schedule to which this rule belongs. Can't be null.
 	 */
-	@ManyToOne
-	@JoinColumn(name = "schedule_id")
-	private Schedule schedule;
+	  @NotNull
+	  @ManyToOne(optional = false, fetch = FetchType.LAZY)
+	  @JoinColumn(name = "schedule_id", nullable = false)
+	  private Schedule schedule;
 
 	/**
 	 * The start date of the schedule rule. It can be null if the rule applies
 	 * indefinitely or to the entire schedule.
 	 */
-	@Column(name = "START_DATE")
 	private LocalDate startDate;
 
 	/**
 	 * The end date of the schedule rule. It can be null if the rule applies
 	 * indefinitely or to the entire schedule.
 	 */
-	@Column(name = "END_DATE")
 	private LocalDate endDate;
 
 	/**
@@ -104,9 +107,8 @@ public class ScheduleRule implements Serializable {
 	 * can have multiple time ranges, and the same time range can belong to multiple
 	 * schedule rules.
 	 */
-	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "schedule_rule_day_of_week_time_range", joinColumns = @JoinColumn(name = "schedule_rule_id"), inverseJoinColumns = @JoinColumn(name = "day_of_week_time_range_id"))
-	private List<DayOfWeekTimeRange> dayOfWeekRanges = new ArrayList<>();
+	 @OneToMany(mappedBy = "scheduleRule", cascade = CascadeType.ALL, orphanRemoval = true)
+	  private List<DayOfWeekTimeRange> dayOfWeekRanges = new ArrayList<>();
 
 	/**
 	 * Returns the unique identifier of the schedule rule.

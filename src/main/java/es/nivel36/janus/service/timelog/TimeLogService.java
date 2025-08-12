@@ -28,7 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.nivel36.janus.api.UpdateTimeLogRequest;
+import es.nivel36.janus.api.timelog.UpdateTimeLogRequest;
 import es.nivel36.janus.service.employee.Employee;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -151,10 +151,8 @@ public class TimeLogService {
 	 * @throws IllegalArgumentException if the id is negative
 	 */
 	@Transactional(readOnly = true)
-	public TimeLog findTimeLogById(final long id) {
-		if (id < 0) {
-			throw new IllegalArgumentException(String.format("Id is %s, but can't be less than 0.", id));
-		}
+	public TimeLog findTimeLogById(final Long id) {
+		Objects.requireNonNull(id, "Id can't be null");
 		logger.debug("Finding TimeLog by id: {}", id);
 		return this.timeLogRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException(String.format("There is no TimeLog with id %s", id)));
@@ -237,7 +235,7 @@ public class TimeLogService {
 	 * @throws NullPointerException if the time log is {@code null}
 	 */
 	@Transactional
-	public TimeLog updateTimeLog(final long id, final UpdateTimeLogRequest timeLog) {
+	public TimeLog updateTimeLog(final Long id, final UpdateTimeLogRequest timeLog) {
 		Objects.requireNonNull(timeLog, "TimeLog cannot be null.");
 		final TimeLog timeLogFromDataBase = this.findTimeLogById(id);
 		logger.debug("Updating TimeLog with id: {}", id);

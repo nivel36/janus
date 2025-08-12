@@ -154,8 +154,8 @@ class TimeLogServiceTest {
 
 	@Test
 	void testFindTimeLogByIdInvalidId() {
-		assertThrows(IllegalArgumentException.class, () -> {
-			this.timeLogService.findTimeLogById(-1L);
+		assertThrows(NullPointerException.class, () -> {
+			this.timeLogService.findTimeLogById(null);
 		});
 	}
 

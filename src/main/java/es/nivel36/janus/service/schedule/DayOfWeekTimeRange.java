@@ -17,19 +17,22 @@ package es.nivel36.janus.service.schedule;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
-import java.util.List;
 import java.util.Objects;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -49,18 +52,29 @@ import jakarta.validation.constraints.NotNull;
  * </p>
  *
  * <p>
+ * Within a single {@link ScheduleRule}, only one {@code DayOfWeekTimeRange}
+ * is allowed for each {@link DayOfWeek}. This ensures that for any given day
+ * of the week there is at most one shift starting on that day, avoiding
+ * ambiguities when retrieving the applicable time range for a specific date.
+ * </p>
+ *
+ * <p>
  * This class is part of a schedule rule, allowing flexible time definitions for
  * different days of the week (e.g., different work hours on Mondays versus
  * Fridays), including shifts that span multiple calendar days.
  * </p>
  */
-@Table(name = "DAY_OF_WEEK_TIME_RANGE", //
-		indexes = { //
-				@Index(name = "idx_day_of_week_time_range_name", columnList = "name") //
-		}, uniqueConstraints = { //
-				@UniqueConstraint(name = "uk_day_of_week_time_range_name", columnNames = { "name" }) //
-		})
 @Entity
+@Table( //
+		indexes = { //
+				@Index(name = "idx_dowtr_name", columnList = "name"), //
+				@Index(name = "idx_dowtr_dow", columnList = "dayOfWeek"), //
+				@Index(name = "idx_dowtr_rule", columnList = "schedule_rule_id") //
+		}, //
+		uniqueConstraints = { //
+				@UniqueConstraint(name = "uk_dowtr_rule_day", columnNames = { "schedule_rule_id", "dayOfWeek" }) //
+		} //
+) //
 public class DayOfWeekTimeRange implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -77,29 +91,36 @@ public class DayOfWeekTimeRange implements Serializable {
 	 * must be unique across all day-of-week time ranges.
 	 */
 	@NotNull
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, length = 128)
 	private String name;
 
 	/**
 	 * Many-to-Many relationship with {@link ScheduleRule}. A time range can belong
 	 * to multiple schedule rules, allowing flexibility for overlapping time ranges.
 	 */
-	@ManyToMany(mappedBy = "dayOfWeekRanges")
-	private List<ScheduleRule> scheduleRules;
+	@NotNull
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "schedule_rule_id", nullable = false)
+	private ScheduleRule scheduleRule;
 
 	/**
 	 * The day of the week (e.g., Monday, Tuesday) on which the work shift starts.
 	 * The shift may extend into the next calendar day if the end time is after
 	 * midnight.
 	 */
+	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(name = "DAY_OF_WEEK")
+	@Column(nullable = false, length = 16)
 	private DayOfWeek dayOfWeek;
 
 	/**
 	 * The time range (start and end times) for the specified day of the week.
 	 */
+	@NotNull
 	@Embedded
+	@AttributeOverrides({
+			@AttributeOverride(name = "startTime", column = @Column(name = "start_time", nullable = false)),
+			@AttributeOverride(name = "endTime", column = @Column(name = "end_time", nullable = false)) })
 	private TimeRange timeRange;
 
 	/**
@@ -140,24 +161,21 @@ public class DayOfWeekTimeRange implements Serializable {
 	}
 
 	/**
-	 * Returns the list of {@link ScheduleRule} objects that are associated with
-	 * this time range.
+	 * Returns the {@link ScheduleRule} that is associated with this time range.
 	 *
-	 * @return the list of schedule rules
+	 * @return the schedule rules
 	 */
-	public List<ScheduleRule> getScheduleRules() {
-		return this.scheduleRules;
+	public ScheduleRule getScheduleRule() {
+		return this.scheduleRule;
 	}
 
 	/**
-	 * Sets the list of {@link ScheduleRule} objects that are associated with this
-	 * time range.
+	 * Sets the {@link ScheduleRule} that is associated with this time range.
 	 *
-	 * @param scheduleRules the list of schedule rules to associate with this time
-	 *                      range
+	 * @param scheduleRule to associate with this time range
 	 */
-	public void setScheduleRules(final List<ScheduleRule> scheduleRules) {
-		this.scheduleRules = scheduleRules;
+	public void setScheduleRule(final ScheduleRule scheduleRule) {
+		this.scheduleRule = scheduleRule;
 	}
 
 	/**

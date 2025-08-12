@@ -58,6 +58,13 @@ import jakarta.validation.constraints.NotNull;
 public class WorkShift implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * Unique identifier of the work shift.
+	 */
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	/**
 	 * The employee who is assigned to this work shift.
@@ -78,9 +85,6 @@ public class WorkShift implements Serializable {
 	@JoinTable(name = "workshift_timelog", joinColumns = @JoinColumn(name = "workshift_id"), inverseJoinColumns = @JoinColumn(name = "timelog_id"))
 	private List<TimeLog> timeLogs = new ArrayList<>();
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
 
 	/**
 	 * The date and time when the work shift started.

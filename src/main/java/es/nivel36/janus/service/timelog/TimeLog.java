@@ -47,13 +47,13 @@ public class TimeLog implements Serializable {
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 
 	/**
 	 * The employee associated with this time log.
 	 */
 	@NotNull
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "employee_id", nullable = false)
 	private Employee employee;
 
@@ -123,7 +123,7 @@ public class TimeLog implements Serializable {
 	 *
 	 * @return the id of the time log
 	 */
-	public long getId() {
+	public Long getId() {
 		return this.id;
 	}
 
@@ -161,7 +161,7 @@ public class TimeLog implements Serializable {
 	 *
 	 * @param id the ID to set for this time log
 	 */
-	public void setId(final long id) {
+	public void setId(final Long id) {
 		this.id = id;
 	}
 

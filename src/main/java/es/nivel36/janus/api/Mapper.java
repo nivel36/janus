@@ -15,7 +15,7 @@
  */
 package es.nivel36.janus.api;
 
-public interface Mapper<Entity, Dto> {
+public interface Mapper<In, Out> {
 	
-	Dto map(Entity entity);
+	Out map(In object);
 }
