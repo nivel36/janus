@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.timelog;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -31,7 +32,7 @@ import es.nivel36.janus.service.employee.Employee;
  */
 @Repository
 interface TimeLogRepository extends CrudRepository<TimeLog, Long> {
-	
+
 	/**
 	 * Finds the last {@link TimeLog} for the specified employee.
 	 *
@@ -39,7 +40,17 @@ interface TimeLogRepository extends CrudRepository<TimeLog, Long> {
 	 * @return an {@link Optional} containing the last time log of the employee if
 	 *         present
 	 */
-	Optional<TimeLog> findLastTimeLogByEmployee(final Employee employee);
+	@Query("""
+			SELECT t
+			FROM TimeLog t
+			WHERE t.employee = :employee
+			  AND t.entryTime = (
+			      SELECT MAX(t2.entryTime)
+			      FROM TimeLog t2
+			      WHERE t2.employee = :employee
+			  )
+			""")
+	Optional<TimeLog> findLastTimeLogByEmployee(Employee employee);
 
 	/**
 	 * Retrieves all {@link TimeLog} entries for a given employee within a specified
@@ -53,15 +64,15 @@ interface TimeLogRepository extends CrudRepository<TimeLog, Long> {
 	 * @return a page of time logs for the specified employee within the date range
 	 */
 	@Query("""
-			SELECT t 
-			FROM TimeLog t 
-			WHERE t.employee = :employee 
-			AND t.entryTime BETWEEN :startDate 
+			SELECT t
+			FROM TimeLog t
+			WHERE t.employee = :employee
+			AND t.entryTime BETWEEN :startDate
 			AND :endDate
 			ORDER BY t.entryTime ASC
 			""")
-	Page<TimeLog> findTimeLogsByEmployeeAndDateRange(final Employee employee, final LocalDateTime startDate,
-			final LocalDateTime endDate, final Pageable page);
+	List<TimeLog> findTimeLogsByEmployeeAndDateRange(final Employee employee, final LocalDateTime startDate,
+			final LocalDateTime endDate);
 
 	/**
 	 * Retrieves all {@link TimeLog} entries for a given employee, with pagination.
@@ -71,6 +82,11 @@ interface TimeLogRepository extends CrudRepository<TimeLog, Long> {
 	 *                 both the offset and the size and order.
 	 * @return a page of time logs for the specified employee
 	 */
-	Page<TimeLog> findTimeLogsByEmployeeOrderByEntryTimeDesc(final Employee employee, final Pageable page);
+	@Query("""
+			SELECT t
+			FROM TimeLog t
+			WHERE t.employee = :employee
+			""")
+	Page<TimeLog> findTimeLogsByEmployee(Employee employee, Pageable page);
 
 }

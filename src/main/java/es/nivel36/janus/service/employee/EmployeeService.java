@@ -42,8 +42,9 @@ public class EmployeeService {
 	 * Finds an {@link Employee} by its primary key (Id).
 	 * 
 	 * @param id the ID of the employee to find
-	 * @return the employee with the specified Id, or null if no employee is found
+	 * @return the employee with the specified Id 
 	 * @throws IllegalArgumentException if the Id is negative
+	 * @throws EntityNotFoundException if the employee is not found
 	 */
 	public Employee findEmployeeById(final Long id) {
 		Objects.requireNonNull(id, "Id can't be null");

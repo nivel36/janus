@@ -17,7 +17,6 @@ package es.nivel36.janus.service.workshift;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -39,9 +38,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.schedule.ScheduleService;
@@ -307,10 +303,7 @@ class WorkShiftServiceTest {
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 		final TimeRange timeRange = new TimeRange(startTime, endTime);
 
-		final Page<TimeLog> page = new PageImpl<>(timeLogs);
-
-		when(timeLogService.findTimeLogsByEmployeeAndDate(eq(employee), eq(date), any(Pageable.class)))
-				.thenReturn(page);
+		when(timeLogService.findTimeLogsByEmployeeAndDate(eq(employee), eq(date))).thenReturn(timeLogs);
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date)))
 				.thenReturn(Optional.of(timeRange));
 
@@ -333,10 +326,7 @@ class WorkShiftServiceTest {
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 
-		final Page<TimeLog> page = new PageImpl<>(timeLogs);
-
-		when(timeLogService.findTimeLogsByEmployeeAndDate(eq(employee), eq(date), any(Pageable.class)))
-				.thenReturn(page);
+		when(timeLogService.findTimeLogsByEmployeeAndDate(eq(employee), eq(date))).thenReturn(timeLogs);
 		when(scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date))).thenReturn(Optional.empty());
 
 		// Act

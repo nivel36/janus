@@ -18,6 +18,7 @@ package es.nivel36.janus.service.timelog;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -126,7 +127,6 @@ public class TimeLogService {
 	 * @return a {@link Duration} representing the total hours worked
 	 * @throws NullPointerException if the timeLog is {@code null}
 	 */
-	@Transactional(readOnly = true)
 	public Duration getHoursWorked(final TimeLog timeLog) {
 		Objects.requireNonNull(timeLog, "TimeLog can't be null.");
 		logger.debug("Calculating hours worked for TimeLog: {}", timeLog);
@@ -191,7 +191,7 @@ public class TimeLogService {
 
 		logger.debug("Finding TimeLogs for employee: {} with startPosition: {}, pageSize: {}", employee,
 				page.getOffset(), page.getPageSize());
-		return this.timeLogRepository.findTimeLogsByEmployeeOrderByEntryTimeDesc(employee, page);
+		return this.timeLogRepository.findTimeLogsByEmployee(employee, page);
 	}
 
 	/**
@@ -215,15 +215,13 @@ public class TimeLogService {
 	 *                              {@code null}.
 	 */
 	@Transactional(readOnly = true)
-	public Page<TimeLog> findTimeLogsByEmployeeAndDate(final Employee employee, final LocalDate date,
-			final Pageable page) {
+	public List<TimeLog> findTimeLogsByEmployeeAndDate(final Employee employee, final LocalDate date) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 		Objects.requireNonNull(date, "Date cannot be null.");
 
-		logger.debug("Finding TimeLogs for employee: {} with date: {}, startPosition: {}, pageSize: {}", employee, date,
-				page.getOffset(), page.getPageSize());
+		logger.debug("Finding TimeLogs for employee: {} with date: {}", employee, date);
 		return this.timeLogRepository.findTimeLogsByEmployeeAndDateRange(employee, date.minusDays(1).atStartOfDay(),
-				date.plusDays(1).atStartOfDay(), page);
+				date.plusDays(1).atStartOfDay());
 	}
 
 	/**

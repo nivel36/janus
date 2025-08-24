@@ -25,8 +25,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import es.nivel36.janus.service.employee.Employee;
@@ -72,19 +70,16 @@ public class WorkShiftService {
 		Objects.requireNonNull(date, "Date cant be null");
 		logger.debug("Getting work shift for employee {} at {}", employee, date);
 
-		final Page<TimeLog> timeLogs = this.timeLogservice.findTimeLogsByEmployeeAndDate(employee, date, Pageable.ofSize(100));
+		final List<TimeLog> timeLogs = this.timeLogservice.findTimeLogsByEmployeeAndDate(employee, date);
 		if (timeLogs.isEmpty()) {
 			final WorkShift workShift = new WorkShift();
 			workShift.setEmployee(employee);
 			return workShift;
 		}
-		if(timeLogs.hasNext()) {
-			
-		}
 		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, date);
 
-		return timeRange.map(tr -> this.buildWorkShift(employee, date, tr, timeLogs.getContent()))
-				.orElseGet(() -> this.buildWorkShiftForNonWorkingDay(employee, date, timeLogs.getContent()));
+		return timeRange.map(tr -> this.buildWorkShift(employee, date, tr, timeLogs))
+				.orElseGet(() -> this.buildWorkShiftForNonWorkingDay(employee, date, timeLogs));
 	}
 
 	/**

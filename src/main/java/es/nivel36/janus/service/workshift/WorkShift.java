@@ -58,7 +58,7 @@ import jakarta.validation.constraints.NotNull;
 public class WorkShift implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * Unique identifier of the work shift.
 	 */
@@ -84,7 +84,6 @@ public class WorkShift implements Serializable {
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "workshift_timelog", joinColumns = @JoinColumn(name = "workshift_id"), inverseJoinColumns = @JoinColumn(name = "timelog_id"))
 	private List<TimeLog> timeLogs = new ArrayList<>();
-
 
 	/**
 	 * The date and time when the work shift started.
@@ -257,7 +256,7 @@ public class WorkShift implements Serializable {
 
 	@Override
 	public String toString() {
-		return "WorkShift [id=" + this.id + ", employee=" + this.employee.getName() + ", startDateTime="
-				+ this.startDateTime + "]";
+		return "WorkShift [id=" + id + (employee != null ? ", employee=" + employee.getName() : "") + ", startDateTime="
+				+ (startDateTime != null ? startDateTime : "null") + "]";
 	}
 }

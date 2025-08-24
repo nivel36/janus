@@ -18,6 +18,7 @@ package es.nivel36.janus.api.timelog;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -28,9 +29,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
@@ -67,7 +71,7 @@ public class TimeLogController {
 	 * @return the created {@link TimeLog} entry
 	 */
 	@PostMapping("/clock-in")
-	public ResponseEntity<TimeLogResponse> clockIn(final String employeeEmail) {
+	public ResponseEntity<TimeLogResponse> clockIn(final @RequestParam String employeeEmail) {
 		logger.debug("Clock-in ACTION performed");
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -89,7 +93,8 @@ public class TimeLogController {
 	 * @return the created {@link TimeLogResponse} entry
 	 */
 	@PostMapping("/clock-in-at")
-	public ResponseEntity<TimeLogResponse> clockInAt(final String employeeEmail, final String entryTime) {
+	public ResponseEntity<TimeLogResponse> clockInAt(final @RequestParam String employeeEmail,
+			final @RequestParam String entryTime) {
 		logger.debug("Clock-in-at ACTION performed");
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		if (employee == null) {
@@ -109,7 +114,7 @@ public class TimeLogController {
 	 * @return the updated {@link TimeLogResponse} entry
 	 */
 	@PostMapping("/clock-out")
-	public ResponseEntity<TimeLogResponse> clockOut(final String employeeEmail) {
+	public ResponseEntity<TimeLogResponse> clockOut(final @RequestParam String employeeEmail) {
 		logger.debug("Clock-out ACTION performed");
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		if (employee == null) {
@@ -130,7 +135,8 @@ public class TimeLogController {
 	 * @return the updated {@link TimeLogResponse} entry
 	 */
 	@PostMapping("/clock-out-at")
-	public ResponseEntity<TimeLogResponse> clockOutAt(final String employeeEmail, final String exitTime) {
+	public ResponseEntity<TimeLogResponse> clockOutAt(final @RequestParam String employeeEmail,
+			final @RequestParam String exitTime) {
 		logger.debug("Clock-out-at ACTION performed");
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		if (employee == null) {
@@ -150,7 +156,7 @@ public class TimeLogController {
 	 * @return a string representation of the duration (ISO-8601, e.g. PT8H30M)
 	 */
 	@GetMapping("/{id}/hours-worked")
-	public ResponseEntity<String> getHoursWorked(final Long id) {
+	public ResponseEntity<String> getHoursWorked(final @PathVariable Long id) {
 		logger.debug("Hours-worked ACTION performed");
 		final TimeLog timeLog = this.timeLogService.findTimeLogById(id);
 		final Duration duration = this.timeLogService.getHoursWorked(timeLog);
@@ -165,7 +171,7 @@ public class TimeLogController {
 	 * @return a page of {@link TimeLogResponse} entries
 	 */
 	@GetMapping("/employee")
-	public ResponseEntity<Page<TimeLogResponse>> getTimeLogsByEmployee(final String employeeEmail,
+	public ResponseEntity<Page<TimeLogResponse>> getTimeLogsByEmployee(final @RequestParam String employeeEmail,
 			final Pageable pageable) {
 		final Employee employee = employeeService.findEmployeeByEmail(employeeEmail);
 		if (employee == null) {
@@ -181,21 +187,19 @@ public class TimeLogController {
 	 * Finds time logs for an employee on and around a specific date.
 	 *
 	 * @param employeeEmail the email of the employee
-	 * @param date          the date as a string in ISO-8601 format (yyyy-MM-dd)
-	 * @param pageable      the pagination information (page, size, sort)
-	 * @return a page of {@link TimeLogResponse} entries
+	 * @return a list of {@link TimeLogResponse} entries
 	 */
 	@GetMapping("/employee/by-date")
-	public ResponseEntity<Page<TimeLogResponse>> findTimeLogsByEmployeeAndDate(final String employeeEmail,
-			final String date, final Pageable pageable) {
+	public ResponseEntity<List<TimeLogResponse>> findTimeLogsByEmployeeAndDate(final @RequestParam String employeeEmail,
+			final @RequestParam String date) {
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		if (employee == null) {
 			logger.warn("No employee found with email: {}", employeeEmail);
 			return ResponseEntity.notFound().build();
 		}
 		final LocalDate localDate = LocalDate.parse(date);
-		final Page<TimeLogResponse> logs = this.timeLogService
-				.findTimeLogsByEmployeeAndDate(employee, localDate, pageable).map(this.timeLogResponseMapper::map);
+		final List<TimeLogResponse> logs = this.timeLogService.findTimeLogsByEmployeeAndDate(employee, localDate)
+				.stream().map(this.timeLogResponseMapper::map).toList();
 		return ResponseEntity.ok(logs);
 	}
 
@@ -206,7 +210,7 @@ public class TimeLogController {
 	 * @return the {@link TimeLogResponse} entry
 	 */
 	@GetMapping("/{id}")
-	public ResponseEntity<TimeLogResponse> findTimeLogById(final Long id) {
+	public ResponseEntity<TimeLogResponse> findTimeLogById(final @PathVariable Long id) {
 		final TimeLog timeLog = this.timeLogService.findTimeLogById(id);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
 		return ResponseEntity.ok(timeLogResponse);
@@ -220,7 +224,8 @@ public class TimeLogController {
 	 * @return the updated {@link TimeLogResponse}
 	 */
 	@PutMapping("/{id}")
-	public ResponseEntity<TimeLogResponse> updateTimeLog(final Long id, final UpdateTimeLogRequest timeLog) {
+	public ResponseEntity<TimeLogResponse> updateTimeLog(final @PathVariable Long id,
+			final @RequestBody UpdateTimeLogRequest timeLog) {
 		final TimeLog updatedTimeLog = this.timeLogService.updateTimeLog(id, timeLog);
 		final TimeLogResponse updatedTimeLogResponse = this.timeLogResponseMapper.map(updatedTimeLog);
 		return ResponseEntity.ok(updatedTimeLogResponse);
@@ -233,7 +238,7 @@ public class TimeLogController {
 	 * @return a {@link ResponseEntity} with no content
 	 */
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteTimeLog(final Long id) {
+	public ResponseEntity<Void> deleteTimeLog(final @PathVariable Long id) {
 		final TimeLog timeLog = timeLogService.findTimeLogById(id);
 		this.timeLogService.deleteTimeLog(timeLog);
 		return ResponseEntity.noContent().build();
