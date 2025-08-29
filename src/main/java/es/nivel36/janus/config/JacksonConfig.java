@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.api.timelog;
+package es.nivel36.janus.config;
 
-import org.openapitools.jackson.nullable.JsonNullable;
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.databind.Module;
+import org.openapitools.jackson.nullable.JsonNullableModule;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.service.timelog.TimeLog;
-
-@Component
-public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
-
-	@Override
-	public TimeLogResponse map(final TimeLog entity) {
-		if (entity == null) {
-			return null;
-		}
-		return new TimeLogResponse(entity.getEntryTime(),
-				entity.getExitTime() == null ? JsonNullable.undefined() : JsonNullable.of(entity.getExitTime()));
+@Configuration
+public class JacksonConfig {
+	
+	@Bean
+	public Module jsonNullableModule() {
+		return new JsonNullableModule();
 	}
 }

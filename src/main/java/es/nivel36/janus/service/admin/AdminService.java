@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.api.timelog;
+package es.nivel36.janus.service.admin;
 
-import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.stereotype.Component;
 
-import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.timelog.TimeLog;
 
 @Component
-public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
+public class AdminService {
 
-	@Override
-	public TimeLogResponse map(final TimeLog entity) {
-		if (entity == null) {
-			return null;
-		}
-		return new TimeLogResponse(entity.getEntryTime(),
-				entity.getExitTime() == null ? JsonNullable.undefined() : JsonNullable.of(entity.getExitTime()));
+	/**
+	 * Number of days during which a time log can be modified
+	 */
+	private int daysUntilLocked = 7;
+
+	/**
+	 * Returns the number of days during which a {@link TimeLog} remains modifiable
+	 * before it becomes locked.
+	 *
+	 * @return the number of days left until the {@link TimeLog} can no longer be
+	 *         modified
+	 */
+	public int getDaysUntilLocked() {
+		return daysUntilLocked;
 	}
 }

@@ -19,6 +19,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import es.nivel36.janus.service.employee.Employee;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,6 +35,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
+@SQLDelete(sql = "UPDATE TIME_LOG SET deleted = true WHERE id = ?")
+@SQLRestriction("deleted = false")
 @Entity
 @Table(indexes = { //
 		@Index(name = "idx_employee_entry_time", columnList = "employee_id, entryTime") //
@@ -68,6 +73,16 @@ public class TimeLog implements Serializable {
 	 * The clock-out time for this time log.
 	 */
 	private LocalDateTime exitTime;
+
+	/**
+	 * Indicates whether this time log has been logically deleted.
+	 * <p>
+	 * When {@code true}, the record is considered deleted but is still present in
+	 * the database for auditing.
+	 */
+	@NotNull
+	@Column(nullable = false)
+	private boolean deleted = false;
 
 	/**
 	 * Default constructor for the {@link TimeLog} entity. Initializes an empty
@@ -157,6 +172,16 @@ public class TimeLog implements Serializable {
 	}
 
 	/**
+	 * Gets the logical deletion flag for this time log.
+	 * 
+	 * @return {@code true} to mark the entity as logically deleted, {@code false}
+	 *         otherwise
+	 */
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	/**
 	 * Sets the unique identifier for this time log.
 	 *
 	 * @param id the ID to set for this time log
@@ -193,6 +218,16 @@ public class TimeLog implements Serializable {
 		this.exitTime = exitTime;
 	}
 
+	/**
+	 * Sets the logical deletion flag for this time log.
+	 *
+	 * @param deleted {@code true} to mark the entity as logically deleted,
+	 *                {@code false} otherwise
+	 */
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -202,7 +237,8 @@ public class TimeLog implements Serializable {
 			return false;
 		}
 		final TimeLog other = (TimeLog) obj;
-		return Objects.equals(this.employee, other.employee) && Objects.equals(this.entryTime, other.entryTime);
+		return Objects.equals(this.employee, other.employee) && //
+				Objects.equals(this.entryTime, other.entryTime);
 	}
 
 	@Override
@@ -212,7 +248,10 @@ public class TimeLog implements Serializable {
 
 	@Override
 	public String toString() {
-		return "TimeLog [employee=" + this.employee + ", entryTime=" + this.entryTime + ", exitTime=" + this.exitTime
+		return "TimeLog [employee=" + this.employee //
+				+ ", entryTime=" + this.entryTime //
+				+ ", exitTime=" + this.exitTime //
+				+ ", deleted=" + this.deleted //
 				+ "]";
 	}
 }

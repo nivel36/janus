@@ -17,8 +17,11 @@ package es.nivel36.janus.api.timelog;
 
 import java.time.LocalDateTime;
 
-import es.nivel36.janus.service.employee.Employee;
+import org.openapitools.jackson.nullable.JsonNullable;
 
-public record TimeLogResponse(Employee employee, LocalDateTime entryTime, LocalDateTime exitTime) {
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+public record TimeLogResponse(LocalDateTime entryTime,
+		@JsonInclude(JsonInclude.Include.NON_ABSENT) JsonNullable<LocalDateTime> exitTime) {
 
 }

@@ -15,9 +15,12 @@
  */
 package es.nivel36.janus.service.timelog;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.api.timelog.UpdateTimeLogRequest;
+import es.nivel36.janus.service.admin.AdminService;
 import es.nivel36.janus.service.employee.Employee;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -44,9 +48,14 @@ public class TimeLogService {
 	private static final Logger logger = LoggerFactory.getLogger(TimeLogService.class);
 
 	private final TimeLogRepository timeLogRepository;
+	private final AdminService adminService;
+	private final Clock clock;
 
-	public TimeLogService(final TimeLogRepository timeLogRepository) {
+	public TimeLogService(final TimeLogRepository timeLogRepository, final AdminService adminService,
+			final Clock clock) {
 		this.timeLogRepository = Objects.requireNonNull(timeLogRepository, "TimeLogRepository can't be null");
+		this.adminService = Objects.requireNonNull(adminService, "AdminService can't be null");
+		this.clock = Objects.requireNonNull(clock, "Clock can't be null");
 	}
 
 	/**
@@ -70,9 +79,10 @@ public class TimeLogService {
 	 * @throws NullPointerException if the employee or entryTime is {@code null}
 	 */
 	@Transactional
-	public TimeLog clockIn(final Employee employee, final LocalDateTime entryTime) {
+	public TimeLog clockIn(final Employee employee, LocalDateTime entryTime) {
 		Objects.requireNonNull(employee, "Employee can't be null.");
 		Objects.requireNonNull(entryTime, "Entry time can't be null.");
+		entryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
 		logger.debug("Clocking in employee: {} at {}", employee, entryTime);
 		final TimeLog timeLog = new TimeLog(employee, entryTime);
 		this.timeLogRepository.save(timeLog);
@@ -101,9 +111,10 @@ public class TimeLogService {
 	 * @throws IllegalStateException if there is no {@link TimeLog} for the employee
 	 */
 	@Transactional
-	public TimeLog clockOut(final Employee employee, final LocalDateTime exitTime) {
+	public TimeLog clockOut(final Employee employee, LocalDateTime exitTime) {
 		Objects.requireNonNull(employee, "Employee can't be null.");
 		Objects.requireNonNull(exitTime, "Exit time can't be null.");
+		exitTime = exitTime.truncatedTo(ChronoUnit.SECONDS);
 		logger.debug("Clocking out employee: {} at {}", employee, exitTime);
 
 		final Optional<TimeLog> lastTimeLogOpt = this.timeLogRepository.findLastTimeLogByEmployee(employee);
@@ -148,7 +159,8 @@ public class TimeLogService {
 	 * @param id the ID of the time log to be found
 	 * @return the {@link TimeLog} with the specified id, or {@code null} if not
 	 *         found
-	 * @throws IllegalArgumentException if the id is negative
+	 * @throws NullPointerException    if the id is null
+	 * @throws EntityNotFoundException if Time log does not exist.
 	 */
 	@Transactional(readOnly = true)
 	public TimeLog findTimeLogById(final Long id) {
@@ -225,33 +237,111 @@ public class TimeLogService {
 	}
 
 	/**
-	 * Updates a time log entry.
+	 * Updates a {@link TimeLog} with the values provided in the request.
+	 * <p>
+	 * Applied business rules:
+	 * <ul>
+	 * <li>A timestamp can only be modified if it is within the editing window
+	 * (newValue + daysUntilLocked &gt; now).</li>
+	 * <li>If both values are provided, temporal consistency is validated (entryTime
+	 * ≤ exitTime).</li>
+	 * </ul>
 	 *
-	 * @param id the id of the time log to be updated
-	 * @param timeLog the new timeLog data to update
-	 * @return the updated {@link TimeLog} entry
-	 * @throws NullPointerException if the time log is {@code null}
+	 * @param id      identifier of the record to be updated
+	 * @param request values to update (optional fields)
+	 * @return the persisted entity after the update
+	 * @throws NullPointerException                   if request is null or
+	 *                                                entryTime and exitTime are
+	 *                                                null
+	 * @throws EntityNotFoundException                if Time log does not exist.
+	 * @throws TimeLogModificationNotAllowedException if the editing window is
+	 *                                                violated
+	 * @throws TimeLogChronologyException             if entryTime &gt; exitTime
 	 */
 	@Transactional
-	public TimeLog updateTimeLog(final Long id, final UpdateTimeLogRequest timeLog) {
-		Objects.requireNonNull(timeLog, "TimeLog cannot be null.");
-		final TimeLog timeLogFromDataBase = this.findTimeLogById(id);
+	public TimeLog updateTimeLog(final Long id, final UpdateTimeLogRequest request) {
+		Objects.requireNonNull(request, "TimeLog request cannot be null.");
 		logger.debug("Updating TimeLog with id: {}", id);
-		timeLog.entryTime().ifPresent(timeLogFromDataBase::setEntryTime);
-		timeLog.exitTime().ifPresent(timeLogFromDataBase::setExitTime);
-		return this.timeLogRepository.save(timeLogFromDataBase);
+		final TimeLog entity = findTimeLogById(id);
+		final LocalDateTime now = LocalDateTime.now(clock);
+		final Period lockPeriod = Period.ofDays(adminService.getDaysUntilLocked());
+
+		final LocalDateTime newEntry = request.entryTime().orElse(null);
+		final LocalDateTime newExit = request.exitTime().orElse(null);
+
+		if (newEntry == null && newExit == null) {
+			throw new NullPointerException("TimeLog request cannot be null.");
+		}
+
+		if (newEntry != null && !newEntry.plus(lockPeriod).isAfter(now)) {
+			throw new TimeLogModificationNotAllowedException(String.format(
+					"Modification of entry time %s is locked after %s. Current time: %s", newEntry, lockPeriod, now));
+		}
+
+		if (newExit != null && !newExit.plus(lockPeriod).isAfter(now)) {
+			throw new TimeLogModificationNotAllowedException(String.format(
+					"Modification of exit time %s is locked after %s. Current time: %s", newExit, lockPeriod, now));
+		}
+
+		if (newEntry != null && newExit != null) {
+			assertChronology(newEntry, newExit);
+		}
+		if (newEntry != null && entity.getExitTime() != null) {
+			assertChronology(newEntry, entity.getExitTime());
+		}
+		if (newExit != null && entity.getEntryTime() != null) {
+			assertChronology(entity.getEntryTime(), newExit);
+		}
+
+		if (newEntry != null) {
+			entity.setEntryTime(newEntry);
+		}
+		if (newExit != null) {
+			entity.setExitTime(newExit);
+		}
+
+		return timeLogRepository.save(entity);
+	}
+
+	private static void assertChronology(final LocalDateTime entry, final LocalDateTime exit) {
+		if (entry.isAfter(exit)) {
+			throw new TimeLogChronologyException(
+					String.format("Invalid chronology: entryTime %s is after exitTime %s.", entry, exit));
+		}
 	}
 
 	/**
-	 * Deletes a time log entry.
+	 * Deletes a {@link TimeLog} entry.
+	 * <p>
+	 * Applied business rules:
+	 * <ul>
+	 * <li>A time log can only be deleted if it is still within the editing window
+	 * (entryTime + daysUntilLocked &gt; now).</li>
+	 * <li>If the editing window has expired, a
+	 * {@link TimeLogModificationNotAllowedException} is thrown.</li>
+	 * </ul>
 	 *
-	 * @param timeLog the time log to be deleted
-	 * @throws NullPointerException if the time log is {@code null}
+	 * @param timeLog the {@link TimeLog} instance to be deleted, must not be
+	 *                {@code null}
+	 * @throws NullPointerException                   if the time log is
+	 *                                                {@code null}
+	 * @throws TimeLogModificationNotAllowedException if the editing window is
+	 *                                                violated
 	 */
 	@Transactional
 	public void deleteTimeLog(final TimeLog timeLog) {
 		Objects.requireNonNull(timeLog, "TimeLog cannot be null.");
 		logger.debug("Deleting TimeLog: {}", timeLog);
+
+		final LocalDateTime now = LocalDateTime.now(clock);
+		final Period lockPeriod = Period.ofDays(adminService.getDaysUntilLocked());
+
+		if (!timeLog.getEntryTime().plus(lockPeriod).isAfter(now)) {
+			throw new TimeLogModificationNotAllowedException(
+					String.format("Deletion of TimeLog with entryTime %s is locked after %s. Current time: %s",
+							timeLog.getEntryTime(), timeLog.getEntryTime().plus(lockPeriod), now));
+		}
+
 		this.timeLogRepository.delete(timeLog);
 	}
 }
