@@ -28,6 +28,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
@@ -55,26 +56,38 @@ class TimeLogServiceTest {
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
 		this.employee = new Employee();
+		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv -> inv.getArgument(0));
+	}
+
+	private LocalDateTime now() {
+		return LocalDateTime.ofInstant(this.clock.instant(), this.clock.getZone()).truncatedTo(ChronoUnit.SECONDS);
 	}
 
 	@Test
 	void testClockInSuccess() {
-		final LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+		// Arrange
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final LocalDateTime entry = now();
 
 		// Act
-		final TimeLog timeLog = this.timeLogService.clockIn(this.employee, now);
+		final TimeLog timeLog = this.timeLogService.clockIn(this.employee, entry);
 
 		// Assert
 		assertNotNull(timeLog);
 		assertEquals(this.employee, timeLog.getEmployee());
-		assertEquals(now, timeLog.getEntryTime());
+		assertEquals(entry, timeLog.getEntryTime());
 		verify(this.timeLogRepository, times(1)).save(timeLog);
 	}
 
 	@Test
 	void testClockInWithNullEmployee() {
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+
 		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.clockIn(null, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+			this.timeLogService.clockIn(null, now());
 		});
 	}
 
@@ -87,33 +100,41 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockOutSuccess() {
-		final LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-		final TimeLog existingTimeLog = new TimeLog(this.employee, now.minusHours(8)); // Simula una entrada previa
+		// Arrange
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0);
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final LocalDateTime eightHoursBefore = fixedNow.minusHours(8);
 
+		final TimeLog existingTimeLog = new TimeLog(this.employee, eightHoursBefore);
 		when(this.timeLogRepository.findLastTimeLogByEmployee(this.employee)).thenReturn(Optional.of(existingTimeLog));
 
 		// Act
-		final TimeLog result = this.timeLogService.clockOut(this.employee, now);
+		final TimeLog result = this.timeLogService.clockOut(this.employee, now());
 
 		// Assert
 		assertNotNull(result);
-		assertEquals(now, result.getExitTime());
+		assertEquals(now(), result.getExitTime());
 	}
 
 	@Test
 	void testClockOutWithNoPreviousLog() {
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0);
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.timeLogRepository.findLastTimeLogByEmployee(this.employee)).thenReturn(Optional.empty());
 
 		assertThrows(IllegalStateException.class, () -> {
-			this.timeLogService.clockOut(this.employee, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+			this.timeLogService.clockOut(this.employee, now());
 		});
 	}
 
 	@Test
 	void testGetHoursWorkedWithExitTime() {
 		// Arrange
-		final LocalDateTime entryTime = LocalDateTime.now().minusHours(5);
-		final LocalDateTime exitTime = LocalDateTime.now();
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0);
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+
+		final LocalDateTime entryTime = fixedNow.minusHours(5);
+		final LocalDateTime exitTime = fixedNow;
 		final TimeLog timeLog = new TimeLog(this.employee, entryTime);
 		timeLog.setExitTime(exitTime);
 
@@ -124,16 +145,19 @@ class TimeLogServiceTest {
 		assertNotNull(duration);
 		assertEquals(Duration.between(entryTime, exitTime), duration);
 	}
-
+	
 	@Test
-	void testGetHoursWorkedWithoutExitTime() {
+	void testGetHoursWorkedWithoutExitTime() { 
 		// Arrange
-		final LocalDateTime entryTime = LocalDateTime.now().minusHours(3);
-		final TimeLog timeLog = new TimeLog(this.employee, entryTime);
-
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0);
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		
+		final LocalDateTime entryTime = fixedNow.minusHours(3);
+		final TimeLog timeLog = new TimeLog(this.employee, entryTime); 
+		
 		// Act
 		final Duration duration = this.timeLogService.getHoursWorked(timeLog);
-
+		
 		// Assert
 		assertNotNull(duration);
 		assertEquals(Duration.between(entryTime, LocalDateTime.now()).toHours(), duration.toHours(), 1);
@@ -141,16 +165,16 @@ class TimeLogServiceTest {
 
 	@Test
 	void testGetHoursWorkedWithNullTimeLog() {
-		// Act & Assert
-		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.getHoursWorked(null);
-		});
+		assertThrows(NullPointerException.class, () -> this.timeLogService.getHoursWorked(null));
 	}
 
 	@Test
 	void testFindTimeLogByIdSuccess() {
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 9, 0, 0);
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+
 		final long validId = 1L;
-		final TimeLog expectedTimeLog = new TimeLog(this.employee, LocalDateTime.now());
+		final TimeLog expectedTimeLog = new TimeLog(this.employee, now());
 
 		when(this.timeLogRepository.findById(validId)).thenReturn(Optional.of(expectedTimeLog));
 
@@ -164,15 +188,15 @@ class TimeLogServiceTest {
 
 	@Test
 	void testFindTimeLogByIdInvalidId() {
-		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.findTimeLogById(null);
-		});
+		assertThrows(NullPointerException.class, () -> this.timeLogService.findTimeLogById(null));
 	}
 
 	@Test
 	void testFindLastTimeLogByEmployeeSuccess() {
-		final TimeLog expectedTimeLog = new TimeLog(this.employee, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 9, 0, 0);
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 
+		final TimeLog expectedTimeLog = new TimeLog(this.employee, now());
 		when(this.timeLogRepository.findLastTimeLogByEmployee(this.employee)).thenReturn(Optional.of(expectedTimeLog));
 
 		// Act
@@ -185,9 +209,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testFindLastTimeLogByEmployeeWithNullEmployee() {
-		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.findLastTimeLogByEmployee(null);
-		});
+		assertThrows(NullPointerException.class, () -> this.timeLogService.findLastTimeLogByEmployee(null));
 	}
 
 	@Test
@@ -195,15 +217,11 @@ class TimeLogServiceTest {
 		// Arrange
 		final long id = 10L;
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
 		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusHours(8));
 		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
-
-		when(this.timeLogRepository.save(any(TimeLog.class)))
-				.thenAnswer(inv -> inv.getArgument(0));
 
 		final LocalDateTime newEntry = fixedNow.minusDays(2);
 		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(newEntry), JsonNullable.undefined());
@@ -221,18 +239,14 @@ class TimeLogServiceTest {
 		// Arrange
 		final long id = 11L;
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
 		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusHours(6));
 		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
 
-		final LocalDateTime newExit = fixedNow.minusHours(1); // dentro de ventana
+		final LocalDateTime newExit = fixedNow.minusHours(1);
 		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.undefined(), JsonNullable.of(newExit));
-
-		when(this.timeLogRepository.save(org.mockito.ArgumentMatchers.any(TimeLog.class)))
-				.thenAnswer(inv -> inv.getArgument(0));
 
 		// Act
 		final TimeLog saved = this.timeLogService.updateTimeLog(id, req);
@@ -247,8 +261,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final long id = 12L;
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(5);
 
 		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusDays(10));
@@ -257,8 +270,6 @@ class TimeLogServiceTest {
 		final LocalDateTime newEntry = fixedNow.minusDays(1);
 		final LocalDateTime newExit = fixedNow.minusHours(2);
 		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(newEntry), JsonNullable.of(newExit));
-
-		when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		// Act
 		final TimeLog saved = this.timeLogService.updateTimeLog(id, req);
@@ -278,21 +289,25 @@ class TimeLogServiceTest {
 	void testUpdateTimeLogWithBothValuesUndefinedThrows() {
 		// Arrange
 		final long id = 13L;
-		when(this.timeLogRepository.findById(id))
-				.thenReturn(Optional.of(new TimeLog(this.employee, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))));
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.undefined(), JsonNullable.undefined());
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 8, 0, 0);
+		when(clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+
+		final LocalDateTime entry = fixedNow.truncatedTo(ChronoUnit.SECONDS);
+		final TimeLog existing = new TimeLog(employee, entry);
 
 		// Act & Assert
-		assertThrows(NullPointerException.class, () -> this.timeLogService.updateTimeLog(id, req));
+		when(timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
 	}
 
 	@Test
 	void testUpdateTimeLogNotFoundThrows() {
 		// Arrange
 		final long id = 99L;
+		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 8, 0, 0);
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+
 		when(this.timeLogRepository.findById(id)).thenReturn(Optional.empty());
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(LocalDateTime.now()),
-				JsonNullable.undefined());
+		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(now()), JsonNullable.undefined());
 
 		// Act & Assert
 		assertThrows(EntityNotFoundException.class, () -> this.timeLogService.updateTimeLog(id, req));
@@ -303,8 +318,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final long id = 14L;
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
 		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusDays(10));
@@ -323,8 +337,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final long id = 15L;
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
 		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusDays(10));
@@ -343,8 +356,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final long id = 16L;
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(10);
 
 		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusDays(20));
@@ -364,8 +376,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final long id = 17L;
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(10);
 
 		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusHours(5));
@@ -385,8 +396,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final long id = 18L;
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(10);
 
 		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusHours(2)); // entry
@@ -404,8 +414,7 @@ class TimeLogServiceTest {
 	void testDeleteTimeLogSuccessWithinEditingWindow() {
 		// Arrange
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
 		final LocalDateTime entryTime = fixedNow.minusDays(2);
@@ -427,8 +436,7 @@ class TimeLogServiceTest {
 	void testDeleteTimeLogThrowsWhenOutsideEditingWindow() {
 		// Arrange
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
 		final LocalDateTime entryTime = fixedNow.minusDays(4);
@@ -443,8 +451,7 @@ class TimeLogServiceTest {
 	void testDeleteTimeLogBoundaryAtLockInstantShouldThrow() {
 		// Arrange
 		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(java.time.ZoneOffset.UTC));
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
 		final LocalDateTime entryTime = fixedNow.minusDays(3);
@@ -454,5 +461,4 @@ class TimeLogServiceTest {
 		assertThrows(TimeLogModificationNotAllowedException.class, () -> this.timeLogService.deleteTimeLog(timeLog));
 		verify(this.timeLogRepository, times(0)).delete(timeLog);
 	}
-
 }
