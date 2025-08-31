@@ -28,6 +28,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +59,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockInSuccess() {
-		final LocalDateTime now = LocalDateTime.now();
+		final LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
 		// Act
 		final TimeLog timeLog = this.timeLogService.clockIn(this.employee, now);
@@ -73,7 +74,7 @@ class TimeLogServiceTest {
 	@Test
 	void testClockInWithNullEmployee() {
 		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.clockIn(null, LocalDateTime.now());
+			this.timeLogService.clockIn(null, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 		});
 	}
 
@@ -86,7 +87,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockOutSuccess() {
-		final LocalDateTime now = LocalDateTime.now();
+		final LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 		final TimeLog existingTimeLog = new TimeLog(this.employee, now.minusHours(8)); // Simula una entrada previa
 
 		when(this.timeLogRepository.findLastTimeLogByEmployee(this.employee)).thenReturn(Optional.of(existingTimeLog));
@@ -104,7 +105,7 @@ class TimeLogServiceTest {
 		when(this.timeLogRepository.findLastTimeLogByEmployee(this.employee)).thenReturn(Optional.empty());
 
 		assertThrows(IllegalStateException.class, () -> {
-			this.timeLogService.clockOut(this.employee, LocalDateTime.now());
+			this.timeLogService.clockOut(this.employee, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 		});
 	}
 
@@ -170,7 +171,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testFindLastTimeLogByEmployeeSuccess() {
-		final TimeLog expectedTimeLog = new TimeLog(this.employee, LocalDateTime.now());
+		final TimeLog expectedTimeLog = new TimeLog(this.employee, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
 		when(this.timeLogRepository.findLastTimeLogByEmployee(this.employee)).thenReturn(Optional.of(expectedTimeLog));
 
@@ -278,7 +279,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final long id = 13L;
 		when(this.timeLogRepository.findById(id))
-				.thenReturn(Optional.of(new TimeLog(this.employee, LocalDateTime.now())));
+				.thenReturn(Optional.of(new TimeLog(this.employee, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))));
 		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.undefined(), JsonNullable.undefined());
 
 		// Act & Assert
