@@ -82,8 +82,9 @@ public class TimeLogController {
 	 * @return the created {@link TimeLogResponse}
 	 */
 	@PostMapping("/clock-in")
-	public ResponseEntity<TimeLogResponse> clockIn(final @PathVariable String employeeEmail,
-			final @RequestParam(required = false) Instant entryTime, final @RequestParam String worksiteCode) {
+        public ResponseEntity<TimeLogResponse> clockIn(final @PathVariable("employeeEmail") String employeeEmail,
+                        final @RequestParam(value = "entryTime", required = false) Instant entryTime,
+                        final @RequestParam("worksiteCode") String worksiteCode) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Clock-in ACTION performed");
@@ -130,8 +131,9 @@ public class TimeLogController {
      * @return the updated {@link TimeLogResponse}
      */
 	@PostMapping("/clock-out")
-	public ResponseEntity<TimeLogResponse> clockOut(final @PathVariable String employeeEmail,
-			final @RequestParam(required = false) Instant exitTime, final @RequestParam String worksiteCode) {
+        public ResponseEntity<TimeLogResponse> clockOut(final @PathVariable("employeeEmail") String employeeEmail,
+                        final @RequestParam(value = "exitTime", required = false) Instant exitTime,
+                        final @RequestParam("worksiteCode") String worksiteCode) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Clock-out ACTION performed");
@@ -160,8 +162,9 @@ public class TimeLogController {
      * @return the created {@link TimeLogResponse}
      */
 	@PostMapping("/timelogs")
-	public ResponseEntity<TimeLogResponse> createTimeLog(final @PathVariable String employeeEmail,
-			final @RequestParam String worksiteCode, final @RequestBody CreateTimeLogRequest timeLog) {
+        public ResponseEntity<TimeLogResponse> createTimeLog(final @PathVariable("employeeEmail") String employeeEmail,
+                        final @RequestParam("worksiteCode") String worksiteCode,
+                        final @RequestBody CreateTimeLogRequest timeLog) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		Objects.requireNonNull(timeLog, "TimeLog can't be null");
@@ -189,9 +192,11 @@ public class TimeLogController {
      * @throws IllegalArgumentException if only one of {@code fromInstant} or {@code toInstant} is provided
      */
 	@GetMapping("/")
-	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee(final @PathVariable String employeeEmail,
-			final @RequestParam(required = false) Instant fromInstant,
-			final @RequestParam(required = false) Instant toInstant, final Pageable pageable) {
+        public ResponseEntity<Page<TimeLogResponse>> searchByEmployee(
+                        final @PathVariable("employeeEmail") String employeeEmail,
+                        final @RequestParam(value = "fromInstant", required = false) Instant fromInstant,
+                        final @RequestParam(value = "toInstant", required = false) Instant toInstant,
+                        final Pageable pageable) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
@@ -219,8 +224,9 @@ public class TimeLogController {
      * @return the {@link TimeLogResponse} entry
      */
 	@GetMapping("/{entryTime}")
-	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(final @PathVariable String employeeEmail,
-			final @PathVariable Instant entryTime) {
+        public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
+                        final @PathVariable("employeeEmail") String employeeEmail,
+                        final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Find time log by employee and entry time ACTION performed");
@@ -240,8 +246,9 @@ public class TimeLogController {
      * @return a {@link DurationResponse} containing hours, minutes, seconds, and ISO-8601 representation
      */
 	@GetMapping("/{entryTime}/time-worked")
-	public ResponseEntity<DurationResponse> getHoursWorked(final @PathVariable String employeeEmail,
-			final @PathVariable Instant entryTime) {
+        public ResponseEntity<DurationResponse> getHoursWorked(
+                        final @PathVariable("employeeEmail") String employeeEmail,
+                        final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Hours-worked ACTION performed");
@@ -264,8 +271,9 @@ public class TimeLogController {
      * @return a {@link ResponseEntity} with no content (HTTP 204) if the deletion succeeds
      */
 	@DeleteMapping("/{entryTime}")
-	public ResponseEntity<Void> deleteTimeLog(final @PathVariable String employeeEmail,
-			final @PathVariable Instant entryTime) {
+        public ResponseEntity<Void> deleteTimeLog(
+                        final @PathVariable("employeeEmail") String employeeEmail,
+                        final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Delete timelog ACTION performed");
