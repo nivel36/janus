@@ -15,78 +15,139 @@
  */
 package es.nivel36.janus.service.timelog;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.worksite.Worksite;
 
 /**
  * Repository class for managing {@link TimeLog} entities.
  */
 @Repository
-interface TimeLogRepository extends CrudRepository<TimeLog, Long> {
+interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 
 	/**
-	 * Finds the last {@link TimeLog} for the specified employee.
+	 * Retrieves a paginated list of {@link TimeLog} records for the specified
+	 * employee and work site whose {@code entryTime} falls within the given time
+	 * range.
+	 * <p>
+	 * The {@code start} parameter is inclusive; records with
+	 * {@code entryTime &gt;= start} are included. </br>
+	 * The {@code end} parameter is exclusive; records with
+	 * {@code entryTime &lt; end} are included.
+	 *
+	 * @param employee    the employee whose time logs are to be retrieved; must not
+	 *                    be {@code null}
+	 * @param worksite    the work site where the time log was recorded; must not be
+	 *                    {@code null}
+	 * @param fromInstant the inclusive lower bound of the time range; must not be
+	 *                    {@code null}
+	 * @param toInstant   the exclusive upper bound of the time range; must not be
+	 *                    {@code null}
+	 * @param page        pagination parameters including offset, size, and sort
+	 *                    order; must not be {@code null}
+	 */
+	@EntityGraph(attributePaths = { "employee", "worksite" })
+	@Query("""
+			SELECT t FROM TimeLog t
+			WHERE t.employee = :employee
+			AND t.worksite = :worksite
+			AND t.entryTime >= :start AND t.entryTime < :end
+			""")
+	Page<TimeLog> searchByEmployeeAndWorksiteAndEntryTimeInRange(Employee employee, Worksite worksite, Instant start,
+			Instant end, Pageable page);
+
+	/**
+	 * Retrieves time logs for an {@link Employee} @link TimeLog} records for the
+	 * specified employee whose {@code entryTime} falls within the given time range.
+	 * <p>
+	 * The {@code start} parameter is inclusive; records with
+	 * {@code entryTime &gt;= start} are included. </br>
+	 * The {@code end} parameter is exclusive; records with
+	 * {@code entryTime &lt; end} are included.
+	 *
+	 * @param employee    the employee whose time logs are to be retrieved
+	 *                    (required)
+	 * @param fromInstant the inclusive lower bound of the time range; must not be
+	 *                    {@code null}
+	 * @param toInstant   the exclusive upper bound of the time range; must not be
+	 *                    {@code null}
+	 * @param page        pagination parameters including offset, size, and sort
+	 *                    order; must not be {@code null}
+	 * @return a {@link Page} of {@link TimeLog} entries in the range for the given
+	 *         employee
+	 */
+	@EntityGraph(attributePaths = { "employee", "worksite" })
+	@Query("""
+			SELECT t FROM TimeLog t
+			WHERE t.employee = :employee
+			AND t.entryTime >= :start AND t.entryTime < :end
+			""")
+	Page<TimeLog> searchByEmployeeAndEntryTimeInRange(Employee employee, Instant start, Instant end, Pageable page);
+
+	/**
+	 * Finds the most recent {@link TimeLog} for the specified employee and
+	 * worksite, ordered by {@code entryTime} descending.
+	 * <p>
+	 * This method effectively returns the "last" clock-in record for the employee
+	 * at a given worksite, if present.
 	 *
 	 * @param employee the employee whose last time log is to be found
-	 * @return an {@link Optional} containing the last time log of the employee if
-	 *         present
+	 * @param worksite the worksite to filter by
+	 * @return an {@link Optional} containing the most recent time log, or empty if
+	 *         none exist
 	 */
-	@Query("""
-			SELECT t
-			FROM TimeLog t
-			WHERE t.employee = :employee
-			  AND t.entryTime = (
-			      SELECT MAX(t2.entryTime)
-			      FROM TimeLog t2
-			      WHERE t2.employee = :employee
-			  )
-			""")
-	Optional<TimeLog> findLastTimeLogByEmployee(Employee employee);
+	@EntityGraph(attributePaths = { "employee", "worksite" })
+	TimeLog findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(Employee employee, Worksite worksite);
 
 	/**
-	 * Retrieves all {@link TimeLog} entries for a given employee within a specified
-	 * date range.
-	 *
-	 * @param employee  the employee whose time logs are to be retrieved
-	 * @param startDate the start date of the range (inclusive)
-	 * @param endDate   the end date of the range (inclusive)
-	 * @param page      the page on which to search for the elements. It includes
-	 *                  both the offset and the size and order.
-	 * @return a page of time logs for the specified employee within the date range
-	 */
-	@Query("""
-			SELECT t
-			FROM TimeLog t
-			WHERE t.employee = :employee
-			AND t.entryTime BETWEEN :startDate
-			AND :endDate
-			ORDER BY t.entryTime ASC
-			""")
-	List<TimeLog> findTimeLogsByEmployeeAndDateRange(final Employee employee, final LocalDateTime startDate,
-			final LocalDateTime endDate);
-
-	/**
-	 * Retrieves all {@link TimeLog} entries for a given employee, with pagination.
+	 * Retrieves all {@link TimeLog} records for a given employee, with pagination.
+	 * <p>
+	 * The {@link Pageable} parameter defines offset, size, and sort order. Use this
+	 * method to efficiently browse an employee’s full history of recorded time
+	 * logs.
 	 *
 	 * @param employee the employee whose time logs are to be retrieved
-	 * @param page     the page on which to search for the elements. It includes
-	 *                 both the offset and the size and order.
-	 * @return a page of time logs for the specified employee
+	 * @param page     pagination parameters including offset, size, and sort order
+	 * @return a {@link Page} of time logs belonging to the specified employee
 	 */
-	@Query("""
+	@EntityGraph(attributePaths = { "employee", "worksite" })
+	@Query(value = """
 			SELECT t
 			FROM TimeLog t
 			WHERE t.employee = :employee
 			""")
-	Page<TimeLog> findTimeLogsByEmployee(Employee employee, Pageable page);
+	Page<TimeLog> searchTimeLogsByEmployee(@Param("employee") Employee employee, Pageable page);
 
+	/**
+	 * Retrieves a single {@link TimeLog} for the specified employee that exactly
+	 * matches the provided {@code entryTime}.
+	 *
+	 * @param employee  the employee whose time log is to be retrieved
+	 * @param entryTime the exact entry timestamp of the record
+	 * @return an {@link Optional} containing the matching time log, or empty if not
+	 *         found
+	 */
+	@EntityGraph(attributePaths = { "employee", "worksite" })
+	TimeLog findByEmployeeAndEntryTime(Employee employee, Instant entryTime);
+
+	/**
+	 * Checks whether a {@link TimeLog} exists for the specified employee and exact
+	 * {@code entryTime}.
+	 *
+	 * @param employee  the employee to check for
+	 * @param entryTime the exact entry timestamp to check
+	 * @return {@code true} if a record exists for the given employee and entry
+	 *         time; {@code false} otherwise
+	 */
+	boolean existsByEmployeeAndEntryTime(Employee employee, Instant entryTime);
 }

@@ -16,12 +16,13 @@
 package es.nivel36.janus.service.employee;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.worksite.Worksite;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,6 +31,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -79,70 +82,93 @@ public class Employee implements Serializable {
 	private String surname;
 
 	/**
-	 * The email of the employee. It must be unique and cannot be null.
+	 * The email of the employee.
+	 * <p>
+	 * This field is mandatory, must be unique, and cannot be {@code null}.
+	 * </p>
 	 */
 	@NotNull
 	@Column(nullable = false, unique = true, length = 254)
 	private String email;
 
 	/**
-	 * The list of time logs associated with the employee. Represents the time
-	 * entries recorded by the employee.
-	 */
-	@OneToMany(mappedBy = "employee", orphanRemoval = true)
-	private List<TimeLog> timeLogs = new ArrayList<>();
-
-	/**
-	 * The work schedule associated with this employee. This field is mandatory and
-	 * cannot be null.
+	 * The work schedule associated with this employee.
+	 * <p>
+	 * This field is mandatory and cannot be {@code null}.
+	 * </p>
 	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "schedule_id", nullable = false)
 	private Schedule schedule;
-	
+
+	/**
+	 * The worksites where the employee is allowed to record their time logs.
+	 */
+	@ManyToMany
+	@JoinTable(name = "employee_worksite", joinColumns = @JoinColumn(name = "employee_id"), inverseJoinColumns = @JoinColumn(name = "worksite_id"))
+	private Set<Worksite> worksites = new HashSet<>();
+
+	/**
+	 * The set of time logs registered by this employee.
+	 */
+	@OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+	private Set<TimeLog> timeLogs = new HashSet<>();
+
+	/**
+	 * Default constructor for JPA. Initializes an empty employee.
+	 */
 	public Employee() {
 	}
-	
+
+	/**
+	 * Constructs a new employee with the specified email and schedule.
+	 *
+	 * @param email    the unique email of the employee; must not be {@code null}
+	 * @param schedule the work schedule assigned to the employee; must not be
+	 *                 {@code null}
+	 * @throws NullPointerException if {@code email} or {@code schedule} are
+	 *                              {@code null}
+	 */
 	public Employee(final String email, final Schedule schedule) {
-		this.email = Objects.requireNonNull(email, "Email can't  be null");
-		this.schedule = Objects.requireNonNull(schedule, "Schedule can't  be null");
+		this.email = Objects.requireNonNull(email, "Email can't be null");
+		this.schedule = Objects.requireNonNull(schedule, "Schedule can't be null");
+	}
+
+	/**
+	 * Gets the email of the employee.
+	 *
+	 * @return the email of the employee
+	 */
+	public String getEmail() {
+		return this.email;
 	}
 
 	/**
 	 * Gets the unique identifier of the employee.
 	 *
-	 * @return the id of the employee
+	 * @return the ID of the employee
 	 */
 	public Long getId() {
 		return this.id;
 	}
 
 	/**
-	 * Sets the unique identifier for the employee.
+	 * Gets the first name of the employee.
 	 *
-	 * @param id the id to set for the employee
-	 */
-	public void setId(final Long id) {
-		this.id = id;
-	}
-
-	/**
-	 * Gets the name of the employee.
-	 *
-	 * @return the name of the employee
+	 * @return the first name of the employee
 	 */
 	public String getName() {
 		return this.name;
 	}
 
 	/**
-	 * Sets the name of the employee.
+	 * Gets the work schedule associated with this employee.
 	 *
-	 * @param name the name to set for the employee
+	 * @return the {@link Schedule} of the employee
 	 */
-	public void setName(final String name) {
-		this.name = name;
+	public Schedule getSchedule() {
+		return this.schedule;
 	}
 
 	/**
@@ -155,71 +181,84 @@ public class Employee implements Serializable {
 	}
 
 	/**
-	 * Sets the surname of the employee.
+	 * Gets the set of time logs recorded by this employee.
 	 *
-	 * @param surname the surname to set for the employee
+	 * @return the set of {@link TimeLog} entries associated with this employee
 	 */
-	public void setSurname(final String surname) {
-		this.surname = surname;
+	public Set<TimeLog> getTimeLogs() {
+		return timeLogs;
 	}
 
 	/**
-	 * Gets the email of the employee.
-	 * 
-	 * @return the email of the employee
+	 * Gets the worksites where this employee can register their time logs.
+	 *
+	 * @return the set of {@link Worksite} entities linked to this employee
 	 */
-	public String getEmail() {
-		return this.email;
+	public Set<Worksite> getWorksites() {
+		return worksites;
 	}
 
 	/**
 	 * Sets the email of the employee.
 	 *
-	 * @param email the email to set for the employee
+	 * @param email the email to assign to the employee
 	 */
 	public void setEmail(final String email) {
 		this.email = email;
 	}
 
 	/**
-	 * Gets the list of time logs associated with the employee.
+	 * Sets the unique identifier of the employee.
 	 *
-	 * @return the list of time logs for the employee
+	 * @param id the ID to assign to the employee
 	 */
-	public List<TimeLog> getTimeLogs() {
-		return this.timeLogs;
+	public void setId(final Long id) {
+		this.id = id;
 	}
 
 	/**
-	 * Sets the list of time logs for the employee.
+	 * Sets the first name of the employee.
 	 *
-	 * @param timeLogs the time logs to associate with the employee
+	 * @param name the first name to assign to the employee
 	 */
-	public void setTimeLogs(final List<TimeLog> timeLogs) {
-		this.timeLogs = timeLogs;
+	public void setName(final String name) {
+		this.name = name;
 	}
 
 	/**
-	 * Gets the work schedule associated with the employee.
+	 * Sets the work schedule of the employee.
 	 *
-	 * @return the schedule associated with the employee
-	 */
-	public Schedule getSchedule() {
-		return this.schedule;
-	}
-
-	/**
-	 * Sets the work schedule for the employee. The schedule cannot be null.
-	 *
-	 * @param schedule the schedule to set for the employee
+	 * @param schedule the {@link Schedule} to assign to the employee
 	 */
 	public void setSchedule(final Schedule schedule) {
 		this.schedule = schedule;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.email);
+	/**
+	 * Sets the surname of the employee.
+	 *
+	 * @param surname the surname to assign to the employee
+	 */
+	public void setSurname(final String surname) {
+		this.surname = surname;
+	}
+
+	/**
+	 * Sets the set of time logs for this employee.
+	 *
+	 * @param timeLogs the set of {@link TimeLog} entries to assign
+	 */
+	public void setTimeLogs(Set<TimeLog> timeLogs) {
+		this.timeLogs = timeLogs;
+	}
+
+	/**
+	 * Sets the worksites available for this employee.
+	 *
+	 * @param worksites the set of {@link Worksite} entities to assign
+	 */
+	public void setWorksites(Set<Worksite> worksites) {
+		this.worksites = worksites;
 	}
 
 	@Override
@@ -232,6 +271,11 @@ public class Employee implements Serializable {
 		}
 		final Employee other = (Employee) obj;
 		return Objects.equals(this.email, other.email);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.email);
 	}
 
 	@Override

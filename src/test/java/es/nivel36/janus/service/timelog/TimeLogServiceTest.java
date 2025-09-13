@@ -18,7 +18,6 @@ package es.nivel36.janus.service.timelog;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,53 +25,61 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.openapitools.jackson.nullable.JsonNullable;
 
-import es.nivel36.janus.api.timelog.UpdateTimeLogRequest;
+import es.nivel36.janus.api.v1.timelog.CreateTimeLogRequest;
 import es.nivel36.janus.service.admin.AdminService;
 import es.nivel36.janus.service.employee.Employee;
-import jakarta.persistence.EntityNotFoundException;
+import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.service.worksite.WorksiteService;
 
 class TimeLogServiceTest {
 
 	private @Mock TimeLogRepository timeLogRepository;
 	private @Mock AdminService adminService;
+	private @Mock WorksiteService worksiteService;
 	private @Mock Clock clock;
 	private @InjectMocks TimeLogService timeLogService;
 	private Employee employee;
+	private Worksite worksite;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
 		this.employee = new Employee();
-		when(this.clock.getZone()).thenReturn(ZoneId.of("UTC"));
+		employee.setEmail("aaron@test,com");
+		this.worksite = new Worksite();
+		worksite.setCode("BCN-HQ");
+		final ZoneId UTCZone = ZoneId.of("UTC");
+		worksite.setTimeZone(UTCZone);
+		employee.getWorksites().add(worksite);
+		when(this.clock.getZone()).thenReturn(UTCZone);
 		when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv -> inv.getArgument(0));
 	}
 
-	private LocalDateTime now() {
-		return LocalDateTime.ofInstant(this.clock.instant(), this.clock.getZone()).truncatedTo(ChronoUnit.SECONDS);
+	private Instant now() {
+		return this.clock.instant().truncatedTo(ChronoUnit.SECONDS);
 	}
 
 	@Test
 	void testClockInSuccess() {
 		// Arrange
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-		final LocalDateTime entry = now();
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		final Instant entry = now();
 
 		// Act
-		final TimeLog timeLog = this.timeLogService.clockIn(this.employee, entry);
+		final TimeLog timeLog = this.timeLogService.clockIn(this.employee, this.worksite, entry);
 
 		// Assert
 		assertNotNull(timeLog);
@@ -83,33 +90,34 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockInWithNullEmployee() {
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 
 		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.clockIn(null, now());
+			this.timeLogService.clockIn(null, this.worksite, now());
 		});
 	}
 
 	@Test
 	void testClockInWithNullEntryTime() {
 		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.clockIn(this.employee, null);
+			this.timeLogService.clockIn(this.employee, this.worksite, null);
 		});
 	}
 
 	@Test
 	void testClockOutSuccess() {
 		// Arrange
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-		final LocalDateTime eightHoursBefore = fixedNow.minusHours(8);
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		final Instant eightHoursBefore = fixedNow.minus(8, ChronoUnit.HOURS);
 
-		final TimeLog existingTimeLog = new TimeLog(this.employee, eightHoursBefore);
-		when(this.timeLogRepository.findLastTimeLogByEmployee(this.employee)).thenReturn(Optional.of(existingTimeLog));
+		final TimeLog existingTimeLog = new TimeLog(this.employee, this.worksite, eightHoursBefore);
+		when(this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(this.employee, this.worksite))
+				.thenReturn(existingTimeLog);
 
 		// Act
-		final TimeLog result = this.timeLogService.clockOut(this.employee, now());
+		final TimeLog result = this.timeLogService.clockOut(this.employee, this.worksite, now());
 
 		// Assert
 		assertNotNull(result);
@@ -118,68 +126,71 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockOutWithNoPreviousLog() {
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-		when(this.timeLogRepository.findLastTimeLogByEmployee(this.employee)).thenReturn(Optional.empty());
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(this.employee, this.worksite))
+				.thenReturn(null);
 
-		assertThrows(IllegalStateException.class, () -> {
-			this.timeLogService.clockOut(this.employee, now());
-		});
+		final TimeLog result = this.timeLogService.clockOut(this.employee, this.worksite, now());
+
+		// Assert
+		assertNotNull(result);
+		assertEquals(now().minusSeconds(1), result.getEntryTime());
+		assertEquals(now(), result.getExitTime());
 	}
 
 	@Test
 	void testGetHoursWorkedWithExitTime() {
 		// Arrange
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 
-		final LocalDateTime entryTime = fixedNow.minusHours(5);
-		final LocalDateTime exitTime = fixedNow;
-		final TimeLog timeLog = new TimeLog(this.employee, entryTime);
+		final Instant entryTime = fixedNow.minus(5, ChronoUnit.HOURS);
+		final Instant exitTime = fixedNow;
+		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
 		timeLog.setExitTime(exitTime);
 
 		// Act
-		final Duration duration = this.timeLogService.getHoursWorked(timeLog);
+		final Duration duration = this.timeLogService.getTimeWorked(timeLog);
 
 		// Assert
 		assertNotNull(duration);
 		assertEquals(Duration.between(entryTime, exitTime), duration);
 	}
-	
+
 	@Test
-	void testGetHoursWorkedWithoutExitTime() { 
+	void testGetHoursWorkedWithoutExitTime() {
 		// Arrange
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-		
-		final LocalDateTime entryTime = fixedNow.minusHours(3);
-		final TimeLog timeLog = new TimeLog(this.employee, entryTime); 
-		
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+
+		final Instant entryTime = fixedNow.minus(3, ChronoUnit.HOURS);
+		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
+
 		// Act
-		final Duration duration = this.timeLogService.getHoursWorked(timeLog);
-		
+		final Duration duration = this.timeLogService.getTimeWorked(timeLog);
+
 		// Assert
 		assertNotNull(duration);
-		assertEquals(Duration.between(entryTime, LocalDateTime.now()).toHours(), duration.toHours(), 1);
+		assertEquals(Duration.between(entryTime, fixedNow).toHours(), duration.toHours(), 1);
 	}
 
 	@Test
 	void testGetHoursWorkedWithNullTimeLog() {
-		assertThrows(NullPointerException.class, () -> this.timeLogService.getHoursWorked(null));
+		assertThrows(NullPointerException.class, () -> this.timeLogService.getTimeWorked(null));
 	}
 
 	@Test
-	void testFindTimeLogByIdSuccess() {
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 9, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+	void testFindLastTimeLogByEmployeeSuccess() {
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 9, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 
-		final long validId = 1L;
-		final TimeLog expectedTimeLog = new TimeLog(this.employee, now());
-
-		when(this.timeLogRepository.findById(validId)).thenReturn(Optional.of(expectedTimeLog));
+		final TimeLog expectedTimeLog = new TimeLog(this.employee, this.worksite, now());
+		when(this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(this.employee, this.worksite))
+				.thenReturn(expectedTimeLog);
 
 		// Act
-		final TimeLog result = this.timeLogService.findTimeLogById(validId);
+		final TimeLog result = this.timeLogService.findLastTimeLogByEmployee(this.employee, this.worksite);
 
 		// Assert
 		assertNotNull(result);
@@ -187,238 +198,165 @@ class TimeLogServiceTest {
 	}
 
 	@Test
-	void testFindTimeLogByIdInvalidId() {
-		assertThrows(NullPointerException.class, () -> this.timeLogService.findTimeLogById(null));
-	}
-
-	@Test
-	void testFindLastTimeLogByEmployeeSuccess() {
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 9, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-
-		final TimeLog expectedTimeLog = new TimeLog(this.employee, now());
-		when(this.timeLogRepository.findLastTimeLogByEmployee(this.employee)).thenReturn(Optional.of(expectedTimeLog));
-
-		// Act
-		final Optional<TimeLog> result = this.timeLogService.findLastTimeLogByEmployee(this.employee);
-
-		// Assert
-		assertTrue(result.isPresent());
-		assertEquals(expectedTimeLog, result.get());
-	}
-
-	@Test
 	void testFindLastTimeLogByEmployeeWithNullEmployee() {
-		assertThrows(NullPointerException.class, () -> this.timeLogService.findLastTimeLogByEmployee(null));
+		assertThrows(NullPointerException.class,
+				() -> this.timeLogService.findLastTimeLogByEmployee(null, this.worksite));
 	}
 
 	@Test
-	void testUpdateTimeLogSuccessUpdateEntryWithinWindow() {
+	void testCreateTimeLogSuccessWithinEditingWindow() {
 		// Arrange
-		final long id = 10L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusHours(8));
-		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
-
-		final LocalDateTime newEntry = fixedNow.minusDays(2);
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(newEntry), JsonNullable.undefined());
+		final Instant entry = fixedNow.minus(1, ChronoUnit.DAYS); // dentro de ventana (3 días)
+		final Instant exit = fixedNow.minus(2, ChronoUnit.HOURS); // dentro de ventana (3 días)
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(entry, exit);
 
 		// Act
-		final TimeLog saved = this.timeLogService.updateTimeLog(id, req);
+		final TimeLog saved = this.timeLogService.createTimeLog(this.employee, this.worksite, req);
 
 		// Assert
-		assertEquals(newEntry, saved.getEntryTime());
-		verify(this.timeLogRepository, times(1)).save(existing);
+		assertNotNull(saved);
+		assertEquals(this.employee, saved.getEmployee());
+		assertEquals(this.worksite, saved.getWorksite());
+		assertEquals(entry, saved.getEntryTime());
+		assertEquals(exit, saved.getExitTime());
+		verify(this.timeLogRepository, times(1)).save(any(TimeLog.class));
 	}
 
 	@Test
-	void testUpdateTimeLogSuccessUpdateExitWithinWindow() {
+	void testCreateTimeLogThrowsWhenRequestIsNull() {
+		assertThrows(NullPointerException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, null));
+	}
+
+	@Test
+	void testCreateTimeLogThrowsWhenEntryIsNull() {
 		// Arrange
-		final long id = 11L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusHours(6));
-		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
-
-		final LocalDateTime newExit = fixedNow.minusHours(1);
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.undefined(), JsonNullable.of(newExit));
-
-		// Act
-		final TimeLog saved = this.timeLogService.updateTimeLog(id, req);
-
-		// Assert
-		assertEquals(newExit, saved.getExitTime());
-		verify(this.timeLogRepository, times(1)).save(existing);
-	}
-
-	@Test
-	void testUpdateTimeLogSuccessUpdateBothWithValidChronology() {
-		// Arrange
-		final long id = 12L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-		when(this.adminService.getDaysUntilLocked()).thenReturn(5);
-
-		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusDays(10));
-		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
-
-		final LocalDateTime newEntry = fixedNow.minusDays(1);
-		final LocalDateTime newExit = fixedNow.minusHours(2);
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(newEntry), JsonNullable.of(newExit));
-
-		// Act
-		final TimeLog saved = this.timeLogService.updateTimeLog(id, req);
-
-		// Assert
-		assertEquals(newEntry, saved.getEntryTime());
-		assertEquals(newExit, saved.getExitTime());
-		verify(this.timeLogRepository, times(1)).save(existing);
-	}
-
-	@Test
-	void testUpdateTimeLogWithNullRequestThrows() {
-		assertThrows(NullPointerException.class, () -> this.timeLogService.updateTimeLog(1L, null));
-	}
-
-	@Test
-	void testUpdateTimeLogWithBothValuesUndefinedThrows() {
-		// Arrange
-		final long id = 13L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 8, 0, 0);
-		when(clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-
-		final LocalDateTime entry = fixedNow.truncatedTo(ChronoUnit.SECONDS);
-		final TimeLog existing = new TimeLog(employee, entry);
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(null, fixedNow.minus(1, ChronoUnit.HOURS));
 
 		// Act & Assert
-		when(timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
+		assertThrows(NullPointerException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, req));
+		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
 	@Test
-	void testUpdateTimeLogNotFoundThrows() {
+	void testCreateTimeLogThrowsWhenExitIsNull() {
 		// Arrange
-		final long id = 99L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 8, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-
-		when(this.timeLogRepository.findById(id)).thenReturn(Optional.empty());
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(now()), JsonNullable.undefined());
-
-		// Act & Assert
-		assertThrows(EntityNotFoundException.class, () -> this.timeLogService.updateTimeLog(id, req));
-	}
-
-	@Test
-	void testUpdateTimeLogEntryLockWindowBoundaryEqualsNowThrows() {
-		// Arrange
-		final long id = 14L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusDays(10));
-		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
-
-		final LocalDateTime newEntry = fixedNow.minusDays(3);
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(newEntry), JsonNullable.undefined());
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(fixedNow.minus(1, ChronoUnit.HOURS), null);
 
 		// Act & Assert
-		assertThrows(TimeLogModificationNotAllowedException.class, () -> this.timeLogService.updateTimeLog(id, req));
-		verify(this.timeLogRepository, times(0)).save(existing);
+		assertThrows(NullPointerException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, req));
+		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
 	@Test
-	void testUpdateTimeLogExitOutsideEditingWindowThrows() {
+	void testCreateTimeLogEntryOutsideEditingWindowThrows() {
 		// Arrange
-		final long id = 15L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusDays(10));
-		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
-
-		final LocalDateTime newExit = fixedNow.minusDays(4);
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.undefined(), JsonNullable.of(newExit));
+		final Instant entry = fixedNow.minus(4, ChronoUnit.DAYS); // fuera de ventana
+		final Instant exit = fixedNow.minus(1, ChronoUnit.DAYS); // dentro, pero entry bloquea
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(entry, exit);
 
 		// Act & Assert
-		assertThrows(TimeLogModificationNotAllowedException.class, () -> this.timeLogService.updateTimeLog(id, req));
-		verify(this.timeLogRepository, times(0)).save(existing);
+		assertThrows(TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, req));
+		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
 	@Test
-	void testUpdateTimeLogChronologyBothProvidedEntryAfterExitThrows() {
+	void testCreateTimeLogExitOutsideEditingWindowThrows() {
 		// Arrange
-		final long id = 16L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-		when(this.adminService.getDaysUntilLocked()).thenReturn(10);
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusDays(20));
-		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
-
-		final LocalDateTime newEntry = fixedNow.minusHours(1);
-		final LocalDateTime newExit = fixedNow.minusHours(2);
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(newEntry), JsonNullable.of(newExit));
+		final Instant entry = fixedNow.minus(1, ChronoUnit.DAYS); // dentro de ventana
+		final Instant exit = fixedNow.minus(4, ChronoUnit.DAYS); // fuera de ventana
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(entry, exit);
 
 		// Act & Assert
-		assertThrows(TimeLogChronologyException.class, () -> this.timeLogService.updateTimeLog(id, req));
-		verify(this.timeLogRepository, times(0)).save(existing);
+		assertThrows(TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, req));
+		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
 	@Test
-	void testUpdateTimeLogChronologyEntryAfterExistingExitThrows() {
+	void testCreateTimeLogBoundaryAtLockInstantForEntryShouldThrow() {
 		// Arrange
-		final long id = 17L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-		when(this.adminService.getDaysUntilLocked()).thenReturn(10);
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusHours(5));
-		existing.setExitTime(fixedNow.minusHours(1));
-		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
-
-		final LocalDateTime newEntry = fixedNow.minusMinutes(30);
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.of(newEntry), JsonNullable.undefined());
+		// entry.plus(3d) == now -> !isAfter(now) => EXCEPCIÓN
+		final Instant entry = fixedNow.minus(3, ChronoUnit.DAYS);
+		final Instant exit = fixedNow.minus(2, ChronoUnit.DAYS);
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(entry, exit);
 
 		// Act & Assert
-		assertThrows(TimeLogChronologyException.class, () -> this.timeLogService.updateTimeLog(id, req));
-		verify(this.timeLogRepository, times(0)).save(existing);
+		assertThrows(TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, req));
+		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
 	@Test
-	void testUpdateTimeLogChronologyExitBeforeExistingEntryThrows() {
+	void testCreateTimeLogBoundaryAtLockInstantForExitShouldThrow() {
 		// Arrange
-		final long id = 18L;
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
-		when(this.adminService.getDaysUntilLocked()).thenReturn(10);
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final TimeLog existing = new TimeLog(this.employee, fixedNow.minusHours(2)); // entry
-		when(this.timeLogRepository.findById(id)).thenReturn(Optional.of(existing));
-
-		final LocalDateTime newExit = fixedNow.minusHours(3);
-		final UpdateTimeLogRequest req = new UpdateTimeLogRequest(JsonNullable.undefined(), JsonNullable.of(newExit));
+		final Instant entry = fixedNow.minus(2, ChronoUnit.DAYS);
+		final Instant exit = fixedNow.minus(3, ChronoUnit.DAYS); // exit.plus(3d) == now -> bloquea
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(entry, exit);
 
 		// Act & Assert
-		assertThrows(TimeLogChronologyException.class, () -> this.timeLogService.updateTimeLog(id, req));
-		verify(this.timeLogRepository, times(0)).save(existing);
+		assertThrows(TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, req));
+		verify(this.timeLogRepository, times(0)).save(any());
+	}
+
+	@Test
+	void testCreateTimeLogChronologyEntryAfterExitThrows() {
+		// Arrange
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+
+		final Instant entry = fixedNow.minus(1, ChronoUnit.HOURS); // posterior a exit
+		final Instant exit = fixedNow.minus(2, ChronoUnit.HOURS);
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(entry, exit);
+
+		// Act & Assert
+		assertThrows(TimeLogChronologyException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, req));
+		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
 	@Test
 	void testDeleteTimeLogSuccessWithinEditingWindow() {
 		// Arrange
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final LocalDateTime entryTime = fixedNow.minusDays(2);
-		final TimeLog timeLog = new TimeLog(this.employee, entryTime);
+		final Instant entryTime = fixedNow.minus(2, ChronoUnit.DAYS);
+		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
 
 		// Act
 		this.timeLogService.deleteTimeLog(timeLog);
@@ -435,12 +373,12 @@ class TimeLogServiceTest {
 	@Test
 	void testDeleteTimeLogThrowsWhenOutsideEditingWindow() {
 		// Arrange
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final LocalDateTime entryTime = fixedNow.minusDays(4);
-		final TimeLog timeLog = new TimeLog(this.employee, entryTime);
+		final Instant entryTime = fixedNow.minus(4, ChronoUnit.DAYS).atZone(ZoneOffset.UTC).toInstant();
+		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
 
 		// Act & Assert
 		assertThrows(TimeLogModificationNotAllowedException.class, () -> this.timeLogService.deleteTimeLog(timeLog));
@@ -450,12 +388,12 @@ class TimeLogServiceTest {
 	@Test
 	void testDeleteTimeLogBoundaryAtLockInstantShouldThrow() {
 		// Arrange
-		final LocalDateTime fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0);
-		when(this.clock.instant()).thenReturn(fixedNow.toInstant(ZoneOffset.UTC));
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final LocalDateTime entryTime = fixedNow.minusDays(3);
-		final TimeLog timeLog = new TimeLog(this.employee, entryTime);
+		final Instant entryTime = fixedNow.minus(3, ChronoUnit.DAYS);
+		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
 
 		// Act & Assert
 		assertThrows(TimeLogModificationNotAllowedException.class, () -> this.timeLogService.deleteTimeLog(timeLog));

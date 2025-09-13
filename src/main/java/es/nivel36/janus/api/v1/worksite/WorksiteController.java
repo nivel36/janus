@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.api.timelog;
+package es.nivel36.janus.api.v1.worksite;
 
-import java.time.LocalDateTime;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import org.openapitools.jackson.nullable.JsonNullable;
+/**
+ * REST controller responsible for exposing work places operations.
+ */
+@RestController
+@RequestMapping("/api/v1/workplace")
+public class WorksiteController {
 
-public record UpdateTimeLogRequest(
-		JsonNullable<LocalDateTime> entryTime, 
-		JsonNullable<LocalDateTime> exitTime) {
+
+	
 }

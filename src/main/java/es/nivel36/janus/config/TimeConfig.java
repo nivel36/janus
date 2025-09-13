@@ -41,8 +41,8 @@ import org.springframework.context.annotation.Configuration;
  * 		this.clock = clock;
  * 	}
  *
- * 	public LocalDateTime now() {
- * 		return LocalDateTime.now(clock);
+ * 	public Instant now() {
+ * 		return clock(now);
  * 	}
  * }
  * </pre>
@@ -51,15 +51,15 @@ import org.springframework.context.annotation.Configuration;
 public class TimeConfig {
 
 	/**
-	 * Provides a {@link Clock} instance based on the system default time-zone.
+	 * Provides a {@link Clock} instance based on the UTC time-zone.
 	 * <p>
 	 * This bean can be injected into services that require a source of current
 	 * time, enabling deterministic testing.
 	 *
-	 * @return a system {@link Clock} using the default time-zone
+	 * @return a system {@link Clock} using the UTC time-zone
 	 */
 	@Bean
 	public Clock systemClock() {
-		return Clock.systemDefaultZone();
+		return Clock.systemUTC();
 	}
 }

@@ -16,5 +16,8 @@ INSERT INTO day_of_week_time_range (id, name, day_of_week, start_time, end_time,
 INSERT INTO day_of_week_time_range (id, name, day_of_week, start_time, end_time, schedule_rule_id) VALUES (8, 'Wednesday August 8:00 - 15:00', 'WEDNESDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
 INSERT INTO day_of_week_time_range (id, name, day_of_week, start_time, end_time, schedule_rule_id) VALUES (9, 'Thursday August 8:00 - 15:00', 'THURSDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
 
-INSERT INTO Employee (Id, Name, Surname, Email, Schedule_Id) VALUES (1, 'Name', 'Surname', 'name@test.com', 1);
+INSERT INTO Employee (Id, Name, Surname, Email, Schedule_Id) VALUES (1, 'Name', 'Surname', 'aferrer@nivel36.es', 1);
 
+INSERT INTO Worksite (Id, Name, Code, Time_Zone, deleted) VALUES (1, 'Barcelona Headquarters', 'BCN-HQ', 'UTC+1', false);
+
+INSERT INTO employee_worksite (employee_id, worksite_id) VALUES (1,1);

@@ -8,7 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under this License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -17,11 +17,10 @@ package es.nivel36.janus.service.timelog;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -32,10 +31,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.nivel36.janus.api.timelog.UpdateTimeLogRequest;
+import es.nivel36.janus.api.v1.timelog.CreateTimeLogRequest;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.admin.AdminService;
 import es.nivel36.janus.service.employee.Employee;
-import jakarta.persistence.EntityNotFoundException;
+import es.nivel36.janus.service.worksite.Worksite;
 
 /**
  * Service class responsible for managing clock-in and clock-out operations for
@@ -59,271 +59,353 @@ public class TimeLogService {
 	}
 
 	/**
-	 * Clocks in an employee at the current time.
+	 * Clocks in an {@link Employee} at the current time for the given
+	 * {@link Worksite}.
 	 *
-	 * @param employee the employee to clock in
+	 * @param employee the employee to clock in; must not be {@code null}
+	 * @param worksite the worksite where the employee is clocking in; must not be
+	 *                 {@code null}
 	 * @return the created {@link TimeLog} entry with the current entry time
-	 * @throws NullPointerException if the employee is {@code null}
+	 * @throws NullPointerException if {@code employee} or {@code worksite} is
+	 *                              {@code null}
 	 */
 	@Transactional
-	public TimeLog clockIn(final Employee employee) {
-		return this.clockIn(employee, LocalDateTime.now());
+	public TimeLog clockIn(final Employee employee, final Worksite worksite) {
+		return this.clockIn(employee, worksite, clock.instant());
 	}
 
 	/**
-	 * Clocks in an employee at the specified entry time.
+	 * Clocks in an {@link Employee} at the specified entry time for the given
+	 * {@link Worksite}.
 	 *
-	 * @param employee  the employee to clock in
-	 * @param entryTime the specific time for clocking in
-	 * @return the created {@link TimeLog} entry with the provided entry time
-	 * @throws NullPointerException if the employee or entryTime is {@code null}
+	 * <p>
+	 * The provided {@code entryTime} is truncated to seconds.
+	 * 
+	 * @param employee  the employee to clock in; must not be {@code null}
+	 * @param worksite  the worksite where the employee is clocking in; must not be
+	 *                  {@code null}
+	 * @param entryTime the specific time for clocking in; must not be {@code null}
+	 * @return the created {@link TimeLog} with the provided entry time
+	 * @throws NullPointerException if {@code employee}, {@code worksite} or
+	 *                              {@code entryTime} is {@code null}
 	 */
 	@Transactional
-	public TimeLog clockIn(final Employee employee, LocalDateTime entryTime) {
+	public TimeLog clockIn(final Employee employee, final Worksite worksite, final Instant entryTime) {
 		Objects.requireNonNull(employee, "Employee can't be null.");
+		Objects.requireNonNull(worksite, "Worksite can't be null.");
 		Objects.requireNonNull(entryTime, "Entry time can't be null.");
-		entryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
-		logger.debug("Clocking in employee: {} at {}", employee, entryTime);
-		final TimeLog timeLog = new TimeLog(employee, entryTime);
+		final Instant truncatedEntryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
+
+		logger.debug("Clocking in employee {} at worksite {} and time {}", employee, worksite, truncatedEntryTime);
+
+		final TimeLog timeLog = new TimeLog(employee, worksite, truncatedEntryTime);
 		this.timeLogRepository.save(timeLog);
 		return timeLog;
 	}
 
 	/**
-	 * Clocks out an employee at the current time.
+	 * Clocks out an {@link Employee} at the current time for the given
+	 * {@link Worksite}.
 	 *
-	 * @param employee the employee to clock out
-	 * @return the updated {@link TimeLog} with the exit time set to now
-	 * @throws NullPointerException if the employee is {@code null}
+	 * <p>
+	 * If a previous {@link TimeLog} for the {@code employee}/{@code worksite}
+	 * cannot be found, the method constructs a synthetic one-second {@link TimeLog}
+	 * with {@code entryTime = exitTime - 1s} and {@code exitTime = exitTime}.
+	 *
+	 * @param employee the employee to clock out; must not be {@code null}
+	 * @param worksite the worksite where the employee is clocking out; must not be
+	 *                 {@code null}
+	 * @return the last {@link TimeLog} for the employee/worksite with
+	 *         {@code exitTime} set. If none existed, returns the synthetic
+	 *         one-second {@link TimeLog}.
+	 *
+	 * @throws NullPointerException if {@code employee} or {@code worksite} is
+	 *                              {@code null}
 	 */
 	@Transactional
-	public TimeLog clockOut(final Employee employee) {
-		return this.clockOut(employee, LocalDateTime.now());
+	public TimeLog clockOut(final Employee employee, final Worksite worksite) {
+		return this.clockOut(employee, worksite, clock.instant());
 	}
 
 	/**
-	 * Clocks out an employee at the specified exit time.
+	 * Clocks out an {@link Employee} at the specified exit time for the given
+	 * {@link Worksite}.
 	 *
-	 * @param employee the employee to clock out
-	 * @param exitTime the specific time for clocking out
-	 * @return the updated {@link TimeLog} with the provided exit time
-	 * @throws NullPointerException  if the employee or exitTime is {@code null}
-	 * @throws IllegalStateException if there is no {@link TimeLog} for the employee
+	 * <p>
+	 * The provided {@code exitTime} is truncated to seconds.</br>
+	 * If a previous {@link TimeLog} for the {@code employee}/{@code worksite}
+	 * cannot be found, the method constructs a synthetic one-second {@link TimeLog}
+	 * with {@code entryTime = exitTime - 1s} and {@code exitTime = exitTime}.
+	 *
+	 * @param employee the employee to clock out; must not be {@code null}
+	 * @param worksite the worksite where the employee is clocking out; must not be
+	 *                 {@code null}
+	 * @param exitTime the specific time for clocking out; must not be {@code null}
+	 * @return the last {@link TimeLog} for the employee/worksite with
+	 *         {@code exitTime} set. If none existed, returns the synthetic
+	 *         one-second {@link TimeLog}.
+	 *
+	 * @throws NullPointerException if {@code employee}, {@code worksite} or
+	 *                              {@code exitTime} is {@code null}
+	 *
 	 */
 	@Transactional
-	public TimeLog clockOut(final Employee employee, LocalDateTime exitTime) {
+	public TimeLog clockOut(final Employee employee, final Worksite worksite, Instant exitTime) {
 		Objects.requireNonNull(employee, "Employee can't be null.");
+		Objects.requireNonNull(worksite, "Worksite can't be null.");
 		Objects.requireNonNull(exitTime, "Exit time can't be null.");
 		exitTime = exitTime.truncatedTo(ChronoUnit.SECONDS);
-		logger.debug("Clocking out employee: {} at {}", employee, exitTime);
 
-		final Optional<TimeLog> lastTimeLogOpt = this.timeLogRepository.findLastTimeLogByEmployee(employee);
+		logger.debug("Clocking out employee {} at worksite {} and time {}", employee, worksite, exitTime);
 
-		// Check if TimeLog is present, otherwise throw an IllegalStateException
-		final TimeLog lastTimeLog = lastTimeLogOpt.orElseThrow(
-				() -> new IllegalStateException(String.format("No time log found for the employee %s", employee)));
+		TimeLog lastTimeLog = this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(employee,
+				worksite);
+		if (lastTimeLog == null) {
+			logger.warn("The employee did not clock in. A one-second timelog is created.");
+			lastTimeLog = new TimeLog(employee, worksite, exitTime.minusSeconds(1), exitTime);
+		}
 
 		lastTimeLog.setExitTime(exitTime);
-
+		this.timeLogRepository.save(lastTimeLog);
+		logger.trace("Exit time set to {} for last TimeLog {}", exitTime, lastTimeLog.getId());
 		return lastTimeLog;
 	}
 
 	/**
-	 * Calculates the total hours worked for a given time log. If the employee
-	 * hasn't clocked out yet, the duration will be calculated from the entry time
-	 * to the current time.
+	 * Calculates the total time worked for a given {@link TimeLog}. If the employee
+	 * hasn't clocked out yet, the duration is from entry time to {@code now}.
 	 *
-	 * @param timeLog the {@link TimeLog} entry containing the clock-in and
-	 *                clock-out times
-	 * @return a {@link Duration} representing the total hours worked
-	 * @throws NullPointerException if the timeLog is {@code null}
+	 * @param timeLog the time log entry; must not be {@code null}
+	 * @return a {@link Duration} representing the total time worked
+	 * @throws NullPointerException if {@code timeLog} is {@code null}
 	 */
-	public Duration getHoursWorked(final TimeLog timeLog) {
+	public Duration getTimeWorked(final TimeLog timeLog) {
 		Objects.requireNonNull(timeLog, "TimeLog can't be null.");
-		logger.debug("Calculating hours worked for TimeLog: {}", timeLog);
+		logger.debug("Calculating worked duration for TimeLog {}", timeLog.getId());
 
 		if (timeLog.getExitTime() == null) {
-			final Duration duration = Duration.between(timeLog.getEntryTime(), LocalDateTime.now());
-			logger.trace("TimeLog has no exit time. Calculating duration until now: {}", duration);
+			final Duration duration = Duration.between(timeLog.getEntryTime(), this.clock.instant());
+			logger.trace("TimeLog {} has no exit time. Duration until now: {}", timeLog.getId(), duration);
 			return duration;
 		} else {
 			final Duration duration = Duration.between(timeLog.getEntryTime(), timeLog.getExitTime());
-			logger.trace("TimeLog has exit time. Calculating duration between entry and exit: {}", duration);
+			logger.trace("TimeLog {} has exit time {}. Duration: {}", timeLog.getId(), timeLog.getExitTime(), duration);
 			return duration;
 		}
 	}
 
 	/**
-	 * Finds a time log by its primary key (id).
+	 * Finds a {@link TimeLog} by employee and exact entry time.
 	 *
-	 * @param id the ID of the time log to be found
-	 * @return the {@link TimeLog} with the specified id, or {@code null} if not
-	 *         found
-	 * @throws NullPointerException    if the id is null
-	 * @throws EntityNotFoundException if Time log does not exist.
+	 * @param employee  the employee; must not be {@code null}
+	 * @param entryTime the exact entry time; must not be {@code null}
+	 * @return the {@link TimeLog} found
+	 * @throws NullPointerException      if {@code employee} or {@code entryTime} is
+	 *                                   {@code null}
+	 * @throws ResourceNotFoundException if no time log exists for the given pair
 	 */
 	@Transactional(readOnly = true)
-	public TimeLog findTimeLogById(final Long id) {
-		Objects.requireNonNull(id, "Id can't be null");
-		logger.debug("Finding TimeLog by id: {}", id);
-		return this.timeLogRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException(String.format("There is no TimeLog with id %s", id)));
+	public TimeLog findTimeLogByEmployeeAndEntryTime(final Employee employee, final Instant entryTime) {
+		Objects.requireNonNull(employee, "Employee can't be null");
+		Objects.requireNonNull(entryTime, "Entry time can't be null");
+
+		logger.debug("Finding TimeLog by employee {} and entryTime {}", employee, entryTime);
+
+		final TimeLog timeLog = this.timeLogRepository.findByEmployeeAndEntryTime(employee, entryTime);
+		if (timeLog == null) {
+			throw new ResourceNotFoundException(
+					String.format("TimeLog for employee %s at entry time %s was not found", employee, entryTime));
+		}
+		return timeLog;
 	}
 
 	/**
-	 * Finds the last time log for the specified employee.
+	 * Finds the last time log for the specified employee at a given worksite.
 	 *
-	 * @param employee the employee whose last time log is to be found
-	 * @return the last {@link TimeLog} for the employee
-	 * @throws NullPointerException if the employee is {@code null}
+	 * @param employee the employee; must not be {@code null}
+	 * @param worksite the worksite; must not be {@code null}
+	 * @return an {@link Optional} with the last {@link TimeLog} for the
+	 *         employee/worksite
+	 * @throws NullPointerException if {@code employee} or {@code worksite} is
+	 *                              {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public Optional<TimeLog> findLastTimeLogByEmployee(final Employee employee) {
+	public TimeLog findLastTimeLogByEmployee(final Employee employee, final Worksite worksite) {
 		Objects.requireNonNull(employee, "Employee can't be null.");
-		logger.debug("Finding last TimeLog for employee: {}", employee);
-		return this.timeLogRepository.findLastTimeLogByEmployee(employee);
+		Objects.requireNonNull(worksite, "Worksite can't be null.");
+		logger.debug("Finding last TimeLog for employee {} and worksite {}", employee, worksite);
+
+		return this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(employee, worksite);
 	}
 
 	/**
-	 * Finds a list of time logs for the specified employee with pagination.
+	 * Finds a paginated list of time logs for the specified employee.
 	 *
-	 * @param employee      the employee whose time logs are to be found
-	 * @param startPosition the initial position of the search from which to start
-	 *                      returning values.
-	 * @param pageSize      the size of each page
-	 * @return a list of {@link TimeLog} entries for the employee
-	 * @throws NullPointerException     if the employee is {@code null}
-	 * @throws IllegalArgumentException if the page is negative or the pageSize is
-	 *                                  less than 1
+	 * @param employee the employee; must not be {@code null}
+	 * @param page     the {@link Pageable} to control pagination/sorting; must not
+	 *                 be {@code null}
+	 * @return a {@link Page} of {@link TimeLog} entries for the employee
+	 * @throws NullPointerException if {@code employee} or {@code page} is
+	 *                              {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public Page<TimeLog> findTimeLogsByEmployee(final Employee employee, final Pageable page) {
+	public Page<TimeLog> searchTimeLogsByEmployee(final Employee employee, final Pageable page) {
 		Objects.requireNonNull(employee, "Employee can't be null.");
 		Objects.requireNonNull(page, "Page can't be null.");
 
-		logger.debug("Finding TimeLogs for employee: {} with startPosition: {}, pageSize: {}", employee,
-				page.getOffset(), page.getPageSize());
-		return this.timeLogRepository.findTimeLogsByEmployee(employee, page);
+		logger.debug("Finding TimeLogs for employee {} with offset {} and pageSize {}", employee, page.getOffset(),
+				page.getPageSize());
+		return this.timeLogRepository.searchTimeLogsByEmployee(employee, page);
 	}
 
 	/**
-	 * Retrieves all {@link TimeLog} entries for a given {@link Employee} within a
-	 * date range centered around the specified date.
+	 * Retrieves all {@link TimeLog} entries for a given {@link Employee} and
+	 * {@link Worksite} within the **calendar day** of {@code date}, using the
+	 * worksite's time zone.
 	 *
-	 * <p>
-	 * This method searches for all time logs for the specified employee within a
-	 * 3-day range: the day before the given date, the day of the date, and the day
-	 * after the date. This can be useful when the exact time entry may span across
-	 * multiple days or if there are related time logs around the specified date.
-	 * </p>
-	 *
-	 * @param employee the employee whose time logs are to be retrieved. Cannot be
-	 *                 {@code null}.
-	 * @param date     the date for which the time logs are to be searched, along
-	 *                 with the adjacent days. Cannot be {@code null}.
-	 * @return a list of {@link TimeLog} entries for the specified employee and date
-	 *         range.
-	 * @throws NullPointerException if the {@code employee} or {@code date} is
-	 *                              {@code null}.
+	 * @param employee the employee; must not be {@code null}
+	 * @param worksite the worksite whose {@link ZoneId} defines the day window;
+	 *                 must not be {@code null}
+	 * @param date     the local date (in the worksite time zone) to filter; must
+	 *                 not be {@code null}
+	 * @param page     pagination information; must not be {@code null}
+	 * @return a {@link Page} of {@link TimeLog} entries within [dateT00:00,
+	 *         (date+1)T00:00) in the worksite zone
+	 * @throws NullPointerException if any parameter is {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public List<TimeLog> findTimeLogsByEmployeeAndDate(final Employee employee, final LocalDate date) {
+	public Page<TimeLog> findTimeLogsByEmployeeAndWorksiteAndDate(final Employee employee, final Worksite worksite,
+			final LocalDate date, final Pageable page) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
+		Objects.requireNonNull(worksite, "Worksite cannot be null.");
 		Objects.requireNonNull(date, "Date cannot be null.");
+		Objects.requireNonNull(page, "Page cannot be null.");
 
-		logger.debug("Finding TimeLogs for employee: {} with date: {}", employee, date);
-		return this.timeLogRepository.findTimeLogsByEmployeeAndDateRange(employee, date.minusDays(1).atStartOfDay(),
-				date.plusDays(1).atStartOfDay());
+		logger.debug("Finding TimeLogs for employee {} at worksite {} on date {}", employee, worksite, date);
+
+		final ZoneId z = worksite.getTimeZone();
+		final Instant fromInstant = date.atStartOfDay(z).toInstant();
+		final Instant toInstant = date.plusDays(1).atStartOfDay(z).toInstant();
+		return this.timeLogRepository.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page);
 	}
 
 	/**
-	 * Updates a {@link TimeLog} with the values provided in the request.
+	 * Retrieves time logs for an {@link Employee} @link TimeLog} records for the
+	 * specified employee whose {@code entryTime} falls within the given time range.
 	 * <p>
-	 * Applied business rules:
+	 * The {@code start} parameter is inclusive; records with
+	 * {@code entryTime &gt;= start} are included. </br>
+	 * The {@code end} parameter is exclusive; records with
+	 * {@code entryTime &lt; end} are included.
+	 *
+	 * @param employee    the employee whose time logs are to be retrieved; must not
+	 *                    be {@code null}
+	 * @param fromInstant the inclusive lower bound of the time range; must not be
+	 *                    {@code null}
+	 * @param toInstant   the exclusive upper bound of the time range; must not be
+	 *                    {@code null}
+	 * @param page        pagination parameters including offset, size, and sort
+	 *                    order; must not be {@code null}
+	 * @return a {@link Page} of {@link TimeLog} entries in the range
+	 * @throws NullPointerException if any parameter is {@code null}
+	 */
+	@Transactional(readOnly = true)
+	public Page<TimeLog> searchByEmployeeAndEntryTimeInRange(final Employee employee, final Instant fromInstant,
+			final Instant toInstant, final Pageable page) {
+		Objects.requireNonNull(employee, "Employee cannot be null.");
+		Objects.requireNonNull(fromInstant, "fromInstant cannot be null.");
+		Objects.requireNonNull(toInstant, "toInstant cannot be null.");
+		Objects.requireNonNull(page, "Page cannot be null.");
+
+		logger.debug("Finding TimeLogs for employee {} in range [{}, {})", employee, fromInstant, toInstant);
+
+		return this.timeLogRepository.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page);
+	}
+
+	/**
+	 * Creates a {@link TimeLog} with the values provided in the request.
+	 * <p>
+	 * Business rules:
 	 * <ul>
-	 * <li>A timestamp can only be modified if it is within the editing window
-	 * (newValue + daysUntilLocked &gt; now).</li>
-	 * <li>If both values are provided, temporal consistency is validated (entryTime
-	 * ≤ exitTime).</li>
+	 * <li>Both {@code entryTime} and {@code exitTime} must be provided.</li>
+	 * <li>Editing window: each timestamp must be within {@code daysUntilLocked}
+	 * days from {@code now} (i.e., {@code newValue + daysUntilLocked > now}).</li>
+	 * <li>Chronology: {@code entryTime} must be strictly before
+	 * {@code exitTime}.</li>
+	 * <li>Uniqueness: there must not already exist a log for the same employee and
+	 * {@code entryTime}.</li>
 	 * </ul>
 	 *
-	 * @param id      identifier of the record to be updated
-	 * @param request values to update (optional fields)
-	 * @return the persisted entity after the update
-	 * @throws NullPointerException                   if request is null or
-	 *                                                entryTime and exitTime are
-	 *                                                null
-	 * @throws EntityNotFoundException                if Time log does not exist.
+	 * @param employee the employee owner of the new log; must not be {@code null}
+	 * @param worksite the worksite related to the new log; must not be {@code null}
+	 * @param request  the creation payload; must not be {@code null}
+	 * @return the persisted {@link TimeLog}
+	 * @throws NullPointerException                   if {@code employee},
+	 *                                                {@code worksite} or
+	 *                                                {@code request} is
+	 *                                                {@code null}, or if
+	 *                                                {@code entryTime} or
+	 *                                                {@code exitTime} are
+	 *                                                {@code null}
 	 * @throws TimeLogModificationNotAllowedException if the editing window is
 	 *                                                violated
-	 * @throws TimeLogChronologyException             if entryTime &gt; exitTime
+	 * @throws TimeLogChronologyException             if
+	 *                                                {@code entryTime >= exitTime}
 	 */
 	@Transactional
-	public TimeLog updateTimeLog(final Long id, final UpdateTimeLogRequest request) {
+	public TimeLog createTimeLog(final Employee employee, final Worksite worksite, final CreateTimeLogRequest request) {
+		Objects.requireNonNull(employee, "Employee cannot be null.");
+		Objects.requireNonNull(worksite, "Worksite cannot be null.");
 		Objects.requireNonNull(request, "TimeLog request cannot be null.");
-		logger.debug("Updating TimeLog with id: {}", id);
-		final TimeLog entity = findTimeLogById(id);
-		final LocalDateTime now = LocalDateTime.now(clock);
-		final Period lockPeriod = Period.ofDays(adminService.getDaysUntilLocked());
 
-		final LocalDateTime newEntry = request.entryTime().orElse(null);
-		final LocalDateTime newExit = request.exitTime().orElse(null);
+		logger.debug("Creating TimeLog for employee {} at worksite {} with request {}", employee, worksite, request);
 
-		if (newEntry == null && newExit == null) {
-			throw new NullPointerException("TimeLog request cannot be null.");
+		final Instant now = clock.instant();
+		final Duration lockDuration = Duration.ofDays(adminService.getDaysUntilLocked());
+
+		final Instant newEntry = request.entryTime();
+		final Instant newExit = request.exitTime();
+
+		if (newEntry == null || newExit == null) {
+			throw new NullPointerException("Both entryTime and exitTime must be provided.");
 		}
 
-		if (newEntry != null && !newEntry.plus(lockPeriod).isAfter(now)) {
+		if (!newEntry.plus(lockDuration).isAfter(now)) {
 			throw new TimeLogModificationNotAllowedException(String.format(
-					"Modification of entry time %s is locked after %s. Current time: %s", newEntry, lockPeriod, now));
+					"Creation locked for entryTime %s after %s days. Now: %s", newEntry, lockDuration.toDays(), now));
 		}
 
-		if (newExit != null && !newExit.plus(lockPeriod).isAfter(now)) {
+		if (!newExit.plus(lockDuration).isAfter(now)) {
 			throw new TimeLogModificationNotAllowedException(String.format(
-					"Modification of exit time %s is locked after %s. Current time: %s", newExit, lockPeriod, now));
+					"Creation locked for exitTime %s after %s days. Now: %s", newExit, lockDuration.toDays(), now));
 		}
 
-		if (newEntry != null && newExit != null) {
-			assertChronology(newEntry, newExit);
-		}
-		if (newEntry != null && entity.getExitTime() != null) {
-			assertChronology(newEntry, entity.getExitTime());
-		}
-		if (newExit != null && entity.getEntryTime() != null) {
-			assertChronology(entity.getEntryTime(), newExit);
-		}
-
-		if (newEntry != null) {
-			entity.setEntryTime(newEntry);
-		}
-		if (newExit != null) {
-			entity.setExitTime(newExit);
-		}
-
-		return timeLogRepository.save(entity);
-	}
-
-	private static void assertChronology(final LocalDateTime entry, final LocalDateTime exit) {
-		if (entry.isAfter(exit)) {
+		if (!newEntry.isBefore(newExit)) {
 			throw new TimeLogChronologyException(
-					String.format("Invalid chronology: entryTime %s is after exitTime %s.", entry, exit));
+					String.format("entryTime %s must be strictly before exitTime %s.", newEntry, newExit));
 		}
+
+		final boolean timeLogExists = this.timeLogRepository.existsByEmployeeAndEntryTime(employee, newEntry);
+		if (timeLogExists) {
+			throw new TimeLogModificationNotAllowedException(
+					String.format("A time log with entryTime %s already exists for the employee.", newEntry));
+		}
+
+		final TimeLog newTimeLog = new TimeLog(employee, worksite, newEntry, newExit);
+
+		return timeLogRepository.save(newTimeLog);
 	}
 
 	/**
-	 * Deletes a {@link TimeLog} entry.
+	 * Deletes a {@link TimeLog}.
 	 * <p>
-	 * Applied business rules:
+	 * Business rule:
 	 * <ul>
-	 * <li>A time log can only be deleted if it is still within the editing window
-	 * (entryTime + daysUntilLocked &gt; now).</li>
-	 * <li>If the editing window has expired, a
-	 * {@link TimeLogModificationNotAllowedException} is thrown.</li>
+	 * <li>Deletion allowed only if {@code entryTime + daysUntilLocked > now}.</li>
 	 * </ul>
 	 *
-	 * @param timeLog the {@link TimeLog} instance to be deleted, must not be
-	 *                {@code null}
-	 * @throws NullPointerException                   if the time log is
+	 * @param timeLog the time log to delete; must not be {@code null}
+	 * @throws NullPointerException                   if {@code timeLog} is
 	 *                                                {@code null}
 	 * @throws TimeLogModificationNotAllowedException if the editing window is
 	 *                                                violated
@@ -331,17 +413,18 @@ public class TimeLogService {
 	@Transactional
 	public void deleteTimeLog(final TimeLog timeLog) {
 		Objects.requireNonNull(timeLog, "TimeLog cannot be null.");
-		logger.debug("Deleting TimeLog: {}", timeLog);
+		logger.debug("Deleting TimeLog {}", timeLog.getId());
 
-		final LocalDateTime now = LocalDateTime.now(clock);
-		final Period lockPeriod = Period.ofDays(adminService.getDaysUntilLocked());
+		final Instant now = clock.instant();
+		final Duration lockDuration = Duration.ofDays(adminService.getDaysUntilLocked());
 
-		if (!timeLog.getEntryTime().plus(lockPeriod).isAfter(now)) {
+		if (!timeLog.getEntryTime().plus(lockDuration).isAfter(now)) {
 			throw new TimeLogModificationNotAllowedException(
-					String.format("Deletion of TimeLog with entryTime %s is locked after %s. Current time: %s",
-							timeLog.getEntryTime(), timeLog.getEntryTime().plus(lockPeriod), now));
+					String.format("Deletion locked for TimeLog %s with entryTime %s after %s days. Now: %s",
+							timeLog.getId(), timeLog.getEntryTime(), lockDuration.toDays(), now));
 		}
 
 		this.timeLogRepository.delete(timeLog);
+		logger.trace("TimeLog {} deleted", timeLog.getId());
 	}
 }

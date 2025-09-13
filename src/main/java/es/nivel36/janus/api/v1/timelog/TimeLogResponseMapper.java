@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.api.timelog;
+package es.nivel36.janus.api.v1.timelog;
+
+import java.time.Instant;
+import java.util.Objects;
 
 import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.worksite.Worksite;
 
+/**
+ * {@link Mapper} implementation that converts a {@link TimeLog} entity into a
+ * {@link TimeLogResponse} record.
+ */
 @Component
 public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 
@@ -29,7 +38,17 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		if (entity == null) {
 			return null;
 		}
-		return new TimeLogResponse(entity.getEntryTime(),
-				entity.getExitTime() == null ? JsonNullable.undefined() : JsonNullable.of(entity.getExitTime()));
+		final Employee employee = Objects.requireNonNull(entity.getEmployee(), "Employee can't be null");
+		final Worksite worksite = Objects.requireNonNull(entity.getWorksite(), "Worksite can't be null");
+		final String employeeEmail = employee.getEmail();
+		final String worksiteCode = worksite.getCode();
+		final Instant entryTime = entity.getEntryTime();
+		final Instant exit = entity.getExitTime();
+		final JsonNullable<Instant> exitTime = toJsonNullable(exit);
+		return new TimeLogResponse(employeeEmail, worksiteCode, entryTime, exitTime);
+	}
+
+	private static <T> JsonNullable<T> toJsonNullable(T value) {
+		return value == null ? JsonNullable.undefined() : JsonNullable.of(value);
 	}
 }

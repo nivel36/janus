@@ -17,6 +17,7 @@ package es.nivel36.janus.service.workshift;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,7 @@ public class WorkShift implements Serializable {
 	/**
 	 * The date and time when the work shift ended.
 	 */
-	private LocalDateTime endDateTime;
+	private Instant endTime;
 
 	/**
 	 * The list of time logs (clock-ins and clock-outs) that define the work shift.
@@ -90,7 +91,7 @@ public class WorkShift implements Serializable {
 	 */
 	@NotNull
 	@Column(nullable = false)
-	private LocalDateTime startDateTime;
+	private Instant startTime;
 
 	/**
 	 * Total time spent on breaks (pauses) during this shift.
@@ -119,8 +120,8 @@ public class WorkShift implements Serializable {
 	 *
 	 * @return the end date and time as a {@link LocalDateTime}, or null if not set.
 	 */
-	public LocalDateTime getEndDateTime() {
-		return this.endDateTime;
+	public Instant getEndTime() {
+		return this.endTime;
 	}
 
 	/**
@@ -146,8 +147,8 @@ public class WorkShift implements Serializable {
 	 *
 	 * @return the start date and time as a {@link LocalDateTime}.
 	 */
-	public LocalDateTime getStartDateTime() {
-		return this.startDateTime;
+	public Instant getStartTime() {
+		return this.startTime;
 	}
 
 	/**
@@ -182,8 +183,8 @@ public class WorkShift implements Serializable {
 	 *
 	 * @param endDateTime the end date and time to set.
 	 */
-	public void setEndDateTime(final LocalDateTime endDateTime) {
-		this.endDateTime = endDateTime;
+	public void setEndTime(final Instant endTime) {
+		this.endTime = endTime;
 	}
 
 	/**
@@ -210,8 +211,8 @@ public class WorkShift implements Serializable {
 	 *
 	 * @param startDateTime the start date and time to set. Cannot be null.
 	 */
-	public void setStartDateTime(final LocalDateTime startDateTime) {
-		this.startDateTime = startDateTime;
+	public void setStartTime(final Instant startTime) {
+		this.startTime = startTime;
 	}
 
 	/**
@@ -246,17 +247,17 @@ public class WorkShift implements Serializable {
 		}
 		final WorkShift other = (WorkShift) obj;
 		return Objects.equals(this.id, other.id) && Objects.equals(this.employee, other.employee)
-				&& Objects.equals(this.startDateTime, other.startDateTime);
+				&& Objects.equals(this.startTime, other.startTime);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.employee, this.startDateTime);
+		return Objects.hash(this.id, this.employee, this.startTime);
 	}
 
 	@Override
 	public String toString() {
 		return "WorkShift [id=" + id + (employee != null ? ", employee=" + employee.getName() : "") + ", startDateTime="
-				+ (startDateTime != null ? startDateTime : "null") + "]";
+				+ (startTime != null ? startTime : "null") + "]";
 	}
 }

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2025 Abel Ferrer Jiménez
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package es.nivel36.janus.api;
 
 import java.time.LocalDateTime;
@@ -16,6 +31,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import es.nivel36.janus.service.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -35,11 +51,25 @@ public class JanusExceptionHandler {
 	private static final Logger logger = LoggerFactory.getLogger(JanusExceptionHandler.class);
 
 	/**
-	 * Handles missing resources
+	 * Handles missing entity
 	 */
 	@ExceptionHandler(EntityNotFoundException.class)
 	ProblemDetail handleEntityNotFound(final EntityNotFoundException ex, final HttpServletRequest request) {
 		logger.warn("Entity not found: {}", ex.getMessage());
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+		pd.setTitle("Resource not found");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		return pd;
+	}
+
+	/**
+	 * Handles missing resource
+	 */
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex,
+			final HttpServletRequest request) {
+		logger.warn("Resource not found: {}", ex.getMessage());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
 		pd.setTitle("Resource not found");
 		pd.setDetail(ex.getMessage());
@@ -61,8 +91,7 @@ public class JanusExceptionHandler {
 	}
 
 	/**
-	 * Handles illegal state (e.g., trying to clock-out without a previous
-	 * clock-in).
+	 * Handles illegal state
 	 */
 	@ExceptionHandler(IllegalStateException.class)
 	ProblemDetail handleIllegalState(final IllegalStateException ex, final HttpServletRequest request) {

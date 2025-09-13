@@ -16,15 +16,17 @@
 package es.nivel36.janus.service.timelog;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.worksite.Worksite;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,6 +37,24 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * Entity representing a time log entry for an {@link Employee}.
+ * <p>
+ * A time log records the clock-in ({@code entryTime}) and optional clock-out
+ * ({@code exitTime}) instants of an employee at a specific {@link Worksite}.
+ * </p>
+ *
+ * <p>
+ * Each time log is uniquely identified by the combination of the employee and
+ * the entry time, enforced through a unique constraint. The entity also
+ * supports logical deletion via the {@code deleted} flag, which ensures that
+ * records remain in the database for auditing purposes even after they are
+ * "deleted".
+ * </p>
+ *
+ * @see Employee
+ * @see Worksite
+ */
 @SQLDelete(sql = "UPDATE TIME_LOG SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 @Entity
@@ -48,31 +68,37 @@ public class TimeLog implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Unique identifier of the time log.
+	 * Unique identifier of the time log. Auto-generated.
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	/**
-	 * The employee associated with this time log.
+	 * The employee associated with this time log
 	 */
-	@NotNull
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "employee_id", nullable = false)
 	private Employee employee;
+
+	/**
+	 * The worksite associated with this time log
+	 */
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "worksite_id", nullable = false)
+	private Worksite worksite;
 
 	/**
 	 * The clock-in time for this time log.
 	 */
 	@NotNull
 	@Column(nullable = false)
-	private LocalDateTime entryTime;
+	private Instant entryTime;
 
 	/**
 	 * The clock-out time for this time log.
 	 */
-	private LocalDateTime exitTime;
+	private Instant exitTime;
 
 	/**
 	 * Indicates whether this time log has been logically deleted.
@@ -95,24 +121,28 @@ public class TimeLog implements Serializable {
 	 * Constructor for the {@link TimeLog} entity that initializes the time log with
 	 * the given employee.
 	 *
-	 * @param employee the employee associated with this time log, must not be null
-	 * @throws NullPointerException if the employee or entryTime is null
+	 * @param employee associated with this time log, must not be null
+	 * @param worksite associated with this time log, must not be null
+	 * @throws NullPointerException if the employee or the work site are null
 	 */
-	public TimeLog(final Employee employee) {
+	public TimeLog(final Employee employee, final Worksite worksite) {
 		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
+		this.worksite = Objects.requireNonNull(worksite, "Worksite can't be null");
 	}
 
 	/**
 	 * Constructor for the {@link TimeLog} entity that initializes the time log with
 	 * the given employee and entry time.
 	 *
-	 * @param employee  the employee associated with this time log, must not be null
+	 * @param employee  associated with this time log, must not be null
+	 * @param worksite  associated with this time log, must not be null
 	 * @param entryTime the entry (clock-in) time for this time log, must not be
 	 *                  null
 	 * @throws NullPointerException if the employee or entryTime is null
 	 */
-	public TimeLog(final Employee employee, final LocalDateTime entryTime) {
+	public TimeLog(final Employee employee, final Worksite worksite, final Instant entryTime) {
 		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
+		this.worksite = Objects.requireNonNull(worksite, "Worksite can't be null");
 		this.entryTime = Objects.requireNonNull(entryTime, "EntryTime can't be null");
 	}
 
@@ -120,15 +150,17 @@ public class TimeLog implements Serializable {
 	 * Constructor for the {@link TimeLog} entity that initializes the time log with
 	 * the given employee and entry time.
 	 *
-	 * @param employee  the employee associated with this time log, must not be null
+	 * @param employee  associated with this time log, must not be null
+	 * @param worksite  associated with this time log, must not be null
 	 * @param entryTime the entry (clock-in) time for this time log, must not be
 	 *                  null
 	 * @param exitTime  the exit (clock-out) time for this time log, must not be
 	 *                  null
 	 * @throws NullPointerException if the employee or entryTime is null
 	 */
-	public TimeLog(final Employee employee, final LocalDateTime entryTime, final LocalDateTime exitTime) {
+	public TimeLog(final Employee employee, final Worksite worksite, final Instant entryTime, final Instant exitTime) {
 		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
+		this.worksite = Objects.requireNonNull(worksite, "Worksite can't be null");
 		this.entryTime = Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		this.exitTime = Objects.requireNonNull(exitTime, "ExitTime can't be null");
 	}
@@ -154,20 +186,20 @@ public class TimeLog implements Serializable {
 	/**
 	 * Gets the clock-in time for this time log.
 	 *
-	 * @return the clock-in time as a {@link LocalDateTime}, or null if the employee
-	 *         has not clocked in
+	 * @return the clock-in time as a {@link Instant}, or null if the employee has
+	 *         not clocked in
 	 */
-	public LocalDateTime getEntryTime() {
+	public Instant getEntryTime() {
 		return this.entryTime;
 	}
 
 	/**
 	 * Gets the clock-out time for this time log.
 	 *
-	 * @return the clock-out time as a {@link LocalDateTime}, or null if the
-	 *         employee has not clocked out
+	 * @return the clock-out time as a {@link Instant}, or null if the employee has
+	 *         not clocked out
 	 */
-	public LocalDateTime getExitTime() {
+	public Instant getExitTime() {
 		return this.exitTime;
 	}
 
@@ -202,19 +234,19 @@ public class TimeLog implements Serializable {
 	/**
 	 * Sets the clock-in time for this time log.
 	 *
-	 * @param entryTime the clock-in time to set as a {@link LocalDateTime}
+	 * @param entryTime the clock-in time to set as a {@link Instant}
 	 */
-	public void setEntryTime(final LocalDateTime entryTime) {
+	public void setEntryTime(final Instant entryTime) {
 		this.entryTime = entryTime;
 	}
 
 	/**
 	 * Sets the clock-out time for this time log.
 	 *
-	 * @param exitTime the clock-out time to set as a {@link LocalDateTime}, or null
-	 *                 if the employee has not clocked out yet
+	 * @param exitTime the clock-out time to set as a {@link Instant}, or null if
+	 *                 the employee has not clocked out yet
 	 */
-	public void setExitTime(final LocalDateTime exitTime) {
+	public void setExitTime(final Instant exitTime) {
 		this.exitTime = exitTime;
 	}
 
@@ -226,6 +258,26 @@ public class TimeLog implements Serializable {
 	 */
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
+	}
+
+	/**
+	 * Gets the worksite associated with this time log.
+	 *
+	 * @return the {@link Worksite} where the employee performed the logged
+	 *         activity; never {@code null} once the entity is persisted
+	 */
+	public Worksite getWorksite() {
+		return worksite;
+	}
+
+	/**
+	 * Sets the worksite associated with this time log.
+	 *
+	 * @param worksite the {@link Worksite} to associate with this time log; must
+	 *                 not be {@code null}
+	 */
+	public void setWorksite(Worksite worksite) {
+		this.worksite = worksite;
 	}
 
 	@Override

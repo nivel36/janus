@@ -16,8 +16,10 @@
 package es.nivel36.janus.service.workshift;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +27,8 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import es.nivel36.janus.service.employee.Employee;
@@ -32,7 +36,7 @@ import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
-
+import es.nivel36.janus.service.worksite.Worksite;
 
 /**
  * Service class responsible for managing work shifts for employees. This class
@@ -45,10 +49,10 @@ public class WorkShiftService {
 
 	private static final Logger logger = LoggerFactory.getLogger(WorkShiftService.class);
 	private static final Duration FOUR_HOURS = Duration.ofHours(4);
-	
+
 	private TimeLogService timeLogservice;
 	private ScheduleService scheduleService;
-	
+
 	public WorkShiftService(final TimeLogService timeLogService, final ScheduleService scheduleService) {
 		this.timeLogservice = Objects.requireNonNull(timeLogService, "TimeLog Service can't be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "Schedule Service can't be null");
@@ -65,21 +69,28 @@ public class WorkShiftService {
 	 *         {@code null} if no time logs are found
 	 * @throws NullPointerException if the employee or date is {@code null}
 	 */
-	public WorkShift getWorkShift(final Employee employee, final LocalDate date) {
+	public WorkShift getWorkShift(final Employee employee, final Worksite worksite, final LocalDate date) {
 		Objects.requireNonNull(employee, "Employee cant be null");
+		Objects.requireNonNull(worksite, "Worksite cant be null");
 		Objects.requireNonNull(date, "Date cant be null");
 		logger.debug("Getting work shift for employee {} at {}", employee, date);
 
-		final List<TimeLog> timeLogs = this.timeLogservice.findTimeLogsByEmployeeAndDate(employee, date);
+		final Page<TimeLog> timeLogs = this.timeLogservice.findTimeLogsByEmployeeAndWorksiteAndDate(employee, worksite,
+				date, Pageable.ofSize(100));
 		if (timeLogs.isEmpty()) {
 			final WorkShift workShift = new WorkShift();
 			workShift.setEmployee(employee);
 			return workShift;
 		}
+		if (timeLogs.getTotalPages() > 1) {
+			throw new IllegalStateException("Too many time logs for one day");
+		}
+
+		final List<TimeLog> timeLogsList = timeLogs.getContent();
 		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, date);
 
-		return timeRange.map(tr -> this.buildWorkShift(employee, date, tr, timeLogs))
-				.orElseGet(() -> this.buildWorkShiftForNonWorkingDay(employee, date, timeLogs));
+		return timeRange.map(tr -> this.buildWorkShift(employee, worksite, date, tr, timeLogsList))
+				.orElseGet(() -> this.buildWorkShiftForNonWorkingDay(employee, date, timeLogsList));
 	}
 
 	/**
@@ -97,18 +108,18 @@ public class WorkShiftService {
 	 * @return the constructed {@link WorkShift} object containing the employee's
 	 *         work shift details.
 	 */
-	private WorkShift buildWorkShift(final Employee employee, final LocalDate date, final TimeRange timeRange,
-			final List<TimeLog> timeLogs) {
+	private WorkShift buildWorkShift(final Employee employee, final Worksite worksite, final LocalDate date,
+			final TimeRange timeRange, final List<TimeLog> timeLogs) {
 		// We need to find the start and end of the work shift. We have the times, but
 		// we also need the day.
-		final LocalDateTime startTime = date.atTime(timeRange.getStartTime());
-		final LocalDateTime endTime;
+		final Instant startTime = date.atTime(timeRange.getStartTime()).atZone(worksite.getTimeZone()).toInstant();
+		final Instant endTime;
 		if (timeRange.getStartTime().isBefore(timeRange.getEndTime())) {
 			// The work shift starts and ends on the same day.
-			endTime = date.atTime(timeRange.getEndTime());
+			endTime = date.atTime(timeRange.getEndTime()).atZone(worksite.getTimeZone()).toInstant();
 		} else {
 			// The work shift starts on one day and ends the following day.
-			endTime = date.plusDays(1).atTime(timeRange.getEndTime());
+			endTime = date.plusDays(1).atTime(timeRange.getEndTime()).atZone(worksite.getTimeZone()).toInstant();
 		}
 		final WorkShift workShift = new WorkShift();
 		workShift.setEmployee(employee);
@@ -122,15 +133,15 @@ public class WorkShiftService {
 		// before and after. If the log falls within this margin, we consider it part of
 		// the shift.
 		for (final TimeLog timeLog : timeLogs) {
-			final LocalDateTime entryTime = timeLog.getEntryTime();
-			if (entryTime.isAfter(endTime.plusHours(4))) {
+			final Instant entryTime = timeLog.getEntryTime();
+			if (entryTime.isAfter(endTime.plus(4, ChronoUnit.HOURS))) {
 				// The employee has clocked in at least four hours after the scheduled end
 				// of the work shift. This means it belongs to the next work shift, and since
 				// the logs are ordered, we can stop searching for records of this shift.
 				break;
 			}
-			final LocalDateTime exitTime = timeLog.getExitTime();
-			if (exitTime.isBefore(startTime.minusHours(4))) {
+			final Instant exitTime = timeLog.getExitTime();
+			if (exitTime.isBefore(startTime.minus(4, ChronoUnit.HOURS))) {
 				// The exit log is at least four hours before the scheduled start time.
 				// This means it belongs to the previous work shift, and we ignore it.
 				continue;
@@ -141,12 +152,12 @@ public class WorkShiftService {
 		}
 
 		final List<TimeLog> workShiftTimeLogs = workShift.getTimeLogs();
-		if(workShiftTimeLogs.isEmpty() ) {
+		if (workShiftTimeLogs.isEmpty()) {
 			return workShift;
 		}
 		workShift.setTotalPauseTime(this.calculateTotalPauseDuration(workShiftTimeLogs));
-		workShift.setStartDateTime(workShiftTimeLogs.getFirst().getEntryTime());
-		workShift.setEndDateTime(workShiftTimeLogs.getLast().getExitTime());
+		workShift.setStartTime(workShiftTimeLogs.getFirst().getEntryTime());
+		workShift.setEndTime(workShiftTimeLogs.getLast().getExitTime());
 		return workShift;
 	}
 
@@ -211,8 +222,8 @@ public class WorkShiftService {
 
 		final WorkShift workShift = new WorkShift();
 		workShift.setEmployee(employee);
-		workShift.setStartDateTime(workShiftTimeLogs.getFirst().getEntryTime());
-		workShift.setEndDateTime(workShiftTimeLogs.getLast().getExitTime());
+		workShift.setStartTime(workShiftTimeLogs.getFirst().getEntryTime());
+		workShift.setEndTime(workShiftTimeLogs.getLast().getExitTime());
 		workShift.setTotalWorkTime(totalWorkTime);
 		workShift.setTotalPauseTime(totalPauseTime);
 		workShift.setTimeLogs(workShiftTimeLogs);
@@ -263,13 +274,17 @@ public class WorkShiftService {
 			final List<PauseInfo> pauses) {
 		List<TimeLog> workShiftTimeLogs;
 		if (pauses.size() >= 2) {
-			// We have at least two breaks longer than four hours. This means that,maybe, we are on
+			// We have at least two breaks longer than four hours. This means that,maybe, we
+			// are on
 			// a day where the worker has worked the previous day and the next one.
 			workShiftTimeLogs = this.extractTimeLogsOfWorkWeekday(timeLogs, pauses);
 		} else if (pauses.size() == 1) {
 			// We only have one break in a day. We need to determine if the break is at the
 			// start or the end of the working week.
-			if (timeLogs.getFirst().getExitTime().toLocalDate().isBefore(date)) {
+			final TimeLog firstTimeLog = timeLogs.getFirst();
+			final ZoneId timeZone = firstTimeLog.getWorksite().getTimeZone();
+			final LocalDate exitDate = firstTimeLog.getExitTime().atZone(timeZone).toLocalDate();
+			if (exitDate.isBefore(date)) {
 				// It is the start of the working week (usually between Monday and Tuesday).
 				workShiftTimeLogs = this.extractTimeLogsOfWorkWeekStart(timeLogs, pauses);
 			} else {

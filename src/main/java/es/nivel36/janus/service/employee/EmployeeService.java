@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityNotFoundException;
+import es.nivel36.janus.service.ResourceNotFoundException;
 
 /**
  * Service class responsible for managing {@link Employee} entities and
@@ -44,13 +44,13 @@ public class EmployeeService {
 	 * @param id the ID of the employee to find
 	 * @return the employee with the specified Id 
 	 * @throws IllegalArgumentException if the Id is negative
-	 * @throws EntityNotFoundException if the employee is not found
+	 * @throws ResourceNotFoundException if the employee is not found
 	 */
 	public Employee findEmployeeById(final Long id) {
 		Objects.requireNonNull(id, "Id can't be null");
 		logger.debug("Finding Employee by id: {}", id);
 		return this.employeeRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("There is no employee with id " + id));
+				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with id " + id));
 	}
 
 	/**

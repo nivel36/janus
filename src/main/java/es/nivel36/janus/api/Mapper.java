@@ -15,7 +15,26 @@
  */
 package es.nivel36.janus.api;
 
+/**
+ * Generic contract for mapping objects between two types.
+ * <p>
+ * This interface defines a transformation from an input type {@code In} to an
+ * output type {@code Out}. It can be used to convert between domain entities,
+ * DTOs, API responses, or any other data structures that require adaptation.
+ * </p>
+ *
+ * @param <In>  the type of the source object to be mapped
+ * @param <Out> the type of the target object resulting from the mapping
+ */
 public interface Mapper<In, Out> {
-	
+
+	/**
+	 * Maps the given input object to an instance of the output type. If the input
+	 * is {@code null}, this method returns {@code null}.
+	 *
+	 * @param object the source object to map; can be {@code null}
+	 * @return the mapped object of type {@code Out}; {@code null} if the {@code In}
+	 *         object is {@code null}
+	 */
 	Out map(In object);
 }
