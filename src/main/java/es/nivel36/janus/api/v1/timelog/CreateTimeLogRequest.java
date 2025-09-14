@@ -27,7 +27,7 @@ import jakarta.validation.constraints.NotNull;
  * 2025-09-12T08:30:00Z)
  * 
  * @param entryTime the entry instant in UTC (ISO-8601); can't be {@code null}
- * @param exitTime  the exit instant in UTC (ISO-8601); can't {@code null}
+ * @param exitTime  the exit instant in UTC (ISO-8601); can't be {@code null}
  */
 public record CreateTimeLogRequest(@NotNull Instant entryTime, @NotNull Instant exitTime) {
 }

@@ -44,10 +44,11 @@ import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
 
 /**
- * REST controller responsible for exposing operations related to employee time logs.
+ * REST controller responsible for exposing operations related to employee time
+ * logs.
  * <p>
- * Provides endpoints for creating, retrieving, and deleting {@link TimeLog} entries,
- * as well as clock-in/clock-out operations and duration calculations.
+ * Provides endpoints for creating, retrieving, and deleting {@link TimeLog}
+ * entries, as well as clock-in/clock-out operations and duration calculations.
  */
 @RestController
 @RequestMapping("/api/v1/employee/{employeeEmail}/timelogs")
@@ -82,9 +83,9 @@ public class TimeLogController {
 	 * @return the created {@link TimeLogResponse}
 	 */
 	@PostMapping("/clock-in")
-        public ResponseEntity<TimeLogResponse> clockIn(final @PathVariable("employeeEmail") String employeeEmail,
-                        final @RequestParam(value = "entryTime", required = false) Instant entryTime,
-                        final @RequestParam("worksiteCode") String worksiteCode) {
+	public ResponseEntity<TimeLogResponse> clockIn(final @PathVariable("employeeEmail") String employeeEmail,
+			final @RequestParam(value = "entryTime", required = false) Instant entryTime,
+			final @RequestParam("worksiteCode") String worksiteCode) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Clock-in ACTION performed");
@@ -121,19 +122,22 @@ public class TimeLogController {
 		return employee;
 	}
 
-    /**
-     * Clocks out an employee at a specified exit time or at the current time if none is provided.
-     *
-     * @param employeeEmail the email of the employee; must not be {@code null}
-     * @param exitTime      the exit time as ISO-8601 string (e.g., "2025-08-04T18:00:00Z");
-     *                      if {@code null}, the current system time will be used
-     * @param worksiteCode  the code of the worksite where the time log is updated; must not be {@code null}
-     * @return the updated {@link TimeLogResponse}
-     */
+	/**
+	 * Clocks out an employee at a specified exit time or at the current time if
+	 * none is provided.
+	 *
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param exitTime      the exit time as ISO-8601 string (e.g.,
+	 *                      "2025-08-04T18:00:00Z"); if {@code null}, the current
+	 *                      system time will be used
+	 * @param worksiteCode  the code of the worksite where the time log is updated;
+	 *                      must not be {@code null}
+	 * @return the updated {@link TimeLogResponse}
+	 */
 	@PostMapping("/clock-out")
-        public ResponseEntity<TimeLogResponse> clockOut(final @PathVariable("employeeEmail") String employeeEmail,
-                        final @RequestParam(value = "exitTime", required = false) Instant exitTime,
-                        final @RequestParam("worksiteCode") String worksiteCode) {
+	public ResponseEntity<TimeLogResponse> clockOut(final @PathVariable("employeeEmail") String employeeEmail,
+			final @RequestParam(value = "exitTime", required = false) Instant exitTime,
+			final @RequestParam("worksiteCode") String worksiteCode) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Clock-out ACTION performed");
@@ -151,20 +155,19 @@ public class TimeLogController {
 		return ResponseEntity.ok(timeLogResponse);
 	}
 
-
-    /**
-     * Creates a new time log entry for a specific employee and worksite.
-     *
-     * @param employeeEmail the email of the employee; must not be {@code null}
-     * @param worksiteCode  the code of the worksite where the time log is created; must not be {@code null}
-     * @param timeLog       the {@link CreateTimeLogRequest} payload containing the entry and exit times;
-     *                      must not be {@code null}
-     * @return the created {@link TimeLogResponse}
-     */
+	/**
+	 * Creates a new time log entry for a specific employee and worksite.
+	 *
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param worksiteCode  the code of the worksite where the time log is created;
+	 *                      must not be {@code null}
+	 * @param timeLog       the {@link CreateTimeLogRequest} payload containing the
+	 *                      entry and exit times; must not be {@code null}
+	 * @return the created {@link TimeLogResponse}
+	 */
 	@PostMapping("/timelogs")
-        public ResponseEntity<TimeLogResponse> createTimeLog(final @PathVariable("employeeEmail") String employeeEmail,
-                        final @RequestParam("worksiteCode") String worksiteCode,
-                        final @RequestBody CreateTimeLogRequest timeLog) {
+	public ResponseEntity<TimeLogResponse> createTimeLog(final @PathVariable("employeeEmail") String employeeEmail,
+			final @RequestParam("worksiteCode") String worksiteCode, final @RequestBody CreateTimeLogRequest timeLog) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		Objects.requireNonNull(timeLog, "TimeLog can't be null");
@@ -178,25 +181,28 @@ public class TimeLogController {
 		return ResponseEntity.ok(updatedTimeLogResponse);
 	}
 
-    /**
-     * Searches time logs for a given employee, optionally restricted to a date-time range.
-     * <p>
-     * If {@code fromInstant} and {@code toInstant} are omitted, all time logs are returned.
-     * Both must be provided together when filtering by range.
-     *
-     * @param employeeEmail the email of the employee; must not be {@code null}
-     * @param fromInstant   the start of the date-time range (inclusive); may be {@code null}
-     * @param toInstant     the end of the date-time range (inclusive); may be {@code null}
-     * @param pageable      pagination information; must not be {@code null}
-     * @return a page of {@link TimeLogResponse} entries
-     * @throws IllegalArgumentException if only one of {@code fromInstant} or {@code toInstant} is provided
-     */
+	/**
+	 * Searches time logs for a given employee, optionally restricted to a date-time
+	 * range.
+	 * <p>
+	 * If {@code fromInstant} and {@code toInstant} are omitted, all time logs are
+	 * returned. Both must be provided together when filtering by range.
+	 *
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param fromInstant   the start of the date-time range (inclusive); may be
+	 *                      {@code null}
+	 * @param toInstant     the end of the date-time range (inclusive); may be
+	 *                      {@code null}
+	 * @param pageable      pagination information; must not be {@code null}
+	 * @return a page of {@link TimeLogResponse} entries
+	 * @throws IllegalArgumentException if only one of {@code fromInstant} or
+	 *                                  {@code toInstant} is provided
+	 */
 	@GetMapping("/")
-        public ResponseEntity<Page<TimeLogResponse>> searchByEmployee(
-                        final @PathVariable("employeeEmail") String employeeEmail,
-                        final @RequestParam(value = "fromInstant", required = false) Instant fromInstant,
-                        final @RequestParam(value = "toInstant", required = false) Instant toInstant,
-                        final Pageable pageable) {
+	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee(
+			final @PathVariable("employeeEmail") String employeeEmail,
+			final @RequestParam(value = "fromInstant", required = false) Instant fromInstant,
+			final @RequestParam(value = "toInstant", required = false) Instant toInstant, final Pageable pageable) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
@@ -216,17 +222,17 @@ public class TimeLogController {
 		return ResponseEntity.ok(timeLogResponse);
 	}
 
-    /**
-     * Finds a specific time log for an employee by its entry time.
-     *
-     * @param employeeEmail the email of the employee; must not be {@code null}
-     * @param entryTime     the entry time of the time log; must not be {@code null}
-     * @return the {@link TimeLogResponse} entry
-     */
+	/**
+	 * Finds a specific time log for an employee by its entry time.
+	 *
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param entryTime     the entry time of the time log; must not be {@code null}
+	 * @return the {@link TimeLogResponse} entry
+	 */
 	@GetMapping("/{entryTime}")
-        public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
-                        final @PathVariable("employeeEmail") String employeeEmail,
-                        final @PathVariable("entryTime") Instant entryTime) {
+	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
+			final @PathVariable("employeeEmail") String employeeEmail,
+			final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Find time log by employee and entry time ACTION performed");
@@ -238,17 +244,17 @@ public class TimeLogController {
 		return ResponseEntity.ok(timeLogResponse);
 	}
 
-    /**
-     * Retrieves the total duration worked for a given time log.
-     *
-     * @param employeeEmail the email of the employee; must not be {@code null}
-     * @param entryTime     the entry time of the time log; must not be {@code null}
-     * @return a {@link DurationResponse} containing hours, minutes, seconds, and ISO-8601 representation
-     */
+	/**
+	 * Retrieves the total duration worked for a given time log.
+	 *
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param entryTime     the entry time of the time log; must not be {@code null}
+	 * @return a {@link DurationResponse} containing hours, minutes, seconds, and
+	 *         ISO-8601 representation
+	 */
 	@GetMapping("/{entryTime}/time-worked")
-        public ResponseEntity<DurationResponse> getHoursWorked(
-                        final @PathVariable("employeeEmail") String employeeEmail,
-                        final @PathVariable("entryTime") Instant entryTime) {
+	public ResponseEntity<DurationResponse> getHoursWorked(final @PathVariable("employeeEmail") String employeeEmail,
+			final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Hours-worked ACTION performed");
@@ -263,17 +269,18 @@ public class TimeLogController {
 		return ResponseEntity.ok(response);
 	}
 
-    /**
-     * Deletes a time log entry for an employee by its entry time.
-     *
-     * @param employeeEmail the email of the employee; must not be {@code null}
-     * @param entryTime     the entry time of the time log to delete; must not be {@code null}
-     * @return a {@link ResponseEntity} with no content (HTTP 204) if the deletion succeeds
-     */
+	/**
+	 * Deletes a time log entry for an employee by its entry time.
+	 *
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param entryTime     the entry time of the time log to delete; must not be
+	 *                      {@code null}
+	 * @return a {@link ResponseEntity} with no content (HTTP 204) if the deletion
+	 *         succeeds
+	 */
 	@DeleteMapping("/{entryTime}")
-        public ResponseEntity<Void> deleteTimeLog(
-                        final @PathVariable("employeeEmail") String employeeEmail,
-                        final @PathVariable("entryTime") Instant entryTime) {
+	public ResponseEntity<Void> deleteTimeLog(final @PathVariable("employeeEmail") String employeeEmail,
+			final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Delete timelog ACTION performed");

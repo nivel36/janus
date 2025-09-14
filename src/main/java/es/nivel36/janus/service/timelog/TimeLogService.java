@@ -260,7 +260,7 @@ public class TimeLogService {
 
 	/**
 	 * Retrieves all {@link TimeLog} entries for a given {@link Employee} and
-	 * {@link Worksite} within the **calendar day** of {@code date}, using the
+	 * {@link Worksite} within the calendar day of {@code date}, using the
 	 * worksite's time zone.
 	 *
 	 * @param employee the employee; must not be {@code null}
@@ -290,7 +290,7 @@ public class TimeLogService {
 	}
 
 	/**
-	 * Retrieves time logs for an {@link Employee} @link TimeLog} records for the
+	 * Retrieves time logs for an {@link Employee} {@link TimeLog} records for the
 	 * specified employee whose {@code entryTime} falls within the given time range.
 	 * <p>
 	 * The {@code start} parameter is inclusive; records with

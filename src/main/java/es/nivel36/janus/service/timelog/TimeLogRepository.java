@@ -67,7 +67,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 			Instant end, Pageable page);
 
 	/**
-	 * Retrieves time logs for an {@link Employee} @link TimeLog} records for the
+	 * Retrieves time logs for an {@link Employee} {@link TimeLog} records for the
 	 * specified employee whose {@code entryTime} falls within the given time range.
 	 * <p>
 	 * The {@code start} parameter is inclusive; records with
