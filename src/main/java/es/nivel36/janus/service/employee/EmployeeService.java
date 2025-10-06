@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.service.employee;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -42,8 +44,8 @@ public class EmployeeService {
 	 * Finds an {@link Employee} by its primary key (Id).
 	 * 
 	 * @param id the ID of the employee to find
-	 * @return the employee with the specified Id 
-	 * @throws IllegalArgumentException if the Id is negative
+	 * @return the employee with the specified Id
+	 * @throws IllegalArgumentException  if the Id is negative
 	 * @throws ResourceNotFoundException if the employee is not found
 	 */
 	public Employee findEmployeeById(final Long id) {
@@ -65,6 +67,23 @@ public class EmployeeService {
 		Objects.requireNonNull(email, "Email cannot be null.");
 		logger.debug("Finding Employee by email: {}", email);
 		return this.employeeRepository.findEmployeeByEmail(email);
+	}
+
+	/**
+	 * Finds the identifiers of employees who have at least one {@link TimeLog}
+	 * since the specified instant but do not have any associated {@link WorkShift}.
+	 *
+	 * @param from the lower bound (inclusive) instant; only time logs with an
+	 *             {@code entryTime} greater than or equal to this value are
+	 *             considered
+	 * @return a list of employee IDs corresponding to employees with time logs
+	 *         since the given instant but without any linked work shifts
+	 * @throws NullPointerException if {@code from} is {@code null}
+	 */
+	public List<Long> findEmployeesWithoutWorkshifts(final Instant from) {
+		Objects.requireNonNull(from, "From must not be null");
+		logger.debug("Finding employees without workshift from date: {}", from);
+		return this.employeeRepository.findEmployeesWithoutWorkshifts(from);
 	}
 
 	/**

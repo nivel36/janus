@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.timelog;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -150,4 +151,52 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 *         time; {@code false} otherwise
 	 */
 	boolean existsByEmployeeAndEntryTime(Employee employee, Instant entryTime);
+
+	/**
+	 * Returns the list of {@link TimeLog} records for the given employee that are
+	 * considered "orphans" since the specified instant; i.e., time logs that are
+	 * not linked to any {@link WorkShift} through the {@code workshift_timelog}
+	 * join table.
+	 * <p>
+	 * The result is returned with the associated {@link Employee} and
+	 * {@link Worksite} eagerly loaded (via <em>fetch join</em>) to prevent
+	 * lazy-loading overhead and N+1 queries.
+	 * </p>
+	 * <p>
+	 * Selection rules:
+	 * <ul>
+	 * <li>Only non-deleted time logs are considered
+	 * ({@code t.deleted = false}).</li>
+	 * <li>Only time logs with {@code entryTime >= :from} are included.</li>
+	 * <li>Only time logs of the specified employee are included.</li>
+	 * <li>A time log is "orphan" when no {@link WorkShift} exists such that the
+	 * time log is a {@code member} of its {@code timeLogs} collection.</li>
+	 * <li>Results are ordered by {@code entryTime} in descending order (most recent
+	 * first).</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param from     lower bound (inclusive) for {@code entryTime}
+	 * @param employee the employee whose orphan time logs will be returned
+	 * @return a list of orphan {@link TimeLog} entities (with {@link Employee} and
+	 *         {@link Worksite} initialized) since {@code from}, ordered most recent
+	 *         first
+	 */
+	@Query("""
+			SELECT t
+			FROM TimeLog t
+			JOIN FETCH t.employee e
+			JOIN FETCH t.worksite ws
+			WHERE t.deleted = false
+			AND t.entryTime >= :from
+			AND e = :employee
+			AND NOT EXISTS (
+				SELECT 1
+				FROM WorkShift w
+				WHERE t MEMBER OF w.timeLogs
+			)
+			ORDER BY t.entryTime DESC
+			""")
+	List<TimeLog> findOrphanTimeLogsSince(@Param("from") Instant from, @Param("employee") Employee employee);
+
 }

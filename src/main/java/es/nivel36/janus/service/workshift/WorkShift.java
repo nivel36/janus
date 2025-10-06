@@ -17,8 +17,7 @@ package es.nivel36.janus.service.workshift;
 
 import java.io.Serializable;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +36,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.UniqueConstraint;
 
 /**
  * Represents a work shift for an employee, containing multiple time logs
@@ -75,23 +74,26 @@ public class WorkShift implements Serializable {
 	private Employee employee;
 
 	/**
-	 * The date and time when the work shift ended.
+	 * The date when the work shift started
 	 */
-	private Instant endTime;
+	private LocalDate date;
 
 	/**
 	 * The list of time logs (clock-ins and clock-outs) that define the work shift.
 	 */
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinTable(name = "workshift_timelog", joinColumns = @JoinColumn(name = "workshift_id"), inverseJoinColumns = @JoinColumn(name = "timelog_id"))
+	@JoinTable(name = "workshift_timelog", //
+			joinColumns = @JoinColumn(name = "workshift_id", nullable = false), //
+			inverseJoinColumns = @JoinColumn(name = "timelog_id", nullable = false), //
+			uniqueConstraints = { //
+					@UniqueConstraint(name = "uk_workshift_timelog_timelog", columnNames = "timelog_id") //
+			}, //
+			indexes = { //
+					@Index(name = "idx_wstl_timelog", columnList = "timelog_id"), //
+					@Index(name = "idx_wstl_workshift", columnList = "workshift_id") //
+			} //
+	)
 	private List<TimeLog> timeLogs = new ArrayList<>();
-
-	/**
-	 * The date and time when the work shift started.
-	 */
-	@NotNull
-	@Column(nullable = false)
-	private Instant startTime;
 
 	/**
 	 * Total time spent on breaks (pauses) during this shift.
@@ -115,13 +117,13 @@ public class WorkShift implements Serializable {
 	}
 
 	/**
-	 * Returns the end date and time of the work shift, or null if the shift is
-	 * still in progress.
+	 * Returns the date when the work shift started, or null if the shift is still
+	 * in progress.
 	 *
-	 * @return the end date and time as a {@link LocalDateTime}, or null if not set.
+	 * @return the date as a {@link LocalDate}, or null if not set.
 	 */
-	public Instant getEndTime() {
-		return this.endTime;
+	public LocalDate getDate() {
+		return this.date;
 	}
 
 	/**
@@ -140,15 +142,6 @@ public class WorkShift implements Serializable {
 	 */
 	public Long getId() {
 		return this.id;
-	}
-
-	/**
-	 * Returns the start date and time of the work shift.
-	 *
-	 * @return the start date and time as a {@link LocalDateTime}.
-	 */
-	public Instant getStartTime() {
-		return this.startTime;
 	}
 
 	/**
@@ -179,15 +172,6 @@ public class WorkShift implements Serializable {
 	}
 
 	/**
-	 * Sets the end date and time of the work shift.
-	 *
-	 * @param endDateTime the end date and time to set.
-	 */
-	public void setEndTime(final Instant endTime) {
-		this.endTime = endTime;
-	}
-
-	/**
 	 * Sets the list of work time logs (clock-ins and clock-outs) for this work
 	 * shift.
 	 *
@@ -207,12 +191,12 @@ public class WorkShift implements Serializable {
 	}
 
 	/**
-	 * Sets the start date and time of the work shift.
+	 * Sets the date when the work shift starts.
 	 *
-	 * @param startDateTime the start date and time to set. Cannot be null.
+	 * @param date the start date to set. Cannot be null.
 	 */
-	public void setStartTime(final Instant startTime) {
-		this.startTime = startTime;
+	public void setDate(final LocalDate date) {
+		this.date = date;
 	}
 
 	/**
@@ -247,17 +231,17 @@ public class WorkShift implements Serializable {
 		}
 		final WorkShift other = (WorkShift) obj;
 		return Objects.equals(this.id, other.id) && Objects.equals(this.employee, other.employee)
-				&& Objects.equals(this.startTime, other.startTime);
+				&& Objects.equals(this.date, other.date);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.employee, this.startTime);
+		return Objects.hash(this.id, this.employee, this.date);
 	}
 
 	@Override
 	public String toString() {
-		return "WorkShift [id=" + id + (employee != null ? ", employee=" + employee.getName() : "") + ", startDateTime="
-				+ (startTime != null ? startTime : "null") + "]";
+		return "WorkShift [id=" + id + (employee != null ? ", employee=" + employee.getName() : "") + ", date="
+				+ (date != null ? date : "null") + "]";
 	}
 }

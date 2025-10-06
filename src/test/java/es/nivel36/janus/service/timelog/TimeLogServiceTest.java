@@ -36,6 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.nivel36.janus.api.v1.timelog.CreateTimeLogRequest;
 import es.nivel36.janus.service.admin.AdminService;
@@ -44,6 +46,8 @@ import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
 
 class TimeLogServiceTest {
+	
+	private static final Logger logger = LoggerFactory.getLogger(TimeLogServiceTest.class);
 
 	private @Mock TimeLogRepository timeLogRepository;
 	private @Mock AdminService adminService;
@@ -73,6 +77,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockInSuccess() {
+		logger.info("Test clock in success");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -90,6 +95,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockInWithNullEmployee() {
+		logger.info("Test clock in with null employee");
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
@@ -100,6 +106,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockInWithNullEntryTime() {
+		logger.info("Test clock in with null entry time");
 		assertThrows(NullPointerException.class, () -> {
 			this.timeLogService.clockIn(this.employee, this.worksite, null);
 		});
@@ -107,6 +114,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockOutSuccess() {
+		logger.info("Test clock out success");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -126,6 +134,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testClockOutWithNoPreviousLog() {
+		logger.info("Test clock out with no previous log");
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(this.employee, this.worksite))
@@ -140,7 +149,8 @@ class TimeLogServiceTest {
 	}
 
 	@Test
-	void testGetHoursWorkedWithExitTime() {
+	void testGetTimeWorkedWithExitTime() {
+		logger.info("Test get time worked with exit time");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -159,7 +169,8 @@ class TimeLogServiceTest {
 	}
 
 	@Test
-	void testGetHoursWorkedWithoutExitTime() {
+	void testGetTimeWorkedWithoutExitTime() {
+		logger.info("Test get time worked without exit time");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -176,12 +187,14 @@ class TimeLogServiceTest {
 	}
 
 	@Test
-	void testGetHoursWorkedWithNullTimeLog() {
+	void testGettimeWorkedWithNullTimeLog() {
+		logger.info("Test get time worked with null time log");
 		assertThrows(NullPointerException.class, () -> this.timeLogService.getTimeWorked(null));
 	}
 
 	@Test
 	void testFindLastTimeLogByEmployeeSuccess() {
+		logger.info("Test find last timelog by employee success");
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 9, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
@@ -199,12 +212,14 @@ class TimeLogServiceTest {
 
 	@Test
 	void testFindLastTimeLogByEmployeeWithNullEmployee() {
+		logger.info("Test find last timelog by employee with null employee");
 		assertThrows(NullPointerException.class,
 				() -> this.timeLogService.findLastTimeLogByEmployee(null, this.worksite));
 	}
 
 	@Test
 	void testCreateTimeLogSuccessWithinEditingWindow() {
+		logger.info("Test create timelog within ending window");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -228,12 +243,14 @@ class TimeLogServiceTest {
 
 	@Test
 	void testCreateTimeLogThrowsWhenRequestIsNull() {
+		logger.info("Test create timelog throws when request is null");
 		assertThrows(NullPointerException.class,
 				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, null));
 	}
 
 	@Test
 	void testCreateTimeLogThrowsWhenEntryIsNull() {
+		logger.info("Test create timelog throws when entry is null");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -249,6 +266,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testCreateTimeLogThrowsWhenExitIsNull() {
+		logger.info("Test create timelog throws when exit is null");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -264,6 +282,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testCreateTimeLogEntryOutsideEditingWindowThrows() {
+		logger.info("Test create timelog entry outside editing window throws");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -281,6 +300,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testCreateTimeLogExitOutsideEditingWindowThrows() {
+		logger.info("Test create timelog exit outside editing window throws");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -298,6 +318,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testCreateTimeLogBoundaryAtLockInstantForEntryShouldThrow() {
+		logger.info("Test create timelog boundary at lock instant for entry should throw");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -316,6 +337,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testCreateTimeLogBoundaryAtLockInstantForExitShouldThrow() {
+		logger.info("Test create timelog boundary at lock instant for exit should throw");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -333,6 +355,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testCreateTimeLogChronologyEntryAfterExitThrows() {
+		logger.info("Test create timelog chronology entry after exit throws");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -350,6 +373,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testDeleteTimeLogSuccessWithinEditingWindow() {
+		logger.info("Test delete time log succes within editing window");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -367,11 +391,13 @@ class TimeLogServiceTest {
 
 	@Test
 	void testDeleteTimeLogThrowsWhenNull() {
+		logger.info("Test delete time log throws when null");
 		assertThrows(NullPointerException.class, () -> this.timeLogService.deleteTimeLog(null));
 	}
 
 	@Test
 	void testDeleteTimeLogThrowsWhenOutsideEditingWindow() {
+		logger.info("Test delete time log throws when outside editing window");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
@@ -387,6 +413,7 @@ class TimeLogServiceTest {
 
 	@Test
 	void testDeleteTimeLogBoundaryAtLockInstantShouldThrow() {
+		logger.info("Test delete time log boundary at lock instant should throw");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);

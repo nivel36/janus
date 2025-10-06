@@ -42,6 +42,9 @@ import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 /**
  * REST controller responsible for exposing operations related to employee time
@@ -83,9 +86,10 @@ public class TimeLogController {
 	 * @return the created {@link TimeLogResponse}
 	 */
 	@PostMapping("/clock-in")
-	public ResponseEntity<TimeLogResponse> clockIn(final @PathVariable("employeeEmail") String employeeEmail,
-			final @RequestParam(value = "entryTime", required = false) Instant entryTime,
-			final @RequestParam("worksiteCode") String worksiteCode) {
+	public ResponseEntity<TimeLogResponse> clockIn(
+			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+			final @RequestParam(value = "entryTime", required = false) Instant entryTime, //
+			final @RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,32}") String worksiteCode) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Clock-in ACTION performed");
@@ -135,9 +139,10 @@ public class TimeLogController {
 	 * @return the updated {@link TimeLogResponse}
 	 */
 	@PostMapping("/clock-out")
-	public ResponseEntity<TimeLogResponse> clockOut(final @PathVariable("employeeEmail") String employeeEmail,
-			final @RequestParam(value = "exitTime", required = false) Instant exitTime,
-			final @RequestParam("worksiteCode") String worksiteCode) {
+	public ResponseEntity<TimeLogResponse> clockOut(
+			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+			final @RequestParam(value = "exitTime", required = false) Instant exitTime, //
+			final @RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,32}") String worksiteCode) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Clock-out ACTION performed");
@@ -166,8 +171,10 @@ public class TimeLogController {
 	 * @return the created {@link TimeLogResponse}
 	 */
 	@PostMapping("/timelogs")
-	public ResponseEntity<TimeLogResponse> createTimeLog(final @PathVariable("employeeEmail") String employeeEmail,
-			final @RequestParam("worksiteCode") String worksiteCode, final @RequestBody CreateTimeLogRequest timeLog) {
+	public ResponseEntity<TimeLogResponse> createTimeLog(
+			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+			final @RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,32}") String worksiteCode, //
+			final @RequestBody CreateTimeLogRequest timeLog) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		Objects.requireNonNull(timeLog, "TimeLog can't be null");
@@ -200,9 +207,10 @@ public class TimeLogController {
 	 */
 	@GetMapping("/")
 	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee(
-			final @PathVariable("employeeEmail") String employeeEmail,
-			final @RequestParam(value = "fromInstant", required = false) Instant fromInstant,
-			final @RequestParam(value = "toInstant", required = false) Instant toInstant, final Pageable pageable) {
+			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+			final @RequestParam(value = "fromInstant", required = false) Instant fromInstant, //
+			final @RequestParam(value = "toInstant", required = false) Instant toInstant, //
+			final Pageable pageable) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
@@ -231,7 +239,7 @@ public class TimeLogController {
 	 */
 	@GetMapping("/{entryTime}")
 	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
-			final @PathVariable("employeeEmail") String employeeEmail,
+			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
 			final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
@@ -253,7 +261,8 @@ public class TimeLogController {
 	 *         ISO-8601 representation
 	 */
 	@GetMapping("/{entryTime}/time-worked")
-	public ResponseEntity<DurationResponse> getHoursWorked(final @PathVariable("employeeEmail") String employeeEmail,
+	public ResponseEntity<DurationResponse> getHoursWorked(
+			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
 			final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
@@ -279,7 +288,8 @@ public class TimeLogController {
 	 *         succeeds
 	 */
 	@DeleteMapping("/{entryTime}")
-	public ResponseEntity<Void> deleteTimeLog(final @PathVariable("employeeEmail") String employeeEmail,
+	public ResponseEntity<Void> deleteTimeLog(
+			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
 			final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");

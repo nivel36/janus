@@ -15,7 +15,12 @@
  */
 package es.nivel36.janus.service.employee;
 
+import java.time.Instant;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -32,4 +37,32 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 *         is found
 	 */
 	Employee findEmployeeByEmail(final String email);
+
+	/**
+	 * Finds the IDs of employees who have at least one {@link TimeLog} entry since
+	 * the given instant but do not have any associated {@link WorkShift}.
+	 * <p>
+	 * A time log is considered "not associated" when it does not appear in the
+	 * {@code workshift_timelog} join table. This query returns distinct employee
+	 * IDs that satisfy this condition.
+	 * </p>
+	 *
+	 * @param from the lower bound (inclusive) instant; only time logs with
+	 *             {@code entryTime} greater than or equal to this value are
+	 *             considered
+	 * @return a list of unique employee IDs corresponding to employees with time
+	 *         logs since the given instant but without any linked work shifts
+	 */
+	@Query(value = """
+			SELECT DISTINCT t.employee_id
+			FROM time_log t
+			WHERE t.deleted = false
+			AND t.entry_time >= :from
+			AND NOT EXISTS (
+				SELECT 1
+				FROM workshift_timelog wstl
+				WHERE wstl.timelog_id = t.id
+			);
+			""", nativeQuery = true)
+	List<Long> findEmployeesWithoutWorkshifts(@Param("from") Instant from);
 }

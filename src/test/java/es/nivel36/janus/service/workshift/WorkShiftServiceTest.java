@@ -20,12 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +41,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import es.nivel36.janus.service.admin.AdminService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.schedule.TimeRange;
@@ -49,9 +55,14 @@ import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 
 class WorkShiftServiceTest {
+	
+	private static final Logger logger = LoggerFactory.getLogger(WorkShiftServiceTest.class);
 
 	private @Mock TimeLogService timeLogService;
 	private @Mock ScheduleService scheduleService;
+	private @Mock WorkshiftRepository workshiftRepository;
+	private @Mock AdminService adminService;
+	private @Mock Clock clock;
 	private @InjectMocks WorkShiftService workShiftService;
 	private Employee employee;
 	private Worksite worksite;
@@ -319,50 +330,66 @@ class WorkShiftServiceTest {
 
 	@ParameterizedTest
 	@MethodSource("provideTimeLogArguments")
-	void testGetWorkShiftForWorkingDay(final List<TimeLog> timeLogs, final Duration expectedTotalWorkTime,
+	void testFindWorkShiftForWorkingDay(final List<TimeLog> timeLogs, final Duration expectedTotalWorkTime,
 			final Duration expectedTotalPauseTime, Instant startWorkShiftTime, Instant endWorkShiftTime,
 			LocalTime startTime, LocalTime endTime) {
+		logger.info("Test find work shift for working day");
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 		final TimeRange timeRange = new TimeRange(startTime, endTime);
-		final Pageable page = Pageable.ofSize(100);
-		when(timeLogService.findTimeLogsByEmployeeAndWorksiteAndDate(eq(employee), eq(worksite), eq(date), eq(page)))
-				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
+		final Pageable page = Pageable.unpaged();
+		
+		final ZoneId z = worksite.getTimeZone();
+		final Instant fromInstant = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
+		final Instant toInstant = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
+		
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		
+		when(timeLogService.searchByEmployeeAndEntryTimeInRange(eq(employee), eq(fromInstant), eq(toInstant), eq(page)))
+		.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date)))
 				.thenReturn(Optional.of(timeRange));
-
+		when(adminService.getDaysUntilLocked()).thenReturn(7);
+		
 		// Act
-		final WorkShift result = this.workShiftService.getWorkShift(this.employee, this.worksite, date);
+		final WorkShift result = this.workShiftService.findWorkShift(this.employee, this.worksite, date);
 
 		// Assert
 		assertNotNull(result);
 		assertEquals(this.employee, result.getEmployee());
 		assertEquals(expectedTotalWorkTime, result.getTotalWorkTime());
 		assertEquals(expectedTotalPauseTime, result.getTotalPauseTime());
-		assertEquals(startWorkShiftTime, result.getStartTime());
-		assertEquals(endWorkShiftTime, result.getEndTime());
 	}
 
 	@ParameterizedTest
 	@MethodSource("provideTimeLogArguments")
-	void testGetWorkShiftForNonWorkingDay(final List<TimeLog> timeLogs, final Duration expectedTotalWorkTime,
+	void testFindWorkShiftForNonWorkingDay(final List<TimeLog> timeLogs, final Duration expectedTotalWorkTime,
 			final Duration expectedTotalPauseTime, Instant startWorkShiftTime, Instant endWorkShiftTime) {
+		logger.info("Test find work shift for non working day");
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
-		final Pageable page = Pageable.ofSize(100);
-		when(timeLogService.findTimeLogsByEmployeeAndWorksiteAndDate(eq(employee), eq(worksite), eq(date), eq(page)))
+		final Pageable page = Pageable.unpaged();
+		
+		final ZoneId z = worksite.getTimeZone();
+		final Instant fromInstant = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
+		final Instant toInstant = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
+		
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		
+		when(timeLogService.searchByEmployeeAndEntryTimeInRange(eq(employee), eq(fromInstant), eq(toInstant), eq(page)))
 		.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date))).thenReturn(Optional.empty());
+		when(adminService.getDaysUntilLocked()).thenReturn(7);
 
 		// Act
-		final WorkShift result = this.workShiftService.getWorkShift(this.employee, this.worksite, date);
+		final WorkShift result = this.workShiftService.findWorkShift(this.employee, this.worksite, date);
 
 		// Assert
 		assertNotNull(result);
 		assertEquals(this.employee, result.getEmployee());
 		assertEquals(expectedTotalWorkTime, result.getTotalWorkTime());
 		assertEquals(expectedTotalPauseTime, result.getTotalPauseTime());
-		assertEquals(startWorkShiftTime, result.getStartTime());
-		assertEquals(endWorkShiftTime, result.getEndTime());
 	}
 }

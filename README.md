@@ -11,7 +11,7 @@ Janus is a **Spring/Angular**-based application for managing company time record
 
 ## Prerequisites
 
-- **Java 24** or higher.
+- **Java 25** or higher.
 - A PostgreSQL relational database.
 
 ## Installation

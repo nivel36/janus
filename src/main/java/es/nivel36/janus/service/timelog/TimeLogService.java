@@ -18,9 +18,8 @@ package es.nivel36.janus.service.timelog;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -239,6 +238,31 @@ public class TimeLogService {
 	}
 
 	/**
+	 * Finds the list of {@link TimeLog} entries for the given employee that are
+	 * considered "orphans" since the specified instant; i.e., time logs that are
+	 * not associated with any {@link WorkShift}.
+	 * <p>
+	 * The results are ordered by {@code entry_time} in descending order (most
+	 * recent first).
+	 * 
+	 * @param from     the lower bound (inclusive) instant; only time logs with
+	 *                 {@code entryTime >= from} are considered
+	 * @param employee the employee whose orphan time logs will be retrieved
+	 * @return a list of orphan {@link TimeLog} entities for the specified employee
+	 *         since the given instant
+	 * @throws NullPointerException if {@code from} or {@code employeeId} is
+	 *                              {@code null}
+	 */
+	@Transactional(readOnly = true)
+	public List<TimeLog> findOrphanTimeLogs(final Instant from, final Employee employee) {
+		Objects.requireNonNull(from, "From must not be null");
+		Objects.requireNonNull(employee, "Employee must not be null");
+		logger.debug("Finding orphan TimeLog from date {} and employee {}", from, employee);
+
+		return timeLogRepository.findOrphanTimeLogsSince(from, employee);
+	}
+
+	/**
 	 * Finds a paginated list of time logs for the specified employee.
 	 *
 	 * @param employee the employee; must not be {@code null}
@@ -256,37 +280,6 @@ public class TimeLogService {
 		logger.debug("Finding TimeLogs for employee {} with offset {} and pageSize {}", employee, page.getOffset(),
 				page.getPageSize());
 		return this.timeLogRepository.searchTimeLogsByEmployee(employee, page);
-	}
-
-	/**
-	 * Retrieves all {@link TimeLog} entries for a given {@link Employee} and
-	 * {@link Worksite} within the calendar day of {@code date}, using the
-	 * worksite's time zone.
-	 *
-	 * @param employee the employee; must not be {@code null}
-	 * @param worksite the worksite whose {@link ZoneId} defines the day window;
-	 *                 must not be {@code null}
-	 * @param date     the local date (in the worksite time zone) to filter; must
-	 *                 not be {@code null}
-	 * @param page     pagination information; must not be {@code null}
-	 * @return a {@link Page} of {@link TimeLog} entries within [dateT00:00,
-	 *         (date+1)T00:00) in the worksite zone
-	 * @throws NullPointerException if any parameter is {@code null}
-	 */
-	@Transactional(readOnly = true)
-	public Page<TimeLog> findTimeLogsByEmployeeAndWorksiteAndDate(final Employee employee, final Worksite worksite,
-			final LocalDate date, final Pageable page) {
-		Objects.requireNonNull(employee, "Employee cannot be null.");
-		Objects.requireNonNull(worksite, "Worksite cannot be null.");
-		Objects.requireNonNull(date, "Date cannot be null.");
-		Objects.requireNonNull(page, "Page cannot be null.");
-
-		logger.debug("Finding TimeLogs for employee {} at worksite {} on date {}", employee, worksite, date);
-
-		final ZoneId z = worksite.getTimeZone();
-		final Instant fromInstant = date.atStartOfDay(z).toInstant();
-		final Instant toInstant = date.plusDays(1).atStartOfDay(z).toInstant();
-		return this.timeLogRepository.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page);
 	}
 
 	/**
