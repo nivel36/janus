@@ -23,18 +23,18 @@ package es.nivel36.janus.api;
  * DTOs, API responses, or any other data structures that require adaptation.
  * </p>
  *
- * @param <In>  the type of the source object to be mapped
- * @param <Out> the type of the target object resulting from the mapping
+ * @param <IN>  the type of the source object to be mapped
+ * @param <OUT> the type of the target object resulting from the mapping
  */
-public interface Mapper<In, Out> {
+public interface Mapper<IN, OUT> {
 
 	/**
 	 * Maps the given input object to an instance of the output type. If the input
 	 * is {@code null}, this method returns {@code null}.
 	 *
 	 * @param object the source object to map; can be {@code null}
-	 * @return the mapped object of type {@code Out}; {@code null} if the {@code In}
+	 * @return the mapped object of type {@code OUT}; {@code null} if the {@code IN}
 	 *         object is {@code null}
 	 */
-	Out map(In object);
+	OUT map(IN object);
 }
