@@ -29,5 +29,5 @@ import es.nivel36.janus.service.worksite.Worksite;
  *                 must contain between 1 and 80 characters
  */
 public record UpdateWorksiteRequest(@NotBlank @Size(min = 1, max = 250) String name,
-                @NotBlank @Size(min = 1, max = 80) String timeZone) {
+		@NotBlank @Size(min = 1, max = 80) String timeZone) {
 }

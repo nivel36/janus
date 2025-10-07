@@ -47,9 +47,9 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * IDs that satisfy this condition.
 	 * </p>
 	 *
-	 * @param from the lower bound (inclusive) instant; only time logs with
-	 *             {@code entryTime} greater than or equal to this value are
-	 *             considered
+	 * @param fromInclusive the lower bound instant; only time logs with
+	 *                      {@code entryTime} greater than or equal to this value
+	 *                      are considered
 	 * @return a list of unique employee IDs corresponding to employees with time
 	 *         logs since the given instant but without any linked work shifts
 	 */
@@ -57,12 +57,12 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 			SELECT DISTINCT t.employee_id
 			FROM time_log t
 			WHERE t.deleted = false
-			AND t.entry_time >= :from
+			AND t.entry_time >= :fromInclusive
 			AND NOT EXISTS (
 				SELECT 1
 				FROM workshift_timelog wstl
 				WHERE wstl.timelog_id = t.id
 			);
 			""", nativeQuery = true)
-	List<Long> findEmployeesWithoutWorkshifts(@Param("from") Instant from);
+	List<Long> findEmployeesWithoutWorkshiftsSince(@Param("fromInclusive") Instant fromInclusive);
 }

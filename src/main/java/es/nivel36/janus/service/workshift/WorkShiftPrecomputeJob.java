@@ -102,7 +102,7 @@ public class WorkShiftPrecomputeJob {
 		final Instant target = clock.instant().minus(daysUntilLocked + 1L, ChronoUnit.DAYS);
 		log.debug("WorkShift precompute started; daysUntilLocked={} targetAnchor={}", daysUntilLocked, target);
 
-		final List<Long> employeeIds = employeeService.findEmployeesWithoutWorkshifts(target);
+		final List<Long> employeeIds = employeeService.findEmployeesWithoutWorkshiftsSince(target);
 		log.trace("Pending employees count={}", employeeIds.size());
 
 		if (employeeIds.isEmpty()) {

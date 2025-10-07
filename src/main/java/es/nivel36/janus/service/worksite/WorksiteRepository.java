@@ -63,15 +63,15 @@ public interface WorksiteRepository extends CrudRepository<Worksite, Long> {
 	 * @return the {@link Worksite} entity with the given code, or {@code null} if
 	 *         no such worksite exists
 	 */
-        Worksite findWorksiteByCode(String code);
+	Worksite findWorksiteByCode(String code);
 
-        /**
-         * Checks whether a {@link Worksite} with the specified code exists.
-         *
-         * @param code the unique identifier code of the worksite; must not be
-         *             {@code null}
-         * @return {@code true} if a worksite with the given code exists;
-         *         {@code false} otherwise
-         */
-        boolean existsByCode(String code);
+	/**
+	 * Checks whether a {@link Worksite} with the specified code exists.
+	 *
+	 * @param code the unique identifier code of the worksite; must not be
+	 *             {@code null}
+	 * @return {@code true} if a worksite with the given code exists; {@code false}
+	 *         otherwise
+	 */
+	boolean existsByCode(String code);
 }

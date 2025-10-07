@@ -74,8 +74,8 @@ class WorkShiftServiceTest {
 		employee.setEmail("aaron@test,com");
 		this.worksite = new Worksite();
 		worksite.setCode("BCN-HQ");
-		final ZoneId UTCZone = ZoneId.of("UTC");
-		worksite.setTimeZone(UTCZone);
+		final ZoneId UtcZone = ZoneId.of("UTC");
+		worksite.setTimeZone(UtcZone);
 		employee.getWorksites().add(worksite);
 	}
 
@@ -87,8 +87,8 @@ class WorkShiftServiceTest {
 		employee.setEmail("aaron@test,com");
 		final Worksite worksite = new Worksite();
 		worksite.setCode("BCN-HQ");
-		final ZoneId UTCZone = ZoneId.of("UTC");
-		worksite.setTimeZone(UTCZone);
+		final ZoneId UtcZone = ZoneId.of("UTC");
+		worksite.setTimeZone(UtcZone);
 		employee.getWorksites().add(worksite);
 
 		final Instant[] normalDay = { //
@@ -324,8 +324,8 @@ class WorkShiftServiceTest {
 	}
 
 	private static Instant buildInstant(LocalDate date, int hour, int minutes) {
-		final ZoneId UTCZone = ZoneId.of("UTC");
-		return LocalDateTime.of(date, LocalTime.of(hour, minutes)).atZone(UTCZone).toInstant();
+		final ZoneId UtcZone = ZoneId.of("UTC");
+		return LocalDateTime.of(date, LocalTime.of(hour, minutes)).atZone(UtcZone).toInstant();
 	}
 
 	@ParameterizedTest

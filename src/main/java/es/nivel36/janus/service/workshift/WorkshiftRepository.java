@@ -45,6 +45,4 @@ public interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 			""")
 	Page<WorkShift> findByEmployeeAndRange(Employee employee, LocalDate fromInclusive, LocalDate toExclusive,
 			Pageable pageable);
-
-
 }

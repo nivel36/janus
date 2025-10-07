@@ -24,15 +24,13 @@ import es.nivel36.janus.service.worksite.Worksite;
 /**
  * Request payload for creating a new {@link Worksite}.
  *
- * @param code     the unique business code identifying the worksite; must follow
- *                 the {@code [A-Za-z0-9_-]{1,50}} pattern
- * @param name     the human readable name of the worksite; must contain between 1
- *                 and 250 characters
+ * @param code     the unique business code identifying the worksite; must
+ *                 follow the {@code [A-Za-z0-9_-]{1,50}} pattern
+ * @param name     the human readable name of the worksite; must contain between
+ *                 1 and 250 characters
  * @param timeZone the {@link java.time.ZoneId} identifier associated with the
  *                 worksite; must contain between 1 and 80 characters
  */
-public record CreateWorksiteRequest(
-                @NotBlank @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String code,
-                @NotBlank @Size(min = 1, max = 250) String name,
-                @NotBlank @Size(min = 1, max = 80) String timeZone) {
+public record CreateWorksiteRequest(@NotBlank @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String code,
+		@NotBlank @Size(min = 1, max = 250) String name, @NotBlank @Size(min = 1, max = 80) String timeZone) {
 }

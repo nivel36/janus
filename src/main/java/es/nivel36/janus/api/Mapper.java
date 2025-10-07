@@ -18,8 +18,8 @@ package es.nivel36.janus.api;
 /**
  * Generic contract for mapping objects between two types.
  * <p>
- * This interface defines a transformation from an input type {@code In} to an
- * output type {@code Out}. It can be used to convert between domain entities,
+ * This interface defines a transformation from an input type {@code IN} to an
+ * output type {@code OUT}. It can be used to convert between domain entities,
  * DTOs, API responses, or any other data structures that require adaptation.
  * </p>
  *

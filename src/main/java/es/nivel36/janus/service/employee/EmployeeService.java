@@ -22,8 +22,12 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.service.ResourceNotFoundException;
+import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.workshift.WorkShift;
+import es.nivel36.janus.service.worksite.Worksite;
 
 /**
  * Service class responsible for managing {@link Employee} entities and
@@ -73,17 +77,17 @@ public class EmployeeService {
 	 * Finds the identifiers of employees who have at least one {@link TimeLog}
 	 * since the specified instant but do not have any associated {@link WorkShift}.
 	 *
-	 * @param from the lower bound (inclusive) instant; only time logs with an
-	 *             {@code entryTime} greater than or equal to this value are
-	 *             considered
+	 * @param fromInclusive the lower bound instant; only time logs with an
+	 *                      {@code entryTime} greater than or equal to this value
+	 *                      are considered
 	 * @return a list of employee IDs corresponding to employees with time logs
 	 *         since the given instant but without any linked work shifts
 	 * @throws NullPointerException if {@code from} is {@code null}
 	 */
-	public List<Long> findEmployeesWithoutWorkshifts(final Instant from) {
-		Objects.requireNonNull(from, "From must not be null");
-		logger.debug("Finding employees without workshift from date: {}", from);
-		return this.employeeRepository.findEmployeesWithoutWorkshifts(from);
+	public List<Long> findEmployeesWithoutWorkshiftsSince(final Instant fromInclusive) {
+		Objects.requireNonNull(fromInclusive, "From must not be null");
+		logger.debug("Finding employees without workshift from date: {}", fromInclusive);
+		return this.employeeRepository.findEmployeesWithoutWorkshiftsSince(fromInclusive);
 	}
 
 	/**
@@ -95,7 +99,7 @@ public class EmployeeService {
 	 */
 	public Employee createEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
-		logger.debug("Creating new Employee: {}", employee);
+		logger.debug("Creating new employee {}", employee);
 		return this.employeeRepository.save(employee);
 	}
 
@@ -108,8 +112,56 @@ public class EmployeeService {
 	 */
 	public Employee updateEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
-		logger.debug("Updating Employee: {}", employee);
+		logger.debug("Updating employee {}", employee);
 		return this.employeeRepository.save(employee);
+	}
+
+	/**
+	 * Adds the {@code worksite} to the {@code employee}. This method is idempotent:
+	 * does not duplicate the relationship if it already exists.
+	 *
+	 * @param worksite the worksite to add; must not be {@code null}
+	 * @param employee the employee; must not be {@code null}
+	 * @throws NullPointerException if any parameter is {@code null}
+	 */
+	@Transactional
+	public void addWorksiteToEmployee(final Worksite worksite, final Employee employee) {
+		Objects.requireNonNull(worksite, "Worksite can't be null");
+		Objects.requireNonNull(employee, "Employee can't be null");
+
+		logger.debug("Adding worksite {} to employee {}", worksite, employee);
+		boolean added = employee.getWorksites().add(worksite);
+		if (added) {
+			worksite.getEmployees().add(employee);
+			this.employeeRepository.save(employee);
+			logger.trace("Worksite {} added to employee {}", worksite, employee);
+		} else {
+			logger.trace("Relation already existed: worksite {} ⇢ employee {}", worksite, employee);
+		}
+	}
+
+	/**
+	 * Removes the {@code worksite} to the {@code employee}.
+	 *
+	 * @param worksite the worksite to remove; must not be {@code null}
+	 * @param employee the employee; must not be {@code null}
+	 * @throws NullPointerException if any parameter is {@code null}
+	 */
+	@Transactional
+	public void removeWorksiteFromEmployee(final Worksite worksite, final Employee employee) {
+		Objects.requireNonNull(worksite, "Worksite can't be null");
+		Objects.requireNonNull(employee, "Employee can't be null");
+
+		logger.debug("Removing worksite {} from employee {}", worksite, employee);
+
+		boolean removed = employee.getWorksites().remove(worksite);
+		if (removed) {
+			worksite.getEmployees().remove(employee);
+			this.employeeRepository.save(employee);
+			logger.trace("Worksite {} removed from employee {}", worksite, employee);
+		} else {
+			logger.trace("Relation did not exist: worksite {} ⇢ employee {}", worksite, employee);
+		}
 	}
 
 	/**
@@ -120,7 +172,7 @@ public class EmployeeService {
 	 */
 	public void deleteEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
-		logger.debug("Deleting Employee: {}", employee);
+		logger.debug("Deleting employee {}", employee);
 		this.employeeRepository.delete(employee);
 	}
 }

@@ -30,14 +30,14 @@ import es.nivel36.janus.service.worksite.Worksite;
 @Component
 public class WorksiteResponseMapper implements Mapper<Worksite, WorksiteResponse> {
 
-        @Override
-        public WorksiteResponse map(final Worksite worksite) {
-                if (worksite == null) {
-                        return null;
-                }
-                final String code = Objects.requireNonNull(worksite.getCode(), "Code can't be null");
-                final String name = Objects.requireNonNull(worksite.getName(), "Name can't be null");
-                final ZoneId timeZone = Objects.requireNonNull(worksite.getTimeZone(), "TimeZone can't be null");
-                return new WorksiteResponse(code, name, timeZone.getId());
-        }
+	@Override
+	public WorksiteResponse map(final Worksite worksite) {
+		if (worksite == null) {
+			return null;
+		}
+		final String code = Objects.requireNonNull(worksite.getCode(), "Code can't be null");
+		final String name = Objects.requireNonNull(worksite.getName(), "Name can't be null");
+		final ZoneId timeZone = Objects.requireNonNull(worksite.getTimeZone(), "TimeZone can't be null");
+		return new WorksiteResponse(code, name, timeZone.getId());
+	}
 }
