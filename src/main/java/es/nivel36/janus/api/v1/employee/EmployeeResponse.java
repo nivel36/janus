@@ -27,8 +27,9 @@ import es.nivel36.janus.service.employee.Employee;
  * @param surname       the employee's surname
  * @param email         the employee's unique email address
  * @param scheduleId    the identifier of the schedule assigned to the employee
- * @param worksiteCodes the set of worksite business codes linked to the employee
+ * @param worksiteCodes the set of worksite business codes linked to the
+ *                      employee
  */
 public record EmployeeResponse(Long id, String name, String surname, String email, Long scheduleId,
-                Set<String> worksiteCodes) {
+		Set<String> worksiteCodes) {
 }

@@ -34,37 +34,37 @@ import es.nivel36.janus.service.worksite.Worksite;
 @Component
 public class EmployeeResponseMapper implements Mapper<Employee, EmployeeResponse> {
 
-        @Override
-        public EmployeeResponse map(final Employee employee) {
-                if (employee == null) {
-                        return null;
-                }
+	@Override
+	public EmployeeResponse map(final Employee employee) {
+		if (employee == null) {
+			return null;
+		}
 
-                final Long scheduleId = extractScheduleId(employee.getSchedule());
-                final Set<String> worksiteCodes = extractWorksiteCodes(employee.getWorksites());
+		final Long scheduleId = extractScheduleId(employee.getSchedule());
+		final Set<String> worksiteCodes = extractWorksiteCodes(employee.getWorksites());
 
-                return new EmployeeResponse(employee.getId(), employee.getName(), employee.getSurname(), employee.getEmail(),
-                                scheduleId, worksiteCodes);
-        }
+		return new EmployeeResponse(employee.getId(), employee.getName(), employee.getSurname(), employee.getEmail(),
+				scheduleId, worksiteCodes);
+	}
 
-        private Long extractScheduleId(final Schedule schedule) {
-                if (schedule == null) {
-                        return null;
-                }
-                return schedule.getId();
-        }
+	private Long extractScheduleId(final Schedule schedule) {
+		if (schedule == null) {
+			return null;
+		}
+		return schedule.getId();
+	}
 
-        private Set<String> extractWorksiteCodes(final Set<Worksite> worksites) {
-                if ((worksites == null) || worksites.isEmpty()) {
-                        return Set.of();
-                }
+	private Set<String> extractWorksiteCodes(final Set<Worksite> worksites) {
+		if ((worksites == null) || worksites.isEmpty()) {
+			return Set.of();
+		}
 
-                final LinkedHashSet<String> codes = worksites.stream() //
-                                .filter(Objects::nonNull) //
-                                .map(Worksite::getCode) //
-                                .filter(Objects::nonNull) //
-                                .collect(Collectors.toCollection(LinkedHashSet::new));
+		final LinkedHashSet<String> codes = worksites.stream() //
+				.filter(Objects::nonNull) //
+				.map(Worksite::getCode) //
+				.filter(Objects::nonNull) //
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 
-                return Collections.unmodifiableSet(codes);
-        }
+		return Collections.unmodifiableSet(codes);
+	}
 }

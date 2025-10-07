@@ -27,15 +27,15 @@ import es.nivel36.janus.service.schedule.Schedule;
 /**
  * Request payload for creating a new {@link Employee}.
  *
- * @param name       the employee's first name; optional but, if provided, must not
- *                   exceed 255 characters
+ * @param name       the employee's first name; optional but, if provided, must
+ *                   not exceed 255 characters
  * @param surname    the employee's surname; optional but, if provided, must not
  *                   exceed 255 characters
- * @param email      the unique email address identifying the employee; must be a
- *                   valid email address and contain at most 254 characters
+ * @param email      the unique email address identifying the employee; must be
+ *                   a valid email address and contain at most 254 characters
  * @param scheduleId the identifier of the {@link Schedule} assigned to the
  *                   employee; must be a positive number
  */
 public record CreateEmployeeRequest(@Size(max = 255) String name, @Size(max = 255) String surname,
-                @NotBlank @Email @Size(max = 254) String email, @NotNull @Positive Long scheduleId) {
+		@NotBlank @Email @Size(max = 254) String email, @NotNull @Positive Long scheduleId) {
 }
