@@ -65,12 +65,18 @@ public class EmployeeService {
 	 * @param email the email of the employee to find
 	 * @return the employee with the specified email, or null if no employee is
 	 *         found
-	 * @throws NullPointerException if the email is null
+	 * @throws NullPointerException      if the email is null
+	 * @throws ResourceNotFoundException if the employee is not found
 	 */
 	public Employee findEmployeeByEmail(final String email) {
 		Objects.requireNonNull(email, "Email cannot be null.");
 		logger.debug("Finding Employee by email: {}", email);
-		return this.employeeRepository.findEmployeeByEmail(email);
+		final Employee employee = this.employeeRepository.findEmployeeByEmail(email);
+		if (employee == null) {
+			logger.warn("No employee found with email {}", email);
+			throw new ResourceNotFoundException("There is no employee with email " + email);
+		}
+		return employee;
 	}
 
 	/**

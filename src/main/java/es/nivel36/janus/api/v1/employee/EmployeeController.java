@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
@@ -77,7 +76,7 @@ public class EmployeeController {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		logger.debug("Find employee by email ACTION performed");
 
-		final Employee employee = this.findEmployee(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
 		return ResponseEntity.ok(response);
 	}
@@ -117,7 +116,7 @@ public class EmployeeController {
 		Objects.requireNonNull(request, "UpdateEmployeeRequest can't be null");
 		logger.debug("Update employee ACTION performed");
 
-		final Employee existingEmployee = this.findEmployee(employeeEmail);
+		final Employee existingEmployee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		this.merge(existingEmployee, request);
 
 		final Employee updatedEmployee = this.employeeService.updateEmployee(existingEmployee);
@@ -140,8 +139,8 @@ public class EmployeeController {
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Add worksite to employee ACTION performed");
 
-		final Employee employee = this.findEmployee(employeeEmail);
-		final Worksite worksite = this.findWorksite(worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		this.employeeService.addWorksiteToEmployee(worksite, employee);
 
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
@@ -163,8 +162,8 @@ public class EmployeeController {
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Remove worksite from employee ACTION performed");
 
-		final Employee employee = this.findEmployee(employeeEmail);
-		final Worksite worksite = this.findWorksite(worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		this.employeeService.removeWorksiteFromEmployee(worksite, employee);
 
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
@@ -182,7 +181,7 @@ public class EmployeeController {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		logger.debug("Delete employee ACTION performed");
 
-		final Employee employee = this.findEmployee(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		this.employeeService.deleteEmployee(employee);
 		return ResponseEntity.noContent().build();
 	}
@@ -208,23 +207,5 @@ public class EmployeeController {
 		final Schedule schedule = new Schedule();
 		schedule.setId(scheduleId);
 		return schedule;
-	}
-
-	private Worksite findWorksite(final String worksiteCode) {
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		if (worksite == null) {
-			logger.warn("No worksite found with code: {}", worksiteCode);
-			throw new ResourceNotFoundException("No worksite found with code " + worksiteCode);
-		}
-		return worksite;
-	}
-
-	private Employee findEmployee(final String employeeEmail) {
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		if (employee == null) {
-			logger.warn("No employee found with email: {}", employeeEmail);
-			throw new ResourceNotFoundException("No employee found with email " + employeeEmail);
-		}
-		return employee;
 	}
 }

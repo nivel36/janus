@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.TimeLog;
@@ -94,8 +93,8 @@ public class TimeLogController {
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Clock-in ACTION performed");
 
-		final Employee employee = findEmployee(employeeEmail);
-		final Worksite worksite = findWorksite(worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 
 		final TimeLog clockIn;
 		if (entryTime != null) {
@@ -106,24 +105,6 @@ public class TimeLogController {
 
 		final TimeLogResponse timeLog = this.timeLogResponseMapper.map(clockIn);
 		return ResponseEntity.status(HttpStatus.CREATED).body(timeLog);
-	}
-
-	private Worksite findWorksite(final String worksiteCode) {
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		if (worksite == null) {
-			logger.warn("No worksite found with code: {}", worksiteCode);
-			throw new ResourceNotFoundException("No worksite found with code " + worksiteCode);
-		}
-		return worksite;
-	}
-
-	private Employee findEmployee(final String employeeEmail) {
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		if (employee == null) {
-			logger.warn("No employee found with email: {}", employeeEmail);
-			throw new ResourceNotFoundException("No employee found with email " + employeeEmail);
-		}
-		return employee;
 	}
 
 	/**
@@ -147,8 +128,8 @@ public class TimeLogController {
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Clock-out ACTION performed");
 
-		final Employee employee = findEmployee(employeeEmail);
-		final Worksite worksite = findWorksite(worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 
 		final TimeLog clockOut;
 		if (exitTime != null) {
@@ -180,8 +161,8 @@ public class TimeLogController {
 		Objects.requireNonNull(timeLog, "TimeLog can't be null");
 		logger.debug("Create timelog ACTION performed");
 
-		final Employee employee = findEmployee(employeeEmail);
-		final Worksite worksite = findWorksite(worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, timeLog);
 		final TimeLogResponse updatedTimeLogResponse = this.timeLogResponseMapper.map(createdTimeLog);
@@ -217,7 +198,7 @@ public class TimeLogController {
 		}
 		logger.debug("Search time logs by employee ACTION performed");
 
-		final Employee employee = findEmployee(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 
 		final Page<TimeLog> timeLogs;
 		if (fromInstant == null) {
@@ -245,7 +226,7 @@ public class TimeLogController {
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
-		final Employee employee = findEmployee(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
@@ -268,7 +249,7 @@ public class TimeLogController {
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Hours-worked ACTION performed");
 
-		final Employee employee = findEmployee(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		timeLog.setEmployee(employee);
@@ -295,7 +276,7 @@ public class TimeLogController {
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Delete timelog ACTION performed");
 
-		final Employee employee = findEmployee(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 
 		final TimeLog timeLog = timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		this.timeLogService.deleteTimeLog(timeLog);
