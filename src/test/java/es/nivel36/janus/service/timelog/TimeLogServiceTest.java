@@ -64,10 +64,10 @@ class TimeLogServiceTest {
 		employee.setEmail("aaron@test,com");
 		this.worksite = new Worksite();
 		worksite.setCode("BCN-HQ");
-		final ZoneId UtcZone = ZoneId.of("UTC");
-		worksite.setTimeZone(UtcZone);
+		final ZoneId utcZone = ZoneId.of("UTC");
+		worksite.setTimeZone(utcZone);
 		employee.getWorksites().add(worksite);
-		when(this.clock.getZone()).thenReturn(UtcZone);
+		when(this.clock.getZone()).thenReturn(utcZone);
 		when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv -> inv.getArgument(0));
 	}
 
