@@ -15,7 +15,7 @@
 -- Schema: Janus
 -- Engine: PostgreSQL
 -- Notes:
---  - DayOfWeek stored as VARCHAR(16) with CHECK constraint
+--  - DayOfWeek stored as VARCHAR2(16) with CHECK constraint
 --  - TimeRange embedded in DayOfWeekTimeRange: start_time / end_time
 --  - ScheduleRule ↔ DayOfWeekTimeRange is 1→N (no join table)
 --  - UNIQUE constraints inline; redundant indexes removed
@@ -28,7 +28,7 @@ BEGIN;
 -- ============================================================
 CREATE TABLE schedule (
   id    BIGSERIAL PRIMARY KEY,
-  name  VARCHAR(255) NOT NULL UNIQUE
+  name  VARCHAR2(255) NOT NULL UNIQUE
 );
 
 -- ============================================================
@@ -36,7 +36,7 @@ CREATE TABLE schedule (
 -- ============================================================
 CREATE TABLE schedule_rule (
   id           BIGSERIAL PRIMARY KEY,
-  name         VARCHAR(255) NOT NULL UNIQUE,
+  name         VARCHAR2(255) NOT NULL UNIQUE,
   schedule_id  BIGINT NOT NULL REFERENCES schedule(id)
                 ON UPDATE CASCADE ON DELETE RESTRICT,
   start_date   DATE NULL,
@@ -62,10 +62,10 @@ ALTER TABLE schedule_rule
 -- ============================================================
 CREATE TABLE day_of_week_time_range (
   id               BIGSERIAL PRIMARY KEY,
-  name             VARCHAR(128) NOT NULL UNIQUE,
+  name             VARCHAR2(128) NOT NULL UNIQUE,
   schedule_rule_id BIGINT NOT NULL REFERENCES schedule_rule(id)
                      ON UPDATE CASCADE ON DELETE CASCADE,
-  day_of_week      VARCHAR(16)  NOT NULL,
+  day_of_week      VARCHAR2(16)  NOT NULL,
   start_time       TIME NOT NULL,
   end_time         TIME NOT NULL,
   -- one shift starting per day-of-week within a given rule
@@ -85,9 +85,9 @@ CREATE TABLE day_of_week_time_range (
 -- ============================================================
 CREATE TABLE employee (
   id           BIGSERIAL PRIMARY KEY,
-  name         VARCHAR(255),
-  surname      VARCHAR(255),
-  email        VARCHAR(254) NOT NULL UNIQUE,
+  name         VARCHAR2(255),
+  surname      VARCHAR2(255),
+  email        VARCHAR2(254) NOT NULL UNIQUE,
   schedule_id  BIGINT NOT NULL REFERENCES schedule(id)
                 ON UPDATE CASCADE ON DELETE RESTRICT
 );
