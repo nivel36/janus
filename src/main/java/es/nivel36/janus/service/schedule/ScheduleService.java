@@ -17,13 +17,16 @@ package es.nivel36.janus.service.schedule;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 
 /**
@@ -40,17 +43,119 @@ import es.nivel36.janus.service.employee.Employee;
 @Service
 public class ScheduleService {
 
-	private static final Logger logger = LoggerFactory.getLogger(ScheduleService.class);
+        private static final Logger logger = LoggerFactory.getLogger(ScheduleService.class);
 
-	private final ScheduleRepository scheduleRepository;
+        private final ScheduleRepository scheduleRepository;
 
-	public ScheduleService(final ScheduleRepository scheduleRepository) {
-		this.scheduleRepository = Objects.requireNonNull(scheduleRepository, "Schedule repository can't be null");
-	}
+        public ScheduleService(final ScheduleRepository scheduleRepository) {
+                this.scheduleRepository = Objects.requireNonNull(scheduleRepository, "Schedule repository can't be null");
+        }
 
-	/**
-	 * Finds the {@link TimeRange} for a given {@link Employee} on a specific
-	 * {@link LocalDate}.
+        /**
+         * Creates a new {@link Schedule} and persists it using the
+         * {@link ScheduleRepository}.
+         *
+         * <p>
+         * All {@link ScheduleRule} instances contained in the schedule are associated
+         * back to the parent schedule before persistence to maintain the bidirectional
+         * relationship.
+         * </p>
+         *
+         * @param schedule the schedule to create; must not be {@code null}
+         * @return the persisted {@link Schedule}
+         * @throws NullPointerException if {@code schedule} is {@code null}
+         */
+        @Transactional
+        public Schedule createSchedule(final Schedule schedule) {
+                Objects.requireNonNull(schedule, "Schedule can't be null");
+                logger.debug("Creating Schedule {}", schedule.getName());
+
+                this.attachScheduleToRules(schedule, schedule.getRules());
+                return this.scheduleRepository.save(schedule);
+        }
+
+        /**
+         * Updates an existing {@link Schedule} identified by its primary key.
+         *
+         * <p>
+         * The method replaces the schedule's mutable fields (name and rules) with the
+         * values provided in {@code updatedSchedule}. Rules not present in the new
+         * collection are removed thanks to the {@code orphanRemoval=true} setting in
+         * {@link Schedule#getRules()}.
+         * </p>
+         *
+         * @param scheduleId      the primary key of the schedule to update; must not be
+         *                        {@code null}
+         * @param updatedSchedule the schedule containing the new values; must not be
+         *                        {@code null}
+         * @return the updated {@link Schedule}
+         * @throws NullPointerException      if {@code scheduleId} or
+         *                                   {@code updatedSchedule} is {@code null}
+         * @throws ResourceNotFoundException if the schedule does not exist
+         */
+        @Transactional
+        public Schedule updateSchedule(final Long scheduleId, final Schedule updatedSchedule) {
+                Objects.requireNonNull(scheduleId, "Schedule id can't be null");
+                Objects.requireNonNull(updatedSchedule, "Updated schedule can't be null");
+                logger.debug("Updating Schedule {}", scheduleId);
+
+                final Schedule persisted = this.scheduleRepository.findById(scheduleId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Schedule not found with id " + scheduleId));
+
+                persisted.setName(updatedSchedule.getName());
+                persisted.getRules().clear();
+
+                final List<ScheduleRule> newRules = updatedSchedule.getRules();
+                if (newRules != null && !newRules.isEmpty()) {
+                        this.attachScheduleToRules(persisted, newRules);
+                        persisted.getRules().addAll(newRules);
+                }
+
+                return this.scheduleRepository.save(persisted);
+        }
+
+        /**
+         * Deletes an existing {@link Schedule} by its primary key.
+         *
+         * @param scheduleId the identifier of the schedule to delete; must not be
+         *                   {@code null}
+         * @throws NullPointerException      if {@code scheduleId} is {@code null}
+         * @throws ResourceNotFoundException if the schedule does not exist
+         */
+        @Transactional
+        public void deleteSchedule(final Long scheduleId) {
+                Objects.requireNonNull(scheduleId, "Schedule id can't be null");
+                logger.debug("Deleting Schedule {}", scheduleId);
+
+                final Schedule schedule = this.scheduleRepository.findById(scheduleId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Schedule not found with id " + scheduleId));
+
+                this.scheduleRepository.delete(schedule);
+        }
+
+        /**
+         * Retrieves a {@link Schedule} by its primary key.
+         *
+         * @param scheduleId the identifier of the schedule; must not be {@code null}
+         * @return the {@link Schedule} found
+         * @throws NullPointerException      if {@code scheduleId} is {@code null}
+         * @throws ResourceNotFoundException if the schedule does not exist
+         */
+        @Transactional(readOnly = true)
+        public Schedule findScheduleById(final Long scheduleId) {
+                Objects.requireNonNull(scheduleId, "Schedule id can't be null");
+                logger.debug("Finding Schedule {}", scheduleId);
+
+                return this.scheduleRepository.findById(scheduleId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Schedule not found with id " + scheduleId));
+        }
+
+        /**
+         * Finds the {@link TimeRange} for a given {@link Employee} on a specific
+         * {@link LocalDate}.
 	 *
 	 * <p>
 	 * This method searches for the time range that applies to the employee on the
@@ -67,12 +172,100 @@ public class ScheduleService {
 	 * @throws NullPointerException if either {@code employee} or {@code date} is
 	 *                              {@code null}.
 	 */
-	public Optional<TimeRange> findTimeRangeForEmployeeByDate(final Employee employee, final LocalDate date) {
-		Objects.requireNonNull(employee, "Employee can't be null");
-		Objects.requireNonNull(date, "Date can't be null");
-		logger.debug("Finding time range for employee {} by date {}", employee, date);
+        public Optional<TimeRange> findTimeRangeForEmployeeByDate(final Employee employee, final LocalDate date) {
+                Objects.requireNonNull(employee, "Employee can't be null");
+                Objects.requireNonNull(date, "Date can't be null");
+                logger.debug("Finding time range for employee {} by date {}", employee, date);
 
-	    final DayOfWeek dayOfWeek = date.getDayOfWeek();
-	    return this.scheduleRepository.findTimeRangeForDate(employee, date, dayOfWeek);
-	}
+                final DayOfWeek dayOfWeek = date.getDayOfWeek();
+                return this.scheduleRepository.findTimeRangeForDate(employee, date, dayOfWeek);
+        }
+
+        private void attachScheduleToRules(final Schedule schedule, final List<ScheduleRule> rules) {
+                if (rules == null) {
+                        return;
+                }
+                for (final ScheduleRule rule : rules) {
+                        if (rule != null) {
+                                rule.setSchedule(schedule);
+                        }
+                }
+        }
+
+        /**
+         * Adds the provided {@link ScheduleRule} to the {@link Schedule} identified by
+         * {@code scheduleId}.
+         *
+         * <p>
+         * The schedule is fetched from the repository to ensure it exists and the rule
+         * is attached to it before persisting. The operation is transactional to
+         * propagate changes to the persistence context.
+         * </p>
+         *
+         * @param scheduleId  the identifier of the schedule to update; must not be
+         *                    {@code null}
+         * @param scheduleRule the rule to add; must not be {@code null}
+         * @return the added {@link ScheduleRule}
+         * @throws NullPointerException      if {@code scheduleId} or {@code scheduleRule}
+         *                                   is {@code null}
+         * @throws ResourceNotFoundException if the schedule does not exist
+         */
+        @Transactional
+        public ScheduleRule addRuleToSchedule(final Long scheduleId, final ScheduleRule scheduleRule) {
+                Objects.requireNonNull(scheduleId, "Schedule id can't be null");
+                Objects.requireNonNull(scheduleRule, "Schedule rule can't be null");
+
+                logger.debug("Adding rule {} to Schedule {}", scheduleRule.getName(), scheduleId);
+
+                final Schedule schedule = this.scheduleRepository.findById(scheduleId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Schedule not found with id " + scheduleId));
+
+                scheduleRule.setSchedule(schedule);
+                schedule.getRules().add(scheduleRule);
+                this.scheduleRepository.save(schedule);
+
+                return scheduleRule;
+        }
+
+        /**
+         * Removes the {@link ScheduleRule} identified by {@code scheduleRuleId} from the
+         * {@link Schedule} identified by {@code scheduleId}.
+         *
+         * <p>
+         * The schedule is retrieved to ensure it exists. If the rule cannot be found
+         * within the schedule, a {@link ResourceNotFoundException} is thrown. Orphan
+         * removal on {@link Schedule#getRules()} ensures the rule is deleted once it is
+         * detached from the collection.
+         * </p>
+         *
+         * @param scheduleId      the identifier of the schedule; must not be
+         *                        {@code null}
+         * @param scheduleRuleId  the identifier of the rule to remove; must not be
+         *                        {@code null}
+         * @throws NullPointerException      if {@code scheduleId} or
+         *                                   {@code scheduleRuleId} is {@code null}
+         * @throws ResourceNotFoundException if the schedule or the rule within that
+         *                                   schedule does not exist
+         */
+        @Transactional
+        public void removeRuleFromSchedule(final Long scheduleId, final Long scheduleRuleId) {
+                Objects.requireNonNull(scheduleId, "Schedule id can't be null");
+                Objects.requireNonNull(scheduleRuleId, "Schedule rule id can't be null");
+
+                logger.debug("Removing rule {} from Schedule {}", scheduleRuleId, scheduleId);
+
+                final Schedule schedule = this.scheduleRepository.findById(scheduleId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Schedule not found with id " + scheduleId));
+
+                final boolean removed = schedule.getRules().removeIf(rule -> scheduleRuleId.equals(rule.getId()));
+
+                if (!removed) {
+                        throw new ResourceNotFoundException(
+                                        "Schedule rule not found with id " + scheduleRuleId + " in schedule " + scheduleId);
+                }
+
+                this.scheduleRepository.save(schedule);
+        }
 }
