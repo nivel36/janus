@@ -122,7 +122,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * @return a {@link Page} of time logs belonging to the specified employee
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
-	@Query(value = """
+	@Query("""
 			SELECT t
 			FROM TimeLog t
 			WHERE t.employee = :employee
@@ -191,9 +191,9 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 			AND t.entryTime >= :from
 			AND e = :employee
 			AND NOT EXISTS (
-				SELECT 1
-				FROM WorkShift w
-				WHERE t MEMBER OF w.timeLogs
+			SELECT 1
+			FROM WorkShift w
+			WHERE t MEMBER OF w.timeLogs
 			)
 			ORDER BY t.entryTime DESC
 			""")

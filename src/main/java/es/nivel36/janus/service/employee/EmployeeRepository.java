@@ -59,9 +59,9 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 			WHERE t.deleted = false
 			AND t.entry_time >= :fromInclusive
 			AND NOT EXISTS (
-				SELECT 1
-				FROM workshift_timelog wstl
-				WHERE wstl.timelog_id = t.id
+			SELECT 1
+			FROM workshift_timelog wstl
+			WHERE wstl.timelog_id = t.id
 			);
 			""", nativeQuery = true)
 	List<Long> findEmployeesWithoutWorkshiftsSince(@Param("fromInclusive") Instant fromInclusive);
