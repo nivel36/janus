@@ -73,4 +73,23 @@ interface ScheduleRepository extends CrudRepository<Schedule, Long> {
 			AND d.dayOfWeek = :dayOfWeek
 			""")
 	Optional<TimeRange> findTimeRangeForDate(Employee employee, LocalDate date, DayOfWeek dayOfWeek);
+
+	/**
+	 * Checks whether the {@link Schedule} has any associated {@link Employee}
+	 * entities.
+	 * <p>
+	 * This method performs an existence check using the JPQL {@code size()}
+	 * function on the {@code employees} collection without loading it into memory.
+	 * </p>
+	 *
+	 * @param the schedule; must not be {@code null}
+	 * @return {@code true} if at least one employee is assigned to the schedule;
+	 *         {@code false} otherwise
+	 */
+	@Query("""
+			select (size(s.employees) > 0)
+			from Schedule s
+			where s = :schedule
+			""")
+	boolean hasEmployees(Schedule schedule);
 }

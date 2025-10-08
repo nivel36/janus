@@ -161,19 +161,25 @@ public class WorksiteService {
 	}
 
 	/**
-	 * Deletes an existing {@link Worksite} identified by its code.
+	 * Deletes an existing {@link Worksite}.
+	 * 
+	 * Before deletion, it is verified that the work site has no assigned workers.
 	 *
-	 * @param code the code of the worksite to delete; must not be {@code null}
-	 * @throws NullPointerException      if {@code code} is {@code null}
-	 * @throws ResourceNotFoundException if no worksite exists with the given code
+	 * @param worksite the worksite to delete; must not be {@code null}
+	 * @throws NullPointerException if {@code code} is {@code null}
 	 */
 	@Transactional
-	public void deleteWorksite(final String code) {
-		Objects.requireNonNull(code, "Code can't be null");
-		logger.debug("Deleting worksite with code {}", code);
+	public void deleteWorksite(final Worksite worksite) {
+		Objects.requireNonNull(worksite, "Worksite can't be null");
+		logger.debug("Deleting worksite {}", worksite);
 
-		final Worksite worksite = findWorksiteByCode(code);
+		final boolean inUse = this.worksiteRepository.hasEmployees(worksite);
+		if (inUse) {
+			throw new IllegalStateException(
+					"The worksite " + worksite + " can't be deleted because it has assigned employees");
+		}
+
 		worksiteRepository.delete(worksite);
-		logger.trace("Worksite {} deleted successfully", code);
+		logger.trace("Worksite {} deleted successfully", worksite);
 	}
 }

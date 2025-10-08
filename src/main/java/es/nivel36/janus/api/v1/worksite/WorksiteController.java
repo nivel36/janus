@@ -148,7 +148,8 @@ public class WorksiteController {
 		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
 		logger.debug("Delete worksite ACTION performed");
 
-		this.worksiteService.deleteWorksite(worksiteCode);
+		final Worksite workiste = this.worksiteService.findWorksiteByCode(worksiteCode);
+		this.worksiteService.deleteWorksite(workiste);
 		return ResponseEntity.noContent().build();
 	}
 }

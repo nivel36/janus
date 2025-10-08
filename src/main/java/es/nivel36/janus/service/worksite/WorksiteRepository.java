@@ -74,4 +74,23 @@ public interface WorksiteRepository extends CrudRepository<Worksite, Long> {
 	 *         otherwise
 	 */
 	boolean existsByCode(String code);
+	
+	/**
+	 * Checks whether the {@link Worksite} has any associated {@link Employee}
+	 * entities.
+	 * <p>
+	 * This method performs an existence check using the JPQL {@code size()}
+	 * function on the {@code employees} collection without loading it into memory.
+	 * </p>
+	 *
+	 * @param the worksite; must not be {@code null}
+	 * @return {@code true} if at least one employee is assigned to the worksite;
+	 *         {@code false} otherwise
+	 */
+	@Query("""
+			select (size(s.employees) > 0)
+			from Worksite w
+			where w = :worksite
+			""")
+	boolean hasEmployees(Worksite worksite);
 }
