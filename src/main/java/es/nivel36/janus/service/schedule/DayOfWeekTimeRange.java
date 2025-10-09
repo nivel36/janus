@@ -52,9 +52,9 @@ import jakarta.validation.constraints.NotNull;
  * </p>
  *
  * <p>
- * Within a single {@link ScheduleRule}, only one {@code DayOfWeekTimeRange}
- * is allowed for each {@link DayOfWeek}. This ensures that for any given day
- * of the week there is at most one shift starting on that day, avoiding
+ * Within a single {@link ScheduleRule}, only one {@code DayOfWeekTimeRange} is
+ * allowed for each {@link DayOfWeek}. This ensures that for any given day of
+ * the week there is at most one shift starting on that day, avoiding
  * ambiguities when retrieving the applicable time range for a specific date.
  * </p>
  *

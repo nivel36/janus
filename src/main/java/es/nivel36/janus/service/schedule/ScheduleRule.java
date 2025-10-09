@@ -85,10 +85,10 @@ public class ScheduleRule implements Serializable {
 	/**
 	 * The schedule to which this rule belongs. Can't be null.
 	 */
-	  @NotNull
-	  @ManyToOne(optional = false, fetch = FetchType.LAZY)
-	  @JoinColumn(name = "schedule_id", nullable = false)
-	  private Schedule schedule;
+	@NotNull
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "schedule_id", nullable = false)
+	private Schedule schedule;
 
 	/**
 	 * The start date of the schedule rule. It can be null if the rule applies
@@ -107,8 +107,8 @@ public class ScheduleRule implements Serializable {
 	 * can have multiple time ranges, and the same time range can belong to multiple
 	 * schedule rules.
 	 */
-	 @OneToMany(mappedBy = "scheduleRule", cascade = CascadeType.ALL, orphanRemoval = true)
-	  private List<DayOfWeekTimeRange> dayOfWeekRanges = new ArrayList<>();
+	@OneToMany(mappedBy = "scheduleRule", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<DayOfWeekTimeRange> dayOfWeekRanges = new ArrayList<>();
 
 	/**
 	 * Returns the unique identifier of the schedule rule.

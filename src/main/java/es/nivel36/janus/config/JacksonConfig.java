@@ -39,6 +39,7 @@ public class JacksonConfig {
 	 * <p>
 	 * <b>Example:</b>
 	 * </p>
+	 * 
 	 * <pre>{@code
 	 * {
 	 *   "name": null        // explicitly null

@@ -127,8 +127,8 @@ public class EmployeeController {
 	/**
 	 * Adds a {@link Worksite} to an {@link Employee}.
 	 *
-	 * @param employeeEmail   the email of the employee; must not be {@code null}
-	 * @param worksiteCode the worksite business code; must not be {@code null}
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
 	@PostMapping("/{employeeId}/worksites/{worksiteCode}")
@@ -150,8 +150,8 @@ public class EmployeeController {
 	/**
 	 * Removes a {@link Worksite} from an {@link Employee}.
 	 *
-         * @param employeeEmail the email of the employee; must not be {@code null}
-	 * @param worksiteCode the worksite business code; must not be {@code null}
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
 	@DeleteMapping("/{employeeId}/worksites/{worksiteCode}")
@@ -177,7 +177,8 @@ public class EmployeeController {
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
 	@DeleteMapping("/{employeeId}")
-	public ResponseEntity<Void> deleteEmployee(final @PathVariable("employeeEmail") @Email @Size(max = 254) String employeeEmail) {
+	public ResponseEntity<Void> deleteEmployee(
+			final @PathVariable("employeeEmail") @Email @Size(max = 254) String employeeEmail) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		logger.debug("Delete employee ACTION performed");
 

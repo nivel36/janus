@@ -63,19 +63,18 @@ public class JanusExceptionHandler {
 		return pd;
 	}
 
-        /**
-         * Handles {@link ResourceNotFoundException} thrown by services when a requested
-         * resource does not exist.
-         *
-         * @param ex      the exception raised by the service layer; must not be
-         *                {@code null}
-         * @param request the HTTP request that triggered the exception; may be
-         *                {@code null} when invoked outside of servlet context
-         * @return a {@link ProblemDetail} with {@link HttpStatus#NOT_FOUND}
-         */
-        @ExceptionHandler(ResourceNotFoundException.class)
-        public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex,
-                        final HttpServletRequest request) {
+	/**
+	 * Handles {@link ResourceNotFoundException} thrown by services when a requested
+	 * resource does not exist.
+	 *
+	 * @param ex      the exception raised by the service layer; must not be
+	 *                {@code null}
+	 * @param request the HTTP request that triggered the exception; may be
+	 *                {@code null} when invoked outside of servlet context
+	 * @return a {@link ProblemDetail} with {@link HttpStatus#NOT_FOUND}
+	 */
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex, final HttpServletRequest request) {
 		logger.warn("Resource not found: {}", ex.getMessage());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
 		pd.setTitle("Resource not found");

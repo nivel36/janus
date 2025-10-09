@@ -35,37 +35,41 @@ import jakarta.persistence.Converter;
  * without requiring explicit configuration.
  * </p>
  *
- * <p><b>Example:</b></p>
+ * <p>
+ * <b>Example:</b>
+ * </p>
  * <ul>
- *   <li>{@code ZoneId.of("Europe/Madrid")} → stored as {@code "Europe/Madrid"}</li>
- *   <li>{@code "America/New_York"} → converted back to {@code ZoneId.of("America/New_York")}</li>
+ * <li>{@code ZoneId.of("Europe/Madrid")} → stored as
+ * {@code "Europe/Madrid"}</li>
+ * <li>{@code "America/New_York"} → converted back to
+ * {@code ZoneId.of("America/New_York")}</li>
  * </ul>
  */
 @Converter(autoApply = true)
 public class ZoneIdConverter implements AttributeConverter<ZoneId, String> {
 
-    /**
-     * Converts a {@link ZoneId} into its database column representation.
-     *
-     * @param zoneId the {@link ZoneId} to convert; may be {@code null}
-     * @return the string identifier of the zone (e.g., {@code "Europe/Madrid"}),
-     *         or {@code null} if the input was {@code null}
-     */
-    @Override
-    public String convertToDatabaseColumn(ZoneId zoneId) {
-        return (zoneId != null ? zoneId.getId() : null);
-    }
+	/**
+	 * Converts a {@link ZoneId} into its database column representation.
+	 *
+	 * @param zoneId the {@link ZoneId} to convert; may be {@code null}
+	 * @return the string identifier of the zone (e.g., {@code "Europe/Madrid"}), or
+	 *         {@code null} if the input was {@code null}
+	 */
+	@Override
+	public String convertToDatabaseColumn(ZoneId zoneId) {
+		return (zoneId != null ? zoneId.getId() : null);
+	}
 
-    /**
-     * Converts a database column value into a {@link ZoneId}.
-     *
-     * @param dbData the string identifier of the zone as stored in the database;
-     *               may be {@code null}
-     * @return the corresponding {@link ZoneId} instance, or {@code null} if
-     *         the input was {@code null}
-     */
-    @Override
-    public ZoneId convertToEntityAttribute(String dbData) {
-        return (dbData != null ? ZoneId.of(dbData) : null);
-    }
+	/**
+	 * Converts a database column value into a {@link ZoneId}.
+	 *
+	 * @param dbData the string identifier of the zone as stored in the database;
+	 *               may be {@code null}
+	 * @return the corresponding {@link ZoneId} instance, or {@code null} if the
+	 *         input was {@code null}
+	 */
+	@Override
+	public ZoneId convertToEntityAttribute(String dbData) {
+		return (dbData != null ? ZoneId.of(dbData) : null);
+	}
 }

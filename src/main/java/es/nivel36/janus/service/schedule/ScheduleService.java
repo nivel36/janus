@@ -131,14 +131,14 @@ public class ScheduleService {
 	 * Before deletion, it is verified that the schedule has no assigned workers.
 	 *
 	 * @param schedule the schedule to delete; must not be {@code null}
-         * @throws NullPointerException  if {@code schedule} is {@code null}
+	 * @throws NullPointerException  if {@code schedule} is {@code null}
 	 * @throws IllegalStateException if the schedule has assigned employees and
 	 *                               can't be deleted
 	 */
 	@Transactional
 	public void deleteSchedule(final Schedule schedule) {
 		Objects.requireNonNull(schedule, "Schedule can't be null");
-                logger.debug("Deleting Schedule {}", schedule);
+		logger.debug("Deleting Schedule {}", schedule);
 
 		final boolean inUse = this.scheduleRepository.hasEmployees(schedule);
 		if (inUse) {

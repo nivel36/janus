@@ -74,7 +74,7 @@ public interface WorksiteRepository extends CrudRepository<Worksite, Long> {
 	 *         otherwise
 	 */
 	boolean existsByCode(String code);
-	
+
 	/**
 	 * Checks whether the {@link Worksite} has any associated {@link Employee}
 	 * entities.
@@ -83,7 +83,7 @@ public interface WorksiteRepository extends CrudRepository<Worksite, Long> {
 	 * function on the {@code employees} collection without loading it into memory.
 	 * </p>
 	 *
-         * @param worksite the worksite to inspect; must not be {@code null}
+	 * @param worksite the worksite to inspect; must not be {@code null}
 	 * @return {@code true} if at least one employee is assigned to the worksite;
 	 *         {@code false} otherwise
 	 */

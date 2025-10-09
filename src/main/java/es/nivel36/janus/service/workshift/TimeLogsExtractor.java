@@ -22,23 +22,23 @@ import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShiftService.PauseInfo;
 
 /**
- * Strategy abstraction used by {@link WorkShiftService} to collect the subset of
- * {@link TimeLog} entries that belong to a work shift depending on the
+ * Strategy abstraction used by {@link WorkShiftService} to collect the subset
+ * of {@link TimeLog} entries that belong to a work shift depending on the
  * extraction scenario (weekday, week start, or week end).
  */
 interface TimeLogsExtractor {
 
-        /**
-         * Extracts the {@link TimeLog} entries that compose a work shift for the
-         * provided date, considering the ordered time logs and the long pauses
-         * detected beforehand.
-         *
-         * @param date     the target work shift date; must not be {@code null}
-         * @param timeLogs the chronologically ordered {@link TimeLog} list for the
-         *                 employee; must not be {@code null}
-         * @param pauses   the list of pauses identified for the employee on the
-         *                 date; must not be {@code null}
-         * @return the {@link TimeLog} entries that belong to the work shift
-         */
-        List<TimeLog> extract(LocalDate date, List<TimeLog> timeLogs, List<PauseInfo> pauses);
+	/**
+	 * Extracts the {@link TimeLog} entries that compose a work shift for the
+	 * provided date, considering the ordered time logs and the long pauses detected
+	 * beforehand.
+	 *
+	 * @param date     the target work shift date; must not be {@code null}
+	 * @param timeLogs the chronologically ordered {@link TimeLog} list for the
+	 *                 employee; must not be {@code null}
+	 * @param pauses   the list of pauses identified for the employee on the date;
+	 *                 must not be {@code null}
+	 * @return the {@link TimeLog} entries that belong to the work shift
+	 */
+	List<TimeLog> extract(LocalDate date, List<TimeLog> timeLogs, List<PauseInfo> pauses);
 }

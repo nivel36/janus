@@ -30,7 +30,7 @@ final class WeekdayTimeLogsExtractor implements TimeLogsExtractor {
 		Objects.requireNonNull(date, "Date must not be null");
 		Objects.requireNonNull(timeLogs, "TimeLogs must not be null");
 		Objects.requireNonNull(pauses, "Pauses must not be null");
-		
+
 		if (pauses.size() < 2) {
 			throw new IllegalArgumentException("At least two long pauses are required to extract weekday logs");
 		}
