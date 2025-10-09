@@ -41,8 +41,8 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * employee and work site whose {@code entryTime} falls within the given time
 	 * range.
 	 * <p>
-	 * The {@code start} parameter is inclusive; records with
-	 * {@code entryTime &gt;= start} are included. </br>
+         * The {@code start} parameter is inclusive; records with
+         * {@code entryTime &gt;= start} are included.<br>
 	 * The {@code end} parameter is exclusive; records with
 	 * {@code entryTime &lt; end} are included.
 	 *
@@ -71,8 +71,8 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * Retrieves time logs for an {@link Employee} {@link TimeLog} records for the
 	 * specified employee whose {@code entryTime} falls within the given time range.
 	 * <p>
-	 * The {@code start} parameter is inclusive; records with
-	 * {@code entryTime &gt;= start} are included. </br>
+         * The {@code start} parameter is inclusive; records with
+         * {@code entryTime &gt;= start} are included.<br>
 	 * The {@code end} parameter is exclusive; records with
 	 * {@code entryTime &lt; end} are included.
 	 *

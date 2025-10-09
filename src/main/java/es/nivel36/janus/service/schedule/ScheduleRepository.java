@@ -82,7 +82,7 @@ interface ScheduleRepository extends CrudRepository<Schedule, Long> {
 	 * function on the {@code employees} collection without loading it into memory.
 	 * </p>
 	 *
-	 * @param the schedule; must not be {@code null}
+         * @param schedule the schedule to inspect; must not be {@code null}
 	 * @return {@code true} if at least one employee is assigned to the schedule;
 	 *         {@code false} otherwise
 	 */
