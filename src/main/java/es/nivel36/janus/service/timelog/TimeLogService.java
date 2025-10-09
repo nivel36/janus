@@ -131,7 +131,7 @@ public class TimeLogService {
 	 * {@link Worksite}.
 	 *
 	 * <p>
-	 * The provided {@code exitTime} is truncated to seconds.</br>
+         * The provided {@code exitTime} is truncated to seconds.<br>
 	 * If a previous {@link TimeLog} for the {@code employee}/{@code worksite}
 	 * cannot be found, the method constructs a synthetic one-second {@link TimeLog}
 	 * with {@code entryTime = exitTime - 1s} and {@code exitTime = exitTime}.
@@ -287,7 +287,7 @@ public class TimeLogService {
 	 * specified employee whose {@code entryTime} falls within the given time range.
 	 * <p>
 	 * The {@code start} parameter is inclusive; records with
-	 * {@code entryTime &gt;= start} are included. </br>
+         * {@code entryTime &gt;= start} are included.<br>
 	 * The {@code end} parameter is exclusive; records with
 	 * {@code entryTime &lt; end} are included.
 	 *

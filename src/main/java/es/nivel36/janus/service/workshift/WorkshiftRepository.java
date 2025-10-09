@@ -24,25 +24,59 @@ import org.springframework.data.repository.CrudRepository;
 
 import es.nivel36.janus.service.employee.Employee;
 
+/**
+ * Repository contract for persisting and querying {@link WorkShift} aggregates.
+ */
 public interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 
-	WorkShift findByEmployeeAndDate(Employee employee, LocalDate date);
-	
-	@Query("""
-			SELECT CASE WHEN COUNT(w) > 0 THEN true ELSE false END
-			FROM WorkShift w
-			WHERE w.employee = :employee
-			AND w.date = :date
-			""")
-	boolean existsByEmployeeAndDate(Employee employee, LocalDate date);
+        /**
+         * Retrieves the {@link WorkShift} for a specific employee and date if it has
+         * already been materialized.
+         *
+         * @param employee the employee owning the work shift; must not be {@code null}
+         * @param date     the local date of the shift; must not be {@code null}
+         * @return the persisted {@link WorkShift} instance, or {@code null} if none
+         *         exists
+         */
+        WorkShift findByEmployeeAndDate(Employee employee, LocalDate date);
 
-	@Query("""
-			SELECT w
-			FROM WorkShift w
-			WHERE w.employee = :employee
-			AND w.date >= :fromInclusive
-			AND w.date < :toExclusive
-			""")
-	Page<WorkShift> findByEmployeeAndRange(Employee employee, LocalDate fromInclusive, LocalDate toExclusive,
-			Pageable pageable);
+        /**
+         * Checks whether a {@link WorkShift} exists for the specified employee on the
+         * given date.
+         *
+         * @param employee the employee to check; must not be {@code null}
+         * @param date     the local date to verify; must not be {@code null}
+         * @return {@code true} if a work shift exists for the employee on that date;
+         *         {@code false} otherwise
+         */
+        @Query("""
+                        SELECT CASE WHEN COUNT(w) > 0 THEN true ELSE false END
+                        FROM WorkShift w
+                        WHERE w.employee = :employee
+                        AND w.date = :date
+                        """)
+        boolean existsByEmployeeAndDate(Employee employee, LocalDate date);
+
+        /**
+         * Finds the {@link WorkShift} entries for an employee whose {@code date}
+         * falls within the provided half-open range {@code [fromInclusive, toExclusive)}.
+         *
+         * @param employee      the employee whose shifts are requested; must not be
+         *                      {@code null}
+         * @param fromInclusive the inclusive lower bound of the date range; must not
+         *                      be {@code null}
+         * @param toExclusive   the exclusive upper bound of the date range; must not
+         *                      be {@code null}
+         * @param pageable      pagination information; must not be {@code null}
+         * @return a {@link Page} containing the matching work shifts
+         */
+        @Query("""
+                        SELECT w
+                        FROM WorkShift w
+                        WHERE w.employee = :employee
+                        AND w.date >= :fromInclusive
+                        AND w.date < :toExclusive
+                        """)
+        Page<WorkShift> findByEmployeeAndRange(Employee employee, LocalDate fromInclusive, LocalDate toExclusive,
+                        Pageable pageable);
 }

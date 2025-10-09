@@ -27,6 +27,14 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class JanusApplication {
 
+	/**
+	 * Boots the Spring application context for Janus.
+	 * <p>
+	 * Delegates to {@link SpringApplication#run(Class, String...)} to initialize
+	 * all configured beans and start the embedded web server.
+	 *
+	 * @param args optional command-line arguments forwarded to Spring Boot
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(JanusApplication.class, args);
 	}

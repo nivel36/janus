@@ -150,7 +150,7 @@ public class EmployeeController {
 	/**
 	 * Removes a {@link Worksite} from an {@link Employee}.
 	 *
-	 * @param employeeEmail   the emaoñ of the employee; must not be {@code null}
+         * @param employeeEmail the email of the employee; must not be {@code null}
 	 * @param worksiteCode the worksite business code; must not be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
