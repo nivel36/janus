@@ -15,20 +15,28 @@
  */
 package es.nivel36.janus.api;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import es.nivel36.janus.service.ResourceNotFoundException;
@@ -44,181 +52,186 @@ import jakarta.validation.ConstraintViolationException;
  * It centralizes error responses for controllers, providing consistent status
  * codes and payloads.
  */
+import java.net.URI;
+
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class JanusExceptionHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(JanusExceptionHandler.class);
 
-	/**
-	 * Handles missing entity
-	 */
+	private static final URI TYPE_NOT_FOUND = URI.create("urn:problem:resource-not-found");
+	private static final URI TYPE_INVALID_ARGUMENT = URI.create("urn:problem:invalid-argument");
+	private static final URI TYPE_OPERATION_CONFLICT = URI.create("urn:problem:operation-conflict");
+	private static final URI TYPE_INVALID_DATE_TIME = URI.create("urn:problem:invalid-date-time-format");
+	private static final URI TYPE_MALFORMED_REQUEST = URI.create("urn:problem:malformed-request");
+	private static final URI TYPE_MISSING_PARAMETER = URI.create("urn:problem:missing-parameter");
+	private static final URI TYPE_TYPE_MISMATCH = URI.create("urn:problem:type-mismatch");
+	private static final URI TYPE_VALIDATION_FAILED = URI.create("urn:problem:validation-failed");
+	private static final URI TYPE_VALIDATION_ERROR = URI.create("urn:problem:validation-error");
+	private static final URI TYPE_CONSTRAINT_VIOLATION = URI.create("urn:problem:constraint-violation");
+	private static final URI TYPE_INTERNAL_ERROR = URI.create("urn:problem:internal");
+
+	private final Clock clock;
+
+	public JanusExceptionHandler(final Clock clock) {
+		this.clock = Objects.requireNonNull(clock);
+	}
+
 	@ExceptionHandler(EntityNotFoundException.class)
 	ProblemDetail handleEntityNotFound(final EntityNotFoundException ex, final HttpServletRequest request) {
-		logger.warn("Entity not found: {}", ex.getMessage());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+		pd.setType(TYPE_NOT_FOUND);
 		pd.setTitle("Resource not found");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Handles {@link ResourceNotFoundException} thrown by services when a requested
-	 * resource does not exist.
-	 *
-	 * @param ex      the exception raised by the service layer; must not be
-	 *                {@code null}
-	 * @param request the HTTP request that triggered the exception; may be
-	 *                {@code null} when invoked outside of servlet context
-	 * @return a {@link ProblemDetail} with {@link HttpStatus#NOT_FOUND}
-	 */
 	@ExceptionHandler(ResourceNotFoundException.class)
-	public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex, final HttpServletRequest request) {
-		logger.warn("Resource not found: {}", ex.getMessage());
+	ProblemDetail handleResourceNotFound(ResourceNotFoundException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+		pd.setType(TYPE_NOT_FOUND);
 		pd.setTitle("Resource not found");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Handles invalid arguments from client (business or precondition violations).
-	 */
 	@ExceptionHandler(IllegalArgumentException.class)
 	ProblemDetail handleIllegalArgument(final IllegalArgumentException ex, final HttpServletRequest request) {
-		logger.debug("Illegal argument: {}", ex.getMessage());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_INVALID_ARGUMENT);
 		pd.setTitle("Invalid argument");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Handles illegal state
-	 */
 	@ExceptionHandler(IllegalStateException.class)
 	ProblemDetail handleIllegalState(final IllegalStateException ex, final HttpServletRequest request) {
-		logger.debug("Illegal state: {}", ex.getMessage());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Operation conflict");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
+		logger.error("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Handles format errors when parsing date/time from query parameters or manual
-	 * parsing.
-	 */
 	@ExceptionHandler(DateTimeParseException.class)
 	ProblemDetail handleDateTimeParse(final DateTimeParseException ex, final HttpServletRequest request) {
-		logger.debug("Date/time parse error: {}", ex.getParsedString());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_INVALID_DATE_TIME);
 		pd.setTitle("Invalid date/time format");
 		pd.setDetail("Failed to parse date/time: " + ex.getParsedString());
 		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Handles unreadable request payloads (e.g., malformed JSON, invalid types in
-	 * body). Often wraps DateTimeParseException for body fields.
-	 */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	ProblemDetail handleNotReadable(final HttpMessageNotReadableException ex, final HttpServletRequest request) {
-		logger.debug("Message not readable: {}", ex.getMostSpecificCause().getMessage());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_MALFORMED_REQUEST);
 		pd.setTitle("Malformed request");
 		pd.setDetail(ex.getMostSpecificCause().getMessage());
 		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Handles missing required query parameters.
-	 */
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	ProblemDetail handleMissingParam(final MissingServletRequestParameterException ex,
 			final HttpServletRequest request) {
-		logger.debug("Missing request parameter: {}", ex.getParameterName());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_MISSING_PARAMETER);
 		pd.setTitle("Missing parameter");
 		pd.setDetail("Required parameter '" + ex.getParameterName() + "' is missing");
 		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Handles type mismatches in path variables or query parameters (e.g., id not a
-	 * number).
-	 */
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	ProblemDetail handleTypeMismatch(final MethodArgumentTypeMismatchException ex, final HttpServletRequest request) {
-		logger.debug("Type mismatch for '{}': {}", ex.getName(), ex.getMessage());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_TYPE_MISMATCH);
 		pd.setTitle("Type mismatch");
-		pd.setDetail("Parameter '" + ex.getName() + "' has invalid value");
+		pd.setDetail("Parameter '" + ex.getName() + "' has invalid value " + ex.getMessage());
 		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Handles validation errors for @Valid/@Validated on request bodies and
-	 * parameters.
-	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	ProblemDetail handleMethodArgumentNotValid(final MethodArgumentNotValidException ex,
 			final HttpServletRequest request) {
-		logger.debug("Validation failed: {} errors", ex.getBindingResult().getErrorCount());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_VALIDATION_FAILED);
 		pd.setTitle("Validation failed");
 		pd.setDetail("Request contains invalid fields");
-		// Attach field errors as an extension
 		pd.setProperty("errors", ex.getBindingResult().getFieldErrors().stream()
 				.map(err -> "%s: %s".formatted(err.getField(), err.getDefaultMessage())).toList());
 		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Handles constraint violations on @RequestParam/@PathVariable when
-	 * using @Validated at controller level.
-	 */
+	@ExceptionHandler(HandlerMethodValidationException.class)
+	ProblemDetail handle(HandlerMethodValidationException ex) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_VALIDATION_ERROR);
+		pd.setTitle("Validation error");
+		pd.setDetail("Request parameters/path are invalid");
+
+		final List<Map<String, String>> errors = new ArrayList<>();
+		for (final ParameterValidationResult pvr : ex.getParameterValidationResults()) {
+			for (final MessageSourceResolvable msr : pvr.getResolvableErrors()) {
+				final String fullCode = msr.getCodes()[1];
+				final StringTokenizer st = new StringTokenizer(fullCode, ".");
+				final String field = st.nextToken();
+				final String code = st.nextToken();
+				final String message = msr.getDefaultMessage();
+				errors.add(Map.of("name", field, "reason", message, "code", code));
+			}
+		}
+		pd.setProperty("errors", errors);
+		logger.warn("Error {}", pd.toString());
+		return pd;
+	}
+
 	@ExceptionHandler(ConstraintViolationException.class)
 	ProblemDetail handleConstraintViolation(final ConstraintViolationException ex, final HttpServletRequest request) {
-		logger.debug("Constraint violation: {}", ex.getMessage());
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_CONSTRAINT_VIOLATION);
 		pd.setTitle("Constraint violation");
 		pd.setDetail("One or more constraints were violated");
 		pd.setProperty("violations", ex.getConstraintViolations().stream()
 				.map(v -> "%s: %s".formatted(v.getPropertyPath(), v.getMessage())).toList());
 		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Catch-all handler for unexpected exceptions.
-	 */
 	@ExceptionHandler(Exception.class)
 	ProblemDetail handleGeneric(final Exception ex, final HttpServletRequest request) {
-		logger.error("Unexpected error", ex);
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+		pd.setType(TYPE_INTERNAL_ERROR);
 		pd.setTitle("Internal server error");
 		pd.setDetail("An unexpected error occurred");
 		addCommonProps(pd, request);
+		logger.error("Error {}", pd.toString());
 		return pd;
 	}
 
-	/**
-	 * Adds common properties to Problem Details: timestamp and request path.
-	 */
-	private static void addCommonProps(final ProblemDetail pd, final HttpServletRequest request) {
-		pd.setProperty("timestamp", LocalDateTime.now().toString());
+	private void addCommonProps(final ProblemDetail pd, final HttpServletRequest request) {
+		pd.setProperty("timestamp", clock.instant().toString());
 		if (request != null) {
-			pd.setProperty("path", request.getRequestURI());
+			pd.setProperty("instance", request.getRequestURI());
 		}
 	}
 }
