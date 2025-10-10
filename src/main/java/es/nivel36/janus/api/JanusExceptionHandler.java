@@ -15,7 +15,17 @@
  */
 package es.nivel36.janus.api;
 
+/**
+ * Exception handler that translates common exceptions into RFC 7807 problem
+ * details.
+ *
+ * <p>
+ * It centralizes error responses for controllers, providing consistent status
+ * codes and payloads.
+ */
+import java.net.URI;
 import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,16 +53,6 @@ import es.nivel36.janus.service.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
-
-/**
- * Exception handler that translates common exceptions into RFC 7807 problem
- * details.
- *
- * <p>
- * It centralizes error responses for controllers, providing consistent status
- * codes and payloads.
- */
-import java.net.URI;
 
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -118,7 +118,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Operation conflict");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
-		logger.error("Error {}", pd.toString());
+		logger.error("Error {}", ex);
 		return pd;
 	}
 
@@ -128,6 +128,17 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_INVALID_DATE_TIME);
 		pd.setTitle("Invalid date/time format");
 		pd.setDetail("Failed to parse date/time: " + ex.getParsedString());
+		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
+		return pd;
+	}
+	
+	@ExceptionHandler(DateTimeException.class)
+	ProblemDetail handleDateTime(final DateTimeException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_INVALID_DATE_TIME);
+		pd.setTitle("Invalid date/time format");
+		pd.setDetail("Failed to parse date/time: " + ex.getMessage());
 		addCommonProps(pd, request);
 		logger.warn("Error {}", pd.toString());
 		return pd;
@@ -224,7 +235,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Internal server error");
 		pd.setDetail("An unexpected error occurred");
 		addCommonProps(pd, request);
-		logger.error("Error {}", pd.toString());
+		logger.error("Error {}", ex);
 		return pd;
 	}
 
