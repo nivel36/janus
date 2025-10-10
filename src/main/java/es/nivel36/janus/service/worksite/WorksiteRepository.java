@@ -88,9 +88,9 @@ public interface WorksiteRepository extends CrudRepository<Worksite, Long> {
 	 *         {@code false} otherwise
 	 */
 	@Query("""
-			select (size(s.employees) > 0)
-			from Worksite w
-			where w = :worksite
+			SELECT (SIZE(w.employees) > 0)
+			FROM Worksite w
+			WHERE w = :worksite
 			""")
 	boolean hasEmployees(Worksite worksite);
 }
