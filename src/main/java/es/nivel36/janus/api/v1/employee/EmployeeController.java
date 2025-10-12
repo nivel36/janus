@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
-import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
 import jakarta.validation.Valid;
@@ -119,7 +118,7 @@ public class EmployeeController {
 		final Employee existingEmployee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		this.merge(existingEmployee, request);
 
-		final Employee updatedEmployee = this.employeeService.updateEmployee(existingEmployee);
+		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, existingEmployee);
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
 		return ResponseEntity.ok(response);
 	}
@@ -192,7 +191,6 @@ public class EmployeeController {
 		employee.setName(request.name());
 		employee.setSurname(request.surname());
 		employee.setEmail(request.email());
-		employee.setSchedule(buildScheduleReference(request.scheduleId()));
 		return employee;
 	}
 
@@ -200,13 +198,5 @@ public class EmployeeController {
 		employee.setName(request.name());
 		employee.setSurname(request.surname());
 		employee.setEmail(request.email());
-		employee.setSchedule(buildScheduleReference(request.scheduleId()));
-	}
-
-	private Schedule buildScheduleReference(final Long scheduleId) {
-		Objects.requireNonNull(scheduleId, "ScheduleId can't be null");
-		final Schedule schedule = new Schedule();
-		schedule.setId(scheduleId);
-		return schedule;
 	}
 }

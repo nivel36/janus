@@ -15,21 +15,15 @@
  */
 package es.nivel36.janus.api.v1.employee;
 
-import java.util.Set;
-
 import es.nivel36.janus.service.employee.Employee;
 
 /**
  * Response DTO exposing the public representation of an {@link Employee}.
  *
- * @param id            the unique identifier of the employee
- * @param name          the employee's first name
- * @param surname       the employee's surname
- * @param email         the employee's unique email address
- * @param scheduleId    the identifier of the schedule assigned to the employee
- * @param worksiteCodes the set of worksite business codes linked to the
- *                      employee
+ * @param name    the employee's first name
+ * @param surname the employee's surname
+ * @param email   the employee's unique email address
+ * 
  */
-public record EmployeeResponse(Long id, String name, String surname, String email, Long scheduleId,
-		Set<String> worksiteCodes) {
+public record EmployeeResponse(String name, String surname, String email) {
 }

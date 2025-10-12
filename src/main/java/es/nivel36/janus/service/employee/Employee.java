@@ -37,6 +37,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -72,12 +73,14 @@ public class Employee implements Serializable {
 	/**
 	 * The first name of the employee.
 	 */
+	@NotEmpty
 	@Column(length = 255)
 	private String name;
 
 	/**
 	 * The surname of the employee.
 	 */
+	@NotEmpty
 	@Column(length = 255)
 	private String surname;
 
@@ -87,7 +90,7 @@ public class Employee implements Serializable {
 	 * This field is mandatory, must be unique, and cannot be {@code null}.
 	 * </p>
 	 */
-	@NotNull
+	@NotEmpty
 	@Column(nullable = false, unique = true, length = 254)
 	private String email;
 

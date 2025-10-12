@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
@@ -71,7 +72,7 @@ public class EmployeeService {
 	public Employee findEmployeeByEmail(final String email) {
 		Objects.requireNonNull(email, "Email cannot be null.");
 		logger.debug("Finding Employee by email: {}", email);
-		final Employee employee = this.employeeRepository.findEmployeeByEmail(email);
+		final Employee employee = this.employeeRepository.findByEmail(email);
 		if (employee == null) {
 			logger.warn("No employee found with email {}", email);
 			throw new ResourceNotFoundException("There is no employee with email " + email);
@@ -93,7 +94,7 @@ public class EmployeeService {
 	public List<Long> findEmployeesWithoutWorkshiftsSince(final Instant fromInclusive) {
 		Objects.requireNonNull(fromInclusive, "From must not be null");
 		logger.debug("Finding employees without workshift from date: {}", fromInclusive);
-		return this.employeeRepository.findEmployeesWithoutWorkshiftsSince(fromInclusive);
+		return this.employeeRepository.findWithoutWorkshiftsSince(fromInclusive);
 	}
 
 	/**
@@ -101,24 +102,41 @@ public class EmployeeService {
 	 * 
 	 * @param employee the employee to be created
 	 * @return the created employee
-	 * @throws NullPointerException if the employee is null
+	 * @throws NullPointerException           if the employee is {@code null}.
+	 * @throws ResourceAlreadyExistsException if the employee is changing the email
+	 *                                        and the new email already exists.
 	 */
 	public Employee createEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 		logger.debug("Creating new employee {}", employee);
+		final String email = employee.getEmail();
+		if (this.employeeRepository.existsByEmail(employee.getEmail())) {
+			logger.warn("Employee with email {} already exists", email);
+			throw new ResourceAlreadyExistsException("Employee already exists: " + email);
+		}
 		return this.employeeRepository.save(employee);
 	}
 
 	/**
 	 * Updates an existing {@link Employee}.
 	 * 
+	 * @param email    the email of the employee to be updated
 	 * @param employee the employee to be updated
 	 * @return the updated employee
-	 * @throws NullPointerException if the employee is null
+	 * 
+	 * @throws NullPointerException           if the employee is {@code null}.
+	 * @throws ResourceAlreadyExistsException if the employee is changing the email
+	 *                                        and the new email already exists.
 	 */
-	public Employee updateEmployee(final Employee employee) {
+	public Employee updateEmployee(final String email, final Employee employee) {
+		Objects.requireNonNull(email, "Email cannot be null.");
 		Objects.requireNonNull(employee, "Employee cannot be null.");
-		logger.debug("Updating employee {}", employee);
+		logger.debug("Updating employee {}", email);
+
+		if (!email.equals(employee.getEmail()) && this.employeeRepository.existsByEmail(employee.getEmail())) {
+			logger.warn("Employee with email {} already exists", email);
+			throw new ResourceAlreadyExistsException("Employee already exists: " + email);
+		}
 		return this.employeeRepository.save(employee);
 	}
 

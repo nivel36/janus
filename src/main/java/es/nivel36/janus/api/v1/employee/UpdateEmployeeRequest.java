@@ -15,27 +15,21 @@
  */
 package es.nivel36.janus.api.v1.employee;
 
+import es.nivel36.janus.service.employee.Employee;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-
-import es.nivel36.janus.service.employee.Employee;
-import es.nivel36.janus.service.schedule.Schedule;
 
 /**
  * Request payload for updating an existing {@link Employee}.
  *
- * @param name       the new first name of the employee; optional but, if
- *                   provided, must not exceed 255 characters
- * @param surname    the new surname of the employee; optional but, if provided,
- *                   must not exceed 255 characters
- * @param email      the new email address of the employee; must be a valid
- *                   email address and contain at most 254 characters
- * @param scheduleId the identifier of the {@link Schedule} assigned to the
- *                   employee; must be a positive number
+ * @param name    the new first name of the employee; must not be null and must
+ *                be between 1 and 255 characters
+ * @param surname the new surname of the employee; must not be null and must be
+ *                between 1 and 255 characters
+ * @param email   the new email address of the employee; must be a valid email
+ *                address and contain at most 254 characters
  */
-public record UpdateEmployeeRequest(@Size(max = 255) String name, @Size(max = 255) String surname,
-		@NotBlank @Email @Size(max = 254) String email, @NotNull @Positive Long scheduleId) {
+public record UpdateEmployeeRequest(@NotBlank @Size(min = 1, max = 255) String name,
+		@NotBlank @Size(min = 1, max = 255) String surname, @NotBlank @Email @Size(max = 254) String email) {
 }

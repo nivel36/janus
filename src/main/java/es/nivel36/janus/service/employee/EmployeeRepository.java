@@ -23,11 +23,23 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import es.nivel36.janus.service.timelog.TimeLog;
+
 /**
  * Repository class for managing {@link Employee} entities.
  */
 @Repository
 interface EmployeeRepository extends CrudRepository<Employee, Long> {
+
+	/**
+	 * Checks whether a {@link Employee} exists for the specified email.
+	 *
+	 *
+	 * @param email the email to check for
+	 * @return the employee with the specified email, or {@code null} if no employee
+	 *         is found
+	 */
+	boolean existsByEmail(final String email);
 
 	/**
 	 * Finds an {@link Employee} by email.
@@ -36,7 +48,7 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * @return the employee with the specified email, or {@code null} if no employee
 	 *         is found
 	 */
-	Employee findEmployeeByEmail(final String email);
+	Employee findByEmail(final String email);
 
 	/**
 	 * Finds the IDs of employees who have at least one {@link TimeLog} entry since
@@ -64,5 +76,5 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 			WHERE wstl.timelog_id = t.id
 			);
 			""", nativeQuery = true)
-	List<Long> findEmployeesWithoutWorkshiftsSince(@Param("fromInclusive") Instant fromInclusive);
+	List<Long> findWithoutWorkshiftsSince(@Param("fromInclusive") Instant fromInclusive);
 }
