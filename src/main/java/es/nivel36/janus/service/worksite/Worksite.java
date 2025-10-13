@@ -135,17 +135,14 @@ public class Worksite implements Serializable {
 	/**
 	 * Constructs a new {@code Worksite} with the required attributes.
 	 *
-	 * @param code     the unique code of the worksite; must not be {@code null}
-	 * @param name     the human-readable name of the worksite; must not be
-	 *                 {@code null}
-	 * @param timeZone the time zone associated with the worksite; must not be
-	 *                 {@code null}
-	 * @throws NullPointerException if any argument is {@code null}
+	 * @param code     the unique code of the worksite
+	 * @param name     the human-readable name of the worksite
+	 * @param timeZone the time zone associated with the worksite
 	 */
 	public Worksite(final String code, final String name, final ZoneId timeZone) {
-		this.code = Objects.requireNonNull(code, "Code can't be null");
-		this.name = Objects.requireNonNull(name, "Name can't be null");
-		this.timeZone = Objects.requireNonNull(timeZone, "TimeZone can't be null");
+		this.code = code;
+		this.name = name;
+		this.timeZone = timeZone;
 	}
 
 	/**

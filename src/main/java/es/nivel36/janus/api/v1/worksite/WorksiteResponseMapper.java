@@ -16,7 +16,6 @@
 package es.nivel36.janus.api.v1.worksite;
 
 import java.time.ZoneId;
-import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
@@ -35,9 +34,9 @@ public class WorksiteResponseMapper implements Mapper<Worksite, WorksiteResponse
 		if (worksite == null) {
 			return null;
 		}
-		final String code = Objects.requireNonNull(worksite.getCode(), "Code can't be null");
-		final String name = Objects.requireNonNull(worksite.getName(), "Name can't be null");
-		final ZoneId timeZone = Objects.requireNonNull(worksite.getTimeZone(), "TimeZone can't be null");
+		final String code = worksite.getCode();
+		final String name = worksite.getName();
+		final ZoneId timeZone = worksite.getTimeZone();
 		return new WorksiteResponse(code, name, timeZone.getId());
 	}
 }

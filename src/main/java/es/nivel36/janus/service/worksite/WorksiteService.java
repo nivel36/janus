@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 
@@ -46,7 +47,7 @@ public class WorksiteService {
 	 * @throws NullPointerException if {@code worksiteRepository} is {@code null}
 	 */
 	public WorksiteService(final WorksiteRepository worksiteRepository) {
-		this.worksiteRepository = Objects.requireNonNull(worksiteRepository, "WorksiteRepository can't be null");
+		this.worksiteRepository = Objects.requireNonNull(worksiteRepository, "worksiteRepository can't be null");
 	}
 
 	/**
@@ -59,7 +60,9 @@ public class WorksiteService {
 		logger.debug("Retrieving all worksites");
 
 		final Iterable<Worksite> worksites = worksiteRepository.findAll();
-		return StreamSupport.stream(worksites.spliterator(), false).toList();
+		final List<Worksite> worksitesList = StreamSupport.stream(worksites.spliterator(), false).toList();
+		logger.trace("Found {} worksites", worksitesList.size());
+		return worksitesList;
 	}
 
 	/**
@@ -74,40 +77,43 @@ public class WorksiteService {
 	 */
 	@Transactional(readOnly = true)
 	public List<Worksite> findWorksitesByEmployee(final Employee employee) {
-		Objects.requireNonNull(employee, "Employee can't be null");
+		Objects.requireNonNull(employee, "employee can't be null");
 		logger.debug("Finding worksites by employee {}", employee);
 
-		return worksiteRepository.findByEmployee(employee);
+		final List<Worksite> worksites = worksiteRepository.findByEmployee(employee);
+		logger.trace("Found {} worksites", worksites.size());
+		return worksites;
 	}
 
 	/**
 	 * Creates a new {@link Worksite} with the provided data.
 	 *
 	 * @param code     the unique code identifying the worksite; must not be
-	 *                 {@code null}
+	 *                 {@code null} and not be used by another worksite
 	 * @param name     the human readable name of the worksite; must not be
 	 *                 {@code null}
 	 * @param timeZone the {@link ZoneId} associated with the worksite; must not be
 	 *                 {@code null}
 	 * @return the persisted {@link Worksite}
-	 * @throws NullPointerException     if any argument is {@code null}
-	 * @throws IllegalArgumentException if a worksite with the given code already
-	 *                                  exists
+	 * @throws NullPointerException           if any argument is {@code null}
+	 * @throws ResourceAlreadyExistsException if a worksite with the given code
+	 *                                        already exists
 	 */
 	@Transactional
 	public Worksite createWorksite(final String code, final String name, final ZoneId timeZone) {
-		Objects.requireNonNull(code, "Code can't be null");
-		Objects.requireNonNull(name, "Name can't be null");
-		Objects.requireNonNull(timeZone, "TimeZone can't be null");
+		Objects.requireNonNull(code, "code can't be null");
+		Objects.requireNonNull(name, "name can't be null");
+		Objects.requireNonNull(timeZone, "timeZone can't be null");
 		logger.debug("Creating worksite with code {}", code);
 
-		if (worksiteRepository.existsByCode(code)) {
+		final boolean existsByCode = this.worksiteRepository.existsByCode(code);
+		if (existsByCode) {
 			logger.warn("Unable to create worksite. Code {} already exists", code);
-			throw new IllegalArgumentException("Worksite already exists with code " + code);
+			throw new ResourceAlreadyExistsException("Worksite already exists with code " + code);
 		}
 
 		final Worksite worksite = new Worksite(code, name, timeZone);
-		final Worksite savedWorksite = worksiteRepository.save(worksite);
+		final Worksite savedWorksite = this.worksiteRepository.save(worksite);
 		logger.trace("Worksite {} created successfully", code);
 		return savedWorksite;
 	}
@@ -123,8 +129,13 @@ public class WorksiteService {
 	 */
 	@Transactional(readOnly = true)
 	public Worksite findWorksiteByCode(final String code) {
-		Objects.requireNonNull(code, "Code can' be null");
+		Objects.requireNonNull(code, "code can' be null");
 		logger.debug("Finding worksites by code {}", code);
+
+		return this.findWorksite(code);
+	}
+
+	private Worksite findWorksite(final String code) {
 		final Worksite worksite = this.worksiteRepository.findWorksiteByCode(code);
 		if (worksite == null) {
 			logger.warn("No worksite found with code {}", code);
@@ -136,26 +147,37 @@ public class WorksiteService {
 	/**
 	 * Updates an existing {@link Worksite} with the provided data.
 	 *
-	 * @param code     the code identifying the worksite to update; must not be
-	 *                 {@code null}
-	 * @param name     the new name to assign; must not be {@code null}
-	 * @param timeZone the new {@link ZoneId} to assign; must not be {@code null}
+	 * @param code        the code identifying the worksite to update; must not be
+	 *                    {@code null}
+	 * @param newCode     the new worksite code to assign; must not be {@code null}
+	 *                    and not be used by another worksite
+	 * @param newName     the new name to assign; must not be {@code null}
+	 * @param newTimeZone the new {@link ZoneId} to assign; must not be {@code null}
 	 * @return the updated {@link Worksite}
-	 * @throws NullPointerException      if any argument is {@code null}
-	 * @throws ResourceNotFoundException if the worksite cannot be found
+	 * @throws NullPointerException           if any argument is {@code null}
+	 * @throws ResourceNotFoundException      if the worksite cannot be found
+	 * @throws ResourceAlreadyExistsException if a worksite with the given newCode
+	 *                                        already exists
 	 */
 	@Transactional
-	public Worksite updateWorksite(final String code, final String name, final ZoneId timeZone) {
-		Objects.requireNonNull(code, "Code can't be null");
-		Objects.requireNonNull(name, "Name can't be null");
-		Objects.requireNonNull(timeZone, "TimeZone can't be null");
+	public Worksite updateWorksite(final String code, final String newCode, final String newName,
+			final ZoneId newTimeZone) {
+		Objects.requireNonNull(code, "code can't be null");
+		Objects.requireNonNull(newCode, "newCode can't be null");
+		Objects.requireNonNull(newName, "newName can't be null");
+		Objects.requireNonNull(newTimeZone, "newTimeZone can't be null");
 		logger.debug("Updating worksite with code {}", code);
 
-		final Worksite worksite = findWorksiteByCode(code);
-		worksite.setName(name);
-		worksite.setTimeZone(timeZone);
+		if (!code.equals(newCode) && this.worksiteRepository.existsByCode(newCode)) {
+			logger.warn("Unable to update worksite. Code {} already exists", newCode);
+			throw new ResourceAlreadyExistsException("Worksite already exists with code " + newCode);
+		}
+		final Worksite worksite = this.findWorksite(code);
+		worksite.setCode(newCode);
+		worksite.setName(newName);
+		worksite.setTimeZone(newTimeZone);
 
-		final Worksite updatedWorksite = worksiteRepository.save(worksite);
+		final Worksite updatedWorksite = this.worksiteRepository.save(worksite);
 		logger.trace("Worksite {} updated successfully", code);
 		return updatedWorksite;
 	}
@@ -170,7 +192,7 @@ public class WorksiteService {
 	 */
 	@Transactional
 	public void deleteWorksite(final Worksite worksite) {
-		Objects.requireNonNull(worksite, "Worksite can't be null");
+		Objects.requireNonNull(worksite, "worksite can't be null");
 		logger.debug("Deleting worksite {}", worksite);
 
 		final boolean inUse = this.worksiteRepository.hasEmployees(worksite);
@@ -179,7 +201,7 @@ public class WorksiteService {
 					"The worksite " + worksite + " can't be deleted because it has assigned employees");
 		}
 
-		worksiteRepository.delete(worksite);
+		this.worksiteRepository.delete(worksite);
 		logger.trace("Worksite {} deleted successfully", worksite);
 	}
 }
