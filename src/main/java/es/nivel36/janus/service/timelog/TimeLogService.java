@@ -90,16 +90,16 @@ public class TimeLogService {
 	 */
 	@Transactional
 	public TimeLog clockIn(final Employee employee, final Worksite worksite, final Instant entryTime) {
-		Objects.requireNonNull(employee, "Employee can't be null.");
-		Objects.requireNonNull(worksite, "Worksite can't be null.");
-		Objects.requireNonNull(entryTime, "Entry time can't be null.");
+		Objects.requireNonNull(employee, "employee can't be null.");
+		Objects.requireNonNull(worksite, "worksite can't be null.");
+		Objects.requireNonNull(entryTime, "entry time can't be null.");
 		final Instant truncatedEntryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
-
 		logger.debug("Clocking in employee {} at worksite {} and time {}", employee, worksite, truncatedEntryTime);
 
 		final TimeLog timeLog = new TimeLog(employee, worksite, truncatedEntryTime);
-		this.timeLogRepository.save(timeLog);
-		return timeLog;
+		final TimeLog savedTimeLog = this.timeLogRepository.save(timeLog);
+		logger.trace("TimeLog {} created successfully");
+		return savedTimeLog;
 	}
 
 	/**
@@ -150,11 +150,10 @@ public class TimeLogService {
 	 */
 	@Transactional
 	public TimeLog clockOut(final Employee employee, final Worksite worksite, Instant exitTime) {
-		Objects.requireNonNull(employee, "Employee can't be null.");
-		Objects.requireNonNull(worksite, "Worksite can't be null.");
-		Objects.requireNonNull(exitTime, "Exit time can't be null.");
+		Objects.requireNonNull(employee, "employee can't be null.");
+		Objects.requireNonNull(worksite, "worksite can't be null.");
+		Objects.requireNonNull(exitTime, "exitTime can't be null.");
 		exitTime = exitTime.truncatedTo(ChronoUnit.SECONDS);
-
 		logger.debug("Clocking out employee {} at worksite {} and time {}", employee, worksite, exitTime);
 
 		TimeLog lastTimeLog = this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(employee,
@@ -165,8 +164,8 @@ public class TimeLogService {
 		}
 
 		lastTimeLog.setExitTime(exitTime);
-		this.timeLogRepository.save(lastTimeLog);
-		logger.trace("Exit time set to {} for last TimeLog {}", exitTime, lastTimeLog.getId());
+		final TimeLog savedTimeLog = this.timeLogRepository.save(lastTimeLog);
+		logger.trace("Exit time set to {} for last timeLog {}", exitTime, savedTimeLog.getId());
 		return lastTimeLog;
 	}
 
@@ -179,7 +178,7 @@ public class TimeLogService {
 	 * @throws NullPointerException if {@code timeLog} is {@code null}
 	 */
 	public Duration getTimeWorked(final TimeLog timeLog) {
-		Objects.requireNonNull(timeLog, "TimeLog can't be null.");
+		Objects.requireNonNull(timeLog, "timeLog can't be null.");
 		logger.debug("Calculating worked duration for TimeLog {}", timeLog.getId());
 
 		if (timeLog.getExitTime() == null) {
@@ -205,10 +204,9 @@ public class TimeLogService {
 	 */
 	@Transactional(readOnly = true)
 	public TimeLog findTimeLogByEmployeeAndEntryTime(final Employee employee, final Instant entryTime) {
-		Objects.requireNonNull(employee, "Employee can't be null");
-		Objects.requireNonNull(entryTime, "Entry time can't be null");
-
-		logger.debug("Finding TimeLog by employee {} and entryTime {}", employee, entryTime);
+		Objects.requireNonNull(employee, "employee can't be null");
+		Objects.requireNonNull(entryTime, "entryTime can't be null");
+		logger.debug("Finding timeLog by employee {} and entryTime {}", employee, entryTime);
 
 		final TimeLog timeLog = this.timeLogRepository.findByEmployeeAndEntryTime(employee, entryTime);
 		if (timeLog == null) {
@@ -230,8 +228,8 @@ public class TimeLogService {
 	 */
 	@Transactional(readOnly = true)
 	public TimeLog findLastTimeLogByEmployee(final Employee employee, final Worksite worksite) {
-		Objects.requireNonNull(employee, "Employee can't be null.");
-		Objects.requireNonNull(worksite, "Worksite can't be null.");
+		Objects.requireNonNull(employee, "employee can't be null.");
+		Objects.requireNonNull(worksite, "worksite can't be null.");
 		logger.debug("Finding last TimeLog for employee {} and worksite {}", employee, worksite);
 
 		return this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(employee, worksite);
@@ -255,11 +253,13 @@ public class TimeLogService {
 	 */
 	@Transactional(readOnly = true)
 	public List<TimeLog> findOrphanTimeLogs(final Instant from, final Employee employee) {
-		Objects.requireNonNull(from, "From must not be null");
-		Objects.requireNonNull(employee, "Employee must not be null");
-		logger.debug("Finding orphan TimeLog from date {} and employee {}", from, employee);
+		Objects.requireNonNull(from, "from must not be null");
+		Objects.requireNonNull(employee, "employee must not be null");
+		logger.debug("Finding orphan timeLog from {} and employee {}", from, employee);
 
-		return timeLogRepository.findOrphanTimeLogsSince(from, employee);
+		final List<TimeLog> orphanTimeLogs = timeLogRepository.findOrphanTimeLogsSince(from, employee);
+		logger.trace("Found {} orphan timeLogs", orphanTimeLogs.size());
+		return orphanTimeLogs;
 	}
 
 	/**
@@ -274,12 +274,14 @@ public class TimeLogService {
 	 */
 	@Transactional(readOnly = true)
 	public Page<TimeLog> searchTimeLogsByEmployee(final Employee employee, final Pageable page) {
-		Objects.requireNonNull(employee, "Employee can't be null.");
-		Objects.requireNonNull(page, "Page can't be null.");
-
+		Objects.requireNonNull(employee, "employee can't be null.");
+		Objects.requireNonNull(page, "page can't be null.");
 		logger.debug("Finding TimeLogs for employee {} with offset {} and pageSize {}", employee, page.getOffset(),
 				page.getPageSize());
-		return this.timeLogRepository.searchTimeLogsByEmployee(employee, page);
+
+		final Page<TimeLog> timeLogs = this.timeLogRepository.searchTimeLogsByEmployee(employee, page);
+		logger.trace("Found {} timeLogs", timeLogs.getTotalElements());
+		return timeLogs;
 	}
 
 	/**
@@ -305,14 +307,16 @@ public class TimeLogService {
 	@Transactional(readOnly = true)
 	public Page<TimeLog> searchByEmployeeAndEntryTimeInRange(final Employee employee, final Instant fromInstant,
 			final Instant toInstant, final Pageable page) {
-		Objects.requireNonNull(employee, "Employee cannot be null.");
+		Objects.requireNonNull(employee, "employee cannot be null.");
 		Objects.requireNonNull(fromInstant, "fromInstant cannot be null.");
 		Objects.requireNonNull(toInstant, "toInstant cannot be null.");
-		Objects.requireNonNull(page, "Page cannot be null.");
+		Objects.requireNonNull(page, "page cannot be null.");
+		logger.debug("Finding timeLogs for employee {} in range [{}, {})", employee, fromInstant, toInstant);
 
-		logger.debug("Finding TimeLogs for employee {} in range [{}, {})", employee, fromInstant, toInstant);
-
-		return this.timeLogRepository.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page);
+		final Page<TimeLog> timeLogs = this.timeLogRepository.searchByEmployeeAndEntryTimeInRange(employee, fromInstant,
+				toInstant, page);
+		logger.trace("Found {} timeLogs", timeLogs.getTotalElements());
+		return timeLogs;
 	}
 
 	/**
@@ -350,7 +354,6 @@ public class TimeLogService {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 		Objects.requireNonNull(worksite, "Worksite cannot be null.");
 		Objects.requireNonNull(request, "TimeLog request cannot be null.");
-
 		logger.debug("Creating TimeLog for employee {} at worksite {} with request {}", employee, worksite, request);
 
 		final Instant now = clock.instant();
@@ -362,22 +365,18 @@ public class TimeLogService {
 		if (newEntry == null || newExit == null) {
 			throw new NullPointerException("Both entryTime and exitTime must be provided.");
 		}
-
 		if (!newEntry.plus(lockDuration).isAfter(now)) {
 			throw new TimeLogModificationNotAllowedException(String.format(
 					"Creation locked for entryTime %s after %s days. Now: %s", newEntry, lockDuration.toDays(), now));
 		}
-
 		if (!newExit.plus(lockDuration).isAfter(now)) {
 			throw new TimeLogModificationNotAllowedException(String.format(
 					"Creation locked for exitTime %s after %s days. Now: %s", newExit, lockDuration.toDays(), now));
 		}
-
 		if (!newEntry.isBefore(newExit)) {
 			throw new TimeLogChronologyException(
 					String.format("entryTime %s must be strictly before exitTime %s.", newEntry, newExit));
 		}
-
 		final boolean timeLogExists = this.timeLogRepository.existsByEmployeeAndEntryTime(employee, newEntry);
 		if (timeLogExists) {
 			throw new TimeLogModificationNotAllowedException(
@@ -385,7 +384,7 @@ public class TimeLogService {
 		}
 
 		final TimeLog newTimeLog = new TimeLog(employee, worksite, newEntry, newExit);
-
+		logger.trace("TimeLog {} created successfully", newTimeLog);
 		return timeLogRepository.save(newTimeLog);
 	}
 

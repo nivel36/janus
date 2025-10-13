@@ -41,9 +41,8 @@ import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import jakarta.validation.constraints.Email;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 /**
  * REST controller responsible for exposing operations related to employee time
@@ -85,17 +84,23 @@ public class TimeLogController {
 	 * @return the created {@link TimeLogResponse}
 	 */
 	@PostMapping("/clock-in")
-	public ResponseEntity<TimeLogResponse> clockIn(
-			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+	public ResponseEntity<TimeLogResponse> clockIn( //
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, //
 			final @RequestParam(value = "entryTime", required = false) Instant entryTime, //
-			final @RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,32}") String worksiteCode) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
-		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
+			final @RequestParam("worksiteCode") //
+			@Pattern( //
+					regexp = "[A-Za-z0-9_-]{1,50}", //
+					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
+			String worksiteCode) {
 		logger.debug("Clock-in ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-
 		final TimeLog clockIn;
 		if (entryTime != null) {
 			clockIn = this.timeLogService.clockIn(employee, worksite, entryTime);
@@ -120,17 +125,23 @@ public class TimeLogController {
 	 * @return the updated {@link TimeLogResponse}
 	 */
 	@PostMapping("/clock-out")
-	public ResponseEntity<TimeLogResponse> clockOut(
-			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+	public ResponseEntity<TimeLogResponse> clockOut( //
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, //
 			final @RequestParam(value = "exitTime", required = false) Instant exitTime, //
-			final @RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,32}") String worksiteCode) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
-		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
+			final @RequestParam("worksiteCode") //
+			@Pattern( //
+					regexp = "[A-Za-z0-9_-]{1,50}", //
+					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
+			String worksiteCode) {
 		logger.debug("Clock-out ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-
 		final TimeLog clockOut;
 		if (exitTime != null) {
 			clockOut = this.timeLogService.clockOut(employee, worksite, exitTime);
@@ -152,18 +163,23 @@ public class TimeLogController {
 	 * @return the created {@link TimeLogResponse}
 	 */
 	@PostMapping("/timelogs")
-	public ResponseEntity<TimeLogResponse> createTimeLog(
-			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
-			final @RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,32}") String worksiteCode, //
-			final @RequestBody CreateTimeLogRequest timeLog) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
-		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
-		Objects.requireNonNull(timeLog, "TimeLog can't be null");
+	public ResponseEntity<TimeLogResponse> createTimeLog( //
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, //
+			final @RequestParam("worksiteCode") //
+			@Pattern( //
+					regexp = "[A-Za-z0-9_-]{1,50}", //
+					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
+			String worksiteCode, //
+			final @Valid @RequestBody CreateTimeLogRequest timeLog) {
 		logger.debug("Create timelog ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, timeLog);
 		final TimeLogResponse updatedTimeLogResponse = this.timeLogResponseMapper.map(createdTimeLog);
 		return ResponseEntity.ok(updatedTimeLogResponse);
@@ -187,8 +203,13 @@ public class TimeLogController {
 	 *                                  {@code toInstant} is provided
 	 */
 	@GetMapping("/")
-	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee(
-			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee( //
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, //
 			final @RequestParam(value = "fromInstant", required = false) Instant fromInstant, //
 			final @RequestParam(value = "toInstant", required = false) Instant toInstant, //
 			final Pageable pageable) {
@@ -196,10 +217,12 @@ public class TimeLogController {
 		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
 		}
+		if (fromInstant != null && toInstant != null && fromInstant.isAfter(toInstant)) {
+			throw new IllegalArgumentException("toInstant must be after toInstant");
+		}
 		logger.debug("Search time logs by employee ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-
 		final Page<TimeLog> timeLogs;
 		if (fromInstant == null) {
 			timeLogs = this.timeLogService.searchTimeLogsByEmployee(employee, pageable);
@@ -219,15 +242,19 @@ public class TimeLogController {
 	 * @return the {@link TimeLogResponse} entry
 	 */
 	@GetMapping("/{entryTime}")
-	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
-			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(//
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, //
 			final @PathVariable("entryTime") Instant entryTime) {
 		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
 		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
 		return ResponseEntity.ok(timeLogResponse);
@@ -242,15 +269,17 @@ public class TimeLogController {
 	 *         ISO-8601 representation
 	 */
 	@GetMapping("/{entryTime}/time-worked")
-	public ResponseEntity<DurationResponse> getHoursWorked(
-			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+	public ResponseEntity<DurationResponse> getHoursWorked(//
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, //
 			final @PathVariable("entryTime") Instant entryTime) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
-		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Hours-worked ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		timeLog.setEmployee(employee);
 		final Duration duration = this.timeLogService.getTimeWorked(timeLog);
@@ -269,15 +298,17 @@ public class TimeLogController {
 	 *         succeeds
 	 */
 	@DeleteMapping("/{entryTime}")
-	public ResponseEntity<Void> deleteTimeLog(
-			final @PathVariable("employeeEmail") @Email @Size(max = 200) String employeeEmail, //
+	public ResponseEntity<Void> deleteTimeLog(//
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, //
 			final @PathVariable("entryTime") Instant entryTime) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
-		Objects.requireNonNull(entryTime, "EntryTime can't be null");
 		logger.debug("Delete timelog ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-
 		final TimeLog timeLog = timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		this.timeLogService.deleteTimeLog(timeLog);
 		return ResponseEntity.noContent().build();
