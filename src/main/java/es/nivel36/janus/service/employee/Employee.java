@@ -37,6 +37,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -91,6 +92,7 @@ public class Employee implements Serializable {
 	 * </p>
 	 */
 	@NotEmpty
+	@Email
 	@Column(nullable = false, unique = true, length = 254)
 	private String email;
 
@@ -125,17 +127,19 @@ public class Employee implements Serializable {
 	}
 
 	/**
-	 * Constructs a new employee with the specified email and schedule.
+	 * Constructs a new employee with the specified name, surname, email and
+	 * schedule.
 	 *
-	 * @param email    the unique email of the employee; must not be {@code null}
-	 * @param schedule the work schedule assigned to the employee; must not be
-	 *                 {@code null}
-	 * @throws NullPointerException if {@code email} or {@code schedule} are
-	 *                              {@code null}
+	 * @param name     the name of the employee
+	 * @param surname  the surname of the employee
+	 * @param email    the unique email of the employee
+	 * @param schedule the work schedule assigned to the employee
 	 */
-	public Employee(final String email, final Schedule schedule) {
-		this.email = Objects.requireNonNull(email, "Email can't be null");
-		this.schedule = Objects.requireNonNull(schedule, "Schedule can't be null");
+	public Employee(final String name, final String surname, final String email, final Schedule schedule) {
+		this.name = name;
+		this.surname = surname;
+		this.email = email;
+		this.schedule = schedule;
 	}
 
 	/**

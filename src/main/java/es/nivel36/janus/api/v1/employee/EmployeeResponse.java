@@ -20,10 +20,11 @@ import es.nivel36.janus.service.employee.Employee;
 /**
  * Response DTO exposing the public representation of an {@link Employee}.
  *
- * @param name    the employee's first name
- * @param surname the employee's surname
- * @param email   the employee's unique email address
+ * @param name       the employee's first name
+ * @param surname    the employee's surname
+ * @param email      the employee's unique email address
+ * @param scheduleId the id of the employee's schedule
  * 
  */
-public record EmployeeResponse(String name, String surname, String email) {
+public record EmployeeResponse(String name, String surname, String email, Long scheduleId) {
 }

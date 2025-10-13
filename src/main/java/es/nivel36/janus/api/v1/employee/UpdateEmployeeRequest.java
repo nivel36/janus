@@ -16,7 +16,6 @@
 package es.nivel36.janus.api.v1.employee;
 
 import es.nivel36.janus.service.employee.Employee;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -47,11 +46,13 @@ public record UpdateEmployeeRequest(//
 		String surname, //
 
 		@NotNull(message = "email must not be null") //
-		@Email(message = "must be a valid email address") //
 		@Pattern( //
 				regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
 				message = "must be a valid and safe email address (max 254)" //
 		) //
-		String email //
+		String email, //
+		
+		@NotNull(message = "scheduleId must not be null")
+		Long scheduleId
 ) {
 }

@@ -18,12 +18,14 @@ package es.nivel36.janus.service.employee;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.workshift.WorkShift;
 
 /**
  * Repository class for managing {@link Employee} entities.
@@ -48,6 +50,7 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * @return the employee with the specified email, or {@code null} if no employee
 	 *         is found
 	 */
+	@EntityGraph(attributePaths = "schedule")
 	Employee findByEmail(final String email);
 
 	/**

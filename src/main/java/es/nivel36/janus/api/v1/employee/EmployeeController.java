@@ -33,12 +33,12 @@ import org.springframework.web.bind.annotation.RestController;
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
+import es.nivel36.janus.service.schedule.Schedule;
+import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 /**
  * REST controller exposing CRUD operations and ancillary actions for
@@ -52,14 +52,16 @@ public class EmployeeController {
 
 	private final EmployeeService employeeService;
 	private final WorksiteService worksiteService;
+	private final ScheduleService scheduleService;
 	private final Mapper<Employee, EmployeeResponse> employeeResponseMapper;
 
 	public EmployeeController(final EmployeeService employeeService, final WorksiteService worksiteService,
-			final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
-		this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService can't be null");
-		this.worksiteService = Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
+			final ScheduleService scheduleService, final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
+		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
+		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.employeeResponseMapper = Objects.requireNonNull(employeeResponseMapper,
-				"EmployeeResponseMapper can't be null");
+				"employeeResponseMapper can't be null");
 	}
 
 	/**
@@ -70,9 +72,13 @@ public class EmployeeController {
 	 * @return the {@link EmployeeResponse} matching the email
 	 */
 	@GetMapping("/by-email/{employeeEmail}")
-	public ResponseEntity<EmployeeResponse> findEmployeeByEmail(
-			final @PathVariable("employeeEmail") @Email @Size(max = 254) String employeeEmail) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
+	public ResponseEntity<EmployeeResponse> findEmployeeByEmail( //
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail) {
 		logger.debug("Find employee by email ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -89,11 +95,11 @@ public class EmployeeController {
 	 */
 	@PostMapping
 	public ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody final CreateEmployeeRequest request) {
-		Objects.requireNonNull(request, "CreateEmployeeRequest can't be null");
 		logger.debug("Create employee ACTION performed");
 
-		final Employee employee = this.buildEmployee(request);
-		final Employee createdEmployee = this.employeeService.createEmployee(employee);
+		final Schedule schedule = this.scheduleService.findScheduleById(request.scheduleId());
+		final Employee createdEmployee = this.employeeService.createEmployee(request.name(), request.surname(),
+				request.email(), schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(createdEmployee);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -108,17 +114,19 @@ public class EmployeeController {
 	 * @return the updated {@link EmployeeResponse}
 	 */
 	@PutMapping("/{employeeId}")
-	public ResponseEntity<EmployeeResponse> updateEmployee(
-			final @PathVariable("employeeEmail") @Email @Size(max = 254) String employeeEmail,
+	public ResponseEntity<EmployeeResponse> updateEmployee(//
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, //
 			@Valid @RequestBody final UpdateEmployeeRequest request) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
-		Objects.requireNonNull(request, "UpdateEmployeeRequest can't be null");
 		logger.debug("Update employee ACTION performed");
 
-		final Employee existingEmployee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		this.merge(existingEmployee, request);
-
-		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, existingEmployee);
+		final Schedule schedule = this.scheduleService.findScheduleById(request.scheduleId());
+		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, request.name(),
+				request.surname(), request.email(), schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
 		return ResponseEntity.ok(response);
 	}
@@ -131,11 +139,18 @@ public class EmployeeController {
 	 * @return the updated {@link EmployeeResponse}
 	 */
 	@PostMapping("/{employeeId}/worksites/{worksiteCode}")
-	public ResponseEntity<EmployeeResponse> addWorksiteToEmployee(
-			final @PathVariable("employeeEmail") @Email @Size(max = 254) String employeeEmail,
-			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Zea-z0-9_-]{1,50}") String worksiteCode) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
-		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
+	public ResponseEntity<EmployeeResponse> addWorksiteToEmployee( //
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, final @PathVariable("worksiteCode") //
+			@Pattern( //
+					regexp = "[A-Za-z0-9_-]{1,50}", //
+					message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
+			) //
+			String worksiteCode) {
 		logger.debug("Add worksite to employee ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -154,11 +169,18 @@ public class EmployeeController {
 	 * @return the updated {@link EmployeeResponse}
 	 */
 	@DeleteMapping("/{employeeId}/worksites/{worksiteCode}")
-	public ResponseEntity<EmployeeResponse> removeWorksiteFromEmployee(
-			final @PathVariable("employeeEmail") @Email @Size(max = 254) String employeeEmail,
-			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String worksiteCode) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
-		Objects.requireNonNull(worksiteCode, "WorksiteCode can't be null");
+	public ResponseEntity<EmployeeResponse> removeWorksiteFromEmployee( //
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail, final @PathVariable("worksiteCode") //
+			@Pattern( //
+					regexp = "[A-Za-z0-9_-]{1,50}", //
+					message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
+			) //
+			String worksiteCode) {
 		logger.debug("Remove worksite from employee ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -176,27 +198,17 @@ public class EmployeeController {
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
 	@DeleteMapping("/{employeeId}")
-	public ResponseEntity<Void> deleteEmployee(
-			final @PathVariable("employeeEmail") @Email @Size(max = 254) String employeeEmail) {
-		Objects.requireNonNull(employeeEmail, "EmployeeEmail can't be null");
+	public ResponseEntity<Void> deleteEmployee(//
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail) {
 		logger.debug("Delete employee ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		this.employeeService.deleteEmployee(employee);
 		return ResponseEntity.noContent().build();
-	}
-
-	private Employee buildEmployee(final CreateEmployeeRequest request) {
-		final Employee employee = new Employee();
-		employee.setName(request.name());
-		employee.setSurname(request.surname());
-		employee.setEmail(request.email());
-		return employee;
-	}
-
-	private void merge(final Employee employee, final UpdateEmployeeRequest request) {
-		employee.setName(request.name());
-		employee.setSurname(request.surname());
-		employee.setEmail(request.email());
 	}
 }
