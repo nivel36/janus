@@ -17,9 +17,7 @@ package es.nivel36.janus.api.v1.worksite;
 
 import es.nivel36.janus.service.worksite.Worksite;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 /**
  * Request payload for creating a new {@link Worksite}.
@@ -31,6 +29,26 @@ import jakarta.validation.constraints.Size;
  * @param timeZone the {@link java.time.ZoneId} identifier associated with the
  *                 worksite; must contain between 1 and 80 characters
  */
-public record CreateWorksiteRequest(@NotBlank @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String code,
-		@NotNull @Size(min = 1, max = 250) String name, @NotNull @Size(min = 1, max = 80) String timeZone) {
+public record CreateWorksiteRequest( //
+		@NotBlank(message = "code must not be blank") //
+		@Pattern( //
+				regexp = "[A-Za-z0-9_-]{1,50}", //
+				message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
+		) //
+		String code, //
+
+		@NotBlank(message = "name must not be blank") //
+		@Pattern( //
+				regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", //
+				message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)" //
+		) //
+		String name, //
+
+		@NotBlank(message = "timeZone must not be blank") //
+		@Pattern( //
+				regexp = "^[A-Za-z0-9_./+-]{1,80}$", //
+				message = "timeZone must contain only letters, digits, underscores, dots, slashes or hyphens (max 80)" //
+		) //
+		String timeZone //
+) {
 }

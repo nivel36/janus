@@ -18,7 +18,8 @@ package es.nivel36.janus.api.v1.employee;
 import es.nivel36.janus.service.employee.Employee;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Request payload for updating an existing {@link Employee}.
@@ -30,6 +31,27 @@ import jakarta.validation.constraints.Size;
  * @param email   the new email address of the employee; must be a valid email
  *                address and contain at most 254 characters
  */
-public record UpdateEmployeeRequest(@NotBlank @Size(min = 1, max = 255) String name,
-		@NotBlank @Size(min = 1, max = 255) String surname, @NotBlank @Email @Size(max = 254) String email) {
+public record UpdateEmployeeRequest(//
+		@NotBlank(message = "name must not be blank") //
+		@Pattern( //
+				regexp = "^[\\p{L} .,'-]{1,255}$", //
+				message = "name must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)" //
+		) //
+		String name, //
+
+		@NotBlank(message = "surname must not be blank") //
+		@Pattern( //
+				regexp = "^[\\p{L} .,'-]{1,255}$", //
+				message = "surname must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)" //
+		) //
+		String surname, //
+
+		@NotNull(message = "email must not be null") //
+		@Email(message = "must be a valid email address") //
+		@Pattern( //
+				regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+				message = "must be a valid and safe email address (max 254)" //
+		) //
+		String email //
+) {
 }
