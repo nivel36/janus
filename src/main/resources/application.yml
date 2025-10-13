@@ -17,6 +17,8 @@ spring:
       pageable:
         default-page-size: 20
         max-page-size: 100
+  main:
+    banner-mode: off
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
@@ -46,5 +48,7 @@ management:
       exposure:
         include: health
 logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%-8X{reqId}] [%-5level] %logger{36} - %msg%n"
   level:
     es.nivel36.janus: TRACE
