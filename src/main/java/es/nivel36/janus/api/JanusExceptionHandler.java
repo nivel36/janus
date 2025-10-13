@@ -77,9 +77,16 @@ public class JanusExceptionHandler {
 
 	private final Clock clock;
 
-	public JanusExceptionHandler(final Clock clock) {
-		this.clock = Objects.requireNonNull(clock);
-	}
+        /**
+         * Creates an exception handler that timestamps generated {@link ProblemDetail}
+         * instances.
+         *
+         * @param clock clock used to populate the {@code timestamp} attribute; must not
+         *              be {@code null}
+         */
+        public JanusExceptionHandler(final Clock clock) {
+                this.clock = Objects.requireNonNull(clock);
+        }
 
 	@ExceptionHandler(EntityNotFoundException.class)
 	ProblemDetail handleEntityNotFound(final EntityNotFoundException ex, final HttpServletRequest request) {

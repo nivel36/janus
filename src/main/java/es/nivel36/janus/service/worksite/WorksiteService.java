@@ -129,7 +129,7 @@ public class WorksiteService {
 	 */
 	@Transactional(readOnly = true)
 	public Worksite findWorksiteByCode(final String code) {
-		Objects.requireNonNull(code, "code can' be null");
+                Objects.requireNonNull(code, "code can't be null");
 		logger.debug("Finding worksites by code {}", code);
 
 		return this.findWorksite(code);

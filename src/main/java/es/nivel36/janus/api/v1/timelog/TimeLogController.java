@@ -62,13 +62,26 @@ public class TimeLogController {
 	private final WorksiteService worksiteService;
 	private final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper;
 
-	public TimeLogController(final TimeLogService timeLogService, final EmployeeService employeeService,
-			final WorksiteService worksiteService, final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper) {
-		this.timeLogService = Objects.requireNonNull(timeLogService, "TimeLogService can't be null");
-		this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService can't be null");
-		this.worksiteService = Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
-		this.timeLogResponseMapper = Objects.requireNonNull(timeLogResponseMapper,
-				"TimeLogResponseMapper can't be null");
+        /**
+         * Creates a controller exposing time log operations.
+         *
+         * @param timeLogService        application service handling {@link TimeLog} logic;
+         *                              must not be {@code null}
+         * @param employeeService       service used to resolve {@link Employee} entities;
+         *                              must not be {@code null}
+         * @param worksiteService       service resolving {@link Worksite} entities;
+         *                              must not be {@code null}
+         * @param timeLogResponseMapper mapper that converts {@link TimeLog} domain
+         *                              objects to {@link TimeLogResponse} DTOs; must not
+         *                              be {@code null}
+         */
+        public TimeLogController(final TimeLogService timeLogService, final EmployeeService employeeService,
+                        final WorksiteService worksiteService, final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper) {
+                this.timeLogService = Objects.requireNonNull(timeLogService, "TimeLogService can't be null");
+                this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService can't be null");
+                this.worksiteService = Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
+                this.timeLogResponseMapper = Objects.requireNonNull(timeLogResponseMapper,
+                                "TimeLogResponseMapper can't be null");
 	}
 
 	/**
@@ -176,7 +189,7 @@ public class TimeLogController {
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
 			String worksiteCode, //
 			final @Valid @RequestBody CreateTimeLogRequest timeLog) {
-		logger.debug("Create timelog ACTION performed");
+                logger.debug("Create time log ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
@@ -218,7 +231,7 @@ public class TimeLogController {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
 		}
 		if (fromInstant != null && toInstant != null && fromInstant.isAfter(toInstant)) {
-			throw new IllegalArgumentException("toInstant must be after toInstant");
+                        throw new IllegalArgumentException("toInstant must be after fromInstant");
 		}
 		logger.debug("Search time logs by employee ACTION performed");
 
@@ -306,7 +319,7 @@ public class TimeLogController {
 			) //
 			String employeeEmail, //
 			final @PathVariable("entryTime") Instant entryTime) {
-		logger.debug("Delete timelog ACTION performed");
+                logger.debug("Delete time log ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final TimeLog timeLog = timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);

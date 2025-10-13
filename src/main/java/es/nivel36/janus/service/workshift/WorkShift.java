@@ -217,9 +217,14 @@ public class WorkShift implements Serializable {
 		this.totalWorkTime = totalWorkTime;
 	}
 
-	public void addTimeLog(final TimeLog timeLog) {
-		this.timeLogs.add(timeLog);
-	}
+        /**
+         * Appends a {@link TimeLog} to the shift definition.
+         *
+         * @param timeLog the time log to add; must not be {@code null}
+         */
+        public void addTimeLog(final TimeLog timeLog) {
+                this.timeLogs.add(timeLog);
+        }
 
 	@Override
 	public boolean equals(final Object obj) {
