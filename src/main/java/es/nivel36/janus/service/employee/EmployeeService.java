@@ -124,10 +124,10 @@ public class EmployeeService {
 
 		logger.debug("Creating new employee {}", email);
 		final boolean emailInUse = this.employeeRepository.existsByEmail(email);
-		if (emailInUse) {
-			logger.warn("Employee with email {} already exists", email);
-			throw new ResourceAlreadyExistsException("Employee with email " + email + "already exists");
-		}
+                if (emailInUse) {
+                        logger.warn("Employee with email {} already exists", email);
+                        throw new ResourceAlreadyExistsException("Employee with email " + email + " already exists");
+                }
 		final Employee employee = new Employee(name, surname, email, schedule);
 		final Employee savedEmployee = this.employeeRepository.save(employee);
 		logger.trace("Employee {} created successfully", savedEmployee);
@@ -154,10 +154,10 @@ public class EmployeeService {
 		Objects.requireNonNull(newSchedule, "newSchedule cannot be null.");
 		logger.debug("Updating employee {}", email);
 
-		if (!email.equals(newEmail) && this.employeeRepository.existsByEmail(newEmail)) {
-			logger.warn("Employee with email {} already exists", newEmail);
-			throw new ResourceAlreadyExistsException("Email" + newEmail + " already exists");
-		}
+                if (!email.equals(newEmail) && this.employeeRepository.existsByEmail(newEmail)) {
+                        logger.warn("Employee with email {} already exists", newEmail);
+                        throw new ResourceAlreadyExistsException("Email " + newEmail + " already exists");
+                }
 		final Employee employee = this.findEmployeeByEmail(email);
 		employee.setEmail(newEmail);
 		employee.setName(newName);

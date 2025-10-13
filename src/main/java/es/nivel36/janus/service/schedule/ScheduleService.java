@@ -243,9 +243,10 @@ public class ScheduleService {
 
 		final boolean removed = schedule.getRules().removeIf(scheduleRule::equals);
 
-		if (!removed) {
-			throw new ResourceNotFoundException("Schedule rule " + scheduleRule + "not found in schedule " + schedule);
-		}
+                if (!removed) {
+                        throw new ResourceNotFoundException(
+                                        "Schedule rule " + scheduleRule + " not found in schedule " + schedule);
+                }
 
 		this.scheduleRepository.save(schedule);
 	}

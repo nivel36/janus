@@ -50,12 +50,21 @@ public class WorksiteController {
 	private final WorksiteService worksiteService;
 	private final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper;
 
-	public WorksiteController(final WorksiteService worksiteService,
-			final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
-		this.worksiteService = Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
-		this.worksiteResponseMapper = Objects.requireNonNull(worksiteResponseMapper,
-				"WorksiteResponseMapper can't be null");
-	}
+        /**
+         * Builds a controller for managing {@link Worksite} resources.
+         *
+         * @param worksiteService         application service that provides worksite
+         *                                operations; must not be {@code null}
+         * @param worksiteResponseMapper  mapper translating {@link Worksite} entities
+         *                                into {@link WorksiteResponse} DTOs; must not be
+         *                                {@code null}
+         */
+        public WorksiteController(final WorksiteService worksiteService,
+                        final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
+                this.worksiteService = Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
+                this.worksiteResponseMapper = Objects.requireNonNull(worksiteResponseMapper,
+                                "WorksiteResponseMapper can't be null");
+        }
 
 	/**
 	 * Retrieves all worksites registered in the system.
