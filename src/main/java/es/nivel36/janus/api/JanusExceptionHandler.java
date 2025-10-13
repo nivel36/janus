@@ -49,7 +49,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
+import es.nivel36.janus.service.timelog.TimeLogChronologyException;
+import es.nivel36.janus.service.timelog.TimeLogModificationNotAllowedException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -94,6 +97,39 @@ public class JanusExceptionHandler {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
 		pd.setType(TYPE_NOT_FOUND);
 		pd.setTitle("Resource not found");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
+		return pd;
+	}
+	
+	@ExceptionHandler(ResourceAlreadyExistsException.class)
+	ProblemDetail handleResourceAlreadyExists(ResourceAlreadyExistsException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setTitle("Resource already exists");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
+		return pd;
+	}
+	
+	@ExceptionHandler(TimeLogChronologyException.class)
+	ProblemDetail handleTimeLogChronology(TimeLogChronologyException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setTitle("Invalid chronological order");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("Error {}", pd.toString());
+		return pd;
+	}
+
+	@ExceptionHandler(TimeLogModificationNotAllowedException.class)
+	ProblemDetail handleTimeLogModificationNotAllowed(TimeLogModificationNotAllowedException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setTitle("Modification not allowed");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
 		logger.warn("Error {}", pd.toString());
