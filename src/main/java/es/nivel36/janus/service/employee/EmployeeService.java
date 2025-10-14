@@ -124,44 +124,46 @@ public class EmployeeService {
 
 		logger.debug("Creating new employee {}", email);
 		final boolean emailInUse = this.employeeRepository.existsByEmail(email);
-                if (emailInUse) {
-                        logger.warn("Employee with email {} already exists", email);
-                        throw new ResourceAlreadyExistsException("Employee with email " + email + " already exists");
-                }
-		final Employee employee = new Employee(name, surname, email, schedule);
+		if (emailInUse) {
+			logger.warn("Employee with email {} already exists", email);
+			throw new ResourceAlreadyExistsException("Employee with email " + email + " already exists");
+		}
+		final Employee employee = new Employee(name.trim(), surname.trim(), email.trim(), schedule);
 		final Employee savedEmployee = this.employeeRepository.save(employee);
 		logger.trace("Employee {} created successfully", savedEmployee);
 		return savedEmployee;
 	}
 
 	/**
-	 * Updates an existing {@link Employee}.
-	 * 
-	 * @param email    the email of the employee to be updated
-	 * @param employee the employee to be updated
-	 * @return the updated employee
-	 * 
-	 * @throws NullPointerException           if the employee is {@code null}.
-	 * @throws ResourceAlreadyExistsException if the employee is changing the email
-	 *                                        and the new email already exists.
+	 * Updates an existing {@link Employee} identified by its email.
+	 *
+	 * <p>
+	 * Validates and normalizes inputs (trimming and basic checks). Replaces the
+	 * current name, surname and schedule atomically.
+	 * </p>
+	 *
+	 * @param email       unique email that identifies the employee; must be
+	 *                    non-blank
+	 * @param newName     new first name; must be non-blank
+	 * @param newSurname  new surname; must be non-blank
+	 * @param newSchedule new schedule; must be non-null
+	 * @return the updated employee (managed instance)
+	 *
+	 * @throws IllegalArgumentException  if any string parameter is blank or email
+	 *                                   is invalid
+	 * @throws ResourceNotFoundException if no employee exists with the given email
 	 */
 	public Employee updateEmployee(final String email, final String newName, final String newSurname,
-			final String newEmail, final Schedule newSchedule) {
+			final Schedule newSchedule) {
 		Objects.requireNonNull(email, "email cannot be null.");
 		Objects.requireNonNull(newName, "newName cannot be null.");
 		Objects.requireNonNull(newSurname, "newSurname cannot be null.");
-		Objects.requireNonNull(newEmail, "newEmail cannot be null.");
 		Objects.requireNonNull(newSchedule, "newSchedule cannot be null.");
 		logger.debug("Updating employee {}", email);
 
-                if (!email.equals(newEmail) && this.employeeRepository.existsByEmail(newEmail)) {
-                        logger.warn("Employee with email {} already exists", newEmail);
-                        throw new ResourceAlreadyExistsException("Email " + newEmail + " already exists");
-                }
 		final Employee employee = this.findEmployeeByEmail(email);
-		employee.setEmail(newEmail);
-		employee.setName(newName);
-		employee.setSurname(newSurname);
+		employee.setName(newName.trim());
+		employee.setSurname(newSurname.trim());
 		employee.setSchedule(newSchedule);
 		final Employee savedEmployee = this.employeeRepository.save(employee);
 		logger.trace("Employee {} updated successfully", savedEmployee);
@@ -225,7 +227,7 @@ public class EmployeeService {
 	public void deleteEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "employee cannot be null.");
 		logger.debug("Deleting employee {}", employee);
-		
+
 		this.employeeRepository.delete(employee);
 		logger.trace("Employee {} deleted successfully", employee);
 	}

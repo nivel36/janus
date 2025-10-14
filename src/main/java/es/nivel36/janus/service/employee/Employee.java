@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.hibernate.annotations.NaturalId;
+
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
@@ -91,9 +93,10 @@ public class Employee implements Serializable {
 	 * This field is mandatory, must be unique, and cannot be {@code null}.
 	 * </p>
 	 */
+	@NaturalId
 	@NotEmpty
 	@Email
-	@Column(nullable = false, unique = true, length = 254)
+	@Column(nullable = false, unique = true, updatable = false, length = 254)
 	private String email;
 
 	/**

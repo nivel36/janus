@@ -55,26 +55,26 @@ public class EmployeeController {
 	private final ScheduleService scheduleService;
 	private final Mapper<Employee, EmployeeResponse> employeeResponseMapper;
 
-        /**
-         * Creates a controller that exposes employee management endpoints.
-         *
-         * @param employeeService          service handling {@link Employee} domain
-         *                                 operations; must not be {@code null}
-         * @param worksiteService          service managing {@link Worksite}
-         *                                 associations; must not be {@code null}
-         * @param scheduleService          service retrieving {@link Schedule}
-         *                                 information; must not be {@code null}
-         * @param employeeResponseMapper   mapper converting {@link Employee} entities to
-         *                                 {@link EmployeeResponse} DTOs; must not be
-         *                                 {@code null}
-         */
-        public EmployeeController(final EmployeeService employeeService, final WorksiteService worksiteService,
-                        final ScheduleService scheduleService, final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
-                this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
-                this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
-                this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
-                this.employeeResponseMapper = Objects.requireNonNull(employeeResponseMapper,
-                                "employeeResponseMapper can't be null");
+	/**
+	 * Creates a controller that exposes employee management endpoints.
+	 *
+	 * @param employeeService        service handling {@link Employee} domain
+	 *                               operations; must not be {@code null}
+	 * @param worksiteService        service managing {@link Worksite} associations;
+	 *                               must not be {@code null}
+	 * @param scheduleService        service retrieving {@link Schedule}
+	 *                               information; must not be {@code null}
+	 * @param employeeResponseMapper mapper converting {@link Employee} entities to
+	 *                               {@link EmployeeResponse} DTOs; must not be
+	 *                               {@code null}
+	 */
+	public EmployeeController(final EmployeeService employeeService, final WorksiteService worksiteService,
+			final ScheduleService scheduleService, final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
+		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
+		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
+		this.employeeResponseMapper = Objects.requireNonNull(employeeResponseMapper,
+				"employeeResponseMapper can't be null");
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class EmployeeController {
 
 		final Schedule schedule = this.scheduleService.findScheduleById(request.scheduleId());
 		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, request.name(),
-				request.surname(), request.email(), schedule);
+				request.surname(), schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
 		return ResponseEntity.ok(response);
 	}

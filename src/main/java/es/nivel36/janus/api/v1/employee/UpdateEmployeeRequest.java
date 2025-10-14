@@ -23,12 +23,12 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload for updating an existing {@link Employee}.
  *
- * @param name    the new first name of the employee; must not be null and must
- *                be between 1 and 255 characters
- * @param surname the new surname of the employee; must not be null and must be
- *                between 1 and 255 characters
- * @param email   the new email address of the employee; must be a valid email
- *                address and contain at most 254 characters
+ * @param name       the new first name of the employee; must not be
+ *                   {@code null} and must be between 1 and 255 characters
+ * @param surname    the new surname of the employee; must not be {@code null}
+ *                   and must be between 1 and 255 characters
+ * @param scheduleId the id of the new schedule of the employee; must not be
+ *                   {@code null}
  */
 public record UpdateEmployeeRequest(//
 		@NotBlank(message = "name must not be blank") //
@@ -45,14 +45,5 @@ public record UpdateEmployeeRequest(//
 		) //
 		String surname, //
 
-		@NotNull(message = "email must not be null") //
-		@Pattern( //
-				regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-				message = "must be a valid and safe email address (max 254)" //
-		) //
-		String email, //
-		
-		@NotNull(message = "scheduleId must not be null")
-		Long scheduleId
-) {
+		@NotNull(message = "scheduleId must not be null") Long scheduleId) {
 }
