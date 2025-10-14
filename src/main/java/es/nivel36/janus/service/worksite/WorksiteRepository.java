@@ -63,7 +63,7 @@ public interface WorksiteRepository extends CrudRepository<Worksite, Long> {
 	 * @return the {@link Worksite} entity with the given code, or {@code null} if
 	 *         no such worksite exists
 	 */
-	Worksite findWorksiteByCode(String code);
+	Worksite findByCode(String code);
 
 	/**
 	 * Checks whether a {@link Worksite} with the specified code exists.
