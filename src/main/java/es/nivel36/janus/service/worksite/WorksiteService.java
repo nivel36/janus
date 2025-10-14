@@ -129,7 +129,7 @@ public class WorksiteService {
 	 */
 	@Transactional(readOnly = true)
 	public Worksite findWorksiteByCode(final String code) {
-                Objects.requireNonNull(code, "code can't be null");
+		Objects.requireNonNull(code, "code can't be null");
 		logger.debug("Finding worksites by code {}", code);
 
 		return this.findWorksite(code);
@@ -149,31 +149,20 @@ public class WorksiteService {
 	 *
 	 * @param code        the code identifying the worksite to update; must not be
 	 *                    {@code null}
-	 * @param newCode     the new worksite code to assign; must not be {@code null}
-	 *                    and not be used by another worksite
 	 * @param newName     the new name to assign; must not be {@code null}
 	 * @param newTimeZone the new {@link ZoneId} to assign; must not be {@code null}
 	 * @return the updated {@link Worksite}
-	 * @throws NullPointerException           if any argument is {@code null}
-	 * @throws ResourceNotFoundException      if the worksite cannot be found
-	 * @throws ResourceAlreadyExistsException if a worksite with the given newCode
-	 *                                        already exists
+	 * @throws NullPointerException      if any argument is {@code null}
+	 * @throws ResourceNotFoundException if the worksite cannot be found
 	 */
 	@Transactional
-	public Worksite updateWorksite(final String code, final String newCode, final String newName,
-			final ZoneId newTimeZone) {
+	public Worksite updateWorksite(final String code, final String newName, final ZoneId newTimeZone) {
 		Objects.requireNonNull(code, "code can't be null");
-		Objects.requireNonNull(newCode, "newCode can't be null");
 		Objects.requireNonNull(newName, "newName can't be null");
 		Objects.requireNonNull(newTimeZone, "newTimeZone can't be null");
 		logger.debug("Updating worksite with code {}", code);
 
-		if (!code.equals(newCode) && this.worksiteRepository.existsByCode(newCode)) {
-			logger.warn("Unable to update worksite. Code {} already exists", newCode);
-			throw new ResourceAlreadyExistsException("Worksite already exists with code " + newCode);
-		}
 		final Worksite worksite = this.findWorksite(code);
-		worksite.setCode(newCode);
 		worksite.setName(newName);
 		worksite.setTimeZone(newTimeZone);
 

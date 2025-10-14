@@ -50,21 +50,21 @@ public class WorksiteController {
 	private final WorksiteService worksiteService;
 	private final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper;
 
-        /**
-         * Builds a controller for managing {@link Worksite} resources.
-         *
-         * @param worksiteService         application service that provides worksite
-         *                                operations; must not be {@code null}
-         * @param worksiteResponseMapper  mapper translating {@link Worksite} entities
-         *                                into {@link WorksiteResponse} DTOs; must not be
-         *                                {@code null}
-         */
-        public WorksiteController(final WorksiteService worksiteService,
-                        final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
-                this.worksiteService = Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
-                this.worksiteResponseMapper = Objects.requireNonNull(worksiteResponseMapper,
-                                "WorksiteResponseMapper can't be null");
-        }
+	/**
+	 * Builds a controller for managing {@link Worksite} resources.
+	 *
+	 * @param worksiteService        application service that provides worksite
+	 *                               operations; must not be {@code null}
+	 * @param worksiteResponseMapper mapper translating {@link Worksite} entities
+	 *                               into {@link WorksiteResponse} DTOs; must not be
+	 *                               {@code null}
+	 */
+	public WorksiteController(final WorksiteService worksiteService,
+			final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
+		this.worksiteService = Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
+		this.worksiteResponseMapper = Objects.requireNonNull(worksiteResponseMapper,
+				"WorksiteResponseMapper can't be null");
+	}
 
 	/**
 	 * Retrieves all worksites registered in the system.
@@ -92,7 +92,7 @@ public class WorksiteController {
 			@Pattern( //
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-					String worksiteCode) {
+			String worksiteCode) {
 		logger.debug("Find worksite ACTION performed");
 
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
@@ -135,16 +135,15 @@ public class WorksiteController {
 	@Pattern(//
 			regexp = "[A-Za-z0-9_-]{1,50}", //
 			message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, //
+	String worksiteCode, //
 			@Valid @RequestBody final UpdateWorksiteRequest request) {
 		logger.debug("Update worksite ACTION performed");
 
-		final String code = request.code();
 		final String name = request.name();
 		final String timeZone = request.timeZone();
 		final ZoneId timeZoneId = ZoneId.of(timeZone);
 
-		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, code, name, timeZoneId);
+		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, name, timeZoneId);
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
 		return ResponseEntity.ok(response);
 	}
@@ -160,7 +159,7 @@ public class WorksiteController {
 	@Pattern(//
 			regexp = "[A-Za-z0-9_-]{1,50}", //
 			message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode) {
+	String worksiteCode) {
 		logger.debug("Delete worksite ACTION performed");
 
 		final Worksite workiste = this.worksiteService.findWorksiteByCode(worksiteCode);

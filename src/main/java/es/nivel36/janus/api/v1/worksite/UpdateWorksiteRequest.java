@@ -28,13 +28,6 @@ import jakarta.validation.constraints.Pattern;
  *                 must contain between 1 and 80 characters
  */
 public record UpdateWorksiteRequest( //
-		@NotBlank(message = "code must not be blank") //
-		@Pattern( //
-				regexp = "[A-Za-z0-9_-]{1,50}", //
-				message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
-		) //
-		String code, //
-
 		@NotBlank(message = "name must not be blank") //
 		@Pattern( //
 				regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", //

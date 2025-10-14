@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -88,8 +89,9 @@ public class Worksite implements Serializable {
 	 * Acts as a natural identifier for lookups and external references.
 	 * </p>
 	 */
+	@NaturalId
 	@NotNull
-	@Column(nullable = false, unique = true, length = 50)
+	@Column(nullable = false, unique = true, updatable=false, length = 50)
 	private String code;
 
 	/**
