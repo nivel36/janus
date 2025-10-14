@@ -38,6 +38,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -79,7 +80,7 @@ public class Worksite implements Serializable {
 	/**
 	 * Human-readable name of the worksite.
 	 */
-	@NotNull
+	@NotEmpty
 	@Column(nullable = false, length = 250)
 	private String name;
 
@@ -90,7 +91,7 @@ public class Worksite implements Serializable {
 	 * </p>
 	 */
 	@NaturalId
-	@NotNull
+	@NotEmpty
 	@Column(nullable = false, unique = true, updatable=false, length = 50)
 	private String code;
 
