@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.hibernate.annotations.NaturalId;
+
 import es.nivel36.janus.service.employee.Employee;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -31,14 +33,14 @@ import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * Represents a work schedule for a person, containing a set of rules that
  * define time ranges for each day of the week or a specific period.
  *
  * <p>
- * This entity is uniquely identified by its name, and it allows defining custom
+ * This entity is uniquely identified by its code, and it allows defining custom
  * schedules that can vary across days of the week or specific time periods
  * (e.g., different schedules for summer or holidays).
  * </p>
@@ -51,9 +53,9 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(indexes = { //
-		@Index(name = "idx_schedule_name", columnList = "name") //
+		@Index(name = "idx_schedule_code", columnList = "code") //
 }, uniqueConstraints = { //
-		@UniqueConstraint(name = "uk_schedule_name", columnNames = { "name" }) //
+		@UniqueConstraint(name = "uk_schedule_code", columnNames = { "code" }) //
 })
 public class Schedule implements Serializable {
 
@@ -70,9 +72,20 @@ public class Schedule implements Serializable {
 	 * Unique name of the schedule. Cannot be null and must be unique across all
 	 * schedules.
 	 */
-	@NotNull
-	@Column(nullable = false, unique = true, length = 255)
+	@NotEmpty
+	@Column(nullable = false, length = 255)
 	private String name;
+
+	/**
+	 * Unique business code of the schedule.
+	 * <p>
+	 * Acts as a natural identifier for lookups and external references.
+	 * </p>
+	 */
+	@NaturalId
+	@NotEmpty
+	@Column(nullable = false, unique = true, updatable = false, length = 50)
+	private String code;
 
 	/**
 	 * List of rules that define the time ranges for this schedule. Each rule
@@ -128,6 +141,24 @@ public class Schedule implements Serializable {
 	}
 
 	/**
+	 * Gets the unique business code of the schedule.
+	 *
+	 * @return the code of the schedule
+	 */
+	public String getCode() {
+		return code;
+	}
+
+	/**
+	 * Sets the unique business code of the schedule.
+	 *
+	 * @param code the code to assign
+	 */
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	/**
 	 * Returns the list of {@link ScheduleRule} objects that define this schedule's
 	 * time rules.
 	 * 
@@ -167,7 +198,7 @@ public class Schedule implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.name);
+		return Objects.hash(this.code);
 	}
 
 	@Override
@@ -179,11 +210,11 @@ public class Schedule implements Serializable {
 			return false;
 		}
 		final Schedule other = (Schedule) obj;
-		return Objects.equals(this.name, other.name);
+		return Objects.equals(this.code, other.code);
 	}
 
 	@Override
 	public String toString() {
-		return this.name;
+		return this.code;
 	}
 }

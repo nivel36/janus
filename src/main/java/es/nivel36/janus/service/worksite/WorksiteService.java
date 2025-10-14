@@ -136,7 +136,7 @@ public class WorksiteService {
 	}
 
 	private Worksite findWorksite(final String code) {
-		final Worksite worksite = this.worksiteRepository.findWorksiteByCode(code);
+		final Worksite worksite = this.worksiteRepository.findByCode(code);
 		if (worksite == null) {
 			logger.warn("No worksite found with code {}", code);
 			throw new ResourceNotFoundException("No worksite found with code " + code);

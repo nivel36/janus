@@ -33,6 +33,26 @@ import es.nivel36.janus.service.employee.Employee;
 interface ScheduleRepository extends CrudRepository<Schedule, Long> {
 
 	/**
+	 * Finds a {@link Schedule} entity by its unique code.
+	 *
+	 * @param code the unique identifier code of the schedule; must not be
+	 *             {@code null}
+	 * @return the {@link Schedule} entity with the given code, or {@code null} if
+	 *         no such schedule exists
+	 */
+	Schedule findByCode(String code);
+	
+	/**
+	 * Checks whether a {@link Schedule} with the specified code exists.
+	 *
+	 * @param code the unique identifier code of the schedule; must not be
+	 *             {@code null}
+	 * @return {@code true} if a schedule with the given code exists; {@code false}
+	 *         otherwise
+	 */
+	boolean existsByCode(String code);
+
+	/**
 	 * Retrieves the {@link TimeRange} for a given {@link Employee} on a specific
 	 * {@link LocalDate}, considering only the shift that starts on that date.
 	 * <p>

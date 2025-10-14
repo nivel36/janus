@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 
@@ -52,26 +53,42 @@ public class ScheduleService {
 	}
 
 	/**
-	 * Creates a new {@link Schedule} and persists it using the
-	 * {@link ScheduleRepository}.
+	 * Creates and persists a new {@link Schedule}.
 	 *
 	 * <p>
-	 * All {@link ScheduleRule} instances contained in the schedule are associated
-	 * back to the parent schedule before persistence to maintain the bidirectional
-	 * relationship.
+	 * Associates each {@link ScheduleRule} back to the parent schedule to keep the
+	 * bidirectional relationship consistent, then persists the aggregate.
 	 * </p>
 	 *
-	 * @param schedule the schedule to create; must not be {@code null}
+	 * @param name  non-@{code null} schedule name
+	 * @param code  non-@{code null} unique business code
+	 * @param rules to attach can't be @{code null}
 	 * @return the persisted {@link Schedule}
-	 * @throws NullPointerException if {@code schedule} is {@code null}
+	 *
+	 * @throws NullPointerException           if any string is @{code null}
+	 * @throws ResourceAlreadyExistsException if a schedule with the same code
+	 *                                        already exists
 	 */
 	@Transactional
-	public Schedule createSchedule(final Schedule schedule) {
-		Objects.requireNonNull(schedule, "Schedule can't be null");
-		logger.debug("Creating Schedule {}", schedule.getName());
+	public Schedule createSchedule(final String name, final String code, final List<ScheduleRule> rules) {
+		Objects.requireNonNull(name, "name can't be null");
+		Objects.requireNonNull(name, "code can't be null");
+		Objects.requireNonNull(rules, "rules can't be null");
+		logger.debug("Creating schedule {}", code);
 
-		this.attachScheduleToRules(schedule, schedule.getRules());
-		return this.scheduleRepository.save(schedule);
+		final boolean existsByCode = this.scheduleRepository.existsByCode(code);
+		if (existsByCode) {
+			logger.warn("Unable to create schedule. Code {} already exists", code);
+			throw new ResourceAlreadyExistsException("Schedule already exists with code " + code);
+		}
+
+		final Schedule schedule = new Schedule();
+		schedule.setCode(code);
+		schedule.setName(name);
+		this.attachScheduleToRules(schedule, rules);
+		final Schedule savedSchedule = this.scheduleRepository.save(schedule);
+		logger.trace("Schedule {} created successfully", code);
+		return savedSchedule;
 	}
 
 	/**
@@ -84,7 +101,7 @@ public class ScheduleService {
 	 * {@link Schedule#getRules()}.
 	 * </p>
 	 *
-	 * @param scheduleId      the primary key of the schedule to update; must not be
+	 * @param code            the code of the schedule to update; must not be
 	 *                        {@code null}
 	 * @param updatedSchedule the schedule containing the new values; must not be
 	 *                        {@code null}
@@ -94,24 +111,23 @@ public class ScheduleService {
 	 * @throws ResourceNotFoundException if the schedule does not exist
 	 */
 	@Transactional
-	public Schedule updateSchedule(final Long scheduleId, final Schedule updatedSchedule) {
-		Objects.requireNonNull(scheduleId, "Schedule id can't be null");
-		Objects.requireNonNull(updatedSchedule, "Updated schedule can't be null");
-		logger.debug("Updating Schedule {}", scheduleId);
+	public Schedule updateSchedule(final String code, final Schedule updatedSchedule) {
+		Objects.requireNonNull(code, "code can't be null");
+		Objects.requireNonNull(updatedSchedule, "updatedSchedule can't be null");
+		logger.debug("Updating Schedule {}", code);
 
-		final Schedule persisted = this.scheduleRepository.findById(scheduleId)
-				.orElseThrow(() -> new ResourceNotFoundException("Schedule not found with id " + scheduleId));
-
+		final Schedule persisted = this.findSchedule(code);
 		persisted.setName(updatedSchedule.getName());
 		persisted.getRules().clear();
-
 		final List<ScheduleRule> newRules = updatedSchedule.getRules();
 		if (newRules != null && !newRules.isEmpty()) {
 			this.attachScheduleToRules(persisted, newRules);
 			persisted.getRules().addAll(newRules);
 		}
 
-		return this.scheduleRepository.save(persisted);
+		final Schedule updatedWorksite = this.scheduleRepository.save(persisted);
+		logger.trace("Schedule {} updated successfully", code);
+		return updatedWorksite;
 	}
 
 	private void attachScheduleToRules(final Schedule schedule, final List<ScheduleRule> rules) {
@@ -163,6 +179,32 @@ public class ScheduleService {
 
 		return this.scheduleRepository.findById(scheduleId)
 				.orElseThrow(() -> new ResourceNotFoundException("Schedule not found with id " + scheduleId));
+	}
+
+	/**
+	 * Retrieves a {@link Schedule} by its code, throwing an exception if it does
+	 * not exist.
+	 *
+	 * @param code the unique schedule code; must not be {@code null}
+	 * @return the {@link Schedule} with the given code
+	 * @throws NullPointerException      if {@code code} is {@code null}
+	 * @throws ResourceNotFoundException if the schedule does not exist
+	 */
+	@Transactional(readOnly = true)
+	public Schedule findScheduleByCode(final String code) {
+		Objects.requireNonNull(code, "code can't be null");
+		logger.debug("Finding schedule by code {}", code);
+
+		return this.findSchedule(code);
+	}
+
+	private Schedule findSchedule(final String code) {
+		final Schedule schedule = this.scheduleRepository.findByCode(code);
+		if (schedule == null) {
+			logger.warn("No schedule found with code {}", code);
+			throw new ResourceNotFoundException("No schedule found with code " + code);
+		}
+		return schedule;
 	}
 
 	/**
@@ -243,10 +285,9 @@ public class ScheduleService {
 
 		final boolean removed = schedule.getRules().removeIf(scheduleRule::equals);
 
-                if (!removed) {
-                        throw new ResourceNotFoundException(
-                                        "Schedule rule " + scheduleRule + " not found in schedule " + schedule);
-                }
+		if (!removed) {
+			throw new ResourceNotFoundException("Schedule rule " + scheduleRule + " not found in schedule " + schedule);
+		}
 
 		this.scheduleRepository.save(schedule);
 	}
