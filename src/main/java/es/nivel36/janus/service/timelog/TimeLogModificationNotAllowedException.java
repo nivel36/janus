@@ -21,31 +21,31 @@ package es.nivel36.janus.service.timelog;
  */
 public class TimeLogModificationNotAllowedException extends RuntimeException {
 
-    private static final long serialVersionUID = 3798698507343190506L;
+	private static final long serialVersionUID = 3798698507343190506L;
 
 	/**
-     * Creates a new exception with a default message.
-     */
-    public TimeLogModificationNotAllowedException() {
-        super("The TimeLog record cannot be modified because the modification window has expired.");
-    }
+	 * Creates a new exception with a default message.
+	 */
+	public TimeLogModificationNotAllowedException() {
+		super("The TimeLog record cannot be modified because the modification window has expired.");
+	}
 
-    /**
-     * Creates a new exception with a custom message.
-     *
-     * @param message the detail message
-     */
-    public TimeLogModificationNotAllowedException(String message) {
-        super(message);
-    }
+	/**
+	 * Creates a new exception with a custom message.
+	 *
+	 * @param message the detail message
+	 */
+	public TimeLogModificationNotAllowedException(String message) {
+		super(message);
+	}
 
-    /**
-     * Creates a new exception with a custom message and cause.
-     *
-     * @param message the detail message
-     * @param cause the cause of the exception
-     */
-    public TimeLogModificationNotAllowedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	/**
+	 * Creates a new exception with a custom message and cause.
+	 *
+	 * @param message the detail message
+	 * @param cause   the cause of the exception
+	 */
+	public TimeLogModificationNotAllowedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

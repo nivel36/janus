@@ -31,14 +31,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -57,11 +54,6 @@ import jakarta.validation.constraints.NotNull;
  * @see TimeLog
  */
 @Entity
-@Table(indexes = { //
-		@Index(name = "idx_employee_email", columnList = "email") //
-}, uniqueConstraints = { //
-		@UniqueConstraint(name = "uk_employee_email", columnNames = { "email" }) //
-})
 public class Employee implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -77,14 +69,12 @@ public class Employee implements Serializable {
 	 * The first name of the employee.
 	 */
 	@NotEmpty
-	@Column(length = 255)
 	private String name;
 
 	/**
 	 * The surname of the employee.
 	 */
 	@NotEmpty
-	@Column(length = 255)
 	private String surname;
 
 	/**
@@ -96,7 +86,7 @@ public class Employee implements Serializable {
 	@NaturalId
 	@NotEmpty
 	@Email
-	@Column(nullable = false, unique = true, updatable = false, length = 254)
+	@Column(updatable = false)
 	private String email;
 
 	/**
@@ -107,7 +97,7 @@ public class Employee implements Serializable {
 	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "schedule_id", nullable = false)
+	@JoinColumn(name = "schedule_id")
 	private Schedule schedule;
 
 	/**

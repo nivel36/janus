@@ -10,7 +10,7 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-INSERT INTO schedule (name) VALUES ('Standard Work Hours with August Variation');
+INSERT INTO schedule (code, name) VALUES ('STD-WH-AUG-VAR', 'Standard Work Hours with August Variation');
 
 INSERT INTO schedule_rule (name, schedule_id, start_date, end_date) VALUES ('Regular Work Hours', 1, '2024-01-01', '2024-07-31');
 INSERT INTO schedule_rule (name, schedule_id, start_date, end_date) VALUES ('August Work Hours', 1, '2024-08-01', '2024-08-31');

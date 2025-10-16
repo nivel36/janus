@@ -77,16 +77,16 @@ public class JanusExceptionHandler {
 
 	private final Clock clock;
 
-        /**
-         * Creates an exception handler that timestamps generated {@link ProblemDetail}
-         * instances.
-         *
-         * @param clock clock used to populate the {@code timestamp} attribute; must not
-         *              be {@code null}
-         */
-        public JanusExceptionHandler(final Clock clock) {
-                this.clock = Objects.requireNonNull(clock);
-        }
+	/**
+	 * Creates an exception handler that timestamps generated {@link ProblemDetail}
+	 * instances.
+	 *
+	 * @param clock clock used to populate the {@code timestamp} attribute; must not
+	 *              be {@code null}
+	 */
+	public JanusExceptionHandler(final Clock clock) {
+		this.clock = Objects.requireNonNull(clock);
+	}
 
 	@ExceptionHandler(EntityNotFoundException.class)
 	ProblemDetail handleEntityNotFound(final EntityNotFoundException ex, final HttpServletRequest request) {
@@ -109,7 +109,7 @@ public class JanusExceptionHandler {
 		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
-	
+
 	@ExceptionHandler(ResourceAlreadyExistsException.class)
 	ProblemDetail handleResourceAlreadyExists(ResourceAlreadyExistsException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -120,7 +120,7 @@ public class JanusExceptionHandler {
 		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
-	
+
 	@ExceptionHandler(TimeLogChronologyException.class)
 	ProblemDetail handleTimeLogChronology(TimeLogChronologyException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -133,7 +133,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(TimeLogModificationNotAllowedException.class)
-	ProblemDetail handleTimeLogModificationNotAllowed(TimeLogModificationNotAllowedException ex, final HttpServletRequest request) {
+	ProblemDetail handleTimeLogModificationNotAllowed(TimeLogModificationNotAllowedException ex,
+			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Modification not allowed");
@@ -175,7 +176,7 @@ public class JanusExceptionHandler {
 		logger.warn("Error {}", pd.toString());
 		return pd;
 	}
-	
+
 	@ExceptionHandler(DateTimeException.class)
 	ProblemDetail handleDateTime(final DateTimeException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);

@@ -19,9 +19,6 @@ import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.util.Objects;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -30,11 +27,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -65,16 +59,6 @@ import jakarta.validation.constraints.NotNull;
  * </p>
  */
 @Entity
-@Table( //
-		indexes = { //
-				@Index(name = "idx_dowtr_name", columnList = "name"), //
-				@Index(name = "idx_dowtr_dow", columnList = "dayOfWeek"), //
-				@Index(name = "idx_dowtr_rule", columnList = "schedule_rule_id") //
-		}, //
-		uniqueConstraints = { //
-				@UniqueConstraint(name = "uk_dowtr_rule_day", columnNames = { "schedule_rule_id", "dayOfWeek" }) //
-		} //
-) //
 public class DayOfWeekTimeRange implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -91,7 +75,6 @@ public class DayOfWeekTimeRange implements Serializable {
 	 * must be unique across all day-of-week time ranges.
 	 */
 	@NotNull
-	@Column(nullable = false, length = 128)
 	private String name;
 
 	/**
@@ -100,7 +83,7 @@ public class DayOfWeekTimeRange implements Serializable {
 	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "schedule_rule_id", nullable = false)
+	@JoinColumn(name = "schedule_rule_id")
 	private ScheduleRule scheduleRule;
 
 	/**
@@ -110,7 +93,6 @@ public class DayOfWeekTimeRange implements Serializable {
 	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false, length = 16)
 	private DayOfWeek dayOfWeek;
 
 	/**
@@ -118,9 +100,6 @@ public class DayOfWeekTimeRange implements Serializable {
 	 */
 	@NotNull
 	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "startTime", column = @Column(name = "start_time", nullable = false)),
-			@AttributeOverride(name = "endTime", column = @Column(name = "end_time", nullable = false)) })
 	private TimeRange timeRange;
 
 	/**

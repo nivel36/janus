@@ -25,18 +25,15 @@ import java.util.Objects;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.timelog.TimeLog;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Represents a work shift for an employee, containing multiple time logs
@@ -52,9 +49,6 @@ import jakarta.persistence.UniqueConstraint;
  * @see Employee
  */
 @Entity
-@Table(indexes = { //
-		@Index(name = "idx_workshift_employee", columnList = "employee_id") //
-})
 public class WorkShift implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -69,13 +63,15 @@ public class WorkShift implements Serializable {
 	/**
 	 * The employee who is assigned to this work shift.
 	 */
-	@ManyToOne
-	@JoinColumn(name = "employee_id", nullable = false)
+	@NotNull
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "employee_id")
 	private Employee employee;
 
 	/**
 	 * The date when the work shift started
 	 */
+	@NotNull
 	private LocalDate date;
 
 	/**
@@ -83,28 +79,21 @@ public class WorkShift implements Serializable {
 	 */
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "workshift_timelog", //
-			joinColumns = @JoinColumn(name = "workshift_id", nullable = false), //
-			inverseJoinColumns = @JoinColumn(name = "timelog_id", nullable = false), //
-			uniqueConstraints = { //
-					@UniqueConstraint(name = "uk_workshift_timelog_timelog", columnNames = "timelog_id") //
-			}, //
-			indexes = { //
-					@Index(name = "idx_wstl_timelog", columnList = "timelog_id"), //
-					@Index(name = "idx_wstl_workshift", columnList = "workshift_id") //
-			} //
+			joinColumns = @JoinColumn(name = "workshift_id"), //
+			inverseJoinColumns = @JoinColumn(name = "timelog_id")
 	)
 	private List<TimeLog> timeLogs = new ArrayList<>();
 
 	/**
 	 * Total time spent on breaks (pauses) during this shift.
 	 */
-	@Column(nullable = false)
+	@NotNull
 	private Duration totalPauseTime = Duration.ZERO;
 
 	/**
 	 * Total time spent working during this shift.
 	 */
-	@Column(nullable = false)
+	@NotNull
 	private Duration totalWorkTime = Duration.ZERO;
 
 	/**
@@ -217,14 +206,14 @@ public class WorkShift implements Serializable {
 		this.totalWorkTime = totalWorkTime;
 	}
 
-        /**
-         * Appends a {@link TimeLog} to the shift definition.
-         *
-         * @param timeLog the time log to add; must not be {@code null}
-         */
-        public void addTimeLog(final TimeLog timeLog) {
-                this.timeLogs.add(timeLog);
-        }
+	/**
+	 * Appends a {@link TimeLog} to the shift definition.
+	 *
+	 * @param timeLog the time log to add; must not be {@code null}
+	 */
+	public void addTimeLog(final TimeLog timeLog) {
+		this.timeLogs.add(timeLog);
+	}
 
 	@Override
 	public boolean equals(final Object obj) {

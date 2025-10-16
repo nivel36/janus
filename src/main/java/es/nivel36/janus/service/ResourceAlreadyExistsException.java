@@ -23,8 +23,8 @@ package es.nivel36.janus.service;
  * layers of the application, including service and web layers, without
  * introducing dependencies on JPA or other persistence frameworks.
  * <p>
- * Typical use cases include scenarios where a creation attempt fails because
- * a resource with the same identifier or unique attribute already exists.
+ * Typical use cases include scenarios where a creation attempt fails because a
+ * resource with the same identifier or unique attribute already exists.
  *
  * <p>
  * <b>Example:</b>
@@ -33,10 +33,10 @@ package es.nivel36.janus.service;
  * <pre>{@code
  * // Service layer example
  * public void registerEmployee(String email) {
- *     if (employeeRepository.existsByEmail(email)) {
- *         throw new ResourceAlreadyExistsException("Employee already exists: " + email);
- *     }
- *     employeeRepository.save(new Employee(email));
+ * 	if (employeeRepository.existsByEmail(email)) {
+ * 		throw new ResourceAlreadyExistsException("Employee already exists: " + email);
+ * 	}
+ * 	employeeRepository.save(new Employee(email));
  * }
  * }</pre>
  *

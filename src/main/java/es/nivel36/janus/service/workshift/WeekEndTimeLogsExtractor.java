@@ -27,9 +27,9 @@ final class WeekEndTimeLogsExtractor implements TimeLogsExtractor {
 
 	@Override
 	public List<TimeLog> extract(LocalDate date, List<TimeLog> timeLogs, List<PauseInfo> pauses) {
-		Objects.requireNonNull(date, "Date must not be null");
-                Objects.requireNonNull(timeLogs, "Time logs must not be null");
-		Objects.requireNonNull(pauses, "Pauses must not be null");
+		Objects.requireNonNull(date, "date must not be null");
+		Objects.requireNonNull(timeLogs, "timeLogs must not be null");
+		Objects.requireNonNull(pauses, "pauses must not be null");
 		return new ArrayList<>(timeLogs.subList(0, pauses.getFirst().index + 1));
 	}
 }

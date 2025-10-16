@@ -46,7 +46,7 @@ import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
 
 class TimeLogServiceTest {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TimeLogServiceTest.class);
 
 	private @Mock TimeLogRepository timeLogRepository;

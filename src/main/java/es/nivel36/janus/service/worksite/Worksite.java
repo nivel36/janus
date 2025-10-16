@@ -33,11 +33,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -64,8 +61,6 @@ import jakarta.validation.constraints.NotNull;
 @SQLDelete(sql = "UPDATE WORKSITE SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 @Entity
-@Table(indexes = { @Index(name = "idx_worksite_code", columnList = "code") }, uniqueConstraints = {
-		@UniqueConstraint(name = "uk_worksite_code", columnNames = { "code" }) })
 public class Worksite implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -81,7 +76,6 @@ public class Worksite implements Serializable {
 	 * Human-readable name of the worksite.
 	 */
 	@NotEmpty
-	@Column(nullable = false, length = 250)
 	private String name;
 
 	/**
@@ -92,7 +86,7 @@ public class Worksite implements Serializable {
 	 */
 	@NaturalId
 	@NotEmpty
-	@Column(nullable = false, unique = true, updatable=false, length = 50)
+	@Column(updatable = false)
 	private String code;
 
 	/**
@@ -103,7 +97,6 @@ public class Worksite implements Serializable {
 	 * </p>
 	 */
 	@NotNull
-	@Column(nullable = false, length = 80)
 	private ZoneId timeZone;
 
 	/**
@@ -114,7 +107,6 @@ public class Worksite implements Serializable {
 	 * </p>
 	 */
 	@NotNull
-	@Column(nullable = false)
 	private boolean deleted = false;
 
 	/**
@@ -230,7 +222,11 @@ public class Worksite implements Serializable {
 	}
 
 	/**
-	 * Sets the logical deletion flag of the worksite.
+	 * @Entity
+	 * @Table public class Employee implements Serializable {
+	 * 
+	 *        private static final long seri Sets the logical deletion flag of the
+	 *        worksite.
 	 *
 	 * @param deleted {@code true} to mark as deleted; {@code false} otherwise
 	 */

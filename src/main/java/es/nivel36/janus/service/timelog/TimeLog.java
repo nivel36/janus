@@ -24,17 +24,13 @@ import org.hibernate.annotations.SQLRestriction;
 
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.worksite.Worksite;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -58,11 +54,6 @@ import jakarta.validation.constraints.NotNull;
 @SQLDelete(sql = "UPDATE TIME_LOG SET deleted = true WHERE id = ?")
 @SQLRestriction("deleted = false")
 @Entity
-@Table(indexes = { //
-		@Index(name = "idx_employee_entry_time", columnList = "employee_id, entryTime") //
-}, uniqueConstraints = { //
-		@UniqueConstraint(name = "uk_employee_entry_time", columnNames = { "employee_id", "entryTime" }) //
-})
 public class TimeLog implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -77,22 +68,23 @@ public class TimeLog implements Serializable {
 	/**
 	 * The employee associated with this time log
 	 */
+	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "employee_id", nullable = false)
+	@JoinColumn(name = "employee_id")
 	private Employee employee;
 
 	/**
 	 * The worksite associated with this time log
 	 */
+	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "worksite_id", nullable = false)
+	@JoinColumn(name = "worksite_id")
 	private Worksite worksite;
 
 	/**
 	 * The clock-in time for this time log.
 	 */
 	@NotNull
-	@Column(nullable = false)
 	private Instant entryTime;
 
 	/**
@@ -107,7 +99,6 @@ public class TimeLog implements Serializable {
 	 * the database for auditing.
 	 */
 	@NotNull
-	@Column(nullable = false)
 	private boolean deleted = false;
 
 	/**

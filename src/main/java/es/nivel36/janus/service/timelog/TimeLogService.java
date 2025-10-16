@@ -98,8 +98,8 @@ public class TimeLogService {
 
 		final TimeLog timeLog = new TimeLog(employee, worksite, truncatedEntryTime);
 		final TimeLog savedTimeLog = this.timeLogRepository.save(timeLog);
-                logger.trace("Time log {} created successfully", savedTimeLog.getId());
-                return savedTimeLog;
+		logger.trace("Time log {} created successfully", savedTimeLog.getId());
+		return savedTimeLog;
 	}
 
 	/**
@@ -158,15 +158,15 @@ public class TimeLogService {
 
 		TimeLog lastTimeLog = this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(employee,
 				worksite);
-                if (lastTimeLog == null) {
-                        logger.warn("The employee did not clock in. A one-second time log is created.");
-                        lastTimeLog = new TimeLog(employee, worksite, exitTime.minusSeconds(1), exitTime);
-                }
+		if (lastTimeLog == null) {
+			logger.warn("The employee did not clock in. A one-second time log is created.");
+			lastTimeLog = new TimeLog(employee, worksite, exitTime.minusSeconds(1), exitTime);
+		}
 
 		lastTimeLog.setExitTime(exitTime);
-                final TimeLog savedTimeLog = this.timeLogRepository.save(lastTimeLog);
-                logger.trace("Exit time set to {} for last time log {}", exitTime, savedTimeLog.getId());
-                return lastTimeLog;
+		final TimeLog savedTimeLog = this.timeLogRepository.save(lastTimeLog);
+		logger.trace("Exit time set to {} for last time log {}", exitTime, savedTimeLog.getId());
+		return lastTimeLog;
 	}
 
 	/**
@@ -179,17 +179,18 @@ public class TimeLogService {
 	 */
 	public Duration getTimeWorked(final TimeLog timeLog) {
 		Objects.requireNonNull(timeLog, "timeLog can't be null.");
-                logger.debug("Calculating worked duration for time log {}", timeLog.getId());
+		logger.debug("Calculating worked duration for time log {}", timeLog.getId());
 
-                if (timeLog.getExitTime() == null) {
-                        final Duration duration = Duration.between(timeLog.getEntryTime(), this.clock.instant());
-                        logger.trace("Time log {} has no exit time. Duration until now: {}", timeLog.getId(), duration);
-                        return duration;
-                } else {
-                        final Duration duration = Duration.between(timeLog.getEntryTime(), timeLog.getExitTime());
-                        logger.trace("Time log {} has exit time {}. Duration: {}", timeLog.getId(), timeLog.getExitTime(), duration);
-                        return duration;
-                }
+		if (timeLog.getExitTime() == null) {
+			final Duration duration = Duration.between(timeLog.getEntryTime(), this.clock.instant());
+			logger.trace("Time log {} has no exit time. Duration until now: {}", timeLog.getId(), duration);
+			return duration;
+		} else {
+			final Duration duration = Duration.between(timeLog.getEntryTime(), timeLog.getExitTime());
+			logger.trace("Time log {} has exit time {}. Duration: {}", timeLog.getId(), timeLog.getExitTime(),
+					duration);
+			return duration;
+		}
 	}
 
 	/**
@@ -206,7 +207,7 @@ public class TimeLogService {
 	public TimeLog findTimeLogByEmployeeAndEntryTime(final Employee employee, final Instant entryTime) {
 		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(entryTime, "entryTime can't be null");
-                logger.debug("Finding time log by employee {} and entry time {}", employee, entryTime);
+		logger.debug("Finding time log by employee {} and entry time {}", employee, entryTime);
 
 		final TimeLog timeLog = this.timeLogRepository.findByEmployeeAndEntryTime(employee, entryTime);
 		if (timeLog == null) {
@@ -258,8 +259,8 @@ public class TimeLogService {
 		logger.debug("Finding orphan timeLog from {} and employee {}", from, employee);
 
 		final List<TimeLog> orphanTimeLogs = timeLogRepository.findOrphanTimeLogsSince(from, employee);
-                logger.trace("Found {} orphan time logs", orphanTimeLogs.size());
-                return orphanTimeLogs;
+		logger.trace("Found {} orphan time logs", orphanTimeLogs.size());
+		return orphanTimeLogs;
 	}
 
 	/**
@@ -276,12 +277,12 @@ public class TimeLogService {
 	public Page<TimeLog> searchTimeLogsByEmployee(final Employee employee, final Pageable page) {
 		Objects.requireNonNull(employee, "employee can't be null.");
 		Objects.requireNonNull(page, "page can't be null.");
-                logger.debug("Finding time logs for employee {} with offset {} and page size {}", employee, page.getOffset(),
-                                page.getPageSize());
+		logger.debug("Finding time logs for employee {} with offset {} and page size {}", employee, page.getOffset(),
+				page.getPageSize());
 
-                final Page<TimeLog> timeLogs = this.timeLogRepository.searchTimeLogsByEmployee(employee, page);
-                logger.trace("Found {} time logs", timeLogs.getTotalElements());
-                return timeLogs;
+		final Page<TimeLog> timeLogs = this.timeLogRepository.searchTimeLogsByEmployee(employee, page);
+		logger.trace("Found {} time logs", timeLogs.getTotalElements());
+		return timeLogs;
 	}
 
 	/**
@@ -311,12 +312,12 @@ public class TimeLogService {
 		Objects.requireNonNull(fromInstant, "fromInstant cannot be null.");
 		Objects.requireNonNull(toInstant, "toInstant cannot be null.");
 		Objects.requireNonNull(page, "page cannot be null.");
-                logger.debug("Finding time logs for employee {} in range [{}, {})", employee, fromInstant, toInstant);
+		logger.debug("Finding time logs for employee {} in range [{}, {})", employee, fromInstant, toInstant);
 
-                final Page<TimeLog> timeLogs = this.timeLogRepository.searchByEmployeeAndEntryTimeInRange(employee, fromInstant,
-                                toInstant, page);
-                logger.trace("Found {} time logs", timeLogs.getTotalElements());
-                return timeLogs;
+		final Page<TimeLog> timeLogs = this.timeLogRepository.searchByEmployeeAndEntryTimeInRange(employee, fromInstant,
+				toInstant, page);
+		logger.trace("Found {} time logs", timeLogs.getTotalElements());
+		return timeLogs;
 	}
 
 	/**
@@ -354,7 +355,7 @@ public class TimeLogService {
 		Objects.requireNonNull(employee, "Employee cannot be null.");
 		Objects.requireNonNull(worksite, "Worksite cannot be null.");
 		Objects.requireNonNull(request, "TimeLog request cannot be null.");
-                logger.debug("Creating time log for employee {} at worksite {} with request {}", employee, worksite, request);
+		logger.debug("Creating time log for employee {} at worksite {} with request {}", employee, worksite, request);
 
 		final Instant now = clock.instant();
 		final Duration lockDuration = Duration.ofDays(adminService.getDaysUntilLocked());
@@ -383,10 +384,10 @@ public class TimeLogService {
 					String.format("A time log with entryTime %s already exists for the employee.", newEntry));
 		}
 
-                final TimeLog newTimeLog = new TimeLog(employee, worksite, newEntry, newExit);
-                final TimeLog persistedTimeLog = timeLogRepository.save(newTimeLog);
-                logger.trace("Time log {} created successfully", persistedTimeLog.getId());
-                return persistedTimeLog;
+		final TimeLog newTimeLog = new TimeLog(employee, worksite, newEntry, newExit);
+		final TimeLog persistedTimeLog = timeLogRepository.save(newTimeLog);
+		logger.trace("Time log {} created successfully", persistedTimeLog.getId());
+		return persistedTimeLog;
 	}
 
 	/**
@@ -406,7 +407,7 @@ public class TimeLogService {
 	@Transactional
 	public void deleteTimeLog(final TimeLog timeLog) {
 		Objects.requireNonNull(timeLog, "TimeLog cannot be null.");
-                logger.debug("Deleting time log {}", timeLog.getId());
+		logger.debug("Deleting time log {}", timeLog.getId());
 
 		final Instant now = clock.instant();
 		final Duration lockDuration = Duration.ofDays(adminService.getDaysUntilLocked());
@@ -418,6 +419,6 @@ public class TimeLogService {
 		}
 
 		this.timeLogRepository.delete(timeLog);
-                logger.trace("Time log {} deleted", timeLog.getId());
-        }
+		logger.trace("Time log {} deleted", timeLog.getId());
+	}
 }

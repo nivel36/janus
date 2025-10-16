@@ -29,10 +29,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
 
 /**
@@ -52,11 +49,6 @@ import jakarta.validation.constraints.NotEmpty;
  * </p>
  */
 @Entity
-@Table(indexes = { //
-		@Index(name = "idx_schedule_code", columnList = "code") //
-}, uniqueConstraints = { //
-		@UniqueConstraint(name = "uk_schedule_code", columnNames = { "code" }) //
-})
 public class Schedule implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -73,7 +65,6 @@ public class Schedule implements Serializable {
 	 * schedules.
 	 */
 	@NotEmpty
-	@Column(nullable = false, length = 255)
 	private String name;
 
 	/**
@@ -84,7 +75,7 @@ public class Schedule implements Serializable {
 	 */
 	@NaturalId
 	@NotEmpty
-	@Column(nullable = false, unique = true, updatable = false, length = 50)
+	@Column(updatable = false)
 	private String code;
 
 	/**

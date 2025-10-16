@@ -126,7 +126,7 @@ public class WorkShiftService {
 		// No existing (or not yet materialized) work shift found. Build a new one.
 		final Instant fromInstant = date.atStartOfDay().atZone(z).toInstant().minus(1, ChronoUnit.DAYS);
 		final Instant toInstant = date.atStartOfDay().atZone(z).toInstant().plus(2, ChronoUnit.DAYS);
-                logger.trace("Querying time logs with range [{} - {}]", fromInstant, toInstant);
+		logger.trace("Querying time logs with range [{} - {}]", fromInstant, toInstant);
 		final Page<TimeLog> timeLogs = this.timeLogservice.searchByEmployeeAndEntryTimeInRange(employee, fromInstant,
 				toInstant, Pageable.unpaged());
 		return this.buildWorkShift(employee, worksite, date, timeLogs.getContent());
@@ -139,9 +139,9 @@ public class WorkShiftService {
 	 * @param employee     employee. Must not be {@code null}.
 	 * @param worksite     worksite for timezone. Must not be {@code null}.
 	 * @param date         local date at worksite. Must not be {@code null}.
-         * @param timeLogsList ordered list of {@link TimeLog} entries to evaluate; must
-         *                     not be {@code null}
-         * @return a populated {@link WorkShift}; never {@code null}
+	 * @param timeLogsList ordered list of {@link TimeLog} entries to evaluate; must
+	 *                     not be {@code null}
+	 * @return a populated {@link WorkShift}; never {@code null}
 	 */
 	public WorkShift buildWorkShift(final Employee employee, final Worksite worksite, final LocalDate date,
 			final List<TimeLog> timeLogsList) {
@@ -151,7 +151,7 @@ public class WorkShiftService {
 		Objects.requireNonNull(timeLogsList);
 		logger.debug("Building work shift for employee {} at worksite {} on date {}", employee, worksite, date);
 		if (timeLogsList.isEmpty()) {
-                        logger.trace("No time logs found.");
+			logger.trace("No time logs found.");
 			final WorkShift workShift = new WorkShift();
 			workShift.setEmployee(employee);
 			workShift.setDate(date);
@@ -171,8 +171,8 @@ public class WorkShiftService {
 	 * @param worksite  the worksite providing timezone. Not null.
 	 * @param date      the date within the worksite timezone. Not null.
 	 * @param timeRange scheduled range. Not null.
-         * @param timeLogs  ordered time logs; must not be {@code null}
-         * @return a composed {@link WorkShift} with totals and time logs
+	 * @param timeLogs  ordered time logs; must not be {@code null}
+	 * @return a composed {@link WorkShift} with totals and time logs
 	 */
 	private WorkShift buildWorkShift(final Employee employee, final Worksite worksite, final LocalDate date,
 			final TimeRange timeRange, final List<TimeLog> timeLogs) {
@@ -214,7 +214,7 @@ public class WorkShiftService {
 			return workShift;
 		}
 		workShift.setTotalPauseTime(this.calculateTotalPauseDuration(workShiftTimeLogs));
-                logger.trace("Composed workShift {}", workShift);
+		logger.trace("Composed workShift {}", workShift);
 		return workShift;
 	}
 
@@ -249,7 +249,7 @@ public class WorkShiftService {
 	 *
 	 * @param employee the employee. Not null.
 	 * @param date     the date. Not null.
-         * @param timeLogs ordered time logs around the date; must not be {@code null}
+	 * @param timeLogs ordered time logs around the date; must not be {@code null}
 	 * @return a best-effort shift inferred from logs.
 	 */
 	private WorkShift buildWorkShiftForNonWorkingDay(final Employee employee, final LocalDate date,

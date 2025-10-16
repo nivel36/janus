@@ -17,18 +17,17 @@ package es.nivel36.janus.api.v1.employee;
 
 import es.nivel36.janus.service.employee.Employee;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 /**
  * Request payload for updating an existing {@link Employee}.
  *
- * @param name       the new first name of the employee; must not be
- *                   {@code null} and must be between 1 and 255 characters
- * @param surname    the new surname of the employee; must not be {@code null}
- *                   and must be between 1 and 255 characters
- * @param scheduleId the id of the new schedule of the employee; must not be
- *                   {@code null}
+ * @param name         the new first name of the employee; must not be
+ *                     {@code null} and must be between 1 and 255 characters
+ * @param surname      the new surname of the employee; must not be {@code null}
+ *                     and must be between 1 and 255 characters
+ * @param scheduleCode the code of the new schedule of the employee; must not be
+ *                     {@code null}
  */
 public record UpdateEmployeeRequest(//
 		@NotBlank(message = "name must not be blank") //
@@ -45,5 +44,10 @@ public record UpdateEmployeeRequest(//
 		) //
 		String surname, //
 
-		@NotNull(message = "scheduleId must not be null") Long scheduleId) {
+		@NotBlank(message = "scheduleCode must not be blank") //
+		@Pattern( //
+				regexp = "[A-Za-z0-9_-]{1,50}", //
+				message = "scheduleCode must contain only letters, digits, underscores or hyphens (max 50)" //
+		) //
+		String scheduleCode) {
 }

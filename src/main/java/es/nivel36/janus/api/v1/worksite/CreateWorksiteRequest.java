@@ -46,8 +46,8 @@ public record CreateWorksiteRequest( //
 
 		@NotBlank(message = "timeZone must not be blank") //
 		@Pattern( //
-				regexp = "^[A-Za-z0-9_./+-]{1,80}$", //
-				message = "timeZone must contain only letters, digits, underscores, dots, slashes or hyphens (max 80)" //
+				regexp = "^[A-Za-z0-9_./+:-]{1,80}$", //
+				message = "timeZone must contain only letters, digits, underscores, dots, slashes, plus, minus, or colons (max 80)" //
 		) //
 		String timeZone //
 ) {

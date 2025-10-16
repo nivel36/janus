@@ -19,7 +19,6 @@ import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.Objects;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -47,33 +46,32 @@ public class TimeRange implements Serializable {
 	 * The start time of the time range.
 	 */
 	@NotNull
-	@Column(nullable = false)
 	private LocalTime startTime;
 
 	/**
 	 * The end time of the time range.
 	 */
 	@NotNull
-	@Column(nullable = false)
 	private LocalTime endTime;
 
-        /**
-         * Creates an empty {@link TimeRange} instance required by JPA.
-         */
-        public TimeRange() {
-        }
+	/**
+	 * Creates an empty {@link TimeRange} instance required by JPA.
+	 */
+	public TimeRange() {
+	}
 
-        /**
-         * Creates a {@link TimeRange} with the provided start and end times.
-         *
-         * @param startTime the lower bound of the range; must not be {@code null}
-         * @param endTime   the upper bound of the range; must not be {@code null}
-         * @throws NullPointerException if {@code startTime} or {@code endTime} is {@code null}
-         */
-        public TimeRange(final LocalTime startTime, final LocalTime endTime) {
-                this.startTime = Objects.requireNonNull(startTime, "StartTime can't be null");
-                this.endTime = Objects.requireNonNull(endTime, "EndTime can't be null");
-        }
+	/**
+	 * Creates a {@link TimeRange} with the provided start and end times.
+	 *
+	 * @param startTime the lower bound of the range; must not be {@code null}
+	 * @param endTime   the upper bound of the range; must not be {@code null}
+	 * @throws NullPointerException if {@code startTime} or {@code endTime} is
+	 *                              {@code null}
+	 */
+	public TimeRange(final LocalTime startTime, final LocalTime endTime) {
+		this.startTime = Objects.requireNonNull(startTime, "StartTime can't be null");
+		this.endTime = Objects.requireNonNull(endTime, "EndTime can't be null");
+	}
 
 	/**
 	 * Returns the start time of the time range.
@@ -111,15 +109,16 @@ public class TimeRange implements Serializable {
 		this.endTime = endTime;
 	}
 
-        /**
-         * Validates that the configured range has distinct bounds.
-         *
-         * @return {@code true} if both {@code startTime} and {@code endTime} are defined and not equal
-         */
-        @AssertTrue(message = "startTime and endTime must differ")
-        public boolean isValidRange() {
-                return startTime != null && endTime != null && !startTime.equals(endTime);
-        }
+	/**
+	 * Validates that the configured range has distinct bounds.
+	 *
+	 * @return {@code true} if both {@code startTime} and {@code endTime} are
+	 *         defined and not equal
+	 */
+	@AssertTrue(message = "startTime and endTime must differ")
+	public boolean isValidRange() {
+		return startTime != null && endTime != null && !startTime.equals(endTime);
+	}
 
 	@Override
 	public int hashCode() {

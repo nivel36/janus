@@ -13,48 +13,24 @@
 spring:
   application:
     name: Janus
-    web:
-      pageable:
-        default-page-size: 20
-        max-page-size: 100
-  main:
-    banner-mode: off
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 0   
   jpa:
     open-in-view: false
     properties:
       jakarta.persistence.validation.mode: auto
     hibernate:
       ddl-auto: none
-  h2:
-    console:
-      enabled: true
   sql:
     init:
       mode: always
       schema-locations: classpath:sql/schema-h2.sql
-      data-locations: classpath:sql/data.sql
       continue-on-error: false
 server:
-  tomcat:
-    resource:
-      allow-caching: true
-  compression:
-    enabled: true
-    mime-types: application/json,application/xml,text/plain,text/html,text/css,application/javascript
-    min-response-size: 1024
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health
+  port: 0
 logging:
   pattern:
     console: "%d{HH:mm:ss.SSS} [%-8X{reqId}] [%-5level] %logger{36} - %msg%n"

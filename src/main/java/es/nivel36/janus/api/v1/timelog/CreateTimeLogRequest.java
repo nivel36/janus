@@ -27,7 +27,7 @@ import jakarta.validation.constraints.NotNull;
  * log. Both fields are non {@code null} and in UTC (ISO-8601) format (e.g.
  * 2025-09-12T08:30:00Z).
  * <p>
- * The entry time must be before the exit time. 
+ * The entry time must be before the exit time.
  * 
  * @param entryTime the entry instant in UTC (ISO-8601); can't be {@code null}
  * @param exitTime  the exit instant in UTC (ISO-8601); must be after entryTime

@@ -27,16 +27,16 @@ final class WeekdayTimeLogsExtractor implements TimeLogsExtractor {
 
 	@Override
 	public List<TimeLog> extract(LocalDate date, List<TimeLog> timeLogs, List<PauseInfo> pauses) {
-		Objects.requireNonNull(date, "Date must not be null");
-                Objects.requireNonNull(timeLogs, "Time logs must not be null");
-		Objects.requireNonNull(pauses, "Pauses must not be null");
+		Objects.requireNonNull(date, "date must not be null");
+		Objects.requireNonNull(timeLogs, "timeLogs must not be null");
+		Objects.requireNonNull(pauses, "pauses must not be null");
 
 		if (pauses.size() < 2) {
 			throw new IllegalArgumentException("At least two long pauses are required to extract weekday logs");
 		}
-                if (timeLogs.size() < 2) {
-                        throw new IllegalArgumentException("At least two time logs are needed");
-                }
+		if (timeLogs.size() < 2) {
+			throw new IllegalArgumentException("At least two time logs are needed");
+		}
 
 		// Ordena por duración descendente y, a igualdad, por índice ascendente
 		pauses.sort((a, b) -> {
@@ -50,9 +50,9 @@ final class WeekdayTimeLogsExtractor implements TimeLogsExtractor {
 
 		// Verifica índices válidos respecto a timeLogs
 		final int maxIdx = timeLogs.size() - 1;
-                if (p1.index < 0 || p1.index > maxIdx - 1 || p2.index < 0 || p2.index > maxIdx - 1) {
-                        throw new IllegalStateException("Pause indices out of bounds for time logs");
-                }
+		if (p1.index < 0 || p1.index > maxIdx - 1 || p2.index < 0 || p2.index > maxIdx - 1) {
+			throw new IllegalStateException("Pause indices out of bounds for time logs");
+		}
 
 		// Asegura orden
 		final int leftPauseIndex = Math.min(p1.index, p2.index);

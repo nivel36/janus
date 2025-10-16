@@ -120,18 +120,18 @@ public class WorkShiftPrecomputeJob {
 		log.trace("Processing employee {}", employee);
 
 		final List<TimeLog> orphanLogs = new ArrayList<>(timeLogService.findOrphanTimeLogs(target, employee));
-                if (orphanLogs.isEmpty()) {
-                        // Defensive: employee reported as pending but no logs found.
-                        log.warn("No orphan time logs for employee {} at targetAnchor {}", employee, target);
-                        return;
-                }
-                log.trace("Orphan time logs for employee {} count {}", employee, orphanLogs.size());
+		if (orphanLogs.isEmpty()) {
+			// Defensive: employee reported as pending but no logs found.
+			log.warn("No orphan time logs for employee {} at targetAnchor {}", employee, target);
+			return;
+		}
+		log.trace("Orphan time logs for employee {} count {}", employee, orphanLogs.size());
 
-                final Deque<TimeLog> queue = new ArrayDeque<>(orphanLogs);
-                while (!queue.isEmpty()) {
-                        this.buildAndSaveNextWorkShift(employee, queue);
-                        log.trace("Remaining orphan time logs for employee {}: {}", employee, queue.size());
-                }
+		final Deque<TimeLog> queue = new ArrayDeque<>(orphanLogs);
+		while (!queue.isEmpty()) {
+			this.buildAndSaveNextWorkShift(employee, queue);
+			log.trace("Remaining orphan time logs for employee {}: {}", employee, queue.size());
+		}
 	}
 
 	private void buildAndSaveNextWorkShift(final Employee employee, final Deque<TimeLog> queue) {
@@ -165,7 +165,7 @@ public class WorkShiftPrecomputeJob {
 			}
 			bucket.add(queue.removeFirst());
 		}
-                log.trace("Collected {} time logs in bucket", bucket.size());
-                return bucket;
-        }
+		log.trace("Collected {} time logs in bucket", bucket.size());
+		return bucket;
+	}
 }

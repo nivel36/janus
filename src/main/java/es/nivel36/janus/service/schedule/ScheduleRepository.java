@@ -41,7 +41,7 @@ interface ScheduleRepository extends CrudRepository<Schedule, Long> {
 	 *         no such schedule exists
 	 */
 	Schedule findByCode(String code);
-	
+
 	/**
 	 * Checks whether a {@link Schedule} with the specified code exists.
 	 *

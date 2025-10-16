@@ -110,7 +110,7 @@ public class EmployeeController {
 	public ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody final CreateEmployeeRequest request) {
 		logger.debug("Create employee ACTION performed");
 
-		final Schedule schedule = this.scheduleService.findScheduleById(request.scheduleId());
+		final Schedule schedule = this.scheduleService.findScheduleByCode(request.scheduleCode());
 		final Employee createdEmployee = this.employeeService.createEmployee(request.name(), request.surname(),
 				request.email(), schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(createdEmployee);
@@ -126,7 +126,7 @@ public class EmployeeController {
 	 *                      be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
-	@PutMapping("/{employeeId}")
+	@PutMapping("/{employeeEmail}")
 	public ResponseEntity<EmployeeResponse> updateEmployee(//
 			final @PathVariable("employeeEmail") //
 			@Pattern( //
@@ -137,7 +137,7 @@ public class EmployeeController {
 			@Valid @RequestBody final UpdateEmployeeRequest request) {
 		logger.debug("Update employee ACTION performed");
 
-		final Schedule schedule = this.scheduleService.findScheduleById(request.scheduleId());
+		final Schedule schedule = this.scheduleService.findScheduleByCode(request.scheduleCode());
 		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, request.name(),
 				request.surname(), schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
@@ -151,7 +151,7 @@ public class EmployeeController {
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
-	@PostMapping("/{employeeId}/worksites/{worksiteCode}")
+	@PostMapping("/{employeeEmail}/worksites/{worksiteCode}")
 	public ResponseEntity<EmployeeResponse> addWorksiteToEmployee( //
 			final @PathVariable("employeeEmail") //
 			@Pattern( //
@@ -181,7 +181,7 @@ public class EmployeeController {
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
-	@DeleteMapping("/{employeeId}/worksites/{worksiteCode}")
+	@DeleteMapping("/{employeeEmail}/worksites/{worksiteCode}")
 	public ResponseEntity<EmployeeResponse> removeWorksiteFromEmployee( //
 			final @PathVariable("employeeEmail") //
 			@Pattern( //
@@ -210,7 +210,7 @@ public class EmployeeController {
 	 * @param employeeEmail the email of the employee; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
-	@DeleteMapping("/{employeeId}")
+	@DeleteMapping("/{employeeEmail}")
 	public ResponseEntity<Void> deleteEmployee(//
 			final @PathVariable("employeeEmail") //
 			@Pattern( //

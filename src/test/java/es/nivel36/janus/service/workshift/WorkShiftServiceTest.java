@@ -55,7 +55,7 @@ import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 
 class WorkShiftServiceTest {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(WorkShiftServiceTest.class);
 
 	private @Mock TimeLogService timeLogService;
@@ -338,20 +338,20 @@ class WorkShiftServiceTest {
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 		final TimeRange timeRange = new TimeRange(startTime, endTime);
 		final Pageable page = Pageable.unpaged();
-		
+
 		final ZoneId z = worksite.getTimeZone();
 		final Instant fromInstant = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
 		final Instant toInstant = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
-		
+
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		
+
 		when(timeLogService.searchByEmployeeAndEntryTimeInRange(eq(employee), eq(fromInstant), eq(toInstant), eq(page)))
-		.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
+				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date)))
 				.thenReturn(Optional.of(timeRange));
 		when(adminService.getDaysUntilLocked()).thenReturn(7);
-		
+
 		// Act
 		final WorkShift result = this.workShiftService.findWorkShift(this.employee, this.worksite, date);
 
@@ -370,16 +370,16 @@ class WorkShiftServiceTest {
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 		final Pageable page = Pageable.unpaged();
-		
+
 		final ZoneId z = worksite.getTimeZone();
 		final Instant fromInstant = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
 		final Instant toInstant = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
-		
+
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		
+
 		when(timeLogService.searchByEmployeeAndEntryTimeInRange(eq(employee), eq(fromInstant), eq(toInstant), eq(page)))
-		.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
+				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date))).thenReturn(Optional.empty());
 		when(adminService.getDaysUntilLocked()).thenReturn(7);
 
