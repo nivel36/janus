@@ -44,7 +44,7 @@ import es.nivel36.janus.service.worksite.Worksite;
 @Service
 public class TimeLogService {
 
-	private static final Logger logger = LoggerFactory.getLogger(TimeLogService.class);
+        private static final Logger logger = LoggerFactory.getLogger(TimeLogService.class);
 
 	private final TimeLogRepository timeLogRepository;
 	private final AdminService adminService;
@@ -89,14 +89,22 @@ public class TimeLogService {
 	 *                              {@code entryTime} is {@code null}
 	 */
 	@Transactional
-	public TimeLog clockIn(final Employee employee, final Worksite worksite, final Instant entryTime) {
-		Objects.requireNonNull(employee, "employee can't be null.");
-		Objects.requireNonNull(worksite, "worksite can't be null.");
-		Objects.requireNonNull(entryTime, "entry time can't be null.");
-		final Instant truncatedEntryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
-		logger.debug("Clocking in employee {} at worksite {} and time {}", employee, worksite, truncatedEntryTime);
+        public TimeLog clockIn(final Employee employee, final Worksite worksite, final Instant entryTime) {
+                Objects.requireNonNull(employee, "employee can't be null.");
+                Objects.requireNonNull(worksite, "worksite can't be null.");
+                Objects.requireNonNull(entryTime, "entry time can't be null.");
+                final Instant truncatedEntryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
+                logger.debug("Clocking in employee {} at worksite {} and time {}", employee, worksite, truncatedEntryTime);
 
-		final TimeLog timeLog = new TimeLog(employee, worksite, truncatedEntryTime);
+                final TimeLog existingTimeLog = this.timeLogRepository.findByEmployeeAndEntryTime(employee,
+                                truncatedEntryTime);
+                if (existingTimeLog != null && !existingTimeLog.isDeleted()) {
+                        throw new TimeLogModificationNotAllowedException(
+                                        "A time log with entryTime %s already exists for the employee.".formatted(
+                                                        truncatedEntryTime));
+                }
+
+                final TimeLog timeLog = new TimeLog(employee, worksite, truncatedEntryTime);
 		final TimeLog savedTimeLog = this.timeLogRepository.save(timeLog);
 		logger.trace("Time log {} created successfully", savedTimeLog.getId());
 		return savedTimeLog;
@@ -378,10 +386,10 @@ public class TimeLogService {
 			throw new TimeLogChronologyException(
 					String.format("entryTime %s must be strictly before exitTime %s.", newEntry, newExit));
 		}
-		final boolean timeLogExists = this.timeLogRepository.existsByEmployeeAndEntryTime(employee, newEntry);
-		if (timeLogExists) {
-			throw new TimeLogModificationNotAllowedException(
-					String.format("A time log with entryTime %s already exists for the employee.", newEntry));
+                final TimeLog existingTimeLog = this.timeLogRepository.findByEmployeeAndEntryTime(employee, newEntry);
+                if (existingTimeLog != null && !existingTimeLog.isDeleted()) {
+                        throw new TimeLogModificationNotAllowedException(
+                                        "A time log with entryTime %s already exists for the employee.".formatted(newEntry));
 		}
 
 		final TimeLog newTimeLog = new TimeLog(employee, worksite, newEntry, newExit);

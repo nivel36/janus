@@ -142,17 +142,6 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	TimeLog findByEmployeeAndEntryTime(Employee employee, Instant entryTime);
 
 	/**
-	 * Checks whether a {@link TimeLog} exists for the specified employee and exact
-	 * {@code entryTime}.
-	 *
-	 * @param employee  the employee to check for
-	 * @param entryTime the exact entry timestamp to check
-	 * @return {@code true} if a record exists for the given employee and entry
-	 *         time; {@code false} otherwise
-	 */
-	boolean existsByEmployeeAndEntryTime(Employee employee, Instant entryTime);
-
-	/**
 	 * Returns the list of {@link TimeLog} records for the given employee that are
 	 * considered "orphans" since the specified instant; i.e., time logs that are
 	 * not linked to any {@link WorkShift} through the {@code workshift_timelog}

@@ -82,7 +82,35 @@ class TimeLogControllerIt {
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
 				.andExpect(jsonPath("$.exitTime").value(exit)) //
-				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+		                .andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+	}
+
+	@Test
+	@Sql(statements = { //
+		        "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+		        "INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+		        "INSERT INTO worksite(code,name,time_zone) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2')"//
+	})
+	void testClockInShouldRejectDuplicateEntryUnlessDeleted() throws Exception {
+		String entry = "2025-08-04T09:30:00Z";
+
+		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		                .param("worksiteCode", "BCN-HQ") //
+		                .param("entryTime", entry)) //
+		                .andExpect(status().isCreated());
+
+		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		                .param("worksiteCode", "BCN-HQ") //
+		                .param("entryTime", entry)) //
+		                .andExpect(status().isBadRequest());
+
+		mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry)) //
+		                .andExpect(status().isNoContent());
+
+		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		                .param("worksiteCode", "BCN-HQ") //
+		                .param("entryTime", entry)) //
+		                .andExpect(status().isCreated());
 	}
 
 	@Test

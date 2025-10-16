@@ -69,6 +69,8 @@ class TimeLogServiceTest {
 		employee.getWorksites().add(worksite);
 		when(this.clock.getZone()).thenReturn(utcZone);
 		when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv -> inv.getArgument(0));
+		when(this.timeLogRepository.findByEmployeeAndEntryTime(any(Employee.class), any(Instant.class)))
+				.thenReturn(null);
 	}
 
 	private Instant now() {
@@ -89,6 +91,39 @@ class TimeLogServiceTest {
 		// Assert
 		assertNotNull(timeLog);
 		assertEquals(this.employee, timeLog.getEmployee());
+		assertEquals(entry, timeLog.getEntryTime());
+		verify(this.timeLogRepository, times(1)).save(timeLog);
+	}
+
+	@Test
+	void testClockInThrowsWhenEntryAlreadyExists() {
+		logger.info("Test clock in throws when entry already exists");
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 8, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		final Instant entry = now();
+
+		final TimeLog existingTimeLog = new TimeLog(this.employee, this.worksite, entry);
+		when(this.timeLogRepository.findByEmployeeAndEntryTime(this.employee, entry)).thenReturn(existingTimeLog);
+
+		assertThrows(TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.clockIn(this.employee, this.worksite, entry));
+		verify(this.timeLogRepository, times(0)).save(any(TimeLog.class));
+	}
+
+	@Test
+	void testClockInAllowsWhenExistingEntryIsDeleted() {
+		logger.info("Test clock in allows when existing entry is deleted");
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 9, 30, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		final Instant entry = now();
+
+		final TimeLog deletedTimeLog = new TimeLog(this.employee, this.worksite, entry);
+		deletedTimeLog.setDeleted(true);
+		when(this.timeLogRepository.findByEmployeeAndEntryTime(this.employee, entry)).thenReturn(deletedTimeLog);
+
+		final TimeLog timeLog = this.timeLogService.clockIn(this.employee, this.worksite, entry);
+
+		assertNotNull(timeLog);
 		assertEquals(entry, timeLog.getEntryTime());
 		verify(this.timeLogRepository, times(1)).save(timeLog);
 	}
@@ -239,6 +274,48 @@ class TimeLogServiceTest {
 		assertEquals(entry, saved.getEntryTime());
 		assertEquals(exit, saved.getExitTime());
 		verify(this.timeLogRepository, times(1)).save(any(TimeLog.class));
+	}
+
+	@Test
+	void testCreateTimeLogThrowsWhenEntryAlreadyExists() {
+		logger.info("Test create timelog throws when entry already exists");
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+
+		final Instant entry = fixedNow.minus(1, ChronoUnit.DAYS);
+		final Instant exit = fixedNow.minus(1, ChronoUnit.HOURS);
+		final TimeLog existingTimeLog = new TimeLog(this.employee, this.worksite, entry);
+		when(this.timeLogRepository.findByEmployeeAndEntryTime(this.employee, entry)).thenReturn(existingTimeLog);
+
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(entry, exit);
+
+		assertThrows(TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, req));
+		verify(this.timeLogRepository, times(0)).save(any(TimeLog.class));
+	}
+
+	@Test
+	void testCreateTimeLogAllowsWhenExistingEntryIsDeleted() {
+		logger.info("Test create timelog allows when existing entry is deleted");
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 11, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+
+		final Instant entry = fixedNow.minus(1, ChronoUnit.DAYS);
+		final Instant exit = fixedNow.minus(2, ChronoUnit.HOURS);
+		final TimeLog deletedTimeLog = new TimeLog(this.employee, this.worksite, entry);
+		deletedTimeLog.setDeleted(true);
+		when(this.timeLogRepository.findByEmployeeAndEntryTime(this.employee, entry)).thenReturn(deletedTimeLog);
+
+		final CreateTimeLogRequest req = new CreateTimeLogRequest(entry, exit);
+
+		final TimeLog saved = this.timeLogService.createTimeLog(this.employee, this.worksite, req);
+
+		assertNotNull(saved);
+		assertEquals(entry, saved.getEntryTime());
+		assertEquals(exit, saved.getExitTime());
+		verify(this.timeLogRepository, times(1)).save(saved);
 	}
 
 	@Test
