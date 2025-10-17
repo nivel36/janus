@@ -93,10 +93,12 @@ public class TimeLogService {
 		Objects.requireNonNull(employee, "employee can't be null.");
 		Objects.requireNonNull(worksite, "worksite can't be null.");
 		Objects.requireNonNull(entryTime, "entry time can't be null.");
-		final Instant truncatedEntryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
-		logger.debug("Clocking in employee {} at worksite {} and time {}", employee, worksite, truncatedEntryTime);
+                final Instant truncatedEntryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
+                logger.debug("Clocking in employee {} at worksite {} and time {}", employee, worksite, truncatedEntryTime);
 
-		final TimeLog timeLog = new TimeLog(employee, worksite, truncatedEntryTime);
+                this.assertTimeLogDoesNotExist(employee, truncatedEntryTime);
+
+                final TimeLog timeLog = new TimeLog(employee, worksite, truncatedEntryTime);
 		final TimeLog savedTimeLog = this.timeLogRepository.save(timeLog);
 		logger.trace("Time log {} created successfully", savedTimeLog.getId());
 		return savedTimeLog;
@@ -378,17 +380,21 @@ public class TimeLogService {
 			throw new TimeLogChronologyException(
 					String.format("entryTime %s must be strictly before exitTime %s.", newEntry, newExit));
 		}
-		final boolean timeLogExists = this.timeLogRepository.existsByEmployeeAndEntryTime(employee, newEntry);
-		if (timeLogExists) {
-			throw new TimeLogModificationNotAllowedException(
-					String.format("A time log with entryTime %s already exists for the employee.", newEntry));
-		}
+                this.assertTimeLogDoesNotExist(employee, newEntry);
 
-		final TimeLog newTimeLog = new TimeLog(employee, worksite, newEntry, newExit);
-		final TimeLog persistedTimeLog = timeLogRepository.save(newTimeLog);
-		logger.trace("Time log {} created successfully", persistedTimeLog.getId());
-		return persistedTimeLog;
-	}
+                final TimeLog newTimeLog = new TimeLog(employee, worksite, newEntry, newExit);
+                final TimeLog persistedTimeLog = timeLogRepository.save(newTimeLog);
+                logger.trace("Time log {} created successfully", persistedTimeLog.getId());
+                return persistedTimeLog;
+        }
+
+        private void assertTimeLogDoesNotExist(final Employee employee, final Instant entryTime) {
+                final boolean timeLogExists = this.timeLogRepository.existsByEmployeeAndEntryTime(employee, entryTime);
+                if (timeLogExists) {
+                        throw new TimeLogModificationNotAllowedException(
+                                        String.format("A time log with entryTime %s already exists for the employee.", entryTime));
+                }
+        }
 
 	/**
 	 * Deletes a {@link TimeLog}.

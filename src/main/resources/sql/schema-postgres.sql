@@ -101,6 +101,9 @@ CREATE TABLE time_log (
 CREATE INDEX idx_timelog_employee ON time_log(employee_id);
 CREATE INDEX idx_timelog_worksite ON time_log(worksite_id);
 CREATE INDEX idx_timelog_entry    ON time_log(entry_time);
+CREATE UNIQUE INDEX uk_timelog_employee_entry_time_active
+  ON time_log(employee_id, entry_time)
+  WHERE deleted = FALSE;
 
 -- ============================================================
 -- WORK_SHIFT
