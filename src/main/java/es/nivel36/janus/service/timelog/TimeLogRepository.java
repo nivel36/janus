@@ -150,7 +150,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * @return {@code true} if a record exists for the given employee and entry
 	 *         time; {@code false} otherwise
 	 */
-	boolean existsByEmployeeAndEntryTime(Employee employee, Instant entryTime);
+	boolean existsByEmployeeAndEntryTimeAndDeletedFalse(Employee employee, Instant entryTime);
 
 	/**
 	 * Returns the list of {@link TimeLog} records for the given employee that are
