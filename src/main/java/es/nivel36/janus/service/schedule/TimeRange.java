@@ -69,8 +69,8 @@ public class TimeRange implements Serializable {
 	 *                              {@code null}
 	 */
 	public TimeRange(final LocalTime startTime, final LocalTime endTime) {
-		this.startTime = Objects.requireNonNull(startTime, "StartTime can't be null");
-		this.endTime = Objects.requireNonNull(endTime, "EndTime can't be null");
+		this.startTime = startTime;
+		this.endTime = endTime;
 	}
 
 	/**

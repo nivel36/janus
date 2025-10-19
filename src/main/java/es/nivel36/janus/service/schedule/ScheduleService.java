@@ -103,7 +103,7 @@ public class ScheduleService {
 	 *
 	 * @param code            the code of the schedule to update; must not be
 	 *                        {@code null}
-	 * @param updatedSchedule the schedule containing the new values; must not be
+	 * @param schedule the schedule containing the new values; must not be
 	 *                        {@code null}
 	 * @return the updated {@link Schedule}
 	 * @throws NullPointerException      if {@code scheduleId} or
@@ -111,23 +111,23 @@ public class ScheduleService {
 	 * @throws ResourceNotFoundException if the schedule does not exist
 	 */
 	@Transactional
-	public Schedule updateSchedule(final String code, final Schedule updatedSchedule) {
+	public Schedule updateSchedule(final String code, final Schedule schedule) {
 		Objects.requireNonNull(code, "code can't be null");
-		Objects.requireNonNull(updatedSchedule, "updatedSchedule can't be null");
-		logger.debug("Updating Schedule {}", code);
+		Objects.requireNonNull(schedule, "schedule can't be null");
+		logger.debug("Updating schedule {}", code);
 
 		final Schedule persisted = this.findSchedule(code);
-		persisted.setName(updatedSchedule.getName());
+		persisted.setName(schedule.getName());
 		persisted.getRules().clear();
-		final List<ScheduleRule> newRules = updatedSchedule.getRules();
+		final List<ScheduleRule> newRules = schedule.getRules();
 		if (newRules != null && !newRules.isEmpty()) {
 			this.attachScheduleToRules(persisted, newRules);
 			persisted.getRules().addAll(newRules);
 		}
 
-		final Schedule updatedWorksite = this.scheduleRepository.save(persisted);
+		final Schedule updatedSchedule = this.scheduleRepository.save(persisted);
 		logger.trace("Schedule {} updated successfully", code);
-		return updatedWorksite;
+		return updatedSchedule;
 	}
 
 	private void attachScheduleToRules(final Schedule schedule, final List<ScheduleRule> rules) {
@@ -162,23 +162,6 @@ public class ScheduleService {
 					"The schedule " + schedule + " can't be deleted because it has assigned employees");
 		}
 		this.scheduleRepository.delete(schedule);
-	}
-
-	/**
-	 * Retrieves a {@link Schedule} by its primary key.
-	 *
-	 * @param scheduleId the identifier of the schedule; must not be {@code null}
-	 * @return the {@link Schedule} found
-	 * @throws NullPointerException      if {@code scheduleId} is {@code null}
-	 * @throws ResourceNotFoundException if the schedule does not exist
-	 */
-	@Transactional(readOnly = true)
-	public Schedule findScheduleById(final Long scheduleId) {
-		Objects.requireNonNull(scheduleId, "Schedule id can't be null");
-		logger.debug("Finding Schedule {}", scheduleId);
-
-		return this.scheduleRepository.findById(scheduleId)
-				.orElseThrow(() -> new ResourceNotFoundException("Schedule not found with id " + scheduleId));
 	}
 
 	/**
@@ -233,62 +216,5 @@ public class ScheduleService {
 
 		final DayOfWeek dayOfWeek = date.getDayOfWeek();
 		return this.scheduleRepository.findTimeRangeForDate(employee, date, dayOfWeek);
-	}
-
-	/**
-	 * Adds the provided {@link ScheduleRule} to the {@link Schedule}.
-	 *
-	 * @param schedule     the schedule to update; must not be {@code null}
-	 * @param scheduleRule the rule to add; must not be {@code null}
-	 * @return the added {@link ScheduleRule}
-	 * @throws NullPointerException      if {@code schedule} or {@code scheduleRule}
-	 *                                   is {@code null}
-	 * @throws ResourceNotFoundException if the schedule does not exist
-	 */
-	@Transactional
-	public ScheduleRule addRuleToSchedule(final Schedule schedule, final ScheduleRule scheduleRule) {
-		Objects.requireNonNull(schedule, "Schedule can't be null");
-		Objects.requireNonNull(scheduleRule, "Schedule rule can't be null");
-
-		logger.debug("Adding rule {} to schedule {}", scheduleRule, schedule);
-
-		scheduleRule.setSchedule(schedule);
-		schedule.getRules().add(scheduleRule);
-		this.scheduleRepository.save(schedule);
-
-		return scheduleRule;
-	}
-
-	/**
-	 * Removes the {@link ScheduleRule} from the {@link Schedule} .
-	 *
-	 * <p>
-	 * If the rule cannot be found within the schedule, a
-	 * {@link ResourceNotFoundException} is thrown. Orphan removal on
-	 * {@link Schedule#getRules()} ensures the rule is deleted once it is detached
-	 * from the collection.
-	 * </p>
-	 *
-	 * @param schedule     the schedule; must not be {@code null}
-	 * @param scheduleRule the rule to remove; must not be {@code null}
-	 * @throws NullPointerException      if {@code schedule} or {@code scheduleRule}
-	 *                                   is {@code null}
-	 * @throws ResourceNotFoundException if the rule within that schedule does not
-	 *                                   exist
-	 */
-	@Transactional
-	public void removeRuleFromSchedule(final Schedule schedule, final ScheduleRule scheduleRule) {
-		Objects.requireNonNull(schedule, "Schedule can't be null");
-		Objects.requireNonNull(scheduleRule, "Schedule rule can't be null");
-
-		logger.debug("Removing rule {} from Schedule {}", scheduleRule, schedule);
-
-		final boolean removed = schedule.getRules().removeIf(scheduleRule::equals);
-
-		if (!removed) {
-			throw new ResourceNotFoundException("Schedule rule " + scheduleRule + " not found in schedule " + schedule);
-		}
-
-		this.scheduleRepository.save(schedule);
 	}
 }

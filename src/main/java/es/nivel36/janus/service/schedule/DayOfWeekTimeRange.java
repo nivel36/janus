@@ -17,6 +17,7 @@ package es.nivel36.janus.service.schedule;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.util.Objects;
 
 import jakarta.persistence.Embedded;
@@ -62,29 +63,20 @@ import jakarta.validation.constraints.NotNull;
 public class DayOfWeekTimeRange implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	/**
 	 * Unique identifier for the day-of-week time range. Auto-generated.
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
+	
 	/**
 	 * Unique name of the time range for the day of the week. Cannot be null and
 	 * must be unique across all day-of-week time ranges.
 	 */
 	@NotNull
 	private String name;
-
-	/**
-	 * Many-to-Many relationship with {@link ScheduleRule}. A time range can belong
-	 * to multiple schedule rules, allowing flexibility for overlapping time ranges.
-	 */
-	@NotNull
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "schedule_rule_id")
-	private ScheduleRule scheduleRule;
 
 	/**
 	 * The day of the week (e.g., Monday, Tuesday) on which the work shift starts.
@@ -96,66 +88,34 @@ public class DayOfWeekTimeRange implements Serializable {
 	private DayOfWeek dayOfWeek;
 
 	/**
+	 * Specifies the actual number of working hours within the allowed time range.
+	 *
+	 * <p>
+	 * For example, if the shift allows clock-in between 08:00–10:00 and clock-out
+	 * between 17:00–19:00, the employee may still be required to work only 8
+	 * effective hours even though the full range spans 11 hours. This field
+	 * represents the intended working duration, not the total span between the
+	 * earliest start and latest end times.
+	 * </p>
+	 */
+	@NotNull
+	private Duration effectiveWorkHours;
+
+	/**
 	 * The time range (start and end times) for the specified day of the week.
 	 */
 	@NotNull
 	@Embedded
 	private TimeRange timeRange;
-
+	
 	/**
-	 * Returns the unique identifier of the day-of-week time range.
-	 *
-	 * @return the unique identifier
+	 * Many-to-Many relationship with {@link ScheduleRule}. A time range can belong
+	 * to multiple schedule rules, allowing flexibility for overlapping time ranges.
 	 */
-	public Long getId() {
-		return this.id;
-	}
-
-	/**
-	 * Sets the unique identifier of the day-of-week time range.
-	 *
-	 * @param id the new identifier
-	 */
-	public void setId(final Long id) {
-		this.id = id;
-	}
-
-	/**
-	 * Returns the unique name of the day-of-week time range.
-	 *
-	 * @return the name of the time range
-	 */
-	public String getName() {
-		return this.name;
-	}
-
-	/**
-	 * Sets the unique name of the day-of-week time range. The name cannot be null
-	 * and must be unique.
-	 *
-	 * @param name the new name
-	 */
-	public void setName(final String name) {
-		this.name = name;
-	}
-
-	/**
-	 * Returns the {@link ScheduleRule} that is associated with this time range.
-	 *
-	 * @return the schedule rules
-	 */
-	public ScheduleRule getScheduleRule() {
-		return this.scheduleRule;
-	}
-
-	/**
-	 * Sets the {@link ScheduleRule} that is associated with this time range.
-	 *
-	 * @param scheduleRule to associate with this time range
-	 */
-	public void setScheduleRule(final ScheduleRule scheduleRule) {
-		this.scheduleRule = scheduleRule;
-	}
+	@NotNull
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "schedule_rule_id")
+	private ScheduleRule scheduleRule;
 
 	/**
 	 * Returns the day of the week on which the work shift starts. The shift may
@@ -168,13 +128,45 @@ public class DayOfWeekTimeRange implements Serializable {
 	}
 
 	/**
-	 * Sets the day of the week for which the work shift starts. The shift may
-	 * extend into the next calendar day if the end time is after midnight.
+	 * Returns the effective number of working hours within the allowed time range.
 	 *
-	 * @param dayOfWeek the new day of the week on which the work shift starts.
+	 * <p>
+	 * This value represents the actual working duration (e.g., 8 hours) that the
+	 * employee must complete, regardless of the wider time window defined by
+	 * {@link #getTimeRange()}.
+	 * </p>
+	 *
+	 * @return the effective number of working hours
 	 */
-	public void setDayOfWeek(final DayOfWeek dayOfWeek) {
-		this.dayOfWeek = dayOfWeek;
+	public Duration getEffectiveWorkHours() {
+		return this.effectiveWorkHours;
+	}
+
+	/**
+	 * Returns the unique identifier of the day-of-week time range.
+	 *
+	 * @return the unique identifier
+	 */
+	public Long getId() {
+		return this.id;
+	}
+
+	/**
+	 * Returns the unique name of the day-of-week time range.
+	 *
+	 * @return the name of the time range
+	 */
+	public String getName() {
+		return this.name;
+	}
+
+	/**
+	 * Returns the {@link ScheduleRule} that is associated with this time range.
+	 *
+	 * @return the schedule rules
+	 */
+	public ScheduleRule getScheduleRule() {
+		return this.scheduleRule;
 	}
 
 	/**
@@ -188,6 +180,58 @@ public class DayOfWeekTimeRange implements Serializable {
 	}
 
 	/**
+	 * Sets the day of the week for which the work shift starts. The shift may
+	 * extend into the next calendar day if the end time is after midnight.
+	 *
+	 * @param dayOfWeek the new day of the week on which the work shift starts.
+	 */
+	public void setDayOfWeek(final DayOfWeek dayOfWeek) {
+		this.dayOfWeek = dayOfWeek;
+	}
+
+	/**
+	 * Sets the effective number of working hours within the allowed time range.
+	 *
+	 * <p>
+	 * For example, if the allowed time window is 08:00–19:00 but the employee
+	 * should work only 8 hours, this method should receive {@code 8.00}.
+	 *
+	 * @param effectiveWorkHours the effective working hours to be set; must not be
+	 *                           {@code null}
+	 */
+	public void setEffectiveWorkHours(final Duration effectiveWorkHours) {
+		this.effectiveWorkHours = effectiveWorkHours;
+	}
+
+	/**
+	 * Sets the unique identifier of the day-of-week time range.
+	 *
+	 * @param id the new identifier
+	 */
+	public void setId(final Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * Sets the unique name of the day-of-week time range. The name cannot be null
+	 * and must be unique.
+	 *
+	 * @param name the new name
+	 */
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Sets the {@link ScheduleRule} that is associated with this time range.
+	 *
+	 * @param scheduleRule to associate with this time range
+	 */
+	public void setScheduleRule(final ScheduleRule scheduleRule) {
+		this.scheduleRule = scheduleRule;
+	}
+
+	/**
 	 * Sets the time range (start and end times) for the specified day of the week.
 	 *
 	 * @param timeRange the new time range
@@ -195,12 +239,7 @@ public class DayOfWeekTimeRange implements Serializable {
 	public void setTimeRange(final TimeRange timeRange) {
 		this.timeRange = timeRange;
 	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.name);
-	}
-
+	
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -212,6 +251,12 @@ public class DayOfWeekTimeRange implements Serializable {
 		final DayOfWeekTimeRange other = (DayOfWeekTimeRange) obj;
 		return Objects.equals(this.name, other.name);
 	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.name);
+	}
+
 
 	@Override
 	public String toString() {
