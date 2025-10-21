@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,11 +131,11 @@ public class ScheduleService {
 		return updatedSchedule;
 	}
 
-	private void attachScheduleToRules(final Schedule schedule, final List<ScheduleRule> rules) {
-		if (rules == null) {
-			return;
-		}
-		for (final ScheduleRule rule : rules) {
+        private void attachScheduleToRules(final Schedule schedule, final List<ScheduleRule> rules) {
+                if (rules == null) {
+                        return;
+                }
+                for (final ScheduleRule rule : rules) {
 			if (rule != null) {
 				rule.setSchedule(schedule);
 			}
@@ -178,8 +179,21 @@ public class ScheduleService {
 		Objects.requireNonNull(code, "code can't be null");
 		logger.debug("Finding schedule by code {}", code);
 
-		return this.findSchedule(code);
-	}
+                return this.findSchedule(code);
+        }
+
+        /**
+         * Retrieves all {@link Schedule} aggregates available in the repository.
+         *
+         * @return immutable list containing every persisted schedule
+         */
+        @Transactional(readOnly = true)
+        public List<Schedule> findAllSchedules() {
+                logger.debug("Listing all schedules");
+
+                final Iterable<Schedule> schedules = this.scheduleRepository.findAll();
+                return StreamSupport.stream(schedules.spliterator(), false).toList();
+        }
 
 	private Schedule findSchedule(final String code) {
 		final Schedule schedule = this.scheduleRepository.findByCode(code);
