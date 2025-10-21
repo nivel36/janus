@@ -12,22 +12,22 @@
 -- limitations under the License.
 INSERT INTO schedule (code, name) VALUES ('STD-WH-AUG-VAR', 'Standard Work Hours with August Variation');
 
-INSERT INTO schedule_rule (name, schedule_id, start_date, end_date) VALUES ('Regular Work Hours', 1, '2024-01-01', '2024-07-31');
-INSERT INTO schedule_rule (name, schedule_id, start_date, end_date) VALUES ('August Work Hours', 1, '2024-08-01', '2024-08-31');
-INSERT INTO schedule_rule (name, schedule_id, start_date, end_date) VALUES ('Post August Regular Work Hours', 1, '2024-09-01', '2024-12-31');
+INSERT INTO schedule_rule (schedule_id, start_date, end_date, name) VALUES (1, '2024-01-01', '2024-07-31', 'Regular Work Hours');
+INSERT INTO schedule_rule (schedule_id, start_date, end_date, name) VALUES (1, '2024-08-01', '2024-08-31', 'August Work Hours');
+INSERT INTO schedule_rule (schedule_id, start_date, end_date, name) VALUES (1, '2024-09-01', '2024-12-31', 'Post August Regular Work Hours');
 
-INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('MONDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('TUESDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('WEDNESDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('THURSDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('FRIDAY', '08:00:00'::TIME, '15:00:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('MONDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
-INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('TUESDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
-INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('WEDNESDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
-INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('THURSDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
+INSERT INTO day_of_week_time_range (schedule_rule_id, start_time, end_time, day_of_week) VALUES (1, '08:00:00'::TIME, '17:30:00'::TIME, 'MONDAY');
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES (1, '08:00:00'::TIME, '17:30:00'::TIME, 'TUESDAY');
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES (1, '08:00:00'::TIME, '17:30:00'::TIME, 'WEDNESDAY');
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES (1, '08:00:00'::TIME, '17:30:00'::TIME, 'THURSDAY');
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES (1, '08:00:00'::TIME, '15:00:00'::TIME, 'FRIDAY');
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES (2, '08:00:00'::TIME, '15:00:00'::TIME, 'MONDAY');
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES (2, '08:00:00'::TIME, '15:00:00'::TIME, 'TUESDAY');
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES (2, '08:00:00'::TIME, '15:00:00'::TIME, 'WEDNESDAY');
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES (2, '08:00:00'::TIME, '15:00:00'::TIME, 'THURSDAY');
 
-INSERT INTO Employee (name, surname, email, schedule_id) VALUES ('Name', 'Surname', 'aferrer@nivel36.es', 1);
+INSERT INTO employee (name, surname, email, schedule_id) VALUES ('Abel', 'Ferrer', 'aferrer@nivel36.es', 1);
 
-INSERT INTO Worksite (name, code, time_zone, deleted) VALUES ('Barcelona Headquarters', 'BCN-HQ', 'UTC+1', false);
+INSERT INTO worksite (name, code, time_zone) VALUES ('Barcelona Headquarters', 'BCN-HQ', 'UTC+1');
 
 INSERT INTO employee_worksite (employee_id, worksite_id) VALUES (1,1);
