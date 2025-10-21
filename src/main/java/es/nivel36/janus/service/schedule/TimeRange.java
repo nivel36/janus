@@ -139,6 +139,6 @@ public class TimeRange implements Serializable {
 
 	@Override
 	public String toString() {
-		return "TimeRange [startTime=" + this.startTime + ", endTime=" + this.endTime + "]";
+		return this.startTime + " to " + this.endTime;
 	}
 }

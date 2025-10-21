@@ -61,7 +61,7 @@ public class Schedule implements Serializable {
 	private Long id;
 
 	/**
-	 * Unique name of the schedule. Cannot be null and must be unique across all
+	 * Unique name of the schedule. Cannot be empty and must be unique across all
 	 * schedules.
 	 */
 	@NotEmpty

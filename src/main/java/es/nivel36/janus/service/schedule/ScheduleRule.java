@@ -62,10 +62,8 @@ public class ScheduleRule implements Serializable {
 	private Long id;
 
 	/**
-	 * Unique name of the schedule rule. Cannot be null and must be unique across
-	 * all schedule rules.
+	 * Human readable name of the schedule rule.
 	 */
-	@NotNull
 	private String name;
 
 	/**
@@ -115,7 +113,7 @@ public class ScheduleRule implements Serializable {
 	}
 
 	/**
-	 * Returns the unique name of the schedule rule.
+	 * Returns the human readable name of the schedule rule.
 	 *
 	 * @return the rule's name
 	 */
@@ -124,10 +122,9 @@ public class ScheduleRule implements Serializable {
 	}
 
 	/**
-	 * Sets the unique name of the schedule rule. The name cannot be null and must
-	 * be unique.
+	 * Sets the human readable name of the schedule rule. 
 	 *
-	 * @param name the new name of the schedule rule
+	 * @param name the name of the schedule rule
 	 */
 	public void setName(final String name) {
 		this.name = name;

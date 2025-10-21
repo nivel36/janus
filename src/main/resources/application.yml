@@ -57,6 +57,6 @@ management:
         include: health
 logging:
   pattern:
-    console: "%d{HH:mm:ss.SSS} [%-8X{reqId}] [%-5level] %logger{36} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} [%-5level] %logger{36} - %msg%n"
   level:
     es.nivel36.janus: TRACE

@@ -16,15 +16,15 @@ INSERT INTO schedule_rule (name, schedule_id, start_date, end_date) VALUES ('Reg
 INSERT INTO schedule_rule (name, schedule_id, start_date, end_date) VALUES ('August Work Hours', 1, '2024-08-01', '2024-08-31');
 INSERT INTO schedule_rule (name, schedule_id, start_date, end_date) VALUES ('Post August Regular Work Hours', 1, '2024-09-01', '2024-12-31');
 
-INSERT INTO day_of_week_time_range (name, day_of_week, start_time, end_time, schedule_rule_id) VALUES ('Monday 8:00 - 17:30', 'MONDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (name, day_of_week, start_time, end_time, schedule_rule_id) VALUES ('Tuesday 8:00 - 17:30', 'TUESDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (name, day_of_week, start_time, end_time, schedule_rule_id) VALUES ('Wednesday 8:00 - 17:30', 'WEDNESDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (name, day_of_week, start_time, end_time, schedule_rule_id) VALUES ('Thursday 8:00 - 17:30', 'THURSDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (name, day_of_week, start_time, end_time, schedule_rule_id) VALUES ('Friday 8:00 - 15:00', 'FRIDAY', '08:00:00'::TIME, '15:00:00'::TIME, 1);
-INSERT INTO day_of_week_time_range (name, day_of_week, start_time, end_time, schedule_rule_id) VALUES ('Monday August 8:00 - 15:00', 'MONDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
-INSERT INTO day_of_week_time_range (name, day_of_week, start_time, end_time, schedule_rule_id) VALUES ('Tuesday August 8:00 - 15:00', 'TUESDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
-INSERT INTO day_of_week_time_range (name, day_of_week, start_time, end_time, schedule_rule_id) VALUES ('Wednesday August 8:00 - 15:00', 'WEDNESDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
-INSERT INTO day_of_week_time_range (name, day_of_week, start_time, end_time, schedule_rule_id) VALUES ('Thursday August 8:00 - 15:00', 'THURSDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('MONDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('TUESDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('WEDNESDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('THURSDAY', '08:00:00'::TIME, '17:30:00'::TIME, 1);
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('FRIDAY', '08:00:00'::TIME, '15:00:00'::TIME, 1);
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('MONDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('TUESDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('WEDNESDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
+INSERT INTO day_of_week_time_range (day_of_week, start_time, end_time, schedule_rule_id) VALUES ('THURSDAY', '08:00:00'::TIME, '15:00:00'::TIME, 2);
 
 INSERT INTO Employee (name, surname, email, schedule_id) VALUES ('Name', 'Surname', 'aferrer@nivel36.es', 1);
 

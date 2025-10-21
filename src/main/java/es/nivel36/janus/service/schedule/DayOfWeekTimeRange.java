@@ -63,20 +63,13 @@ import jakarta.validation.constraints.NotNull;
 public class DayOfWeekTimeRange implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * Unique identifier for the day-of-week time range. Auto-generated.
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	/**
-	 * Unique name of the time range for the day of the week. Cannot be null and
-	 * must be unique across all day-of-week time ranges.
-	 */
-	@NotNull
-	private String name;
 
 	/**
 	 * The day of the week (e.g., Monday, Tuesday) on which the work shift starts.
@@ -107,7 +100,7 @@ public class DayOfWeekTimeRange implements Serializable {
 	@NotNull
 	@Embedded
 	private TimeRange timeRange;
-	
+
 	/**
 	 * Many-to-Many relationship with {@link ScheduleRule}. A time range can belong
 	 * to multiple schedule rules, allowing flexibility for overlapping time ranges.
@@ -149,15 +142,6 @@ public class DayOfWeekTimeRange implements Serializable {
 	 */
 	public Long getId() {
 		return this.id;
-	}
-
-	/**
-	 * Returns the unique name of the day-of-week time range.
-	 *
-	 * @return the name of the time range
-	 */
-	public String getName() {
-		return this.name;
 	}
 
 	/**
@@ -213,16 +197,6 @@ public class DayOfWeekTimeRange implements Serializable {
 	}
 
 	/**
-	 * Sets the unique name of the day-of-week time range. The name cannot be null
-	 * and must be unique.
-	 *
-	 * @param name the new name
-	 */
-	public void setName(final String name) {
-		this.name = name;
-	}
-
-	/**
 	 * Sets the {@link ScheduleRule} that is associated with this time range.
 	 *
 	 * @param scheduleRule to associate with this time range
@@ -239,7 +213,7 @@ public class DayOfWeekTimeRange implements Serializable {
 	public void setTimeRange(final TimeRange timeRange) {
 		this.timeRange = timeRange;
 	}
-	
+
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -249,17 +223,16 @@ public class DayOfWeekTimeRange implements Serializable {
 			return false;
 		}
 		final DayOfWeekTimeRange other = (DayOfWeekTimeRange) obj;
-		return Objects.equals(this.name, other.name);
-	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.name);
+		return Objects.equals(this.dayOfWeek, other.dayOfWeek) && Objects.equals(this.timeRange, other.timeRange);
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.dayOfWeek, this.timeRange);
+	}
 
 	@Override
 	public String toString() {
-		return this.name;
+		return this.dayOfWeek + " from " + this.timeRange;
 	}
 }
