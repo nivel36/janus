@@ -95,7 +95,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Resource not found");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -106,7 +106,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Resource not found");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -117,7 +117,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Resource already exists");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -128,7 +128,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Invalid chronological order");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -140,7 +140,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Modification not allowed");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -151,7 +151,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Invalid argument");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -162,7 +162,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Operation conflict");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
-		logger.error("Error {}", ex);
+		logger.error("Error {}",pd);
 		return pd;
 	}
 
@@ -173,7 +173,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Invalid date/time format");
 		pd.setDetail("Failed to parse date/time: " + ex.getParsedString());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -184,7 +184,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Invalid date/time format");
 		pd.setDetail("Failed to parse date/time: " + ex.getMessage());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -195,7 +195,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Malformed request");
 		pd.setDetail(ex.getMostSpecificCause().getMessage());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -207,7 +207,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Missing parameter");
 		pd.setDetail("Required parameter '" + ex.getParameterName() + "' is missing");
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -218,7 +218,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Type mismatch");
 		pd.setDetail("Parameter '" + ex.getName() + "' has invalid value " + ex.getMessage());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -232,7 +232,7 @@ public class JanusExceptionHandler {
 		pd.setProperty("errors", ex.getBindingResult().getFieldErrors().stream()
 				.map(err -> "%s: %s".formatted(err.getField(), err.getDefaultMessage())).toList());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -255,7 +255,7 @@ public class JanusExceptionHandler {
 			}
 		}
 		pd.setProperty("errors", errors);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -268,7 +268,7 @@ public class JanusExceptionHandler {
 		pd.setProperty("violations", ex.getConstraintViolations().stream()
 				.map(v -> "%s: %s".formatted(v.getPropertyPath(), v.getMessage())).toList());
 		addCommonProps(pd, request);
-		logger.warn("Error {}", pd.toString());
+		logger.warn("Error {}", pd);
 		return pd;
 	}
 
@@ -279,7 +279,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Internal server error");
 		pd.setDetail("An unexpected error occurred");
 		addCommonProps(pd, request);
-		logger.error("Error {}", ex);
+		logger.error("Error {}", pd);
 		return pd;
 	}
 
