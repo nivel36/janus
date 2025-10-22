@@ -17,7 +17,6 @@ package es.nivel36.janus.service.workshift;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -346,9 +345,9 @@ class WorkShiftServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(timeLogService.searchByEmployeeAndEntryTimeInRange(eq(employee), eq(fromInstant), eq(toInstant), eq(page)))
+		when(timeLogService.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
-		when(this.scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date)))
+		when(this.scheduleService.findTimeRangeForEmployeeByDate(employee, date))
 				.thenReturn(Optional.of(timeRange));
 		when(adminService.getDaysUntilLocked()).thenReturn(7);
 
@@ -378,9 +377,9 @@ class WorkShiftServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(timeLogService.searchByEmployeeAndEntryTimeInRange(eq(employee), eq(fromInstant), eq(toInstant), eq(page)))
+		when(timeLogService.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
-		when(scheduleService.findTimeRangeForEmployeeByDate(eq(employee), eq(date))).thenReturn(Optional.empty());
+		when(scheduleService.findTimeRangeForEmployeeByDate(employee, date)).thenReturn(Optional.empty());
 		when(adminService.getDaysUntilLocked()).thenReturn(7);
 
 		// Act
