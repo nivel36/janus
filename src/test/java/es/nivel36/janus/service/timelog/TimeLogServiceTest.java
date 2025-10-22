@@ -99,8 +99,9 @@ class TimeLogServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
+		final Instant now = now();
 		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.clockIn(null, this.worksite, now());
+			this.timeLogService.clockIn(null, this.worksite, now);
 		});
 	}
 

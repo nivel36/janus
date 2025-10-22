@@ -70,7 +70,9 @@ public class TimeLogService {
 	 */
 	@Transactional
 	public TimeLog clockIn(final Employee employee, final Worksite worksite) {
-		return this.clockIn(employee, worksite, clock.instant());
+		Objects.requireNonNull(employee, "employee can't be null.");
+		Objects.requireNonNull(worksite, "worksite can't be null.");
+		return this.doClockIn(employee, worksite, clock.instant());
 	}
 
 	/**
@@ -93,6 +95,10 @@ public class TimeLogService {
 		Objects.requireNonNull(employee, "employee can't be null.");
 		Objects.requireNonNull(worksite, "worksite can't be null.");
 		Objects.requireNonNull(entryTime, "entry time can't be null.");
+		return this.doClockIn(employee, worksite, entryTime);
+	}
+
+	private TimeLog doClockIn(final Employee employee, final Worksite worksite, final Instant entryTime) {
 		final Instant truncatedEntryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
 		logger.debug("Clocking in employee {} at worksite {} and time {}", employee, worksite, truncatedEntryTime);
 
@@ -125,7 +131,9 @@ public class TimeLogService {
 	 */
 	@Transactional
 	public TimeLog clockOut(final Employee employee, final Worksite worksite) {
-		return this.clockOut(employee, worksite, clock.instant());
+		Objects.requireNonNull(employee, "employee can't be null.");
+		Objects.requireNonNull(worksite, "worksite can't be null.");
+		return doClockOut(employee, worksite, clock.instant());
 	}
 
 	/**
@@ -155,19 +163,23 @@ public class TimeLogService {
 		Objects.requireNonNull(employee, "employee can't be null.");
 		Objects.requireNonNull(worksite, "worksite can't be null.");
 		Objects.requireNonNull(exitTime, "exitTime can't be null.");
-		exitTime = exitTime.truncatedTo(ChronoUnit.SECONDS);
-		logger.debug("Clocking out employee {} at worksite {} and time {}", employee, worksite, exitTime);
+		return doClockOut(employee, worksite, exitTime);
+	}
+
+	private TimeLog doClockOut(final Employee employee, final Worksite worksite, final Instant exitTime) {
+		Instant truncatedExitTime = exitTime.truncatedTo(ChronoUnit.SECONDS);
+		logger.debug("Clocking out employee {} at worksite {} and time {}", employee, worksite, truncatedExitTime);
 
 		TimeLog lastTimeLog = this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(employee,
 				worksite);
 		if (lastTimeLog == null) {
 			logger.warn("The employee did not clock in. A one-second time log is created.");
-			lastTimeLog = new TimeLog(employee, worksite, exitTime.minusSeconds(1), exitTime);
+			lastTimeLog = new TimeLog(employee, worksite, truncatedExitTime.minusSeconds(1), truncatedExitTime);
 		}
 
-		lastTimeLog.setExitTime(exitTime);
+		lastTimeLog.setExitTime(truncatedExitTime);
 		final TimeLog savedTimeLog = this.timeLogRepository.save(lastTimeLog);
-		logger.trace("Exit time set to {} for last time log {}", exitTime, savedTimeLog.getId());
+		logger.trace("Exit time set to {} for last time log {}", truncatedExitTime, savedTimeLog.getId());
 		return lastTimeLog;
 	}
 
