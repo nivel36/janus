@@ -28,27 +28,27 @@ import jakarta.validation.constraints.Pattern;
  *
  * @param code  unique business identifier assigned to the schedule; must follow
  *              the {@code [A-Za-z0-9_-]{1,50}} pattern
- * @param name  human readable name describing the schedule; must contain between
- *              1 and 250 allowed characters
- * @param rules collection of rule definitions associated with the schedule; must
- *              not be {@code null}
+ * @param name  human readable name describing the schedule; must contain
+ *              between 1 and 250 allowed characters
+ * @param rules collection of rule definitions associated with the schedule;
+ *              must not be {@code null}
  */
 public record CreateScheduleRequest( //
-                @NotBlank(message = "code must not be blank") //
-                @Pattern( //
-                                regexp = "[A-Za-z0-9_-]{1,50}", //
-                                message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
-                ) //
-                String code, //
+		@NotBlank(message = "code must not be blank") //
+		@Pattern( //
+				regexp = "[A-Za-z0-9_-]{1,50}", //
+				message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
+		) //
+		String code, //
 
-                @NotBlank(message = "name must not be blank") //
-                @Pattern( //
-                                regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", //
-                                message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)" //
-                ) //
-                String name, //
+		@NotBlank(message = "name must not be blank") //
+		@Pattern( //
+				regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", //
+				message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)" //
+		) //
+		String name, //
 
-                @NotNull(message = "rules must not be null") //
-                List<@Valid ScheduleRuleRequest> rules //
+		@NotNull(message = "rules must not be null") //
+		List<@Valid ScheduleRuleRequest> rules //
 ) {
 }

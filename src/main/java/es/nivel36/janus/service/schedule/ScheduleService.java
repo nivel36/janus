@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
@@ -56,40 +57,33 @@ public class ScheduleService {
 	/**
 	 * Creates and persists a new {@link Schedule}.
 	 *
-	 * <p>
-	 * Associates each {@link ScheduleRule} back to the parent schedule to keep the
-	 * bidirectional relationship consistent, then persists the aggregate.
-	 * </p>
 	 *
-	 * @param name  non-@{code null} schedule name
-	 * @param code  non-@{code null} unique business code
-	 * @param rules to attach can't be @{code null}
+	 * @param schedule non-@{code null} the schedule to persist
 	 * @return the persisted {@link Schedule}
 	 *
-	 * @throws NullPointerException           if any string is @{code null}
+	 * @throws NullPointerException           if the schedule is @{code null}
 	 * @throws ResourceAlreadyExistsException if a schedule with the same code
 	 *                                        already exists
 	 */
 	@Transactional
-	public Schedule createSchedule(final String name, final String code, final List<ScheduleRule> rules) {
-		Objects.requireNonNull(name, "name can't be null");
-		Objects.requireNonNull(name, "code can't be null");
-		Objects.requireNonNull(rules, "rules can't be null");
-		logger.debug("Creating schedule {}", code);
+	public Schedule createSchedule(final Schedule schedule) {
+		Objects.requireNonNull(schedule, "schedule can't be null");
+		logger.debug("Creating schedule {}", schedule);
 
+		final String code = schedule.getCode();
+		this.checkDuplicatedCode(code);
+		
+		final Schedule savedSchedule = this.scheduleRepository.save(schedule);
+		logger.trace("Schedule {} created successfully", code);
+		return savedSchedule;
+	}
+
+	private void checkDuplicatedCode(final String code) {
 		final boolean existsByCode = this.scheduleRepository.existsByCode(code);
 		if (existsByCode) {
 			logger.warn("Unable to create schedule. Code {} already exists", code);
 			throw new ResourceAlreadyExistsException("Schedule already exists with code " + code);
 		}
-
-		final Schedule schedule = new Schedule();
-		schedule.setCode(code);
-		schedule.setName(name);
-		this.attachScheduleToRules(schedule, rules);
-		final Schedule savedSchedule = this.scheduleRepository.save(schedule);
-		logger.trace("Schedule {} created successfully", code);
-		return savedSchedule;
 	}
 
 	/**
@@ -102,10 +96,9 @@ public class ScheduleService {
 	 * {@link Schedule#getRules()}.
 	 * </p>
 	 *
-	 * @param code            the code of the schedule to update; must not be
-	 *                        {@code null}
+	 * @param code     the code of the schedule to update; must not be {@code null}
 	 * @param schedule the schedule containing the new values; must not be
-	 *                        {@code null}
+	 *                 {@code null}
 	 * @return the updated {@link Schedule}
 	 * @throws NullPointerException      if {@code scheduleId} or
 	 *                                   {@code updatedSchedule} is {@code null}
@@ -120,7 +113,7 @@ public class ScheduleService {
 		final Schedule persisted = this.findSchedule(code);
 		persisted.setName(schedule.getName());
 		persisted.getRules().clear();
-		final List<ScheduleRule> newRules = schedule.getRules();
+		final Set<ScheduleRule> newRules = schedule.getRules();
 		if (newRules != null && !newRules.isEmpty()) {
 			this.attachScheduleToRules(persisted, newRules);
 			persisted.getRules().addAll(newRules);
@@ -131,11 +124,11 @@ public class ScheduleService {
 		return updatedSchedule;
 	}
 
-        private void attachScheduleToRules(final Schedule schedule, final List<ScheduleRule> rules) {
-                if (rules == null) {
-                        return;
-                }
-                for (final ScheduleRule rule : rules) {
+	private void attachScheduleToRules(final Schedule schedule, final Set<ScheduleRule> rules) {
+		if (rules == null) {
+			return;
+		}
+		for (final ScheduleRule rule : rules) {
 			if (rule != null) {
 				rule.setSchedule(schedule);
 			}
@@ -179,21 +172,21 @@ public class ScheduleService {
 		Objects.requireNonNull(code, "code can't be null");
 		logger.debug("Finding schedule by code {}", code);
 
-                return this.findSchedule(code);
-        }
+		return this.findSchedule(code);
+	}
 
-        /**
-         * Retrieves all {@link Schedule} aggregates available in the repository.
-         *
-         * @return immutable list containing every persisted schedule
-         */
-        @Transactional(readOnly = true)
-        public List<Schedule> findAllSchedules() {
-                logger.debug("Listing all schedules");
+	/**
+	 * Retrieves all {@link Schedule} aggregates available in the repository.
+	 *
+	 * @return immutable list containing every persisted schedule
+	 */
+	@Transactional(readOnly = true)
+	public List<Schedule> findAllSchedules() {
+		logger.debug("Listing all schedules");
 
-                final Iterable<Schedule> schedules = this.scheduleRepository.findAll();
-                return StreamSupport.stream(schedules.spliterator(), false).toList();
-        }
+		final Iterable<Schedule> schedules = this.scheduleRepository.findAll();
+		return StreamSupport.stream(schedules.spliterator(), false).toList();
+	}
 
 	private Schedule findSchedule(final String code) {
 		final Schedule schedule = this.scheduleRepository.findByCode(code);

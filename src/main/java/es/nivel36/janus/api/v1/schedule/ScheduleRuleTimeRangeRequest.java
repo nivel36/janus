@@ -34,13 +34,13 @@ import jakarta.validation.constraints.NotNull;
  *                           {@code null}
  */
 public record ScheduleRuleTimeRangeRequest( //
-                @NotNull(message = "dayOfWeek must not be null") //
-                DayOfWeek dayOfWeek, //
+		@NotNull(message = "dayOfWeek must not be null") //
+		DayOfWeek dayOfWeek, //
 
-                @NotNull(message = "effectiveWorkHours must not be null") //
-                Duration effectiveWorkHours, //
+		@NotNull(message = "effectiveWorkHours must not be null") //
+		Duration effectiveWorkHours, //
 
-                @NotNull(message = "timeRange must not be null") //
-                @Valid ScheduleTimeRangeRequest timeRange //
+		@NotNull(message = "timeRange must not be null") //
+		@Valid ScheduleTimeRangeRequest timeRange //
 ) {
 }

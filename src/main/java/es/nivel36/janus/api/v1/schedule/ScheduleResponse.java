@@ -32,38 +32,38 @@ import es.nivel36.janus.service.schedule.Schedule;
  */
 public record ScheduleResponse(String code, String name, List<ScheduleRuleResponse> rules) {
 
-        /**
-         * Response fragment describing a single rule inside a schedule.
-         *
-         * @param name            human readable name of the rule
-         * @param startDate       optional start date delimiting when the rule becomes
-         *                        active
-         * @param endDate         optional end date delimiting when the rule stops being
-         *                        active
-         * @param dayOfWeekRanges day specific working ranges belonging to the rule
-         */
-        public record ScheduleRuleResponse(String name, LocalDate startDate, LocalDate endDate,
-                        List<DayOfWeekTimeRangeResponse> dayOfWeekRanges) {
-        }
+	/**
+	 * Response fragment describing a single rule inside a schedule.
+	 *
+	 * @param name            human readable name of the rule
+	 * @param startDate       optional start date delimiting when the rule becomes
+	 *                        active
+	 * @param endDate         optional end date delimiting when the rule stops being
+	 *                        active
+	 * @param dayOfWeekRanges day specific working ranges belonging to the rule
+	 */
+	public record ScheduleRuleResponse(String name, LocalDate startDate, LocalDate endDate,
+			List<DayOfWeekTimeRangeResponse> dayOfWeekRanges) {
+	}
 
-        /**
-         * Response fragment describing the time range allowed for a specific day of the
-         * week.
-         *
-         * @param dayOfWeek          day when the shift starts
-         * @param effectiveWorkHours effective working duration expected for the shift
-         * @param timeRange          allowed start and end times for the shift
-         */
-        public record DayOfWeekTimeRangeResponse(DayOfWeek dayOfWeek, Duration effectiveWorkHours,
-                        TimeRangeResponse timeRange) {
-        }
+	/**
+	 * Response fragment describing the time range allowed for a specific day of the
+	 * week.
+	 *
+	 * @param dayOfWeek          day when the shift starts
+	 * @param effectiveWorkHours effective working duration expected for the shift
+	 * @param timeRange          allowed start and end times for the shift
+	 */
+	public record DayOfWeekTimeRangeResponse(DayOfWeek dayOfWeek, Duration effectiveWorkHours,
+			TimeRangeResponse timeRange) {
+	}
 
-        /**
-         * Response fragment representing the start and end times of a shift.
-         *
-         * @param startTime lower bound for the shift
-         * @param endTime   upper bound for the shift
-         */
-        public record TimeRangeResponse(LocalTime startTime, LocalTime endTime) {
-        }
+	/**
+	 * Response fragment representing the start and end times of a shift.
+	 *
+	 * @param startTime lower bound for the shift
+	 * @param endTime   upper bound for the shift
+	 */
+	public record TimeRangeResponse(LocalTime startTime, LocalTime endTime) {
+	}
 }

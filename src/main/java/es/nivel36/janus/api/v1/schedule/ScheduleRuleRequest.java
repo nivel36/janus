@@ -18,7 +18,6 @@ package es.nivel36.janus.api.v1.schedule;
 import java.time.LocalDate;
 import java.util.List;
 
-import es.nivel36.janus.service.schedule.ScheduleRule;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -29,43 +28,43 @@ import jakarta.validation.constraints.Pattern;
  * Defines the structure of a rule contained in {@link CreateScheduleRequest} or
  * {@link UpdateScheduleRequest}.
  *
- * @param name            human readable name of the rule; must contain between 1
- *                        and 250 allowed characters
+ * @param name            human readable name of the rule; must contain between
+ *                        1 and 250 allowed characters
  * @param startDate       optional start date delimiting when the rule becomes
  *                        active
  * @param endDate         optional end date delimiting when the rule stops being
  *                        active
- * @param dayOfWeekRanges day specific working ranges that compose the rule; must
- *                        not be {@code null}
+ * @param dayOfWeekRanges day specific working ranges that compose the rule;
+ *                        must not be {@code null}
  */
 public record ScheduleRuleRequest( //
-                @NotBlank(message = "name must not be blank") //
-                @Pattern( //
-                                regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", //
-                                message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)" //
-                ) //
-                String name, //
+		@NotBlank(message = "name must not be blank") //
+		@Pattern( //
+				regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", //
+				message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)" //
+		) //
+		String name, //
 
-                LocalDate startDate, //
+		LocalDate startDate, //
 
-                LocalDate endDate, //
+		LocalDate endDate, //
 
-                @NotNull(message = "dayOfWeekRanges must not be null") //
-                List<@Valid ScheduleRuleTimeRangeRequest> dayOfWeekRanges //
+		@NotNull(message = "dayOfWeekRanges must not be null") //
+		List<@Valid ScheduleRuleTimeRangeRequest> dayOfWeekRanges //
 ) {
 
-        /**
-         * Validates that {@code endDate} is not before {@code startDate} when both are
-         * provided.
-         *
-         * @return {@code true} if the date range is valid or incomplete, {@code false}
-         *         otherwise
-         */
-        @AssertTrue(message = "endDate must be on or after startDate")
-        public boolean isDateRangeValid() {
-                if (this.startDate == null || this.endDate == null) {
-                        return true;
-                }
-                return !this.endDate.isBefore(this.startDate);
-        }
+	/**
+	 * Validates that {@code endDate} is not before {@code startDate} when both are
+	 * provided.
+	 *
+	 * @return {@code true} if the date range is valid or incomplete, {@code false}
+	 *         otherwise
+	 */
+	@AssertTrue(message = "endDate must be on or after startDate")
+	public boolean isDateRangeValid() {
+		if (this.startDate == null || this.endDate == null) {
+			return true;
+		}
+		return !this.endDate.isBefore(this.startDate);
+	}
 }

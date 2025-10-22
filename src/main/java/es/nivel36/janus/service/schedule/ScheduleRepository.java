@@ -19,6 +19,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -40,6 +41,7 @@ interface ScheduleRepository extends CrudRepository<Schedule, Long> {
 	 * @return the {@link Schedule} entity with the given code, or {@code null} if
 	 *         no such schedule exists
 	 */
+	@EntityGraph(attributePaths = {"rules", "rules.dayOfWeekRanges"})
 	Schedule findByCode(String code);
 
 	/**

@@ -16,9 +16,9 @@
 package es.nivel36.janus.service.schedule;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.hibernate.annotations.NaturalId;
 
@@ -84,7 +84,7 @@ public class Schedule implements Serializable {
 	 * 18:00, Friday 8:00 to 15:00).
 	 */
 	@OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ScheduleRule> rules = new ArrayList<>();
+	private Set<ScheduleRule> rules = new HashSet<>();
 
 	/**
 	 * List of employees assigned to this schedule. Each employee has a reference to
@@ -92,7 +92,7 @@ public class Schedule implements Serializable {
 	 * schedule's perspective.
 	 */
 	@OneToMany(mappedBy = "schedule")
-	private List<Employee> employees = new ArrayList<>();
+	private Set<Employee> employees = new HashSet<>();
 
 	/**
 	 * Returns the unique identifier of the schedule.
@@ -150,40 +150,40 @@ public class Schedule implements Serializable {
 	}
 
 	/**
-	 * Returns the list of {@link ScheduleRule} objects that define this schedule's
+	 * Returns the set of {@link ScheduleRule} objects that define this schedule's
 	 * time rules.
 	 * 
-	 * @return the list of schedule rules
+	 * @return the set of schedule rules
 	 */
-	public List<ScheduleRule> getRules() {
+	public Set<ScheduleRule> getRules() {
 		return this.rules;
 	}
 
 	/**
-	 * Sets the list of {@link ScheduleRule} objects that define this schedule's
+	 * Sets the set of {@link ScheduleRule} objects that define this schedule's
 	 * time rules.
 	 * 
-	 * @param rules the new list of schedule rules
+	 * @param rules the new set of schedule rules
 	 */
-	public void setRules(final List<ScheduleRule> rules) {
+	public void setRules(final Set<ScheduleRule> rules) {
 		this.rules = rules;
 	}
 
 	/**
-	 * Returns the list of employees assigned to this schedule.
+	 * Returns the set of employees assigned to this schedule.
 	 * 
-	 * @return the list of employees associated with this schedule
+	 * @return the set of employees associated with this schedule
 	 */
-	public List<Employee> getEmployees() {
+	public Set<Employee> getEmployees() {
 		return this.employees;
 	}
 
 	/**
-	 * Sets the list of employees assigned to this schedule.
+	 * Sets the set of employees assigned to this schedule.
 	 * 
-	 * @param employees the new list of employees to associate with this schedule
+	 * @param employees the new set of employees to associate with this schedule
 	 */
-	public void setEmployees(final List<Employee> employees) {
+	public void setEmployees(final Set<Employee> employees) {
 		this.employees = employees;
 	}
 

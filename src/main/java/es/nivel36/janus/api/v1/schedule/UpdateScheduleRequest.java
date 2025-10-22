@@ -32,14 +32,14 @@ import jakarta.validation.constraints.Pattern;
  *              must not be {@code null}
  */
 public record UpdateScheduleRequest( //
-                @NotBlank(message = "name must not be blank") //
-                @Pattern( //
-                                regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", //
-                                message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)" //
-                ) //
-                String name, //
+		@NotBlank(message = "name must not be blank") //
+		@Pattern( //
+				regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", //
+				message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)" //
+		) //
+		String name, //
 
-                @NotNull(message = "rules must not be null") //
-                List<@Valid ScheduleRuleRequest> rules //
+		@NotNull(message = "rules must not be null") //
+		List<@Valid ScheduleRuleRequest> rules //
 ) {
 }
