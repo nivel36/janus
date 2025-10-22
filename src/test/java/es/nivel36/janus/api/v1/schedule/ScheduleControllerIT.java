@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Transactional
-class ScheduleControllerIt {
+class ScheduleControllerIT {
 
 	private static final String BASE = "/api/v1/schedules";
 

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Transactional
-class WorksiteControllerIt {
+class WorksiteControllerIT {
 
 	private @Autowired MockMvc mvc;
 

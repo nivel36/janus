@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Transactional
-class EmployeeControllerIt {
+class EmployeeControllerIT {
 
 	private static final String BASE = "/api/v1/employees";
 
