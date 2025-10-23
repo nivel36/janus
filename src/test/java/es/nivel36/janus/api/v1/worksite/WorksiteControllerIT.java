@@ -24,7 +24,7 @@ class WorksiteControllerIT {
 
 	private @Autowired MockMvc mvc;
 
-	private static final String BASE = "/api/v1/workplace";
+	private static final String BASE = "/api/v1/worksite";
 
 	@Test
 	@Sql(statements = { //
