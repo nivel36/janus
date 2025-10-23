@@ -88,3 +88,11 @@ nb-configuration.xml
 ## Miscellaneous
 ##############################
 *.log
+
+##############################
+## Frontend
+##############################
+frontend/node/
+frontend/node_modules/
+frontend/dist/
+frontend/package-lock.json

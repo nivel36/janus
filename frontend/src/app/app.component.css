@@ -1,0 +1,30 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  color: #fff;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.hero {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  padding: 3rem 4rem;
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.2);
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.hero .lead {
+  font-size: 1.25rem;
+  margin: 0;
+}
