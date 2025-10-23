@@ -18,6 +18,7 @@ package es.nivel36.janus.api.v1.schedule;
 import java.time.LocalTime;
 
 import es.nivel36.janus.service.schedule.TimeRange;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -35,4 +36,16 @@ public record ScheduleTimeRangeRequest( //
 		@NotNull(message = "endTime must not be null") //
 		LocalTime endTime //
 ) {
+	
+	/**
+	 * Validates that {@code endTime} is not before {@code startTime} when both are
+	 * provided.
+	 *
+	 * @return {@code true} if the date range is valid or incomplete, {@code false}
+	 *         otherwise
+	 */
+	@AssertTrue(message = "endDate must be on or after startDate")
+	public boolean isDateRangeValid() {
+		return !this.endTime.isBefore(this.startTime);
+	}
 }

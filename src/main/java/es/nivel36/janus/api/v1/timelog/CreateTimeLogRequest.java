@@ -18,6 +18,7 @@ package es.nivel36.janus.api.v1.timelog;
 import java.time.Instant;
 
 import es.nivel36.janus.service.timelog.TimeLog;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -33,6 +34,16 @@ import jakarta.validation.constraints.NotNull;
  * @param exitTime  the exit instant in UTC (ISO-8601); must be after entryTime
  *                  and can't be {@code null}
  */
-@ValidTimeLog
 public record CreateTimeLogRequest(@NotNull Instant entryTime, @NotNull Instant exitTime) {
+
+	/**
+	 * Validates that {@code exitTime} is not before {@code entryTime} when both are
+	 * provided.
+	 *
+	 * @return {@code true} if the date range is valid, {@code false} otherwise
+	 */
+	@AssertTrue(message = "exitTime must be after entryTime")
+	public boolean isValid() {
+		return exitTime.isAfter(entryTime);
+	}
 }
