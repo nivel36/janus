@@ -248,8 +248,8 @@ public class JanusExceptionHandler {
 			for (final MessageSourceResolvable msr : pvr.getResolvableErrors()) {
 				final String fullCode = msr.getCodes()[1];
 				final StringTokenizer st = new StringTokenizer(fullCode, ".");
-				final String field = st.nextToken();
 				final String code = st.nextToken();
+				final String field = st.nextToken();
 				final String message = msr.getDefaultMessage();
 				errors.add(Map.of("name", field, "reason", message, "code", code));
 			}

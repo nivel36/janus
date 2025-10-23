@@ -18,6 +18,8 @@ package es.nivel36.janus.api.v1.schedule;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -60,6 +62,7 @@ public record ScheduleRuleRequest( //
 	 * @return {@code true} if the date range is valid or incomplete, {@code false}
 	 *         otherwise
 	 */
+	@JsonIgnore
 	@AssertTrue(message = "endDate must be on or after startDate")
 	public boolean isDateRangeValid() {
 		if (this.startDate == null || this.endDate == null) {

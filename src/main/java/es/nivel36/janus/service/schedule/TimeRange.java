@@ -116,7 +116,7 @@ public class TimeRange implements Serializable {
 	 *         defined and not equal
 	 */
 	@AssertTrue(message = "startTime and endTime must differ")
-	public boolean isValidRange() {
+	public boolean isTimeRangeValid() {
 		return startTime != null && endTime != null && !startTime.equals(endTime);
 	}
 

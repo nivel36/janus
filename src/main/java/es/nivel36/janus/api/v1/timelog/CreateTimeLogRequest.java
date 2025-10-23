@@ -17,6 +17,8 @@ package es.nivel36.janus.api.v1.timelog;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import es.nivel36.janus.service.timelog.TimeLog;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -40,10 +42,14 @@ public record CreateTimeLogRequest(@NotNull Instant entryTime, @NotNull Instant 
 	 * Validates that {@code exitTime} is not before {@code entryTime} when both are
 	 * provided.
 	 *
-	 * @return {@code true} if the date range is valid, {@code false} otherwise
+	 * @return {@code true} if the date range is valid or incomplete, {@code false} otherwise
 	 */
+	@JsonIgnore
 	@AssertTrue(message = "exitTime must be after entryTime")
-	public boolean isValid() {
+	public boolean isTimeRangeValid() {
+		if (this.entryTime == null || this.exitTime == null) {
+			return true;
+		}
 		return exitTime.isAfter(entryTime);
 	}
 }
