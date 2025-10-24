@@ -279,7 +279,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Internal server error");
 		pd.setDetail("An unexpected error occurred");
 		addCommonProps(pd, request);
-		logger.error("Error {}", pd);
+		logger.error("Error {}", ex);
 		return pd;
 	}
 
