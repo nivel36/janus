@@ -1,4 +1,9 @@
 {
-	"clock in":"Entrada",
-	"clock out":"Salida"
+	"timelog": {
+		"clockin": "Entrada",
+		"clockout": "Salida",
+		"date": "Fecha",
+		"duration": "Duración",
+		"timelogs": "Fichajes"
+	}
 }

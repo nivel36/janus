@@ -1,4 +1,9 @@
 {
-	"clock in":"Clock in",
-	"clock out":"Clock out"
+	"timelog": {
+		"clockin": "Clock in",
+		"clockout": "Clock out",
+		"date": "Date",
+		"duration": "Duration",
+		"timelogs": "Time logs"
+	}
 }

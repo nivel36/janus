@@ -1,4 +1,9 @@
 {
-	"clock in":"Entrada",
-	"clock out":"Sortida"
+	"timelog": {
+		"clockin": "Entrada",
+		"clockout": "Sortida",
+		"date": "Data",
+		"duration": "Duració",
+		"timelogs": "Fixatges"
+	}
 }

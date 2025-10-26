@@ -7,21 +7,21 @@
 
     <div class="clock-card">
       <div class="clock-info">
-        <span class="clock-label">{{ 'clock in' | translate }}</span>
+        <span class="clock-label">{{ 'timelog.clockin' | translate }}</span>
         <time class="clock-time" datetime="2024-04-23T08:30">08:30 AM</time>
       </div>
-      <button class="clock-button" type="button">Clock In</button>
+      <button class="clock-button" type="button">{{ 'timelog.clockin' | translate }}</button>
     </div>
 
     <section class="timelog">
-      <h2 class="timelog-title">Time Logs</h2>
+      <h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
       <table class="timelog-table">
         <thead>
           <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Clock In</th>
-            <th scope="col">Clock Out</th>
-            <th scope="col">Duration</th>
+            <th scope="col">{{ 'timelog.date' | translate }}</th>
+            <th scope="col">{{ 'timelog.clockin' | translate }}</th>
+            <th scope="col">{{ 'timelog.clockout' | translate }}</th>
+            <th scope="col">{{ 'timelog.duration' | translate }}</th>
           </tr>
         </thead>
         <tbody>
