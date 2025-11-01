@@ -1,0 +1,30 @@
+.card {
+	border-radius: 20px;
+	overflow:hidden;
+}
+
+.card-header {
+	padding: 2rem;
+	background-color: #fece0b;
+	color: #040404;
+	text-align: center;
+}
+
+.card-title {
+	margin: 0 0 0.5rem;
+	font-size: 2.2rem;
+}
+
+.card-title:empty {
+	display: none;
+}
+
+.card-body {
+	padding: 2.5rem;
+	font-size: 0.95rem; 
+	color : #ffffff;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	background: #040404;
+}

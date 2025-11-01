@@ -9,6 +9,8 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 export class ClockComponent implements OnInit, OnDestroy {
 	@Input() locale?: string;
 	@Input() use12Hour: boolean = false;
+	@Input() styleClass = '';
+	@Input() timeClass = '';
 
 	time: string = '';
 	private timerId?: number;

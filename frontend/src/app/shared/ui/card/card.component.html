@@ -1,0 +1,19 @@
+<section class="card {{ styleClass }}">
+	@if (title || headerTpl) {
+	<header class="card-header {{ headerClass }}">
+		@if (title) {
+		<h2 class="card-title {{ titleClass }}">{{ title }}</h2>
+		} @if (headerTpl) {
+		<ng-container [ngTemplateOutlet]="headerTpl"></ng-container>
+		}
+	</header>
+	} @if (ngContent?.nativeElement?.childNodes.length > 0) {
+	<div class="card-body">
+		<ng-content></ng-content>
+	</div>
+	} @if (footerTpl) {
+	<footer class="card-footer {{ footerClass }}">
+		<ng-container [ngTemplateOutlet]="footerTpl"></ng-container>
+	</footer>
+	}
+</section>

@@ -11,3 +11,11 @@ html, body {
 body {
   background-color: #000000;
 }
+
+.clock-in-card .clock-container.card-hour-container .card-hour {
+	font-size: 3rem;
+}
+
+.clock-in-card .clock-container.card-hour-container {
+	margin-bottom: 1rem;
+}
