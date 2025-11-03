@@ -4,9 +4,9 @@
 }
 
 .card-header {
-	padding: 2rem;
+	padding: 1rem 1.5rem 1rem 1.5rem;
 	background-color: #fece0b;
-	color: #040404;
+	color: #131313;
 	text-align: center;
 }
 
@@ -20,11 +20,11 @@
 }
 
 .card-body {
-	padding: 2.5rem;
+	padding: 2rem;
 	font-size: 0.95rem; 
 	color : #ffffff;
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
-	background: #040404;
+	background: #131313;
 }

@@ -4,52 +4,76 @@
 			<h1 class="brand">JANUS</h1>
 			<span class="section-label">Dashboard</span>
 		</header>
+		<section class="dashboard-content">
+			<section class="content">
+				<app-card styleClass="clock-in-card"
+					title="{{ 'timelog.clockin' | translate }}"> <ng-template
+					#cardHeader> <app-clock
+					styleClass="card-hour-container" timeClass="card-hour"></app-clock>
+				<button class="clock-button" type="button">{{'timelog.clockin'
+					| translate }}</button>
+				</ng-template> </app-card>
 
-		<app-card styleClass="clock-in-card" title="{{ 'timelog.clockin' | translate }}">
-			<ng-template #cardHeader>
-				<app-clock styleClass="card-hour-container" timeClass="card-hour"></app-clock>
-				<button class="clock-button" type="button">{{'timelog.clockin' | translate }}</button>
-			</ng-template>
-		</app-card>
-
-		<section class="timelog">
-			<h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
-			<table class="timelog-table">
-				<thead>
-					<tr>
-						<th scope="col">{{ 'timelog.date' | translate }}</th>
-						<th scope="col">{{ 'timelog.clockin' | translate }}</th>
-						<th scope="col">{{ 'timelog.clockout' | translate }}</th>
-						<th scope="col">{{ 'timelog.duration' | translate }}</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>04/23/2024</td>
-						<td>08:32 AM</td>
-						<td>05:15 PM</td>
-						<td>8h 43m</td>
-					</tr>
-					<tr>
-						<td>04/22/2024</td>
-						<td>08:29 AM</td>
-						<td>05:31 PM</td>
-						<td>9h 02m</td>
-					</tr>
-					<tr>
-						<td>04/21/2024</td>
-						<td>08:34 AM</td>
-						<td>05:11 PM</td>
-						<td>8h 37m</td>
-					</tr>
-					<tr>
-						<td>04/20/2024</td>
-						<td>08:33 AM</td>
-						<td>05:11 PM</td>
-						<td>8h 52m</td>
-					</tr>
-				</tbody>
-			</table>
+				<section class="timelog">
+					<h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
+					<table class="timelog-table">
+						<thead>
+							<tr>
+								<th scope="col">{{ 'timelog.date' | translate }}</th>
+								<th scope="col">{{ 'timelog.clockin' | translate }}</th>
+								<th scope="col">{{ 'timelog.clockout' | translate }}</th>
+								<th scope="col">{{ 'timelog.duration' | translate }}</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>04/23/2024</td>
+								<td>08:32 AM</td>
+								<td>05:15 PM</td>
+								<td>8h 43m</td>
+							</tr>
+							<tr>
+								<td>04/22/2024</td>
+								<td>08:29 AM</td>
+								<td>05:31 PM</td>
+								<td>9h 02m</td>
+							</tr>
+							<tr>
+								<td>04/21/2024</td>
+								<td>08:34 AM</td>
+								<td>05:11 PM</td>
+								<td>8h 37m</td>
+							</tr>
+							<tr>
+								<td>04/20/2024</td>
+								<td>08:33 AM</td>
+								<td>05:11 PM</td>
+								<td>8h 52m</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+			</section>
+			<section class="aside">
+				<div class="aside">
+					<app-card styleClass="user-card"> <ng-template
+						#cardHeader>
+					<div class="user-card-header-content">
+						<img class="avatar" src="assets/images/user.png" /> <span
+							class="user-name">Abel Ferrer</span>
+					</div>
+					</ng-template>
+					<div class="data">
+						<h3>Location</h3>
+						<p>Barcelona Headquarters</p>
+					</div>
+					<div class="data">
+						<h3>Today's Hour</h3>
+						<p>9:00 - 17:30</p>
+					</div>
+					</app-card>
+				</div>
+			</section>
 		</section>
 	</section>
 </main>

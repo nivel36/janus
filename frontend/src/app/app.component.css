@@ -2,18 +2,32 @@
 	font-family: "Inter", "Segoe UI", Roboto, sans-serif;
 }
 
+.aside {
+	width: min(360px, 100%);
+	display: flex;
+	flex-direction: column;
+	gap: 2.5rem;
+}
+
 .app-shell {
 	min-height: 100vh;
 	display: flex;
-	align-items: center;
 	justify-content: center;
 	background-color: #050505;
 	padding: 2rem;
 	box-sizing: border-box;
 }
 
+.content {
+	width: min(720px, 100%);
+	display: flex;
+	flex-direction: column;
+	gap: 2.5rem;
+	color: #f9f9f9;
+}
+
 .dashboard {
-	width: min(640px, 100%);
+	width: min(1080px, 100%);
 	display: flex;
 	flex-direction: column;
 	gap: 2.5rem;
@@ -26,6 +40,13 @@
 	align-items: baseline;
 	letter-spacing: 0.08em;
 	font-weight: 600;
+}
+
+.dashboard-content {
+	width: min(1080px, 100%);
+	display: flex;
+	gap: 2.5rem;
+	color: #f9f9f9;
 }
 
 .brand {

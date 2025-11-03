@@ -12,10 +12,50 @@ body {
   background-color: #000000;
 }
 
+.user-card .user-card-header-content {
+	text-align: left;
+}
+
+.user-card .avatar {
+	width: 4rem;
+	vertical-align: middle;
+}
+
+.user-card .user-name {
+	font-size: 2rem;
+	color: #131313;
+	vertical-align: middle;
+	font-weight: 700;
+	margin-left: 1rem;
+}
+
+.user-card h3 {
+	font-size: 1rem;
+	margin: 0;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: #f9d600;
+}
+
+.user-card p {
+	font-size: 1rem;
+	margin: 0;
+	letter-spacing: 0.12em;
+	color: #ffffff;
+}
+
+.user-card .data {
+	margin: 0 0 1rem 0;
+}
+
 .clock-in-card .clock-container.card-hour-container .card-hour {
 	font-size: 3rem;
 }
 
 .clock-in-card .clock-container.card-hour-container {
 	margin-bottom: 1rem;
+}
+
+.card.clock-in-card .card-body {
+	display: none;
 }

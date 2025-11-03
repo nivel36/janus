@@ -7,11 +7,11 @@
 		<ng-container [ngTemplateOutlet]="headerTpl"></ng-container>
 		}
 	</header>
-	} @if (ngContent?.nativeElement?.childNodes.length > 0) {
+	} 
 	<div class="card-body">
 		<ng-content></ng-content>
 	</div>
-	} @if (footerTpl) {
+	@if (footerTpl) {
 	<footer class="card-footer {{ footerClass }}">
 		<ng-container [ngTemplateOutlet]="footerTpl"></ng-container>
 	</footer>
