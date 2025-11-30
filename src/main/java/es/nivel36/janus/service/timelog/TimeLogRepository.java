@@ -107,8 +107,21 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * @return an {@link Optional} containing the most recent time log, or empty if
 	 *         none exist
 	 */
-	@EntityGraph(attributePaths = { "employee", "worksite" })
-	TimeLog findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(Employee employee, Worksite worksite);
+        @EntityGraph(attributePaths = { "employee", "worksite" })
+        TimeLog findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(Employee employee, Worksite worksite);
+
+        /**
+         * Finds the most recent {@link TimeLog} for the specified employee and
+         * worksite that has not been closed yet (i.e. {@code exitTime IS NULL}),
+         * ordered by {@code entryTime} descending.
+         *
+         * @param employee the employee whose last open time log is to be found
+         * @param worksite the worksite to filter by
+         * @return the most recent open time log, or {@code null} if none exist
+         */
+        @EntityGraph(attributePaths = { "employee", "worksite" })
+        TimeLog findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(Employee employee,
+                        Worksite worksite);
 
 	/**
 	 * Retrieves all {@link TimeLog} records for a given employee, with pagination.
