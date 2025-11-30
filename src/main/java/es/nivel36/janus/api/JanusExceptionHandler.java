@@ -15,14 +15,7 @@
  */
 package es.nivel36.janus.api;
 
-/**
- * Exception handler that translates common exceptions into RFC 7807 problem
- * details.
- *
- * <p>
- * It centralizes error responses for controllers, providing consistent status
- * codes and payloads.
- */
+
 import java.net.URI;
 import java.time.Clock;
 import java.time.DateTimeException;
@@ -57,6 +50,14 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
+/**
+ * Exception handler that translates common exceptions into RFC 7807 problem
+ * details.
+ *
+ * <p>
+ * It centralizes error responses for controllers, providing consistent status
+ * codes and payloads.
+ */
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class JanusExceptionHandler {
