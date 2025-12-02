@@ -42,7 +42,7 @@ import jakarta.validation.constraints.Pattern;
  * REST controller responsible for exposing worksite CRUD operations.
  */
 @RestController
-@RequestMapping("/api/v1/worksite")
+@RequestMapping("/api/v1/worksites")
 public class WorksiteController {
 
 	private static final Logger logger = LoggerFactory.getLogger(WorksiteController.class);

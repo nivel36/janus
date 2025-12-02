@@ -52,7 +52,7 @@ import jakarta.validation.constraints.Pattern;
  * entries, as well as clock-in/clock-out operations and duration calculations.
  */
 @RestController
-@RequestMapping("/api/v1/employee/{employeeEmail}/timelogs")
+@RequestMapping("/api/v1/employees/{employeeEmail}/timelogs")
 public class TimeLogController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TimeLogController.class);
