@@ -37,3 +37,9 @@ INSERT INTO employee (name, surname, email, schedule_id) VALUES ('Abel', 'Ferrer
 INSERT INTO worksite (name, code, time_zone) VALUES ('Barcelona Headquarters', 'BCN-HQ', 'UTC+1');
 
 INSERT INTO employee_worksite (employee_id, worksite_id) VALUES (1,1);
+
+INSERT INTO time_log (employee_id,worksite_id,entry_time,exit_time) VALUES (1,1,'2024-04-20T07:32:10Z'::timestamp,'2024-04-20T16:15:20Z'::timestamp);
+INSERT INTO time_log (employee_id,worksite_id,entry_time,exit_time) VALUES (1,1,'2024-04-21T07:29:20Z'::timestamp,'2024-04-21T16:31:23Z'::timestamp);
+INSERT INTO time_log (employee_id,worksite_id,entry_time,exit_time) VALUES (1,1,'2024-04-22T07:34:45Z'::timestamp,'2024-04-22T16:11:31Z'::timestamp);
+INSERT INTO time_log (employee_id,worksite_id,entry_time,exit_time) VALUES (1,1,'2024-04-23T07:33:51Z'::timestamp,'2024-04-23T16:11:42Z'::timestamp);
+
