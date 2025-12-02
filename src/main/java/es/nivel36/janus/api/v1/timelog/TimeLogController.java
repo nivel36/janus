@@ -175,7 +175,7 @@ public class TimeLogController {
 	 *                      entry and exit times; must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
-	@PostMapping("/timelogs")
+	@PostMapping("/")
 	public ResponseEntity<TimeLogResponse> createTimeLog( //
 			final @PathVariable("employeeEmail") //
 			@Pattern( //
