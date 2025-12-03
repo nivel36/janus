@@ -161,7 +161,7 @@ class TimeLogControllerIT {
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
 
-		mvc.perform(post(BASE + "/timelogs", "aferrer@nivel36.es") //
+		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)) //
 				.andExpect(status().isOk()) //
@@ -184,12 +184,12 @@ class TimeLogControllerIT {
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
 
-		mvc.perform(post(BASE + "/timelogs", "aferrer@nivel36.es") //
+		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)) //
 				.andExpect(status().isOk());
 
-		mvc.perform(post(BASE + "/timelogs", "aferrer@nivel36.es") //
+		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)) //
 				.andExpect(status().isBadRequest());
@@ -263,7 +263,7 @@ class TimeLogControllerIT {
 		String exit = "2025-08-08T17:30:00Z";
 
 		// seed //
-		mvc.perform(post(BASE + "/timelogs", "aferrer@nivel36.es") //
+		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content("""
 						{"entryTime":"%s","exitTime":"%s"}
