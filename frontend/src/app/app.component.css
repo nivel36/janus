@@ -92,8 +92,8 @@
 }
 
 @media ( max-width : 640px) {
-        .clock-card {
-                flex-direction: column;
-                align-items: flex-start;
-        }
+	.clock-card {
+		flex-direction: column;
+		align-items: flex-start;
+	}
 }

@@ -6,11 +6,11 @@ import { TimelogTableComponent } from './timelog/timelog-table.component';
 import { ButtonComponent } from './shared/ui/button/button.component';
 
 @Component({
-        selector: 'app-root',
-        standalone: true,
-        imports: [TranslatePipe, ClockComponent, CardComponent, TimelogTableComponent, ButtonComponent],
-        templateUrl: './app.component.html',
-        styleUrl: './app.component.css'
+	selector: 'app-root',
+	standalone: true,
+	imports: [TranslatePipe, ClockComponent, CardComponent, TimelogTableComponent, ButtonComponent],
+	templateUrl: './app.component.html',
+	styleUrl: './app.component.css'
 })
 export class AppComponent {
 	title = 'frontend';

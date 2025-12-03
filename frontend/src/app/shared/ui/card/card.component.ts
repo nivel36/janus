@@ -2,11 +2,11 @@ import { NgTemplateOutlet } from '@angular/common';
 import { AfterContentInit, Component, ContentChild, ElementRef, Input, TemplateRef, ViewChild } from '@angular/core';
 
 @Component({
-  selector: 'app-card',
-  standalone: true,
-  imports: [NgTemplateOutlet],
-  templateUrl: './card.component.html',
-  styleUrls: ['./card.component.css']
+	selector: 'app-card',
+	standalone: true,
+	imports: [NgTemplateOutlet],
+	templateUrl: './card.component.html',
+	styleUrls: ['./card.component.css']
 })
 export class CardComponent implements AfterContentInit {
 	@Input() title: string | null = null;

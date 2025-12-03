@@ -1,6 +1,6 @@
 .card {
 	border-radius: 20px;
-	overflow:hidden;
+	overflow: hidden;
 }
 
 .card-header {
@@ -21,8 +21,8 @@
 
 .card-body {
 	padding: 2rem;
-	font-size: 0.95rem; 
-	color : #ffffff;
+	font-size: 0.95rem;
+	color: #ffffff;
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
