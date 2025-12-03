@@ -16,6 +16,7 @@
 package es.nivel36.janus.api.v1.timelog;
 
 import java.time.Instant;
+import java.time.ZoneId;
 
 import org.openapitools.jackson.nullable.JsonNullable;
 
@@ -33,15 +34,17 @@ import es.nivel36.janus.service.worksite.Worksite;
  * {@link Employee} and the {@link Worksite}.
  * </p>
  *
- * @param employeeEmail the unique email address of the {@link Employee}
- *                      associated with this time log; must not be {@code null}
- * @param worksiteCode  the unique code identifying the {@link Worksite} where
- *                      the time log was recorded; must not be {@code null}
- * @param entryTime     the timestamp when the employee clocked in; must not be
- *                      {@code null}
- * @param exitTime      the timestamp when the employee clocked out; may be
- *                      absent if the employee is still working;
+ * @param employeeEmail  the unique email address of the {@link Employee}
+ *                       associated with this time log; must not be {@code null}
+ * @param worksiteCode   the unique code identifying the {@link Worksite} where
+ *                       the time log was recorded; must not be {@code null}
+ * @param worksiteZoneId the zone id associated with the {@link Worksite} where
+ *                       the time log was recorded; must not be {@code null}
+ * @param entryTime      the timestamp when the employee clocked in; must not be
+ *                       {@code null}
+ * @param exitTime       the timestamp when the employee clocked out; may be
+ *                       absent if the employee is still working;
  */
-public record TimeLogResponse(String employeeEmail, String worksiteCode, Instant entryTime,
+public record TimeLogResponse(String employeeEmail, String worksiteCode, ZoneId worksiteTimeZone, Instant entryTime,
 		@JsonInclude(JsonInclude.Include.NON_ABSENT) JsonNullable<Instant> exitTime) {
 }

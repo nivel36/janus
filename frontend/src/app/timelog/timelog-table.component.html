@@ -1,29 +1,30 @@
 <section class="timelog">
-        <h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
+	<h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
 
-        <div *ngIf="error" class="timelog-message error">{{ error }}</div>
-        <div *ngIf="isLoading" class="timelog-message">Loading time logs...</div>
+	<div *ngIf="error" class="timelog-message error">{{ error }}</div>
+	<div *ngIf="isLoading" class="timelog-message">Loading time
+		logs...</div>
 
-        <table *ngIf="!isLoading && timelogs.length" class="timelog-table">
-                <thead>
-                        <tr>
-                                <th scope="col">{{ 'timelog.date' | translate }}</th>
-                                <th scope="col">{{ 'timelog.clockin' | translate }}</th>
-                                <th scope="col">{{ 'timelog.clockout' | translate }}</th>
-                                <th scope="col">{{ 'timelog.duration' | translate }}</th>
-                        </tr>
-                </thead>
-                <tbody>
-                        <tr *ngFor="let timelog of timelogs">
-                                <td>{{ timelog.entryTime | date: 'MM/dd/yyyy' }}</td>
-                                <td>{{ timelog.entryTime | date: 'hh:mm a' }}</td>
-                                <td>{{ timelog.exitTime ? (timelog.exitTime | date: 'hh:mm a') : '—' }}</td>
-                                <td>{{ timelog.duration || '—' }}</td>
-                        </tr>
-                </tbody>
-        </table>
+	<table *ngIf="!isLoading && timelogs.length" class="timelog-table">
+		<thead>
+			<tr>
+				<th scope="col">{{ 'timelog.date' | translate }}</th>
+				<th scope="col">{{ 'timelog.clockin' | translate }}</th>
+				<th scope="col">{{ 'timelog.clockout' | translate }}</th>
+				<th scope="col">{{ 'timelog.duration' | translate }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let timelog of timelogs">
+				<td>{{ timelog.entryTime | date: 'MM/dd/yyyy' }}</td>
+				<td>{{ timelog.entryTime | date: 'hh:mm a' }}</td>
+				<td>{{ timelog.exitTime ? (timelog.exitTime | date: 'hh:mm a')
+					: '—' }}</td>
+				<td>{{ timelog.duration || '—' }}</td>
+			</tr>
+		</tbody>
+	</table>
 
-        <div *ngIf="!isLoading && !timelogs.length && !error" class="timelog-message">
-                No time logs available yet.
-        </div>
+	<div *ngIf="!isLoading && !timelogs.length && !error"
+		class="timelog-message">No time logs available yet.</div>
 </section>

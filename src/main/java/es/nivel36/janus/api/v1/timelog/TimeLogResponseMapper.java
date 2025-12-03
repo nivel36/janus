@@ -16,6 +16,7 @@
 package es.nivel36.janus.api.v1.timelog;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Objects;
 
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -44,8 +45,9 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		final String worksiteCode = worksite.getCode();
 		final Instant entryTime = entity.getEntryTime();
 		final Instant exit = entity.getExitTime();
+		final ZoneId zoneId = worksite.getTimeZone();
 		final JsonNullable<Instant> exitTime = toJsonNullable(exit);
-		return new TimeLogResponse(employeeEmail, worksiteCode, entryTime, exitTime);
+		return new TimeLogResponse(employeeEmail, worksiteCode, zoneId, entryTime, exitTime);
 	}
 
 	private static <T> JsonNullable<T> toJsonNullable(T value) {
