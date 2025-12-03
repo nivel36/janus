@@ -32,7 +32,7 @@ INSERT INTO day_of_week_time_range (schedule_rule_id, start_time, end_time, day_
 INSERT INTO day_of_week_time_range (schedule_rule_id, start_time, end_time, day_of_week, effective_work_hours) VALUES (3, '08:00:00'::TIME, '17:30:00'::TIME, 'THURSDAY', 'PT8H30M');
 INSERT INTO day_of_week_time_range (schedule_rule_id, start_time, end_time, day_of_week, effective_work_hours) VALUES (3, '08:00:00'::TIME, '15:00:00'::TIME, 'FRIDAY', 'PT7H');
 
-INSERT INTO employee (name, surname, email, schedule_id) VALUES ('Abel', 'Ferrer', 'aferrer@nivel36.es', 1);
+INSERT INTO employee (name, surname, email, schedule_id) VALUES ('Abel', 'Ferrer Jiménez', 'aferrer@nivel36.es', 1);
 
 INSERT INTO worksite (name, code, time_zone) VALUES ('Barcelona Headquarters', 'BCN-HQ', 'UTC+1');
 
