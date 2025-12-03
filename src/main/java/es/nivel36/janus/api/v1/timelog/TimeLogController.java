@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -225,7 +227,7 @@ public class TimeLogController {
 			String employeeEmail, //
 			final @RequestParam(value = "fromInstant", required = false) Instant fromInstant, //
 			final @RequestParam(value = "toInstant", required = false) Instant toInstant, //
-			final Pageable pageable) {
+			final @PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable) {
 		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
 		}

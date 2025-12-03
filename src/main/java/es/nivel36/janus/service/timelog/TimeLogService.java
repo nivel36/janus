@@ -170,24 +170,23 @@ public class TimeLogService {
 		Instant truncatedExitTime = exitTime.truncatedTo(ChronoUnit.SECONDS);
 		logger.debug("Clocking out employee {} at worksite {} and time {}", employee, worksite, truncatedExitTime);
 
-                TimeLog lastTimeLog = this.timeLogRepository
-                                .findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(employee, worksite);
+		TimeLog lastTimeLog = this.timeLogRepository
+				.findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(employee, worksite);
 
-                if (lastTimeLog == null) {
-                        logger.warn("No open time log found. A one-second time log is created.");
-                        lastTimeLog = new TimeLog(employee, worksite, truncatedExitTime.minusSeconds(1), truncatedExitTime);
-                } else if (!truncatedExitTime.isAfter(lastTimeLog.getEntryTime())) {
-                        throw new TimeLogChronologyException(String.format(
-                                        "exitTime %s must be strictly after entryTime %s.", truncatedExitTime,
-                                        lastTimeLog.getEntryTime()));
-                } else {
-                        lastTimeLog.setExitTime(truncatedExitTime);
-                }
+		if (lastTimeLog == null) {
+			logger.warn("No open time log found. A one-second time log is created.");
+			lastTimeLog = new TimeLog(employee, worksite, truncatedExitTime.minusSeconds(1), truncatedExitTime);
+		} else if (!truncatedExitTime.isAfter(lastTimeLog.getEntryTime())) {
+			throw new TimeLogChronologyException(String.format("exitTime %s must be strictly after entryTime %s.",
+					truncatedExitTime, lastTimeLog.getEntryTime()));
+		} else {
+			lastTimeLog.setExitTime(truncatedExitTime);
+		}
 
-                final TimeLog savedTimeLog = this.timeLogRepository.save(lastTimeLog);
-                logger.trace("Exit time set to {} for last time log {}", truncatedExitTime, savedTimeLog.getId());
-                return savedTimeLog;
-        }
+		final TimeLog savedTimeLog = this.timeLogRepository.save(lastTimeLog);
+		logger.trace("Exit time set to {} for last time log {}", truncatedExitTime, savedTimeLog.getId());
+		return savedTimeLog;
+	}
 
 	/**
 	 * Calculates the total time worked for a given {@link TimeLog}. If the employee
