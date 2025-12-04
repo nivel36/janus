@@ -49,15 +49,15 @@ public class AppUserService {
 	 * @throws NullPointerException      if the username is null
 	 * @throws ResourceNotFoundException if the user is not found
 	 */
-	public AppUser findAppUserByUsername(final String username) {
-		Objects.requireNonNull(username, "username cannot be null.");
-		logger.debug("Finding AppUser by username {}", username);
+        public AppUser findAppUserByUsername(final String username) {
+                Objects.requireNonNull(username, "username cannot be null.");
+                logger.debug("Finding AppUser by username {}", username);
 
-		return this.findAppUser(username);
-	}
+                return this.findAppUser(username);
+        }
 
-	private AppUser findAppUser(final String username) {
-		final AppUser appUser = this.appUserRepository.findByUsername(username);
+        private AppUser findAppUser(final String username) {
+                final AppUser appUser = this.appUserRepository.findByUsername(username);
 		if (appUser == null) {
 			logger.warn("No application user found with username {}", username);
 			throw new ResourceNotFoundException("There is no application user with username " + username);
