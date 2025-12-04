@@ -38,8 +38,8 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 *
 	 *
 	 * @param email the email to check for
-	 * @return the employee with the specified email, or {@code null} if no employee
-	 *         is found
+	 * @return {@code true} if the employee with the specified email exists, or
+	 *         {@code false} if no employee is found
 	 */
 	boolean existsByEmail(final String email);
 
