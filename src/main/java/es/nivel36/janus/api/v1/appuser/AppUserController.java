@@ -73,8 +73,8 @@ public class AppUserController {
          */
         @GetMapping("/{username}")
         public ResponseEntity<AppUserResponse> findAppUser(final @PathVariable("username") //
-        @Pattern(regexp = "[A-Za-z0-9_.-]{3,50}", //
-                        message = "username must contain only letters, digits, dots, underscores or hyphens (3-50 characters)") //
+        @Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
+                        message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
         String username) {
                 logger.debug("Find app user ACTION performed");
 
@@ -112,8 +112,8 @@ public class AppUserController {
          */
         @PutMapping("/{username}")
         public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
-        @Pattern(regexp = "[A-Za-z0-9_.-]{3,50}", //
-                        message = "username must contain only letters, digits, dots, underscores or hyphens (3-50 characters)") //
+        @Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
+                        message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
         String username, @Valid @RequestBody final UpdateAppUserRequest request) {
                 logger.debug("Update app user ACTION performed");
 
@@ -132,8 +132,8 @@ public class AppUserController {
          */
         @DeleteMapping("/{username}")
         public ResponseEntity<Void> deleteAppUser(final @PathVariable("username") //
-        @Pattern(regexp = "[A-Za-z0-9_.-]{3,50}", //
-                        message = "username must contain only letters, digits, dots, underscores or hyphens (3-50 characters)") //
+        @Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
+                        message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
         String username) {
                 logger.debug("Delete app user ACTION performed");
 

@@ -98,6 +98,21 @@ class AppUserControllerIT {
         }
 
         @Test
+        void testCreateShouldAcceptUsernamesWithAtSign() throws Exception {
+                String body = """
+                                  {"username":"alice@example.com","name":"Alice","surname":"Smith","locale":"en-GB","timeFormat":"H12"}
+                                """;
+
+                mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+                                .andExpect(status().isCreated()) //
+                                .andExpect(jsonPath("$.username").value("alice@example.com"));
+
+                mvc.perform(get(BASE + "/{username}", "alice@example.com")) //
+                                .andExpect(status().isOk()) //
+                                .andExpect(jsonPath("$.username").value("alice@example.com"));
+        }
+
+        @Test
         @Sql(statements = { //
                         "INSERT INTO app_user(username,name,surname,locale,time_format) VALUES('jdoe','John','Doe','en-US','H24')"//
         })
