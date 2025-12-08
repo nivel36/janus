@@ -16,6 +16,6 @@
 package es.nivel36.janus.service;
 
 public enum TimeFormat {
-    H24,   // 24-hour format
-    H12    // 12-hour format
+	H24, // 24-hour format
+	H12 // 12-hour format
 }

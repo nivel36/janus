@@ -44,101 +44,100 @@ import jakarta.validation.constraints.Pattern;
 @RequestMapping("/api/v1/appusers")
 public class AppUserController {
 
-        private static final Logger logger = LoggerFactory.getLogger(AppUserController.class);
+	private static final Logger logger = LoggerFactory.getLogger(AppUserController.class);
 
-        private final AppUserService appUserService;
-        private final Mapper<AppUser, AppUserResponse> appUserResponseMapper;
+	private final AppUserService appUserService;
+	private final Mapper<AppUser, AppUserResponse> appUserResponseMapper;
 
-        /**
-         * Creates a controller that exposes application user management endpoints.
-         *
-         * @param appUserService        service handling {@link AppUser} domain
-         *                              operations; must not be {@code null}
-         * @param appUserResponseMapper mapper translating {@link AppUser} entities
-         *                              to {@link AppUserResponse} DTOs; must not be
-         *                              {@code null}
-         */
-        public AppUserController(final AppUserService appUserService,
-                        final Mapper<AppUser, AppUserResponse> appUserResponseMapper) {
-                this.appUserService = Objects.requireNonNull(appUserService, "appUserService can't be null");
-                this.appUserResponseMapper = Objects.requireNonNull(appUserResponseMapper,
-                                "appUserResponseMapper can't be null");
-        }
+	/**
+	 * Creates a controller that exposes application user management endpoints.
+	 *
+	 * @param appUserService        service handling {@link AppUser} domain
+	 *                              operations; must not be {@code null}
+	 * @param appUserResponseMapper mapper translating {@link AppUser} entities to
+	 *                              {@link AppUserResponse} DTOs; must not be
+	 *                              {@code null}
+	 */
+	public AppUserController(final AppUserService appUserService,
+			final Mapper<AppUser, AppUserResponse> appUserResponseMapper) {
+		this.appUserService = Objects.requireNonNull(appUserService, "appUserService can't be null");
+		this.appUserResponseMapper = Objects.requireNonNull(appUserResponseMapper,
+				"appUserResponseMapper can't be null");
+	}
 
-        /**
-         * Retrieves an {@link AppUser} by its username.
-         *
-         * @param username the unique username of the user; must not be {@code null}
-         * @return the {@link AppUserResponse} matching the username
-         */
-        @GetMapping("/{username}")
-        public ResponseEntity<AppUserResponse> findAppUser(final @PathVariable("username") //
-        @Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-                        message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-        String username) {
-                logger.debug("Find app user ACTION performed");
+	/**
+	 * Retrieves an {@link AppUser} by its username.
+	 *
+	 * @param username the unique username of the user; must not be {@code null}
+	 * @return the {@link AppUserResponse} matching the username
+	 */
+	@GetMapping("/{username}")
+	public ResponseEntity<AppUserResponse> findAppUser(final @PathVariable("username") //
+	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
+			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+	String username) {
+		logger.debug("Find app user ACTION performed");
 
-                final AppUser appUser = this.appUserService.findAppUserByUsername(username);
-                final AppUserResponse response = this.appUserResponseMapper.map(appUser);
-                return ResponseEntity.ok(response);
-        }
+		final AppUser appUser = this.appUserService.findAppUserByUsername(username);
+		final AppUserResponse response = this.appUserResponseMapper.map(appUser);
+		return ResponseEntity.ok(response);
+	}
 
-        /**
-         * Creates a new {@link AppUser} using the provided payload.
-         *
-         * @param request the data describing the app user to create; must not be
-         *                {@code null}
-         * @return the created {@link AppUserResponse}
-         */
-        @PostMapping
-        public ResponseEntity<AppUserResponse> createAppUser(@Valid @RequestBody final CreateAppUserRequest request) {
-                logger.debug("Create app user ACTION performed");
+	/**
+	 * Creates a new {@link AppUser} using the provided payload.
+	 *
+	 * @param request the data describing the app user to create; must not be
+	 *                {@code null}
+	 * @return the created {@link AppUserResponse}
+	 */
+	@PostMapping
+	public ResponseEntity<AppUserResponse> createAppUser(@Valid @RequestBody final CreateAppUserRequest request) {
+		logger.debug("Create app user ACTION performed");
 
-                final Locale locale = Locale.forLanguageTag(request.locale());
-                final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), request.name(),
-                                request.surname(), locale, request.timeFormat());
-                final AppUserResponse response = this.appUserResponseMapper.map(createdAppUser);
-                return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }
+		final Locale locale = Locale.forLanguageTag(request.locale());
+		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), request.name(),
+				request.surname(), locale, request.timeFormat());
+		final AppUserResponse response = this.appUserResponseMapper.map(createdAppUser);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
 
-        /**
-         * Updates an existing {@link AppUser} identified by its username.
-         *
-         * @param username the username of the app user to update; must not be
-         *                 {@code null}
-         * @param request  the payload containing the new data; must not be
-         *                 {@code null}
-         * @return the updated {@link AppUserResponse}
-         */
-        @PutMapping("/{username}")
-        public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
-        @Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-                        message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-        String username, @Valid @RequestBody final UpdateAppUserRequest request) {
-                logger.debug("Update app user ACTION performed");
+	/**
+	 * Updates an existing {@link AppUser} identified by its username.
+	 *
+	 * @param username the username of the app user to update; must not be
+	 *                 {@code null}
+	 * @param request  the payload containing the new data; must not be {@code null}
+	 * @return the updated {@link AppUserResponse}
+	 */
+	@PutMapping("/{username}")
+	public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
+	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
+			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+	String username, @Valid @RequestBody final UpdateAppUserRequest request) {
+		logger.debug("Update app user ACTION performed");
 
-                final Locale locale = Locale.forLanguageTag(request.locale());
-                final AppUser updatedAppUser = this.appUserService.updateAppUser(username, request.name(),
-                                request.surname(), locale, request.timeFormat());
-                final AppUserResponse response = this.appUserResponseMapper.map(updatedAppUser);
-                return ResponseEntity.ok(response);
-        }
+		final Locale locale = Locale.forLanguageTag(request.locale());
+		final AppUser updatedAppUser = this.appUserService.updateAppUser(username, request.name(), request.surname(),
+				locale, request.timeFormat());
+		final AppUserResponse response = this.appUserResponseMapper.map(updatedAppUser);
+		return ResponseEntity.ok(response);
+	}
 
-        /**
-         * Deletes an existing {@link AppUser}.
-         *
-         * @param username the username of the app user; must not be {@code null}
-         * @return an empty response with status {@link HttpStatus#NO_CONTENT}
-         */
-        @DeleteMapping("/{username}")
-        public ResponseEntity<Void> deleteAppUser(final @PathVariable("username") //
-        @Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-                        message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-        String username) {
-                logger.debug("Delete app user ACTION performed");
+	/**
+	 * Deletes an existing {@link AppUser}.
+	 *
+	 * @param username the username of the app user; must not be {@code null}
+	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
+	 */
+	@DeleteMapping("/{username}")
+	public ResponseEntity<Void> deleteAppUser(final @PathVariable("username") //
+	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
+			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+	String username) {
+		logger.debug("Delete app user ACTION performed");
 
-                final AppUser appUser = this.appUserService.findAppUserByUsername(username);
-                this.appUserService.deleteAppUser(appUser);
-                return ResponseEntity.noContent().build();
-        }
+		final AppUser appUser = this.appUserService.findAppUserByUsername(username);
+		this.appUserService.deleteAppUser(appUser);
+		return ResponseEntity.noContent().build();
+	}
 }

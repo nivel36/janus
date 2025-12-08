@@ -15,7 +15,6 @@
  */
 package es.nivel36.janus.api;
 
-
 import java.net.URI;
 import java.time.Clock;
 import java.time.DateTimeException;
@@ -163,7 +162,7 @@ public class JanusExceptionHandler {
 		pd.setTitle("Operation conflict");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
-		logger.error("Error {}",pd);
+		logger.error("Error {}", pd);
 		return pd;
 	}
 

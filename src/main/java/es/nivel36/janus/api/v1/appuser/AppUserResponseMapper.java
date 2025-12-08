@@ -26,12 +26,12 @@ import es.nivel36.janus.service.appuser.AppUser;
 @Component
 public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 
-        @Override
-        public AppUserResponse map(final AppUser appUser) {
-                if (appUser == null) {
-                        return null;
-                }
-                return new AppUserResponse(appUser.getUsername(), appUser.getName(), appUser.getSurname(),
-                                appUser.getLocale().toLanguageTag(), appUser.getTimeFormat());
-        }
+	@Override
+	public AppUserResponse map(final AppUser appUser) {
+		if (appUser == null) {
+			return null;
+		}
+		return new AppUserResponse(appUser.getUsername(), appUser.getName(), appUser.getSurname(),
+				appUser.getLocale().toLanguageTag(), appUser.getTimeFormat());
+	}
 }

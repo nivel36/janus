@@ -347,8 +347,7 @@ class WorkShiftServiceTest {
 
 		when(timeLogService.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
-		when(this.scheduleService.findTimeRangeForEmployeeByDate(employee, date))
-				.thenReturn(Optional.of(timeRange));
+		when(this.scheduleService.findTimeRangeForEmployeeByDate(employee, date)).thenReturn(Optional.of(timeRange));
 		when(adminService.getDaysUntilLocked()).thenReturn(7);
 
 		// Act

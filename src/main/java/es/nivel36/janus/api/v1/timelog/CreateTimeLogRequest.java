@@ -42,7 +42,8 @@ public record CreateTimeLogRequest(@NotNull Instant entryTime, @NotNull Instant 
 	 * Validates that {@code exitTime} is not before {@code entryTime} when both are
 	 * provided.
 	 *
-	 * @return {@code true} if the date range is valid or incomplete, {@code false} otherwise
+	 * @return {@code true} if the date range is valid or incomplete, {@code false}
+	 *         otherwise
 	 */
 	@JsonIgnore
 	@AssertTrue(message = "exitTime must be after entryTime")

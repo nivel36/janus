@@ -80,8 +80,7 @@ public class WorkShift implements Serializable {
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "workshift_timelog", //
 			joinColumns = @JoinColumn(name = "workshift_id"), //
-			inverseJoinColumns = @JoinColumn(name = "timelog_id")
-	)
+			inverseJoinColumns = @JoinColumn(name = "timelog_id"))
 	private List<TimeLog> timeLogs = new ArrayList<>();
 
 	/**

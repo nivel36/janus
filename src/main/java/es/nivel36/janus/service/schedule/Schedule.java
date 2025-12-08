@@ -160,8 +160,8 @@ public class Schedule implements Serializable {
 	}
 
 	/**
-	 * Sets the set of {@link ScheduleRule} objects that define this schedule's
-	 * time rules.
+	 * Sets the set of {@link ScheduleRule} objects that define this schedule's time
+	 * rules.
 	 * 
 	 * @param rules the new set of schedule rules
 	 */

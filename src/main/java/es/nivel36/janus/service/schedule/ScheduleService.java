@@ -72,7 +72,7 @@ public class ScheduleService {
 
 		final String code = schedule.getCode();
 		this.checkDuplicatedCode(code);
-		
+
 		final Schedule savedSchedule = this.scheduleRepository.save(schedule);
 		logger.trace("Schedule {} created successfully", code);
 		return savedSchedule;

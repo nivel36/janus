@@ -37,26 +37,26 @@ import jakarta.validation.constraints.Pattern;
  *                   {@code null}
  */
 public record CreateAppUserRequest( //
-                @NotBlank(message = "username must not be blank") //
-                @Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-                                message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-                String username, //
+		@NotBlank(message = "username must not be blank") //
+		@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
+				message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+		String username, //
 
-                @NotBlank(message = "name must not be blank") //
-                @Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", //
-                                message = "name must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)") //
-                String name, //
+		@NotBlank(message = "name must not be blank") //
+		@Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", //
+				message = "name must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)") //
+		String name, //
 
-                @NotBlank(message = "surname must not be blank") //
-                @Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", //
-                                message = "surname must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)") //
-                String surname, //
+		@NotBlank(message = "surname must not be blank") //
+		@Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", //
+				message = "surname must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)") //
+		String surname, //
 
-                @NotBlank(message = "locale must not be blank") //
-                @Pattern(regexp = "[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*", //
-                                message = "locale must be a valid BCP 47 language tag") //
-                String locale, //
+		@NotBlank(message = "locale must not be blank") //
+		@Pattern(regexp = "[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*", //
+				message = "locale must be a valid BCP 47 language tag") //
+		String locale, //
 
-                @NotNull(message = "timeFormat must not be null") //
-                TimeFormat timeFormat) {
+		@NotNull(message = "timeFormat must not be null") //
+		TimeFormat timeFormat) {
 }

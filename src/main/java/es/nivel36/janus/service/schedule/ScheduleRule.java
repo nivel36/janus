@@ -122,7 +122,7 @@ public class ScheduleRule implements Serializable {
 	}
 
 	/**
-	 * Sets the human readable name of the schedule rule. 
+	 * Sets the human readable name of the schedule rule.
 	 *
 	 * @param name the name of the schedule rule
 	 */

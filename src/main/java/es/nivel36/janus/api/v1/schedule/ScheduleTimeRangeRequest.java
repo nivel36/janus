@@ -38,7 +38,7 @@ public record ScheduleTimeRangeRequest( //
 		@NotNull(message = "endTime must not be null") //
 		LocalTime endTime //
 ) {
-	
+
 	/**
 	 * Validates that {@code endTime} is not before {@code startTime} when both are
 	 * provided.
