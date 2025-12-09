@@ -46,8 +46,8 @@ public record UpdateAppUserRequest( //
 		String surname, //
 
 		@NotBlank(message = "locale must not be blank") //
-		@Pattern(regexp = "[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*", //
-				message = "locale must be a valid BCP 47 language tag") //
+		@Pattern(regexp = "^[A-Za-z]{2,3}(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|\\d{3}))?(?:-[A-Za-z0-9]{1,8})*$",
+			    message = "locale must be a valid BCP 47 language tag") //
 		String locale, //
 
 		@NotNull(message = "timeFormat must not be null") //
