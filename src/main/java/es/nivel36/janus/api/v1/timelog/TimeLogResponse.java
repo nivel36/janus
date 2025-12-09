@@ -46,5 +46,6 @@ import es.nivel36.janus.service.worksite.Worksite;
  *                       absent if the employee is still working;
  */
 public record TimeLogResponse(String employeeEmail, String worksiteCode, ZoneId worksiteTimeZone, Instant entryTime,
-		@JsonInclude(JsonInclude.Include.NON_ABSENT) JsonNullable<Instant> exitTime) {
+		@JsonInclude(JsonInclude.Include.NON_ABSENT) JsonNullable<Instant> exitTime,
+		JsonNullable<DurationResponse> workTime) {
 }

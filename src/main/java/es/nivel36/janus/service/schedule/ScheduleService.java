@@ -216,6 +216,7 @@ public class ScheduleService {
 	 * @throws NullPointerException if either {@code employee} or {@code date} is
 	 *                              {@code null}.
 	 */
+	@Transactional(readOnly = true)
 	public Optional<TimeRange> findTimeRangeForEmployeeByDate(final Employee employee, final LocalDate date) {
 		Objects.requireNonNull(employee, "Employee can't be null");
 		Objects.requireNonNull(date, "Date can't be null");

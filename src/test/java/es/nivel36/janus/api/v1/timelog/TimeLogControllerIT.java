@@ -123,21 +123,15 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2')"//
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')", //
+			"INSERT INTO employee(id, name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)", //
+			"INSERT INTO worksite(id, code,name,time_zone) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2')",//
+			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES (1,1,'2025-08-04T07:30:00Z'::timestamp)"
 	})
 	void testClockOutShouldReturn200AndBody() throws Exception {
-		String entry = "2025-08-04T09:30:00Z";
-		String exit = "2025-08-04T18:00:00Z";
+		String entry = "2025-08-04T07:30:00Z";
+		String exit = "2025-08-04T16:00:00Z";
 
-		// seed: clock-in //
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)) //
-				.andExpect(status().isCreated());
-
-		// action: clock-out //
 		mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("exitTime", exit)) //
@@ -155,8 +149,8 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2')"//
 	})
 	void testCreateTimeLogShouldReturn200AndBody() throws Exception {
-		String entry = "2025-08-05T09:00:00Z";
-		String exit = "2025-08-05T17:30:00Z";
+		String entry = "2025-08-05T07:30:00Z";
+		String exit = "2025-08-05T16:00:00Z";
 		String body = """
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
@@ -168,6 +162,7 @@ class TimeLogControllerIT {
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
 				.andExpect(jsonPath("$.exitTime").value(exit)) //
+				.andExpect(jsonPath("$.workTime.iso8601").value("PT8H30M")) //
 				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
 	}
 
@@ -250,32 +245,6 @@ class TimeLogControllerIT {
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
 				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
-	}
-
-	@Test
-	@Sql(statements = { //
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2')"//
-	})
-	void testGetHoursWorkedShouldReturnDuration() throws Exception {
-		String entry = "2025-08-08T09:00:00Z";
-		String exit = "2025-08-08T17:30:00Z";
-
-		// seed //
-		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
-				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content("""
-						{"entryTime":"%s","exitTime":"%s"}
-						""".formatted(entry, exit))) //
-				.andExpect(status().isOk());
-
-		mvc.perform(get(BASE + "/{entryTime}/time-worked", "aferrer@nivel36.es", entry)) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.iso8601").value("PT8H30M")) //
-				.andExpect(jsonPath("$.hours").value(8)) //
-				.andExpect(jsonPath("$.minutes").value(30));
 	}
 
 	@Test

@@ -15,7 +15,6 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -195,7 +194,9 @@ public class TimeLogController {
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, timeLog);
+		final Instant entryTime = timeLog.entryTime();
+		final Instant exitTime = timeLog.exitTime();
+		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
 		final TimeLogResponse updatedTimeLogResponse = this.timeLogResponseMapper.map(createdTimeLog);
 		return ResponseEntity.ok(updatedTimeLogResponse);
 	}
@@ -241,7 +242,7 @@ public class TimeLogController {
 		if (fromInstant == null) {
 			timeLogs = this.timeLogService.searchTimeLogsByEmployee(employee, pageable);
 		} else {
-			timeLogs = this.timeLogService.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant,
+			timeLogs = this.timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant,
 					pageable);
 		}
 		final Page<TimeLogResponse> timeLogResponse = timeLogs.map(this.timeLogResponseMapper::map);
@@ -270,37 +271,6 @@ public class TimeLogController {
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
 		return ResponseEntity.ok(timeLogResponse);
-	}
-
-	/**
-	 * Retrieves the total duration worked for a given time log.
-	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
-	 * @param entryTime     the entry time of the time log; must not be {@code null}
-	 * @return a {@link DurationResponse} containing hours, minutes, seconds, and
-	 *         ISO-8601 representation
-	 */
-	@GetMapping("/{entryTime}/time-worked")
-	public ResponseEntity<DurationResponse> getHoursWorked(//
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @PathVariable("entryTime") Instant entryTime) {
-		logger.debug("Hours-worked ACTION performed");
-
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
-		timeLog.setEmployee(employee);
-		final Duration duration = this.timeLogService.getTimeWorked(timeLog);
-		final long hours = duration.toHours();
-		final int minutes = duration.toMinutesPart();
-		final int secondsPart = duration.toSecondsPart();
-		final String representation = duration.toString();
-		final DurationResponse response = new DurationResponse(hours, minutes, secondsPart, representation);
-		return ResponseEntity.ok(response);
 	}
 
 	/**

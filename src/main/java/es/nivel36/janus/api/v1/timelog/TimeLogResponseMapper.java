@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Objects;
@@ -34,6 +35,13 @@ import es.nivel36.janus.service.worksite.Worksite;
 @Component
 public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 
+	private final Mapper<Duration, DurationResponse> durationResponseMapper;
+
+	public TimeLogResponseMapper(final Mapper<Duration, DurationResponse> durationResponseMapper) {
+		this.durationResponseMapper = Objects.requireNonNull(durationResponseMapper,
+				"durationResponseMapper can't be null");
+	}
+
 	@Override
 	public TimeLogResponse map(final TimeLog entity) {
 		if (entity == null) {
@@ -41,16 +49,28 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		}
 		final Employee employee = Objects.requireNonNull(entity.getEmployee(), "Employee can't be null");
 		final Worksite worksite = Objects.requireNonNull(entity.getWorksite(), "Worksite can't be null");
+
 		final String employeeEmail = employee.getEmail();
 		final String worksiteCode = worksite.getCode();
+
+		final ZoneId worksiteTimeZone = worksite.getTimeZone();
+
 		final Instant entryTime = entity.getEntryTime();
-		final Instant exit = entity.getExitTime();
-		final ZoneId zoneId = worksite.getTimeZone();
-		final JsonNullable<Instant> exitTime = toJsonNullable(exit);
-		return new TimeLogResponse(employeeEmail, worksiteCode, zoneId, entryTime, exitTime);
+		final Instant exitTimeValue = entity.getExitTime();
+		final JsonNullable<Instant> exitTime = toJsonNullable(exitTimeValue);
+
+		final Duration workDurationValue = entity.getWorkDuration();
+		final DurationResponse workDurationResponse = mapWorkDuration(workDurationValue);
+		final JsonNullable<DurationResponse> workTime = toJsonNullable(workDurationResponse);
+
+		return new TimeLogResponse(employeeEmail, worksiteCode, worksiteTimeZone, entryTime, exitTime, workTime);
 	}
 
-	private static <T> JsonNullable<T> toJsonNullable(T value) {
+	private DurationResponse mapWorkDuration(final Duration duration) {
+		return this.durationResponseMapper.map(duration);
+	}
+
+	private static <T> JsonNullable<T> toJsonNullable(final T value) {
 		return value == null ? JsonNullable.undefined() : JsonNullable.of(value);
 	}
 }

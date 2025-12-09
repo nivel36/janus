@@ -345,7 +345,7 @@ class WorkShiftServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(timeLogService.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
+		when(timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(employee, date)).thenReturn(Optional.of(timeRange));
 		when(adminService.getDaysUntilLocked()).thenReturn(7);
@@ -376,7 +376,7 @@ class WorkShiftServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(timeLogService.searchByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
+		when(timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(scheduleService.findTimeRangeForEmployeeByDate(employee, date)).thenReturn(Optional.empty());
 		when(adminService.getDaysUntilLocked()).thenReturn(7);

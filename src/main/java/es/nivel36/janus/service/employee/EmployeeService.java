@@ -54,6 +54,7 @@ public class EmployeeService {
 	 * @throws IllegalArgumentException  if the Id is negative
 	 * @throws ResourceNotFoundException if the employee is not found
 	 */
+	@Transactional(readOnly = true)
 	public Employee findEmployeeById(final Long id) {
 		Objects.requireNonNull(id, "id can't be null");
 		logger.debug("Finding Employee by id {}", id);
@@ -70,6 +71,7 @@ public class EmployeeService {
 	 * @throws NullPointerException      if the email is null
 	 * @throws ResourceNotFoundException if the employee is not found
 	 */
+	@Transactional(readOnly = true)
 	public Employee findEmployeeByEmail(final String email) {
 		Objects.requireNonNull(email, "email cannot be null.");
 		logger.debug("Finding Employee by email {}", email);
@@ -97,6 +99,7 @@ public class EmployeeService {
 	 *         since the given instant but without any linked work shifts
 	 * @throws NullPointerException if {@code from} is {@code null}
 	 */
+	@Transactional(readOnly = true)
 	public List<Long> findEmployeesWithoutWorkshiftsSince(final Instant fromInclusive) {
 		Objects.requireNonNull(fromInclusive, "From must not be null");
 		logger.debug("Finding employees without workshift from date: {}", fromInclusive);
@@ -115,6 +118,7 @@ public class EmployeeService {
 	 * @throws ResourceAlreadyExistsException if the employee is changing the email
 	 *                                        and the new email already exists.
 	 */
+	@Transactional
 	public Employee createEmployee(final String name, final String surname, final String email,
 			final Schedule schedule) {
 		Objects.requireNonNull(name, "name cannot be null.");
@@ -153,6 +157,7 @@ public class EmployeeService {
 	 *                                   is invalid
 	 * @throws ResourceNotFoundException if no employee exists with the given email
 	 */
+	@Transactional
 	public Employee updateEmployee(final String email, final String newName, final String newSurname,
 			final Schedule newSchedule) {
 		Objects.requireNonNull(email, "email cannot be null.");
@@ -224,6 +229,7 @@ public class EmployeeService {
 	 * @param employee the employee to be deleted
 	 * @throws NullPointerException if the employee is null
 	 */
+	@Transactional
 	public void deleteEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "employee cannot be null.");
 		logger.debug("Deleting employee {}", employee);

@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.timelog;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -24,6 +25,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.worksite.Worksite;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -31,6 +33,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -42,10 +46,10 @@ import jakarta.validation.constraints.NotNull;
  *
  * <p>
  * Each time log is uniquely identified by the combination of the employee and
- * the entry time, enforced through a unique constraint. The entity also
- * supports logical deletion via the {@code deleted} flag, which ensures that
- * records remain in the database for auditing purposes even after they are
- * "deleted".
+ * the entry time, which together form the natural key, enforced through a
+ * unique constraint at the database level. The entity also supports logical
+ * deletion via the {@code deleted} flag, which ensures that records remain
+ * stored for auditing even after being logically deleted.
  * </p>
  *
  * @see Employee
@@ -70,7 +74,7 @@ public class TimeLog implements Serializable {
 	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "employee_id")
+	@JoinColumn(name = "employee_id", updatable = false)
 	private Employee employee;
 
 	/**
@@ -85,6 +89,7 @@ public class TimeLog implements Serializable {
 	 * The clock-in time for this time log.
 	 */
 	@NotNull
+	@Column(updatable = false)
 	private Instant entryTime;
 
 	/**
@@ -93,67 +98,58 @@ public class TimeLog implements Serializable {
 	private Instant exitTime;
 
 	/**
+	 * Returns the total time spent working.
+	 */
+	private Duration workDuration;
+
+	/**
 	 * Indicates whether this time log has been logically deleted.
 	 * <p>
 	 * When {@code true}, the record is considered deleted but is still present in
 	 * the database for auditing.
 	 */
-	@NotNull
 	private boolean deleted = false;
 
 	/**
 	 * Default constructor for the {@link TimeLog} entity. Initializes an empty
 	 * {@link TimeLog} instance.
 	 */
-	public TimeLog() {
+	protected TimeLog() {
 	}
 
 	/**
 	 * Constructor for the {@link TimeLog} entity that initializes the time log with
-	 * the given employee.
-	 *
-	 * @param employee associated with this time log, must not be null
-	 * @param worksite associated with this time log, must not be null
-	 * @throws NullPointerException if the employee or the work site are null
-	 */
-	public TimeLog(final Employee employee, final Worksite worksite) {
-		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
-		this.worksite = Objects.requireNonNull(worksite, "Worksite can't be null");
-	}
-
-	/**
-	 * Constructor for the {@link TimeLog} entity that initializes the time log with
-	 * the given employee and entry time.
+	 * the given employee, worksite and entry time.
 	 *
 	 * @param employee  associated with this time log, must not be null
 	 * @param worksite  associated with this time log, must not be null
 	 * @param entryTime the entry (clock-in) time for this time log, must not be
 	 *                  null
-	 * @throws NullPointerException if the employee or entryTime is null
+	 * @throws NullPointerException if any of employee, worksite, or entryTime is
+	 *                              null
 	 */
 	public TimeLog(final Employee employee, final Worksite worksite, final Instant entryTime) {
-		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
-		this.worksite = Objects.requireNonNull(worksite, "Worksite can't be null");
-		this.entryTime = Objects.requireNonNull(entryTime, "EntryTime can't be null");
+		this(employee, worksite, entryTime, null);
 	}
 
 	/**
 	 * Constructor for the {@link TimeLog} entity that initializes the time log with
-	 * the given employee and entry time.
+	 * the given employee, worksite and entry time
 	 *
-	 * @param employee  associated with this time log, must not be null
-	 * @param worksite  associated with this time log, must not be null
+	 * @param employee  associated with this time log, must not be {@code null}
+	 * @param worksite  associated with this time log, must not be {@code null}
 	 * @param entryTime the entry (clock-in) time for this time log, must not be
-	 *                  null
-	 * @param exitTime  the exit (clock-out) time for this time log, must not be
-	 *                  null
-	 * @throws NullPointerException if the employee or entryTime is null
+	 *                  {@code null}null
+	 * @param exitTime  the exit (clock-out) time for this time log.
+	 * @throws NullPointerException if any of employee, worksite, or entryTime is
+	 *                              null
+	 * 
 	 */
 	public TimeLog(final Employee employee, final Worksite worksite, final Instant entryTime, final Instant exitTime) {
 		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
 		this.worksite = Objects.requireNonNull(worksite, "Worksite can't be null");
 		this.entryTime = Objects.requireNonNull(entryTime, "EntryTime can't be null");
-		this.exitTime = Objects.requireNonNull(exitTime, "ExitTime can't be null");
+		this.exitTime = exitTime;
 	}
 
 	/**
@@ -175,10 +171,20 @@ public class TimeLog implements Serializable {
 	}
 
 	/**
+	 * Gets the worksite associated with this time log.
+	 *
+	 * @return the {@link Worksite} where the employee performed the logged
+	 *         activity; never {@code null} once the entity is persisted
+	 */
+	public Worksite getWorksite() {
+		return worksite;
+	}
+
+	/**
 	 * Gets the clock-in time for this time log.
 	 *
-	 * @return the clock-in time as a {@link Instant}, or null if the employee has
-	 *         not clocked in
+	 * @return the clock-in time as a {@link Instant}, or {@code null} if not yet
+	 *         assigned.
 	 */
 	public Instant getEntryTime() {
 		return this.entryTime;
@@ -192,6 +198,16 @@ public class TimeLog implements Serializable {
 	 */
 	public Instant getExitTime() {
 		return this.exitTime;
+	}
+
+	/**
+	 * Returns the total time spent working or {@code null} if not yet calculated
+	 *
+	 * @return the total work time as a {@link Duration} or {@code null} if not yet
+	 *         calculated.
+	 */
+	public Duration getWorkDuration() {
+		return this.workDuration;
 	}
 
 	/**
@@ -209,26 +225,8 @@ public class TimeLog implements Serializable {
 	 *
 	 * @param id the ID to set for this time log
 	 */
-	public void setId(final Long id) {
+	protected void setId(final Long id) {
 		this.id = id;
-	}
-
-	/**
-	 * Sets the employee for this time log.
-	 *
-	 * @param employee the employee to associate with this time log
-	 */
-	public void setEmployee(final Employee employee) {
-		this.employee = employee;
-	}
-
-	/**
-	 * Sets the clock-in time for this time log.
-	 *
-	 * @param entryTime the clock-in time to set as a {@link Instant}
-	 */
-	public void setEntryTime(final Instant entryTime) {
-		this.entryTime = entryTime;
 	}
 
 	/**
@@ -247,28 +245,21 @@ public class TimeLog implements Serializable {
 	 * @param deleted {@code true} to mark the entity as logically deleted,
 	 *                {@code false} otherwise
 	 */
-	public void setDeleted(boolean deleted) {
+	protected void setDeleted(boolean deleted) {
 		this.deleted = deleted;
 	}
 
 	/**
-	 * Gets the worksite associated with this time log.
-	 *
-	 * @return the {@link Worksite} where the employee performed the logged
-	 *         activity; never {@code null} once the entity is persisted
+	 * Calculates the work duration only when both entry and exit times are present.
+	 * If exitTime is {@code null}, no work duration is calculated.
+	 * 
 	 */
-	public Worksite getWorksite() {
-		return worksite;
-	}
-
-	/**
-	 * Sets the worksite associated with this time log.
-	 *
-	 * @param worksite the {@link Worksite} to associate with this time log; must
-	 *                 not be {@code null}
-	 */
-	public void setWorksite(Worksite worksite) {
-		this.worksite = worksite;
+	@PrePersist
+	@PreUpdate
+	public void calculateWorkTime() {
+		if (this.exitTime != null && this.entryTime != null) {
+			this.workDuration = Duration.between(this.entryTime, this.exitTime);
+		}
 	}
 
 	@Override
@@ -294,6 +285,7 @@ public class TimeLog implements Serializable {
 		return "TimeLog [employee=" + this.employee //
 				+ ", entryTime=" + this.entryTime //
 				+ ", exitTime=" + this.exitTime //
+				+ ", workDuration=" + this.workDuration //
 				+ ", deleted=" + this.deleted //
 				+ "]";
 	}

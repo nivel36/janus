@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.service.admin.AdminService;
 import es.nivel36.janus.service.employee.Employee;
@@ -84,6 +85,7 @@ public class WorkShiftService {
 	 * @return the saved instance of the {@link WorkShift}
 	 * @throws NullPointerException if {@code workShift} is {@code null}.
 	 */
+	@Transactional
 	public WorkShift save(final WorkShift workShift) {
 		Objects.requireNonNull(workShift, "workShift must not be null");
 		logger.debug("Saving workShift {}", workShift);
@@ -101,6 +103,7 @@ public class WorkShiftService {
 	 * @return a {@link WorkShift}. It may contain no time logs if none were found.
 	 * @throws NullPointerException if any parameter is {@code null}.
 	 */
+	@Transactional(readOnly = true)
 	public WorkShift findWorkShift(final Employee employee, final Worksite worksite, final LocalDate date) {
 		Objects.requireNonNull(employee, "Employee must not be null");
 		Objects.requireNonNull(worksite, "Worksite must not be null");
@@ -127,7 +130,7 @@ public class WorkShiftService {
 		final Instant fromInstant = date.atStartOfDay().atZone(z).toInstant().minus(1, ChronoUnit.DAYS);
 		final Instant toInstant = date.atStartOfDay().atZone(z).toInstant().plus(2, ChronoUnit.DAYS);
 		logger.trace("Querying time logs with range [{} - {}]", fromInstant, toInstant);
-		final Page<TimeLog> timeLogs = this.timeLogservice.searchByEmployeeAndEntryTimeInRange(employee, fromInstant,
+		final Page<TimeLog> timeLogs = this.timeLogservice.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, fromInstant,
 				toInstant, Pageable.unpaged());
 		return this.buildWorkShift(employee, worksite, date, timeLogs.getContent());
 	}
@@ -143,6 +146,7 @@ public class WorkShiftService {
 	 *                     not be {@code null}
 	 * @return a populated {@link WorkShift}; never {@code null}
 	 */
+	@Transactional(readOnly = true)
 	public WorkShift buildWorkShift(final Employee employee, final Worksite worksite, final LocalDate date,
 			final List<TimeLog> timeLogsList) {
 		Objects.requireNonNull(employee);

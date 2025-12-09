@@ -21,6 +21,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
@@ -49,6 +50,7 @@ public class AppUserService {
 	 * @throws NullPointerException      if the username is null
 	 * @throws ResourceNotFoundException if the user is not found
 	 */
+	@Transactional(readOnly = true)
 	public AppUser findAppUserByUsername(final String username) {
 		Objects.requireNonNull(username, "username cannot be null.");
 		logger.debug("Finding AppUser by username {}", username);
@@ -77,6 +79,7 @@ public class AppUserService {
 	 * @throws NullPointerException           if any argument is null
 	 * @throws ResourceAlreadyExistsException if the username already exists
 	 */
+	@Transactional
 	public AppUser createAppUser(final String username, final String name, final String surname, final Locale locale,
 			final TimeFormat timeFormat) {
 
@@ -120,6 +123,7 @@ public class AppUserService {
 	 * @throws ResourceNotFoundException if no AppUser exists with the given
 	 *                                   username
 	 */
+	@Transactional
 	public AppUser updateAppUser(final String username, final String newName, final String newSurname,
 			final Locale newLocale, final TimeFormat newTimeFormat) {
 
@@ -154,6 +158,7 @@ public class AppUserService {
 	 * @param appUser the AppUser to be deleted
 	 * @throws NullPointerException if the user is null
 	 */
+	@Transactional
 	public void deleteAppUser(final AppUser appUser) {
 		Objects.requireNonNull(appUser, "appUser cannot be null.");
 		logger.debug("Deleting AppUser {}", appUser);
