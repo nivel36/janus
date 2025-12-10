@@ -255,7 +255,7 @@ public class TimeLogService {
 
 		if (lastTimeLog == null) {
 			logger.warn("No open time log found. A one-second time log is created.");
-			return this.createTimeLog(employee, worksite, truncatedExitTime.minus(1, ChronoUnit.SECONDS),
+			return this.doCreateTimeLog(employee, worksite, truncatedExitTime.minus(1, ChronoUnit.SECONDS),
 					truncatedExitTime);
 		}
 
