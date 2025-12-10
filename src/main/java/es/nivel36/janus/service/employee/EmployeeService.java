@@ -166,7 +166,7 @@ public class EmployeeService {
 		Objects.requireNonNull(newSchedule, "newSchedule cannot be null.");
 		logger.debug("Updating employee {}", email);
 
-		final Employee employee = this.findEmployeeByEmail(email);
+		final Employee employee = this.findEmployee(email);
 		employee.setName(newName.trim());
 		employee.setSurname(newSurname.trim());
 		employee.setSchedule(newSchedule);
