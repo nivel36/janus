@@ -100,7 +100,7 @@ public class TimeLogService {
 
 	private TimeLog doCreateTimeLog(final Employee employee, final Worksite worksite, final Instant entryTime,
 			final Instant exitTime) {
-		logger.debug("Creating time log for employee {} at worksite {} with entry time {} and exit time", employee,
+		logger.debug("Creating time log for employee {} at worksite {} with entry time {} and exit time {}", employee,
 				worksite, entryTime, exitTime);
 		final Duration lockDuration = Duration.ofDays(adminService.getDaysUntilLocked());
 		final Instant now = clock.instant();
