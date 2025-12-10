@@ -29,9 +29,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -214,8 +218,9 @@ class TimeLogServiceTest {
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
 		// Act & Assert
-		assertThrows(NullPointerException.class, () -> this.timeLogService.createTimeLog(this.employee, this.worksite,
-				null, fixedNow.minus(1, ChronoUnit.HOURS)));
+		final Instant oneHourBefore = fixedNow.minus(1, ChronoUnit.HOURS);
+		assertThrows(NullPointerException.class,
+				() -> timeLogService.createTimeLog(employee, worksite, null, oneHourBefore));
 		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
@@ -228,78 +233,53 @@ class TimeLogServiceTest {
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
 		// Act & Assert
-		assertThrows(NullPointerException.class, () -> this.timeLogService.createTimeLog(this.employee, this.worksite,
-				fixedNow.minus(1, ChronoUnit.HOURS), null));
+		final Instant oneHourBefore = fixedNow.minus(1, ChronoUnit.HOURS);
+		assertThrows(NullPointerException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, oneHourBefore, null));
 		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
-	@Test
-	void testCreateTimeLogEntryOutsideEditingWindowThrows() {
-		logger.info("Test create timelog entry outside editing window throws");
-		// Arrange
+	@ParameterizedTest(name = "{index} => {0}")
+	@MethodSource("provideInvalidEntryExitPairs")
+	void testCreateTimeLogInvalidEntryExitShouldThrow(String description, Instant entry, Instant exit) {
+
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(clock.instant()).thenReturn(fixedNow);
+		when(adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final Instant entry = fixedNow.minus(4, ChronoUnit.DAYS); // fuera de ventana
-		final Instant exit = fixedNow.minus(1, ChronoUnit.DAYS); // dentro, pero entry bloquea
-
-		// Act & Assert
 		assertThrows(TimeLogModificationNotAllowedException.class,
-				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, entry, exit));
-		verify(this.timeLogRepository, times(0)).save(any());
+				() -> timeLogService.createTimeLog(employee, worksite, entry, exit));
+
+		verify(timeLogRepository, times(0)).save(any());
 	}
 
-	@Test
-	void testCreateTimeLogExitOutsideEditingWindowThrows() {
-		logger.info("Test create timelog exit outside editing window throws");
-		// Arrange
+	private static Stream<Arguments> provideInvalidEntryExitPairs() {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
 
-		final Instant entry = fixedNow.minus(1, ChronoUnit.DAYS); // dentro de ventana
-		final Instant exit = fixedNow.minus(4, ChronoUnit.DAYS); // fuera de ventana
+		return Stream.of(
+				// Case 1: entry outside editing window
+				Arguments.of("Entry outside editing window", //
+						fixedNow.minus(4, ChronoUnit.DAYS), // outside window
+						fixedNow.minus(1, ChronoUnit.DAYS) // inside window
+				),
 
-		// Act & Assert
-		assertThrows(TimeLogModificationNotAllowedException.class,
-				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, entry, exit));
-		verify(this.timeLogRepository, times(0)).save(any());
-	}
+				// Case 2: exit outside editing window
+				Arguments.of("Exit outside editing window", //
+						fixedNow.minus(1, ChronoUnit.DAYS), // inside window
+						fixedNow.minus(4, ChronoUnit.DAYS) // outside window
+				),
 
-	@Test
-	void testCreateTimeLogBoundaryAtLockInstantForEntryShouldThrow() {
-		logger.info("Test create timelog boundary at lock instant for entry should throw");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+				// Case 3: entry exactly at lock boundary (blocks)
+				Arguments.of("Entry exactly at lock boundary", //
+						fixedNow.minus(3, ChronoUnit.DAYS), // boundary: entry + 3d == now
+						fixedNow.minus(2, ChronoUnit.DAYS) //
+				),
 
-		// entry.plus(3d) == now -> !isAfter(now) => EXCEPCIÓN
-		final Instant entry = fixedNow.minus(3, ChronoUnit.DAYS);
-		final Instant exit = fixedNow.minus(2, ChronoUnit.DAYS);
-
-		// Act & Assert
-		assertThrows(TimeLogModificationNotAllowedException.class,
-				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, entry, exit));
-		verify(this.timeLogRepository, times(0)).save(any());
-	}
-
-	@Test
-	void testCreateTimeLogBoundaryAtLockInstantForExitShouldThrow() {
-		logger.info("Test create timelog boundary at lock instant for exit should throw");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
-
-		final Instant entry = fixedNow.minus(2, ChronoUnit.DAYS);
-		final Instant exit = fixedNow.minus(3, ChronoUnit.DAYS); // exit.plus(3d) == now -> bloquea
-
-		// Act & Assert
-		assertThrows(TimeLogModificationNotAllowedException.class,
-				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, entry, exit));
-		verify(this.timeLogRepository, times(0)).save(any());
+				// Case 4: exit exactly at lock boundary (blocks)
+				Arguments.of("Exit exactly at lock boundary", //
+						fixedNow.minus(2, ChronoUnit.DAYS), //
+						fixedNow.minus(3, ChronoUnit.DAYS) // boundary: exit + 3d == now
+				));
 	}
 
 	@Test
