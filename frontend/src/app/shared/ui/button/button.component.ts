@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
 type ButtonVariant = 'default' | 'error' | 'info' | 'success' | 'neutral';
@@ -7,10 +8,11 @@ type ButtonType = 'button' | 'submit' | 'reset';
 type IconPosition = 'left' | 'right';
 
 @Component({
-	selector: 'app-button',
-	standalone: true,
-	templateUrl: './button.component.html',
-	styleUrl: './button.component.css',
+        selector: 'app-button',
+        standalone: true,
+        imports: [CommonModule],
+        templateUrl: './button.component.html',
+        styleUrl: './button.component.css',
 })
 export class ButtonComponent {
 	@Input() variant: ButtonVariant = 'default';

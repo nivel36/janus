@@ -6,13 +6,14 @@
 		"noPropertyAccessFromIndexSignature": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
-		"skipLibCheck": true,
-		"isolatedModules": true,
-		"experimentalDecorators": true,
-		"importHelpers": true,
-		"target": "ES2022",
-		"module": "preserve"
-	},
+                "skipLibCheck": true,
+                "isolatedModules": true,
+                "experimentalDecorators": true,
+                "importHelpers": true,
+                "target": "ES2022",
+                "module": "preserve",
+                "moduleResolution": "bundler"
+        },
 	"angularCompilerOptions": {
 		"enableI18nLegacyMessageIdFormat": false,
 		"strictInjectionParameters": true,
