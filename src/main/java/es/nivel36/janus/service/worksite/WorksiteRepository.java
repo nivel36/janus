@@ -37,7 +37,7 @@ import es.nivel36.janus.service.employee.Employee;
  * </p>
  */
 @Repository
-public interface WorksiteRepository extends CrudRepository<Worksite, Long> {
+interface WorksiteRepository extends CrudRepository<Worksite, Long> {
 
 	/**
 	 * Retrieves a list of {@link Worksite} instances in which the specified
