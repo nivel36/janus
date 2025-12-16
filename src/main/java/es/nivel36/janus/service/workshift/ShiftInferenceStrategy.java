@@ -18,7 +18,6 @@ package es.nivel36.janus.service.workshift;
 import java.time.LocalDate;
 import java.util.List;
 
-import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.timelog.TimeLog;
 
 /**
@@ -33,5 +32,5 @@ interface ShiftInferenceStrategy {
 	 * @param context shift context, not null
 	 * @return inference result with selected logs and an optional clip window
 	 */
-	List<TimeLog> infer(Employee employee, LocalDate date, List<TimeLog> orderedLogs);
+	List<TimeLog> infer(LocalDate date, List<TimeLog> orderedLogs);
 }

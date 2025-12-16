@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
@@ -83,8 +82,7 @@ final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 	 *                              {@code timeRange} is {@code null}
 	 */
 	@Override
-	public List<TimeLog> infer(final Employee employee, LocalDate date, List<TimeLog> orderedLogs) {
-		Objects.requireNonNull(employee, "employee can't be null");
+	public List<TimeLog> infer(final LocalDate date, final List<TimeLog> orderedLogs) {
 		Objects.requireNonNull(date, "date can't be null");
 		Objects.requireNonNull(orderedLogs, "orderedLogs can't be null");
 		final ZoneId timeZone = this.worksite.getTimeZone();

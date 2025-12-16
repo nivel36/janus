@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
 
@@ -51,7 +50,7 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 	}
 
 	@Override
-	public List<TimeLog> infer(final Employee employee, LocalDate date, List<TimeLog> orderedLogs) {
+	public List<TimeLog> infer(LocalDate date, List<TimeLog> orderedLogs) {
 
 		final List<PauseInfo> longPauses = this.extractLongPauses(orderedLogs, this.policy.longPauseThreshold());
 		final List<TimeLog> selected = this.selectByPauses(date, orderedLogs, longPauses);

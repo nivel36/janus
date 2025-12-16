@@ -79,7 +79,7 @@ final class WorkShiftComposer {
 		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(date, "date can't be null");
 		Objects.requireNonNull(orderedLogs, "orderedLogs can't be null");
-		final List<TimeLog> selectedLogs = this.inferenceStrategy.infer(employee, date, orderedLogs);
+		final List<TimeLog> selectedLogs = this.inferenceStrategy.infer(date, orderedLogs);
 		if (selectedLogs.isEmpty()) {
 			return new WorkShift(employee, date, selectedLogs);
 		}
