@@ -262,6 +262,10 @@ public class TimeLog implements Serializable {
 		}
 	}
 
+	public boolean isClosed() {
+		return entryTime != null && exitTime != null;
+	}
+
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {

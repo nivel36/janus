@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import es.nivel36.janus.service.timelog.TimeLog;
-import es.nivel36.janus.service.workshift.WorkShiftService.PauseInfo;
+import es.nivel36.janus.service.workshift.UnscheduledShiftStrategy.PauseInfo;
 
 /**
  * Strategy abstraction used by {@link WorkShiftService} to collect the subset

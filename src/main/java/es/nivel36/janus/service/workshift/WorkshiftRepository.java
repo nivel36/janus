@@ -41,23 +41,6 @@ public interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 	WorkShift findByEmployeeAndDate(Employee employee, LocalDate date);
 
 	/**
-	 * Checks whether a {@link WorkShift} exists for the specified employee on the
-	 * given date.
-	 *
-	 * @param employee the employee to check; must not be {@code null}
-	 * @param date     the local date to verify; must not be {@code null}
-	 * @return {@code true} if a work shift exists for the employee on that date;
-	 *         {@code false} otherwise
-	 */
-	@Query("""
-			SELECT CASE WHEN COUNT(w) > 0 THEN true ELSE false END
-			FROM WorkShift w
-			WHERE w.employee = :employee
-			AND w.date = :date
-			""")
-	boolean existsByEmployeeAndDate(Employee employee, LocalDate date);
-
-	/**
 	 * Finds the {@link WorkShift} entries for an employee whose {@code date} falls
 	 * within the provided half-open range {@code [fromInclusive, toExclusive)}.
 	 *

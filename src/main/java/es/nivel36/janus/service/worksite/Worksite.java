@@ -289,6 +289,6 @@ public class Worksite implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Worksite [" + code + " :: " + name + "]";
+		return code;
 	}
 }

@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Objects;
 
 import es.nivel36.janus.service.timelog.TimeLog;
-import es.nivel36.janus.service.workshift.WorkShiftService.PauseInfo;
+import es.nivel36.janus.service.workshift.UnscheduledShiftStrategy.PauseInfo;
 
-final class WeekdayTimeLogsExtractor implements TimeLogsExtractor {
+final class MiddleSegmentExtractor implements TimeLogsExtractor {
 
 	@Override
-	public List<TimeLog> extract(LocalDate date, List<TimeLog> timeLogs, List<PauseInfo> pauses) {
+	public List<TimeLog> extract(final LocalDate date, final List<TimeLog> timeLogs, final List<PauseInfo> pauses) {
 		Objects.requireNonNull(date, "date must not be null");
 		Objects.requireNonNull(timeLogs, "timeLogs must not be null");
 		Objects.requireNonNull(pauses, "pauses must not be null");
@@ -40,8 +40,8 @@ final class WeekdayTimeLogsExtractor implements TimeLogsExtractor {
 
 		// Ordena por duración descendente y, a igualdad, por índice ascendente
 		pauses.sort((a, b) -> {
-			final int byDuration = b.duration.compareTo(a.duration);
-			return (byDuration != 0) ? byDuration : Integer.compare(a.index, b.index);
+			final int byDuration = b.duration().compareTo(a.duration());
+			return (byDuration != 0) ? byDuration : Integer.compare(a.index(), b.index());
 		});
 
 		// Toma las dos más largas
@@ -50,13 +50,13 @@ final class WeekdayTimeLogsExtractor implements TimeLogsExtractor {
 
 		// Verifica índices válidos respecto a timeLogs
 		final int maxIdx = timeLogs.size() - 1;
-		if (p1.index < 0 || p1.index > maxIdx - 1 || p2.index < 0 || p2.index > maxIdx - 1) {
+		if (p1.index() < 0 || p1.index() > maxIdx - 1 || p2.index() < 0 || p2.index() > maxIdx - 1) {
 			throw new IllegalStateException("Pause indices out of bounds for time logs");
 		}
 
 		// Asegura orden
-		final int leftPauseIndex = Math.min(p1.index, p2.index);
-		final int rightPauseIndex = Math.max(p1.index, p2.index);
+		final int leftPauseIndex = Math.min(p1.index(), p2.index());
+		final int rightPauseIndex = Math.max(p1.index(), p2.index());
 
 		// Segmento entre ambas pausas [left+1, right] inclusivo
 		final int startIndex = Math.max(0, leftPauseIndex + 1);
@@ -68,6 +68,7 @@ final class WeekdayTimeLogsExtractor implements TimeLogsExtractor {
 		}
 
 		// Copia defensiva para evitar vista de subList
-		return new ArrayList<>(timeLogs.subList(startIndex, endIndex + 1));
+		final List<TimeLog> subList = timeLogs.subList(startIndex, endIndex + 1);
+		return new ArrayList<>(subList);
 	}
 }

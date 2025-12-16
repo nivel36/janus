@@ -57,9 +57,9 @@ class WorkShiftServiceTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(WorkShiftServiceTest.class);
 
+	private @Mock WorkshiftRepository workshiftRepository;
 	private @Mock TimeLogService timeLogService;
 	private @Mock ScheduleService scheduleService;
-	private @Mock WorkshiftRepository workshiftRepository;
 	private @Mock AdminService adminService;
 	private @Mock Clock clock;
 	private @InjectMocks WorkShiftService workShiftService;
@@ -70,7 +70,7 @@ class WorkShiftServiceTest {
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
 		this.employee = new Employee();
-		employee.setEmail("aaron@test,com");
+		employee.setEmail("aferrer@nivel36.es");
 		this.worksite = new Worksite();
 		worksite.setCode("BCN-HQ");
 		final ZoneId utcZone = ZoneId.of("UTC");
@@ -83,7 +83,7 @@ class WorkShiftServiceTest {
 		final LocalDate previousDay = date.minusDays(1);
 		final LocalDate nextDay = date.plusDays(1);
 		final Employee employee = new Employee();
-		employee.setEmail("aaron@test,com");
+		employee.setEmail("aferrer@nivel36.es");
 		final Worksite worksite = new Worksite();
 		worksite.setCode("BCN-HQ");
 		final ZoneId utcZone = ZoneId.of("UTC");

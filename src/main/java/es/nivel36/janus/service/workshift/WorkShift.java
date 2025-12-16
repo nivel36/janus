@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.timelog.TimeLog;
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -65,19 +65,20 @@ public class WorkShift implements Serializable {
 	 */
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "employee_id")
+	@JoinColumn(name = "employee_id", updatable = false)
 	private Employee employee;
 
 	/**
 	 * The date when the work shift started
 	 */
 	@NotNull
+	@Column(updatable = false)
 	private LocalDate date;
 
 	/**
 	 * The list of time logs (clock-ins and clock-outs) that define the work shift.
 	 */
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany
 	@JoinTable(name = "workshift_timelog", //
 			joinColumns = @JoinColumn(name = "workshift_id"), //
 			inverseJoinColumns = @JoinColumn(name = "timelog_id"))
@@ -94,6 +95,33 @@ public class WorkShift implements Serializable {
 	 */
 	@NotNull
 	private Duration totalWorkTime = Duration.ZERO;
+
+	/**
+	 * Protected no-argument constructor required by persistence frameworks.
+	 *
+	 * <p>
+	 * This constructor should not be used directly in application code. It exists
+	 * solely to allow frameworks such as JPA to instantiate the entity.
+	 */
+	protected WorkShift() {
+	}
+
+	/**
+	 * Creates a new {@code WorkShift} for the specified employee and date,
+	 * initialized with the given list of time logs.
+	 *
+	 * @param employee the employee assigned to this work shift. Can't be
+	 *                 {@code null}.
+	 * @param date     the date when the work shift started. Can't be {@code null}.
+	 * @param timeLogs the list of time logs (clock-ins and clock-outs) associated
+	 *                 with this work shift. Can't be {@code null}.
+	 * @throws NullPointerException if any of the parameters is {@code null}
+	 */
+	public WorkShift(final Employee employee, final LocalDate date, final List<TimeLog> timeLogs) {
+		this.employee = Objects.requireNonNull(employee, "employee can't be null");
+		this.date = Objects.requireNonNull(date, "date can't be null");
+		this.timeLogs = Objects.requireNonNull(timeLogs, "timeLogs can't be null");
+	}
 
 	/**
 	 * Returns the employee associated with this work shift.
@@ -151,40 +179,12 @@ public class WorkShift implements Serializable {
 	}
 
 	/**
-	 * Sets the employee associated with this work shift.
-	 *
-	 * @param employee the employee to assign to this work shift. Cannot be null.
-	 */
-	public void setEmployee(final Employee employee) {
-		this.employee = employee;
-	}
-
-	/**
-	 * Sets the list of work time logs (clock-ins and clock-outs) for this work
-	 * shift.
-	 *
-	 * @param entries the list of time logs to set. Cannot be null.
-	 */
-	public void setTimeLogs(final List<TimeLog> timeLogs) {
-		this.timeLogs = timeLogs;
-	}
-
-	/**
 	 * Sets the unique identifier of the work shift.
 	 *
 	 * @param id the ID to set for the work shift.
 	 */
-	public void setId(final Long id) {
+	protected void setId(final Long id) {
 		this.id = id;
-	}
-
-	/**
-	 * Sets the date when the work shift starts.
-	 *
-	 * @param date the start date to set. Cannot be null.
-	 */
-	public void setDate(final LocalDate date) {
-		this.date = date;
 	}
 
 	/**
@@ -205,15 +205,6 @@ public class WorkShift implements Serializable {
 		this.totalWorkTime = totalWorkTime;
 	}
 
-	/**
-	 * Appends a {@link TimeLog} to the shift definition.
-	 *
-	 * @param timeLog the time log to add; must not be {@code null}
-	 */
-	public void addTimeLog(final TimeLog timeLog) {
-		this.timeLogs.add(timeLog);
-	}
-
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -223,13 +214,12 @@ public class WorkShift implements Serializable {
 			return false;
 		}
 		final WorkShift other = (WorkShift) obj;
-		return Objects.equals(this.id, other.id) && Objects.equals(this.employee, other.employee)
-				&& Objects.equals(this.date, other.date);
+		return Objects.equals(this.employee, other.employee) && Objects.equals(this.date, other.date);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.employee, this.date);
+		return Objects.hash(this.employee, this.date);
 	}
 
 	@Override
