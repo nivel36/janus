@@ -83,6 +83,10 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	 * If no anchor is found, if the input list is empty, or if the computed range
 	 * is invalid, an empty list is returned.
 	 * </p>
+	 * 
+	 * Precondition:</br>
+	 * - pauses must contain at least two pause</br>
+	 * - timeLogs must contain at least two timeLog
 	 *
 	 * @param date     the date used to determine the shift start; can't be
 	 *                 {@code null}
@@ -92,7 +96,8 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	 *                 {@code null}
 	 * @return a list containing the extracted {@link TimeLog} segment, or an empty
 	 *         list if no segment can be determined
-	 * @throws NullPointerException if any argument is {@code null}
+	 * @throws NullPointerException     if any argument is {@code null}
+	 * @throws IllegalArgumentException if preconditions are not met
 	 */
 	@Override
 	public List<TimeLog> extract(final LocalDate date, final List<TimeLog> timeLogs, final List<PauseInfo> pauses) {
@@ -100,8 +105,11 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 		Objects.requireNonNull(timeLogs, "timeLogs must not be null");
 		Objects.requireNonNull(pauses, "pauses must not be null");
 
-		if (timeLogs.isEmpty()) {
-			return List.of();
+		if (pauses.size() < 2) {
+			throw new IllegalStateException("At least two long pauses are required to extract weekday logs");
+		}
+		if (timeLogs.size() < 2) {
+			throw new IllegalStateException("At least two time logs are needed");
 		}
 
 		// 1) Anchor: first log whose entry time falls on {@code date}
