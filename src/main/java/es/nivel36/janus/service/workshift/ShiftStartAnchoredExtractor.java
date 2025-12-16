@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -97,7 +96,7 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	 * @return a list containing the extracted {@link TimeLog} segment, or an empty
 	 *         list if no segment can be determined
 	 * @throws NullPointerException     if any argument is {@code null}
-	 * @throws IllegalArgumentException if preconditions are not met
+	 * @throws IllegalStateException if preconditions are not met
 	 */
 	@Override
 	public List<TimeLog> extract(final LocalDate date, final List<TimeLog> timeLogs, final List<PauseInfo> pauses) {
@@ -106,97 +105,71 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 		Objects.requireNonNull(pauses, "pauses must not be null");
 
 		if (pauses.size() < 2) {
-			throw new IllegalStateException("At least two long pauses are required to extract weekday logs");
+			throw new IllegalStateException("At least two pauses are required");
 		}
 		if (timeLogs.size() < 2) {
-			throw new IllegalStateException("At least two time logs are needed");
+			throw new IllegalStateException("At least two time logs are required");
 		}
 
-		// 1) Anchor: first log whose entry time falls on {@code date}
-		// (using the worksite local time zone)
-		final int anchorIndex = findAnchorIndex(date, timeLogs);
-		if (anchorIndex < 0) {
-			// No shift start exists on that day
+		final TimeLog anchor = findAnchor(date, timeLogs);
+		if (anchor == null) {
 			return List.of();
 		}
 
-		// 2) Determine segment boundaries using long pauses as separators
-		// PauseInfo.index() represents the index of the log AFTER which a long pause
-		// occurs.
-		final List<PauseInfo> byIndex = new ArrayList<>(pauses);
-		byIndex.sort(Comparator.comparingInt(PauseInfo::index));
+		final PauseInfo leftPause = findLastPauseBefore(anchor, pauses);
+		final PauseInfo rightPause = findFirstPauseAfterOrAt(anchor, pauses);
 
-		final int leftSeparator = findLastSeparatorBefore(anchorIndex, byIndex);
-		final int rightSeparator = findFirstSeparatorAtOrAfter(anchorIndex, byIndex);
+		final int startIndex = (leftPause != null) ? indexOfOrFail(timeLogs, leftPause.after(), "left pause 'after'")
+				: 0;
 
-		final int startIndex = leftSeparator + 1;
-		final int endIndexInclusive = (rightSeparator >= 0) ? rightSeparator : (timeLogs.size() - 1);
+		final int endIndex = (rightPause != null) ? indexOfOrFail(timeLogs, rightPause.before(), "right pause 'before'")
+				: timeLogs.size() - 1;
 
-		if (startIndex > endIndexInclusive) {
-			return List.of();
+		if (startIndex > endIndex) {
+			throw new IllegalStateException(
+					"Invalid range computed: startIndex=" + startIndex + ", endIndex=" + endIndex);
 		}
-
-		return new ArrayList<>(timeLogs.subList(startIndex, endIndexInclusive + 1));
+		
+		return new ArrayList<>(timeLogs.subList(startIndex, endIndex + 1));
 	}
 
-	/**
-	 * Finds the index of the first {@link TimeLog} whose entry time falls on the
-	 * specified date when converted to the configured {@link ZoneId}.
-	 *
-	 * @param date     the date to match against log entry times
-	 * @param timeLogs ordered list of time logs to inspect
-	 * @return the index of the first matching {@link TimeLog}, or {@code -1} if
-	 *         none match
-	 */
-	private int findAnchorIndex(final LocalDate date, final List<TimeLog> timeLogs) {
-		for (int i = 0; i < timeLogs.size(); i++) {
-			final Instant in = timeLogs.get(i).getEntryTime();
-			if (in == null) {
-				continue;
-			}
-			final LocalDate local = in.atZone(zoneId).toLocalDate();
-			if (local.equals(date)) {
-				return i;
+	private TimeLog findAnchor(final LocalDate date, final List<TimeLog> timeLogs) {
+		for (final TimeLog log : timeLogs) {
+			final Instant in = log.getEntryTime();
+			if (in != null && in.atZone(zoneId).toLocalDate().equals(date)) {
+				return log;
 			}
 		}
-		return -1;
+		return null;
 	}
 
-	/**
-	 * Finds the index of the last pause separator that occurs strictly before the
-	 * given anchor index.
-	 *
-	 * @param anchorIndex   index of the anchor {@link TimeLog}
-	 * @param pausesByIndex list of pauses sorted by {@link PauseInfo#index()}
-	 * @return the separator index, or {@code -1} if none exists before the anchor
-	 */
-	private int findLastSeparatorBefore(final int anchorIndex, final List<PauseInfo> pausesByIndex) {
-		int last = -1;
-		for (final PauseInfo p : pausesByIndex) {
-			if (p.index() < anchorIndex) {
-				last = p.index();
-			} else {
-				break;
+	private PauseInfo findLastPauseBefore(final TimeLog anchor, final List<PauseInfo> pauses) {
+		PauseInfo candidate = null;
+		for (final PauseInfo pause : pauses) {
+			if (pause.after().equals(anchor)) {
+				return pause;
+			}
+			if (pause.after().getEntryTime().isBefore(anchor.getEntryTime())) {
+				candidate = pause;
 			}
 		}
-		return last;
+		return candidate;
 	}
 
-	/**
-	 * Finds the index of the first pause separator that occurs at or after the
-	 * given anchor index.
-	 *
-	 * @param anchorIndex   index of the anchor {@link TimeLog}
-	 * @param pausesByIndex list of pauses sorted by {@link PauseInfo#index()}
-	 * @return the separator index, or {@code -1} if none exists at or after the
-	 *         anchor
-	 */
-	private int findFirstSeparatorAtOrAfter(final int anchorIndex, final List<PauseInfo> pausesByIndex) {
-		for (final PauseInfo p : pausesByIndex) {
-			if (p.index() >= anchorIndex) {
-				return p.index();
+	private PauseInfo findFirstPauseAfterOrAt(final TimeLog anchor, final List<PauseInfo> pauses) {
+		for (final PauseInfo pause : pauses) {
+			if (pause.before().equals(anchor) || pause.before().getEntryTime().isAfter(anchor.getEntryTime())) {
+				return pause;
 			}
 		}
-		return -1;
+		return null;
+	}
+
+	private static int indexOfOrFail(final List<TimeLog> logs, final TimeLog log, final String label) {
+		final int index = logs.indexOf(log);
+		if (index < 0) {
+			throw new IllegalStateException(label + " not found in timeLogs");
+		}
+		return index;
 	}
 }

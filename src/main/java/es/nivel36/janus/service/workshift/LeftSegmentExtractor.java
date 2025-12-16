@@ -27,11 +27,16 @@ import es.nivel36.janus.service.workshift.UnscheduledShiftStrategy.PauseInfo;
  * Extractor implementation that returns the left-hand segment of a list of
  * {@link TimeLog TimeLogs} based on the first {@link PauseInfo} provided.
  *
- * <p>The extractor identifies the first pause and returns all {@link TimeLog}
- * instances that appear <em>before or at</em> the pause index. This is typically
- * used to separate time logs occurring before a pause within a given day.</p>
+ * <p>
+ * The extractor identifies the first pause and returns all {@link TimeLog}
+ * instances that appear <em>before or at</em> the pause index. This is
+ * typically used to separate time logs occurring before a pause within a given
+ * day.
+ * </p>
  *
- * <p>This class is immutable and stateless.</p>
+ * <p>
+ * This class is immutable and stateless.
+ * </p>
  */
 final class LeftSegmentExtractor implements TimeLogsExtractor {
 
@@ -39,35 +44,43 @@ final class LeftSegmentExtractor implements TimeLogsExtractor {
 	 * Extracts the portion of the {@link TimeLog} list that comes before or at the
 	 * first {@link PauseInfo}.
 	 *
-	 * <p>The method requires at least one pause and one time log to be present.
-	 * The returned list contains all {@link TimeLog} elements whose index is less
-	 * than or equal to the index of the first pause.</p>
+	 * <p>
+	 * The method requires at least one pause and one time log to be present. The
+	 * returned list contains all {@link TimeLog} elements whose index is less than
+	 * or equal to the index of the first pause.
+	 * </p>
 	 *
-	 * @param date the date associated with the time logs; can't be {@code null}
-	 * @param timeLogs the complete list of time logs; can't be {@code null} or empty
-	 * @param pauses the list of pauses used to split the time logs; can't be
-	 *               {@code null} or empty
+	 * @param date     the date associated with the time logs; can't be {@code null}
+	 * @param timeLogs the complete list of time logs; can't be {@code null} or
+	 *                 empty
+	 * @param pauses   the list of pauses used to split the time logs; can't be
+	 *                 {@code null} or empty
 	 * @return a list containing the time logs located before or at the first pause;
 	 *         never {@code null}
-	 * @throws NullPointerException if any argument is {@code null}
+	 * @throws NullPointerException  if any argument is {@code null}
 	 * @throws IllegalStateException if {@code pauses} or {@code timeLogs} is empty
 	 */
 	@Override
-	public List<TimeLog> extract(final LocalDate date,
-	                            final List<TimeLog> timeLogs,
-	                            final List<PauseInfo> pauses) {
+	public List<TimeLog> extract(final LocalDate date, final List<TimeLog> timeLogs, final List<PauseInfo> pauses) {
 		Objects.requireNonNull(date, "date must not be null");
 		Objects.requireNonNull(timeLogs, "timeLogs must not be null");
 		Objects.requireNonNull(pauses, "pauses must not be null");
+
 		if (pauses.isEmpty()) {
 			throw new IllegalStateException("At least one pause is required");
 		}
 		if (timeLogs.isEmpty()) {
 			throw new IllegalStateException("At least one time log is required");
 		}
-		final PauseInfo first = pauses.getFirst();
-		final int toIndex = first.index() + 1;
-		final List<TimeLog> subList = timeLogs.subList(0, toIndex);
-		return new ArrayList<>(subList);
+
+		final PauseInfo firstPause = pauses.getFirst();
+		final TimeLog cutAt = firstPause.before();
+
+		final int toIndex = timeLogs.indexOf(cutAt);
+		if (toIndex < 0) {
+			throw new IllegalStateException("Pause 'before' log not found in timeLogs");
+		}
+
+		return new ArrayList<>(timeLogs.subList(0, toIndex + 1));
 	}
 }

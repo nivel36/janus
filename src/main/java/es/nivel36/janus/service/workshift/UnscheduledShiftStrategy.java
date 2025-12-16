@@ -27,47 +27,78 @@ import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
 
 /**
- * Unscheduled shift inference: uses long pauses as separators and selects a
- * "best effort" set of logs for the requested date. No clip window is returned.
+ * {@link ShiftInferenceStrategy} implementation that infers a work shift when
+ * no scheduled shift information is available.
  *
  * <p>
- * This strategy delegates the ambiguous "which side of a single long pause"
- * decision to extractors.
+ * This strategy analyzes an ordered list of {@link TimeLog} entries and
+ * identifies long pauses between consecutive logs based on the configured
+ * {@link ShiftPolicy}. Depending on the number and position of these pauses,
+ * the strategy determines which segment of logs belongs to the inferred shift
+ * for a given {@link LocalDate}.
+ *
+ * <p>
+ * The inference rules are:
+ * <ul>
+ * <li>If two or more long pauses are found, the shift is inferred using a
+ * start-anchored extraction strategy.</li>
+ * <li>If exactly one long pause is found, either the left or right segment
+ * around the pause is selected depending on the pause position relative to the
+ * target date.</li>
+ * <li>If no long pauses are found, all logs are treated as a single continuous
+ * shift.</li>
+ * </ul>
  */
 final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 
+	/**
+	 * Policy defining thresholds and rules used to detect long pauses between
+	 * {@link TimeLog} entries.
+	 */
 	private final ShiftPolicy policy;
+
+	/**
+	 * Worksite associated with the inferred shift, mainly used to resolve time
+	 * zone–dependent date calculations.
+	 */
 	private final Worksite worksite;
 
 	/**
-	 * Creates the strategy.
+	 * Creates a new {@code UnscheduledShiftStrategy}.
 	 *
-	 * @param policy policy containing long pause threshold, not null
+	 * @param policy   policy defining long pause thresholds; can't be {@code null}
+	 * @param worksite worksite used for time zone resolution; can't be {@code null}
 	 */
 	UnscheduledShiftStrategy(final ShiftPolicy policy, final Worksite worksite) {
 		this.policy = Objects.requireNonNull(policy, "policy must not be null.");
 		this.worksite = Objects.requireNonNull(worksite, "worksite must not be null.");
 	}
 
+	/**
+	 * Infers the {@link TimeLog} entries that belong to the shift for the given
+	 * date.
+	 *
+	 * <p>
+	 * The input logs must be ordered chronologically. The method detects long
+	 * pauses according to the configured {@link ShiftPolicy} and delegates the
+	 * selection of the appropriate segment to specialized extractors.
+	 *
+	 * @param date        date for which the shift is being inferred; can't be
+	 *                    {@code null}
+	 * @param orderedLogs chronologically ordered time logs; can't be {@code null}
+	 * @return an immutable list of {@link TimeLog} entries belonging to the
+	 *         inferred shift; never {@code null}
+	 */
 	@Override
 	public List<TimeLog> infer(LocalDate date, List<TimeLog> orderedLogs) {
-
+		Objects.requireNonNull(date, "date must not be null.");
+		Objects.requireNonNull(orderedLogs, "orderedLogs must not be null.");
 		final List<PauseInfo> longPauses = this.extractLongPauses(orderedLogs, this.policy.longPauseThreshold());
 		final List<TimeLog> selected = this.selectByPauses(date, orderedLogs, longPauses);
 		return List.copyOf(selected);
 	}
 
-	/**
-	 * Extracts pauses of at least {@code threshold} between consecutive logs.
-	 *
-	 * @param timeLogs  ordered logs, not null
-	 * @param threshold long pause threshold, not null
-	 * @return long pauses
-	 */
 	private List<PauseInfo> extractLongPauses(final List<TimeLog> timeLogs, final Duration threshold) {
-		Objects.requireNonNull(timeLogs, "timeLogs must not be null.");
-		Objects.requireNonNull(threshold, "threshold must not be null.");
-
 		final List<PauseInfo> pauses = new ArrayList<>();
 		for (int i = 0; i < timeLogs.size() - 1; i++) {
 			final TimeLog current = timeLogs.get(i);
@@ -81,27 +112,14 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 
 			final Duration gap = Duration.between(out, nextIn);
 			if (!gap.isNegative() && gap.compareTo(threshold) >= 0) {
-				pauses.add(new PauseInfo(i, gap));
+				pauses.add(new PauseInfo(current, next, gap));
 			}
 		}
 		return pauses;
 	}
 
-	/**
-	 * Selects which logs belong to the inferred shift for {@code date} using pause
-	 * separators.
-	 *
-	 * @param date     target date, not null
-	 * @param timeLogs ordered logs, not null
-	 * @param pauses   long pauses, not null
-	 * @return selected logs for the inferred shift
-	 */
 	private List<TimeLog> selectByPauses(final LocalDate date, final List<TimeLog> timeLogs,
 			final List<PauseInfo> pauses) {
-		Objects.requireNonNull(date, "date must not be null.");
-		Objects.requireNonNull(timeLogs, "timeLogs must not be null.");
-		Objects.requireNonNull(pauses, "pauses must not be null.");
-
 		if (timeLogs.isEmpty()) {
 			return List.of();
 		}
@@ -111,7 +129,7 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 		}
 
 		if (pauses.size() == 1) {
-			final TimeLog first = timeLogs.get(pauses.getFirst().index());
+			final TimeLog first = pauses.getFirst().before();
 			final Worksite worksite = Objects.requireNonNull(first.getWorksite(), "worksite must not be null.");
 			final ZoneId tz = Objects.requireNonNull(worksite.getTimeZone(), "worksite.timeZone must not be null.");
 			final Instant firstExit = Objects.requireNonNull(first.getExitTime(), "first.exitTime must not be null.");
@@ -128,24 +146,21 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 	}
 
 	/**
-	 * Holds index of the log and the long pause duration that follows it.
+	 * Value object representing a long pause between two consecutive
+	 * {@link TimeLog} entries.
 	 *
-	 * @param index    index of the log after which the pause occurs
-	 * @param duration pause duration
+	 * @param before   the {@link TimeLog} occurring before the pause; can't be
+	 *                 {@code null}
+	 * @param after    the {@link TimeLog} occurring after the pause; can't be
+	 *                 {@code null}
+	 * @param duration duration of the pause; can't be {@code null}
 	 */
-	record PauseInfo(int index, Duration duration) {
+	record PauseInfo(TimeLog before, TimeLog after, Duration duration) {
 
-		/**
-		 * Creates pause info.
-		 *
-		 * @param index    index, must be >= 0
-		 * @param duration duration, not null
-		 */
 		public PauseInfo {
 			Objects.requireNonNull(duration, "duration must not be null.");
-			if (index < 0) {
-				throw new IllegalArgumentException("index must be >= 0.");
-			}
+			Objects.requireNonNull(after, "after must not be null.");
+			Objects.requireNonNull(before, "before must not be null.");
 		}
 	}
 }
