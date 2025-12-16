@@ -46,6 +46,6 @@ class ShiftInferenceStrategyResolver {
 	 */
 	ShiftInferenceStrategy resolve(final Optional<TimeRange> timeRange, Worksite worksite, final ShiftPolicy policy) {
 		return timeRange.<ShiftInferenceStrategy>map(tr -> new ScheduledShiftStrategy(policy, tr, worksite))
-				.orElseGet(() -> new UnscheduledShiftStrategy(policy));
+				.orElseGet(() -> new UnscheduledShiftStrategy(policy, worksite));
 	}
 }

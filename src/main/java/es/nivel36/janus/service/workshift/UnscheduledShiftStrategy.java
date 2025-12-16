@@ -38,21 +38,22 @@ import es.nivel36.janus.service.worksite.Worksite;
 final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 
 	private final ShiftPolicy policy;
+	private final Worksite worksite;
 
 	/**
 	 * Creates the strategy.
 	 *
 	 * @param policy policy containing long pause threshold, not null
 	 */
-	UnscheduledShiftStrategy(final ShiftPolicy policy) {
+	UnscheduledShiftStrategy(final ShiftPolicy policy, final Worksite worksite) {
 		this.policy = Objects.requireNonNull(policy, "policy must not be null.");
+		this.worksite = Objects.requireNonNull(worksite, "worksite must not be null.");
 	}
 
 	@Override
 	public List<TimeLog> infer(final Employee employee, LocalDate date, List<TimeLog> orderedLogs) {
 
-		final List<PauseInfo> longPauses = this.extractLongPauses(orderedLogs,
-				this.policy.longPauseThreshold());
+		final List<PauseInfo> longPauses = this.extractLongPauses(orderedLogs, this.policy.longPauseThreshold());
 		final List<TimeLog> selected = this.selectByPauses(date, orderedLogs, longPauses);
 		return List.copyOf(selected);
 	}
@@ -107,7 +108,7 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 		}
 
 		if (pauses.size() >= 2) {
-			return new MiddleSegmentExtractor().extract(date, timeLogs, pauses);
+			return new ShiftStartAnchoredExtractor(worksite.getTimeZone()).extract(date, timeLogs, pauses);
 		}
 
 		if (pauses.size() == 1) {
