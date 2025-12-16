@@ -47,6 +47,7 @@ import org.springframework.data.domain.Pageable;
 
 import es.nivel36.janus.service.admin.AdminService;
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
@@ -69,12 +70,9 @@ class WorkShiftServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		this.employee = new Employee();
-		employee.setEmail("aferrer@nivel36.es");
-		this.worksite = new Worksite();
-		worksite.setCode("BCN-HQ");
+		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", new Schedule("CODE", "Name"));
 		final ZoneId utcZone = ZoneId.of("UTC");
-		worksite.setTimeZone(utcZone);
+		this.worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
 		employee.getWorksites().add(worksite);
 	}
 
@@ -82,12 +80,9 @@ class WorkShiftServiceTest {
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 		final LocalDate previousDay = date.minusDays(1);
 		final LocalDate nextDay = date.plusDays(1);
-		final Employee employee = new Employee();
-		employee.setEmail("aferrer@nivel36.es");
-		final Worksite worksite = new Worksite();
-		worksite.setCode("BCN-HQ");
+		final Employee employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", new Schedule("CODE", "Name"));
 		final ZoneId utcZone = ZoneId.of("UTC");
-		worksite.setTimeZone(utcZone);
+		final Worksite worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
 		employee.getWorksites().add(worksite);
 
 		final Instant[] normalDay = { //

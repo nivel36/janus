@@ -20,7 +20,6 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -57,7 +56,7 @@ public class TimeRange implements Serializable {
 	/**
 	 * Creates an empty {@link TimeRange} instance required by JPA.
 	 */
-	public TimeRange() {
+	protected TimeRange() {
 	}
 
 	/**
@@ -65,12 +64,18 @@ public class TimeRange implements Serializable {
 	 *
 	 * @param startTime the lower bound of the range; must not be {@code null}
 	 * @param endTime   the upper bound of the range; must not be {@code null}
-	 * @throws NullPointerException if {@code startTime} or {@code endTime} is
-	 *                              {@code null}
+	 * @throws NullPointerException     if {@code startTime} or {@code endTime} is
+	 *                                  {@code null}
+	 * @throws IllegalArgumentException if {@code startTime} is before
+	 *                                  {@code endTime}
+	 * 
 	 */
 	public TimeRange(final LocalTime startTime, final LocalTime endTime) {
-		this.startTime = startTime;
-		this.endTime = endTime;
+		this.startTime = Objects.requireNonNull(startTime, "startTime can't be null");
+		this.endTime = Objects.requireNonNull(endTime, "endTime can't be null");
+		if (endTime.isBefore(startTime)) {
+			throw new IllegalArgumentException("end must not be before start.");
+		}
 	}
 
 	/**
@@ -83,41 +88,12 @@ public class TimeRange implements Serializable {
 	}
 
 	/**
-	 * Sets the start time of the time range.
-	 *
-	 * @param startTime the new start time
-	 */
-	public void setStartTime(final LocalTime startTime) {
-		this.startTime = startTime;
-	}
-
-	/**
 	 * Returns the end time of the time range.
 	 *
 	 * @return the end time
 	 */
 	public LocalTime getEndTime() {
 		return this.endTime;
-	}
-
-	/**
-	 * Sets the end time of the time range.
-	 *
-	 * @param endTime the new end time
-	 */
-	public void setEndTime(final LocalTime endTime) {
-		this.endTime = endTime;
-	}
-
-	/**
-	 * Validates that the configured range has distinct bounds.
-	 *
-	 * @return {@code true} if both {@code startTime} and {@code endTime} are
-	 *         defined and not equal
-	 */
-	@AssertTrue(message = "startTime and endTime must differ")
-	public boolean isTimeRangeValid() {
-		return startTime != null && endTime != null && !startTime.equals(endTime);
 	}
 
 	@Override

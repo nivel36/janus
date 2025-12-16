@@ -124,7 +124,7 @@ public class Worksite implements Serializable {
 	/**
 	 * Default constructor required by JPA.
 	 */
-	public Worksite() {
+	protected Worksite() {
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class Worksite implements Serializable {
 	 *
 	 * @param id the ID to assign
 	 */
-	public void setId(Long id) {
+	protected void setId(Long id) {
 		this.id = id;
 	}
 
@@ -183,15 +183,6 @@ public class Worksite implements Serializable {
 	 */
 	public String getCode() {
 		return code;
-	}
-
-	/**
-	 * Sets the unique business code of the worksite.
-	 *
-	 * @param code the code to assign
-	 */
-	public void setCode(String code) {
-		this.code = code;
 	}
 
 	/**

@@ -199,20 +199,11 @@ public class Employee implements Serializable {
 	}
 
 	/**
-	 * Sets the email of the employee.
-	 *
-	 * @param email the email to assign to the employee
-	 */
-	public void setEmail(final String email) {
-		this.email = email;
-	}
-
-	/**
 	 * Sets the unique identifier of the employee.
 	 *
 	 * @param id the ID to assign to the employee
 	 */
-	public void setId(final Long id) {
+	protected void setId(final Long id) {
 		this.id = id;
 	}
 

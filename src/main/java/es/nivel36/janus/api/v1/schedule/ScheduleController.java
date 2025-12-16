@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -138,7 +139,7 @@ public class ScheduleController {
 	String scheduleCode, @Valid @RequestBody final UpdateScheduleRequest request) {
 		logger.debug("Update schedule ACTION performed");
 
-		final Schedule schedulePayload = this.mapUpdateRequest(request);
+		final Schedule schedulePayload = this.mapUpdateRequest(scheduleCode, request);
 		final Schedule updatedSchedule = this.scheduleService.updateSchedule(scheduleCode, schedulePayload);
 		final ScheduleResponse response = this.scheduleResponseMapper.map(updatedSchedule);
 		return ResponseEntity.ok(response);
@@ -165,9 +166,7 @@ public class ScheduleController {
 	}
 
 	private Schedule mapCreateRequest(final CreateScheduleRequest request) {
-		final Schedule schedule = new Schedule();
-		schedule.setName(request.name());
-		schedule.setCode(request.code());
+		final Schedule schedule = new Schedule(request.code(), request.name());
 		schedule.setRules(new HashSet<>());
 		if (request.rules() != null) {
 			for (final ScheduleRuleRequest ruleRequest : request.rules()) {
@@ -179,9 +178,8 @@ public class ScheduleController {
 		return schedule;
 	}
 
-	private Schedule mapUpdateRequest(final UpdateScheduleRequest request) {
-		final Schedule schedule = new Schedule();
-		schedule.setName(request.name());
+	private Schedule mapUpdateRequest(final String scheduleCode, final UpdateScheduleRequest request) {
+		final Schedule schedule = new Schedule(scheduleCode, request.name());
 		schedule.setRules(new HashSet<>());
 		if (request.rules() != null) {
 			for (final ScheduleRuleRequest ruleRequest : request.rules()) {
@@ -215,15 +213,13 @@ public class ScheduleController {
 		dayOfWeekTimeRange.setScheduleRule(rule);
 		dayOfWeekTimeRange.setDayOfWeek(requestRange.dayOfWeek());
 		dayOfWeekTimeRange.setEffectiveWorkHours(requestRange.effectiveWorkHours());
-		final TimeRange timeRange;
 		if (requestRange.timeRange() != null) {
-			timeRange = new TimeRange();
-			timeRange.setStartTime(requestRange.timeRange().startTime());
-			timeRange.setEndTime(requestRange.timeRange().endTime());
-		} else {
-			timeRange = null;
+			final ScheduleTimeRangeRequest requestTimeRange = requestRange.timeRange();
+			final LocalTime startTime = requestTimeRange.startTime();
+			final LocalTime endTime = requestTimeRange.endTime();
+			final TimeRange timeRange = new TimeRange(startTime, endTime);
+			dayOfWeekTimeRange.setTimeRange(timeRange);
 		}
-		dayOfWeekTimeRange.setTimeRange(timeRange);
 		return dayOfWeekTimeRange;
 	}
 }

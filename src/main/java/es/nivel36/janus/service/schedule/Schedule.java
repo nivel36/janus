@@ -94,9 +94,29 @@ public class Schedule implements Serializable {
 	@OneToMany(mappedBy = "schedule")
 	private Set<Employee> employees = new HashSet<>();
 
+	protected Schedule() {
+	}
+
+	/**
+	 * Creates a new {@code Schedule} with the given business code and name.
+	 *
+	 * <p>
+	 * The {@code code} acts as a natural identifier for the schedule and must be
+	 * unique. The {@code name} represents the human-readable name of the schedule.
+	 * </p>
+	 *
+	 * @param code the unique business code of the schedule. Can't be {@code null}.
+	 * @param name the unique name of the schedule. Can't be {@code null}.
+	 * @throws NullPointerException if {@code code} or {@code name} is {@code null}
+	 */
+	public Schedule(final String code, final String name) {
+		this.code = Objects.requireNonNull(code, "code can't be null");
+		this.name = Objects.requireNonNull(name, "name can't be null");
+	}
+
 	/**
 	 * Returns the unique identifier of the schedule.
-	 * 
+	 *
 	 * @return the schedule's unique identifier
 	 */
 	public Long getId() {
@@ -105,16 +125,16 @@ public class Schedule implements Serializable {
 
 	/**
 	 * Sets the unique identifier of the schedule.
-	 * 
+	 *
 	 * @param id the new identifier of the schedule
 	 */
-	public void setId(final Long id) {
+	protected void setId(final Long id) {
 		this.id = id;
 	}
 
 	/**
 	 * Returns the unique name of the schedule.
-	 * 
+	 *
 	 * @return the schedule's name
 	 */
 	public String getName() {
@@ -124,7 +144,7 @@ public class Schedule implements Serializable {
 	/**
 	 * Sets the unique name of the schedule. The name cannot be null and must be
 	 * unique.
-	 * 
+	 *
 	 * @param name the new name of the schedule
 	 */
 	public void setName(final String name) {
@@ -141,18 +161,9 @@ public class Schedule implements Serializable {
 	}
 
 	/**
-	 * Sets the unique business code of the schedule.
-	 *
-	 * @param code the code to assign
-	 */
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	/**
 	 * Returns the set of {@link ScheduleRule} objects that define this schedule's
 	 * time rules.
-	 * 
+	 *
 	 * @return the set of schedule rules
 	 */
 	public Set<ScheduleRule> getRules() {
@@ -162,7 +173,7 @@ public class Schedule implements Serializable {
 	/**
 	 * Sets the set of {@link ScheduleRule} objects that define this schedule's time
 	 * rules.
-	 * 
+	 *
 	 * @param rules the new set of schedule rules
 	 */
 	public void setRules(final Set<ScheduleRule> rules) {
@@ -171,7 +182,7 @@ public class Schedule implements Serializable {
 
 	/**
 	 * Returns the set of employees assigned to this schedule.
-	 * 
+	 *
 	 * @return the set of employees associated with this schedule
 	 */
 	public Set<Employee> getEmployees() {
@@ -180,7 +191,7 @@ public class Schedule implements Serializable {
 
 	/**
 	 * Sets the set of employees assigned to this schedule.
-	 * 
+	 *
 	 * @param employees the new set of employees to associate with this schedule
 	 */
 	public void setEmployees(final Set<Employee> employees) {

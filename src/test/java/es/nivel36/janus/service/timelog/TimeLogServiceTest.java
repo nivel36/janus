@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import es.nivel36.janus.service.admin.AdminService;
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
 
@@ -62,12 +63,9 @@ class TimeLogServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		this.employee = new Employee();
-		employee.setEmail("aaron@test,com");
-		this.worksite = new Worksite();
-		worksite.setCode("BCN-HQ");
+		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", new Schedule("CODE", "Name"));
 		final ZoneId utcZone = ZoneId.of("UTC");
-		worksite.setTimeZone(utcZone);
+		this.worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
 		employee.getWorksites().add(worksite);
 		when(this.clock.getZone()).thenReturn(utcZone);
 		when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv -> inv.getArgument(0));

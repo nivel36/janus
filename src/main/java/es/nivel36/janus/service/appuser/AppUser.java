@@ -113,7 +113,7 @@ public class AppUser implements Serializable {
 	/**
 	 * Default constructor for JPA. Initializes an empty application user.
 	 */
-	public AppUser() {
+	protected AppUser() {
 	}
 
 	/**
@@ -149,7 +149,7 @@ public class AppUser implements Serializable {
 	 *
 	 * @param id the ID to assign to the user
 	 */
-	public void setId(final Long id) {
+	protected void setId(final Long id) {
 		this.id = id;
 	}
 
@@ -160,19 +160,6 @@ public class AppUser implements Serializable {
 	 */
 	public String getUsername() {
 		return username;
-	}
-
-	/**
-	 * Sets the username of the user.
-	 * <p>
-	 * Note: this field is immutable once persisted and should not be modified in
-	 * normal application flows.
-	 * </p>
-	 *
-	 * @param username the username to assign
-	 */
-	public void setUsername(final String username) {
-		this.username = username;
 	}
 
 	/**

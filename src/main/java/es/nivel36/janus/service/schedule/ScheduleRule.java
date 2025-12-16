@@ -108,7 +108,7 @@ public class ScheduleRule implements Serializable {
 	 *
 	 * @param id the new identifier of the schedule rule
 	 */
-	public void setId(final Long id) {
+	protected void setId(final Long id) {
 		this.id = id;
 	}
 

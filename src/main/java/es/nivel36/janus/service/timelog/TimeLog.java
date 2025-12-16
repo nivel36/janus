@@ -121,10 +121,10 @@ public class TimeLog implements Serializable {
 	 * Constructor for the {@link TimeLog} entity that initializes the time log with
 	 * the given employee, worksite and entry time.
 	 *
-	 * @param employee  associated with this time log, must not be null
-	 * @param worksite  associated with this time log, must not be null
+	 * @param employee  associated with this time log, must not be {@code null}
+	 * @param worksite  associated with this time log, must not be {@code null}
 	 * @param entryTime the entry (clock-in) time for this time log, must not be
-	 *                  null
+	 *                  {@code null}
 	 * @throws NullPointerException if any of employee, worksite, or entryTime is
 	 *                              null
 	 */
@@ -157,7 +157,7 @@ public class TimeLog implements Serializable {
 	 *
 	 * @return the id of the time log
 	 */
-	public Long getId() {
+	protected Long getId() {
 		return this.id;
 	}
 
