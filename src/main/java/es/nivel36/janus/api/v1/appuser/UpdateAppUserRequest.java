@@ -46,7 +46,7 @@ public record UpdateAppUserRequest( //
 		String surname, //
 
 		@NotBlank(message = "locale must not be blank") //
-		@Pattern(regexp = "^[a-z]{2,3}_[A-Z]{2}$", //
+		@Pattern(regexp = "^[a-z]{2,3}-[A-Z]{2}$", //
 				message = "locale must be in format ll_CC (e.g., es_ES)") //
 		String locale, //
 
