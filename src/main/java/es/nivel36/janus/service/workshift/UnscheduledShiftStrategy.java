@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 
 import es.nivel36.janus.service.timelog.TimeLog;
@@ -93,45 +94,50 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 	public List<TimeLog> infer(LocalDate date, List<TimeLog> orderedLogs) {
 		Objects.requireNonNull(date, "date must not be null.");
 		Objects.requireNonNull(orderedLogs, "orderedLogs must not be null.");
-		final List<PauseInfo> longPauses = this.extractLongPauses(orderedLogs, this.policy.longPauseThreshold());
+		if (orderedLogs.isEmpty()) {
+			return List.of();
+		}
+		final Duration longPauseThreshold = this.policy.longPauseThreshold();
+		final List<PauseInfo> longPauses = this.extractLongPauses(orderedLogs, longPauseThreshold);
 		final List<TimeLog> selected = this.selectByPauses(date, orderedLogs, longPauses);
 		return List.copyOf(selected);
 	}
 
 	private List<PauseInfo> extractLongPauses(final List<TimeLog> timeLogs, final Duration threshold) {
 		final List<PauseInfo> pauses = new ArrayList<>();
-		for (int i = 0; i < timeLogs.size() - 1; i++) {
-			final TimeLog current = timeLogs.get(i);
-			final TimeLog next = timeLogs.get(i + 1);
-
+		final ListIterator<TimeLog> it = timeLogs.listIterator();
+		
+		TimeLog current = it.next();
+		while (it.hasNext()) {
+			final TimeLog next = it.next();
 			final Instant out = current.getExitTime();
+			if (out == null) {
+			    throw new IllegalStateException("TimeLog without exit in a closed sequence");
+			}
 			final Instant nextIn = next.getEntryTime();
-			if (out == null || nextIn == null) {
-				continue;
-			}
-
 			final Duration gap = Duration.between(out, nextIn);
-			if (!gap.isNegative() && gap.compareTo(threshold) >= 0) {
-				pauses.add(new PauseInfo(current, next, gap));
+			if (gap.isNegative()) {
+				throw new IllegalStateException("Exit time is after next entry time: " + current + " -> " + next);
 			}
+			if (gap.compareTo(threshold) >= 0) {
+				final PauseInfo pauseInfo = new PauseInfo(current, next, gap);
+				pauses.add(pauseInfo);
+			}
+			current = next;
 		}
 		return pauses;
 	}
 
 	private List<TimeLog> selectByPauses(final LocalDate date, final List<TimeLog> timeLogs,
 			final List<PauseInfo> pauses) {
-		if (timeLogs.isEmpty()) {
-			return List.of();
-		}
-
 		if (pauses.size() >= 2) {
 			return new ShiftStartAnchoredExtractor(worksite.getTimeZone()).extract(date, timeLogs, pauses);
 		}
 
 		if (pauses.size() == 1) {
 			final TimeLog first = pauses.getFirst().before();
-			final Worksite worksite = Objects.requireNonNull(first.getWorksite(), "worksite must not be null.");
-			final ZoneId tz = Objects.requireNonNull(worksite.getTimeZone(), "worksite.timeZone must not be null.");
+			final Worksite worksite = first.getWorksite();
+			final ZoneId tz = worksite.getTimeZone();
 			final Instant firstExit = Objects.requireNonNull(first.getExitTime(), "first.exitTime must not be null.");
 			final LocalDate firstExitDate = firstExit.atZone(tz).toLocalDate();
 
