@@ -254,7 +254,7 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2')"//
 	})
 	void testDeleteShouldReturn204AndFindReturns404() throws Exception {
-		String entry = "2025-08-09T06:30:00Z";
+		String entry = "2025-08-07T06:30:00Z";
 
 		// seed //
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //

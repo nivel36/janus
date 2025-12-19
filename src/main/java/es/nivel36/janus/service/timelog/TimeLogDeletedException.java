@@ -16,18 +16,18 @@
 package es.nivel36.janus.service.timelog;
 
 /**
- * Exception thrown when attempting to modify a {@code TimeLog} record that has
- * exceeded its allowed modification window.
+ * Exception thrown when attempting to modify a {@code TimeLog} record that was
+ * deleted.
  */
-public class TimeLogModificationNotAllowedException extends RuntimeException {
+public class TimeLogDeletedException extends RuntimeException {
 
-	private static final long serialVersionUID = 3798698507343190506L;
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Creates a new exception with a default message.
 	 */
-	public TimeLogModificationNotAllowedException() {
-		super("The TimeLog record cannot be modified because the modification window has expired.");
+	public TimeLogDeletedException() {
+		super("The TimeLog record cannot be modified because it was deleted.");
 	}
 
 	/**
@@ -35,7 +35,7 @@ public class TimeLogModificationNotAllowedException extends RuntimeException {
 	 *
 	 * @param message the detail message
 	 */
-	public TimeLogModificationNotAllowedException(String message) {
+	public TimeLogDeletedException(String message) {
 		super(message);
 	}
 
@@ -45,7 +45,7 @@ public class TimeLogModificationNotAllowedException extends RuntimeException {
 	 * @param message the detail message
 	 * @param cause   the cause of the exception
 	 */
-	public TimeLogModificationNotAllowedException(String message, Throwable cause) {
+	public TimeLogDeletedException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -61,7 +61,7 @@ public class TimeLogModificationNotAllowedException extends RuntimeException {
 	 * @param enableSuppression  whether suppression is enabled or disabled.
 	 * @param writableStackTrace whether the stack trace should be writable.
 	 */
-	public TimeLogModificationNotAllowedException(String message, Throwable cause, boolean enableSuppression,
+	public TimeLogDeletedException(String message, Throwable cause, boolean enableSuppression,
 			boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}

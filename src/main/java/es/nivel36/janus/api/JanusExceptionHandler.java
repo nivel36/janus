@@ -43,7 +43,11 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
+import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
+import es.nivel36.janus.service.timelog.EventAlreadyFinalizedException;
+import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
 import es.nivel36.janus.service.timelog.TimeLogChronologyException;
+import es.nivel36.janus.service.timelog.TimeLogDeletedException;
 import es.nivel36.janus.service.timelog.TimeLogModificationNotAllowedException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -131,16 +135,59 @@ public class JanusExceptionHandler {
 		logger.warn("TimeLogChronologyException error {}", pd);
 		return pd;
 	}
-
-	@ExceptionHandler(TimeLogModificationNotAllowedException.class)
-	ProblemDetail handleTimeLogModificationNotAllowed(TimeLogModificationNotAllowedException ex,
-			final HttpServletRequest request) {
+	
+	@ExceptionHandler(TimeLogAlreadyClosedException.class)
+	ProblemDetail handleTimeLogAlreadyClosed(TimeLogAlreadyClosedException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
-		pd.setTitle("Modification not allowed");
+		pd.setTitle("Time log already closed");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("TimeLogAlreadyClosedException error {}", pd);
+		return pd;
+	}
+	
+	@ExceptionHandler(TimeLogDeletedException.class)
+	ProblemDetail handleTimeLogDeleted(TimeLogDeletedException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setTitle("Time log has been deleted");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("TimeLogDeletedException error {}", pd);
+		return pd;
+	}
+	
+	@ExceptionHandler(TimeLogModificationNotAllowedException.class)
+	ProblemDetail handleTimeLogModificationNotAllowed(TimeLogModificationNotAllowedException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setTitle("The modification window has expired");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
 		logger.warn("TimeLogModificationNotAllowedException error {}", pd);
+		return pd;
+	}
+
+	@ExceptionHandler(ClockOutWithoutClockInException.class)
+	ProblemDetail handleClockOutWithoutClockIn(ClockOutWithoutClockInException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setTitle("Invlaid Clock out");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("ClockOutWithoutClockInException error {}", pd);
+		return pd;
+	}
+
+	@ExceptionHandler(EventAlreadyFinalizedException.class)
+	ProblemDetail handleEventAlreadyFinalized(EventAlreadyFinalizedException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setTitle("Event already finalized");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("EventAlreadyFinalizedException error {}", pd);
 		return pd;
 	}
 

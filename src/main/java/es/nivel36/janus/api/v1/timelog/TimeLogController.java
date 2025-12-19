@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
+import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
@@ -61,6 +63,7 @@ public class TimeLogController {
 	private final TimeLogService timeLogService;
 	private final EmployeeService employeeService;
 	private final WorksiteService worksiteService;
+	private final Clock clock;
 	private final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper;
 
 	/**
@@ -75,14 +78,18 @@ public class TimeLogController {
 	 * @param timeLogResponseMapper mapper that converts {@link TimeLog} domain
 	 *                              objects to {@link TimeLogResponse} DTOs; must
 	 *                              not be {@code null}
+	 * @param clock                 clock used to retrieve the current time. Can't
+	 *                              be {@code null}.
 	 */
 	public TimeLogController(final TimeLogService timeLogService, final EmployeeService employeeService,
-			final WorksiteService worksiteService, final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper) {
+			final WorksiteService worksiteService, final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper,
+			final Clock clock) {
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
 		this.timeLogResponseMapper = Objects.requireNonNull(timeLogResponseMapper,
 				"timeLogResponseMapper can't be null");
+		this.clock = Objects.requireNonNull(clock, "clock can't be null");
 	}
 
 	/**
@@ -119,7 +126,7 @@ public class TimeLogController {
 		if (entryTime != null) {
 			clockIn = this.timeLogService.clockIn(employee, worksite, entryTime);
 		} else {
-			clockIn = this.timeLogService.clockIn(employee, worksite);
+			clockIn = this.timeLogService.clockIn(employee, worksite, clock.instant());
 		}
 
 		final TimeLogResponse timeLog = this.timeLogResponseMapper.map(clockIn);
@@ -137,6 +144,9 @@ public class TimeLogController {
 	 * @param worksiteCode  the code of the worksite where the time log is updated;
 	 *                      must not be {@code null}
 	 * @return the updated {@link TimeLogResponse}
+	 * @throws ClockOutWithoutClockInException if the TimeLog record cannot be
+	 *                                         closed because it does not have an
+	 *                                         entry time
 	 */
 	@PostMapping("/clock-out")
 	public ResponseEntity<TimeLogResponse> clockOut( //
@@ -151,7 +161,7 @@ public class TimeLogController {
 			@Pattern( //
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode) {
+			String worksiteCode) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -160,7 +170,7 @@ public class TimeLogController {
 		if (exitTime != null) {
 			clockOut = this.timeLogService.clockOut(employee, worksite, exitTime);
 		} else {
-			clockOut = this.timeLogService.clockOut(employee, worksite);
+			clockOut = this.timeLogService.clockOut(employee, worksite, clock.instant());
 		}
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(clockOut);
 		return ResponseEntity.ok(timeLogResponse);

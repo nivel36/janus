@@ -56,6 +56,7 @@ class TimeLogServiceTest {
 	private @Mock AdminService adminService;
 	private @Mock WorksiteService worksiteService;
 	private @Mock Clock clock;
+	private @Mock ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository;
 	private @InjectMocks TimeLogService timeLogService;
 	private Employee employee;
 	private Worksite worksite;
@@ -115,7 +116,7 @@ class TimeLogServiceTest {
 	}
 
 	@Test
-	void testClockOutSuccess() {
+	void testClockOutSuccess() throws ClockOutWithoutClockInException {
 		logger.info("Test clock out success");
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
@@ -124,8 +125,8 @@ class TimeLogServiceTest {
 		final Instant eightHoursBefore = fixedNow.minus(8, ChronoUnit.HOURS);
 
 		final TimeLog existingTimeLog = new TimeLog(this.employee, this.worksite, eightHoursBefore);
-		when(this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(this.employee, this.worksite))
-				.thenReturn(existingTimeLog);
+		when(this.timeLogRepository.findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(this.employee,
+				this.worksite)).thenReturn(existingTimeLog);
 
 		// Act
 		final TimeLog result = this.timeLogService.clockOut(this.employee, this.worksite, now());
@@ -136,45 +137,17 @@ class TimeLogServiceTest {
 	}
 
 	@Test
-	void testClockOutWithNoPreviousLog() {
+	void testClockOutThrowsWhenNoPreviousLog() throws ClockOutWithoutClockInException {
 		logger.info("Test clock out with no previous log");
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
-		when(this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(this.employee, this.worksite))
-				.thenReturn(null);
-
-		final TimeLog result = this.timeLogService.clockOut(this.employee, this.worksite, now());
-
-		// Assert
-		assertNotNull(result);
-		assertEquals(now().minusSeconds(1), result.getEntryTime());
-		assertEquals(now(), result.getExitTime());
-	}
-
-	@Test
-	void testFindLastTimeLogByEmployeeSuccess() {
-		logger.info("Test find last timelog by employee success");
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 9, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-
-		final TimeLog expectedTimeLog = new TimeLog(this.employee, this.worksite, now());
-		when(this.timeLogRepository.findTopByEmployeeAndWorksiteOrderByEntryTimeDesc(this.employee, this.worksite))
-				.thenReturn(expectedTimeLog);
-
-		// Act
-		final TimeLog result = this.timeLogService.findLastTimeLogByEmployee(this.employee, this.worksite);
-
-		// Assert
-		assertNotNull(result);
-		assertEquals(expectedTimeLog, result);
-	}
-
-	@Test
-	void testFindLastTimeLogByEmployeeWithNullEmployee() {
-		logger.info("Test find last timelog by employee with null employee");
-		assertThrows(NullPointerException.class,
-				() -> this.timeLogService.findLastTimeLogByEmployee(null, this.worksite));
+		when(this.timeLogRepository.findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(this.employee,
+				this.worksite)).thenReturn(null);
+		final Instant now = now();
+		assertThrows(ClockOutWithoutClockInException.class, () -> {
+			this.timeLogService.clockOut(this.employee, this.worksite, now);
+		});
 	}
 
 	@Test
