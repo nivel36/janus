@@ -15,8 +15,6 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
-import java.time.LocalTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,11 +32,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.service.schedule.DayOfWeekTimeRange;
 import es.nivel36.janus.service.schedule.Schedule;
-import es.nivel36.janus.service.schedule.ScheduleRule;
 import es.nivel36.janus.service.schedule.ScheduleService;
-import es.nivel36.janus.service.schedule.TimeRange;
+import es.nivel36.janus.service.schedule.dto.CreateScheduleDefinition;
+import es.nivel36.janus.service.schedule.dto.UpdateScheduleDefinition;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -53,6 +50,7 @@ public class ScheduleController {
 
 	private final ScheduleService scheduleService;
 	private final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper;
+	private final ScheduleRequestMapper scheduleRequestMapper;
 
 	/**
 	 * Creates a controller that exposes schedule management endpoints.
@@ -62,12 +60,16 @@ public class ScheduleController {
 	 * @param scheduleResponseMapper mapper translating {@link Schedule} entities to
 	 *                               {@link ScheduleResponse} DTOs; must not be
 	 *                               {@code null}
+	 * @param scheduleRequestMapper  mapper translating request payloads into
+	 *                               domain-neutral DTOs; must not be {@code null}
 	 */
 	public ScheduleController(final ScheduleService scheduleService,
-			final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper) {
+			final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper,
+			final ScheduleRequestMapper scheduleRequestMapper) {
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.scheduleResponseMapper = Objects.requireNonNull(scheduleResponseMapper,
 				"scheduleResponseMapper can't be null");
+		this.scheduleRequestMapper = Objects.requireNonNull(scheduleRequestMapper, "scheduleRequestMapper can't be null");
 	}
 
 	/**
@@ -115,8 +117,8 @@ public class ScheduleController {
 	public ResponseEntity<ScheduleResponse> createSchedule(@Valid @RequestBody final CreateScheduleRequest request) {
 		logger.debug("Create schedule ACTION performed");
 
-		final Schedule schedulePayload = this.mapCreateRequest(request);
-		final Schedule createdSchedule = this.scheduleService.createSchedule(schedulePayload);
+		final CreateScheduleDefinition definition = this.scheduleRequestMapper.toCreateDefinition(request);
+		final Schedule createdSchedule = this.scheduleService.createSchedule(definition);
 		final ScheduleResponse response = this.scheduleResponseMapper.map(createdSchedule);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -139,8 +141,8 @@ public class ScheduleController {
 	String scheduleCode, @Valid @RequestBody final UpdateScheduleRequest request) {
 		logger.debug("Update schedule ACTION performed");
 
-		final Schedule schedulePayload = this.mapUpdateRequest(scheduleCode, request);
-		final Schedule updatedSchedule = this.scheduleService.updateSchedule(scheduleCode, schedulePayload);
+		final UpdateScheduleDefinition definition = this.scheduleRequestMapper.toUpdateDefinition(request);
+		final Schedule updatedSchedule = this.scheduleService.updateSchedule(scheduleCode, definition);
 		final ScheduleResponse response = this.scheduleResponseMapper.map(updatedSchedule);
 		return ResponseEntity.ok(response);
 	}
@@ -163,63 +165,5 @@ public class ScheduleController {
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
 		this.scheduleService.deleteSchedule(schedule);
 		return ResponseEntity.noContent().build();
-	}
-
-	private Schedule mapCreateRequest(final CreateScheduleRequest request) {
-		final Schedule schedule = new Schedule(request.code(), request.name());
-		schedule.setRules(new HashSet<>());
-		if (request.rules() != null) {
-			for (final ScheduleRuleRequest ruleRequest : request.rules()) {
-				if (ruleRequest != null) {
-					schedule.getRules().add(this.mapRule(schedule, ruleRequest));
-				}
-			}
-		}
-		return schedule;
-	}
-
-	private Schedule mapUpdateRequest(final String scheduleCode, final UpdateScheduleRequest request) {
-		final Schedule schedule = new Schedule(scheduleCode, request.name());
-		schedule.setRules(new HashSet<>());
-		if (request.rules() != null) {
-			for (final ScheduleRuleRequest ruleRequest : request.rules()) {
-				if (ruleRequest != null) {
-					schedule.getRules().add(this.mapRule(schedule, ruleRequest));
-				}
-			}
-		}
-		return schedule;
-	}
-
-	private ScheduleRule mapRule(final Schedule schedule, final ScheduleRuleRequest ruleRequest) {
-		final ScheduleRule rule = new ScheduleRule();
-		rule.setSchedule(schedule);
-		rule.setName(ruleRequest.name());
-		rule.setStartDate(ruleRequest.startDate());
-		rule.setEndDate(ruleRequest.endDate());
-		if (ruleRequest.dayOfWeekRanges() != null) {
-			for (final ScheduleRuleTimeRangeRequest requestRange : ruleRequest.dayOfWeekRanges()) {
-				if (requestRange != null) {
-					rule.getDayOfWeekRanges().add(this.mapDayOfWeekRange(rule, requestRange));
-				}
-			}
-		}
-		return rule;
-	}
-
-	private DayOfWeekTimeRange mapDayOfWeekRange(final ScheduleRule rule,
-			final ScheduleRuleTimeRangeRequest requestRange) {
-		final DayOfWeekTimeRange dayOfWeekTimeRange = new DayOfWeekTimeRange();
-		dayOfWeekTimeRange.setScheduleRule(rule);
-		dayOfWeekTimeRange.setDayOfWeek(requestRange.dayOfWeek());
-		dayOfWeekTimeRange.setEffectiveWorkHours(requestRange.effectiveWorkHours());
-		if (requestRange.timeRange() != null) {
-			final ScheduleTimeRangeRequest requestTimeRange = requestRange.timeRange();
-			final LocalTime startTime = requestTimeRange.startTime();
-			final LocalTime endTime = requestTimeRange.endTime();
-			final TimeRange timeRange = new TimeRange(startTime, endTime);
-			dayOfWeekTimeRange.setTimeRange(timeRange);
-		}
-		return dayOfWeekTimeRange;
 	}
 }
