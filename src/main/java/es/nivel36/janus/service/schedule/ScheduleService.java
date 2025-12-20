@@ -17,10 +17,13 @@ package es.nivel36.janus.service.schedule;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
@@ -31,6 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.schedule.dto.CreateScheduleDefinition;
+import es.nivel36.janus.service.schedule.dto.ScheduleRuleDefinition;
+import es.nivel36.janus.service.schedule.dto.ScheduleRuleTimeRangeDefinition;
+import es.nivel36.janus.service.schedule.dto.UpdateScheduleDefinition;
 
 /**
  * Service class responsible for managing schedules and retrieving time ranges
@@ -58,21 +65,22 @@ public class ScheduleService {
 	 * Creates and persists a new {@link Schedule}.
 	 *
 	 *
-	 * @param schedule non-@{code null} the schedule to persist
+	 * @param definition non-@{code null} data describing the schedule to persist
 	 * @return the persisted {@link Schedule}
 	 *
-	 * @throws NullPointerException           if the schedule is @{code null}
+	 * @throws NullPointerException           if the definition is @{code null}
 	 * @throws ResourceAlreadyExistsException if a schedule with the same code
 	 *                                        already exists
 	 */
 	@Transactional
-	public Schedule createSchedule(final Schedule schedule) {
-		Objects.requireNonNull(schedule, "schedule can't be null");
-		logger.debug("Creating schedule {}", schedule);
+	public Schedule createSchedule(final CreateScheduleDefinition definition) {
+		Objects.requireNonNull(definition, "definition can't be null");
+		logger.debug("Creating schedule {}", definition.code());
 
-		final String code = schedule.getCode();
+		final String code = definition.code();
 		this.checkDuplicatedCode(code);
 
+		final Schedule schedule = this.buildSchedule(definition);
 		final Schedule savedSchedule = this.scheduleRepository.save(schedule);
 		logger.trace("Schedule {} created successfully", code);
 		return savedSchedule;
@@ -96,43 +104,31 @@ public class ScheduleService {
 	 * {@link Schedule#getRules()}.
 	 * </p>
 	 *
-	 * @param code     the code of the schedule to update; must not be {@code null}
-	 * @param schedule the schedule containing the new values; must not be
-	 *                 {@code null}
+	 * @param code       the code of the schedule to update; must not be
+	 *                   {@code null}
+	 * @param definition the schedule containing the new values; must not be
+	 *                   {@code null}
 	 * @return the updated {@link Schedule}
-	 * @throws NullPointerException      if {@code scheduleId} or
-	 *                                   {@code updatedSchedule} is {@code null}
+	 * @throws NullPointerException      if {@code code} or {@code definition} is
+	 *                                   {@code null}
 	 * @throws ResourceNotFoundException if the schedule does not exist
 	 */
 	@Transactional
-	public Schedule updateSchedule(final String code, final Schedule schedule) {
+	public Schedule updateSchedule(final String code, final UpdateScheduleDefinition definition) {
 		Objects.requireNonNull(code, "code can't be null");
-		Objects.requireNonNull(schedule, "schedule can't be null");
+		Objects.requireNonNull(definition, "definition can't be null");
 		logger.debug("Updating schedule {}", code);
 
 		final Schedule persisted = this.findSchedule(code);
-		persisted.setName(schedule.getName());
+		persisted.setName(definition.name());
 		persisted.getRules().clear();
-		final Set<ScheduleRule> newRules = schedule.getRules();
-		if (newRules != null && !newRules.isEmpty()) {
-			this.attachScheduleToRules(persisted, newRules);
-			persisted.getRules().addAll(newRules);
-		}
+
+		final Set<ScheduleRule> newRules = this.buildRules(persisted, definition.rules());
+		persisted.getRules().addAll(newRules);
 
 		final Schedule updatedSchedule = this.scheduleRepository.save(persisted);
 		logger.trace("Schedule {} updated successfully", code);
 		return updatedSchedule;
-	}
-
-	private void attachScheduleToRules(final Schedule schedule, final Set<ScheduleRule> rules) {
-		if (rules == null) {
-			return;
-		}
-		for (final ScheduleRule rule : rules) {
-			if (rule != null) {
-				rule.setSchedule(schedule);
-			}
-		}
 	}
 
 	/**
@@ -224,5 +220,57 @@ public class ScheduleService {
 
 		final DayOfWeek dayOfWeek = date.getDayOfWeek();
 		return this.scheduleRepository.findTimeRangeForDate(employee, date, dayOfWeek);
+	}
+
+	private Schedule buildSchedule(final CreateScheduleDefinition definition) {
+		final Schedule schedule = new Schedule(definition.code(), definition.name());
+		final Set<ScheduleRule> rules = this.buildRules(schedule, definition.rules());
+		schedule.setRules(rules);
+		return schedule;
+	}
+
+	private Set<ScheduleRule> buildRules(final Schedule schedule, final List<ScheduleRuleDefinition> rules) {
+		if (rules == null || rules.isEmpty()) {
+			return new HashSet<>();
+		}
+		return rules.stream() //
+				.filter(Objects::nonNull) //
+				.map(ruleDefinition -> this.buildRule(schedule, ruleDefinition)) //
+				.collect(Collectors.toCollection(HashSet::new));
+	}
+
+	private ScheduleRule buildRule(final Schedule schedule, final ScheduleRuleDefinition ruleDefinition) {
+		final ScheduleRule rule = new ScheduleRule();
+		rule.setSchedule(schedule);
+		rule.setName(ruleDefinition.name());
+		rule.setStartDate(ruleDefinition.startDate());
+		rule.setEndDate(ruleDefinition.endDate());
+
+		final List<DayOfWeekTimeRange> dayOfWeekRanges = this.buildDayOfWeekTimeRanges(rule,
+				ruleDefinition.dayOfWeekRanges());
+		rule.setDayOfWeekRanges(dayOfWeekRanges);
+
+		return rule;
+	}
+
+	private List<DayOfWeekTimeRange> buildDayOfWeekTimeRanges(final ScheduleRule rule,
+			final List<ScheduleRuleTimeRangeDefinition> timeRangeDefinitions) {
+		if (timeRangeDefinitions == null || timeRangeDefinitions.isEmpty()) {
+			return new ArrayList<>();
+		}
+		final List<DayOfWeekTimeRange> dayOfWeekTimeRanges = new ArrayList<>();
+		for (final ScheduleRuleTimeRangeDefinition timeRangeDefinition : timeRangeDefinitions) {
+			if (timeRangeDefinition == null) {
+				continue;
+			}
+			final DayOfWeekTimeRange dayOfWeekTimeRange = new DayOfWeekTimeRange();
+			dayOfWeekTimeRange.setScheduleRule(rule);
+			dayOfWeekTimeRange.setDayOfWeek(timeRangeDefinition.dayOfWeek());
+			dayOfWeekTimeRange.setEffectiveWorkHours(timeRangeDefinition.effectiveWorkHours());
+			dayOfWeekTimeRange
+					.setTimeRange(new TimeRange(timeRangeDefinition.startTime(), timeRangeDefinition.endTime()));
+			dayOfWeekTimeRanges.add(dayOfWeekTimeRange);
+		}
+		return dayOfWeekTimeRanges;
 	}
 }
