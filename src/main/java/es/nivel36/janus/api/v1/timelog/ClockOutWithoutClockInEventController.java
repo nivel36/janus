@@ -82,8 +82,8 @@ public class ClockOutWithoutClockInEventController {
 				"clockOutWithoutClockInEventService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
-		this.clockOutWithoutClockInEventResponseMapper = Objects.requireNonNull(clockOutWithoutClockInEventResponseMapper,
-				"clockOutWithoutClockInEventResponseMapper can't be null");
+		this.clockOutWithoutClockInEventResponseMapper = Objects.requireNonNull(
+				clockOutWithoutClockInEventResponseMapper, "clockOutWithoutClockInEventResponseMapper can't be null");
 	}
 
 	/**
@@ -118,8 +118,8 @@ public class ClockOutWithoutClockInEventController {
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = findClockOutWithoutClockInEvent(employee,
-				worksite, exitTime);
+		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
+				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 
 		final ClockOutWithoutClockInEvent resolvedClockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.resolve(clockOutWithoutClockInEvent, request.entryTime(), toOptionalReason(request.reason()));
@@ -159,9 +159,8 @@ public class ClockOutWithoutClockInEventController {
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = findClockOutWithoutClockInEvent(employee,
-				worksite, exitTime);
-
+		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
+				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 		final Optional<String> reason = request == null ? Optional.empty() : toOptionalReason(request.reason());
 		final ClockOutWithoutClockInEvent invalidatedClockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.invalidate(clockOutWithoutClockInEvent, reason);
@@ -198,18 +197,11 @@ public class ClockOutWithoutClockInEventController {
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = findClockOutWithoutClockInEvent(employee,
-				worksite, exitTime);
+		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
+				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper
 				.map(clockOutWithoutClockInEvent);
 		return ResponseEntity.ok(response);
-	}
-
-	private ClockOutWithoutClockInEvent findClockOutWithoutClockInEvent(final Employee employee, final Worksite worksite,
-			final Instant exitTime) {
-		return Objects.requireNonNull(this.clockOutWithoutClockInEventService
-				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime).getBody(),
-				"clockOutWithoutClockInEvent can't be null");
 	}
 
 	private Optional<String> toOptionalReason(final String reason) {

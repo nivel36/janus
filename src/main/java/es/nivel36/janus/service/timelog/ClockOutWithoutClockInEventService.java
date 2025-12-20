@@ -21,10 +21,10 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.worksite.Worksite;
 
@@ -149,19 +149,27 @@ public class ClockOutWithoutClockInEventService {
 	 * @param exitTime the exit time of the event. Can't be {@code null}.
 	 * @return the matching {@link ClockOutWithoutClockInEvent}, or {@code null} if
 	 *         no event exists for the specified employee, worksite, and exit time.
-	 * @throws NullPointerException if any of the parameters is {@code null}.
+	 * @throws NullPointerException      if any of the parameters is {@code null}.
+	 * @throws ResourceNotFoundException if the event is not found.
 	 */
 	@Transactional(readOnly = true)
-	public ResponseEntity<ClockOutWithoutClockInEvent> findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(
+	public ClockOutWithoutClockInEvent findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(
 			Employee employee, Worksite worksite, Instant exitTime) {
 		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(worksite, "worksite can't be null");
 		Objects.requireNonNull(exitTime, "exitTime can't be null");
 
-		logger.debug("Finding clockOutWithoutClockInEvent by employee {}, worksite {} and exitTime{}", employee,
+		logger.debug("Finding clockOutWithoutClockInEvent by  by employee {}, worksite {} and exitTime{}", employee,
 				worksite, exitTime);
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventRepository
 				.findByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
-		return ResponseEntity.ok(clockOutWithoutClockInEvent);
+		if (clockOutWithoutClockInEvent == null) {
+			// We are searching by natural (composite) key. So, if we not found it an
+			// exception is thrown.
+			throw new ResourceNotFoundException(
+					String.format("ClockOutWithoutClockInEvent with  by employee %s, worksite %s and exitTime %s",
+							employee, worksite, exitTime));
+		}
+		return clockOutWithoutClockInEvent;
 	}
 }
