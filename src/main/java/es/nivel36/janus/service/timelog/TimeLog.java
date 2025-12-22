@@ -141,7 +141,12 @@ public class TimeLog implements Serializable {
 	private boolean deleted = false;
 
 	/**
-	 * Default constructor required by JPA.
+	 * Protected no-argument constructor required by persistence frameworks.
+	 *
+	 * <p>
+	 * This constructor should not be used directly in application code. It exists
+	 * solely to allow frameworks such as JPA to instantiate the entity.
+	 * </p>
 	 */
 	protected TimeLog() {
 	}
@@ -252,6 +257,12 @@ public class TimeLog implements Serializable {
 
 	/**
 	 * Sets the identifier of this time log.
+	 * 
+	 * <p>
+	 * This method is intended for testing purposes only and should not be used in
+	 * production code. It exists to allow controlled assignment of the identifier
+	 * when creating or manipulating entity instances in tests.
+	 * </p>
 	 *
 	 * @param id the identifier to assign
 	 */
@@ -261,6 +272,12 @@ public class TimeLog implements Serializable {
 
 	/**
 	 * Marks this time log as logically deleted or not.
+	 * 
+	 * <p>
+	 * This method is intended for testing purposes only and should not be used in
+	 * production code. It exists to allow controlled assignment of the identifier
+	 * when creating or manipulating entity instances in tests.
+	 * </p>
 	 *
 	 * @param deleted {@code true} to mark as deleted; {@code false} otherwise
 	 */

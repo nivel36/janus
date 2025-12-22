@@ -121,7 +121,12 @@ public class AppUser implements Serializable {
 	private TimeFormat timeFormat;
 
 	/**
-	 * Default constructor required by JPA.
+	 * Protected no-argument constructor required by persistence frameworks.
+	 *
+	 * <p>
+	 * This constructor should not be used directly in application code. It exists
+	 * solely to allow frameworks such as JPA to instantiate the entity.
+	 * </p>
 	 */
 	AppUser() {
 	}
@@ -165,7 +170,9 @@ public class AppUser implements Serializable {
 	 * Assigns the database identifier of the user.
 	 *
 	 * <p>
-	 * Intended for persistence framework usage only.
+	 * This method is intended for testing purposes only and should not be used in
+	 * production code. It exists to allow controlled assignment of the identifier
+	 * when creating or manipulating entity instances in tests.
 	 * </p>
 	 *
 	 * @param id the identifier to assign

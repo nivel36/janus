@@ -24,17 +24,24 @@ import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Represents a time range with a start and end time.
+ * Represents a time range defined by a start time and an end time.
  *
  * <p>
- * A {@code TimeRange} defines a specific period during the day, represented by
- * a start time and an end time. It is used within a {@link DayOfWeekTimeRange}
- * to specify the working hours or other time configurations for a given day.
+ * A {@code TimeRange} models a contiguous period within a 24-hour day. It is
+ * primarily used as a value object embedded in other entities, such as
+ * {@link DayOfWeekTimeRange}, to express working hours or other time-based
+ * constraints.
  * </p>
  *
  * <p>
- * This class is {@code @Embeddable} and can be embedded within other entities
- * to represent time ranges as part of their structure.
+ * The range may span across midnight. In such cases, the end time is considered
+ * to belong to the following day (for example, {@code 22:00 → 06:00}).
+ * </p>
+ *
+ * <p>
+ * This class is {@link Embeddable} and has no independent identity. Equality and
+ * hash code are based solely on the {@code startTime} and {@code endTime}
+ * values.
  * </p>
  */
 @Embeddable
@@ -43,63 +50,94 @@ public class TimeRange implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * The start time of the time range.
+	 * The inclusive start time of the range.
+	 *
+	 * <p>
+	 * Must not be {@code null}.
+	 * </p>
 	 */
 	@NotNull
 	private LocalTime startTime;
 
 	/**
-	 * The end time of the time range.
+	 * The exclusive end time of the range.
+	 *
+	 * <p>
+	 * Must not be {@code null}. If the end time is before the start time, the range
+	 * is interpreted as spanning midnight.
+	 * </p>
 	 */
 	@NotNull
 	private LocalTime endTime;
 
 	/**
-	 * Creates an empty {@link TimeRange} instance required by JPA.
+	 * Protected no-argument constructor required by persistence frameworks.
+	 *
+	 * <p>
+	 * This constructor must not be used directly in application code. It exists
+	 * solely to allow frameworks such as JPA to instantiate the embeddable.
+	 * </p>
 	 */
 	TimeRange() {
 	}
 
 	/**
-	 * Creates a {@link TimeRange} with the provided start and end times.
+	 * Creates a new {@code TimeRange} with the given start and end times.
 	 *
-	 * @param startTime the lower bound of the range; must not be {@code null}
-	 * @param endTime   the upper bound of the range; must not be {@code null}
+	 * <p>
+	 * The resulting range represents the interval {@code [startTime, endTime)}.
+	 * If {@code endTime} is before {@code startTime}, the range is assumed to span
+	 * across midnight into the next day.
+	 * </p>
+	 *
+	 * @param startTime the start time of the range; must not be {@code null}
+	 * @param endTime   the end time of the range; must not be {@code null}
+	 *
 	 * @throws NullPointerException     if {@code startTime} or {@code endTime} is
 	 *                                  {@code null}
-	 * @throws IllegalArgumentException if {@code startTime} is before
-	 *                                  {@code endTime}
-	 * 
+	 * @throws IllegalArgumentException if {@code startTime} and {@code endTime}
+	 *                                  represent the same instant
 	 */
 	public TimeRange(final LocalTime startTime, final LocalTime endTime) {
 		this.startTime = Objects.requireNonNull(startTime, "startTime can't be null");
 		this.endTime = Objects.requireNonNull(endTime, "endTime can't be null");
-		if (endTime.isBefore(startTime)) {
-			throw new IllegalArgumentException("end must not be before start.");
+		if (startTime.equals(endTime)) {
+			throw new IllegalArgumentException("startTime and endTime must not be equal");
 		}
 	}
-	
-	public Duration getDuration() {
-	    Duration duration = Duration.between(startTime, endTime);
-	    if (duration.isNegative()) {
-	        duration = duration.plusHours(24);
-	    }
-	    return duration;
-	}
-	
+
 	/**
-	 * Returns the start time of the time range.
+	 * Returns the duration of this time range.
 	 *
-	 * @return the start time
+	 * <p>
+	 * If the range spans across midnight, the returned duration accounts for the
+	 * wrap-around to the next day.
+	 * </p>
+	 *
+	 * @return the {@link Duration} represented by this time range; never
+	 *         {@code null}
+	 */
+	public Duration getDuration() {
+		Duration duration = Duration.between(this.startTime, this.endTime);
+		if (duration.isNegative()) {
+			duration = duration.plusHours(24);
+		}
+		return duration;
+	}
+
+	/**
+	 * Returns the start time of the range.
+	 *
+	 * @return the start time; never {@code null}
 	 */
 	public LocalTime getStartTime() {
 		return this.startTime;
 	}
 
 	/**
-	 * Returns the end time of the time range.
+	 * Returns the end time of the range.
 	 *
-	 * @return the end time
+	 * @return the end time; never {@code null}
 	 */
 	public LocalTime getEndTime() {
 		return this.endTime;
@@ -107,7 +145,7 @@ public class TimeRange implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.endTime, this.startTime);
+		return Objects.hash(this.startTime, this.endTime);
 	}
 
 	@Override
@@ -115,11 +153,12 @@ public class TimeRange implements Serializable {
 		if (this == obj) {
 			return true;
 		}
-		if ((obj == null) || (this.getClass() != obj.getClass())) {
+		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final TimeRange other = (TimeRange) obj;
-		return Objects.equals(this.endTime, other.endTime) && Objects.equals(this.startTime, other.startTime);
+		return Objects.equals(this.startTime, other.startTime)
+				&& Objects.equals(this.endTime, other.endTime);
 	}
 
 	@Override
