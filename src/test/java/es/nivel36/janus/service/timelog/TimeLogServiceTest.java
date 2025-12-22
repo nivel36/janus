@@ -137,7 +137,7 @@ class TimeLogServiceTest {
 	}
 
 	@Test
-	void testClockOutThrowsWhenNoPreviousLog() throws ClockOutWithoutClockInException {
+	void testClockOutThrowsWhenNoPreviousLog() {
 		logger.info("Test clock out with no previous log");
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
