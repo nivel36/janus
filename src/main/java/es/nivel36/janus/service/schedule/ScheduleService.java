@@ -138,9 +138,7 @@ public class ScheduleService {
 		final LocalTime endTime = timeRangeDefinition.endTime();
 		final TimeRange timeRange = new TimeRange(startTime, endTime);
 		final Duration effectiveWorkHours = timeRangeDefinition.effectiveWorkHours();
-		final DayOfWeekTimeRange dayOfWeekTimeRange = new DayOfWeekTimeRange(rule, dayOfWeek, timeRange,
-				effectiveWorkHours);
-		return dayOfWeekTimeRange;
+		return new DayOfWeekTimeRange(rule, dayOfWeek, timeRange, effectiveWorkHours);
 	}
 
 	/**
