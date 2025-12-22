@@ -136,8 +136,8 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 
 		if (pauses.size() == 1) {
 			final TimeLog first = pauses.getFirst().before();
-			final Worksite worksite = first.getWorksite();
-			final ZoneId tz = worksite.getTimeZone();
+			final Worksite firstWorksite = first.getWorksite();
+			final ZoneId tz = firstWorksite.getTimeZone();
 			final Instant firstExit = Objects.requireNonNull(first.getExitTime(), "first.exitTime must not be null.");
 			final LocalDate firstExitDate = firstExit.atZone(tz).toLocalDate();
 
