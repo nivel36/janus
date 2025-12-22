@@ -191,7 +191,7 @@ public class TimeLog implements Serializable {
 	 * @return the identifier, or {@code null} if the entity has not been persisted
 	 *         yet
 	 */
-	protected Long getId() {
+	public Long getId() {
 		return this.id;
 	}
 
@@ -255,7 +255,7 @@ public class TimeLog implements Serializable {
 	 *
 	 * @param id the identifier to assign
 	 */
-	protected void setId(final Long id) {
+	void setId(final Long id) {
 		this.id = id;
 	}
 
@@ -264,7 +264,7 @@ public class TimeLog implements Serializable {
 	 *
 	 * @param deleted {@code true} to mark as deleted; {@code false} otherwise
 	 */
-	protected void setDeleted(final boolean deleted) {
+	void setDeleted(final boolean deleted) {
 		this.deleted = deleted;
 	}
 

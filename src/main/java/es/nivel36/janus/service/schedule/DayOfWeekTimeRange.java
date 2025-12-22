@@ -102,13 +102,61 @@ public class DayOfWeekTimeRange implements Serializable {
 	private TimeRange timeRange;
 
 	/**
-	 * Many-to-Many relationship with {@link ScheduleRule}. A time range can belong
-	 * to multiple schedule rules, allowing flexibility for overlapping time ranges.
+	 * The {@link ScheduleRule} to which this day-of-week time range belongs.
+	 *
+	 * <p>
+	 * Each {@code DayOfWeekTimeRange} is associated with exactly one
+	 * {@link ScheduleRule}, which groups together the time ranges for different
+	 * days of the week.
+	 * </p>
 	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "schedule_rule_id")
+	@JoinColumn(name = "schedule_rule_id", updatable = false)
 	private ScheduleRule scheduleRule;
+
+	/**
+	 * Default constructor required by JPA.
+	 *
+	 * <p>
+	 * This constructor is intentionally package-private and should not be used
+	 * directly by application code. The state of the entity is expected to be
+	 * initialized by the persistence provider.
+	 * </p>
+	 */
+	DayOfWeekTimeRange() {
+	}
+
+	/**
+	 * Creates a new {@code DayOfWeekTimeRange} associated with the given
+	 * {@link ScheduleRule}, defining the time range and effective working hours for
+	 * a specific day of the week.
+	 *
+	 * <p>
+	 * The shift is considered to start on the specified {@link DayOfWeek} and may
+	 * extend into the next calendar day depending on the provided
+	 * {@link TimeRange}.
+	 * </p>
+	 *
+	 * @param scheduleRule       the {@link ScheduleRule} to which this time range
+	 *                           belongs. Can't be {@code null}.
+	 * @param dayOfWeek          the day of the week on which the shift starts.
+	 *                           Can't be {@code null}.
+	 * @param timeRange          the allowed start and end time range for the shift.
+	 *                           Can't be {@code null}.
+	 * @param effectiveWorkHours the actual amount of working time required within
+	 *                           the given time range. Can't be {@code null}.
+	 *
+	 * @throws NullPointerException     if scheduleRule, dayOfWeek, timeRange or
+	 *                                  effectiveWorkHours is {@code null}
+	 * @throws IllegalArgumentException if {@code effectiveWorkHours} is greater
+	 *                                  than the duration of {@code timeRange}
+	 */
+	public DayOfWeekTimeRange(final ScheduleRule scheduleRule, final DayOfWeek dayOfWeek, final TimeRange timeRange,
+			final Duration effectiveWorkHours) {
+		this.scheduleRule = Objects.requireNonNull(scheduleRule, "scheduleRule can't be null");
+		this.defineTimeRange(dayOfWeek, timeRange, effectiveWorkHours);
+	}
 
 	/**
 	 * Returns the day of the week on which the work shift starts. The shift may
@@ -147,7 +195,7 @@ public class DayOfWeekTimeRange implements Serializable {
 	/**
 	 * Returns the {@link ScheduleRule} that is associated with this time range.
 	 *
-	 * @return the schedule rules
+	 * @return the associated schedule rule
 	 */
 	public ScheduleRule getScheduleRule() {
 		return this.scheduleRule;
@@ -164,54 +212,45 @@ public class DayOfWeekTimeRange implements Serializable {
 	}
 
 	/**
-	 * Sets the day of the week for which the work shift starts. The shift may
-	 * extend into the next calendar day if the end time is after midnight.
-	 *
-	 * @param dayOfWeek the new day of the week on which the work shift starts.
-	 */
-	public void setDayOfWeek(final DayOfWeek dayOfWeek) {
-		this.dayOfWeek = dayOfWeek;
-	}
-
-	/**
-	 * Sets the effective number of working hours within the allowed time range.
-	 *
-	 * <p>
-	 * For example, if the allowed time window is 08:00–19:00 but the employee
-	 * should work only 8 hours, this method should receive {@code 8.00}.
-	 *
-	 * @param effectiveWorkHours the effective working hours to be set; must not be
-	 *                           {@code null}
-	 */
-	public void setEffectiveWorkHours(final Duration effectiveWorkHours) {
-		this.effectiveWorkHours = effectiveWorkHours;
-	}
-
-	/**
 	 * Sets the unique identifier of the day-of-week time range.
 	 *
 	 * @param id the new identifier
 	 */
-	public void setId(final Long id) {
+	void setId(final Long id) {
 		this.id = id;
 	}
 
 	/**
-	 * Sets the {@link ScheduleRule} that is associated with this time range.
+	 * Defines or updates the time range configuration for this day of the week.
 	 *
-	 * @param scheduleRule to associate with this time range
-	 */
-	public void setScheduleRule(final ScheduleRule scheduleRule) {
-		this.scheduleRule = scheduleRule;
-	}
-
-	/**
-	 * Sets the time range (start and end times) for the specified day of the week.
+	 * <p>
+	 * This method associates a {@link DayOfWeek}, a {@link TimeRange}, and an
+	 * effective working duration with this instance. The effective working hours
+	 * must not exceed the total duration of the provided time range.
+	 * </p>
 	 *
-	 * @param timeRange the new time range
+	 * @param dayOfWeek          the day of the week on which the shift starts.
+	 *                           Can't be {@code null}.
+	 * @param timeRange          the allowed start and end time range for the shift.
+	 *                           Can't be {@code null}.
+	 * @param effectiveWorkHours the actual amount of working time required within
+	 *                           the given time range. Can't be {@code null}.
+	 *
+	 * @throws NullPointerException     if any argument is {@code null}
+	 * @throws IllegalArgumentException if {@code effectiveWorkHours} is greater
+	 *                                  than the duration of {@code timeRange}
 	 */
-	public void setTimeRange(final TimeRange timeRange) {
+	public void defineTimeRange(final DayOfWeek dayOfWeek, final TimeRange timeRange,
+			final Duration effectiveWorkHours) {
+		Objects.requireNonNull(dayOfWeek, "dayOfWeek can't be null");
+		Objects.requireNonNull(timeRange, "timeRange can't be null");
+		Objects.requireNonNull(effectiveWorkHours, "effectiveWorkHours can't be null");
+		if (effectiveWorkHours.compareTo(timeRange.getDuration()) > 0) {
+			throw new IllegalArgumentException("effectiveWorkHours cannot be greater than timeRange duration");
+		}
+		this.dayOfWeek = dayOfWeek;
 		this.timeRange = timeRange;
+		this.effectiveWorkHours = effectiveWorkHours;
 	}
 
 	@Override
@@ -219,7 +258,7 @@ public class DayOfWeekTimeRange implements Serializable {
 		if (this == obj) {
 			return true;
 		}
-		if ((obj == null) || (this.getClass() != obj.getClass())) {
+		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final DayOfWeekTimeRange other = (DayOfWeekTimeRange) obj;

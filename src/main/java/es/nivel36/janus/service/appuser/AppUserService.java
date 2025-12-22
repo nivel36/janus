@@ -26,66 +26,95 @@ import org.springframework.transaction.annotation.Transactional;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.util.Strings;
 
 /**
- * Service class responsible for managing {@link AppUser} entities and
- * interacting with the {@link AppUserRepository}.
+ * Service responsible for managing {@link AppUser} entities.
+ *
+ * <p>
+ * This service acts as the application-layer entry point for operations related
+ * to {@link AppUser} lifecycle management, such as creation, retrieval, update,
+ * and deletion.
+ * </p>
+ *
+ * <p>
+ * It encapsulates validation rules and delegates persistence operations to the
+ * underlying {@link AppUserRepository}.
+ * </p>
  */
 @Service
 public class AppUserService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AppUserService.class);
 
+	/**
+	 * Repository used to access {@link AppUser} persistence operations.
+	 */
 	private final AppUserRepository appUserRepository;
 
+	/**
+	 * Creates a new {@code AppUserService}.
+	 *
+	 * @param appUserRepository repository used to manage {@link AppUser} entities.
+	 *                          Can't be {@code null}.
+	 *
+	 * @throws NullPointerException if {@code appUserRepository} is {@code null}
+	 */
 	public AppUserService(final AppUserRepository appUserRepository) {
 		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
 	}
 
 	/**
-	 * Finds an {@link AppUser} by username.
+	 * Retrieves an {@link AppUser} identified by the given username.
 	 *
-	 * @param username the username of the user to find
-	 * @return the application user with the specified username
-	 * @throws NullPointerException      if the username is null
-	 * @throws ResourceNotFoundException if the user is not found
+	 * @param username the unique username of the user to retrieve. Can't be
+	 *                 {@code null} or blank.
+	 *
+	 * @return the {@link AppUser} associated with the given username
+	 *
+	 * @throws NullPointerException      if {@code username} is {@code null}
+	 * @throws IllegalArgumentException  if {@code username} is blank
+	 * @throws ResourceNotFoundException if no user exists with the given username
 	 */
 	@Transactional(readOnly = true)
 	public AppUser findAppUserByUsername(final String username) {
-		Objects.requireNonNull(username, "username cannot be null.");
+		Strings.requireNonBlank(username, "username cannot be null or blank.");
 		logger.debug("Finding AppUser by username {}", username);
 
 		return this.findAppUser(username);
 	}
 
-	private AppUser findAppUser(final String username) {
-		final AppUser appUser = this.appUserRepository.findByUsername(username);
-		if (appUser == null) {
-			logger.warn("No application user found with username {}", username);
-			throw new ResourceNotFoundException("There is no application user with username " + username);
-		}
-		return appUser;
-	}
-
 	/**
-	 * Creates a new {@link AppUser}.
+	 * Creates and persists a new {@link AppUser}.
 	 *
-	 * @param username   unique username
-	 * @param name       first name
-	 * @param surname    last name
-	 * @param locale     preferred locale
-	 * @param timeFormat preferred time format
-	 * @return the created AppUser
-	 * @throws NullPointerException           if any argument is null
-	 * @throws ResourceAlreadyExistsException if the username already exists
+	 * <p>
+	 * The username must be unique. If a user with the same username already exists,
+	 * the operation will fail.
+	 * </p>
+	 *
+	 * @param username   the unique username of the user. Can't be {@code null} or
+	 *                   blank.
+	 * @param name       the first name of the user. Can't be {@code null} or blank.
+	 * @param surname    the surname of the user. Can't be {@code null} or blank.
+	 * @param locale     the preferred {@link Locale} of the user. Can't be
+	 *                   {@code null}.
+	 * @param timeFormat the preferred {@link TimeFormat} of the user. Can't be
+	 *                   {@code null}.
+	 *
+	 * @return the newly created {@link AppUser}
+	 *
+	 * @throws NullPointerException           if any parameter is {@code null}
+	 * @throws IllegalArgumentException       if any string parameter is blank
+	 * @throws ResourceAlreadyExistsException if a user with the given username
+	 *                                        already exists
 	 */
 	@Transactional
 	public AppUser createAppUser(final String username, final String name, final String surname, final Locale locale,
 			final TimeFormat timeFormat) {
 
-		Objects.requireNonNull(username, "username cannot be null.");
-		Objects.requireNonNull(name, "name cannot be null.");
-		Objects.requireNonNull(surname, "surname cannot be null.");
+		Strings.requireNonBlank(username, "username cannot be null or blank.");
+		Strings.requireNonBlank(name, "name cannot be null or blank.");
+		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
 		Objects.requireNonNull(locale, "locale cannot be null.");
 		Objects.requireNonNull(timeFormat, "timeFormat cannot be null.");
 
@@ -93,11 +122,11 @@ public class AppUserService {
 
 		final boolean usernameInUse = this.appUserRepository.existsByUsername(username);
 		if (usernameInUse) {
-			logger.warn("Application user with username {} already exists", username);
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
 
 		final AppUser appUser = new AppUser(username.trim(), name.trim(), surname.trim(), locale, timeFormat);
+
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
 
@@ -108,55 +137,50 @@ public class AppUserService {
 	 * Updates an existing {@link AppUser}.
 	 *
 	 * <p>
-	 * Validates and normalizes inputs. Replaces name, surname, locale and time
-	 * format atomically.
+	 * Replaces the user's personal data and preferences atomically. The username is
+	 * used as the immutable identifier of the user.
 	 * </p>
 	 *
-	 * @param username      unique username of the user to update
-	 * @param newName       new first name
-	 * @param newSurname    new surname
-	 * @param newLocale     new preferred locale
-	 * @param newTimeFormat new preferred time format
-	 * @return the updated AppUser
+	 * @param username      the unique username of the user to update. Can't be
+	 *                      {@code null} or blank.
+	 * @param newName       the new first name. Can't be {@code null} or blank.
+	 * @param newSurname    the new surname. Can't be {@code null} or blank.
+	 * @param newLocale     the new preferred {@link Locale}. Can't be {@code null}.
+	 * @param newTimeFormat the new preferred {@link TimeFormat}. Can't be
+	 *                      {@code null}.
 	 *
+	 * @return the updated {@link AppUser}
+	 *
+	 * @throws NullPointerException      if any parameter is {@code null}
 	 * @throws IllegalArgumentException  if any string parameter is blank
-	 * @throws ResourceNotFoundException if no AppUser exists with the given
-	 *                                   username
+	 * @throws ResourceNotFoundException if no user exists with the given username
 	 */
 	@Transactional
 	public AppUser updateAppUser(final String username, final String newName, final String newSurname,
 			final Locale newLocale, final TimeFormat newTimeFormat) {
 
-		Objects.requireNonNull(username, "username cannot be null.");
-		Objects.requireNonNull(newName, "newName cannot be null.");
-		Objects.requireNonNull(newSurname, "newSurname cannot be null.");
+		Strings.requireNonBlank(username, "username cannot be null or blank.");
+		Strings.requireNonBlank(newName, "newName cannot be null or blank.");
+		Strings.requireNonBlank(newSurname, "newSurname cannot be null or blank.");
 		Objects.requireNonNull(newLocale, "newLocale cannot be null.");
 		Objects.requireNonNull(newTimeFormat, "newTimeFormat cannot be null.");
 
 		logger.debug("Updating AppUser {}", username);
-
 		final AppUser appUser = this.findAppUser(username);
 
-		if (newName.isBlank() || newSurname.isBlank()) {
-			throw new IllegalArgumentException("Name and surname cannot be blank.");
-		}
-
-		appUser.setName(newName.trim());
-		appUser.setSurname(newSurname.trim());
+		appUser.setFullName(newName.trim(), newSurname.trim());
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
 
-		final AppUser savedAppUser = this.appUserRepository.save(appUser);
-		logger.trace("AppUser {} updated successfully", savedAppUser);
-
-		return savedAppUser;
+		return appUser;
 	}
 
 	/**
-	 * Deletes an existing {@link AppUser}.
+	 * Deletes the given {@link AppUser}.
 	 *
-	 * @param appUser the AppUser to be deleted
-	 * @throws NullPointerException if the user is null
+	 * @param appUser the user to delete. Can't be {@code null}.
+	 *
+	 * @throws NullPointerException if {@code appUser} is {@code null}
 	 */
 	@Transactional
 	public void deleteAppUser(final AppUser appUser) {
@@ -164,7 +188,14 @@ public class AppUserService {
 		logger.debug("Deleting AppUser {}", appUser);
 
 		this.appUserRepository.delete(appUser);
-
 		logger.trace("AppUser {} deleted successfully", appUser);
+	}
+
+	private AppUser findAppUser(final String username) {
+		final AppUser appUser = this.appUserRepository.findByUsername(username);
+		if (appUser == null) {
+			throw new ResourceNotFoundException("There is no application user with username " + username);
+		}
+		return appUser;
 	}
 }

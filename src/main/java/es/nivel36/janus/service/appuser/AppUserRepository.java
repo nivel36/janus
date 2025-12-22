@@ -27,7 +27,6 @@ interface AppUserRepository extends CrudRepository<AppUser, Long> {
 	/**
 	 * Checks whether a {@link AppUser} exists for the specified username.
 	 *
-	 *
 	 * @param usermane the username to check for
 	 * @return {@code true} if the application user with the specified username
 	 *         exists, {@code false} otherwise.

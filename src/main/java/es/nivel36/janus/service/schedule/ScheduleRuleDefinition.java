@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.service.schedule.dto;
+package es.nivel36.janus.service.schedule;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Domain-neutral DTO describing the data required to create a schedule.
+ * Domain-neutral DTO describing a schedule rule without exposing entities.
  *
- * @param code  unique business identifier assigned to the schedule
- * @param name  human readable name describing the schedule
- * @param rules collection of rule definitions associated with the schedule
+ * @param name            human readable name of the rule
+ * @param startDate       optional start date delimiting when the rule becomes
+ *                        active
+ * @param endDate         optional end date delimiting when the rule stops being
+ *                        active
+ * @param dayOfWeekRanges day specific working ranges that compose the rule
  */
-public record CreateScheduleDefinition( //
-		String code, //
+public record ScheduleRuleDefinition( //
 		String name, //
-		List<ScheduleRuleDefinition> rules) {
+		LocalDate startDate, //
+		LocalDate endDate, //
+		List<ScheduleRuleTimeRangeDefinition> dayOfWeekRanges) {
 }

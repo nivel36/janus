@@ -30,157 +30,200 @@ import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.util.Strings;
 
 /**
- * Service class responsible for managing {@link Employee} entities and
- * interacting with the {@link EmployeeRepository}.
+ * Service responsible for managing {@link Employee} entities.
+ *
+ * <p>
+ * This service provides application-level operations for retrieving, creating,
+ * updating and deleting {@link Employee} instances, as well as managing their
+ * associations with {@link Worksite}s.
+ * </p>
+ *
+ * <p>
+ * Persistence concerns are delegated to the {@link EmployeeRepository}.
+ * </p>
  */
 @Service
 public class EmployeeService {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
+	/**
+	 * Repository used to access {@link Employee} persistence operations.
+	 */
 	private final EmployeeRepository employeeRepository;
 
+	/**
+	 * Creates a new {@code EmployeeService}.
+	 *
+	 * @param employeeRepository repository used to manage {@link Employee}
+	 *                           entities. Can't be {@code null}.
+	 *
+	 * @throws NullPointerException if {@code employeeRepository} is {@code null}
+	 */
 	public EmployeeService(final EmployeeRepository employeeRepository) {
-		this.employeeRepository = Objects.requireNonNull(employeeRepository, "EmployeeRepository cannot be null.");
+		this.employeeRepository = Objects.requireNonNull(employeeRepository, "employeeRepository cannot be null.");
 	}
 
 	/**
-	 * Finds an {@link Employee} by its primary key (Id).
-	 * 
-	 * @param id the ID of the employee to find
-	 * @return the employee with the specified Id
-	 * @throws IllegalArgumentException  if the Id is negative
-	 * @throws ResourceNotFoundException if the employee is not found
+	 * Retrieves an {@link Employee} by its primary identifier.
+	 *
+	 * @param id the unique identifier of the employee. Can't be {@code null}.
+	 *
+	 * @return the {@link Employee} with the given identifier
+	 *
+	 * @throws NullPointerException      if {@code id} is {@code null}
+	 * @throws ResourceNotFoundException if no employee exists with the given id
 	 */
 	@Transactional(readOnly = true)
 	public Employee findEmployeeById(final Long id) {
 		Objects.requireNonNull(id, "id can't be null");
-		logger.debug("Finding Employee by id {}", id);
+		logger.debug("Finding employee by id {}", id);
+
 		return this.employeeRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with id " + id));
 	}
 
 	/**
-	 * Finds an {@link Employee} by email.
-	 * 
-	 * @param email the email of the employee to find
-	 * @return the employee with the specified email, or null if no employee is
-	 *         found
-	 * @throws NullPointerException      if the email is null
-	 * @throws ResourceNotFoundException if the employee is not found
+	 * Retrieves an {@link Employee} identified by its email address.
+	 *
+	 * <p>
+	 * The email acts as a natural identifier for the employee.
+	 * </p>
+	 *
+	 * @param email the email of the employee to retrieve. Can't be {@code null} or
+	 *              blank.
+	 *
+	 * @return the {@link Employee} associated with the given email
+	 *
+	 * @throws NullPointerException      if {@code email} is {@code null}
+	 * @throws IllegalArgumentException  if {@code email} is blank
+	 * @throws ResourceNotFoundException if no employee exists with the given email
 	 */
 	@Transactional(readOnly = true)
 	public Employee findEmployeeByEmail(final String email) {
-		Objects.requireNonNull(email, "email cannot be null.");
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		logger.debug("Finding Employee by email {}", email);
 
 		return this.findEmployee(email);
 	}
 
-	private Employee findEmployee(final String email) {
-		final Employee employee = this.employeeRepository.findByEmail(email);
-		if (employee == null) {
-			logger.warn("No employee found with email {}", email);
-			throw new ResourceNotFoundException("There is no employee with email " + email);
-		}
-		return employee;
-	}
-
 	/**
 	 * Finds the identifiers of employees who have at least one {@link TimeLog}
-	 * since the specified instant but do not have any associated {@link WorkShift}.
+	 * since the specified instant but have no associated {@link WorkShift}.
 	 *
-	 * @param fromInclusive the lower bound instant; only time logs with an
-	 *                      {@code entryTime} greater than or equal to this value
-	 *                      are considered
-	 * @return a list of employee IDs corresponding to employees with time logs
-	 *         since the given instant but without any linked work shifts
-	 * @throws NullPointerException if {@code from} is {@code null}
+	 * @param fromInclusive the lower bound instant (inclusive). Can't be
+	 *                      {@code null}.
+	 *
+	 * @return a list of employee identifiers matching the criteria
+	 *
+	 * @throws NullPointerException if {@code fromInclusive} is {@code null}
 	 */
 	@Transactional(readOnly = true)
 	public List<Long> findEmployeesWithoutWorkshiftsSince(final Instant fromInclusive) {
-		Objects.requireNonNull(fromInclusive, "From must not be null");
+		Objects.requireNonNull(fromInclusive, "fromInclusive must not be null");
 		logger.debug("Finding employees without workshift from date: {}", fromInclusive);
 
 		final List<Long> employeesWithoutWorkshift = this.employeeRepository.findWithoutWorkshiftsSince(fromInclusive);
+
 		logger.trace("Found {} employees without workshift", employeesWithoutWorkshift.size());
 		return employeesWithoutWorkshift;
 	}
 
 	/**
-	 * Creates a new {@link Employee}.
-	 * 
-	 * @param employee the employee to be created
-	 * @return the created employee
-	 * @throws NullPointerException           if the employee is {@code null}.
-	 * @throws ResourceAlreadyExistsException if the employee is changing the email
-	 *                                        and the new email already exists.
+	 * Creates and persists a new {@link Employee}.
+	 *
+	 * <p>
+	 * The employee email must be unique across the system.
+	 * </p>
+	 *
+	 * @param name     the first name of the employee. Can't be {@code null} or
+	 *                 blank.
+	 * @param surname  the surname of the employee. Can't be {@code null} or blank.
+	 * @param email    the unique email of the employee. Can't be {@code null} or
+	 *                 blank.
+	 * @param schedule the {@link Schedule} assigned to the employee. Can't be
+	 *                 {@code null}.
+	 *
+	 * @return the newly created {@link Employee}
+	 *
+	 * @throws NullPointerException           if any parameter is {@code null}
+	 * @throws IllegalArgumentException       if any string parameter is blank
+	 * @throws ResourceAlreadyExistsException if an employee with the given email
+	 *                                        already exists
 	 */
 	@Transactional
 	public Employee createEmployee(final String name, final String surname, final String email,
 			final Schedule schedule) {
-		Objects.requireNonNull(name, "name cannot be null.");
-		Objects.requireNonNull(surname, "surname cannot be null.");
-		Objects.requireNonNull(email, "email cannot be null.");
+
+		Strings.requireNonBlank(name, "name cannot be null or blank.");
+		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		Objects.requireNonNull(schedule, "schedule cannot be null.");
 
 		logger.debug("Creating new employee {}", email);
+
 		final boolean emailInUse = this.employeeRepository.existsByEmail(email);
 		if (emailInUse) {
 			logger.warn("Employee with email {} already exists", email);
 			throw new ResourceAlreadyExistsException("Employee with email " + email + " already exists");
 		}
+
 		final Employee employee = new Employee(name.trim(), surname.trim(), email.trim(), schedule);
-		final Employee savedEmployee = this.employeeRepository.save(employee);
-		logger.trace("Employee {} created successfully", savedEmployee);
-		return savedEmployee;
+
+		return this.employeeRepository.save(employee);
 	}
 
 	/**
 	 * Updates an existing {@link Employee} identified by its email.
 	 *
 	 * <p>
-	 * Validates and normalizes inputs (trimming and basic checks). Replaces the
-	 * current name, surname and schedule atomically.
+	 * Replaces the employee's personal information and schedule atomically.
 	 * </p>
 	 *
-	 * @param email       unique email that identifies the employee; must be
-	 *                    non-blank
-	 * @param newName     new first name; must be non-blank
-	 * @param newSurname  new surname; must be non-blank
-	 * @param newSchedule new schedule; must be non-null
-	 * @return the updated employee (managed instance)
+	 * @param email       the unique email of the employee to update. Can't be
+	 *                    {@code null} or blank.
+	 * @param newName     the new first name. Can't be {@code null} or blank.
+	 * @param newSurname  the new surname. Can't be {@code null} or blank.
+	 * @param newSchedule the new {@link Schedule}. Can't be {@code null}.
 	 *
-	 * @throws IllegalArgumentException  if any string parameter is blank or email
-	 *                                   is invalid
+	 * @return the updated {@link Employee}
+	 *
+	 * @throws NullPointerException      if any parameter is {@code null}
+	 * @throws IllegalArgumentException  if any string parameter is blank
 	 * @throws ResourceNotFoundException if no employee exists with the given email
 	 */
 	@Transactional
 	public Employee updateEmployee(final String email, final String newName, final String newSurname,
 			final Schedule newSchedule) {
-		Objects.requireNonNull(email, "email cannot be null.");
-		Objects.requireNonNull(newName, "newName cannot be null.");
-		Objects.requireNonNull(newSurname, "newSurname cannot be null.");
+
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
+		Strings.requireNonBlank(newName, "newName cannot be null or blank.");
+		Strings.requireNonBlank(newSurname, "newSurname cannot be null or blank.");
 		Objects.requireNonNull(newSchedule, "newSchedule cannot be null.");
+
 		logger.debug("Updating employee {}", email);
 
 		final Employee employee = this.findEmployee(email);
-		employee.setName(newName.trim());
-		employee.setSurname(newSurname.trim());
+		employee.setFullName(newName.trim(), newSurname.trim());
 		employee.setSchedule(newSchedule);
-		final Employee savedEmployee = this.employeeRepository.save(employee);
-		logger.trace("Employee {} updated successfully", savedEmployee);
-		return savedEmployee;
+
+		return employee;
 	}
 
 	/**
-	 * Adds the {@link Worksite} to the {@link Employee}. This method is idempotent:
-	 * does not duplicate the relationship if it already exists.
+	 * Associates the given {@link Worksite} with the specified {@link Employee}.
 	 *
-	 * @param worksite the worksite to add; must not be {@code null}
-	 * @param employee the employee; must not be {@code null}
+	 * <p>
+	 * This operation is idempotent: if the association already exists, no changes
+	 * are applied.
+	 * </p>
+	 *
+	 * @param worksite the worksite to associate. Can't be {@code null}.
+	 * @param employee the employee to associate. Can't be {@code null}.
+	 *
 	 * @throws NullPointerException if any parameter is {@code null}
 	 */
 	@Transactional
@@ -189,21 +232,20 @@ public class EmployeeService {
 		Objects.requireNonNull(employee, "employee can't be null");
 
 		logger.debug("Adding worksite {} to employee {}", worksite, employee);
-		boolean added = employee.getWorksites().add(worksite);
+
+		final boolean added = employee.assignToWorksite(worksite);
 		if (added) {
-			worksite.getEmployees().add(employee);
 			this.employeeRepository.save(employee);
-			logger.trace("Worksite {} added to employee {}", worksite, employee);
-		} else {
-			logger.trace("Relation already existed: worksite {} ⇢ employee {}", worksite, employee);
 		}
 	}
 
 	/**
-	 * Removes the {@link Worksite} to the {@link Employee}.
+	 * Removes the association between the given {@link Worksite} and
+	 * {@link Employee}.
 	 *
-	 * @param worksite the worksite to remove; must not be {@code null}
-	 * @param employee the employee; must not be {@code null}
+	 * @param worksite the worksite to remove. Can't be {@code null}.
+	 * @param employee the employee. Can't be {@code null}.
+	 *
 	 * @throws NullPointerException if any parameter is {@code null}
 	 */
 	@Transactional
@@ -213,21 +255,22 @@ public class EmployeeService {
 
 		logger.debug("Removing worksite {} from employee {}", worksite, employee);
 
-		boolean removed = employee.getWorksites().remove(worksite);
+		final boolean removed = employee.removeFromWorksite(worksite);
 		if (removed) {
-			worksite.getEmployees().remove(employee);
 			this.employeeRepository.save(employee);
-			logger.trace("Worksite {} removed from employee {}", worksite, employee);
-		} else {
-			logger.trace("Relation did not exist: worksite {} ⇢ employee {}", worksite, employee);
 		}
 	}
 
 	/**
-	 * Deletes an existing {@link Employee}.
-	 * 
-	 * @param employee the employee to be deleted
-	 * @throws NullPointerException if the employee is null
+	 * Deletes the given {@link Employee}.
+	 *
+	 * <p>
+	 * After deletion, the employee will no longer be available in the system.
+	 * </p>
+	 *
+	 * @param employee the employee to delete. Can't be {@code null}.
+	 *
+	 * @throws NullPointerException if {@code employee} is {@code null}
 	 */
 	@Transactional
 	public void deleteEmployee(final Employee employee) {
@@ -235,6 +278,22 @@ public class EmployeeService {
 		logger.debug("Deleting employee {}", employee);
 
 		this.employeeRepository.delete(employee);
-		logger.trace("Employee {} deleted successfully", employee);
+	}
+
+	/**
+	 * Retrieves an {@link Employee} by email or fails if it does not exist.
+	 *
+	 * @param email the employee email. Can't be {@code null} or blank.
+	 * @return the corresponding {@link Employee}
+	 *
+	 * @throws ResourceNotFoundException if no employee exists with the given email
+	 */
+	private Employee findEmployee(final String email) {
+		final Employee employee = this.employeeRepository.findByEmail(email);
+		if (employee == null) {
+			logger.warn("No employee found with email {}", email);
+			throw new ResourceNotFoundException("There is no employee with email " + email);
+		}
+		return employee;
 	}
 }

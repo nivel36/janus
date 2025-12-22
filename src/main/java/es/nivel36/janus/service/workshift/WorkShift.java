@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -103,7 +104,7 @@ public class WorkShift implements Serializable {
 	 * This constructor should not be used directly in application code. It exists
 	 * solely to allow frameworks such as JPA to instantiate the entity.
 	 */
-	protected WorkShift() {
+	WorkShift() {
 	}
 
 	/**
@@ -148,7 +149,7 @@ public class WorkShift implements Serializable {
 	 * @return the list of time logs.
 	 */
 	public List<TimeLog> getTimeLogs() {
-		return this.timeLogs;
+		return Collections.unmodifiableList(timeLogs);
 	}
 
 	/**
@@ -183,7 +184,7 @@ public class WorkShift implements Serializable {
 	 *
 	 * @param id the ID to set for the work shift.
 	 */
-	protected void setId(final Long id) {
+	void setId(final Long id) {
 		this.id = id;
 	}
 

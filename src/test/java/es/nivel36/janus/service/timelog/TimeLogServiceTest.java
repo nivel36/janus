@@ -67,7 +67,7 @@ class TimeLogServiceTest {
 		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", new Schedule("CODE", "Name"));
 		final ZoneId utcZone = ZoneId.of("UTC");
 		this.worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
-		employee.getWorksites().add(worksite);
+		employee.assignToWorksite(worksite);
 		when(this.clock.getZone()).thenReturn(utcZone);
 		when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv -> inv.getArgument(0));
 	}

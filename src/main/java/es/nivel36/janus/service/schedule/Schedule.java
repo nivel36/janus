@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.schedule;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -61,8 +62,7 @@ public class Schedule implements Serializable {
 	private Long id;
 
 	/**
-	 * Unique name of the schedule. Cannot be empty and must be unique across all
-	 * schedules.
+	 * Name of the schedule. Cannot be empty.
 	 */
 	@NotEmpty
 	private String name;
@@ -84,7 +84,7 @@ public class Schedule implements Serializable {
 	 * 18:00, Friday 8:00 to 15:00).
 	 */
 	@OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ScheduleRule> rules = new HashSet<>();
+	private final Set<ScheduleRule> rules = new HashSet<>();
 
 	/**
 	 * List of employees assigned to this schedule. Each employee has a reference to
@@ -94,7 +94,7 @@ public class Schedule implements Serializable {
 	@OneToMany(mappedBy = "schedule")
 	private Set<Employee> employees = new HashSet<>();
 
-	protected Schedule() {
+	Schedule() {
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class Schedule implements Serializable {
 	 *
 	 * @param id the new identifier of the schedule
 	 */
-	protected void setId(final Long id) {
+	void setId(final Long id) {
 		this.id = id;
 	}
 
@@ -157,7 +157,7 @@ public class Schedule implements Serializable {
 	 * @return the code of the schedule
 	 */
 	public String getCode() {
-		return code;
+		return this.code;
 	}
 
 	/**
@@ -167,17 +167,21 @@ public class Schedule implements Serializable {
 	 * @return the set of schedule rules
 	 */
 	public Set<ScheduleRule> getRules() {
-		return this.rules;
+		return Collections.unmodifiableSet(this.rules);
 	}
 
-	/**
-	 * Sets the set of {@link ScheduleRule} objects that define this schedule's time
-	 * rules.
-	 *
-	 * @param rules the new set of schedule rules
-	 */
-	public void setRules(final Set<ScheduleRule> rules) {
-		this.rules = rules;
+	public boolean addRule(final ScheduleRule rule) {
+		Objects.requireNonNull(rule, "rule can't be null");
+		return this.rules.add(rule);
+	}
+
+	public boolean removeRule(final ScheduleRule rule) {
+		Objects.requireNonNull(rule, "rule can't be null");
+		return this.rules.remove(rule);
+	}
+
+	public void clearRules() {
+		this.rules.clear();
 	}
 
 	/**
@@ -186,7 +190,7 @@ public class Schedule implements Serializable {
 	 * @return the set of employees associated with this schedule
 	 */
 	public Set<Employee> getEmployees() {
-		return this.employees;
+		return Collections.unmodifiableSet(this.employees);
 	}
 
 	/**
@@ -208,7 +212,7 @@ public class Schedule implements Serializable {
 		if (this == obj) {
 			return true;
 		}
-		if ((obj == null) || (this.getClass() != obj.getClass())) {
+		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final Schedule other = (Schedule) obj;

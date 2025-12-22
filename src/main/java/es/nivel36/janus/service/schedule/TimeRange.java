@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.schedule;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Objects;
 
@@ -56,7 +57,7 @@ public class TimeRange implements Serializable {
 	/**
 	 * Creates an empty {@link TimeRange} instance required by JPA.
 	 */
-	protected TimeRange() {
+	TimeRange() {
 	}
 
 	/**
@@ -77,7 +78,15 @@ public class TimeRange implements Serializable {
 			throw new IllegalArgumentException("end must not be before start.");
 		}
 	}
-
+	
+	public Duration getDuration() {
+	    Duration duration = Duration.between(startTime, endTime);
+	    if (duration.isNegative()) {
+	        duration = duration.plusHours(24);
+	    }
+	    return duration;
+	}
+	
 	/**
 	 * Returns the start time of the time range.
 	 *

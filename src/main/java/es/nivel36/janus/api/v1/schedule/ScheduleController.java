@@ -33,9 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.schedule.Schedule;
+import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
 import es.nivel36.janus.service.schedule.ScheduleService;
-import es.nivel36.janus.service.schedule.dto.CreateScheduleDefinition;
-import es.nivel36.janus.service.schedule.dto.UpdateScheduleDefinition;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -50,26 +49,16 @@ public class ScheduleController {
 
 	private final ScheduleService scheduleService;
 	private final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper;
-	private final ScheduleRequestMapper scheduleRequestMapper;
+	private final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper;
 
-	/**
-	 * Creates a controller that exposes schedule management endpoints.
-	 *
-	 * @param scheduleService        service handling {@link Schedule} domain
-	 *                               operations; must not be {@code null}
-	 * @param scheduleResponseMapper mapper translating {@link Schedule} entities to
-	 *                               {@link ScheduleResponse} DTOs; must not be
-	 *                               {@code null}
-	 * @param scheduleRequestMapper  mapper translating request payloads into
-	 *                               domain-neutral DTOs; must not be {@code null}
-	 */
 	public ScheduleController(final ScheduleService scheduleService,
 			final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper,
-			final ScheduleRequestMapper scheduleRequestMapper) {
+			final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper) {
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.scheduleResponseMapper = Objects.requireNonNull(scheduleResponseMapper,
 				"scheduleResponseMapper can't be null");
-		this.scheduleRequestMapper = Objects.requireNonNull(scheduleRequestMapper, "scheduleRequestMapper can't be null");
+		this.scheduleRuleDefinitionMapper = Objects.requireNonNull(scheduleRuleDefinitionMapper,
+				"scheduleRuleDefinitionMapper can't be null");
 	}
 
 	/**
@@ -116,11 +105,14 @@ public class ScheduleController {
 	@PostMapping
 	public ResponseEntity<ScheduleResponse> createSchedule(@Valid @RequestBody final CreateScheduleRequest request) {
 		logger.debug("Create schedule ACTION performed");
-
-		final CreateScheduleDefinition definition = this.scheduleRequestMapper.toCreateDefinition(request);
-		final Schedule createdSchedule = this.scheduleService.createSchedule(definition);
+		final Schedule createdSchedule = this.scheduleService.createSchedule(request.code(), request.name(),
+				this.map(request.rules()));
 		final ScheduleResponse response = this.scheduleResponseMapper.map(createdSchedule);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+
+	public List<ScheduleRuleDefinition> map(List<ScheduleRuleRequest> rules) {
+		return rules.stream().map(scheduleRuleDefinitionMapper::map).toList();
 	}
 
 	/**
@@ -141,8 +133,8 @@ public class ScheduleController {
 	String scheduleCode, @Valid @RequestBody final UpdateScheduleRequest request) {
 		logger.debug("Update schedule ACTION performed");
 
-		final UpdateScheduleDefinition definition = this.scheduleRequestMapper.toUpdateDefinition(request);
-		final Schedule updatedSchedule = this.scheduleService.updateSchedule(scheduleCode, definition);
+		final Schedule updatedSchedule = this.scheduleService.updateSchedule(scheduleCode, request.name(),
+				this.map(request.rules()));
 		final ScheduleResponse response = this.scheduleResponseMapper.map(updatedSchedule);
 		return ResponseEntity.ok(response);
 	}

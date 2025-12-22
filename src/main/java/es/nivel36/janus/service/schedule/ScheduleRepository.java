@@ -20,8 +20,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import es.nivel36.janus.service.employee.Employee;
@@ -31,7 +31,7 @@ import es.nivel36.janus.service.employee.Employee;
  * manage schedule-related data.
  */
 @Repository
-interface ScheduleRepository extends CrudRepository<Schedule, Long> {
+interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
 	/**
 	 * Finds a {@link Schedule} entity by its unique code.

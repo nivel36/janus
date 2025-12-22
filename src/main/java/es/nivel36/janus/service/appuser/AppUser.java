@@ -22,6 +22,7 @@ import java.util.Objects;
 import org.hibernate.annotations.NaturalId;
 
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,17 +35,18 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Entity representing an application user within the Janus system.
+ *
  * <p>
- * This entity stores basic identification and preference data for a user,
- * including their username, personal information, locale settings, and
- * preferred time format.
+ * This class models a user of the application, storing identification data and
+ * configuration preferences such as personal information, locale, and preferred
+ * time format.
  * </p>
  *
  * <p>
- * Each user is uniquely identified by their {@code username}, which acts as a
- * natural ID and cannot be modified once created. The {@link Locale} and
- * {@link TimeFormat} fields define user-specific configuration preferences that
- * influence the behavior and presentation layer of the application.
+ * Each user is uniquely identified by its {@code username}, which acts as a
+ * natural identifier and cannot be modified once the entity is persisted. User
+ * preferences like {@link Locale} and {@link TimeFormat} define how information
+ * is presented to the user across the system.
  * </p>
  */
 @Entity
@@ -53,7 +55,10 @@ public class AppUser implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Unique identifier for the user. Auto-generated.
+	 * Surrogate database identifier for the user.
+	 * <p>
+	 * This value is auto-generated and has no business meaning.
+	 * </p>
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,9 +66,10 @@ public class AppUser implements Serializable {
 
 	/**
 	 * Unique username used to identify the user.
+	 *
 	 * <p>
-	 * This field is mandatory, immutable once persisted, and must be unique across
-	 * all users.
+	 * Acts as a natural identifier. This field is mandatory, must be unique, and
+	 * cannot be updated once the entity is persisted.
 	 * </p>
 	 */
 	@NaturalId
@@ -73,8 +79,9 @@ public class AppUser implements Serializable {
 
 	/**
 	 * The first name of the user.
+	 *
 	 * <p>
-	 * This field is mandatory and cannot be empty.
+	 * This field is mandatory and must not be empty.
 	 * </p>
 	 */
 	@NotEmpty
@@ -82,28 +89,31 @@ public class AppUser implements Serializable {
 
 	/**
 	 * The surname of the user.
+	 *
 	 * <p>
-	 * This field is mandatory and cannot be empty.
+	 * This field is mandatory and must not be empty.
 	 * </p>
 	 */
 	@NotEmpty
 	private String surname;
 
 	/**
-	 * Preferred locale for this user.
+	 * Preferred locale of the user.
+	 *
 	 * <p>
-	 * Determines language and regional formatting rules used by the system when
-	 * interacting with this user. This field is mandatory.
+	 * Determines language, regional settings, and formatting rules applied when
+	 * interacting with this user. Can't be {@code null}.
 	 * </p>
 	 */
 	@NotNull
 	private Locale locale;
 
 	/**
-	 * Preferred time format for the user.
+	 * Preferred time format of the user.
+	 *
 	 * <p>
-	 * This enum controls how time values are displayed (e.g., 24-hour vs 12-hour
-	 * format). This field is mandatory.
+	 * Defines how time values are displayed to the user (for example, 24-hour or
+	 * 12-hour format). Can't be {@code null}.
 	 * </p>
 	 */
 	@NotNull
@@ -111,135 +121,140 @@ public class AppUser implements Serializable {
 	private TimeFormat timeFormat;
 
 	/**
-	 * Default constructor for JPA. Initializes an empty application user.
+	 * Default constructor required by JPA.
 	 */
-	protected AppUser() {
+	AppUser() {
 	}
 
 	/**
-	 * Constructs a new application user with the specified username, name, surname,
-	 * locale and timeFormat.
+	 * Creates a new application user with the provided personal data and
+	 * preferences.
 	 *
-	 * @param username   the unique username of the application user
-	 * @param name       the name of the application user
-	 * @param surname    the surname of the application user
-	 * @param locale     the preferred locale of the application user
-	 * @param timeFormat the preferred time format of the application user
+	 * @param username   the unique username of the user. Can't be {@code null} or
+	 *                   blank.
+	 * @param name       the first name of the user. Can't be {@code null} or blank.
+	 * @param surname    the surname of the user. Can't be {@code null} or blank.
+	 * @param locale     the preferred {@link Locale} of the user. Can't be
+	 *                   {@code null}.
+	 * @param timeFormat the preferred {@link TimeFormat} of the user. Can't be
+	 *                   {@code null}.
+	 *
+	 * @throws NullPointerException     if any parameter is {@code null}
+	 * @throws IllegalArgumentException if {@code username}, {@code name} or
+	 *                                  {@code surname} is blank
 	 */
 	public AppUser(final String username, final String name, final String surname, final Locale locale,
 			final TimeFormat timeFormat) {
-		this.username = username;
-		this.name = name;
-		this.surname = surname;
-		this.locale = locale;
-		this.timeFormat = timeFormat;
+		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
+		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
+		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
+		this.locale = Objects.requireNonNull(locale, "locale can't be null");
+		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 	}
 
 	/**
-	 * Gets the unique identifier of the user.
+	 * Returns the database identifier of the user.
 	 *
-	 * @return the ID of the user
+	 * @return the user ID, or {@code null} if the entity has not been persisted yet
 	 */
 	public Long getId() {
 		return id;
 	}
 
 	/**
-	 * Sets the unique identifier of the user.
+	 * Assigns the database identifier of the user.
 	 *
-	 * @param id the ID to assign to the user
+	 * <p>
+	 * Intended for persistence framework usage only.
+	 * </p>
+	 *
+	 * @param id the identifier to assign
 	 */
-	protected void setId(final Long id) {
+	void setId(final Long id) {
 		this.id = id;
 	}
 
 	/**
-	 * Gets the username of the user.
+	 * Returns the username of the user.
 	 *
-	 * @return the username of the user
+	 * @return the unique username
 	 */
 	public String getUsername() {
 		return username;
 	}
 
 	/**
-	 * Gets the first name of the user.
+	 * Returns the first name of the user.
 	 *
-	 * @return the first name of the user
+	 * @return the first name
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Sets the first name of the user.
+	 * Updates the full name of the user.
 	 *
-	 * @param name the first name to assign
+	 * @param name    the new first name. Can't be {@code null} or blank.
+	 * @param surname the new surname. Can't be {@code null} or blank.
+	 *
+	 * @throws NullPointerException     if any parameter is {@code null}
+	 * @throws IllegalArgumentException if {@code name} or {@code surname} is blank
 	 */
-	public void setName(final String name) {
-		this.name = name;
+	public void setFullName(final String name, final String surname) {
+		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
+		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
 	}
 
 	/**
-	 * Gets the surname of the user.
+	 * Returns the surname of the user.
 	 *
-	 * @return the surname of the user
+	 * @return the surname
 	 */
 	public String getSurname() {
 		return surname;
 	}
 
 	/**
-	 * Sets the surname of the user.
+	 * Returns the preferred locale of the user.
 	 *
-	 * @param surname the surname to assign
-	 */
-	public void setSurname(final String surname) {
-		this.surname = surname;
-	}
-
-	/**
-	 * Gets the preferred locale of the user.
-	 *
-	 * @return the {@link Locale} used by this user
+	 * @return the {@link Locale} configured for this user
 	 */
 	public Locale getLocale() {
 		return locale;
 	}
 
 	/**
-	 * Sets the preferred locale for the user.
+	 * Sets the preferred locale of the user.
 	 *
-	 * @param locale the {@link Locale} to assign
+	 * @param locale the {@link Locale} to assign. Can't be {@code null}.
+	 *
+	 * @throws NullPointerException if {@code locale} is {@code null}
 	 */
 	public void setLocale(final Locale locale) {
-		this.locale = locale;
+		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 	}
 
 	/**
-	 * Gets the time format preference of the user.
+	 * Returns the preferred time format of the user.
 	 *
-	 * @return the {@link TimeFormat} configured for this user
+	 * @return the configured {@link TimeFormat}
 	 */
 	public TimeFormat getTimeFormat() {
 		return timeFormat;
 	}
 
 	/**
-	 * Sets the preferred time format for the user.
+	 * Sets the preferred time format of the user.
 	 *
-	 * @param timeFormat the {@link TimeFormat} to assign
+	 * @param timeFormat the {@link TimeFormat} to assign. Can't be {@code null}.
+	 *
+	 * @throws NullPointerException if {@code timeFormat} is {@code null}
 	 */
 	public void setTimeFormat(final TimeFormat timeFormat) {
-		this.timeFormat = timeFormat;
+		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 	}
 
-	/**
-	 * Determines whether two users are equal by comparing their usernames.
-	 *
-	 * @param obj the object to compare
-	 * @return {@code true} if both objects represent the same user
-	 */
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -252,21 +267,11 @@ public class AppUser implements Serializable {
 		return Objects.equals(this.username, other.username);
 	}
 
-	/**
-	 * Computes the hash code of this user based on its username.
-	 *
-	 * @return the hash code of the user
-	 */
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.username);
 	}
 
-	/**
-	 * Returns a string representation of this user.
-	 *
-	 * @return the username of the user
-	 */
 	@Override
 	public String toString() {
 		return this.username;

@@ -121,7 +121,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	/**
 	 * Default constructor required by JPA.
 	 */
-	protected ClockOutWithoutClockInEvent() {
+	ClockOutWithoutClockInEvent() {
 	}
 
 	/**
@@ -225,6 +225,15 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 */
 	public Worksite getWorksite() {
 		return worksite;
+	}
+	
+	/**
+	 * Sets the identifier of this event.
+	 *
+	 * @param id the identifier to assign
+	 */
+	void setId(final Long id) {
+		this.id = id;
 	}
 
 	/**

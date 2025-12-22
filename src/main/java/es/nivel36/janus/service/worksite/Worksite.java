@@ -17,6 +17,7 @@ package es.nivel36.janus.service.worksite;
 
 import java.io.Serializable;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -124,7 +126,7 @@ public class Worksite implements Serializable {
 	/**
 	 * Default constructor required by JPA.
 	 */
-	protected Worksite() {
+	Worksite() {
 	}
 
 	/**
@@ -135,9 +137,9 @@ public class Worksite implements Serializable {
 	 * @param timeZone the time zone associated with the worksite
 	 */
 	public Worksite(final String code, final String name, final ZoneId timeZone) {
-		this.code = code;
-		this.name = name;
-		this.timeZone = timeZone;
+		this.code = Strings.requireNonBlank(code, "code can't be null or empty");
+		this.name = Strings.requireNonBlank(name, "name can't be null or empty");
+		this.timeZone = Objects.requireNonNull(timeZone, "timeZone can't be null");
 	}
 
 	/**
@@ -146,7 +148,7 @@ public class Worksite implements Serializable {
 	 * @return the ID of the worksite
 	 */
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	/**
@@ -154,7 +156,7 @@ public class Worksite implements Serializable {
 	 *
 	 * @param id the ID to assign
 	 */
-	protected void setId(Long id) {
+	void setId(final Long id) {
 		this.id = id;
 	}
 
@@ -164,7 +166,7 @@ public class Worksite implements Serializable {
 	 * @return the name of the worksite
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -172,7 +174,7 @@ public class Worksite implements Serializable {
 	 *
 	 * @param name the name to assign
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -182,7 +184,7 @@ public class Worksite implements Serializable {
 	 * @return the code of the worksite
 	 */
 	public String getCode() {
-		return code;
+		return this.code;
 	}
 
 	/**
@@ -191,7 +193,7 @@ public class Worksite implements Serializable {
 	 * @return the {@link ZoneId} of the worksite
 	 */
 	public ZoneId getTimeZone() {
-		return timeZone;
+		return this.timeZone;
 	}
 
 	/**
@@ -199,7 +201,7 @@ public class Worksite implements Serializable {
 	 *
 	 * @param timeZone the {@link ZoneId} to assign
 	 */
-	public void setTimeZone(ZoneId timeZone) {
+	public void setTimeZone(final ZoneId timeZone) {
 		this.timeZone = timeZone;
 	}
 
@@ -209,29 +211,35 @@ public class Worksite implements Serializable {
 	 * @return {@code true} if deleted; {@code false} otherwise
 	 */
 	public boolean isDeleted() {
-		return deleted;
+		return this.deleted;
 	}
 
 	/**
 	 * @Entity
 	 * @Table public class Employee implements Serializable {
-	 * 
+	 *
 	 *        private static final long seri Sets the logical deletion flag of the
 	 *        worksite.
 	 *
 	 * @param deleted {@code true} to mark as deleted; {@code false} otherwise
 	 */
-	public void setDeleted(boolean deleted) {
+	void setDeleted(final boolean deleted) {
 		this.deleted = deleted;
 	}
 
 	/**
-	 * Gets the employees assigned to this worksite.
+	 * Returns an unmodifiable view of the employees assigned to this worksite.
 	 *
-	 * @return the set of {@link Employee} entities
+	 * <p>
+	 * This collection may be temporarily out of sync if an employee is assigned to
+	 * or removed from this worksite after the entity has been loaded from the
+	 * database and before this collection is accessed.
+	 * </p>
+	 *
+	 * @return an unmodifiable set of {@link Employee} entities
 	 */
 	public Set<Employee> getEmployees() {
-		return employees;
+		return Collections.unmodifiableSet(this.employees);
 	}
 
 	/**
@@ -239,7 +247,7 @@ public class Worksite implements Serializable {
 	 *
 	 * @param employees the set of {@link Employee} entities to assign
 	 */
-	public void setEmployees(Set<Employee> employees) {
+	void setEmployees(final Set<Employee> employees) {
 		this.employees = employees;
 	}
 
@@ -249,7 +257,7 @@ public class Worksite implements Serializable {
 	 * @return the set of {@link TimeLog} entities
 	 */
 	public Set<TimeLog> getTimeLogs() {
-		return timeLogs;
+		return Collections.unmodifiableSet(this.timeLogs);
 	}
 
 	/**
@@ -257,29 +265,29 @@ public class Worksite implements Serializable {
 	 *
 	 * @param timeLogs the set of {@link TimeLog} entities to assign
 	 */
-	public void setTimeLogs(Set<TimeLog> timeLogs) {
+	public void setTimeLogs(final Set<TimeLog> timeLogs) {
 		this.timeLogs = timeLogs;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(code);
+		return Objects.hash(this.code);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		if ((obj == null) || (getClass() != obj.getClass())) {
+		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
-		Worksite other = (Worksite) obj;
-		return Objects.equals(code, other.code);
+		final Worksite other = (Worksite) obj;
+		return Objects.equals(this.code, other.code);
 	}
 
 	@Override
 	public String toString() {
-		return code;
+		return this.code;
 	}
 }

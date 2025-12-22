@@ -82,7 +82,6 @@ public class WorkShiftPrecomputeJob {
 	public WorkShiftPrecomputeJob(final WorkshiftRepository workshiftRepository, final TimeLogService timeLogService,
 			final ScheduleService scheduleService, final EmployeeService employeeService,
 			final AdminService adminService, final Clock clock) {
-
 		this.workshiftRepository = Objects.requireNonNull(workshiftRepository, "workshiftRepository must not be null");
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService must not be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService must not be null");

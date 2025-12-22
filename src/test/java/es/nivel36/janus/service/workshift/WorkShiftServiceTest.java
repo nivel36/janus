@@ -73,7 +73,7 @@ class WorkShiftServiceTest {
 		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", new Schedule("CODE", "Name"));
 		final ZoneId utcZone = ZoneId.of("UTC");
 		this.worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
-		employee.getWorksites().add(worksite);
+		employee.assignToWorksite(worksite);
 	}
 
 	public static Stream<Arguments> provideTimeLogArguments() {
@@ -83,7 +83,7 @@ class WorkShiftServiceTest {
 		final Employee employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", new Schedule("CODE", "Name"));
 		final ZoneId utcZone = ZoneId.of("UTC");
 		final Worksite worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
-		employee.getWorksites().add(worksite);
+		employee.assignToWorksite(worksite);
 
 		final Instant[] normalDay = { //
 				buildInstant(previousDay, 8, 0), // 0

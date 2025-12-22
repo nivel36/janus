@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.employee;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -25,6 +26,7 @@ import org.hibernate.annotations.NaturalId;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -67,20 +69,30 @@ public class Employee implements Serializable {
 
 	/**
 	 * The first name of the employee.
+	 * 
+	 * <p>
+	 * This field is mandatory and must not be empty.
+	 * </p>
 	 */
 	@NotEmpty
 	private String name;
 
 	/**
 	 * The surname of the employee.
+	 * 
+	 * <p>
+	 * This field is mandatory and must not be empty.
+	 * </p>
 	 */
 	@NotEmpty
 	private String surname;
 
 	/**
 	 * The email of the employee.
+	 * 
 	 * <p>
-	 * This field is mandatory, must be unique, and cannot be {@code null}.
+	 * Acts as a natural identifier. This field is mandatory, must be unique, and
+	 * cannot be updated once the entity is persisted.
 	 * </p>
 	 */
 	@NaturalId
@@ -91,6 +103,7 @@ public class Employee implements Serializable {
 
 	/**
 	 * The work schedule associated with this employee.
+	 * 
 	 * <p>
 	 * This field is mandatory and cannot be {@code null}.
 	 * </p>
@@ -104,7 +117,9 @@ public class Employee implements Serializable {
 	 * The worksites where the employee is allowed to record their time logs.
 	 */
 	@ManyToMany
-	@JoinTable(name = "employee_worksite", joinColumns = @JoinColumn(name = "employee_id"), inverseJoinColumns = @JoinColumn(name = "worksite_id"))
+	@JoinTable(name = "employee_worksite", //
+			joinColumns = @JoinColumn(name = "employee_id"), //
+			inverseJoinColumns = @JoinColumn(name = "worksite_id"))
 	private Set<Worksite> worksites = new HashSet<>();
 
 	/**
@@ -116,23 +131,25 @@ public class Employee implements Serializable {
 	/**
 	 * Default constructor for JPA. Initializes an empty employee.
 	 */
-	public Employee() {
+	Employee() {
 	}
 
 	/**
 	 * Constructs a new employee with the specified name, surname, email and
 	 * schedule.
 	 *
-	 * @param name     the name of the employee
-	 * @param surname  the surname of the employee
-	 * @param email    the unique email of the employee
-	 * @param schedule the work schedule assigned to the employee
+	 * @param name     the name of the employee. Can't be {@code null} or blank.
+	 * @param surname  the surname of the employee. Can't be {@code null} or blank.
+	 * @param email    the unique email of the employee. Can't be {@code null} or
+	 *                 blank.
+	 * @param schedule the work schedule assigned to the employee. Can't be
+	 *                 {@code null}.
 	 */
 	public Employee(final String name, final String surname, final String email, final Schedule schedule) {
-		this.name = name;
-		this.surname = surname;
-		this.email = email;
-		this.schedule = schedule;
+		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
+		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
+		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
+		this.schedule = Objects.requireNonNull(schedule, "schedule can't be null");
 	}
 
 	/**
@@ -181,21 +198,24 @@ public class Employee implements Serializable {
 	}
 
 	/**
-	 * Gets the set of time logs recorded by this employee.
+	 * Gets the unmodifiable set of time logs recorded by this employee.
 	 *
-	 * @return the set of {@link TimeLog} entries associated with this employee
+	 * @return the unmodifiable set of {@link TimeLog} entries associated with this
+	 *         employee
 	 */
 	public Set<TimeLog> getTimeLogs() {
-		return timeLogs;
+		return Collections.unmodifiableSet(timeLogs);
 	}
 
 	/**
-	 * Gets the worksites where this employee can register their time logs.
+	 * Gets the unmodifiable set of worksites where this employee can register their
+	 * time logs.
 	 *
-	 * @return the set of {@link Worksite} entities linked to this employee
+	 * @return the unmodifiable set of {@link Worksite} entities linked to this
+	 *         employee
 	 */
 	public Set<Worksite> getWorksites() {
-		return worksites;
+		return Collections.unmodifiableSet(this.worksites);
 	}
 
 	/**
@@ -203,17 +223,8 @@ public class Employee implements Serializable {
 	 *
 	 * @param id the ID to assign to the employee
 	 */
-	protected void setId(final Long id) {
+	void setId(final Long id) {
 		this.id = id;
-	}
-
-	/**
-	 * Sets the first name of the employee.
-	 *
-	 * @param name the first name to assign to the employee
-	 */
-	public void setName(final String name) {
-		this.name = name;
 	}
 
 	/**
@@ -222,7 +233,7 @@ public class Employee implements Serializable {
 	 * @param schedule the {@link Schedule} to assign to the employee
 	 */
 	public void setSchedule(final Schedule schedule) {
-		this.schedule = schedule;
+		this.schedule = Objects.requireNonNull(schedule, "schedule can't be null");
 	}
 
 	/**
@@ -230,8 +241,9 @@ public class Employee implements Serializable {
 	 *
 	 * @param surname the surname to assign to the employee
 	 */
-	public void setSurname(final String surname) {
-		this.surname = surname;
+	public void setFullName(final String name, final String surname) {
+		this.name = Strings.requireNonBlank(name, "name can't be null");
+		this.surname = Strings.requireNonBlank(surname, "surname can't be null");
 	}
 
 	/**
@@ -239,17 +251,18 @@ public class Employee implements Serializable {
 	 *
 	 * @param timeLogs the set of {@link TimeLog} entries to assign
 	 */
-	public void setTimeLogs(Set<TimeLog> timeLogs) {
+	void setTimeLogs(final Set<TimeLog> timeLogs) {
 		this.timeLogs = timeLogs;
 	}
 
-	/**
-	 * Sets the worksites available for this employee.
-	 *
-	 * @param worksites the set of {@link Worksite} entities to assign
-	 */
-	public void setWorksites(Set<Worksite> worksites) {
-		this.worksites = worksites;
+	public boolean assignToWorksite(final Worksite worksite) {
+		Objects.requireNonNull(worksite, "worksite can't be null");
+		return this.worksites.add(worksite);
+	}
+
+	public boolean removeFromWorksite(final Worksite worksite) {
+		Objects.requireNonNull(worksite, "worksite can't be null");
+		return this.worksites.remove(worksite);
 	}
 
 	@Override
@@ -257,7 +270,7 @@ public class Employee implements Serializable {
 		if (this == obj) {
 			return true;
 		}
-		if ((obj == null) || (this.getClass() != obj.getClass())) {
+		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final Employee other = (Employee) obj;

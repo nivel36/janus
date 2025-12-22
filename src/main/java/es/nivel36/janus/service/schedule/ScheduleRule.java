@@ -18,6 +18,7 @@ package es.nivel36.janus.service.schedule;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,6 +31,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -64,6 +66,7 @@ public class ScheduleRule implements Serializable {
 	/**
 	 * Human readable name of the schedule rule.
 	 */
+	@NotEmpty
 	private String name;
 
 	/**
@@ -71,7 +74,7 @@ public class ScheduleRule implements Serializable {
 	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "schedule_id")
+	@JoinColumn(name = "schedule_id", updatable = false)
 	private Schedule schedule;
 
 	/**
@@ -94,6 +97,14 @@ public class ScheduleRule implements Serializable {
 	@OneToMany(mappedBy = "scheduleRule", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<DayOfWeekTimeRange> dayOfWeekRanges = new ArrayList<>();
 
+	ScheduleRule() {
+	}
+
+	public ScheduleRule(String name, Schedule schedule) {
+		this.name = Objects.requireNonNull(name);
+		this.schedule = Objects.requireNonNull(schedule);
+	}
+
 	/**
 	 * Returns the unique identifier of the schedule rule.
 	 *
@@ -108,7 +119,7 @@ public class ScheduleRule implements Serializable {
 	 *
 	 * @param id the new identifier of the schedule rule
 	 */
-	protected void setId(final Long id) {
+	void setId(final Long id) {
 		this.id = id;
 	}
 
@@ -140,30 +151,12 @@ public class ScheduleRule implements Serializable {
 	}
 
 	/**
-	 * Sets the schedule to which this rule belongs.
-	 *
-	 * @param schedule the schedule to associate with this rule
-	 */
-	public void setSchedule(final Schedule schedule) {
-		this.schedule = schedule;
-	}
-
-	/**
 	 * Returns the start date of the schedule rule.
 	 *
 	 * @return the start date of the rule, or null if it applies indefinitely
 	 */
 	public LocalDate getStartDate() {
 		return this.startDate;
-	}
-
-	/**
-	 * Sets the start date of the schedule rule.
-	 *
-	 * @param startDate the new start date of the rule
-	 */
-	public void setStartDate(final LocalDate startDate) {
-		this.startDate = startDate;
 	}
 
 	/**
@@ -176,11 +169,24 @@ public class ScheduleRule implements Serializable {
 	}
 
 	/**
-	 * Sets the end date of the schedule rule.
+	 * Defines the validity range of this schedule rule.
 	 *
-	 * @param endDate the new end date of the rule
+	 * <p>
+	 * Either {@code startDate}, {@code endDate}, or both may be {@code null},
+	 * indicating an open-ended range. When both dates are present, {@code endDate}
+	 * must not be before {@code startDate}.
+	 * </p>
+	 *
+	 * @param startDate the start date of the rule's validity, or {@code null}
+	 * @param endDate   the end date of the rule's validity, or {@code null}
+	 * @throws IllegalArgumentException if {@code endDate} is before
+	 *                                  {@code startDate}
 	 */
-	public void setEndDate(final LocalDate endDate) {
+	public void setActivePeriod(LocalDate startDate, LocalDate endDate) {
+		if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+			throw new IllegalArgumentException("endDate must not be before startDate");
+		}
+		this.startDate = startDate;
 		this.endDate = endDate;
 	}
 
@@ -191,17 +197,17 @@ public class ScheduleRule implements Serializable {
 	 * @return the list of time ranges for each day
 	 */
 	public List<DayOfWeekTimeRange> getDayOfWeekRanges() {
-		return this.dayOfWeekRanges;
+		return Collections.unmodifiableList(dayOfWeekRanges);
 	}
 
-	/**
-	 * Sets the list of {@link DayOfWeekTimeRange} objects that define the time
-	 * configurations for different days of the week.
-	 *
-	 * @param dayOfWeekRanges the new list of time ranges for each day
-	 */
-	public void setDayOfWeekRanges(final List<DayOfWeekTimeRange> dayOfWeekRanges) {
-		this.dayOfWeekRanges = dayOfWeekRanges;
+	public boolean addRange(DayOfWeekTimeRange range) {
+		Objects.requireNonNull(range);
+		return dayOfWeekRanges.add(range);
+	}
+
+	public boolean removeRange(DayOfWeekTimeRange range) {
+		Objects.requireNonNull(range);
+		return dayOfWeekRanges.remove(range);
 	}
 
 	@Override

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.service.schedule.dto;
+package es.nivel36.janus.service.schedule;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
