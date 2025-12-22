@@ -174,10 +174,7 @@ public class WorkShiftPrecomputeJob {
 		while (!queue.isEmpty()) {
 			final TimeLog next = queue.peekFirst();
 			final Instant entry = next.getEntryTime();
-			if (entry == null) {
-				queue.removeFirst();
-				continue;
-			}
+			// Entry can't be null
 			final boolean isOutOfScopeWorksite = !Objects.equals(next.getWorksite(), worksite);
 			final boolean isOutsideDayWindow = entry.isBefore(dayStart) || !entry.isBefore(dayEndExclusive);
 			if (isOutOfScopeWorksite || isOutsideDayWindow) {
