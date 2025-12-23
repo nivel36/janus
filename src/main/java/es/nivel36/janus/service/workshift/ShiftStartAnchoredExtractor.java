@@ -18,11 +18,11 @@ package es.nivel36.janus.service.workshift;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.workshift.UnscheduledShiftStrategy.PauseInfo;
 
 /**
@@ -95,11 +95,11 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	 *                 {@code null}
 	 * @return a list containing the extracted {@link TimeLog} segment, or an empty
 	 *         list if no segment can be determined
-	 * @throws NullPointerException     if any argument is {@code null}
+	 * @throws NullPointerException  if any argument is {@code null}
 	 * @throws IllegalStateException if preconditions are not met
 	 */
 	@Override
-	public List<TimeLog> extract(final LocalDate date, final List<TimeLog> timeLogs, final List<PauseInfo> pauses) {
+	public TimeLogs extract(final LocalDate date, final TimeLogs timeLogs, final List<PauseInfo> pauses) {
 		Objects.requireNonNull(date, "date must not be null");
 		Objects.requireNonNull(timeLogs, "timeLogs must not be null");
 		Objects.requireNonNull(pauses, "pauses must not be null");
@@ -113,7 +113,7 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 
 		final TimeLog anchor = findAnchor(date, timeLogs);
 		if (anchor == null) {
-			return List.of();
+			return new TimeLogs(List.of());
 		}
 
 		final PauseInfo leftPause = findLastPauseBefore(anchor, pauses);
@@ -129,11 +129,11 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 			throw new IllegalStateException(
 					"Invalid range computed: startIndex=" + startIndex + ", endIndex=" + endIndex);
 		}
-		
-		return new ArrayList<>(timeLogs.subList(startIndex, endIndex + 1));
+
+		return timeLogs.slice(startIndex, endIndex + 1);
 	}
 
-	private TimeLog findAnchor(final LocalDate date, final List<TimeLog> timeLogs) {
+	private TimeLog findAnchor(final LocalDate date, final TimeLogs timeLogs) {
 		for (final TimeLog log : timeLogs) {
 			final Instant in = log.getEntryTime();
 			if (in != null && in.atZone(zoneId).toLocalDate().equals(date)) {
@@ -165,7 +165,7 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 		return null;
 	}
 
-	private static int indexOfOrFail(final List<TimeLog> logs, final TimeLog log, final String label) {
+	private static int indexOfOrFail(final TimeLogs logs, final TimeLog log, final String label) {
 		final int index = logs.indexOf(log);
 		if (index < 0) {
 			throw new IllegalStateException(label + " not found in timeLogs");

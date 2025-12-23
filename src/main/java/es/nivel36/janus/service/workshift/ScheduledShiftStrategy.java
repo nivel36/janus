@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.worksite.Worksite;
 
 /**
@@ -82,7 +83,7 @@ final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 	 *                              {@code timeRange} is {@code null}
 	 */
 	@Override
-	public List<TimeLog> infer(final LocalDate date, final List<TimeLog> orderedLogs) {
+	public TimeLogs infer(final LocalDate date, final TimeLogs orderedLogs) {
 		Objects.requireNonNull(date, "date can't be null");
 		Objects.requireNonNull(orderedLogs, "orderedLogs can't be null");
 		final ZoneId timeZone = this.worksite.getTimeZone();
@@ -91,9 +92,6 @@ final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 		final TimeInterval expandedWindow = window.expandedBy(selectionMargin);
 		final List<TimeLog> selected = new ArrayList<>();
 		for (final TimeLog log : orderedLogs) {
-			if (!log.isClosed()) {
-				continue;
-			}
 			final Instant in = log.getEntryTime();
 			if (expandedWindow.endsAtOrBefore(in)) {
 				break;
@@ -104,6 +102,6 @@ final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 			}
 			selected.add(log);
 		}
-		return List.copyOf(selected);
+		return new TimeLogs(selected);
 	}
 }

@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.timelog.TimeLogs;
 
 /**
  * Composes {@link WorkShift} instances from a set of ordered {@link TimeLog}
@@ -75,23 +76,22 @@ final class WorkShiftComposer {
 	 *         returned work shift will contain no time logs and zero durations.
 	 * @throws NullPointerException if any of the parameters is {@code null}
 	 */
-	WorkShift compose(Employee employee, LocalDate date, List<TimeLog> orderedLogs) {
+	WorkShift compose(Employee employee, LocalDate date, TimeLogs orderedLogs) {
 		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(date, "date can't be null");
 		Objects.requireNonNull(orderedLogs, "orderedLogs can't be null");
-		final List<TimeLog> selectedLogs = this.inferenceStrategy.infer(date, orderedLogs);
+		final TimeLogs selectedLogs = this.inferenceStrategy.infer(date, orderedLogs);
 		if (selectedLogs.isEmpty()) {
-			return new WorkShift(employee, date, selectedLogs);
+			return new WorkShift(employee, date, List.of());
 		}
-		final WorkShift shift = new WorkShift(employee, date, selectedLogs);
+		final WorkShift shift = new WorkShift(employee, date, selectedLogs.asList());
 		final TimeIntervals timeIntervals = this.toIntervals(selectedLogs);
 		shift.setTotalWorkTime(timeIntervals.totalCoveredDuration());
 		shift.setTotalPauseTime(timeIntervals.totalGapDuration());
 		return shift;
 	}
 
-	private TimeIntervals toIntervals(final List<TimeLog> logs) {
-		Objects.requireNonNull(logs, "logs must not be null.");
+	private TimeIntervals toIntervals(final TimeLogs logs) {
 
 		final List<TimeInterval> intervals = new ArrayList<>();
 		for (final TimeLog log : logs) {

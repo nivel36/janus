@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.workshift.UnscheduledShiftStrategy.PauseInfo;
 
 /**
@@ -40,5 +41,5 @@ interface TimeLogsExtractor {
 	 *                 must not be {@code null}
 	 * @return the {@link TimeLog} entries that belong to the work shift
 	 */
-	List<TimeLog> extract(LocalDate date, List<TimeLog> timeLogs, List<PauseInfo> pauses);
+	TimeLogs extract(LocalDate date, TimeLogs timeLogs, List<PauseInfo> pauses);
 }

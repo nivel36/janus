@@ -22,7 +22,6 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +40,7 @@ import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
+import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.worksite.Worksite;
 
 /**
@@ -127,15 +127,13 @@ public class WorkShiftPrecomputeJob {
 		final Employee employee = employeeService.findEmployeeById(employeeId);
 		log.trace("Processing employee {}", employee);
 
-		final List<TimeLog> orphanLogs = new ArrayList<>(timeLogService.findOrphanTimeLogs(target, employee));
+		final TimeLogs orphanLogs = timeLogService.findOrphanTimeLogs(target, employee);
 		if (orphanLogs.isEmpty()) {
 			log.warn("No orphan time logs for employee {} at targetAnchor {}", employee, target);
 			return;
 		}
 
-		orphanLogs.sort(Comparator.comparing(TimeLog::getEntryTime, Comparator.nullsLast(Comparator.naturalOrder())));
-
-		final Deque<TimeLog> queue = new ArrayDeque<>(orphanLogs);
+		final Deque<TimeLog> queue = new ArrayDeque<>(orphanLogs.asList());
 		while (!queue.isEmpty()) {
 			this.buildAndSaveNextWorkShift(employee, queue);
 		}
@@ -144,9 +142,9 @@ public class WorkShiftPrecomputeJob {
 	private void buildAndSaveNextWorkShift(final Employee employee, final Deque<TimeLog> queue) {
 		final TimeLog first = queue.removeFirst();
 
-		final Worksite worksite = Objects.requireNonNull(first.getWorksite(), "timeLog.worksite must not be null");
-		final ZoneId zone = Objects.requireNonNull(worksite.getTimeZone(), "worksite.timeZone must not be null");
-		final Instant firstEntry = Objects.requireNonNull(first.getEntryTime(), "timeLog.entryTime must not be null");
+		final Worksite worksite = first.getWorksite();
+		final ZoneId zone = worksite.getTimeZone();
+		final Instant firstEntry = first.getEntryTime();
 
 		final LocalDate day = firstEntry.atZone(zone).toLocalDate();
 		final Instant dayStart = day.atStartOfDay(zone).toInstant();
@@ -155,7 +153,7 @@ public class WorkShiftPrecomputeJob {
 		log.trace("Bucket employee={}, worksite={}, zone={}, day={} window=[{} .. {})", employee, worksite, zone, day,
 				dayStart, dayEndExclusive);
 
-		final List<TimeLog> bucket = this.collectBucket(first, worksite, dayStart, dayEndExclusive, queue);
+		final TimeLogs bucket = this.collectBucket(first, worksite, dayStart, dayEndExclusive, queue);
 		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, day);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();
@@ -165,7 +163,7 @@ public class WorkShiftPrecomputeJob {
 		log.trace("WorkShift persisted with id {}", saved.getId());
 	}
 
-	private List<TimeLog> collectBucket(final TimeLog first, final Worksite worksite, final Instant dayStart,
+	private TimeLogs collectBucket(final TimeLog first, final Worksite worksite, final Instant dayStart,
 			final Instant dayEndExclusive, final Deque<TimeLog> queue) {
 
 		final List<TimeLog> bucket = new ArrayList<>();
@@ -184,6 +182,6 @@ public class WorkShiftPrecomputeJob {
 		}
 
 		log.trace("Collected {} time logs in bucket", bucket.size());
-		return bucket;
+		return new TimeLogs(bucket);
 	}
 }

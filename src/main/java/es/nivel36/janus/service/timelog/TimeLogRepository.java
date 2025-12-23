@@ -186,6 +186,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 			JOIN FETCH t.worksite ws
 			WHERE t.deleted = false
 			AND t.entryTime >= :from
+			AND t.exitTime IS NOT NULL
 			AND e = :employee
 			AND NOT EXISTS (
 			SELECT 1
@@ -195,5 +196,4 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 			ORDER BY t.entryTime DESC
 			""")
 	List<TimeLog> findOrphanTimeLogsSince(@Param("from") Instant from, @Param("employee") Employee employee);
-
 }

@@ -20,7 +20,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -37,6 +36,7 @@ import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
+import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.worksite.Worksite;
 
 /**
@@ -147,7 +147,7 @@ public class WorkShiftService {
 		}
 		logger.trace("Building the work shift");
 		final Page<TimeLog> logsPage = findTimeLogs(employee, date, tz);
-		final List<TimeLog> orderedLogs = logsPage.getContent();
+		final TimeLogs orderedLogs = new TimeLogs(logsPage.getContent());
 		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, date);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();

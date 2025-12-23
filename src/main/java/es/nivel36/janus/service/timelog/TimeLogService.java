@@ -320,14 +320,14 @@ public class TimeLogService {
 	 * @throws NullPointerException if any argument is {@code null}.
 	 */
 	@Transactional(readOnly = true)
-	public List<TimeLog> findOrphanTimeLogs(final Instant from, final Employee employee) {
+	public TimeLogs findOrphanTimeLogs(final Instant from, final Employee employee) {
 		Objects.requireNonNull(from, "from must not be null");
 		Objects.requireNonNull(employee, "employee must not be null");
 		logger.debug("Finding orphan timeLog from {} and employee {}", from, employee);
 
 		final List<TimeLog> orphanTimeLogs = this.timeLogRepository.findOrphanTimeLogsSince(from, employee);
 		logger.trace("Found {} orphan time logs", orphanTimeLogs.size());
-		return orphanTimeLogs;
+		return new TimeLogs(orphanTimeLogs);
 	}
 
 	/**

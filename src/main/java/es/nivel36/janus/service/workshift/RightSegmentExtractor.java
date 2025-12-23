@@ -16,11 +16,11 @@
 package es.nivel36.janus.service.workshift;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.workshift.UnscheduledShiftStrategy.PauseInfo;
 
 /**
@@ -60,8 +60,7 @@ final class RightSegmentExtractor implements TimeLogsExtractor {
 	 * @throws IllegalStateException if {@code pauses} or {@code timeLogs} is empty
 	 */
 	@Override
-	public List<TimeLog> extract(final LocalDate date, final List<TimeLog> timeLogs, final List<PauseInfo> pauses) {
-
+	public TimeLogs extract(final LocalDate date, final TimeLogs timeLogs, final List<PauseInfo> pauses) {
 		Objects.requireNonNull(date, "date must not be null");
 		Objects.requireNonNull(timeLogs, "timeLogs must not be null");
 		Objects.requireNonNull(pauses, "pauses must not be null");
@@ -80,7 +79,6 @@ final class RightSegmentExtractor implements TimeLogsExtractor {
 		if (fromIndex < 0) {
 			throw new IllegalStateException("Pause 'after' log not found in timeLogs");
 		}
-
-		return new ArrayList<>(timeLogs.subList(fromIndex, timeLogs.size()));
+		return timeLogs.slice(fromIndex, timeLogs.size());
 	}
 }

@@ -20,11 +20,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Objects;
 
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.worksite.Worksite;
 
 /**
@@ -91,28 +92,27 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 	 *         inferred shift; never {@code null}
 	 */
 	@Override
-	public List<TimeLog> infer(LocalDate date, List<TimeLog> orderedLogs) {
+	public TimeLogs infer(LocalDate date, TimeLogs orderedLogs) {
 		Objects.requireNonNull(date, "date must not be null.");
 		Objects.requireNonNull(orderedLogs, "orderedLogs must not be null.");
 		if (orderedLogs.isEmpty()) {
-			return List.of();
+			return orderedLogs;
 		}
 		final Duration longPauseThreshold = this.policy.longPauseThreshold();
 		final List<PauseInfo> longPauses = this.extractLongPauses(orderedLogs, longPauseThreshold);
-		final List<TimeLog> selected = this.selectByPauses(date, orderedLogs, longPauses);
-		return List.copyOf(selected);
+		return this.selectByPauses(date, orderedLogs, longPauses);
 	}
 
-	private List<PauseInfo> extractLongPauses(final List<TimeLog> timeLogs, final Duration threshold) {
+	private List<PauseInfo> extractLongPauses(final TimeLogs timeLogs, final Duration threshold) {
 		final List<PauseInfo> pauses = new ArrayList<>();
-		final ListIterator<TimeLog> it = timeLogs.listIterator();
-		
+		final Iterator<TimeLog> it = timeLogs.iterator();	
+
 		TimeLog current = it.next();
 		while (it.hasNext()) {
 			final TimeLog next = it.next();
 			final Instant out = current.getExitTime();
 			if (out == null) {
-			    throw new IllegalStateException("TimeLog without exit in a closed sequence");
+				throw new IllegalStateException("TimeLog without exit in a closed sequence");
 			}
 			final Instant nextIn = next.getEntryTime();
 			final Duration gap = Duration.between(out, nextIn);
@@ -128,8 +128,7 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 		return pauses;
 	}
 
-	private List<TimeLog> selectByPauses(final LocalDate date, final List<TimeLog> timeLogs,
-			final List<PauseInfo> pauses) {
+	private TimeLogs selectByPauses(final LocalDate date, final TimeLogs timeLogs, final List<PauseInfo> pauses) {
 		if (pauses.size() >= 2) {
 			return new ShiftStartAnchoredExtractor(worksite.getTimeZone()).extract(date, timeLogs, pauses);
 		}

@@ -16,9 +16,8 @@
 package es.nivel36.janus.service.workshift;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.timelog.TimeLogs;
 
 /**
  * Strategy interface that decides which logs belong to a shift for a given
@@ -32,5 +31,5 @@ interface ShiftInferenceStrategy {
 	 * @param context shift context, not null
 	 * @return inference result with selected logs and an optional clip window
 	 */
-	List<TimeLog> infer(LocalDate date, List<TimeLog> orderedLogs);
+	TimeLogs infer(LocalDate date, TimeLogs orderedLogs);
 }
