@@ -26,22 +26,22 @@ public final class TimeLogs implements Iterable<TimeLog> {
 
 	private static final TimeLogs EMPTY = new TimeLogs(List.of());
 
-	private final List<TimeLog> timeLogs;
+	private final List<TimeLog> timeLogsList;
 
 	/**
 	 * Creates a {@code TimeLogs} instance from the given collection.
 	 *
-	 * @param timeLogs the collection of {@link TimeLog} entries
+	 * @param timeLogsList the collection of {@link TimeLog} entries
 	 * @throws NullPointerException     if the collection or any element is
 	 *                                  {@code null}
 	 * @throws IllegalArgumentException if any time log is open or overlaps with
 	 *                                  another
 	 */
 	public TimeLogs(final Collection<TimeLog> timeLogs) {
-		Objects.requireNonNull(timeLogs, "timeLogs cannot be null");
+		Objects.requireNonNull(timeLogs, "timeLogsList cannot be null");
 
 		if (timeLogs.contains(null)) {
-			throw new NullPointerException("timeLogs contains null elements");
+			throw new NullPointerException("timeLogsList contains null elements");
 		}
 
 		final List<TimeLog> sorted = timeLogs.stream() //
@@ -53,7 +53,7 @@ public final class TimeLogs implements Iterable<TimeLog> {
 			throw new IllegalArgumentException("All TimeLogs must be closed");
 		}
 		assertNoOverlaps(sorted);
-		this.timeLogs = List.copyOf(sorted);
+		this.timeLogsList = List.copyOf(sorted);
 	}
 
 	private static void assertNoOverlaps(final List<TimeLog> logs) {
@@ -71,7 +71,7 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	 * Returns an unmodifiable view of the underlying time logs.
 	 */
 	public List<TimeLog> asList() {
-		return this.timeLogs;
+		return this.timeLogsList;
 	}
 
 	/**
@@ -87,27 +87,27 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	 */
 	public int indexOf(final TimeLog timeLog) {
 		Objects.requireNonNull(timeLog, "timeLog cannot be null");
-		return this.timeLogs.indexOf(timeLog);
+		return this.timeLogsList.indexOf(timeLog);
 	}
 
 	/**
 	 * Returns the total worked duration across all time logs.
 	 */
 	public Duration getTotalDuration() {
-		return timeLogs.stream().map(TimeLog::getWorkDuration).reduce(Duration.ZERO, Duration::plus);
+		return timeLogsList.stream().map(TimeLog::getWorkDuration).reduce(Duration.ZERO, Duration::plus);
 	}
 
 	@Override
 	public Iterator<TimeLog> iterator() {
-		return timeLogs.iterator();
+		return timeLogsList.iterator();
 	}
 
 	public boolean isEmpty() {
-		return timeLogs.isEmpty();
+		return timeLogsList.isEmpty();
 	}
 
 	public int size() {
-		return timeLogs.size();
+		return timeLogsList.size();
 	}
 
 	/**
@@ -121,7 +121,7 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 */
 	public TimeLogs slice(final int fromIndex, final int toIndex) {
-		if (fromIndex < 0 || toIndex > this.timeLogs.size()) {
+		if (fromIndex < 0 || toIndex > this.timeLogsList.size()) {
 			throw new IndexOutOfBoundsException(
 					String.format("Indexs out of range: from=%d, to=%d", fromIndex, toIndex));
 		}
@@ -129,7 +129,7 @@ public final class TimeLogs implements Iterable<TimeLog> {
 			throw new IllegalArgumentException(
 					String.format("fromIndex (%d) must be <= toIndex (%d)", fromIndex, toIndex));
 		}
-		return new TimeLogs(this.timeLogs.subList(fromIndex, toIndex));
+		return new TimeLogs(this.timeLogsList.subList(fromIndex, toIndex));
 	}
 
 	/**
