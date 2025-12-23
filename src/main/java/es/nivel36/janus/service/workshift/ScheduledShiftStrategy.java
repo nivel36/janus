@@ -97,10 +97,10 @@ final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 				break;
 			}
 			final Instant out = log.getExitTime();
-			if (expandedWindow.startsAtOrAfter(out)) {
-				continue;
+			final TimeInterval timeLogInterval = new TimeInterval(in, out);
+			if (expandedWindow.overlaps(timeLogInterval)) {
+				selected.add(log);
 			}
-			selected.add(log);
 		}
 		return new TimeLogs(selected);
 	}

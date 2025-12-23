@@ -40,8 +40,8 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	public TimeLogs(final Collection<TimeLog> timeLogs) {
 		Objects.requireNonNull(timeLogs, "timeLogsList cannot be null");
 
-		if (timeLogs.contains(null)) {
-			throw new NullPointerException("timeLogsList contains null elements");
+		if (timeLogs.stream().anyMatch(Objects::isNull)) {
+		    throw new NullPointerException("timeLogsList contains null elements");
 		}
 
 		final List<TimeLog> sorted = timeLogs.stream() //
