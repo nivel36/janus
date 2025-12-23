@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 public final class TimeLogs implements Iterable<TimeLog> {
 
-	private final static TimeLogs EMPTY = new TimeLogs(List.of());
+	private static final TimeLogs EMPTY = new TimeLogs(List.of());
 
 	private final List<TimeLog> timeLogs;
 
