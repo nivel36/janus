@@ -40,9 +40,14 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	public TimeLogs(final Collection<TimeLog> timeLogs) {
 		Objects.requireNonNull(timeLogs, "timeLogs cannot be null");
 
-		final List<TimeLog> sorted = timeLogs.stream()
-				.peek(t -> Objects.requireNonNull(t, "TimeLog element cannot be null")).filter(TimeLog::isClosed)
-				.sorted(Comparator.comparing(TimeLog::getEntryTime)).toList();
+		if (timeLogs.contains(null)) {
+			throw new NullPointerException("timeLogs contains null elements");
+		}
+
+		final List<TimeLog> sorted = timeLogs.stream() //
+				.filter(TimeLog::isClosed) //
+				.sorted(Comparator.comparing(TimeLog::getEntryTime)) //
+				.toList();
 
 		if (sorted.size() != timeLogs.size()) {
 			throw new IllegalArgumentException("All TimeLogs must be closed");
