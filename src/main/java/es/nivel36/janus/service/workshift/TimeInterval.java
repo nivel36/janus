@@ -193,7 +193,7 @@ class TimeInterval {
 	 *
 	 * @return the end instant (exclusive)
 	 */
-	public Instant endsAt() {
+	Instant endsAt() {
 		return end;
 	}
 
