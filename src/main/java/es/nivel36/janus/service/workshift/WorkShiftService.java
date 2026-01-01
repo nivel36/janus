@@ -130,10 +130,11 @@ public class WorkShiftService {
 		Objects.requireNonNull(employee, "employee must not be null");
 		Objects.requireNonNull(worksite, "worksite must not be null");
 		Objects.requireNonNull(date, "date must not be null");
-		final ZoneId tz = Objects.requireNonNull(worksite.getTimeZone(), "worksite.timeZone must not be null");
+
+		final ZoneId timeZone = worksite.getTimeZone();
 
 		logger.debug("Finding work shift for employee {} at worksite {} at {}", employee, worksite, date);
-		final LocalDate today = this.clock.instant().atZone(tz).toLocalDate();
+		final LocalDate today = this.clock.instant().atZone(timeZone).toLocalDate();
 		final int daysUntilLocked = this.adminService.getDaysUntilLocked();
 		final LocalDate lockDate = date.plusDays(daysUntilLocked);
 		if (!lockDate.isAfter(today)) {
@@ -146,12 +147,12 @@ public class WorkShiftService {
 			}
 		}
 		logger.trace("Building the work shift");
-		final Page<TimeLog> logsPage = findTimeLogs(employee, date, tz);
+		final Page<TimeLog> logsPage = findTimeLogs(employee, date, timeZone);
 		final TimeLogs orderedLogs = new TimeLogs(logsPage.getContent());
 		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, date);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();
-		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, worksite, policy);
+		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, timeZone, policy);
 		return new WorkShiftComposer(strategy).compose(employee, date, orderedLogs);
 	}
 

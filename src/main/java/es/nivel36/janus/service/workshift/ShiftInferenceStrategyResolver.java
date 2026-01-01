@@ -15,10 +15,10 @@
  */
 package es.nivel36.janus.service.workshift;
 
+import java.time.ZoneId;
 import java.util.Optional;
 
 import es.nivel36.janus.service.schedule.TimeRange;
-import es.nivel36.janus.service.worksite.Worksite;
 
 /**
  * Resolves the appropriate {@link ShiftInferenceStrategy} based on the presence
@@ -37,15 +37,15 @@ class ShiftInferenceStrategyResolver {
 	 *
 	 * @param timeRange an optional scheduled time range for the shift. If present,
 	 *                  it influences the strategy selection. Can't be {@code null}.
-	 * @param worksite  the worksite associated with the shift. Can't be
+	 * @param timeZone  the timeZone associated with the shift. Can't be
 	 *                  {@code null}.
 	 * @param policy    the shift policy to apply. Can't be {@code null}.
 	 * @return the resolved {@code ShiftInferenceStrategy} implementation matching
 	 *         the provided context
 	 * @throws NullPointerException if any of the parameters is {@code null}
 	 */
-	ShiftInferenceStrategy resolve(final Optional<TimeRange> timeRange, Worksite worksite, final ShiftPolicy policy) {
-		return timeRange.<ShiftInferenceStrategy>map(tr -> new ScheduledShiftStrategy(policy, tr, worksite))
-				.orElseGet(() -> new UnscheduledShiftStrategy(policy, worksite));
+	ShiftInferenceStrategy resolve(final Optional<TimeRange> timeRange, ZoneId timeZone, final ShiftPolicy policy) {
+		return timeRange.<ShiftInferenceStrategy>map(tr -> new ScheduledShiftStrategy(policy, tr, timeZone))
+				.orElseGet(() -> new UnscheduledShiftStrategy(policy, timeZone));
 	}
 }

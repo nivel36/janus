@@ -60,20 +60,19 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 	private final ShiftPolicy policy;
 
 	/**
-	 * Worksite associated with the inferred shift, mainly used to resolve time
-	 * zone–dependent date calculations.
+	 * Used to resolve time zone–dependent date calculations.
 	 */
-	private final Worksite worksite;
+	private final ZoneId timeZone;
 
 	/**
 	 * Creates a new {@code UnscheduledShiftStrategy}.
 	 *
 	 * @param policy   policy defining long pause thresholds; can't be {@code null}
-	 * @param worksite worksite used for time zone resolution; can't be {@code null}
+	 * @param timeZone timeZone used for time zone resolution; can't be {@code null}
 	 */
-	UnscheduledShiftStrategy(final ShiftPolicy policy, final Worksite worksite) {
+	UnscheduledShiftStrategy(final ShiftPolicy policy, final ZoneId timeZone) {
 		this.policy = Objects.requireNonNull(policy, "policy must not be null.");
-		this.worksite = Objects.requireNonNull(worksite, "worksite must not be null.");
+		this.timeZone = Objects.requireNonNull(timeZone, "timeZone must not be null.");
 	}
 
 	/**
@@ -92,7 +91,7 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 	 *         inferred shift; never {@code null}
 	 */
 	@Override
-	public TimeLogs infer(LocalDate date, TimeLogs orderedLogs) {
+	public TimeLogs infer(final LocalDate date, final TimeLogs orderedLogs) {
 		Objects.requireNonNull(date, "date must not be null.");
 		Objects.requireNonNull(orderedLogs, "orderedLogs must not be null.");
 		if (orderedLogs.isEmpty()) {
@@ -105,7 +104,7 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 
 	private List<PauseInfo> extractLongPauses(final TimeLogs timeLogs, final Duration threshold) {
 		final List<PauseInfo> pauses = new ArrayList<>();
-		final Iterator<TimeLog> it = timeLogs.iterator();	
+		final Iterator<TimeLog> it = timeLogs.iterator();
 
 		TimeLog current = it.next();
 		while (it.hasNext()) {
@@ -130,7 +129,7 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 
 	private TimeLogs selectByPauses(final LocalDate date, final TimeLogs timeLogs, final List<PauseInfo> pauses) {
 		if (pauses.size() >= 2) {
-			return new ShiftStartAnchoredExtractor(worksite.getTimeZone()).extract(date, timeLogs, pauses);
+			return new ShiftStartAnchoredExtractor(this.timeZone).extract(date, timeLogs, pauses);
 		}
 
 		if (pauses.size() == 1) {

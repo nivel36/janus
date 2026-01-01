@@ -73,6 +73,8 @@ public class WorkShiftPrecomputeJob {
 	 *                            {@code null}
 	 * @param employeeService     service that provides employees pending
 	 *                            precomputation; never {@code null}
+	 * @param scheduleService     Service used to obtain scheduled time ranges.
+	 *                            Can't be {@code null}.
 	 * @param adminService        service that provides admin policies (e.g.,
 	 *                            locking horizon); never {@code null}
 	 * @param clock               clock used to derive the target anchor; never
@@ -107,11 +109,11 @@ public class WorkShiftPrecomputeJob {
 	@Scheduled(cron = "0 15 2 * * *")
 	@Transactional
 	public void run() {
-		final int daysUntilLocked = adminService.getDaysUntilLocked();
-		final Instant target = clock.instant().minus(daysUntilLocked + 1L, ChronoUnit.DAYS);
+		final int daysUntilLocked = this.adminService.getDaysUntilLocked();
+		final Instant target = this.clock.instant().minus(daysUntilLocked + 1L, ChronoUnit.DAYS);
 		log.debug("WorkShift precompute started; daysUntilLocked={} targetAnchor={}", daysUntilLocked, target);
 
-		final List<Long> employeeIds = employeeService.findEmployeesWithoutWorkshiftsSince(target);
+		final List<Long> employeeIds = this.employeeService.findEmployeesWithoutWorkshiftsSince(target);
 		log.trace("Pending employees count={}", employeeIds.size());
 		if (employeeIds.isEmpty()) {
 			return;
@@ -124,10 +126,10 @@ public class WorkShiftPrecomputeJob {
 	}
 
 	private void processEmployee(final Long employeeId, final Instant target) {
-		final Employee employee = employeeService.findEmployeeById(employeeId);
+		final Employee employee = this.employeeService.findEmployeeById(employeeId);
 		log.trace("Processing employee {}", employee);
 
-		final TimeLogs orphanLogs = timeLogService.findOrphanTimeLogs(target, employee);
+		final TimeLogs orphanLogs = this.timeLogService.findOrphanTimeLogs(target, employee);
 		if (orphanLogs.isEmpty()) {
 			log.warn("No orphan time logs for employee {} at targetAnchor {}", employee, target);
 			return;
@@ -157,7 +159,7 @@ public class WorkShiftPrecomputeJob {
 		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, day);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();
-		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, worksite, policy);
+		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, zone, this.policy);
 		final WorkShift workShift = new WorkShiftComposer(strategy).compose(employee, day, bucket);
 		final WorkShift saved = this.workshiftRepository.save(workShift);
 		log.trace("WorkShift persisted with id {}", saved.getId());
