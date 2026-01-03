@@ -98,6 +98,17 @@ public class AppUser implements Serializable {
 	private String surname;
 
 	/**
+	 * Hashed password for the user.
+	 *
+	 * <p>
+	 * This value should never store plain text passwords.
+	 * </p>
+	 */
+	@NotEmpty
+	@Column(nullable = false)
+	private String passwordHash;
+
+	/**
 	 * Preferred locale of the user.
 	 *
 	 * <p>
@@ -139,6 +150,8 @@ public class AppUser implements Serializable {
 	 *                   blank.
 	 * @param name       the first name of the user. Can't be {@code null} or blank.
 	 * @param surname    the surname of the user. Can't be {@code null} or blank.
+	 * @param passwordHash hashed password for the user. Can't be {@code null} or
+	 *                   blank.
 	 * @param locale     the preferred {@link Locale} of the user. Can't be
 	 *                   {@code null}.
 	 * @param timeFormat the preferred {@link TimeFormat} of the user. Can't be
@@ -148,11 +161,12 @@ public class AppUser implements Serializable {
 	 * @throws IllegalArgumentException if {@code username}, {@code name} or
 	 *                                  {@code surname} is blank
 	 */
-	public AppUser(final String username, final String name, final String surname, final Locale locale,
-			final TimeFormat timeFormat) {
+	public AppUser(final String username, final String name, final String surname, final String passwordHash,
+			final Locale locale, final TimeFormat timeFormat) {
 		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
+		this.passwordHash = Strings.requireNonBlank(passwordHash, "passwordHash can't be null or blank");
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 	}
@@ -220,6 +234,14 @@ public class AppUser implements Serializable {
 	 */
 	public String getSurname() {
 		return surname;
+	}
+
+	String getPasswordHash() {
+		return passwordHash;
+	}
+
+	void setPasswordHash(final String passwordHash) {
+		this.passwordHash = Strings.requireNonBlank(passwordHash, "passwordHash can't be null or blank");
 	}
 
 	/**

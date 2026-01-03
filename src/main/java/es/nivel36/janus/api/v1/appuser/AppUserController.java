@@ -96,7 +96,7 @@ public class AppUserController {
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
 		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), request.name(),
-				request.surname(), locale, request.timeFormat());
+				request.surname(), request.password(), locale, request.timeFormat());
 		final AppUserResponse response = this.appUserResponseMapper.map(createdAppUser);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
