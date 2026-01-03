@@ -206,7 +206,10 @@ public class AppUserService {
 		Strings.requireNonBlank(password, "password cannot be null or blank.");
 
 		logger.debug("Authenticating AppUser {}", username);
-		final AppUser appUser = this.findAppUser(username);
+		final AppUser appUser = this.appUserRepository.findByUsername(username);
+		if (appUser == null) {
+			throw new AuthenticationFailedException("Invalid username or password.");
+		}
 		final boolean matches = this.passwordEncoder.matches(password, appUser.getPasswordHash());
 		if (!matches) {
 			throw new AuthenticationFailedException("Invalid username or password.");
