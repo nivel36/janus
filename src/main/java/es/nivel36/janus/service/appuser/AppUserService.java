@@ -20,12 +20,14 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.service.auth.AuthenticationFailedException;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -51,6 +53,7 @@ public class AppUserService {
 	 * Repository used to access {@link AppUser} persistence operations.
 	 */
 	private final AppUserRepository appUserRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	/**
 	 * Creates a new {@code AppUserService}.
@@ -60,8 +63,9 @@ public class AppUserService {
 	 *
 	 * @throws NullPointerException if {@code appUserRepository} is {@code null}
 	 */
-	public AppUserService(final AppUserRepository appUserRepository) {
+	public AppUserService(final AppUserRepository appUserRepository, final PasswordEncoder passwordEncoder) {
 		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
+		this.passwordEncoder = Objects.requireNonNull(passwordEncoder, "passwordEncoder cannot be null.");
 	}
 
 	/**
@@ -96,6 +100,8 @@ public class AppUserService {
 	 *                   blank.
 	 * @param name       the first name of the user. Can't be {@code null} or blank.
 	 * @param surname    the surname of the user. Can't be {@code null} or blank.
+	 * @param password   the raw password for the user. Can't be {@code null} or
+	 *                   blank.
 	 * @param locale     the preferred {@link Locale} of the user. Can't be
 	 *                   {@code null}.
 	 * @param timeFormat the preferred {@link TimeFormat} of the user. Can't be
@@ -109,12 +115,13 @@ public class AppUserService {
 	 *                                        already exists
 	 */
 	@Transactional
-	public AppUser createAppUser(final String username, final String name, final String surname, final Locale locale,
-			final TimeFormat timeFormat) {
+	public AppUser createAppUser(final String username, final String name, final String surname, final String password,
+			final Locale locale, final TimeFormat timeFormat) {
 
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
 		Strings.requireNonBlank(name, "name cannot be null or blank.");
 		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
+		Strings.requireNonBlank(password, "password cannot be null or blank.");
 		Objects.requireNonNull(locale, "locale cannot be null.");
 		Objects.requireNonNull(timeFormat, "timeFormat cannot be null.");
 
@@ -125,7 +132,9 @@ public class AppUserService {
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
 
-		final AppUser appUser = new AppUser(username.trim(), name.trim(), surname.trim(), locale, timeFormat);
+		final String passwordHash = this.passwordEncoder.encode(password);
+		final AppUser appUser = new AppUser(username.trim(), name.trim(), surname.trim(), passwordHash, locale,
+				timeFormat);
 
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
@@ -189,6 +198,20 @@ public class AppUserService {
 
 		this.appUserRepository.delete(appUser);
 		logger.trace("AppUser {} deleted successfully", appUser);
+	}
+
+	@Transactional(readOnly = true)
+	public AppUser authenticate(final String username, final String password) {
+		Strings.requireNonBlank(username, "username cannot be null or blank.");
+		Strings.requireNonBlank(password, "password cannot be null or blank.");
+
+		logger.debug("Authenticating AppUser {}", username);
+		final AppUser appUser = this.findAppUser(username);
+		final boolean matches = this.passwordEncoder.matches(password, appUser.getPasswordHash());
+		if (!matches) {
+			throw new AuthenticationFailedException("Invalid username or password.");
+		}
+		return appUser;
 	}
 
 	private AppUser findAppUser(final String username) {
