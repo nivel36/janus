@@ -15,5 +15,15 @@
 		"fullName": "Nom complet",
 		"location": "Lloc",
 		"todaysHour": "Horari"
+	},
+	"login": {
+		"title": "Inicia sessió",
+		"subtitle": "Accedeix al teu panell",
+		"username": "Usuari",
+		"password": "Contrasenya",
+		"usernamePlaceholder": "usuari@empresa.com",
+		"passwordPlaceholder": "Introdueix la contrasenya",
+		"submit": "Entrar",
+		"loading": "Accedint..."
 	}
 }

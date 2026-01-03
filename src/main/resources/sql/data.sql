@@ -10,7 +10,8 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-INSERT INTO app_user (username, name, surname, locale, time_format) VALUES ('aferrer@nivel36.es', 'Abel', 'Ferrer Jiménez', 'es_ES', 'H24');
+INSERT INTO app_user (username, name, surname, password_hash, locale, time_format)
+VALUES ('aferrer@nivel36.es', 'Abel', 'Ferrer Jiménez', '$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m', 'es_ES', 'H24');
 
 INSERT INTO schedule (code, name) VALUES ('STD-WH-AUG-VAR', 'Standard Work Hours with August Variation');
 

@@ -15,5 +15,15 @@
 		"fullName": "Full Name",
 		"location": "Location",
 		"todaysHour": "Today's Hour"
+	},
+	"login": {
+		"title": "Sign in",
+		"subtitle": "Access your dashboard",
+		"username": "Username",
+		"password": "Password",
+		"usernamePlaceholder": "you@company.com",
+		"passwordPlaceholder": "Enter your password",
+		"submit": "Sign in",
+		"loading": "Signing in..."
 	}
 }
