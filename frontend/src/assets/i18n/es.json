@@ -15,5 +15,15 @@
 		"fullName": "Nombre completo",
 		"location": "Lugar",
 		"todaysHour": "Horario"
+	},
+	"login": {
+		"title": "Iniciar sesión",
+		"subtitle": "Accede a tu panel",
+		"username": "Usuario",
+		"password": "Contraseña",
+		"usernamePlaceholder": "usuario@empresa.com",
+		"passwordPlaceholder": "Introduce tu contraseña",
+		"submit": "Entrar",
+		"loading": "Accediendo..."
 	}
 }

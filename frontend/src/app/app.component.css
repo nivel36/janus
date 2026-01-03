@@ -2,6 +2,79 @@
 	font-family: "Inter", "Segoe UI", Roboto, sans-serif;
 }
 
+.login {
+	width: min(520px, 100%);
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	color: #f9f9f9;
+}
+
+.login-header {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	text-align: center;
+}
+
+.login-subtitle {
+	margin: 0;
+	color: rgba(249, 249, 249, 0.7);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-size: 0.9rem;
+}
+
+.login-card {
+	background: #0f0f0f;
+	border: 1px solid rgba(249, 214, 0, 0.2);
+	box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.35);
+}
+
+.login-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.login-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	font-size: 0.9rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: rgba(249, 249, 249, 0.68);
+}
+
+.login-field input {
+	border-radius: 16px;
+	border: 1px solid rgba(249, 214, 0, 0.2);
+	background: #050505;
+	color: #f9f9f9;
+	padding: 0.85rem 1rem;
+	font-size: 1rem;
+	letter-spacing: 0.04em;
+}
+
+.login-field input:focus {
+	outline: 2px solid rgba(249, 214, 0, 0.6);
+	outline-offset: 2px;
+}
+
+.login-error {
+	margin: 0;
+	color: #ff6b6b;
+	font-size: 0.9rem;
+	letter-spacing: 0.04em;
+}
+
+.login-submit {
+	width: 100%;
+	justify-content: center;
+}
+
 .aside {
 	width: min(360px, 100%);
 	display: flex;
