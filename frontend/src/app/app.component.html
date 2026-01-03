@@ -1,40 +1,41 @@
 <main class="app-shell">
 	<section class="dashboard">
 		<header class="dashboard-header">
-			<h1 class="brand">JANUS</h1>
-			<span class="section-label">Dashboard</span>
+			<h1 class="brand">{{'navigation.janus' | translate }}</h1>
+			<span class="section-label">{{'navigation.dashboard' | translate }}</span>
 		</header>
 		<section class="dashboard-content">
 			<section class="content">
-				<app-card styleClass="clock-in-card"
-					title="{{ 'timelog.clockin' | translate }}"> <ng-template
-					#cardHeader> <app-clock
-					styleClass="card-hour-container" timeClass="card-hour"></app-clock>
-				<app-button>{{'timelog.clockin' | translate }}</app-button> </ng-template> </app-card>
+				<app-card styleClass="clock-in-card" title="{{ 'timelog.clockin' | translate }}"> 
+					<ng-template #cardHeader> 
+						<app-clock styleClass="card-hour-container" timeClass="card-hour" />
+						<app-button>{{'timelog.clockin' | translate }}</app-button> 
+					</ng-template> 
+				</app-card>
 
-				<app-timelog-table></app-timelog-table>
+				<app-timelog-table/>
 			</section>
 			<section class="aside">
 				<div class="aside">
-					<app-card styleClass="user-card"> <ng-template
-						#cardHeader>
-					<div class="user-card-header-content">
-						<img class="avatar" src="assets/images/user.png" /> <span
-							class="user-card-title">Employee</span>
-					</div>
-					</ng-template>
-					<div class="data">
-						<h3>Full Name</h3>
-						<p>Abel Ferrer Jiménez</p>
-					</div>
-					<div class="data">
-						<h3>Location</h3>
-						<p>Barcelona Headquarters</p>
-					</div>
-					<div class="data">
-						<h3>Today's Hour</h3>
-						<p>9:00 - 17:30</p>
-					</div>
+					<app-card styleClass="user-card"> 
+						<ng-template #cardHeader>
+							<div class="user-card-header-content">
+								<img class="avatar" src="assets/images/user.png" />
+								<span class="user-card-title">{{ 'employee.employee' | translate }}</span>
+							</div>
+						</ng-template>
+						<div class="data">
+							<h3>{{ 'employee.fullName' | translate }}</h3>
+							<p>Abel Ferrer Jiménez</p>
+						</div>
+						<div class="data">
+							<h3>{{ 'employee.location' | translate }}</h3>
+							<p>Barcelona Headquarters</p>
+						</div>
+						<div class="data">
+							<h3>{{ 'employee.todaysHour' | translate }}</h3>
+							<p>9:00 - 17:30</p>
+						</div>
 					</app-card>
 				</div>
 			</section>

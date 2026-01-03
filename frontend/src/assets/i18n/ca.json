@@ -1,9 +1,19 @@
 {
+	"navigation": {
+		"janus": "Janus",
+		"dashboard": "Panell de control"
+	},
 	"timelog": {
 		"clockin": "Entrada",
 		"clockout": "Sortida",
 		"date": "Data",
 		"duration": "Duració",
 		"timelogs": "Fixatges"
+	},
+	"employee": {
+		"employee": "Empleat",
+		"fullName": "Nom complet",
+		"location": "Lloc",
+		"todaysHour": "Horari"
 	}
 }

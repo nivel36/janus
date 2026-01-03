@@ -1,9 +1,19 @@
 {
+	"navigation": {
+		"janus": "Janus",
+		"dashboard": "Dashboard"
+	},
 	"timelog": {
 		"clockin": "Clock in",
 		"clockout": "Clock out",
 		"date": "Date",
 		"duration": "Duration",
 		"timelogs": "Time logs"
+	},
+	"employee": {
+		"employee": "Employee",
+		"fullName": "Full Name",
+		"location": "Location",
+		"todaysHour": "Today's Hour"
 	}
 }
