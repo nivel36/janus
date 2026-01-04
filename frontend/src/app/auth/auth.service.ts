@@ -11,8 +11,11 @@ interface LoginResponse {
 export class AuthService {
 	private readonly baseUrl = '/api/v1/auth';
 	private readonly tokenStorageKey = 'janus.auth.token';
+	private readonly usernameStorageKey = 'janus.auth.username';
 	private readonly tokenSubject = new BehaviorSubject<string | null>(this.loadToken());
+	private readonly usernameSubject = new BehaviorSubject<string | null>(this.loadUsername());
 	readonly isAuthenticated$ = this.tokenSubject.pipe(map((token) => !!token));
+	readonly username$ = this.usernameSubject.asObservable();
 
 	constructor(private readonly http: HttpClient) {}
 
@@ -20,7 +23,10 @@ export class AuthService {
 		return this.http
 			.post<LoginResponse>(`${this.baseUrl}/login`, { username, password })
 			.pipe(
-				tap((response) => this.setToken(response.token)),
+				tap((response) => {
+					this.setToken(response.token);
+					this.setUsername(response.username);
+				}),
 				map(() => undefined)
 			);
 	}
@@ -31,7 +37,9 @@ export class AuthService {
 
 	clearToken(): void {
 		this.tokenSubject.next(null);
+		this.usernameSubject.next(null);
 		localStorage.removeItem(this.tokenStorageKey);
+		localStorage.removeItem(this.usernameStorageKey);
 	}
 
 	private setToken(token: string): void {
@@ -39,7 +47,16 @@ export class AuthService {
 		localStorage.setItem(this.tokenStorageKey, token);
 	}
 
+	private setUsername(username: string): void {
+		this.usernameSubject.next(username);
+		localStorage.setItem(this.usernameStorageKey, username);
+	}
+
 	private loadToken(): string | null {
 		return localStorage.getItem(this.tokenStorageKey);
+	}
+
+	private loadUsername(): string | null {
+		return localStorage.getItem(this.usernameStorageKey);
 	}
 }
