@@ -43,7 +43,8 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,locale,time_format) VALUES('jdoe','John','Doe','en-US','H24')"//
+			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
+					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
 	})
 	void testFindByUsernameShouldReturnUser() throws Exception {
 		mvc.perform(get(BASE + "/{username}", "jdoe")).andExpect(status().isOk()) //
@@ -69,11 +70,12 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,locale,time_format) VALUES('jdoe','John','Doe','en-US','H24')"//
+			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
+					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
 	})
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
 		String body = """
-				  {"username":"jdoe","name":"John","surname":"Doe","locale":"en-US","timeFormat":"H24"}
+				  {"username":"jdoe","name":"John","surname":"Doe","password":"Password1!","locale":"en-US","timeFormat":"H24"}
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
@@ -83,7 +85,7 @@ class AppUserControllerIT {
 	@Test
 	void testCreateShouldReturn201AndBody() throws Exception {
 		String body = """
-				  {"username":"asmith","name":"Alice","surname":"Smith","locale":"en-GB","timeFormat":"H12"}
+				  {"username":"asmith","name":"Alice","surname":"Smith","password":"Password1!","locale":"en-GB","timeFormat":"H12"}
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
@@ -100,7 +102,7 @@ class AppUserControllerIT {
 	@Test
 	void testCreateShouldAcceptUsernamesWithAtSign() throws Exception {
 		String body = """
-				  {"username":"alice@example.com","name":"Alice","surname":"Smith","locale":"en-GB","timeFormat":"H12"}
+				  {"username":"alice@example.com","name":"Alice","surname":"Smith","password":"Password1!","locale":"en-GB","timeFormat":"H12"}
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
@@ -114,7 +116,8 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,locale,time_format) VALUES('jdoe','John','Doe','en-US','H24')"//
+			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
+					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
 	})
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		String body = """
@@ -132,7 +135,8 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,locale,time_format) VALUES('jdoe','John','Doe','en-US','H24')"//
+			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
+					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
 	})
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
 		mvc.perform(delete(BASE + "/{username}", "jdoe")) //
