@@ -111,6 +111,7 @@ public class AppUser implements Serializable {
 	 * Salt used when hashing the user's password.
 	 */
 	@NotEmpty
+	@Column(updatable = false)
 	private String passwordSalt;
 
 	/**
