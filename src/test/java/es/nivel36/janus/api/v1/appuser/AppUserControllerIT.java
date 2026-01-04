@@ -43,8 +43,8 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
-					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
+			"INSERT INTO app_user(username,name,surname,password_hash,password_salt,locale,time_format) VALUES('jdoe','John','Doe'," //
+					+ "'$2a$10$rAL4g3rX9675DtxK4bbM1uNkfrtFOgv73T5G68o1.qFpKO9H/wXOm','s4lt-test','en-US','H24')"//
 	})
 	void testFindByUsernameShouldReturnUser() throws Exception {
 		mvc.perform(get(BASE + "/{username}", "jdoe")).andExpect(status().isOk()) //
@@ -70,8 +70,8 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
-					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
+			"INSERT INTO app_user(username,name,surname,password_hash,password_salt,locale,time_format) VALUES('jdoe','John','Doe'," //
+					+ "'$2a$10$rAL4g3rX9675DtxK4bbM1uNkfrtFOgv73T5G68o1.qFpKO9H/wXOm','s4lt-test','en-US','H24')"//
 	})
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
 		String body = """
@@ -116,8 +116,8 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
-					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
+			"INSERT INTO app_user(username,name,surname,password_hash,password_salt,locale,time_format) VALUES('jdoe','John','Doe'," //
+					+ "'$2a$10$rAL4g3rX9675DtxK4bbM1uNkfrtFOgv73T5G68o1.qFpKO9H/wXOm','s4lt-test','en-US','H24')"//
 	})
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		String body = """
@@ -135,8 +135,8 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
-					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
+			"INSERT INTO app_user(username,name,surname,password_hash,password_salt,locale,time_format) VALUES('jdoe','John','Doe'," //
+					+ "'$2a$10$rAL4g3rX9675DtxK4bbM1uNkfrtFOgv73T5G68o1.qFpKO9H/wXOm','s4lt-test','en-US','H24')"//
 	})
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
 		mvc.perform(delete(BASE + "/{username}", "jdoe")) //
