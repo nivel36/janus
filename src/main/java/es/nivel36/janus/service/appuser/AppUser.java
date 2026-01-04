@@ -105,14 +105,12 @@ public class AppUser implements Serializable {
 	 * </p>
 	 */
 	@NotEmpty
-	@Column(nullable = false)
 	private String passwordHash;
 
 	/**
 	 * Salt used when hashing the user's password.
 	 */
 	@NotEmpty
-	@Column(nullable = false)
 	private String passwordSalt;
 
 	/**
