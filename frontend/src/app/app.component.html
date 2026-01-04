@@ -71,7 +71,7 @@
 							</ng-template>
 							<div class="data">
 								<h3>{{ 'employee.fullName' | translate }}</h3>
-								<p>Abel Ferrer Jiménez</p>
+								<p>{{ (username$ | async) || '' }}</p>
 							</div>
 							<div class="data">
 								<h3>{{ 'employee.location' | translate }}</h3>

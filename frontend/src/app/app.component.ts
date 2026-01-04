@@ -33,6 +33,7 @@ export class AppComponent {
 	errorMessage = '';
 	isLoading = false;
 	readonly isAuthenticated$ = this.authService.isAuthenticated$;
+	readonly username$ = this.authService.username$;
 
 	onLogin(): void {
 		this.errorMessage = '';
