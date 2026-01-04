@@ -105,7 +105,6 @@ public class AppUser implements Serializable {
 	 * </p>
 	 */
 	@NotEmpty
-	@Column(nullable = false)
 	private String passwordHash;
 
 	/**
