@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.service.appuser;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -48,6 +50,8 @@ import es.nivel36.janus.util.Strings;
 public class AppUserService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AppUserService.class);
+	private static final int PASSWORD_SALT_BYTES = 16;
+	private static final SecureRandom secureRandom = new SecureRandom();
 
 	/**
 	 * Repository used to access {@link AppUser} persistence operations.
@@ -132,9 +136,10 @@ public class AppUserService {
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
 
-		final String passwordHash = this.passwordEncoder.encode(password);
-		final AppUser appUser = new AppUser(username.trim(), name.trim(), surname.trim(), passwordHash, locale,
-				timeFormat);
+		final String passwordSalt = generatePasswordSalt();
+		final String passwordHash = this.passwordEncoder.encode(password + passwordSalt);
+		final AppUser appUser = new AppUser(username.trim(), name.trim(), surname.trim(), passwordHash, passwordSalt,
+				locale, timeFormat);
 
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
@@ -210,11 +215,18 @@ public class AppUserService {
 		if (appUser == null) {
 			throw new AuthenticationFailedException("Invalid username or password.");
 		}
-		final boolean matches = this.passwordEncoder.matches(password, appUser.getPasswordHash());
+		final boolean matches = this.passwordEncoder.matches(password + appUser.getPasswordSalt(),
+				appUser.getPasswordHash());
 		if (!matches) {
 			throw new AuthenticationFailedException("Invalid username or password.");
 		}
 		return appUser;
+	}
+
+	private static String generatePasswordSalt() {
+		final byte[] salt = new byte[PASSWORD_SALT_BYTES];
+		secureRandom.nextBytes(salt);
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(salt);
 	}
 
 	private AppUser findAppUser(final String username) {
