@@ -51,10 +51,12 @@
 			</header>
 			<section class="dashboard-content">
 				<section class="content">
-					<app-card styleClass="clock-in-card" title="{{ 'timelog.clockin' | translate }}">
+					<app-card styleClass="clock-in-card" title="{{ clockActionLabelKey | translate }}">
 						<ng-template #cardHeader>
 							<app-clock styleClass="card-hour-container" timeClass="card-hour" />
-							<app-button>{{ 'timelog.clockin' | translate }}</app-button>
+							<app-button [disabled]="isClockActionLoading" (click)="onClockAction()">
+								{{ clockActionLabelKey | translate }}
+							</app-button>
 						</ng-template>
 					</app-card>
 

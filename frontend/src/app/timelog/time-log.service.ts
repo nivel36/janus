@@ -28,4 +28,22 @@ export class TimeLogService {
 			.get<PageResponse<TimeLogResponse>>(url)
 			.pipe(map((response) => response.content ?? []));
 	}
+
+	clockIn(email: string, worksiteCode: string): Observable<TimeLogResponse> {
+		const encodedEmail = encodeURIComponent(email);
+		const url = `${this.baseUrl}/${encodedEmail}/timelogs/clock-in`;
+
+		return this.http.post<TimeLogResponse>(url, null, {
+			params: { worksiteCode }
+		});
+	}
+
+	clockOut(email: string, worksiteCode: string): Observable<TimeLogResponse> {
+		const encodedEmail = encodeURIComponent(email);
+		const url = `${this.baseUrl}/${encodedEmail}/timelogs/clock-out`;
+
+		return this.http.post<TimeLogResponse>(url, null, {
+			params: { worksiteCode }
+		});
+	}
 }
