@@ -15,8 +15,6 @@
  */
 package es.nivel36.janus.service.appuser;
 
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -30,6 +28,7 @@ import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.auth.AuthenticationFailedException;
+import es.nivel36.janus.util.SaltGenerator;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -51,7 +50,6 @@ public class AppUserService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AppUserService.class);
 	private static final int PASSWORD_SALT_BYTES = 16;
-	private static final SecureRandom secureRandom = new SecureRandom();
 
 	/**
 	 * Repository used to access {@link AppUser} persistence operations.
@@ -136,7 +134,7 @@ public class AppUserService {
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
 
-		final String passwordSalt = generatePasswordSalt();
+		final String passwordSalt = SaltGenerator.generateBase64UrlSalt(PASSWORD_SALT_BYTES);
 		final String passwordHash = this.passwordEncoder.encode(password + passwordSalt);
 		final AppUser appUser = new AppUser(username.trim(), name.trim(), surname.trim(), passwordHash, passwordSalt,
 				locale, timeFormat);
@@ -221,12 +219,6 @@ public class AppUserService {
 			throw new AuthenticationFailedException("Invalid username or password.");
 		}
 		return appUser;
-	}
-
-	private static String generatePasswordSalt() {
-		final byte[] salt = new byte[PASSWORD_SALT_BYTES];
-		secureRandom.nextBytes(salt);
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(salt);
 	}
 
 	private AppUser findAppUser(final String username) {
