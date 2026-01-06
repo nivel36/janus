@@ -1,0 +1,42 @@
+.login-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.login-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	font-size: 0.9rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: rgba(249, 249, 249, 0.68);
+}
+
+.login-field input {
+	border-radius: 16px;
+	border: 1px solid rgba(249, 214, 0, 0.2);
+	background: #050505;
+	color: #f9f9f9;
+	padding: 0.85rem 1rem;
+	font-size: 1rem;
+	letter-spacing: 0.04em;
+}
+
+.login-field input:focus {
+	outline: 2px solid rgba(249, 214, 0, 0.6);
+	outline-offset: 2px;
+}
+
+.login-error {
+	margin: 0;
+	color: #ff6b6b;
+	font-size: 0.9rem;
+	letter-spacing: 0.04em;
+}
+
+.login-submit {
+	width: 100%;
+	justify-content: center;
+}

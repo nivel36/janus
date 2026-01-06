@@ -2,12 +2,13 @@ import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AuthService } from './auth/auth.service';
+import { AuthService } from './core/auth/auth.service';
 import { ClockComponent } from './shared/ui/clock/clock.component';
 import { CardComponent } from './shared/ui/card/card.component';
-import { TimelogTableComponent } from './timelog/timelog-table.component';
+import { TimelogTableComponent } from './features/timelogs/components/timelog-table/timelog-table.component';
 import { ButtonComponent } from './shared/ui/button/button.component';
-import { TimeLogResponse, TimeLogService } from './timelog/time-log.service';
+import { TimeLogService } from './features/timelogs/services/timelog-api.service';
+import { TimeLog } from './features/timelogs/models/timelog';
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -32,17 +33,12 @@ export class AppComponent implements OnInit {
 	private readonly timeLogService = inject(TimeLogService);
 	private readonly destroyRef = inject(DestroyRef);
 	private readonly defaultWorksiteCode = 'BCN-HQ';
-	credentials = {
-		username: '',
-		password: ''
-	};
-	errorMessage = '';
-	isLoading = false;
+
 	clockActionLabelKey = 'timelog.clockin';
 	isClockActionLoading = false;
 	readonly isAuthenticated$ = this.authService.isAuthenticated$;
 	readonly username$ = this.authService.username$;
-	private latestTimeLog?: TimeLogResponse;
+	private latestTimeLog?: TimeLog;
 	private employeeEmail?: string;
 
 	ngOnInit(): void {
@@ -55,21 +51,6 @@ export class AppComponent implements OnInit {
 				this.employeeEmail = username;
 				this.refreshLatestTimeLog(username);
 			});
-	}
-
-	onLogin(): void {
-		this.errorMessage = '';
-		this.isLoading = true;
-		this.authService.login(this.credentials.username, this.credentials.password).subscribe({
-			next: () => {
-				this.isLoading = false;
-				this.credentials.password = '';
-			},
-			error: (error) => {
-				this.isLoading = false;
-				this.errorMessage = error?.error?.detail ?? 'Unable to sign in. Please try again.';
-			}
-		});
 	}
 
 	onClockAction(): void {
@@ -113,15 +94,15 @@ export class AppComponent implements OnInit {
 		return !!this.latestTimeLog && !this.extractExitTime(this.latestTimeLog.exitTime);
 	}
 
-	private getClockActionLabelKey(timeLog?: TimeLogResponse): string {
+	private getClockActionLabelKey(timeLog?: TimeLog): string {
 		if (!timeLog) {
 			return 'timelog.clockin';
 		}
 		return this.extractExitTime(timeLog.exitTime) ? 'timelog.clockin' : 'timelog.clockout';
 	}
 
-	private getLatestTimeLog(timeLogs: TimeLogResponse[]): TimeLogResponse | undefined {
-		return timeLogs.reduce<TimeLogResponse | undefined>((latest, current) => {
+	private getLatestTimeLog(timeLogs: TimeLog[]): TimeLog | undefined {
+		return timeLogs.reduce<TimeLog | undefined>((latest, current) => {
 			if (!latest) {
 				return current;
 			}
@@ -131,16 +112,13 @@ export class AppComponent implements OnInit {
 		}, undefined);
 	}
 
-	private extractExitTime(exitTime: TimeLogResponse['exitTime']): string | null {
+	private extractExitTime(exitTime: TimeLog['exitTime']): string | null {
 		if (!exitTime) {
 			return null;
 		}
 		if (typeof exitTime === 'string') {
 			return exitTime;
 		}
-		if ('present' in exitTime) {
-			return exitTime.present ? exitTime.value ?? null : null;
-		}
-		return null;
+		return exitTime ?? null;
 	}
 }

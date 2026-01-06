@@ -2,8 +2,7 @@
 	<h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
 
 	<div *ngIf="error" class="timelog-message error">{{ error }}</div>
-	<div *ngIf="isLoading" class="timelog-message">Loading time
-		logs...</div>
+	<div *ngIf="isLoading" class="timelog-message">Loading time	logs...</div>
 
 	<table *ngIf="!isLoading && timelogs.length" class="timelog-table">
 		<thead>
@@ -20,7 +19,7 @@
 				<td>{{ timelog.entryTime | date: 'hh:mm a' }}</td>
 				<td>{{ timelog.exitTime ? (timelog.exitTime | date: 'hh:mm a')
 					: '—' }}</td>
-				<td>{{ timelog.duration || '—' }}</td>
+				<td>{{ timelog.workTime || '—' }}</td>
 			</tr>
 		</tbody>
 	</table>

@@ -1,92 +1,43 @@
 <main class="app-shell">
-	@if (!(isAuthenticated$ | async)) {
-		<section class="login">
-			<header class="login-header">
-				<h1 class="brand">{{ 'navigation.janus' | translate }}</h1>
-				<p class="login-subtitle">{{ 'login.subtitle' | translate }}</p>
-			</header>
-			<app-card styleClass="login-card" title="{{ 'login.title' | translate }}">
-				<form class="login-form" (ngSubmit)="onLogin()" #loginForm="ngForm">
-					<label class="login-field">
-						<span>{{ 'login.username' | translate }}</span>
-						<input
-							type="text"
-							name="username"
-							autocomplete="username"
-							required
-							[(ngModel)]="credentials.username"
-							placeholder="{{ 'login.usernamePlaceholder' | translate }}"
-						/>
-					</label>
-					<label class="login-field">
-						<span>{{ 'login.password' | translate }}</span>
-						<input
-							type="password"
-							name="password"
-							autocomplete="current-password"
-							required
-							minlength="8"
-							[(ngModel)]="credentials.password"
-							placeholder="{{ 'login.passwordPlaceholder' | translate }}"
-						/>
-					</label>
-					@if (errorMessage) {
-						<p class="login-error">{{ errorMessage }}</p>
-					}
-					<app-button
-						[type]="'submit'"
-						[disabled]="loginForm.invalid || isLoading"
-						styleClass="login-submit"
-					>
-						{{ isLoading ? ('login.loading' | translate) : ('login.submit' | translate) }}
-					</app-button>
-				</form>
-			</app-card>
-		</section>
-	} @else {
-		<section class="dashboard">
-			<header class="dashboard-header">
-				<h1 class="brand">{{ 'navigation.janus' | translate }}</h1>
-				<span class="section-label">{{ 'navigation.dashboard' | translate }}</span>
-			</header>
-			<section class="dashboard-content">
-				<section class="content">
-					<app-card styleClass="clock-in-card" title="{{ clockActionLabelKey | translate }}">
+	<section class="dashboard">
+		<header class="dashboard-header">
+			<h1 class="brand">{{ 'navigation.janus' | translate }}</h1>
+			<span class="section-label">{{ 'navigation.dashboard' |	translate }}</span>
+		</header>
+		<section class="dashboard-content">
+			<section class="content">
+				<app-card styleClass="clock-in-card" title="{{ clockActionLabelKey | translate }}"> 
+					<ng-template #cardHeader> 
+						<app-clock	styleClass="card-hour-container" timeClass="card-hour" /> 
+						<app-button [disabled]="isClockActionLoading" (click)="onClockAction()"> {{ clockActionLabelKey | translate }} </app-button> 
+					</ng-template> 
+				</app-card>
+				<app-timelog-table > </app-timelog-table>
+			</section>
+			<section class="aside">
+				<div class="aside">
+					<app-card styleClass="user-card"> 
 						<ng-template #cardHeader>
-							<app-clock styleClass="card-hour-container" timeClass="card-hour" />
-							<app-button [disabled]="isClockActionLoading" (click)="onClockAction()">
-								{{ clockActionLabelKey | translate }}
-							</app-button>
+							<div class="user-card-header-content">
+								<img class="avatar" src="assets/images/user.png" /> 
+								<span class="user-card-title">{{ 'employee.employee' | translate }}</span>
+							</div>
 						</ng-template>
+						<div class="data">
+							<h3>{{ 'employee.fullName' | translate }}</h3>
+							<p>{{ (username$ | async) || '' }}</p>
+						</div>
+						<div class="data">
+							<h3>{{ 'employee.location' | translate }}</h3>
+							<p>Barcelona Headquarters</p>
+						</div>
+						<div class="data">
+							<h3>{{ 'employee.todaysHour' | translate }}</h3>
+							<p>9:00 - 17:30</p>
+						</div>
 					</app-card>
-
-					<app-timelog-table />
-				</section>
-				<section class="aside">
-					<div class="aside">
-						<app-card styleClass="user-card">
-							<ng-template #cardHeader>
-								<div class="user-card-header-content">
-									<img class="avatar" src="assets/images/user.png" />
-									<span class="user-card-title">{{ 'employee.employee' | translate }}</span>
-								</div>
-							</ng-template>
-							<div class="data">
-								<h3>{{ 'employee.fullName' | translate }}</h3>
-								<p>{{ (username$ | async) || '' }}</p>
-							</div>
-							<div class="data">
-								<h3>{{ 'employee.location' | translate }}</h3>
-								<p>Barcelona Headquarters</p>
-							</div>
-							<div class="data">
-								<h3>{{ 'employee.todaysHour' | translate }}</h3>
-								<p>9:00 - 17:30</p>
-							</div>
-						</app-card>
-					</div>
-				</section>
+				</div>
 			</section>
 		</section>
-	}
+	</section>
 </main>

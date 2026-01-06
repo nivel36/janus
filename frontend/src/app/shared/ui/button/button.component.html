@@ -1,7 +1,5 @@
-<button class="app-button {{ variantClass }} {{ styleClass }}"
-	[attr.type]="type" [disabled]="disabled">
-	<span *ngIf="hasIconOnLeft" class="button-icon" aria-hidden="true">{{
-		icon }}</span> <span class="button-label"> <ng-content></ng-content>
-	</span> <span *ngIf="hasIconOnRight" class="button-icon" aria-hidden="true">{{
-		icon }}</span>
+<button class="app-button {{ variantClass }} {{ styleClass }}" [attr.type]="type" [disabled]="disabled">
+	<span *ngIf="hasIconOnLeft" class="button-icon" aria-hidden="true">{{ icon }}</span> 
+	<span class="button-label"><ng-content></ng-content></span> 
+	<span *ngIf="hasIconOnRight" class="button-icon" aria-hidden="true">{{ icon }}</span>
 </button>

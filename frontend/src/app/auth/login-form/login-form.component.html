@@ -1,0 +1,36 @@
+<form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
+  <label class="login-field">
+    <span>{{ 'login.username' | translate }}</span>
+    <input
+      type="text"
+      formControlName="username"
+      autocomplete="username"
+      required
+      [placeholder]="'login.usernamePlaceholder' | translate"
+    />
+  </label>
+
+  <label class="login-field">
+    <span>{{ 'login.password' | translate }}</span>
+    <input
+      type="password"
+      formControlName="password"
+      autocomplete="current-password"
+      required
+      minlength="8"
+      [placeholder]="'login.passwordPlaceholder' | translate"
+    />
+  </label>
+
+  @if (errorMessage) {
+    <p class="login-error">{{ errorMessage }}</p>
+  }
+
+  <app-button
+    [type]="'submit'"
+    [disabled]="form.invalid || isLoading"
+    styleClass="login-submit"
+  >
+    {{ isLoading ? ('login.loading' | translate) : ('login.submit' | translate) }}
+  </app-button>
+</form>
