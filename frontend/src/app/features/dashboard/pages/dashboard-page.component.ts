@@ -4,13 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthService } from '../core/auth/auth.service';
-import { ClockComponent } from '../shared/ui/clock/clock.component';
-import { CardComponent } from '../shared/ui/card/card.component';
-import { TimelogTableComponent } from '../features/timelogs/components/timelog-table/timelog-table.component';
-import { ButtonComponent } from '../shared/ui/button/button.component';
-import { TimeLogService } from '../features/timelogs/services/timelog-api.service';
-import { TimeLog } from '../features/timelogs/models/timelog';
+import { AuthService } from '../../../core/auth/auth.service';
+import { ClockComponent } from '../../../shared/ui/clock/clock.component';
+import { CardComponent } from '../../../shared/ui/card/card.component';
+import { TimelogTableComponent } from '../../timelogs/components/timelog-table/timelog-table.component';
+import { ButtonComponent } from '../../../shared/ui/button/button.component';
+import { TimeLogService } from '../../timelogs/services/timelog-api.service';
+import { TimeLog } from '../../timelogs/models/timelog';
 
 @Component({
 	selector: 'app-dashboard-page',

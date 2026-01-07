@@ -5,7 +5,7 @@ export const appRoutes: Routes = [
 	{
 		path: '',
 		loadComponent: () =>
-			import('./dashboard/dashboard-page.component')
+			import('./features/dashboard/pages/dashboard-page.component')
 				.then(m => m.DashboardPageComponent),
 	},
 	...AUTH_ROUTES,
