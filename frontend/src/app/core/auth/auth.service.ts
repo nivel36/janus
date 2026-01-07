@@ -31,6 +31,10 @@ export class AuthService {
 
 	constructor(private readonly http: HttpClient) {}
 
+	private get storage(): Storage {
+		return sessionStorage;
+	}
+
 	login(username: string, password: string): Observable<void> {
 		return this.http
 			.post<LoginResponse>(`${this.baseUrl}/login`, { username, password })
@@ -53,6 +57,9 @@ export class AuthService {
 		this.tokenSubject.next(null);
 		this.usernameSubject.next(null);
 		this.appUserSubject.next(null);
+		this.storage.removeItem(this.tokenStorageKey);
+		this.storage.removeItem(this.usernameStorageKey);
+		this.storage.removeItem(this.appUserStorageKey);
 		localStorage.removeItem(this.tokenStorageKey);
 		localStorage.removeItem(this.usernameStorageKey);
 		localStorage.removeItem(this.appUserStorageKey);
@@ -60,12 +67,12 @@ export class AuthService {
 
 	private setToken(token: string): void {
 		this.tokenSubject.next(token);
-		localStorage.setItem(this.tokenStorageKey, token);
+		this.storage.setItem(this.tokenStorageKey, token);
 	}
 
 	private setUsername(username: string): void {
 		this.usernameSubject.next(username);
-		localStorage.setItem(this.usernameStorageKey, username);
+		this.storage.setItem(this.usernameStorageKey, username);
 	}
 
 	private fetchAppUser(username: string): Observable<AppUserResponse> {
@@ -74,26 +81,26 @@ export class AuthService {
 
 	private setAppUser(appUser: AppUserResponse): void {
 		this.appUserSubject.next(appUser);
-		localStorage.setItem(this.appUserStorageKey, JSON.stringify(appUser));
+		this.storage.setItem(this.appUserStorageKey, JSON.stringify(appUser));
 	}
 
 	private loadToken(): string | null {
-		return localStorage.getItem(this.tokenStorageKey);
+		return this.storage.getItem(this.tokenStorageKey);
 	}
 
 	private loadUsername(): string | null {
-		return localStorage.getItem(this.usernameStorageKey);
+		return this.storage.getItem(this.usernameStorageKey);
 	}
 
 	private loadAppUser(): AppUserResponse | null {
-		const stored = localStorage.getItem(this.appUserStorageKey);
+		const stored = this.storage.getItem(this.appUserStorageKey);
 		if (!stored) {
 			return null;
 		}
 		try {
 			return JSON.parse(stored) as AppUserResponse;
 		} catch {
-			localStorage.removeItem(this.appUserStorageKey);
+			this.storage.removeItem(this.appUserStorageKey);
 			return null;
 		}
 	}
