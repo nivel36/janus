@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, map, Observable, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, switchMap, tap, throwError } from 'rxjs';
 
 interface LoginResponse {
 	token: string;
@@ -45,7 +45,11 @@ export class AuthService {
 				}),
 				switchMap((response) => this.fetchAppUser(response.username)),
 				tap((appUser) => this.setAppUser(appUser)),
-				map(() => undefined)
+				map(() => undefined),
+				catchError((error) => {
+					this.clearToken();
+					return throwError(() => error);
+				})
 			);
 	}
 
