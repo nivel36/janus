@@ -24,6 +24,7 @@
 		"usernamePlaceholder": "usuario@empresa.com",
 		"passwordPlaceholder": "Introduce tu contraseña",
 		"submit": "Entrar",
-		"loading": "Accediendo..."
+		"loading": "Accediendo...",
+		"error": "No se pudo iniciar sesión. Verifica tus credenciales e inténtalo de nuevo."
 	}
 }
