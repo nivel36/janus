@@ -3,12 +3,15 @@ import { provideHttpClient, withInterceptors } from "@angular/common/http";
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 import { authInterceptor } from './core/auth/auth.interceptor';
+import { provideRouter } from '@angular/router';
+import { appRoutes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),
 		provideZoneChangeDetection({ eventCoalescing: true }),
 		provideHttpClient(withInterceptors([authInterceptor])),
+		provideRouter(appRoutes),
 		provideTranslateService({
 			lang: 'en',
 			fallbackLang: 'en',
