@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslatePipe } from "@ngx-translate/core";
 import { AuthService } from "../../core/auth/auth.service";
 import { Router } from "@angular/router";
@@ -17,8 +17,11 @@ export class LoginFormComponent {
   errorMessage = '';
 
   readonly form = new FormGroup({
-    username: new FormControl('', { nonNullable: true }),
-    password: new FormControl('', { nonNullable: true }),
+    username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(8)],
+    }),
   });
 
   constructor(private authService: AuthService, private router: Router) {}
