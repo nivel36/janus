@@ -24,6 +24,7 @@
 		"usernamePlaceholder": "you@company.com",
 		"passwordPlaceholder": "Enter your password",
 		"submit": "Sign in",
-		"loading": "Signing in..."
+		"loading": "Signing in...",
+		"error": "Unable to sign in. Please check your credentials and try again."
 	}
 }

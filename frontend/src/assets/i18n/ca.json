@@ -24,6 +24,7 @@
 		"usernamePlaceholder": "usuari@empresa.com",
 		"passwordPlaceholder": "Introdueix la contrasenya",
 		"submit": "Entrar",
-		"loading": "Accedint..."
+		"loading": "Accedint...",
+		"error": "No s'ha pogut iniciar sessió. Comprova les credencials i torna-ho a provar."
 	}
 }
