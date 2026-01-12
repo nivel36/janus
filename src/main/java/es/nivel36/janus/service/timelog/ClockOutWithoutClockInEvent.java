@@ -29,6 +29,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -114,8 +115,8 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	/**
 	 * The {@link TimeLog} that resolves this event, if it has been resolved.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "resolved_timelog_id")
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "resolved_timelog_id", unique = true)
 	private TimeLog resolvedTimeLog;
 
 	/**
