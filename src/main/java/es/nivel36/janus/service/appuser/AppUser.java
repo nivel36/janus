@@ -19,17 +19,19 @@ import java.io.Serializable;
 import java.util.Locale;
 import java.util.Objects;
 
-import org.hibernate.annotations.NaturalId;
-
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.service.account.Account;
 import es.nivel36.janus.util.Strings;
-import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -43,10 +45,10 @@ import jakarta.validation.constraints.NotNull;
  * </p>
  *
  * <p>
- * Each user is uniquely identified by its {@code username}, which acts as a
- * natural identifier and cannot be modified once the entity is persisted. User
- * preferences like {@link Locale} and {@link TimeFormat} define how information
- * is presented to the user across the system.
+ * Each user is uniquely identified by its {@link Account}, which stores the
+ * authentication credentials. User preferences like {@link Locale} and
+ * {@link TimeFormat} define how information is presented to the user across the
+ * system.
  * </p>
  */
 @Entity
@@ -63,19 +65,6 @@ public class AppUser implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	/**
-	 * Unique username used to identify the user.
-	 *
-	 * <p>
-	 * Acts as a natural identifier. This field is mandatory, must be unique, and
-	 * cannot be updated once the entity is persisted.
-	 * </p>
-	 */
-	@NaturalId
-	@NotEmpty
-	@Column(updatable = false)
-	private String username;
 
 	/**
 	 * The first name of the user.
@@ -98,14 +87,12 @@ public class AppUser implements Serializable {
 	private String surname;
 
 	/**
-	 * Hashed password for the user.
-	 *
-	 * <p>
-	 * This value should never store plain text passwords.
-	 * </p>
+	 * Authentication account associated with the user.
 	 */
-	@NotEmpty
-	private String passwordHash;
+	@NotNull
+	@OneToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "account_id", updatable = false, unique = true)
+	private Account account;
 
 	/**
 	 * Preferred locale of the user.
@@ -145,27 +132,23 @@ public class AppUser implements Serializable {
 	 * Creates a new application user with the provided personal data and
 	 * preferences.
 	 *
-	 * @param username   the unique username of the user. Can't be {@code null} or
-	 *                   blank.
+	 * @param account    the {@link Account} associated with the user. Can't be
+	 *                   {@code null}.
 	 * @param name       the first name of the user. Can't be {@code null} or blank.
 	 * @param surname    the surname of the user. Can't be {@code null} or blank.
-	 * @param passwordHash hashed password for the user. Can't be {@code null} or
-	 *                   blank.
 	 * @param locale     the preferred {@link Locale} of the user. Can't be
 	 *                   {@code null}.
 	 * @param timeFormat the preferred {@link TimeFormat} of the user. Can't be
 	 *                   {@code null}.
 	 *
 	 * @throws NullPointerException     if any parameter is {@code null}
-	 * @throws IllegalArgumentException if {@code username}, {@code name} or
-	 *                                  {@code surname} is blank
+	 * @throws IllegalArgumentException if {@code name} or {@code surname} is blank
 	 */
-	public AppUser(final String username, final String name, final String surname, final String passwordHash,
-			final Locale locale, final TimeFormat timeFormat) {
-		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
+	public AppUser(final Account account, final String name, final String surname, final Locale locale,
+			final TimeFormat timeFormat) {
+		this.account = Objects.requireNonNull(account, "account can't be null");
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
-		this.passwordHash = Strings.requireNonBlank(passwordHash, "passwordHash can't be null or blank");
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 	}
@@ -194,13 +177,17 @@ public class AppUser implements Serializable {
 		this.id = id;
 	}
 
+	public Account getAccount() {
+		return account;
+	}
+
 	/**
-	 * Returns the username of the user.
+	 * Returns the username of the account.
 	 *
-	 * @return the unique username
+	 * @return the account username
 	 */
 	public String getUsername() {
-		return username;
+		return account.getUsername();
 	}
 
 	/**
@@ -233,14 +220,6 @@ public class AppUser implements Serializable {
 	 */
 	public String getSurname() {
 		return surname;
-	}
-
-	String getPasswordHash() {
-		return passwordHash;
-	}
-
-	void setPasswordHash(final String passwordHash) {
-		this.passwordHash = Strings.requireNonBlank(passwordHash, "passwordHash can't be null or blank");
 	}
 
 	/**
@@ -292,16 +271,16 @@ public class AppUser implements Serializable {
 			return false;
 		}
 		final AppUser other = (AppUser) obj;
-		return Objects.equals(this.username, other.username);
+		return Objects.equals(this.account, other.account);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.username);
+		return Objects.hash(this.account);
 	}
 
 	@Override
 	public String toString() {
-		return this.username;
+		return this.account.getUsername();
 	}
 }

@@ -31,7 +31,7 @@ interface AppUserRepository extends CrudRepository<AppUser, Long> {
 	 * @return {@code true} if the application user with the specified username
 	 *         exists, {@code false} otherwise.
 	 */
-	boolean existsByUsername(final String username);
+	boolean existsByAccountUsername(final String username);
 
 	/**
 	 * Finds an {@link AppUser} by username.
@@ -40,5 +40,5 @@ interface AppUserRepository extends CrudRepository<AppUser, Long> {
 	 * @return the application user with the specified username, or {@code null} if
 	 *         no user is found
 	 */
-	AppUser findByUsername(final String username);
+	AppUser findByAccountUsername(final String username);
 }
