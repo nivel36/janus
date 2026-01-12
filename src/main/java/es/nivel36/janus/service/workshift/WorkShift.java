@@ -31,7 +31,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
@@ -105,8 +104,7 @@ public class WorkShift implements Serializable {
 	 * Modifications should be performed through domain logic.
 	 * </p>
 	 */
-	@OneToMany
-	@JoinTable(name = "workshift_timelog", joinColumns = @JoinColumn(name = "workshift_id"), inverseJoinColumns = @JoinColumn(name = "timelog_id"))
+	@OneToMany(mappedBy = "workShift")
 	private List<TimeLog> timeLogs = new ArrayList<>();
 
 	/**
@@ -165,6 +163,7 @@ public class WorkShift implements Serializable {
 		this.employee = Objects.requireNonNull(employee, "employee can't be null");
 		this.date = Objects.requireNonNull(date, "date can't be null");
 		this.timeLogs = Objects.requireNonNull(timeLogs, "timeLogs can't be null");
+		this.attachTimeLogs(timeLogs);
 	}
 
 	/**
@@ -208,6 +207,13 @@ public class WorkShift implements Serializable {
 	 */
 	public List<TimeLog> getTimeLogs() {
 		return Collections.unmodifiableList(this.timeLogs);
+	}
+
+	private void attachTimeLogs(final List<TimeLog> timeLogs) {
+		for (final TimeLog timeLog : timeLogs) {
+			Objects.requireNonNull(timeLog, "timeLogs can't contain null");
+			timeLog.assignWorkShift(this);
+		}
 	}
 
 	/**

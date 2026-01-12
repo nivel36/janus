@@ -24,6 +24,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -103,6 +104,17 @@ public class TimeLog implements Serializable {
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "worksite_id", updatable = false)
 	private Worksite worksite;
+
+	/**
+	 * The work shift to which this time log belongs.
+	 * <p>
+	 * This association is optional while the work shift is being composed, but
+	 * once assigned it should remain immutable.
+	 * </p>
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "workshift_id")
+	private WorkShift workShift;
 
 	/**
 	 * The clock-in time for this time log.
@@ -219,6 +231,15 @@ public class TimeLog implements Serializable {
 	}
 
 	/**
+	 * Returns the work shift assigned to this time log.
+	 *
+	 * @return the associated {@link WorkShift}, or {@code null} if not assigned
+	 */
+	public WorkShift getWorkShift() {
+		return workShift;
+	}
+
+	/**
 	 * Returns the clock-in time of this time log.
 	 *
 	 * @return the entry time; never {@code null}
@@ -253,6 +274,21 @@ public class TimeLog implements Serializable {
 	 */
 	public boolean isDeleted() {
 		return deleted;
+	}
+
+	/**
+	 * Assigns this time log to a {@link WorkShift}.
+	 *
+	 * @param workShift the {@link WorkShift} to associate; must not be {@code null}
+	 * @throws NullPointerException  if {@code workShift} is {@code null}
+	 * @throws IllegalStateException if already assigned to a different work shift
+	 */
+	public void assignWorkShift(final WorkShift workShift) {
+		Objects.requireNonNull(workShift, "workShift can't be null");
+		if (this.workShift != null && !Objects.equals(this.workShift, workShift)) {
+			throw new IllegalStateException("TimeLog already assigned to a different WorkShift");
+		}
+		this.workShift = workShift;
 	}
 
 	/**
