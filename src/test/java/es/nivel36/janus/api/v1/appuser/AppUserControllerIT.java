@@ -43,8 +43,10 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
-					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
+			"INSERT INTO account(username,password,role) VALUES('jdoe'," //
+					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','USER')", //
+			"INSERT INTO app_user(account_id,name,surname,locale,time_format)" //
+					+ " SELECT id,'John','Doe','en-US','H24' FROM account WHERE username='jdoe'"//
 	})
 	void testFindByUsernameShouldReturnUser() throws Exception {
 		mvc.perform(get(BASE + "/{username}", "jdoe")).andExpect(status().isOk()) //
@@ -70,8 +72,10 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
-					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
+			"INSERT INTO account(username,password,role) VALUES('jdoe'," //
+					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','USER')", //
+			"INSERT INTO app_user(account_id,name,surname,locale,time_format)" //
+					+ " SELECT id,'John','Doe','en-US','H24' FROM account WHERE username='jdoe'"//
 	})
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
 		String body = """
@@ -116,8 +120,10 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
-					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
+			"INSERT INTO account(username,password,role) VALUES('jdoe'," //
+					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','USER')", //
+			"INSERT INTO app_user(account_id,name,surname,locale,time_format)" //
+					+ " SELECT id,'John','Doe','en-US','H24' FROM account WHERE username='jdoe'"//
 	})
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		String body = """
@@ -135,8 +141,10 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO app_user(username,name,surname,password_hash,locale,time_format) VALUES('jdoe','John','Doe'," //
-					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','en-US','H24')"//
+			"INSERT INTO account(username,password,role) VALUES('jdoe'," //
+					+ "'$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','USER')", //
+			"INSERT INTO app_user(account_id,name,surname,locale,time_format)" //
+					+ " SELECT id,'John','Doe','en-US','H24' FROM account WHERE username='jdoe'"//
 	})
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
 		mvc.perform(delete(BASE + "/{username}", "jdoe")) //
