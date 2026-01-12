@@ -27,7 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
-import es.nivel36.janus.service.auth.AuthenticationFailedException;
+import es.nivel36.janus.service.account.Account;
+import es.nivel36.janus.service.account.Role;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -127,14 +128,14 @@ public class AppUserService {
 
 		logger.debug("Creating new application user {}", username);
 
-		final boolean usernameInUse = this.appUserRepository.existsByUsername(username);
+		final boolean usernameInUse = this.appUserRepository.existsByAccountUsername(username);
 		if (usernameInUse) {
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
 
 		final String passwordHash = this.passwordEncoder.encode(password);
-		final AppUser appUser = new AppUser(username.trim(), name.trim(), surname.trim(), passwordHash, locale,
-				timeFormat);
+		final Account account = new Account(username.trim(), passwordHash, Role.USER);
+		final AppUser appUser = new AppUser(account, name.trim(), surname.trim(), locale, timeFormat);
 
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
@@ -200,25 +201,8 @@ public class AppUserService {
 		logger.trace("AppUser {} deleted successfully", appUser);
 	}
 
-	@Transactional(readOnly = true)
-	public AppUser authenticate(final String username, final String password) {
-		Strings.requireNonBlank(username, "username cannot be null or blank.");
-		Strings.requireNonBlank(password, "password cannot be null or blank.");
-
-		logger.debug("Authenticating AppUser {}", username);
-		final AppUser appUser = this.appUserRepository.findByUsername(username);
-		if (appUser == null) {
-			throw new AuthenticationFailedException("Invalid username or password.");
-		}
-		final boolean matches = this.passwordEncoder.matches(password, appUser.getPasswordHash());
-		if (!matches) {
-			throw new AuthenticationFailedException("Invalid username or password.");
-		}
-		return appUser;
-	}
-
 	private AppUser findAppUser(final String username) {
-		final AppUser appUser = this.appUserRepository.findByUsername(username);
+		final AppUser appUser = this.appUserRepository.findByAccountUsername(username);
 		if (appUser == null) {
 			throw new ResourceNotFoundException("There is no application user with username " + username);
 		}

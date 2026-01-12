@@ -26,8 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.nivel36.janus.service.appuser.AppUser;
-import es.nivel36.janus.service.appuser.AppUserService;
+import es.nivel36.janus.service.account.Account;
+import es.nivel36.janus.service.account.AccountService;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -38,21 +38,22 @@ public class AuthService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-	private final AppUserService appUserService;
+	private final AccountService accountService;
 	private final Clock clock;
 	private final Map<String, AuthSession> sessions = new ConcurrentHashMap<>();
 
-	public AuthService(final AppUserService appUserService, final Clock clock) {
-		this.appUserService = Objects.requireNonNull(appUserService, "appUserService cannot be null");
+	public AuthService(final AccountService accountService, final Clock clock) {
+		this.accountService = Objects.requireNonNull(accountService, "accountService cannot be null");
 		this.clock = Objects.requireNonNull(clock, "clock cannot be null");
 	}
 
 	public String login(final String username, final String password) {
-		final AppUser appUser = this.appUserService.authenticate(username, password);
 		final String token = UUID.randomUUID().toString();
-		final AuthSession session = new AuthSession(appUser.getUsername(), Instant.now(clock));
+		final Instant loginInstant = Instant.now(clock);
+		final Account account = this.accountService.login(username, password, loginInstant);
+		final AuthSession session = new AuthSession(account.getUsername(), loginInstant);
 		this.sessions.put(token, session);
-		logger.info("Auth session created for user {}", appUser.getUsername());
+		logger.info("Auth session created for user {}", account.getUsername());
 		return token;
 	}
 
