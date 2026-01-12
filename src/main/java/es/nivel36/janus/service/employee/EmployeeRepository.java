@@ -58,10 +58,10 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * the given instant that is not associated with any {@link WorkShift}.
 	 *
 	 * <p>
-	 * A time log is considered "not associated" when it does not appear in the
-	 * {@code workshift_timelog} join table and has a non-null exit time. Only time
-	 * logs whose {@code entryTime} is greater than or equal to the given instant
-	 * are considered. The query returns distinct employee IDs.
+	 * A time log is considered "not associated" when its {@code workshift_id}
+	 * foreign key is {@code null} and it has a non-null exit time. Only time logs
+	 * whose {@code entryTime} is greater than or equal to the given instant are
+	 * considered. The query returns distinct employee IDs.
 	 * </p>
 	 *
 	 * @param fromInclusive the lower bound instant; only time logs with
@@ -76,11 +76,7 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 			WHERE t.deleted = false
 			AND t.entry_time >= :fromInclusive
 			AND t.exit_time IS NOT NULL
-			AND NOT EXISTS (
-			SELECT 1
-			FROM workshift_timelog wstl
-			WHERE wstl.timelog_id = t.id
-			);
+			AND t.workshift_id IS NULL;
 			""", nativeQuery = true)
 	List<Long> findWithoutWorkshiftsSince(@Param("fromInclusive") Instant fromInclusive);
 }

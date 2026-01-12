@@ -152,8 +152,8 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	/**
 	 * Returns the list of {@link TimeLog} records for the given employee that are
 	 * considered "orphans" since the specified instant; i.e., time logs that are
-	 * not linked to any {@link WorkShift} through the {@code workshift_timelog}
-	 * join table.
+	 * not linked to any {@link WorkShift} (their {@code workShift} association is
+	 * {@code null}).
 	 * <p>
 	 * The result is returned with the associated {@link Employee} and
 	 * {@link Worksite} eagerly loaded (via <em>fetch join</em>) to prevent
@@ -166,8 +166,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * ({@code t.deleted = false}).</li>
 	 * <li>Only time logs with {@code entryTime >= :from} are included.</li>
 	 * <li>Only time logs of the specified employee are included.</li>
-	 * <li>A time log is "orphan" when no {@link WorkShift} exists such that the
-	 * time log is a {@code member} of its {@code timeLogs} collection.</li>
+	 * <li>A time log is "orphan" when it has no assigned {@link WorkShift}.</li>
 	 * <li>Results are ordered by {@code entryTime} in descending order (most recent
 	 * first).</li>
 	 * </ul>
@@ -188,11 +187,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 			AND t.entryTime >= :from
 			AND t.exitTime IS NOT NULL
 			AND e = :employee
-			AND NOT EXISTS (
-			SELECT 1
-			FROM WorkShift w
-			WHERE t MEMBER OF w.timeLogs
-			)
+			AND t.workShift IS NULL
 			ORDER BY t.entryTime DESC
 			""")
 	List<TimeLog> findOrphanTimeLogsSince(@Param("from") Instant from, @Param("employee") Employee employee);
