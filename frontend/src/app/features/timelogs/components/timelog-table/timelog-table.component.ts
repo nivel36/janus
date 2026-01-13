@@ -16,7 +16,7 @@ import { TimeLog } from '../../models/timelog';
 	styleUrl: './timelog-table.component.css'
 })
 export class TimelogTableComponent implements OnInit, OnChanges {
-	@Input() employeeEmail?: string;
+	@Input({ required: true }) employeeEmail!: string;
 	@Input() refreshToken = 0;
 	protected timelogs: TimeLog[] = [];
 	protected isLoading = false;
@@ -53,9 +53,6 @@ export class TimelogTableComponent implements OnInit, OnChanges {
 	}
 
 	private loadTimeLogs(): void {
-		if (!this.employeeEmail) {
-			return;
-		}
 		this.isLoading = true;
 		this.error = undefined;
 		this.reload$.next();
@@ -63,9 +60,7 @@ export class TimelogTableComponent implements OnInit, OnChanges {
 
 	private fetchTimeLogs() {
 		return this.timeLogService.searchByEmployee(this.employeeEmail).pipe(
-			finalize(() => {
-				this.isLoading = false;
-			})
+			finalize(() => this.isLoading = false)
 		);
 	}
 }

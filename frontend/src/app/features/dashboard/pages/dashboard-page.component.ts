@@ -2,8 +2,9 @@ import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { filter } from 'rxjs';
+import { filter, firstValueFrom } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { AuthService } from '../../../core/auth/auth.service';
 import { ClockComponent } from '../../../shared/ui/clock/clock.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
@@ -35,48 +36,62 @@ export class DashboardPageComponent implements OnInit {
 
 	clockActionLabelKey = 'timelog.clockin';
 	isClockActionLoading = false;
+
 	readonly isAuthenticated$ = this.authService.isAuthenticated$;
 	readonly username$ = this.authService.username$;
+
 	private latestTimeLog?: TimeLog;
-	employeeEmail?: string;
+
 	tableRefreshToken = 0;
 
+	employeeEmail!: string;
+
 	ngOnInit(): void {
-		this.username$
-			.pipe(
-				filter((username): username is string => !!username),
-				takeUntilDestroyed(this.destroyRef)
-			)
-			.subscribe((username) => {
-				this.employeeEmail = username;
-				this.refreshLatestTimeLog(username);
-			});
+	  this.username$
+	    .pipe(
+	      filter((username): username is string => !!username),
+	      takeUntilDestroyed(this.destroyRef)
+	    )
+	    .subscribe((username) => {
+	      this.employeeEmail = username;
+	      this.refreshLatestTimeLog(username);
+	    });
 	}
 
-	onClockAction(): void {
-		if (!this.employeeEmail || this.isClockActionLoading) {
+	async onClockAction(): Promise<void> {
+		if (this.isClockActionLoading) {
 			return;
 		}
 
 		this.isClockActionLoading = true;
-		const worksiteCode = this.latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode;
-		const action$ = this.shouldClockOut()
-			? this.timeLogService.clockOut(this.employeeEmail, worksiteCode)
-			: this.timeLogService.clockIn(this.employeeEmail, worksiteCode);
 
-		action$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-			next: (timeLog) => {
-				this.latestTimeLog = timeLog;
-				this.clockActionLabelKey = this.getClockActionLabelKey(timeLog);
-				this.tableRefreshToken += 1;
-			},
-			error: () => {
-				this.isClockActionLoading = false;
-			},
-			complete: () => {
-				this.isClockActionLoading = false;
-			}
-		});
+		try {
+			const email = await firstValueFrom(
+				this.username$.pipe(filter((u): u is string => !!u))
+			);
+
+			const worksiteCode = this.latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode;
+
+			const action$ = this.shouldClockOut()
+				? this.timeLogService.clockOut(email, worksiteCode)
+				: this.timeLogService.clockIn(email, worksiteCode);
+
+			action$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+				next: (timeLog) => {
+					this.latestTimeLog = timeLog;
+					this.clockActionLabelKey = this.getClockActionLabelKey(timeLog);
+					this.tableRefreshToken += 1;
+				},
+				error: () => {
+					this.isClockActionLoading = false;
+				},
+				complete: () => {
+					this.isClockActionLoading = false;
+				}
+			});
+		} catch {
+			this.isClockActionLoading = false;
+		}
 	}
 
 	private refreshLatestTimeLog(username: string): void {
@@ -87,6 +102,11 @@ export class DashboardPageComponent implements OnInit {
 				next: (response) => {
 					this.latestTimeLog = this.getLatestTimeLog(response);
 					this.clockActionLabelKey = this.getClockActionLabelKey(this.latestTimeLog);
+				},
+				error: () => {
+					// opcional: manejar error si quieres reflejarlo en UI
+					this.latestTimeLog = undefined;
+					this.clockActionLabelKey = 'timelog.clockin';
 				}
 			});
 	}

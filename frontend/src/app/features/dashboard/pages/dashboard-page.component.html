@@ -1,42 +1,73 @@
 <main class="app-shell">
 	<section class="dashboard">
 		<header class="dashboard-header">
-			<h1 class="brand">{{ 'navigation.janus' | translate }}</h1>
-			<span class="section-label">{{ 'navigation.dashboard' |	translate }}</span>
+			<h1 class="brand">
+				{{ 'navigation.janus' | translate }}
+			</h1>
+			<span class="section-label">
+				{{ 'navigation.dashboard' | translate }}
+			</span>
 		</header>
+
 		<section class="dashboard-content">
+			<!-- MAIN CONTENT -->
 			<section class="content">
-				<app-card styleClass="clock-in-card" title="{{ clockActionLabelKey | translate }}"> 
-					<ng-template #cardHeader> 
-						<app-clock	styleClass="card-hour-container" timeClass="card-hour" /> 
-						<app-button [disabled]="isClockActionLoading" (click)="onClockAction()"> {{ clockActionLabelKey | translate }} </app-button> 
-					</ng-template> 
+				<app-card
+					styleClass="clock-in-card"
+					[title]="clockActionLabelKey | translate">
+
+					<ng-template #cardHeader>
+						<app-clock
+							styleClass="card-hour-container"
+							timeClass="card-hour">
+						</app-clock>
+
+						<app-button
+							[disabled]="isClockActionLoading"
+							(click)="onClockAction()">
+							{{ clockActionLabelKey | translate }}
+						</app-button>
+					</ng-template>
+
 				</app-card>
-				<app-timelog-table [employeeEmail]="employeeEmail" [refreshToken]="tableRefreshToken"></app-timelog-table>
+
+				<!-- Tabla solo cuando ya existe el email -->
+				<app-timelog-table
+					[employeeEmail]="employeeEmail"
+					[refreshToken]="tableRefreshToken">
+				</app-timelog-table>
 			</section>
+
+			<!-- ASIDE -->
 			<section class="aside">
-				<div class="aside">
-					<app-card styleClass="user-card"> 
-						<ng-template #cardHeader>
-							<div class="user-card-header-content">
-								<img class="avatar" src="assets/images/user.png" /> 
-								<span class="user-card-title">{{ 'employee.employee' | translate }}</span>
-							</div>
-						</ng-template>
-						<div class="data">
-							<h3>{{ 'employee.fullName' | translate }}</h3>
-							<p>{{ (username$ | async) || '' }}</p>
+				<app-card styleClass="user-card">
+					<ng-template #cardHeader>
+						<div class="user-card-header-content">
+							<img
+								class="avatar"
+								src="assets/images/user.png"
+								alt="User avatar" />
+							<span class="user-card-title">
+								{{ 'employee.employee' | translate }}
+							</span>
 						</div>
-						<div class="data">
-							<h3>{{ 'employee.location' | translate }}</h3>
-							<p>Barcelona Headquarters</p>
-						</div>
-						<div class="data">
-							<h3>{{ 'employee.todaysHour' | translate }}</h3>
-							<p>9:00 - 17:30</p>
-						</div>
-					</app-card>
-				</div>
+					</ng-template>
+
+					<div class="data">
+						<h3>{{ 'employee.fullName' | translate }}</h3>
+						<p>{{ username$ | async }}</p>
+					</div>
+
+					<div class="data">
+						<h3>{{ 'employee.location' | translate }}</h3>
+						<p>Barcelona Headquarters</p>
+					</div>
+
+					<div class="data">
+						<h3>{{ 'employee.todaysHour' | translate }}</h3>
+						<p>9:00 - 17:30</p>
+					</div>
+				</app-card>
 			</section>
 		</section>
 	</section>
