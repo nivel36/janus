@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -13,8 +13,9 @@ import { TimeLog } from '../../models/timelog';
 	templateUrl: './timelog-table.component.html',
 	styleUrl: './timelog-table.component.css'
 })
-export class TimelogTableComponent implements OnInit {
-	protected readonly employeeEmail = 'aferrer@nivel36.es';
+export class TimelogTableComponent implements OnInit, OnChanges {
+	@Input() employeeEmail?: string;
+	@Input() refreshToken = 0;
 	protected timelogs: TimeLog[] = [];
 	protected isLoading = false;
 	protected error?: string;
@@ -27,7 +28,16 @@ export class TimelogTableComponent implements OnInit {
 		this.loadTimeLogs();
 	}
 
+	ngOnChanges(changes: SimpleChanges): void {
+		if (changes['employeeEmail'] || changes['refreshToken']) {
+			this.loadTimeLogs();
+		}
+	}
+
 	private loadTimeLogs(): void {
+		if (!this.employeeEmail) {
+			return;
+		}
 		this.isLoading = true;
 		this.error = undefined;
 
