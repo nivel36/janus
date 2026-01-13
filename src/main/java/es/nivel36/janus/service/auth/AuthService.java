@@ -26,8 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import es.nivel36.janus.service.account.Account;
-import es.nivel36.janus.service.account.AccountService;
 import es.nivel36.janus.util.Strings;
 
 /**

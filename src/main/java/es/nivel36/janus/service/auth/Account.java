@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.service.account;
+package es.nivel36.janus.service.auth;
 
 import java.io.Serializable;
 import java.time.Instant;

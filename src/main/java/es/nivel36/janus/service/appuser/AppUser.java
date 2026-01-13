@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import es.nivel36.janus.service.TimeFormat;
-import es.nivel36.janus.service.account.Account;
+import es.nivel36.janus.service.auth.Account;
 import es.nivel36.janus.util.Strings;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

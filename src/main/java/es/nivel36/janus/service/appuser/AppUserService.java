@@ -27,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
-import es.nivel36.janus.service.account.Account;
-import es.nivel36.janus.service.account.Role;
+import es.nivel36.janus.service.auth.Account;
+import es.nivel36.janus.service.auth.Role;
 import es.nivel36.janus.util.Strings;
 
 /**

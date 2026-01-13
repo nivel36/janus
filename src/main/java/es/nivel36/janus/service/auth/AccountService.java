@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.service.account;
+package es.nivel36.janus.service.auth;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -24,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.nivel36.janus.service.auth.AuthenticationFailedException;
 import es.nivel36.janus.util.Strings;
 
 /**
