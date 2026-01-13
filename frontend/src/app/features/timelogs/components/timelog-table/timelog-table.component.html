@@ -19,7 +19,7 @@
 				<td>{{ timelog.entryTime | date: 'hh:mm a' }}</td>
 				<td>{{ timelog.exitTime ? (timelog.exitTime | date: 'hh:mm a')
 					: '—' }}</td>
-				<td>{{ timelog.workTime || '—' }}</td>
+				<td>{{ timelog.workTime | duration }}</td>
 			</tr>
 		</tbody>
 	</table>

@@ -7,11 +7,12 @@ import { finalize, switchMap } from 'rxjs/operators';
 
 import { TimeLogService } from '../../services/timelog-api.service';
 import { TimeLog } from '../../models/timelog';
+import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
 
 @Component({
 	selector: 'app-timelog-table',
 	standalone: true,
-	imports: [CommonModule, TranslatePipe, DatePipe],
+	imports: [CommonModule, TranslatePipe, DatePipe, DurationPipe],
 	templateUrl: './timelog-table.component.html',
 	styleUrl: './timelog-table.component.css'
 })
