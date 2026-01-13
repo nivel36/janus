@@ -38,7 +38,8 @@ export class DashboardPageComponent implements OnInit {
 	readonly isAuthenticated$ = this.authService.isAuthenticated$;
 	readonly username$ = this.authService.username$;
 	private latestTimeLog?: TimeLog;
-	private employeeEmail?: string;
+	employeeEmail?: string;
+	tableRefreshToken = 0;
 
 	ngOnInit(): void {
 		this.username$
@@ -67,6 +68,7 @@ export class DashboardPageComponent implements OnInit {
 			next: (timeLog) => {
 				this.latestTimeLog = timeLog;
 				this.clockActionLabelKey = this.getClockActionLabelKey(timeLog);
+				this.tableRefreshToken += 1;
 			},
 			error: () => {
 				this.isClockActionLoading = false;

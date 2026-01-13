@@ -12,7 +12,7 @@
 						<app-button [disabled]="isClockActionLoading" (click)="onClockAction()"> {{ clockActionLabelKey | translate }} </app-button> 
 					</ng-template> 
 				</app-card>
-				<app-timelog-table > </app-timelog-table>
+				<app-timelog-table [employeeEmail]="employeeEmail" [refreshToken]="tableRefreshToken"></app-timelog-table>
 			</section>
 			<section class="aside">
 				<div class="aside">
