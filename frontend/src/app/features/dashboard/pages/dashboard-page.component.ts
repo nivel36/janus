@@ -96,7 +96,7 @@ export class DashboardPageComponent implements OnInit {
 
 	private refreshLatestTimeLog(username: string): void {
 		this.timeLogService
-			.searchByEmployee(username)
+			.searchByEmployee(username, 1, 5)
 			.pipe(takeUntilDestroyed(this.destroyRef))
 			.subscribe({
 				next: (response) => {
@@ -104,7 +104,6 @@ export class DashboardPageComponent implements OnInit {
 					this.clockActionLabelKey = this.getClockActionLabelKey(this.latestTimeLog);
 				},
 				error: () => {
-					// opcional: manejar error si quieres reflejarlo en UI
 					this.latestTimeLog = undefined;
 					this.clockActionLabelKey = 'timelog.clockin';
 				}
