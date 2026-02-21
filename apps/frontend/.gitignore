@@ -45,7 +45,6 @@ nb-configuration.xml
 ##############################
 ## Frontend
 ##############################
-node/
+.angular/
 node_modules/
 dist/
-package-lock.json
