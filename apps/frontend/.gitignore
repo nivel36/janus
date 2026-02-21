@@ -1,14 +1,4 @@
 ##############################
-## IntelliJ
-##############################
-out/
-.idea/
-.idea_modules/
-*.iml
-*.ipr
-*.iws
-
-##############################
 ## Eclipse
 ##############################
 .settings/
@@ -51,3 +41,11 @@ nb-configuration.xml
 ## Miscellaneous
 ##############################
 *.log
+
+##############################
+## Frontend
+##############################
+node/
+node_modules/
+dist/
+package-lock.json
