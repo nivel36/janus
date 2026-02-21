@@ -34,6 +34,16 @@ mvn clean install
 java -jar Janus.jar
 ```
 
+## Docker (quick start/stop)
+
+From the project root, you can use these scripts:
+
+```bash
+./start.sh    # docker compose up -d --build
+./stop.sh     # docker compose down
+./restart.sh  # stop + start
+```
+
 ## Usage
 
 Access the application via a web browser:
