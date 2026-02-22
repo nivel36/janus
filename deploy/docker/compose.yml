@@ -1,20 +1,14 @@
 services:
   nginx:
-    image: nginx:1.27-alpine
+    build:
+      context: ../..
+      dockerfile: deploy/nginx/Dockerfile
     ports:
       - "80:80"
-    volumes:
-      - ../nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on:
-      - frontend
       - backend
       - keycloak
       - grafana
-
-  frontend:
-    build:
-      context: ../../apps/frontend
-      dockerfile: Dockerfile
 
   backend:
     build:
