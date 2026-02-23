@@ -2,7 +2,20 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMPOSE_FILE="$ROOT_DIR/deploy/docker/compose.yml"
+MODE="prod"
+
+if [[ "${1:-}" == "-dev" ]]; then
+  MODE="dev"
+elif [[ $# -gt 0 ]]; then
+  echo "Uso: $0 [-dev]" >&2
+  exit 1
+fi
+
+if [[ "$MODE" == "dev" ]]; then
+  COMPOSE_FILE="$ROOT_DIR/deploy/docker/compose.dev.yml"
+else
+  COMPOSE_FILE="$ROOT_DIR/deploy/docker/compose.yml"
+fi
 
 if [[ ! -f "$COMPOSE_FILE" ]]; then
   echo "Compose file not found at: $COMPOSE_FILE" >&2
@@ -18,7 +31,7 @@ else
   exit 1
 fi
 
-echo "Starting services with ${COMPOSE_CMD[*]} using $COMPOSE_FILE"
+echo "Starting services ($MODE) with ${COMPOSE_CMD[*]} using $COMPOSE_FILE"
 "${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" up -d --build
 
 echo "Services started successfully."
