@@ -20,10 +20,10 @@ spring:
   main:
     banner-mode: off
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/app}
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:app}
+    password: ${SPRING_DATASOURCE_PASSWORD:app}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 0   
@@ -33,13 +33,10 @@ spring:
       jakarta.persistence.validation.mode: auto
     hibernate:
       ddl-auto: none
-  h2:
-    console:
-      enabled: true
   sql:
     init:
       mode: always
-      schema-locations: classpath:sql/schema-h2.sql
+      schema-locations: classpath:sql/schema-postgres.sql
       data-locations: classpath:sql/data.sql
       continue-on-error: false
 server:
