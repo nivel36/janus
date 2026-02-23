@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { TimeLog } from '../models/timelog';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TimeLogService {
-	private readonly baseUrl = '/api/v1/employees';
+	private readonly baseUrl = `${environment.apiUrl}/employees`;
 
 	constructor(private readonly http: HttpClient) { }
 

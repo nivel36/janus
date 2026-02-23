@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, map, Observable, switchMap, tap, throwError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 interface LoginResponse {
 	token: string;
@@ -17,8 +18,8 @@ interface AppUserResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-	private readonly baseUrl = '/api/v1/auth';
-	private readonly appUserBaseUrl = '/api/v1/appusers';
+	private readonly baseUrl = `${environment.apiUrl}/auth`;
+	private readonly appUserBaseUrl = `${environment.apiUrl}/appusers`;
 	private readonly tokenStorageKey = 'janus.auth.token';
 	private readonly usernameStorageKey = 'janus.auth.username';
 	private readonly appUserStorageKey = 'janus.auth.user';
