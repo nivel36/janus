@@ -44,9 +44,9 @@ INSERT INTO worksite (name, code, time_zone) VALUES ('Barcelona Headquarters', '
 
 INSERT INTO employee_worksite (employee_id, worksite_id) VALUES (1,1);
 
-INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-20T07:32:10Z'::timestamp,'2024-04-20T16:15:20Z'::timestamp, 'PT8H43M');
-INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-21T07:29:20Z'::timestamp,'2024-04-21T16:31:23Z'::timestamp, 'PT9H02M');
-INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-22T07:34:45Z'::timestamp,'2024-04-22T16:11:31Z'::timestamp, 'PT8H402M');
-INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-23T07:33:51Z'::timestamp,'2024-04-23T16:11:42Z'::timestamp, 'PT8H38M');
+INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-20T07:32:10Z'::timestamp,'2024-04-20T16:15:20Z'::timestamp, 31390);
+INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-21T07:29:20Z'::timestamp,'2024-04-21T16:31:23Z'::timestamp, 32523);
+INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-22T07:34:45Z'::timestamp,'2024-04-22T16:11:31Z'::timestamp, 31006);
+INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-23T07:33:51Z'::timestamp,'2024-04-23T16:11:42Z'::timestamp, 31071);
 INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time) VALUES (1,1,NULL,'2024-04-24T07:30:12Z'::timestamp);
 
