@@ -17,6 +17,12 @@ interface KeycloakClaims {
 	email?: string;
 }
 
+interface LoginRedirectOptions {
+	prompt?: 'none' | 'login' | 'consent';
+	maxAge?: number;
+	idpHint?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 	private readonly appUserBaseUrl = `${environment.apiUrl}/appusers`;
@@ -38,6 +44,23 @@ export class AuthService {
 			return Promise.reject(new Error('Keycloak is not configured'));
 		}
 		return keycloak.login();
+	}
+
+	loginWithRedirect(redirectUri?: string, options?: LoginRedirectOptions): Promise<void> {
+		if (!keycloak) {
+			return Promise.reject(new Error('Keycloak is not configured'));
+		}
+
+		const resolvedRedirectUri = redirectUri
+			? new URL(redirectUri, window.location.origin).toString()
+			: window.location.href;
+
+		return keycloak.login({
+			redirectUri: resolvedRedirectUri,
+			prompt: options?.prompt,
+			maxAge: options?.maxAge,
+			idpHint: options?.idpHint
+		});
 	}
 
 	logout(): Promise<void> {
