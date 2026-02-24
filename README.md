@@ -34,6 +34,16 @@ mvn clean install
 java -jar Janus.jar
 ```
 
+## Realm configuration (single source of truth)
+
+Use **`janus-realm`** as the unique Keycloak realm across all components to keep token issuer validation aligned:
+
+- Docker backend issuer: `deploy/docker/compose.yml` (`SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI`)
+- Frontend Keycloak config: `apps/frontend/src/environments/environment.ts` and `environment.prod.ts`
+- Imported Keycloak realm: `deploy/docker/keycloak/realm-export.json`
+
+If you ever change the realm, update all three places in the same commit.
+
 ## Docker (quick start/stop)
 
 From the project root, you can use these scripts:

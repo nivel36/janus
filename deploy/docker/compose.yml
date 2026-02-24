@@ -17,7 +17,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       # issuer interno (docker) con /auth
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/auth/realms/mi-realm
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/auth/realms/janus-realm
     depends_on:
       - postgres
       - keycloak
