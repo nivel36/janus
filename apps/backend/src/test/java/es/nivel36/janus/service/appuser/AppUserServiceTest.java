@@ -1,0 +1,97 @@
+/*
+ * Copyright 2026 Abel Ferrer Jiménez
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package es.nivel36.janus.service.appuser;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Locale;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import es.nivel36.janus.service.ResourceAlreadyExistsException;
+import es.nivel36.janus.service.ResourceNotFoundException;
+import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.service.auth.Account;
+import es.nivel36.janus.service.auth.Role;
+
+class AppUserServiceTest {
+
+	private @Mock AppUserRepository appUserRepository;
+	private @Mock PasswordEncoder passwordEncoder;
+	private @InjectMocks AppUserService appUserService;
+
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.openMocks(this);
+	}
+
+	@Test
+	void testCreateAppUserUsesUsernameLookupOnAccountBeforeSave() {
+		when(this.appUserRepository.existsByAccountUsername("aferrer")).thenReturn(false);
+		when(this.passwordEncoder.encode("raw-password")).thenReturn("hashed-password");
+		when(this.appUserRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		this.appUserService.createAppUser("aferrer", "Abel", "Ferrer", "raw-password", Locale.ENGLISH,
+				TimeFormat.H12);
+
+		verify(this.appUserRepository).existsByAccountUsername("aferrer");
+		final ArgumentCaptor<AppUser> savedAppUserCaptor = ArgumentCaptor.forClass(AppUser.class);
+		verify(this.appUserRepository).save(savedAppUserCaptor.capture());
+		assertEquals("aferrer", savedAppUserCaptor.getValue().getUsername());
+	}
+
+	@Test
+	void testCreateAppUserThrowsWhenUsernameAlreadyExistsByAccountUsername() {
+		when(this.appUserRepository.existsByAccountUsername("aferrer")).thenReturn(true);
+
+		assertThrows(ResourceAlreadyExistsException.class,
+				() -> this.appUserService.createAppUser("aferrer", "Abel", "Ferrer", "raw-password",
+						Locale.ENGLISH, TimeFormat.H24));
+
+		verify(this.appUserRepository).existsByAccountUsername("aferrer");
+	}
+
+	@Test
+	void testFindAppUserByUsernameUsesAccountUsernameLookup() {
+		final AppUser appUser = new AppUser(new Account("aferrer", "hash", Role.USER), "Abel", "Ferrer", Locale.ENGLISH,
+				TimeFormat.H24);
+		when(this.appUserRepository.findByAccountUsername("aferrer")).thenReturn(appUser);
+
+		final AppUser foundAppUser = this.appUserService.findAppUserByUsername("aferrer");
+
+		assertEquals(appUser, foundAppUser);
+		verify(this.appUserRepository).findByAccountUsername("aferrer");
+	}
+
+	@Test
+	void testFindAppUserByUsernameThrowsWhenAccountUsernameDoesNotExist() {
+		when(this.appUserRepository.findByAccountUsername("missing-user")).thenReturn(null);
+
+		assertThrows(ResourceNotFoundException.class, () -> this.appUserService.findAppUserByUsername("missing-user"));
+
+		verify(this.appUserRepository).findByAccountUsername("missing-user");
+	}
+}
