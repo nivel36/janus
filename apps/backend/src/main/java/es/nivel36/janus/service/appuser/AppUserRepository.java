@@ -15,7 +15,6 @@
  */
 package es.nivel36.janus.service.appuser;
 
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -32,7 +31,7 @@ interface AppUserRepository extends CrudRepository<AppUser, Long> {
 	 * @return {@code true} if the application user with the specified username
 	 *         exists, {@code false} otherwise.
 	 */
-	boolean existsByAccountUsername(final String username);
+	boolean existsByUsername(final String username);
 
 	/**
 	 * Finds an {@link AppUser} by username.
@@ -41,6 +40,5 @@ interface AppUserRepository extends CrudRepository<AppUser, Long> {
 	 * @return the application user with the specified username, or {@code null} if
 	 *         no user is found
 	 */
-	@EntityGraph(attributePaths = "account")
-	AppUser findByAccountUsername(final String username);
+	AppUser findByUsername(final String username);
 }

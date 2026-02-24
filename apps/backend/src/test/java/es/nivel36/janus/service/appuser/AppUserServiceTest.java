@@ -34,8 +34,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
-import es.nivel36.janus.service.auth.Account;
-import es.nivel36.janus.service.auth.Role;
 
 class AppUserServiceTest {
 
@@ -50,14 +48,14 @@ class AppUserServiceTest {
 
 	@Test
 	void testCreateAppUserUsesUsernameLookupOnAccountBeforeSave() {
-		when(this.appUserRepository.existsByAccountUsername("aferrer")).thenReturn(false);
+		when(this.appUserRepository.existsByUsername("aferrer")).thenReturn(false);
 		when(this.passwordEncoder.encode("raw-password")).thenReturn("hashed-password");
 		when(this.appUserRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 		this.appUserService.createAppUser("aferrer", "Abel", "Ferrer", "raw-password", Locale.ENGLISH,
 				TimeFormat.H12);
 
-		verify(this.appUserRepository).existsByAccountUsername("aferrer");
+		verify(this.appUserRepository).existsByUsername("aferrer");
 		final ArgumentCaptor<AppUser> savedAppUserCaptor = ArgumentCaptor.forClass(AppUser.class);
 		verify(this.appUserRepository).save(savedAppUserCaptor.capture());
 		assertEquals("aferrer", savedAppUserCaptor.getValue().getUsername());
@@ -65,33 +63,32 @@ class AppUserServiceTest {
 
 	@Test
 	void testCreateAppUserThrowsWhenUsernameAlreadyExistsByAccountUsername() {
-		when(this.appUserRepository.existsByAccountUsername("aferrer")).thenReturn(true);
+		when(this.appUserRepository.existsByUsername("aferrer")).thenReturn(true);
 
 		assertThrows(ResourceAlreadyExistsException.class,
 				() -> this.appUserService.createAppUser("aferrer", "Abel", "Ferrer", "raw-password",
 						Locale.ENGLISH, TimeFormat.H24));
 
-		verify(this.appUserRepository).existsByAccountUsername("aferrer");
+		verify(this.appUserRepository).existsByUsername("aferrer");
 	}
 
 	@Test
 	void testFindAppUserByUsernameUsesAccountUsernameLookup() {
-		final AppUser appUser = new AppUser(new Account("aferrer", "hash", Role.USER), "Abel", "Ferrer", Locale.ENGLISH,
-				TimeFormat.H24);
-		when(this.appUserRepository.findByAccountUsername("aferrer")).thenReturn(appUser);
+		final AppUser appUser = new AppUser("aferrer", "hash", Role.USER, "Abel", "Ferrer", Locale.ENGLISH, TimeFormat.H24);
+		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
 
 		final AppUser foundAppUser = this.appUserService.findAppUserByUsername("aferrer");
 
 		assertEquals(appUser, foundAppUser);
-		verify(this.appUserRepository).findByAccountUsername("aferrer");
+		verify(this.appUserRepository).findByUsername("aferrer");
 	}
 
 	@Test
 	void testFindAppUserByUsernameThrowsWhenAccountUsernameDoesNotExist() {
-		when(this.appUserRepository.findByAccountUsername("missing-user")).thenReturn(null);
+		when(this.appUserRepository.findByUsername("missing-user")).thenReturn(null);
 
 		assertThrows(ResourceNotFoundException.class, () -> this.appUserService.findAppUserByUsername("missing-user"));
 
-		verify(this.appUserRepository).findByAccountUsername("missing-user");
+		verify(this.appUserRepository).findByUsername("missing-user");
 	}
 }

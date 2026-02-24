@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package es.nivel36.janus.service.appuser;
+
 /**
- * Authentication domain model.
- *
- * <p>
- * This module only defines the account aggregate ({@link es.nivel36.janus.service.auth.Account})
- * and role catalog ({@link es.nivel36.janus.service.auth.Role}).
- * Persistence queries by username are owned by bounded-context repositories (such as
- * {@code AppUserRepository}) that traverse relationships from their aggregate roots, instead of
- * exposing a standalone {@code AccountRepository} bean.
- * </p>
+ * Roles supported by the application.
  */
-package es.nivel36.janus.service.auth;
+public enum Role {
+	ADMIN,
+	USER,
+	EMPLOYEE
+}
