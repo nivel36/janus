@@ -44,6 +44,17 @@ Use **`janus-realm`** as the unique Keycloak realm across all components to keep
 
 If you ever change the realm, update all three places in the same commit.
 
+
+## Authentication flow (Keycloak-only)
+
+Authentication and logout are handled directly by Keycloak from the frontend.
+The backend is configured only as an OAuth2 Resource Server that validates JWT
+access tokens issued by the configured realm (`issuer-uri`).
+
+- There is no backend REST logout endpoint (`/api/v1/auth/logout` was removed).
+- Login/logout UX should call Keycloak endpoints via the frontend Keycloak client.
+- Backend authorization for `/api/**` depends on a valid bearer token only.
+
 ## Docker (quick start/stop)
 
 From the project root, you can use these scripts:
