@@ -1,6 +1,8 @@
-import { Component } from "@angular/core";
-import { TranslatePipe } from "@ngx-translate/core";
-import { AuthService } from "../../core/auth/auth.service";
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+
+import { AuthService } from '../../core/auth/auth.service';
 import { ButtonComponent } from '../../shared/ui/button/button.component';
 
 @Component({
@@ -14,9 +16,9 @@ export class LoginFormComponent {
   isLoading = false;
   errorMessage = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
-  login(): void {
+  submit(): void {
     if (this.isLoading) return;
 
     this.isLoading = true;

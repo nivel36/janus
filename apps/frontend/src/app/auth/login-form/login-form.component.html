@@ -1,10 +1,10 @@
-<div class="login-form">
+<form class="login-form" (ngSubmit)="submit()">
   @if (errorMessage) {
     <p class="login-error">{{ errorMessage | translate }}</p>
   }
 
   <app-button
-    [type]="'button'"
+    [type]="'submit'"
     [disabled]="isLoading"
     styleClass="login-submit"
     (click)="login()"
