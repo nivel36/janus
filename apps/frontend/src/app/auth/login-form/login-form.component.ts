@@ -1,8 +1,6 @@
 import { Component } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslatePipe } from "@ngx-translate/core";
 import { AuthService } from "../../core/auth/auth.service";
-import { Router } from "@angular/router";
 import { ButtonComponent } from '../../shared/ui/button/button.component';
 
 @Component({
@@ -10,34 +8,24 @@ import { ButtonComponent } from '../../shared/ui/button/button.component';
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',
   styleUrls: ['./login-form.component.css'],
-  imports: [ReactiveFormsModule, TranslatePipe, ButtonComponent],
+  imports: [TranslatePipe, ButtonComponent],
 })
 export class LoginFormComponent {
   isLoading = false;
   errorMessage = '';
 
-  readonly form = new FormGroup({
-    username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    password: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(8)],
-    }),
-  });
+  constructor(private authService: AuthService) {}
 
-  constructor(private authService: AuthService, private router: Router) {}
-
-  submit(): void {
-    if (this.form.invalid || this.isLoading) return;
+  login(): void {
+    if (this.isLoading) return;
 
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { username, password } = this.form.getRawValue();
-
-    this.authService.login(username, password).subscribe({
-      next: () => this.router.navigate(['/']),
+    this.authService.login().subscribe({
+      next: () => (this.isLoading = false),
       error: () => {
-        this.errorMessage = 'login.error'; // o el texto directo, o clave i18n
+        this.errorMessage = 'login.error';
         this.isLoading = false;
       },
       complete: () => (this.isLoading = false),
