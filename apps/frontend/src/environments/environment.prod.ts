@@ -3,8 +3,8 @@ export const environment = {
 	apiBaseUrl: '/api',
 	apiUrl: '/api/v1',
 	keycloak: {
-		url: '',
-		realm: '',
-		clientId: ''
+		url: '/auth',
+		realm: 'janus-realm',
+		clientId: 'janus-spa'
 	}
 };
