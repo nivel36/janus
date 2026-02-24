@@ -45,7 +45,7 @@ import es.nivel36.janus.service.worksite.Worksite;
  * @param exitTime       the timestamp when the employee clocked out; may be
  *                       absent if the employee is still working;
  */
-public record TimeLogResponse(String employeeEmail, String worksiteCode, ZoneId worksiteTimeZone, Instant entryTime,
+public record TimeLogResponse(String employeeEmail, String worksiteCode, ZoneId worksiteZoneId, Instant entryTime,
 		@JsonInclude(JsonInclude.Include.NON_ABSENT) JsonNullable<Instant> exitTime,
 		JsonNullable<DurationResponse> workTime) {
 }
