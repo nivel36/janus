@@ -63,4 +63,13 @@ public class AuthService {
 		}
 		logger.info("Auth session removed for user {}", removed.username());
 	}
+
+	public AuthSession requireSession(final String token) {
+		Strings.requireNonBlank(token, "token cannot be null or blank.");
+		final AuthSession session = this.sessions.get(token);
+		if (session == null) {
+			throw new AuthenticationFailedException("Invalid or expired session token.");
+		}
+		return session;
+	}
 }
