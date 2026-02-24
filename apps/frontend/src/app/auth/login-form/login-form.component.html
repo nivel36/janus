@@ -7,8 +7,7 @@
     [type]="'submit'"
     [disabled]="isLoading"
     styleClass="login-submit"
-    (click)="login()"
   >
     {{ isLoading ? ('login.loading' | translate) : ('login.submit' | translate) }}
   </app-button>
-</div>
+</form>

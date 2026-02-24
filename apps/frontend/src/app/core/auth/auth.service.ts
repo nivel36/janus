@@ -1,126 +1,215 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
+import type { KeycloakProfile } from 'keycloak-js';
 import { environment } from '../../../environments/environment';
 import { keycloak } from '../../auth/keycloak';
 
 interface AppUserResponse {
-	username: string;
-	name: string;
-	surname: string;
-	locale: string;
-	timeFormat: string;
+  username: string;
+  name: string;
+  surname: string;
+  locale: string;
+  timeFormat: string;
 }
 
 interface KeycloakClaims {
-	preferred_username?: string;
-	email?: string;
+  sub?: string;
+  iss?: string;
+  aud?: string | string[];
+  exp?: number;
+  iat?: number;
+  auth_time?: number;
+  session_state?: string;
+  azp?: string;
+  typ?: string;
+  preferred_username?: string;
+  email?: string;
+  email_verified?: boolean;
+  name?: string;
+  given_name?: string;
+  family_name?: string;
+  locale?: string;
+  realm_access?: {
+    roles?: string[];
+  };
+  resource_access?: Record<string, { roles?: string[] }>;
+}
+
+interface PermissionState {
+  realmRoles: string[];
+  clientRoles: Record<string, string[]>;
 }
 
 interface LoginRedirectOptions {
-	prompt?: 'none' | 'login' | 'consent';
-	maxAge?: number;
-	idpHint?: string;
+  prompt?: 'none' | 'login' | 'consent';
+  maxAge?: number;
+  idpHint?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-	private readonly appUserBaseUrl = `${environment.apiUrl}/appusers`;
-	private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(Boolean(keycloak?.authenticated));
-	private readonly usernameSubject = new BehaviorSubject<string | null>(this.getUsernameFromClaims());
-	private readonly appUserSubject = new BehaviorSubject<AppUserResponse | null>(null);
+  private readonly appUserBaseUrl = `${environment.apiUrl}/appusers`;
+  private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(
+    Boolean(keycloak?.authenticated),
+  );
+  private readonly usernameSubject = new BehaviorSubject<string | null>(
+    this.getUsernameFromClaims(),
+  );
+  private readonly appUserSubject = new BehaviorSubject<AppUserResponse | null>(null);
+  private readonly claimsSubject = new BehaviorSubject<KeycloakClaims | null>(this.getClaims());
+  private readonly userProfileSubject = new BehaviorSubject<KeycloakProfile | null>(null);
+  private readonly permissionsSubject = new BehaviorSubject<PermissionState>({
+    realmRoles: [],
+    clientRoles: {},
+  });
 
-	readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-	readonly username$ = this.usernameSubject.asObservable();
-	readonly appUser$ = this.appUserSubject.asObservable();
+  readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  readonly username$ = this.usernameSubject.asObservable();
+  readonly appUser$ = this.appUserSubject.asObservable();
+  readonly claims$ = this.claimsSubject.asObservable();
+  readonly userProfile$ = this.userProfileSubject.asObservable();
+  readonly permissions$ = this.permissionsSubject.asObservable();
 
-	constructor(private readonly http: HttpClient) {
-		this.bindKeycloakEvents();
-		this.syncAuthState();
-	}
+  constructor(private readonly http: HttpClient) {
+    this.bindKeycloakEvents();
+    this.syncAuthState();
+  }
 
-	login(): Promise<void> {
-		if (!keycloak) {
-			return Promise.reject(new Error('Keycloak is not configured'));
-		}
-		return keycloak.login();
-	}
+  login(): Promise<void> {
+    if (!keycloak) {
+      return Promise.reject(new Error('Keycloak is not configured'));
+    }
+    return keycloak.login();
+  }
 
-	loginWithRedirect(redirectUri?: string, options?: LoginRedirectOptions): Promise<void> {
-		if (!keycloak) {
-			return Promise.reject(new Error('Keycloak is not configured'));
-		}
+  loginWithRedirect(redirectUri?: string, options?: LoginRedirectOptions): Promise<void> {
+    if (!keycloak) {
+      return Promise.reject(new Error('Keycloak is not configured'));
+    }
 
-		const resolvedRedirectUri = redirectUri
-			? new URL(redirectUri, window.location.origin).toString()
-			: window.location.href;
+    const resolvedRedirectUri = redirectUri
+      ? new URL(redirectUri, window.location.origin).toString()
+      : window.location.href;
 
-		return keycloak.login({
-			redirectUri: resolvedRedirectUri,
-			prompt: options?.prompt,
-			maxAge: options?.maxAge,
-			idpHint: options?.idpHint
-		});
-	}
+    return keycloak.login({
+      redirectUri: resolvedRedirectUri,
+      prompt: options?.prompt,
+      maxAge: options?.maxAge,
+      idpHint: options?.idpHint,
+    });
+  }
 
-	logout(): Promise<void> {
-		if (!keycloak) {
-			this.syncAuthState();
-			return Promise.resolve();
-		}
-		return keycloak.logout();
-	}
+  logout(): Promise<void> {
+    if (!keycloak) {
+      this.syncAuthState();
+      return Promise.resolve();
+    }
+    return keycloak.logout();
+  }
 
-	clearToken(): void {
-		void this.logout();
-	}
+  clearToken(): void {
+    void this.logout();
+  }
 
-	getToken(): string | null {
-		return keycloak?.token ?? null;
-	}
+  getToken(): string | null {
+    return keycloak?.token ?? null;
+  }
 
-	private bindKeycloakEvents(): void {
-		if (!keycloak) {
-			return;
-		}
+  getClaims(): KeycloakClaims | null {
+    if (!keycloak?.tokenParsed) {
+      return null;
+    }
 
-		keycloak.onAuthSuccess = () => this.syncAuthState();
-		keycloak.onAuthRefreshSuccess = () => this.syncAuthState();
-		keycloak.onAuthLogout = () => this.syncAuthState();
-	}
+    return keycloak.tokenParsed as KeycloakClaims;
+  }
 
-	private syncAuthState(): void {
-		const isAuthenticated = Boolean(keycloak?.authenticated);
-		this.isAuthenticatedSubject.next(isAuthenticated);
+  getUserProfile(): KeycloakProfile | null {
+    return this.userProfileSubject.value;
+  }
 
-		if (!isAuthenticated) {
-			this.usernameSubject.next(null);
-			this.appUserSubject.next(null);
-			return;
-		}
+  hasRealmRole(role: string): boolean {
+    return this.permissionsSubject.value.realmRoles.includes(role);
+  }
 
-		const username = this.getUsernameFromClaims();
-		this.usernameSubject.next(username);
+  hasClientRole(clientId: string, role: string): boolean {
+    return this.permissionsSubject.value.clientRoles[clientId]?.includes(role) ?? false;
+  }
 
-		if (!username) {
-			this.appUserSubject.next(null);
-			return;
-		}
+  private bindKeycloakEvents(): void {
+    if (!keycloak) {
+      return;
+    }
 
-		this.fetchAppUser(username);
-	}
+    keycloak.onAuthSuccess = () => this.syncAuthState();
+    keycloak.onAuthRefreshSuccess = () => this.syncAuthState();
+    keycloak.onAuthLogout = () => this.syncAuthState();
+  }
 
-	private getUsernameFromClaims(): string | null {
-		const claims = keycloak?.tokenParsed as KeycloakClaims | undefined;
-		return claims?.preferred_username ?? claims?.email ?? null;
-	}
+  private syncAuthState(): void {
+    const isAuthenticated = Boolean(keycloak?.authenticated);
+    this.isAuthenticatedSubject.next(isAuthenticated);
+    const claims = this.getClaims();
+    this.claimsSubject.next(claims);
+    this.permissionsSubject.next(this.extractPermissions(claims));
 
-	private fetchAppUser(username: string): void {
-		this.http
-			.get<AppUserResponse>(`${this.appUserBaseUrl}/${encodeURIComponent(username)}`)
-			.subscribe({
-				next: (appUser) => this.appUserSubject.next(appUser),
-				error: () => this.appUserSubject.next(null)
-			});
-	}
+    if (!isAuthenticated) {
+      this.usernameSubject.next(null);
+      this.appUserSubject.next(null);
+      this.userProfileSubject.next(null);
+      return;
+    }
+
+    void this.loadUserProfile();
+
+    const username = this.getUsernameFromClaims();
+    this.usernameSubject.next(username);
+
+    if (!username) {
+      this.appUserSubject.next(null);
+      return;
+    }
+
+    this.fetchAppUser(username);
+  }
+
+  private getUsernameFromClaims(): string | null {
+    const claims = this.getClaims();
+    return claims?.preferred_username ?? claims?.email ?? null;
+  }
+
+  private extractPermissions(claims: KeycloakClaims | null): PermissionState {
+    const realmRoles = claims?.realm_access?.roles ?? [];
+    const clientRoles = Object.entries(claims?.resource_access ?? {}).reduce<
+      Record<string, string[]>
+    >((accumulator, [clientId, access]) => {
+      accumulator[clientId] = access.roles ?? [];
+      return accumulator;
+    }, {});
+
+    return { realmRoles, clientRoles };
+  }
+
+  private async loadUserProfile(): Promise<void> {
+    if (!keycloak?.authenticated) {
+      this.userProfileSubject.next(null);
+      return;
+    }
+
+    try {
+      const profile = await keycloak.loadUserProfile();
+      this.userProfileSubject.next(profile);
+    } catch {
+      this.userProfileSubject.next(null);
+    }
+  }
+
+  private fetchAppUser(username: string): void {
+    this.http
+      .get<AppUserResponse>(`${this.appUserBaseUrl}/${encodeURIComponent(username)}`)
+      .subscribe({
+        next: (appUser) => this.appUserSubject.next(appUser),
+        error: () => this.appUserSubject.next(null),
+      });
+  }
 }
