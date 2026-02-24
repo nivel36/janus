@@ -32,15 +32,14 @@ export class LoginFormComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { username, password } = this.form.getRawValue();
-
-    this.authService.login(username, password).subscribe({
-      next: () => this.router.navigate(['/']),
-      error: () => {
-        this.errorMessage = 'login.error'; // o el texto directo, o clave i18n
+    void this.authService
+      .login()
+      .then(() => this.router.navigate(['/']))
+      .catch(() => {
+        this.errorMessage = 'login.error';
+      })
+      .finally(() => {
         this.isLoading = false;
-      },
-      complete: () => (this.isLoading = false),
-    });
+      });
   }
 }
