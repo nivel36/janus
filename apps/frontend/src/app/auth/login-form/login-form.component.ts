@@ -22,13 +22,14 @@ export class LoginFormComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.authService.login().subscribe({
-      next: () => (this.isLoading = false),
-      error: () => {
+    void this.authService
+      .login()
+      .then(() => this.router.navigate(['/']))
+      .catch(() => {
         this.errorMessage = 'login.error';
+      })
+      .finally(() => {
         this.isLoading = false;
-      },
-      complete: () => (this.isLoading = false),
-    });
+      });
   }
 }

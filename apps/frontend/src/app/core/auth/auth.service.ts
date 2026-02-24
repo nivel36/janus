@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, defer, from, map, throwError } from 'rxjs';
-
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { keycloak } from '../../auth/keycloak';
 
 interface AppUserResponse {
@@ -11,52 +12,92 @@ interface AppUserResponse {
 	timeFormat: string;
 }
 
+interface KeycloakClaims {
+	preferred_username?: string;
+	email?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-	private readonly tokenSubject = new BehaviorSubject<string | null>(keycloak?.token ?? null);
-	private readonly usernameSubject = new BehaviorSubject<string | null>(this.extractUsername());
+	private readonly appUserBaseUrl = `${environment.apiUrl}/appusers`;
+	private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(Boolean(keycloak?.authenticated));
+	private readonly usernameSubject = new BehaviorSubject<string | null>(this.getUsernameFromClaims());
 	private readonly appUserSubject = new BehaviorSubject<AppUserResponse | null>(null);
 
-	readonly isAuthenticated$ = this.tokenSubject.pipe(map((token) => !!token));
+	readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 	readonly username$ = this.usernameSubject.asObservable();
 	readonly appUser$ = this.appUserSubject.asObservable();
 
-	login(): Observable<void> {
-		return defer(() => {
-			if (!keycloak) {
-				return throwError(() => new Error('Keycloak is not configured.'));
-			}
-
-			return from(keycloak.login()).pipe(map(() => undefined));
-		});
+	constructor(private readonly http: HttpClient) {
+		this.bindKeycloakEvents();
+		this.syncAuthState();
 	}
 
-	getToken(): string | null {
-		return keycloak?.token ?? this.tokenSubject.value;
+	login(): Promise<void> {
+		if (!keycloak) {
+			return Promise.reject(new Error('Keycloak is not configured'));
+		}
+		return keycloak.login();
+	}
+
+	logout(): Promise<void> {
+		if (!keycloak) {
+			this.syncAuthState();
+			return Promise.resolve();
+		}
+		return keycloak.logout();
 	}
 
 	clearToken(): void {
-		this.tokenSubject.next(null);
-		this.usernameSubject.next(null);
-		this.appUserSubject.next(null);
+		void this.logout();
 	}
 
-	private extractUsername(): string | null {
-		if (!keycloak?.tokenParsed) {
-			return null;
+	getToken(): string | null {
+		return keycloak?.token ?? null;
+	}
+
+	private bindKeycloakEvents(): void {
+		if (!keycloak) {
+			return;
 		}
 
-		const preferredUsername = keycloak.tokenParsed['preferred_username'];
-		const email = keycloak.tokenParsed['email'];
+		keycloak.onAuthSuccess = () => this.syncAuthState();
+		keycloak.onAuthRefreshSuccess = () => this.syncAuthState();
+		keycloak.onAuthLogout = () => this.syncAuthState();
+	}
 
-		if (typeof preferredUsername === 'string' && preferredUsername.length > 0) {
-			return preferredUsername;
+	private syncAuthState(): void {
+		const isAuthenticated = Boolean(keycloak?.authenticated);
+		this.isAuthenticatedSubject.next(isAuthenticated);
+
+		if (!isAuthenticated) {
+			this.usernameSubject.next(null);
+			this.appUserSubject.next(null);
+			return;
 		}
 
-		if (typeof email === 'string' && email.length > 0) {
-			return email;
+		const username = this.getUsernameFromClaims();
+		this.usernameSubject.next(username);
+
+		if (!username) {
+			this.appUserSubject.next(null);
+			return;
 		}
 
-		return null;
+		this.fetchAppUser(username);
+	}
+
+	private getUsernameFromClaims(): string | null {
+		const claims = keycloak?.tokenParsed as KeycloakClaims | undefined;
+		return claims?.preferred_username ?? claims?.email ?? null;
+	}
+
+	private fetchAppUser(username: string): void {
+		this.http
+			.get<AppUserResponse>(`${this.appUserBaseUrl}/${encodeURIComponent(username)}`)
+			.subscribe({
+				next: (appUser) => this.appUserSubject.next(appUser),
+				error: () => this.appUserSubject.next(null)
+			});
 	}
 }
