@@ -43,7 +43,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
-import es.nivel36.janus.service.auth.AuthenticationFailedException;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.service.timelog.EventAlreadyFinalizedException;
 import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
@@ -78,7 +77,6 @@ public class JanusExceptionHandler {
 	private static final URI TYPE_VALIDATION_FAILED = URI.create("urn:problem:validation-failed");
 	private static final URI TYPE_VALIDATION_ERROR = URI.create("urn:problem:validation-error");
 	private static final URI TYPE_CONSTRAINT_VIOLATION = URI.create("urn:problem:constraint-violation");
-	private static final URI TYPE_AUTHENTICATION_FAILED = URI.create("urn:problem:authentication-failed");
 	private static final URI TYPE_INTERNAL_ERROR = URI.create("urn:problem:internal");
 
 	private final Clock clock;
@@ -124,17 +122,6 @@ public class JanusExceptionHandler {
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
 		logger.warn("ResourceAlreadyExistsException error {}", pd);
-		return pd;
-	}
-
-	@ExceptionHandler(AuthenticationFailedException.class)
-	ProblemDetail handleAuthenticationFailed(AuthenticationFailedException ex, final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-		pd.setType(TYPE_AUTHENTICATION_FAILED);
-		pd.setTitle("Authentication failed");
-		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
-		logger.warn("AuthenticationFailedException error {}", pd);
 		return pd;
 	}
 

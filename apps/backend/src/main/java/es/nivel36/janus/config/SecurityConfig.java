@@ -24,7 +24,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -32,17 +31,17 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityConfig {
 
 	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http, BearerTokenAuthFilter bearerTokenAuthFilter)
-			throws Exception {
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		final AuthenticationEntryPoint unauthorizedEntryPoint =
 				(request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 
 		return http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/auth/login").permitAll()
-						.requestMatchers("/api/**").authenticated().anyRequest().permitAll())
+				.authorizeHttpRequests(
+						auth -> auth.requestMatchers("/api/**").authenticated().anyRequest().permitAll())
+				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedEntryPoint))
-				.addFilterBefore(bearerTokenAuthFilter, UsernamePasswordAuthenticationFilter.class).build();
+				.build();
 	}
 
 	@Bean
