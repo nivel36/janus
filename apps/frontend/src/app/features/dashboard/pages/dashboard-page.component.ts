@@ -109,7 +109,7 @@ export class DashboardPageComponent implements OnInit {
 
   private refreshLatestTimeLog(username: string): void {
     this.timeLogService
-      .searchByEmployee(username, 1, 5)
+      .searchByEmployee(username, 0, 5)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

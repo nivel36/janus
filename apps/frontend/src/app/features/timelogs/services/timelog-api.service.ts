@@ -10,6 +10,9 @@ export class TimeLogService {
 
 	constructor(private readonly http: HttpClient) { }
 
+	/**
+	 * The `page` parameter follows Spring Data pagination (0-based index).
+	 */
 	searchByEmployee(email: string, page?: number, size?: number): Observable<TimeLog[]> {
 	  let params = new HttpParams();
 	  if (page != null) params = params.set('page', String(page));
