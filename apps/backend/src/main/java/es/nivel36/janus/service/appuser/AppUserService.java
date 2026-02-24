@@ -27,8 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
-import es.nivel36.janus.service.auth.Account;
-import es.nivel36.janus.service.auth.Role;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -128,14 +126,14 @@ public class AppUserService {
 
 		logger.debug("Creating new application user {}", username);
 
-		final boolean usernameInUse = this.appUserRepository.existsByAccountUsername(username);
+		final boolean usernameInUse = this.appUserRepository.existsByUsername(username);
 		if (usernameInUse) {
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
 
 		final String passwordHash = this.passwordEncoder.encode(password);
-		final Account account = new Account(username.trim(), passwordHash, Role.USER);
-		final AppUser appUser = new AppUser(account, name.trim(), surname.trim(), locale, timeFormat);
+		final AppUser appUser = new AppUser(username.trim(), passwordHash, Role.USER, name.trim(), surname.trim(), locale,
+				timeFormat);
 
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
@@ -202,7 +200,7 @@ public class AppUserService {
 	}
 
 	private AppUser findAppUser(final String username) {
-		final AppUser appUser = this.appUserRepository.findByAccountUsername(username);
+		final AppUser appUser = this.appUserRepository.findByUsername(username);
 		if (appUser == null) {
 			throw new ResourceNotFoundException("There is no application user with username " + username);
 		}

@@ -19,245 +19,124 @@ import java.io.Serializable;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.hibernate.annotations.NaturalId;
+
 import es.nivel36.janus.service.TimeFormat;
-import es.nivel36.janus.service.auth.Account;
 import es.nivel36.janus.util.Strings;
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 /**
  * Entity representing an application user within the Janus system.
- *
- * <p>
- * This class models a user of the application, storing identification data and
- * configuration preferences such as personal information, locale, and preferred
- * time format.
- * </p>
- *
- * <p>
- * Each user is uniquely identified by its {@link Account}, which stores the
- * authentication credentials. User preferences like {@link Locale} and
- * {@link TimeFormat} define how information is presented to the user across the
- * system.
- * </p>
  */
 @Entity
 public class AppUser implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Surrogate database identifier for the user.
-	 * <p>
-	 * This value is auto-generated and has no business meaning.
-	 * </p>
-	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	/**
-	 * The first name of the user.
-	 *
-	 * <p>
-	 * This field is mandatory and must not be empty.
-	 * </p>
-	 */
+	@NaturalId
+	@NotEmpty
+	@Column(updatable = false, unique = true)
+	private String username;
+
+	@NotEmpty
+	private String password;
+
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private Role role;
+
 	@NotEmpty
 	private String name;
 
-	/**
-	 * The surname of the user.
-	 *
-	 * <p>
-	 * This field is mandatory and must not be empty.
-	 * </p>
-	 */
 	@NotEmpty
 	private String surname;
 
-	/**
-	 * Authentication account associated with the user.
-	 */
-	@NotNull
-	@OneToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "account_id", updatable = false, unique = true)
-	private Account account;
-
-	/**
-	 * Preferred locale of the user.
-	 *
-	 * <p>
-	 * Determines language, regional settings, and formatting rules applied when
-	 * interacting with this user. Can't be {@code null}.
-	 * </p>
-	 */
 	@NotNull
 	private Locale locale;
 
-	/**
-	 * Preferred time format of the user.
-	 *
-	 * <p>
-	 * Defines how time values are displayed to the user (for example, 24-hour or
-	 * 12-hour format). Can't be {@code null}.
-	 * </p>
-	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	private TimeFormat timeFormat;
 
-	/**
-	 * Protected no-argument constructor required by persistence frameworks.
-	 *
-	 * <p>
-	 * This constructor should not be used directly in application code. It exists
-	 * solely to allow frameworks such as JPA to instantiate the entity.
-	 * </p>
-	 */
 	AppUser() {
 	}
 
-	/**
-	 * Creates a new application user with the provided personal data and
-	 * preferences.
-	 *
-	 * @param account    the {@link Account} associated with the user. Can't be
-	 *                   {@code null}.
-	 * @param name       the first name of the user. Can't be {@code null} or blank.
-	 * @param surname    the surname of the user. Can't be {@code null} or blank.
-	 * @param locale     the preferred {@link Locale} of the user. Can't be
-	 *                   {@code null}.
-	 * @param timeFormat the preferred {@link TimeFormat} of the user. Can't be
-	 *                   {@code null}.
-	 *
-	 * @throws NullPointerException     if any parameter is {@code null}
-	 * @throws IllegalArgumentException if {@code name} or {@code surname} is blank
-	 */
-	public AppUser(final Account account, final String name, final String surname, final Locale locale,
-			final TimeFormat timeFormat) {
-		this.account = Objects.requireNonNull(account, "account can't be null");
+	public AppUser(final String username, final String password, final Role role, final String name, final String surname,
+			final Locale locale, final TimeFormat timeFormat) {
+		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
+		this.password = Strings.requireNonBlank(password, "password can't be null or blank");
+		this.role = Objects.requireNonNull(role, "role can't be null");
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 	}
 
-	/**
-	 * Returns the database identifier of the user.
-	 *
-	 * @return the user ID, or {@code null} if the entity has not been persisted yet
-	 */
 	public Long getId() {
 		return id;
 	}
 
-	/**
-	 * Assigns the database identifier of the user.
-	 *
-	 * <p>
-	 * This method is intended for testing purposes only and should not be used in
-	 * production code. It exists to allow controlled assignment of the identifier
-	 * when creating or manipulating entity instances in tests.
-	 * </p>
-	 *
-	 * @param id the identifier to assign
-	 */
 	void setId(final Long id) {
 		this.id = id;
 	}
 
-	public Account getAccount() {
-		return account;
-	}
-
-	/**
-	 * Returns the username of the account.
-	 *
-	 * @return the account username
-	 */
 	public String getUsername() {
-		return account.getUsername();
+		return username;
 	}
 
-	/**
-	 * Returns the first name of the user.
-	 *
-	 * @return the first name
-	 */
+	public String getPassword() {
+		return password;
+	}
+
+	void setPassword(final String password) {
+		this.password = Strings.requireNonBlank(password, "password can't be null or blank");
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(final Role role) {
+		this.role = Objects.requireNonNull(role, "role can't be null");
+	}
+
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * Updates the full name of the user.
-	 *
-	 * @param name    the new first name. Can't be {@code null} or blank.
-	 * @param surname the new surname. Can't be {@code null} or blank.
-	 *
-	 * @throws NullPointerException     if any parameter is {@code null}
-	 * @throws IllegalArgumentException if {@code name} or {@code surname} is blank
-	 */
 	public void setFullName(final String name, final String surname) {
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
 	}
 
-	/**
-	 * Returns the surname of the user.
-	 *
-	 * @return the surname
-	 */
 	public String getSurname() {
 		return surname;
 	}
 
-	/**
-	 * Returns the preferred locale of the user.
-	 *
-	 * @return the {@link Locale} configured for this user
-	 */
 	public Locale getLocale() {
 		return locale;
 	}
 
-	/**
-	 * Sets the preferred locale of the user.
-	 *
-	 * @param locale the {@link Locale} to assign. Can't be {@code null}.
-	 *
-	 * @throws NullPointerException if {@code locale} is {@code null}
-	 */
 	public void setLocale(final Locale locale) {
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 	}
 
-	/**
-	 * Returns the preferred time format of the user.
-	 *
-	 * @return the configured {@link TimeFormat}
-	 */
 	public TimeFormat getTimeFormat() {
 		return timeFormat;
 	}
 
-	/**
-	 * Sets the preferred time format of the user.
-	 *
-	 * @param timeFormat the {@link TimeFormat} to assign. Can't be {@code null}.
-	 *
-	 * @throws NullPointerException if {@code timeFormat} is {@code null}
-	 */
 	public void setTimeFormat(final TimeFormat timeFormat) {
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 	}
@@ -271,16 +150,16 @@ public class AppUser implements Serializable {
 			return false;
 		}
 		final AppUser other = (AppUser) obj;
-		return Objects.equals(this.account, other.account);
+		return Objects.equals(this.username, other.username);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.account);
+		return Objects.hash(this.username);
 	}
 
 	@Override
 	public String toString() {
-		return this.account.getUsername();
+		return this.username;
 	}
 }
