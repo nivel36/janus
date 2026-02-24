@@ -53,7 +53,7 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		final String employeeEmail = employee.getEmail();
 		final String worksiteCode = worksite.getCode();
 
-		final ZoneId worksiteTimeZone = worksite.getTimeZone();
+		final ZoneId worksiteZoneId = worksite.getTimeZone();
 
 		final Instant entryTime = entity.getEntryTime();
 		final Instant exitTimeValue = entity.getExitTime();
@@ -63,7 +63,7 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		final DurationResponse workDurationResponse = mapWorkDuration(workDurationValue);
 		final JsonNullable<DurationResponse> workTime = toJsonNullable(workDurationResponse);
 
-		return new TimeLogResponse(employeeEmail, worksiteCode, worksiteTimeZone, entryTime, exitTime, workTime);
+		return new TimeLogResponse(employeeEmail, worksiteCode, worksiteZoneId, entryTime, exitTime, workTime);
 	}
 
 	private DurationResponse mapWorkDuration(final Duration duration) {
