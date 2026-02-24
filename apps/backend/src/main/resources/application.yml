@@ -19,6 +19,11 @@ spring:
         max-page-size: 100
   main:
     banner-mode: off
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/auth/realms/mi-realm
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/app}
     driver-class-name: org.postgresql.Driver
@@ -39,6 +44,7 @@ spring:
       schema-locations: classpath:sql/schema-postgres.sql
       data-locations: classpath:sql/data.sql
       continue-on-error: false
+
 server:
   tomcat:
     resource:
