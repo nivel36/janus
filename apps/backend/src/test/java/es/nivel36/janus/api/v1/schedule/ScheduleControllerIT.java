@@ -17,6 +17,7 @@ package es.nivel36.janus.api.v1.schedule;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -27,14 +28,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.api.v1.SecurityTestConfiguration;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+@Import(SecurityTestConfiguration.class)
 @Transactional
 class ScheduleControllerIT {
 
@@ -66,7 +71,7 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.code").value("STD-WH")) //
@@ -98,10 +103,10 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isBadRequest()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
@@ -130,10 +135,10 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(get(BASE)) //
+		mvc.perform(get(BASE).with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$[0].code").value("STD-WH"));
@@ -163,10 +168,10 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(get(BASE + "/{code}", "STD-WH")) //
+		mvc.perform(get(BASE + "/{code}", "STD-WH").with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.name").value("Standard Work Hours")) //
@@ -197,7 +202,7 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(createBody)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(createBody).with(jwt())) //
 				.andExpect(status().isCreated());
 
 		String updateBody = """
@@ -221,7 +226,7 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(put(BASE + "/{code}", "STD-WH").contentType(APPLICATION_JSON).content(updateBody)) //
+		mvc.perform(put(BASE + "/{code}", "STD-WH").contentType(APPLICATION_JSON).content(updateBody).with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.name").value("Updated Work Hours")) //
@@ -252,10 +257,10 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(delete(BASE + "/{code}", "STD-WH")) //
+		mvc.perform(delete(BASE + "/{code}", "STD-WH").with(jwt())) //
 				.andExpect(status().isNoContent());
 	}
 
@@ -263,7 +268,7 @@ class ScheduleControllerIT {
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES (1,'IN-USE','In Use Schedule')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES (1,'Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void testDeleteScheduleWithAssignedEmployeesShouldReturn409() throws Exception {
-		mvc.perform(delete(BASE + "/{code}", "IN-USE")) //
+		mvc.perform(delete(BASE + "/{code}", "IN-USE").with(jwt())) //
 				.andExpect(status().isConflict()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}

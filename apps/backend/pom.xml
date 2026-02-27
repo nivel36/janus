@@ -2,25 +2,23 @@
 <project
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.6</version>
-		<relativePath/>
+		<version>4.0.3</version>
+		<relativePath />
 	</parent>
 	<groupId>es.nivel36</groupId>
 	<artifactId>janus</artifactId>
-	<version>0.7.2-SNAPSHOT</version>
+	<version>0.8.0-SNAPSHOT</version>
 	<name>janus</name>
 	<description>Timetable management application.</description>
 	<properties>
-		<java.version>21</java.version>
-		<jackson-databind-nullable.version>0.2.7</jackson-databind-nullable.version>
-		<springdoc-openapi.version>2.8.13</springdoc-openapi.version>
+		<java.version>25</java.version>
+		<springdoc-openapi.version>3.0.1</springdoc-openapi.version>
 		<jacoco.version>0.8.14</jacoco.version>
-		<frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -48,11 +46,6 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.openapitools</groupId>
-			<artifactId>jackson-databind-nullable</artifactId>
-			<version>${jackson-databind-nullable.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>${springdoc-openapi.version}</version>
@@ -73,8 +66,23 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -90,7 +98,8 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+							<outputDirectory>
+								${project.build.outputDirectory}/static</outputDirectory>
 							<resources>
 								<resource>
 									<directory>frontend/dist/frontend/browser</directory>
@@ -145,7 +154,8 @@
 								</goals>
 								<configuration>
 									<propertyName>jacocoArgLine</propertyName>
-									<destFile>${project.build.directory}/jacoco.exec</destFile>
+									<destFile>
+										${project.build.directory}/jacoco.exec</destFile>
 									<append>true</append>
 								</configuration>
 							</execution>
@@ -156,7 +166,8 @@
 									<goal>report</goal>
 								</goals>
 								<configuration>
-									<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+									<dataFile>
+										${project.build.directory}/jacoco.exec</dataFile>
 									<formats>
 										<format>XML</format>
 									</formats>

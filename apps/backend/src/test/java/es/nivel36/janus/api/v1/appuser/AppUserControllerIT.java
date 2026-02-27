@@ -16,6 +16,7 @@
 package es.nivel36.janus.api.v1.appuser;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,14 +27,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.api.v1.SecurityTestConfiguration;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+@Import(SecurityTestConfiguration.class)
 @Transactional
 class AppUserControllerIT {
 
@@ -42,107 +47,90 @@ class AppUserControllerIT {
 	private static final String BASE = "/api/v1/appusers";
 
 	@Test
-	@Sql(statements = { //
-			"INSERT INTO app_user(username,password,role,name,surname,locale,time_format)" //
-					+ " VALUES('jdoe','$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','USER','John','Doe','en-US','H24')"//
-	})
+	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format) VALUES('jdoe','en-US','H24')" })
 	void testFindByUsernameShouldReturnUser() throws Exception {
-		mvc.perform(get(BASE + "/{username}", "jdoe")).andExpect(status().isOk()) //
+		mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt())).andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.username").value("jdoe")) //
-				.andExpect(jsonPath("$.name").value("John")) //
-				.andExpect(jsonPath("$.surname").value("Doe")) //
 				.andExpect(jsonPath("$.locale").value("en-US")) //
 				.andExpect(jsonPath("$.timeFormat").value("H24"));
 	}
 
 	@Test
 	void testFindUnknownUserShouldReturn404() throws Exception {
-		mvc.perform(get(BASE + "/{username}", "unknown")) //
+		mvc.perform(get(BASE + "/{username}", "unknown").with(jwt())) //
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	void testFindWithInvalidPatternShouldFail400() throws Exception {
-		mvc.perform(get(BASE + "/{username}", "bad user")) //
+		mvc.perform(get(BASE + "/{username}", "bad user").with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
-	@Sql(statements = { //
-			"INSERT INTO app_user(username,password,role,name,surname,locale,time_format)" //
-					+ " VALUES('jdoe','$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','USER','John','Doe','en-US','H24')"//
-	})
+	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format) VALUES('jdoe','en-US','H24')" })
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
 		String body = """
-				  {"username":"jdoe","name":"John","surname":"Doe","password":"Password1!","locale":"en-US","timeFormat":"H24"}
+				  {"username":"jdoe","locale":"en-US","timeFormat":"H24"}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testCreateShouldReturn201AndBody() throws Exception {
 		String body = """
-				  {"username":"asmith","name":"Alice","surname":"Smith","password":"Password1!","locale":"en-GB","timeFormat":"H12"}
+				  {"username":"asmith","locale":"en-GB","timeFormat":"H12"}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.username").value("asmith")) //
-				.andExpect(jsonPath("$.name").value("Alice")) //
-				.andExpect(jsonPath("$.surname").value("Smith")) //
 				.andExpect(jsonPath("$.locale").value("en-GB")) //
 				.andExpect(jsonPath("$.timeFormat").value("H12"));
-		mvc.perform(get(BASE + "/{username}", "asmith")).andExpect(status().isOk());
+		mvc.perform(get(BASE + "/{username}", "asmith").with(jwt())).andExpect(status().isOk());
 	}
 
 	@Test
 	void testCreateShouldAcceptUsernamesWithAtSign() throws Exception {
 		String body = """
-				  {"username":"alice@example.com","name":"Alice","surname":"Smith","password":"Password1!","locale":"en-GB","timeFormat":"H12"}
+				  {"username":"alice@example.com","locale":"en-GB","timeFormat":"H12"}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isCreated()) //
 				.andExpect(jsonPath("$.username").value("alice@example.com"));
 
-		mvc.perform(get(BASE + "/{username}", "alice@example.com")) //
+		mvc.perform(get(BASE + "/{username}", "alice@example.com").with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.username").value("alice@example.com"));
 	}
 
 	@Test
-	@Sql(statements = { //
-			"INSERT INTO app_user(username,password,role,name,surname,locale,time_format)" //
-					+ " VALUES('jdoe','$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','USER','John','Doe','en-US','H24')"//
-	})
+	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format) VALUES('jdoe','en-US','H24')" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		String body = """
-				  {"name":"Jonathan","surname":"Doe","locale":"en-CA","timeFormat":"H12"}
+				  {"locale":"en-CA","timeFormat":"H12"}
 				""";
 
-		mvc.perform(put(BASE + "/{username}", "jdoe").contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(put(BASE + "/{username}", "jdoe").with(jwt()) //
+				.contentType(APPLICATION_JSON).content(body)) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.username").value("jdoe")) //
-				.andExpect(jsonPath("$.name").value("Jonathan")) //
-				.andExpect(jsonPath("$.surname").value("Doe")) //
 				.andExpect(jsonPath("$.locale").value("en-CA")) //
 				.andExpect(jsonPath("$.timeFormat").value("H12"));
 	}
 
 	@Test
-	@Sql(statements = { //
-			"INSERT INTO app_user(username,password,role,name,surname,locale,time_format)" //
-					+ " VALUES('jdoe','$2b$12$cdadM110dFEBQcdSThcGLeZ5Xo8W4yRm9FQSb2JiQgVP4CqyFll7m','USER','John','Doe','en-US','H24')"//
-	})
+	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format) VALUES('jdoe','en-US','H24')" })
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
-		mvc.perform(delete(BASE + "/{username}", "jdoe")) //
+		mvc.perform(delete(BASE + "/{username}", "jdoe").with(jwt())) //
 				.andExpect(status().isNoContent());
 
-		mvc.perform(get(BASE + "/{username}", "jdoe")) //
+		mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt())) //
 				.andExpect(status().isNotFound()); //
 	}
 }

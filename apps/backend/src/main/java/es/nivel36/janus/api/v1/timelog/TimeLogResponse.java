@@ -18,10 +18,6 @@ package es.nivel36.janus.api.v1.timelog;
 import java.time.Instant;
 import java.time.ZoneId;
 
-import org.openapitools.jackson.nullable.JsonNullable;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.worksite.Worksite;
 
@@ -46,6 +42,5 @@ import es.nivel36.janus.service.worksite.Worksite;
  *                       absent if the employee is still working;
  */
 public record TimeLogResponse(String employeeEmail, String worksiteCode, ZoneId worksiteZoneId, Instant entryTime,
-		@JsonInclude(JsonInclude.Include.NON_ABSENT) JsonNullable<Instant> exitTime,
-		JsonNullable<DurationResponse> workTime) {
+		Instant exitTime, DurationResponse workTime) {
 }

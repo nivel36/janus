@@ -20,7 +20,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Objects;
 
-import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
@@ -57,11 +56,11 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 
 		final Instant entryTime = entity.getEntryTime();
 		final Instant exitTimeValue = entity.getExitTime();
-		final JsonNullable<Instant> exitTime = toJsonNullable(exitTimeValue);
+		final Instant exitTime = exitTimeValue;
 
 		final Duration workDurationValue = entity.getWorkDuration();
 		final DurationResponse workDurationResponse = mapWorkDuration(workDurationValue);
-		final JsonNullable<DurationResponse> workTime = toJsonNullable(workDurationResponse);
+		final DurationResponse workTime = workDurationResponse;
 
 		return new TimeLogResponse(employeeEmail, worksiteCode, worksiteZoneId, entryTime, exitTime, workTime);
 	}
@@ -70,7 +69,4 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		return this.durationResponseMapper.map(duration);
 	}
 
-	private static <T> JsonNullable<T> toJsonNullable(final T value) {
-		return value == null ? JsonNullable.undefined() : JsonNullable.of(value);
-	}
 }

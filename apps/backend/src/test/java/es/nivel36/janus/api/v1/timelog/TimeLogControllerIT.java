@@ -18,6 +18,7 @@ package es.nivel36.janus.api.v1.timelog;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,15 +34,19 @@ import java.time.ZoneOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.api.v1.SecurityTestConfiguration;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+@Import(SecurityTestConfiguration.class)
 @Transactional
 class TimeLogControllerIT {
 
@@ -67,7 +72,7 @@ class TimeLogControllerIT {
 
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)) //
+				.param("entryTime", entry).with(jwt())) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -85,12 +90,12 @@ class TimeLogControllerIT {
 
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)) //
+				.param("entryTime", entry).with(jwt())) //
 				.andExpect(status().isCreated());
 
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)) //
+				.param("entryTime", entry).with(jwt())) //
 				.andExpect(status().isBadRequest()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
@@ -106,15 +111,15 @@ class TimeLogControllerIT {
 
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)) //
+				.param("entryTime", entry).with(jwt())) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry)) //
+		mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt())) //
 				.andExpect(status().isNoContent());
 
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)) //
+				.param("entryTime", entry).with(jwt())) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -125,16 +130,15 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')", //
 			"INSERT INTO employee(id, name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)", //
-			"INSERT INTO worksite(id, code,name,time_zone) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2')",//
-			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES (1,1,'2025-08-04T07:30:00Z'::timestamp)"
-	})
+			"INSERT INTO worksite(id, code,name,time_zone) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2')", //
+			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES (1,1,'2025-08-04T07:30:00Z'::timestamp)" })
 	void testClockOutShouldReturn200AndBody() throws Exception {
 		String entry = "2025-08-04T07:30:00Z";
 		String exit = "2025-08-04T16:00:00Z";
 
 		mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("exitTime", exit)) //
+				.param("exitTime", exit).with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -157,7 +161,7 @@ class TimeLogControllerIT {
 
 		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content(body)) //
+				.contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -181,12 +185,12 @@ class TimeLogControllerIT {
 
 		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content(body)) //
+				.contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isOk());
 
 		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content(body)) //
+				.contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}
 
@@ -200,10 +204,10 @@ class TimeLogControllerIT {
 		// seed: one log //
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", "2025-08-06T08:00:00Z")) //
+				.param("entryTime", "2025-08-06T08:00:00Z").with(jwt())) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(get(BASE + "/", "aferrer@nivel36.es")) //
+		mvc.perform(get(BASE + "/", "aferrer@nivel36.es").with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON));
 	}
@@ -216,12 +220,12 @@ class TimeLogControllerIT {
 	})
 	void testSearchByEmployeeWithInvalidRangeShouldFail400() throws Exception {
 		mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
-				.param("fromInstant", "2025-08-10T10:00:00Z")) //
+				.param("fromInstant", "2025-08-10T10:00:00Z").with(jwt())) //
 				.andExpect(status().isBadRequest());
 
 		mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
 				.param("fromInstant", "2025-08-10T10:00:00Z") //
-				.param("toInstant", "2025-08-09T10:00:00Z")) //
+				.param("toInstant", "2025-08-09T10:00:00Z").with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}
 
@@ -237,10 +241,10 @@ class TimeLogControllerIT {
 		// seed //
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)) //
+				.param("entryTime", entry).with(jwt())) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry)) //
+		mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -259,29 +263,29 @@ class TimeLogControllerIT {
 		// seed //
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)) //
+				.param("entryTime", entry).with(jwt())) //
 				.andExpect(status().isCreated());
 
 		// delete //
-		mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry)) //
+		mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt())) //
 				.andExpect(status().isNoContent());
 
 		// verify //
-		mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry)) //
+		mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt())) //
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	void testClockInWithInvalidEmailShouldFail400() throws Exception {
 		mvc.perform(post(BASE + "/clock-in", "bad email") //
-				.param("worksiteCode", "BCN-HQ")) //
+				.param("worksiteCode", "BCN-HQ").with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testClockInWithInvalidWorksiteCodeShouldFail400() throws Exception {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
-				.param("worksiteCode", "BAD CODE")) //
+				.param("worksiteCode", "BAD CODE").with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}
 }

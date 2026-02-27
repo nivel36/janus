@@ -20,7 +20,6 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +51,6 @@ public class AppUserService {
 	 * Repository used to access {@link AppUser} persistence operations.
 	 */
 	private final AppUserRepository appUserRepository;
-	private final PasswordEncoder passwordEncoder;
 
 	/**
 	 * Creates a new {@code AppUserService}.
@@ -62,9 +60,8 @@ public class AppUserService {
 	 *
 	 * @throws NullPointerException if {@code appUserRepository} is {@code null}
 	 */
-	public AppUserService(final AppUserRepository appUserRepository, final PasswordEncoder passwordEncoder) {
+	public AppUserService(final AppUserRepository appUserRepository) {
 		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
-		this.passwordEncoder = Objects.requireNonNull(passwordEncoder, "passwordEncoder cannot be null.");
 	}
 
 	/**
@@ -97,10 +94,6 @@ public class AppUserService {
 	 *
 	 * @param username   the unique username of the user. Can't be {@code null} or
 	 *                   blank.
-	 * @param name       the first name of the user. Can't be {@code null} or blank.
-	 * @param surname    the surname of the user. Can't be {@code null} or blank.
-	 * @param password   the raw password for the user. Can't be {@code null} or
-	 *                   blank.
 	 * @param locale     the preferred {@link Locale} of the user. Can't be
 	 *                   {@code null}.
 	 * @param timeFormat the preferred {@link TimeFormat} of the user. Can't be
@@ -114,13 +107,9 @@ public class AppUserService {
 	 *                                        already exists
 	 */
 	@Transactional
-	public AppUser createAppUser(final String username, final String name, final String surname, final String password,
-			final Locale locale, final TimeFormat timeFormat) {
+	public AppUser createAppUser(final String username, final Locale locale, final TimeFormat timeFormat) {
 
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
-		Strings.requireNonBlank(name, "name cannot be null or blank.");
-		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
-		Strings.requireNonBlank(password, "password cannot be null or blank.");
 		Objects.requireNonNull(locale, "locale cannot be null.");
 		Objects.requireNonNull(timeFormat, "timeFormat cannot be null.");
 
@@ -131,9 +120,7 @@ public class AppUserService {
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
 
-		final String passwordHash = this.passwordEncoder.encode(password);
-		final AppUser appUser = new AppUser(username.trim(), passwordHash, Role.USER, name.trim(), surname.trim(), locale,
-				timeFormat);
+		final AppUser appUser = new AppUser(username.trim(), locale, timeFormat);
 
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
@@ -151,8 +138,6 @@ public class AppUserService {
 	 *
 	 * @param username      the unique username of the user to update. Can't be
 	 *                      {@code null} or blank.
-	 * @param newName       the new first name. Can't be {@code null} or blank.
-	 * @param newSurname    the new surname. Can't be {@code null} or blank.
 	 * @param newLocale     the new preferred {@link Locale}. Can't be {@code null}.
 	 * @param newTimeFormat the new preferred {@link TimeFormat}. Can't be
 	 *                      {@code null}.
@@ -164,22 +149,15 @@ public class AppUserService {
 	 * @throws ResourceNotFoundException if no user exists with the given username
 	 */
 	@Transactional
-	public AppUser updateAppUser(final String username, final String newName, final String newSurname,
-			final Locale newLocale, final TimeFormat newTimeFormat) {
-
+	public AppUser updateAppUser(final String username, final Locale newLocale, final TimeFormat newTimeFormat) {
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
-		Strings.requireNonBlank(newName, "newName cannot be null or blank.");
-		Strings.requireNonBlank(newSurname, "newSurname cannot be null or blank.");
 		Objects.requireNonNull(newLocale, "newLocale cannot be null.");
 		Objects.requireNonNull(newTimeFormat, "newTimeFormat cannot be null.");
-
 		logger.debug("Updating AppUser {}", username);
-		final AppUser appUser = this.findAppUser(username);
 
-		appUser.setFullName(newName.trim(), newSurname.trim());
+		final AppUser appUser = this.findAppUser(username);
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
-
 		return appUser;
 	}
 

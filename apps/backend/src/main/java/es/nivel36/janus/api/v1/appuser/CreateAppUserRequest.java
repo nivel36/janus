@@ -20,7 +20,6 @@ import es.nivel36.janus.service.appuser.AppUser;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 /**
  * Request payload for creating a new {@link AppUser}.
@@ -44,20 +43,6 @@ public record CreateAppUserRequest( //
 		@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
 				message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
 		String username, //
-
-		@NotBlank(message = "name must not be blank") //
-		@Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", //
-				message = "name must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)") //
-		String name, //
-
-		@NotBlank(message = "surname must not be blank") //
-		@Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", //
-				message = "surname must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)") //
-		String surname, //
-
-		@NotBlank(message = "password must not be blank") //
-		@Size(min = 8, max = 72, message = "password must be between 8 and 72 characters") //
-		String password, //
 
 		@NotBlank(message = "locale must not be blank") //
 		@Pattern(regexp = "^[a-z]{2,3}-[A-Z]{2}$", //

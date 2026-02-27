@@ -50,19 +50,6 @@ public class AppUser implements Serializable {
 	@Column(updatable = false, unique = true)
 	private String username;
 
-	@NotEmpty
-	private String password;
-
-	@NotNull
-	@Enumerated(EnumType.STRING)
-	private Role role;
-
-	@NotEmpty
-	private String name;
-
-	@NotEmpty
-	private String surname;
-
 	@NotNull
 	private Locale locale;
 
@@ -73,13 +60,8 @@ public class AppUser implements Serializable {
 	AppUser() {
 	}
 
-	public AppUser(final String username, final String password, final Role role, final String name, final String surname,
-			final Locale locale, final TimeFormat timeFormat) {
+	public AppUser(final String username, final Locale locale, final TimeFormat timeFormat) {
 		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
-		this.password = Strings.requireNonBlank(password, "password can't be null or blank");
-		this.role = Objects.requireNonNull(role, "role can't be null");
-		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
-		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 	}
@@ -94,35 +76,6 @@ public class AppUser implements Serializable {
 
 	public String getUsername() {
 		return username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	void setPassword(final String password) {
-		this.password = Strings.requireNonBlank(password, "password can't be null or blank");
-	}
-
-	public Role getRole() {
-		return role;
-	}
-
-	public void setRole(final Role role) {
-		this.role = Objects.requireNonNull(role, "role can't be null");
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setFullName(final String name, final String surname) {
-		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
-		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
-	}
-
-	public String getSurname() {
-		return surname;
 	}
 
 	public Locale getLocale() {

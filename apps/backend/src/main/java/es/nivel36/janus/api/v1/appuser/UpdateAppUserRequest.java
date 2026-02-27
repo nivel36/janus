@@ -24,10 +24,6 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload for updating an existing {@link AppUser}.
  *
- * @param name       the new first name; must not be blank and must match the
- *                   allowed pattern
- * @param surname    the new surname; must not be blank and must match the
- *                   allowed pattern
  * @param locale     the preferred locale of the user expressed as a BCP 47
  *                   language tag (e.g. {@code "en-US"}); must not be blank and
  *                   must match the allowed pattern
@@ -35,16 +31,6 @@ import jakarta.validation.constraints.Pattern;
  *                   {@code null}
  */
 public record UpdateAppUserRequest( //
-		@NotBlank(message = "name must not be blank") //
-		@Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", //
-				message = "name must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)") //
-		String name, //
-
-		@NotBlank(message = "surname must not be blank") //
-		@Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", //
-				message = "surname must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)") //
-		String surname, //
-
 		@NotBlank(message = "locale must not be blank") //
 		@Pattern(regexp = "^[a-z]{2,3}-[A-Z]{2}$", //
 				message = "locale must be in format ll_CC (e.g., es_ES)") //

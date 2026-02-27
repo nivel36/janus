@@ -18,7 +18,6 @@ package es.nivel36.janus.api.v1.timelog;
 import java.time.Instant;
 import java.util.Objects;
 
-import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
@@ -49,19 +48,14 @@ public class ClockOutWithoutClockInEventResponseMapper
 		final Instant detectedAt = entity.getDetectedAt();
 		final boolean resolved = entity.isResolved();
 		final boolean invalidated = entity.isInvalidated();
-		final JsonNullable<String> reason = toJsonNullable(entity.getReason());
+		final String reason = entity.getReason();
 
 		final TimeLog resolvedTimeLog = entity.getResolvedTimeLog();
-		final JsonNullable<Instant> resolvedTimeLogEntry = resolvedTimeLog == null ? JsonNullable.undefined()
-				: toJsonNullable(resolvedTimeLog.getEntryTime());
-		final JsonNullable<Instant> resolvedTimeLogExit = resolvedTimeLog == null ? JsonNullable.undefined()
-				: toJsonNullable(resolvedTimeLog.getExitTime());
+		final Instant resolvedTimeLogEntry = resolvedTimeLog == null ? null : resolvedTimeLog.getEntryTime();
+		final Instant resolvedTimeLogExit = resolvedTimeLog == null ? null : resolvedTimeLog.getExitTime();
 
 		return new ClockOutWithoutClockInEventResponse(employeeEmail, worksiteCode, exitTime, detectedAt, resolved,
 				invalidated, reason, resolvedTimeLogEntry, resolvedTimeLogExit);
 	}
 
-	private static <T> JsonNullable<T> toJsonNullable(final T value) {
-		return value == null ? JsonNullable.undefined() : JsonNullable.of(value);
-	}
 }

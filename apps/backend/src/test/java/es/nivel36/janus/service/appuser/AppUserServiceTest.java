@@ -52,8 +52,7 @@ class AppUserServiceTest {
 		when(this.passwordEncoder.encode("raw-password")).thenReturn("hashed-password");
 		when(this.appUserRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		this.appUserService.createAppUser("aferrer", "Abel", "Ferrer", "raw-password", Locale.ENGLISH,
-				TimeFormat.H12);
+		this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H12);
 
 		verify(this.appUserRepository).existsByUsername("aferrer");
 		final ArgumentCaptor<AppUser> savedAppUserCaptor = ArgumentCaptor.forClass(AppUser.class);
@@ -66,15 +65,14 @@ class AppUserServiceTest {
 		when(this.appUserRepository.existsByUsername("aferrer")).thenReturn(true);
 
 		assertThrows(ResourceAlreadyExistsException.class,
-				() -> this.appUserService.createAppUser("aferrer", "Abel", "Ferrer", "raw-password",
-						Locale.ENGLISH, TimeFormat.H24));
+				() -> this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H24));
 
 		verify(this.appUserRepository).existsByUsername("aferrer");
 	}
 
 	@Test
 	void testFindAppUserByUsernameUsesAccountUsernameLookup() {
-		final AppUser appUser = new AppUser("aferrer", "hash", Role.USER, "Abel", "Ferrer", Locale.ENGLISH, TimeFormat.H24);
+		final AppUser appUser = new AppUser("aferrer", Locale.ENGLISH, TimeFormat.H24);
 		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
 
 		final AppUser foundAppUser = this.appUserService.findAppUserByUsername("aferrer");

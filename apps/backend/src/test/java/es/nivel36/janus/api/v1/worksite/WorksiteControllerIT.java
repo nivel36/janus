@@ -16,6 +16,7 @@
 package es.nivel36.janus.api.v1.worksite;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,14 +27,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.api.v1.SecurityTestConfiguration;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+@Import(SecurityTestConfiguration.class)
 @Transactional
 class WorksiteControllerIT {
 
@@ -46,7 +51,7 @@ class WorksiteControllerIT {
 			"INSERT INTO worksite(code,name,time_zone) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2')"//
 	})
 	void testListShouldReturnSeededWorksite() throws Exception {
-		mvc.perform(get(BASE)) //
+		mvc.perform(get(BASE).with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$[?(@.code=='BCN-HQ')]").exists());
@@ -57,7 +62,7 @@ class WorksiteControllerIT {
 			"INSERT INTO worksite(code,name,time_zone) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2')"//
 	})
 	void testFindByCodeShouldReturnWorksite() throws Exception {
-		mvc.perform(get(BASE + "/{code}", "BCN-HQ")).andExpect(status().isOk()) //
+		mvc.perform(get(BASE + "/{code}", "BCN-HQ").with(jwt())).andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.code").value("BCN-HQ")) //
 				.andExpect(jsonPath("$.name").value("Barcelona Headquarters")) //
@@ -66,12 +71,12 @@ class WorksiteControllerIT {
 
 	@Test
 	void testFindByUnknownCodeShouldReturn404() throws Exception {
-		mvc.perform(get(BASE + "/{code}", "BCN-HQ")).andExpect(status().isNotFound());
+		mvc.perform(get(BASE + "/{code}", "BCN-HQ").with(jwt())).andExpect(status().isNotFound());
 	}
 
 	@Test
 	void testFindByCodeWithInvalidPatternShouldFail400() throws Exception {
-		mvc.perform(get(BASE + "/{code}", "BAD CODE WITH SPACE")).andExpect(status().isBadRequest());
+		mvc.perform(get(BASE + "/{code}", "BAD CODE WITH SPACE").with(jwt())).andExpect(status().isBadRequest());
 	}
 
 	@Test
@@ -84,7 +89,7 @@ class WorksiteControllerIT {
 				  {"code":"%s","name":"Barcelona Headquarters","timeZone":"Europe/Madrid"}
 				""".formatted(code);
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}
 
@@ -95,14 +100,14 @@ class WorksiteControllerIT {
 				  {"code":"%s","name":"Madrid Hub","timeZone":"Europe/Madrid"}
 				""".formatted(code);
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.code").value(code)) //
 				.andExpect(jsonPath("$.name").value("Madrid Hub")) //
 				.andExpect(jsonPath("$.timeZone").value("Europe/Madrid"));
 
-		mvc.perform(get(BASE)).andExpect(status().isOk())
+		mvc.perform(get(BASE).with(jwt())).andExpect(status().isOk())
 				.andExpect(jsonPath("$[?(@.code=='%s')]".formatted(code)).exists());
 	}
 
@@ -115,7 +120,7 @@ class WorksiteControllerIT {
 				  {"name":"Barcelona","timeZone":"UTC+1"}
 				""";
 
-		mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body)) //
+		mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.code").value("BCN-HQ")) //
 				.andExpect(jsonPath("$.name").value("Barcelona")) //
@@ -127,10 +132,10 @@ class WorksiteControllerIT {
 			"INSERT INTO worksite(code,name,time_zone) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2')"//
 	})
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
-		mvc.perform(delete(BASE + "/{code}", "BCN-HQ")) //
+		mvc.perform(delete(BASE + "/{code}", "BCN-HQ").with(jwt())) //
 				.andExpect(status().isNoContent());
 
-		mvc.perform(get(BASE)) //
+		mvc.perform(get(BASE).with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$[?(@.code=='BCN-HQ')]").doesNotExist()); //
 	}

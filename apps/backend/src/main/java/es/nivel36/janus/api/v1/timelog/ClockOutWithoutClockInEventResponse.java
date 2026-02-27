@@ -17,8 +17,6 @@ package es.nivel36.janus.api.v1.timelog;
 
 import java.time.Instant;
 
-import org.openapitools.jackson.nullable.JsonNullable;
-
 /**
  * Response payload describing a {@code ClockOutWithoutClockInEvent}.
  *
@@ -39,6 +37,6 @@ import org.openapitools.jackson.nullable.JsonNullable;
  *                                present
  */
 public record ClockOutWithoutClockInEventResponse(String employeeEmail, String worksiteCode, Instant exitTime,
-		Instant detectedAt, boolean resolved, boolean invalidated, JsonNullable<String> reason,
-		JsonNullable<Instant> resolvedTimeLogEntry, JsonNullable<Instant> resolvedTimeLogExitTime) {
+		Instant detectedAt, boolean resolved, boolean invalidated, String reason, Instant resolvedTimeLogEntry,
+		Instant resolvedTimeLogExitTime) {
 }

@@ -95,8 +95,8 @@ public class AppUserController {
 		logger.debug("Create app user ACTION performed");
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
-		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), request.name(),
-				request.surname(), request.password(), locale, request.timeFormat());
+		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), locale,
+				request.timeFormat());
 		final AppUserResponse response = this.appUserResponseMapper.map(createdAppUser);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -117,8 +117,7 @@ public class AppUserController {
 		logger.debug("Update app user ACTION performed");
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
-		final AppUser updatedAppUser = this.appUserService.updateAppUser(username, request.name(), request.surname(),
-				locale, request.timeFormat());
+		final AppUser updatedAppUser = this.appUserService.updateAppUser(username, locale, request.timeFormat());
 		final AppUserResponse response = this.appUserResponseMapper.map(updatedAppUser);
 		return ResponseEntity.ok(response);
 	}
