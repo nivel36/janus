@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { AuthService } from '../../core/auth/auth.service';
@@ -16,7 +15,7 @@ export class LoginFormComponent {
   isLoading = false;
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService) {}
 
   submit(): void {
     if (this.isLoading) return;
@@ -25,8 +24,7 @@ export class LoginFormComponent {
     this.errorMessage = '';
 
     void this.authService
-      .login()
-      .then(() => this.router.navigate(['/']))
+      .loginWithRedirect('/')
       .catch(() => {
         this.errorMessage = 'login.error';
       })
