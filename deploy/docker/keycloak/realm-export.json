@@ -1,5 +1,5 @@
 {
-  "realm": "janus-realm",
+  "realm": "Nivel36-realm",
   "enabled": true,
 
   "roles": {
@@ -31,6 +31,8 @@
     {
       "username": "aferrer@nivel36.es",
       "email": "aferrer@nivel36.es",
+      "firstName": "Abel",
+      "lastName": "Ferrer",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
