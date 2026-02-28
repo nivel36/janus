@@ -8,7 +8,7 @@ export const appRoutes: Routes = [
     path: '',
     canActivate: [authGuard],
     data: {
-      clientRole: { clientId: KEYCLOAK_CLIENT_ID, role: 'timelog_user' },
+      clientRole: { clientId: KEYCLOAK_CLIENT_ID, role: 'JANUS_USER' },
     },
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-page.component').then(
