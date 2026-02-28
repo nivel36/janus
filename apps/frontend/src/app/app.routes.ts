@@ -1,13 +1,14 @@
 import { Routes } from '@angular/router';
 import { AUTH_ROUTES } from './auth/auth.routes';
 import { authGuard } from './core/auth/auth.guard';
+import { KEYCLOAK_CLIENT_ID } from './core/auth/keycloak.constants';
 
 export const appRoutes: Routes = [
   {
     path: '',
     canActivate: [authGuard],
     data: {
-      clientRole: { clientId: 'janus-frontend', role: 'timelog_user' },
+      clientRole: { clientId: KEYCLOAK_CLIENT_ID, role: 'timelog_user' },
     },
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-page.component').then(
