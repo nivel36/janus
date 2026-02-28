@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { map, take } from 'rxjs';
 
 import { AuthService } from './auth.service';
@@ -19,7 +19,7 @@ export const authGuard: CanActivateFn = (route, state): ReturnType<CanActivateFn
 
   return authService.isAuthenticated$.pipe(
     take(1),
-    map((isAuthenticated): boolean => {
+    map((isAuthenticated): boolean | UrlTree => {
       if (!isAuthenticated) {
         const targetUrl = state.url ? router.serializeUrl(router.parseUrl(state.url)) : '/';
         void authService.loginWithRedirect(targetUrl);
@@ -37,8 +37,7 @@ export const authGuard: CanActivateFn = (route, state): ReturnType<CanActivateFn
         return true;
       }
 
-      void router.navigateByUrl('/');
-      return false;
+      return router.parseUrl('/login');
     }),
   );
 };
