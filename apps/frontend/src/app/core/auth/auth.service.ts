@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
-import type { KeycloakProfile } from 'keycloak-js';
 import { environment } from '../../../environments/environment';
 import { keycloak } from '../../auth/keycloak';
 
@@ -58,7 +57,6 @@ export class AuthService {
   );
   private readonly appUserSubject = new BehaviorSubject<AppUserResponse | null>(null);
   private readonly claimsSubject = new BehaviorSubject<KeycloakClaims | null>(this.getClaims());
-  private readonly userProfileSubject = new BehaviorSubject<KeycloakProfile | null>(null);
   private readonly permissionsSubject = new BehaviorSubject<PermissionState>({
     realmRoles: [],
     clientRoles: {},
@@ -68,7 +66,6 @@ export class AuthService {
   readonly username$ = this.usernameSubject.asObservable();
   readonly appUser$ = this.appUserSubject.asObservable();
   readonly claims$ = this.claimsSubject.asObservable();
-  readonly userProfile$ = this.userProfileSubject.asObservable();
   readonly permissions$ = this.permissionsSubject.asObservable();
 
   constructor(private readonly http: HttpClient) {
@@ -124,10 +121,6 @@ export class AuthService {
     return keycloak.tokenParsed as KeycloakClaims;
   }
 
-  getUserProfile(): KeycloakProfile | null {
-    return this.userProfileSubject.value;
-  }
-
   hasRealmRole(role: string): boolean {
     return this.permissionsSubject.value.realmRoles.includes(role);
   }
@@ -156,11 +149,8 @@ export class AuthService {
     if (!isAuthenticated) {
       this.usernameSubject.next(null);
       this.appUserSubject.next(null);
-      this.userProfileSubject.next(null);
       return;
     }
-
-    void this.loadUserProfile();
 
     const username = this.getUsernameFromClaims();
     this.usernameSubject.next(username);
@@ -188,20 +178,6 @@ export class AuthService {
     }, {});
 
     return { realmRoles, clientRoles };
-  }
-
-  private async loadUserProfile(): Promise<void> {
-    if (!keycloak?.authenticated) {
-      this.userProfileSubject.next(null);
-      return;
-    }
-
-    try {
-      const profile = await keycloak.loadUserProfile();
-      this.userProfileSubject.next(profile);
-    } catch {
-      this.userProfileSubject.next(null);
-    }
   }
 
   private fetchAppUser(username: string): void {
