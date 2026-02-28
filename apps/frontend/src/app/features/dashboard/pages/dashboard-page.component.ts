@@ -12,6 +12,7 @@ import { TimelogTableComponent } from '../../timelogs/components/timelog-table/t
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { TimeLogService } from '../../timelogs/services/timelog-api.service';
 import { TimeLog } from '../../timelogs/models/timelog';
+import { KEYCLOAK_CLIENT_ID } from '../../../core/auth/keycloak.constants';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -44,7 +45,7 @@ export class DashboardPageComponent implements OnInit {
     map(
       (permissions) =>
         permissions.realmRoles.includes('timelog_user') ||
-        (permissions.clientRoles['janus-frontend'] ?? []).includes('timelog_user'),
+        (permissions.clientRoles[KEYCLOAK_CLIENT_ID] ?? []).includes('timelog_user'),
     ),
   );
 
@@ -73,7 +74,7 @@ export class DashboardPageComponent implements OnInit {
 
     if (
       !this.authService.hasRealmRole('timelog_user') &&
-      !this.authService.hasClientRole('janus-frontend', 'timelog_user')
+      !this.authService.hasClientRole(KEYCLOAK_CLIENT_ID, 'timelog_user')
     ) {
       return;
     }
