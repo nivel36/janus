@@ -121,6 +121,7 @@ public class TimeLogService {
 		logger.debug("Creating closed time log for employee {} at worksite {} with entry time {} and exit time {}",
 				employee, worksite, entryTime, exitTime);
 		final Instant now = this.clock.instant();
+		this.assertClockInAllowed(employee);
 
 		final Instant lockThreshold = this.getModificationLowerBound(now);
 		final Instant truncatedEntryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
@@ -190,6 +191,7 @@ public class TimeLogService {
 		logger.debug("Creating open time log for employee {} at worksite {} with entry time {}", employee, worksite,
 				entryTime);
 		final Instant now = this.clock.instant();
+		this.assertClockInAllowed(employee);
 
 		final Instant lockThreshold = this.getModificationLowerBound(now);
 		final Instant truncatedEntryTime = entryTime.truncatedTo(ChronoUnit.SECONDS);
@@ -234,6 +236,7 @@ public class TimeLogService {
 				truncatedExitTime);
 
 		final Instant now = this.clock.instant();
+		this.assertClockOutAllowed(employee);
 		final Instant lockThreshold = this.getModificationLowerBound(now);
 		this.assertWithinEditableWindow(truncatedExitTime, lockThreshold, now);
 
@@ -321,6 +324,19 @@ public class TimeLogService {
 	 * @return a list of orphan {@link TimeLog} instances. Never {@code null}.
 	 * @throws NullPointerException if any argument is {@code null}.
 	 */
+
+	private void assertClockInAllowed(final Employee employee) {
+		if (!this.canClockIn(employee)) {
+			throw new TimeLogModificationNotAllowedException("Clock-in is blocked during cooldown window.");
+		}
+	}
+
+	private void assertClockOutAllowed(final Employee employee) {
+		if (!this.canClockOut(employee)) {
+			throw new TimeLogModificationNotAllowedException("Clock-out is blocked during cooldown window.");
+		}
+	}
+
 	/**
 	 * Indicates whether an employee can currently clock in.
 	 *

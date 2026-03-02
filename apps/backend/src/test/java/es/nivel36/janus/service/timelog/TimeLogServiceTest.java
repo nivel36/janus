@@ -136,6 +136,38 @@ class TimeLogServiceTest {
 		assertEquals(now(), result.getExitTime());
 	}
 
+
+	@Test
+	void testClockInThrowsWhenInCooldownWindow() {
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		final TimeLog lastClosedTimeLog = new TimeLog(this.employee, this.worksite,
+				fixedNow.minus(2, ChronoUnit.HOURS), fixedNow.minus(1, ChronoUnit.HOURS));
+		when(this.timeLogRepository.findTopByEmployeeAndExitTimeIsNotNullOrderByExitTimeDesc(this.employee))
+				.thenReturn(lastClosedTimeLog);
+
+		assertThrows(TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.clockIn(this.employee, this.worksite, fixedNow));
+		verify(this.timeLogRepository, times(0)).save(any(TimeLog.class));
+	}
+
+	@Test
+	void testClockOutThrowsWhenInCooldownWindow() {
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		final TimeLog lastClosedTimeLog = new TimeLog(this.employee, this.worksite,
+				fixedNow.minus(2, ChronoUnit.HOURS), fixedNow.minus(1, ChronoUnit.HOURS));
+		when(this.timeLogRepository.findTopByEmployeeAndExitTimeIsNotNullOrderByExitTimeDesc(this.employee))
+				.thenReturn(lastClosedTimeLog);
+
+		assertThrows(TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.clockOut(this.employee, this.worksite, fixedNow));
+		verify(this.timeLogRepository, times(0))
+				.findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(this.employee, this.worksite);
+	}
+
 	@Test
 	void testClockOutThrowsWhenNoPreviousLog() {
 		logger.info("Test clock out with no previous log");
