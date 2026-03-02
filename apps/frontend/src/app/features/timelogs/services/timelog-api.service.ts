@@ -80,7 +80,7 @@ export class TimeLogService {
         while (true) {
           const { value, done } = await reader.read();
           if (done) {
-            break;
+            throw new Error('Clock action availability stream closed');
           }
 
           buffer += decoder.decode(value, { stream: true });
