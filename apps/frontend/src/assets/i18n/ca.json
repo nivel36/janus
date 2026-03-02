@@ -8,7 +8,9 @@
 		"clockout": "Sortida",
 		"date": "Data",
 		"duration": "Duració",
-		"timelogs": "Fixatges"
+		"timelogs": "Fixatges",
+		"clockActionPermissionDenied": "No tens permisos per fitxar.",
+		"clockActionNetworkError": "No s'ha pogut registrar el fitxatge en aquest moment. Torna-ho a provar."
 	},
 	"employee": {
 		"employee": "Empleat",

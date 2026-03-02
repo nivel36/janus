@@ -8,7 +8,9 @@
 		"clockout": "Salida",
 		"date": "Fecha",
 		"duration": "Duración",
-		"timelogs": "Fichajes"
+		"timelogs": "Fichajes",
+		"clockActionPermissionDenied": "No tienes permisos para fichar.",
+		"clockActionNetworkError": "No se pudo registrar el fichaje en este momento. Inténtalo de nuevo."
 	},
 	"employee": {
 		"employee": "Empleado",
