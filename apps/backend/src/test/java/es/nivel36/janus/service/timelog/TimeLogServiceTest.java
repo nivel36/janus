@@ -210,6 +210,47 @@ class TimeLogServiceTest {
 		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
+
+	@Test
+	void testCanClockInReturnsFalseWhenLastClosedTimeLogIsWithinEightHours() {
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 20, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		final TimeLog lastClosedTimeLog = new TimeLog(this.employee, this.worksite,
+				fixedNow.minus(7, ChronoUnit.HOURS), fixedNow.minus(1, ChronoUnit.HOURS));
+		when(this.timeLogRepository.findTopByEmployeeAndExitTimeIsNotNullOrderByExitTimeDesc(this.employee))
+				.thenReturn(lastClosedTimeLog);
+
+		final boolean canClockIn = this.timeLogService.canClockIn(this.employee);
+
+		assertEquals(false, canClockIn);
+	}
+
+	@Test
+	void testCanClockOutReturnsTrueWhenLastClosedTimeLogIsOlderThanEightHours() {
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 20, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		final TimeLog lastClosedTimeLog = new TimeLog(this.employee, this.worksite,
+				fixedNow.minus(10, ChronoUnit.HOURS), fixedNow.minus(9, ChronoUnit.HOURS));
+		when(this.timeLogRepository.findTopByEmployeeAndExitTimeIsNotNullOrderByExitTimeDesc(this.employee))
+				.thenReturn(lastClosedTimeLog);
+
+		final boolean canClockOut = this.timeLogService.canClockOut(this.employee);
+
+		assertEquals(true, canClockOut);
+	}
+
+	@Test
+	void testCanClockInReturnsTrueWhenNoClosedTimeLogsExist() {
+		when(this.clock.instant()).thenReturn(LocalDateTime.of(2025, 8, 30, 20, 0, 0).toInstant(ZoneOffset.UTC));
+		when(this.timeLogRepository.findTopByEmployeeAndExitTimeIsNotNullOrderByExitTimeDesc(this.employee))
+				.thenReturn(null);
+
+		final boolean canClockIn = this.timeLogService.canClockIn(this.employee);
+
+		assertEquals(true, canClockIn);
+	}
+
+
 	@ParameterizedTest(name = "{index} => {0}")
 	@MethodSource("provideInvalidEntryExitPairs")
 	void testCreateTimeLogInvalidEntryExitShouldThrow(String description, Instant entry, Instant exit) {

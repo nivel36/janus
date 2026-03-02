@@ -41,6 +41,7 @@ export class DashboardPageComponent implements OnInit {
   clockActionLabelKey = 'timelog.clockin';
   clockActionFeedbackKey?: string;
   isClockActionLoading = false;
+  isClockActionEnabled = false;
 
   readonly isAuthenticated$ = this.authService.isAuthenticated$;
   readonly username$ = this.authService.username$;
@@ -53,6 +54,8 @@ export class DashboardPageComponent implements OnInit {
   );
 
   private latestTimeLog?: TimeLog;
+  private latestAvailability?: { canClockIn: boolean; canClockOut: boolean };
+  private stopClockActionAvailabilityStream?: () => void;
 
   tableRefreshToken = 0;
 
@@ -67,11 +70,20 @@ export class DashboardPageComponent implements OnInit {
       .subscribe((username) => {
         this.employeeEmail = username;
         this.refreshLatestTimeLog(username);
+        this.startClockActionAvailabilityStream(username);
       });
+
+    this.destroyRef.onDestroy(() => {
+      this.stopClockActionAvailabilityStream?.();
+    });
   }
 
   async onClockAction(): Promise<void> {
     if (this.isClockActionLoading) {
+      return;
+    }
+
+    if (!this.isClockActionEnabled) {
       return;
     }
 
@@ -118,15 +130,57 @@ export class DashboardPageComponent implements OnInit {
       .searchByEmployee(username, 0, 5)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response) => {
-          this.latestTimeLog = this.getLatestTimeLog(response);
+        next: (latestTimeLogs) => {
+          this.latestTimeLog = this.getLatestTimeLog(latestTimeLogs);
           this.clockActionLabelKey = this.getClockActionLabelKey(this.latestTimeLog);
+          this.applyAvailabilityToButtonState();
         },
         error: () => {
           this.latestTimeLog = undefined;
           this.clockActionLabelKey = 'timelog.clockin';
+          this.isClockActionEnabled = false;
         },
       });
+  }
+
+  private startClockActionAvailabilityStream(username: string): void {
+    this.stopClockActionAvailabilityStream?.();
+
+    const token = this.authService.getToken();
+    if (!token) {
+      this.isClockActionEnabled = false;
+      return;
+    }
+
+    this.stopClockActionAvailabilityStream = this.timeLogService.streamClockActionAvailability(
+      username,
+      token,
+      (availability) => {
+        this.latestAvailability = availability;
+
+        if (availability.canClockIn && !availability.canClockOut) {
+          this.clockActionLabelKey = 'timelog.clockin';
+        } else if (availability.canClockOut && !availability.canClockIn) {
+          this.clockActionLabelKey = 'timelog.clockout';
+        }
+
+        this.applyAvailabilityToButtonState();
+      },
+      () => {
+        this.isClockActionEnabled = false;
+      },
+    );
+  }
+
+  private applyAvailabilityToButtonState(): void {
+    if (!this.latestAvailability) {
+      this.isClockActionEnabled = false;
+      return;
+    }
+
+    this.isClockActionEnabled = this.shouldClockOut()
+      ? this.latestAvailability.canClockOut
+      : this.latestAvailability.canClockIn;
   }
 
   private shouldClockOut(): boolean {

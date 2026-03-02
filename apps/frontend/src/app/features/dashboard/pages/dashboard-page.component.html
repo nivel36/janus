@@ -18,7 +18,7 @@
                         </app-clock>
 
                         @if (canClockInOut$ | async) {
-                            <app-button [disabled]="isClockActionLoading" (click)="onClockAction()">
+                            <app-button [disabled]="isClockActionLoading || !isClockActionEnabled" (click)="onClockAction()">
                                 {{ clockActionLabelKey | translate }}
                             </app-button>
                         }

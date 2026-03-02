@@ -108,6 +108,16 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	TimeLog findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(Employee employee, Worksite worksite);
 
 	/**
+	 * Finds the most recent closed {@link TimeLog} for the specified employee,
+	 * ordered by {@code exitTime} descending.
+	 *
+	 * @param employee the employee whose latest closed time log is to be found
+	 * @return the most recent closed time log, or {@code null} if none exist
+	 */
+	@EntityGraph(attributePaths = { "employee", "worksite" })
+	TimeLog findTopByEmployeeAndExitTimeIsNotNullOrderByExitTimeDesc(Employee employee);
+
+	/**
 	 * Retrieves all {@link TimeLog} records for a given employee, with pagination.
 	 * <p>
 	 * The {@link Pageable} parameter defines offset, size, and sort order. Use this

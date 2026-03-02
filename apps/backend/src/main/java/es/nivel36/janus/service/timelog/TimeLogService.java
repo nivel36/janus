@@ -55,6 +55,8 @@ public class TimeLogService {
 
 	private static final Logger logger = LoggerFactory.getLogger(TimeLogService.class);
 
+	private static final Duration CLOCK_ACTION_COOLDOWN = Duration.ofHours(8);
+
 	private final TimeLogRepository timeLogRepository;
 	private final ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository;
 	private final AdminService adminService;
@@ -319,6 +321,54 @@ public class TimeLogService {
 	 * @return a list of orphan {@link TimeLog} instances. Never {@code null}.
 	 * @throws NullPointerException if any argument is {@code null}.
 	 */
+	/**
+	 * Indicates whether an employee can currently clock in.
+	 *
+	 * <p>
+	 * Current rule: clock-in is blocked if the employee has a closed time log in the
+	 * last 8 hours.
+	 * </p>
+	 *
+	 * @param employee employee to evaluate. Can't be {@code null}.
+	 * @return {@code true} if clock-in is allowed; {@code false} otherwise.
+	 */
+	@Transactional(readOnly = true)
+	public boolean canClockIn(final Employee employee) {
+		return this.canPerformClockAction(employee);
+	}
+
+	/**
+	 * Indicates whether an employee can currently clock out.
+	 *
+	 * <p>
+	 * Current rule: clock-out is blocked if the employee has a closed time log in
+	 * the last 8 hours.
+	 * </p>
+	 *
+	 * @param employee employee to evaluate. Can't be {@code null}.
+	 * @return {@code true} if clock-out is allowed; {@code false} otherwise.
+	 */
+	@Transactional(readOnly = true)
+	public boolean canClockOut(final Employee employee) {
+		return this.canPerformClockAction(employee);
+	}
+
+	private boolean canPerformClockAction(final Employee employee) {
+		Objects.requireNonNull(employee, "employee can't be null.");
+		final Instant now = this.clock.instant();
+		final Instant cooldownThreshold = now.minus(CLOCK_ACTION_COOLDOWN);
+		final TimeLog latestClosedTimeLog = this.timeLogRepository
+				.findTopByEmployeeAndExitTimeIsNotNullOrderByExitTimeDesc(employee);
+
+		if (latestClosedTimeLog == null) {
+			return true;
+		}
+
+		final Instant latestExitTime = latestClosedTimeLog.getExitTime();
+		return latestExitTime == null || latestExitTime.isBefore(cooldownThreshold);
+	}
+
+
 	@Transactional(readOnly = true)
 	public TimeLogs findOrphanTimeLogs(final Instant from, final Employee employee) {
 		Objects.requireNonNull(from, "from must not be null");

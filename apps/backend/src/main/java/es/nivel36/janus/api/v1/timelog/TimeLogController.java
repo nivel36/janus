@@ -16,8 +16,12 @@
 package es.nivel36.janus.api.v1.timelog;
 
 import java.time.Clock;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
@@ -209,6 +215,99 @@ public class TimeLogController {
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
 		final TimeLogResponse updatedTimeLogResponse = this.timeLogResponseMapper.map(createdTimeLog);
 		return ResponseEntity.ok(updatedTimeLogResponse);
+	}
+
+	/**
+	 * Retrieves whether the employee can currently execute clock-in and clock-out.
+	 *
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @return availability for both clock actions
+	 */
+	@GetMapping("/clock-action-availability")
+	public ResponseEntity<ClockActionAvailabilityResponse> clockActionAvailability( //
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail) {
+		logger.debug("Clock action availability ACTION performed");
+
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final ClockActionAvailabilityResponse response = this.buildClockActionAvailabilityResponse(employee);
+		return ResponseEntity.ok(response);
+	}
+
+
+
+	/**
+	 * Streams clock-action availability changes for an employee.
+	 *
+	 * <p>
+	 * The response emits an event immediately and then pushes updates whenever the
+	 * availability changes.
+	 * </p>
+	 *
+	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @return an {@link SseEmitter} streaming availability updates
+	 */
+	@GetMapping(path = "/clock-action-availability/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter streamClockActionAvailability( //
+			final @PathVariable("employeeEmail") //
+			@Pattern( //
+					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
+					message = "must be a valid and safe email address (max 254)" //
+			) //
+			String employeeEmail) {
+		logger.debug("Clock action availability STREAM opened");
+
+		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final SseEmitter emitter = new SseEmitter(0L);
+		final ExecutorService executor = Executors.newSingleThreadExecutor();
+		final AtomicBoolean streamActive = new AtomicBoolean(true);
+
+		emitter.onCompletion(() -> {
+			streamActive.set(false);
+			executor.shutdownNow();
+		});
+		emitter.onTimeout(() -> {
+			streamActive.set(false);
+			executor.shutdownNow();
+		});
+		emitter.onError((error) -> {
+			streamActive.set(false);
+			executor.shutdownNow();
+		});
+
+		executor.submit(() -> {
+			ClockActionAvailabilityResponse previousAvailability = null;
+			while (streamActive.get()) {
+				try {
+					final ClockActionAvailabilityResponse currentAvailability = this
+							.buildClockActionAvailabilityResponse(employee);
+					if (!currentAvailability.equals(previousAvailability)) {
+						emitter.send(SseEmitter.event().name("clock-action-availability").data(currentAvailability));
+						previousAvailability = currentAvailability;
+					}
+					Thread.sleep(1000);
+				} catch (final IOException | IllegalStateException e) {
+					streamActive.set(false);
+					emitter.complete();
+				} catch (final InterruptedException e) {
+					Thread.currentThread().interrupt();
+					streamActive.set(false);
+					emitter.complete();
+				}
+			}
+		});
+
+		return emitter;
+	}
+
+	private ClockActionAvailabilityResponse buildClockActionAvailabilityResponse(final Employee employee) {
+		final boolean canClockIn = this.timeLogService.canClockIn(employee);
+		final boolean canClockOut = this.timeLogService.canClockOut(employee);
+		return new ClockActionAvailabilityResponse(canClockIn, canClockOut);
 	}
 
 	/**
