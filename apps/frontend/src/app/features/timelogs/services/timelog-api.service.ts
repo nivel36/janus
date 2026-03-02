@@ -6,36 +6,40 @@ import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TimeLogService {
-	private readonly baseUrl = `${environment.apiUrl}/employees`;
+  private readonly baseUrl = `${environment.apiUrl}/employees`;
 
-	constructor(private readonly http: HttpClient) { }
+  constructor(private readonly http: HttpClient) {}
 
-	/**
-	 * The `page` parameter follows Spring Data pagination (0-based index).
-	 */
-	searchByEmployee(email: string, page?: number, size?: number): Observable<TimeLog[]> {
-	  let params = new HttpParams();
-	  if (page != null) params = params.set('page', String(page));
-	  if (size != null) params = params.set('size', String(size));
+  /**
+   * The `page` parameter follows Spring Data pagination (0-based index).
+   */
+  searchByEmployee(email: string, page?: number, size?: number): Observable<TimeLog[]> {
+    let params = new HttpParams();
+    if (page != null) {
+      params = params.set('page', String(page));
+    }
+    if (size != null) {
+      params = params.set('size', String(size));
+    }
 
-	  return this.http
-	    .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
-	    .pipe(map(r => r.content ?? []));
-	}
+    return this.http
+      .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
+      .pipe(map((r) => r.content ?? []));
+  }
 
-	clockIn(email: string, worksiteCode: string): Observable<TimeLog> {
-		const encodedEmail = encodeURIComponent(email);
-		const url = `${this.baseUrl}/${encodedEmail}/timelogs/clock-in`;
-		return this.http.post<TimeLog>(url, null, {
-			params: { worksiteCode }
-		});
-	}
+  clockIn(email: string, worksiteCode: string): Observable<TimeLog> {
+    const encodedEmail = encodeURIComponent(email);
+    const url = `${this.baseUrl}/${encodedEmail}/timelogs/clock-in`;
+    return this.http.post<TimeLog>(url, null, {
+      params: { worksiteCode },
+    });
+  }
 
-	clockOut(email: string, worksiteCode: string): Observable<TimeLog> {
-		const encodedEmail = encodeURIComponent(email);
-		const url = `${this.baseUrl}/${encodedEmail}/timelogs/clock-out`;
-		return this.http.post<TimeLog>(url, null, {
-			params: { worksiteCode }
-		});
-	}
+  clockOut(email: string, worksiteCode: string): Observable<TimeLog> {
+    const encodedEmail = encodeURIComponent(email);
+    const url = `${this.baseUrl}/${encodedEmail}/timelogs/clock-out`;
+    return this.http.post<TimeLog>(url, null, {
+      params: { worksiteCode },
+    });
+  }
 }

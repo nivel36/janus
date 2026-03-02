@@ -1,27 +1,29 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { Pipe, PipeTransform } from '@angular/core';
 import { Duration } from '../../features/timelogs/models/duration';
 
 @Pipe({
-	name: 'duration',
-	standalone: true
+  name: 'duration',
+  standalone: true,
 })
 export class DurationPipe implements PipeTransform {
+  transform(duration?: Duration | null): string {
+    if (!duration) {
+      return '';
+    }
 
-	transform(duration?: Duration | null): string {
-		if (!duration) {
-			return '';
-		}
+    const { hours, minutes, seconds } = duration;
 
-		const { hours, minutes, seconds } = duration;
+    if (seconds > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    }
 
-		if (seconds > 0) {
-			return `${hours}h ${minutes}m ${seconds}s`;
-		}
+    if (minutes > 0) {
+      return `${hours}h ${minutes}m`;
+    }
 
-		if (minutes > 0) {
-			return `${hours}h ${minutes}m`;
-		}
-
-		return `${hours}h`;
-	}
+    return `${hours}h`;
+  }
 }

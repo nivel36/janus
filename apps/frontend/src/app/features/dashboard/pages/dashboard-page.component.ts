@@ -1,3 +1,6 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { AsyncPipe, NgIf } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +22,6 @@ import { KEYCLOAK_CLIENT_ID } from '../../../core/auth/keycloak.constants';
   standalone: true,
   imports: [
     AsyncPipe,
-    NgIf,
     FormsModule,
     TranslatePipe,
     ClockComponent,
@@ -42,11 +44,7 @@ export class DashboardPageComponent implements OnInit {
   readonly isAuthenticated$ = this.authService.isAuthenticated$;
   readonly username$ = this.authService.username$;
   readonly canClockInOut$ = this.authService.permissions$.pipe(
-    map(
-      (permissions) =>
-        permissions.realmRoles.includes('timelog_user') ||
-        (permissions.clientRoles[KEYCLOAK_CLIENT_ID] ?? []).includes('timelog_user'),
-    ),
+    map((permissions) => permissions.realmRoles.includes('JANUS_USER')),
   );
 
   private latestTimeLog?: TimeLog;
