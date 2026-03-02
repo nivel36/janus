@@ -15,13 +15,15 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-import java.time.Clock;
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,10 @@ import jakarta.validation.constraints.Pattern;
 public class TimeLogController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TimeLogController.class);
+
+	private static final long SSE_POLLING_INTERVAL_SECONDS = 1L;
+	private static final long SSE_TIMEOUT_MILLIS = 30L * 60L * 1000L;
+	private static final ScheduledExecutorService SSE_SCHEDULER = Executors.newScheduledThreadPool(2);
 
 	private final TimeLogService timeLogService;
 	private final EmployeeService employeeService;
@@ -262,44 +268,27 @@ public class TimeLogController {
 		logger.debug("Clock action availability STREAM opened");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final SseEmitter emitter = new SseEmitter(0L);
-		final ExecutorService executor = Executors.newSingleThreadExecutor();
-		final AtomicBoolean streamActive = new AtomicBoolean(true);
+		final SseEmitter emitter = new SseEmitter(SSE_TIMEOUT_MILLIS);
+		final AtomicReference<ClockActionAvailabilityResponse> previousAvailability = new AtomicReference<>();
 
-		emitter.onCompletion(() -> {
-			streamActive.set(false);
-			executor.shutdownNow();
-		});
-		emitter.onTimeout(() -> {
-			streamActive.set(false);
-			executor.shutdownNow();
-		});
-		emitter.onError((error) -> {
-			streamActive.set(false);
-			executor.shutdownNow();
-		});
-
-		executor.submit(() -> {
-			ClockActionAvailabilityResponse previousAvailability = null;
-			while (streamActive.get()) {
-				try {
-					final ClockActionAvailabilityResponse currentAvailability = this
-							.buildClockActionAvailabilityResponse(employee);
-					if (!currentAvailability.equals(previousAvailability)) {
-						emitter.send(SseEmitter.event().name("clock-action-availability").data(currentAvailability));
-						previousAvailability = currentAvailability;
-					}
-					Thread.sleep(1000);
-				} catch (final IOException | IllegalStateException e) {
-					streamActive.set(false);
-					emitter.complete();
-				} catch (final InterruptedException e) {
-					Thread.currentThread().interrupt();
-					streamActive.set(false);
-					emitter.complete();
+		final ScheduledFuture<?> scheduledTask = SSE_SCHEDULER.scheduleAtFixedRate(() -> {
+			try {
+				final ClockActionAvailabilityResponse currentAvailability = this.buildClockActionAvailabilityResponse(employee);
+				final ClockActionAvailabilityResponse previous = previousAvailability.getAndSet(currentAvailability);
+				if (!currentAvailability.equals(previous)) {
+					emitter.send(SseEmitter.event().name("clock-action-availability").data(currentAvailability));
 				}
+			} catch (final IOException | IllegalStateException e) {
+				emitter.complete();
 			}
+		}, 0L, SSE_POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS);
+
+		emitter.onCompletion(() -> scheduledTask.cancel(true));
+		emitter.onTimeout(() -> {
+			scheduledTask.cancel(true);
+			emitter.complete();
 		});
+		emitter.onError((error) -> scheduledTask.cancel(true));
 
 		return emitter;
 	}
