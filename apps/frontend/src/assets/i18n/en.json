@@ -8,7 +8,9 @@
 		"clockout": "Clock out",
 		"date": "Date",
 		"duration": "Duration",
-		"timelogs": "Time logs"
+		"timelogs": "Time logs",
+		"clockActionPermissionDenied": "You do not have permission to clock in or out.",
+		"clockActionNetworkError": "Unable to register your time action right now. Please try again."
 	},
 	"employee": {
 		"employee": "Employee",
