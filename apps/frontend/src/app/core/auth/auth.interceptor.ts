@@ -1,68 +1,64 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { HttpInterceptorFn } from '@angular/common/http';
 import { from, switchMap } from 'rxjs';
-import { keycloak } from '../../auth/keycloak';
+import { keycloak } from './keycloak';
 import { environment } from '../../../environments/environment';
 
 const MIN_TOKEN_VALIDITY_SECONDS = 30;
+let refreshInFlight: Promise<string | undefined> | null = null;
 let loginRedirectInProgress = false;
 
 function isKeycloakRequest(url: string): boolean {
-	const keycloakUrl = environment.keycloak.url?.trim();
-	if (!keycloakUrl) {
-		return false;
-	}
-
-	return url.startsWith(keycloakUrl);
+  const base = environment.keycloak.url?.trim();
+  return Boolean(base) && url.startsWith(base!);
 }
 
 function isProtectedApiRequest(url: string): boolean {
-	if (url.startsWith(environment.apiUrl) || url.startsWith(environment.apiBaseUrl)) {
-		return true;
-	}
-
-	if (!globalThis.location?.origin) {
-		return false;
-	}
-
-	return url.startsWith(`${globalThis.location.origin}${environment.apiBaseUrl}`);
+  if (url.startsWith(environment.apiUrl) || url.startsWith(environment.apiBaseUrl)) {
+    return true;
+  }
+  const origin = globalThis.location?.origin;
+  return Boolean(origin) && url.startsWith(`${origin}${environment.apiBaseUrl}`);
 }
 
-async function getUpdatedToken(): Promise<string | undefined> {
-	if (!keycloak?.authenticated) {
-		return keycloak?.token;
-	}
+async function getTokenFresh(): Promise<string | undefined> {
+  if (!keycloak?.authenticated) return undefined;
 
-	try {
-		await keycloak.updateToken(MIN_TOKEN_VALIDITY_SECONDS);
-		loginRedirectInProgress = false;
-		return keycloak.token;
-	} catch {
-		keycloak.clearToken();
-		if (!loginRedirectInProgress) {
-			loginRedirectInProgress = true;
-			void keycloak.login({ redirectUri: globalThis.location?.href });
-		}
-		return undefined;
-	}
+  if (refreshInFlight) return refreshInFlight;
+
+  refreshInFlight = (async () => {
+    try {
+      await keycloak.updateToken(MIN_TOKEN_VALIDITY_SECONDS);
+      loginRedirectInProgress = false;
+      return keycloak.token;
+    } catch {
+      keycloak.clearToken();
+      if (!loginRedirectInProgress) {
+        loginRedirectInProgress = true;
+        void keycloak.login({ redirectUri: globalThis.location?.href });
+      }
+      return undefined;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
 }
 
-export const authInterceptor: HttpInterceptorFn = (request, next) => {
-	if (isKeycloakRequest(request.url) || !isProtectedApiRequest(request.url)) {
-		return next(request);
-	}
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  if (isKeycloakRequest(req.url) || !isProtectedApiRequest(req.url)) {
+    return next(req);
+  }
 
-	return from(getUpdatedToken()).pipe(
-		switchMap((token) => {
-			if (!token) {
-				return next(request);
-			}
-
-			const withAuth = request.clone({
-				setHeaders: {
-					Authorization: `Bearer ${token}`
-				}
-			});
-			return next(withAuth);
-		})
-	);
+  return from(getTokenFresh()).pipe(
+    switchMap((token) => {
+      if (!token) {
+        return next(req);
+      }
+      return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
+    }),
+  );
 };

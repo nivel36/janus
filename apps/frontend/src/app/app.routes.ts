@@ -1,9 +1,16 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { Routes } from '@angular/router';
-import { AUTH_ROUTES } from './auth/auth.routes';
 import { authGuard } from './core/auth/auth.guard';
 import { KEYCLOAK_CLIENT_ID } from './core/auth/keycloak.constants';
 
 export const appRoutes: Routes = [
+  {
+    path: 'forbidden',
+    loadComponent: () =>
+      import('./core/error-pages/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
+  },
   {
     path: '',
     canActivate: [authGuard],
@@ -15,5 +22,4 @@ export const appRoutes: Routes = [
         (m) => m.DashboardPageComponent,
       ),
   },
-  ...AUTH_ROUTES,
 ];

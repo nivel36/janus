@@ -1,3 +1,6 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { map, take } from 'rxjs';
@@ -5,14 +8,15 @@ import { map, take } from 'rxjs';
 import { AuthService } from './auth.service';
 
 interface RouteRoleData {
-  realmRole?: string;
-  clientRole?: {
-    clientId: string;
-    role: string;
-  };
+  realmRole?: string | string[];
+  clientRole?: { clientId: string; role: string } | Array<{ clientId: string; role: string }>;
 }
 
-export const authGuard: CanActivateFn = (route, state): ReturnType<CanActivateFn> => {
+function asArray<T>(v: T | T[] | null | undefined): T[] {
+  return v == null ? [] : Array.isArray(v) ? v : [v];
+}
+
+export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const roleData = route.data as RouteRoleData | undefined;
@@ -26,18 +30,21 @@ export const authGuard: CanActivateFn = (route, state): ReturnType<CanActivateFn
         return false;
       }
 
-      const hasRealmRole = roleData?.realmRole
-        ? authService.hasRealmRole(roleData.realmRole)
-        : true;
-      const hasClientRole = roleData?.clientRole
-        ? authService.hasClientRole(roleData.clientRole.clientId, roleData.clientRole.role)
-        : true;
+      const requiredRealmRoles = asArray(roleData?.realmRole);
+      const requiredClientRoles = asArray(roleData?.clientRole);
 
-      if (hasRealmRole && hasClientRole) {
-        return true;
-      }
+      const hasAnyRealmRole =
+        requiredRealmRoles.length === 0 ||
+        requiredRealmRoles.some((r) => authService.hasRealmRole(r));
 
-      return router.parseUrl('/login');
+      const hasAnyClientRole =
+        requiredClientRoles.length === 0 ||
+        requiredClientRoles.some((cr) => authService.hasClientRole(cr.clientId, cr.role));
+
+      const anyRoleRequired = requiredRealmRoles.length > 0 || requiredClientRoles.length > 0;
+      const isAuthorized = !anyRoleRequired || hasAnyRealmRole || hasAnyClientRole;
+
+      return isAuthorized ? true : router.parseUrl('/forbidden');
     }),
   );
 };

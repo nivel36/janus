@@ -31,8 +31,13 @@ spring:
       continue-on-error: false
 server:
   port: 0
+  
 logging:
   pattern:
     console: "%d{HH:mm:ss.SSS} [%-8X{reqId}] [%-5level] %logger{36} - %msg%n"
   level:
     es.nivel36.janus: TRACE
+
+janus:
+  cors:
+    allowed-origins: "*"

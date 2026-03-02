@@ -1,13 +1,14 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { keycloak } from '../../auth/keycloak';
+import { keycloak } from './keycloak';
 
 interface AppUserResponse {
   username: string;
-  name: string;
-  surname: string;
   locale: string;
   timeFormat: string;
 }
