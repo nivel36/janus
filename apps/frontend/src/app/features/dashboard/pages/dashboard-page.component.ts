@@ -5,7 +5,7 @@ import { AsyncPipe, NgIf } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { filter, firstValueFrom, map } from 'rxjs';
+import { distinctUntilChanged, filter, firstValueFrom, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '../../../core/auth/auth.service';
@@ -45,11 +45,12 @@ export class DashboardPageComponent implements OnInit {
   readonly isAuthenticated$ = this.authService.isAuthenticated$;
   readonly username$ = this.authService.username$;
   readonly canClockInOut$ = this.authService.permissions$.pipe(
-    map(
-      (permissions) =>
-        permissions.realmRoles.includes('timelog_user') ||
-        (permissions.clientRoles[KEYCLOAK_CLIENT_ID] ?? []).includes('timelog_user'),
-    ),
+    map((permissions) => permissions.realmRoles.includes('JANUS_USER')),
+  );
+
+  readonly fullName$ = this.authService.claims$.pipe(
+    map((c) => `${c?.given_name ?? ''} ${c?.family_name ?? ''}`.trim()),
+    distinctUntilChanged(),
   );
 
   private latestTimeLog?: TimeLog;
@@ -77,7 +78,6 @@ export class DashboardPageComponent implements OnInit {
 
     if (!this.authService.hasRealmRole('JANUS_USER')) {
       this.clockActionFeedbackKey = 'timelog.clockActionPermissionDenied';
-
       return;
     }
 
@@ -86,7 +86,6 @@ export class DashboardPageComponent implements OnInit {
 
     try {
       const email = await firstValueFrom(this.username$.pipe(filter((u): u is string => !!u)));
-
       const worksiteCode = this.latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode;
 
       const action$ = this.shouldClockOut()
