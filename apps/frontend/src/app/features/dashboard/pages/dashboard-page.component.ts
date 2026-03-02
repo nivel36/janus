@@ -39,12 +39,17 @@ export class DashboardPageComponent implements OnInit {
   private readonly defaultWorksiteCode = 'BCN-HQ';
 
   clockActionLabelKey = 'timelog.clockin';
+  clockActionFeedbackKey?: string;
   isClockActionLoading = false;
 
   readonly isAuthenticated$ = this.authService.isAuthenticated$;
   readonly username$ = this.authService.username$;
   readonly canClockInOut$ = this.authService.permissions$.pipe(
-    map((permissions) => permissions.realmRoles.includes('JANUS_USER')),
+    map(
+      (permissions) =>
+        permissions.realmRoles.includes('timelog_user') ||
+        (permissions.clientRoles[KEYCLOAK_CLIENT_ID] ?? []).includes('timelog_user'),
+    ),
   );
 
   private latestTimeLog?: TimeLog;
@@ -74,9 +79,11 @@ export class DashboardPageComponent implements OnInit {
       !this.authService.hasRealmRole('timelog_user') &&
       !this.authService.hasClientRole(KEYCLOAK_CLIENT_ID, 'timelog_user')
     ) {
+      this.clockActionFeedbackKey = 'timelog.clockActionPermissionDenied';
       return;
     }
 
+    this.clockActionFeedbackKey = undefined;
     this.isClockActionLoading = true;
 
     try {
@@ -92,9 +99,11 @@ export class DashboardPageComponent implements OnInit {
         next: (timeLog) => {
           this.latestTimeLog = timeLog;
           this.clockActionLabelKey = this.getClockActionLabelKey(timeLog);
+          this.clockActionFeedbackKey = undefined;
           this.tableRefreshToken += 1;
         },
         error: () => {
+          this.clockActionFeedbackKey = 'timelog.clockActionNetworkError';
           this.isClockActionLoading = false;
         },
         complete: () => {

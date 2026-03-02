@@ -22,6 +22,13 @@
                                 {{ clockActionLabelKey | translate }}
                             </app-button>
                         }
+
+                        @if (clockActionFeedbackKey) {
+                            <p class="clock-action-feedback" role="status" aria-live="polite">
+                                {{ clockActionFeedbackKey | translate }}
+                            </p>
+                        }
+
                     </ng-template>
                 </app-card>
 
