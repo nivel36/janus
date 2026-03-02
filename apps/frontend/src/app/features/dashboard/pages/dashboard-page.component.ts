@@ -70,10 +70,7 @@ export class DashboardPageComponent implements OnInit {
       return;
     }
 
-    if (
-      !this.authService.hasRealmRole('timelog_user') &&
-      !this.authService.hasClientRole(KEYCLOAK_CLIENT_ID, 'timelog_user')
-    ) {
+    if (!this.authService.hasRealmRole('JANUS_USER')) {
       return;
     }
 
