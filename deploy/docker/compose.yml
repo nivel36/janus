@@ -4,7 +4,7 @@ services:
       context: ../..
       dockerfile: deploy/nginx/Dockerfile
     ports:
-      - "80:80"
+      - "${NGINX_PORT:-4200}:80"
     depends_on:
       - backend
       - keycloak
@@ -16,7 +16,6 @@ services:
       dockerfile: Dockerfile
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      # issuer interno (docker) con /auth
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/auth/realms/janus-realm
     depends_on:
       - postgres
@@ -46,13 +45,10 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres_keycloak:5432/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
-
-      # Para ir bajo /auth y detrás de nginx
       KC_HTTP_RELATIVE_PATH: /auth
       KC_PROXY_HEADERS: xforwarded
     volumes:
@@ -63,7 +59,6 @@ services:
   grafana:
     image: grafana/grafana:11.2.0
     environment:
-      # necesario para servir bajo /grafana
       GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/grafana/"
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     volumes:

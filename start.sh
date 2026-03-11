@@ -7,7 +7,7 @@ MODE="prod"
 if [[ "${1:-}" == "-dev" ]]; then
   MODE="dev"
 elif [[ $# -gt 0 ]]; then
-  echo "Uso: $0 [-dev]" >&2
+  echo "Usage: $0 [-dev]" >&2
   exit 1
 fi
 
@@ -22,16 +22,47 @@ if [[ ! -f "$COMPOSE_FILE" ]]; then
   exit 1
 fi
 
-if docker compose version >/dev/null 2>&1; then
-  COMPOSE_CMD=(docker compose)
-elif command -v docker-compose >/dev/null 2>&1; then
-  COMPOSE_CMD=(docker-compose)
-else
-  echo "Docker Compose not found (docker compose or docker-compose)." >&2
+detect_compose_cmd() {
+  if command -v podman >/dev/null 2>&1; then
+    if podman compose version >/dev/null 2>&1; then
+      echo "podman compose"
+      return 0
+    fi
+  fi
+
+  if command -v podman-compose >/dev/null 2>&1; then
+    echo "podman-compose"
+    return 0
+  fi
+
+  if command -v docker >/dev/null 2>&1; then
+    if docker compose version >/dev/null 2>&1; then
+      echo "docker compose"
+      return 0
+    fi
+  fi
+
+  if command -v docker-compose >/dev/null 2>&1; then
+    echo "docker-compose"
+    return 0
+  fi
+
+  return 1
+}
+
+COMPOSE_CMD_STR="$(detect_compose_cmd || true)"
+
+if [[ -z "$COMPOSE_CMD_STR" ]]; then
+  echo "No compatible Compose implementation found." >&2
+  echo "Checked: podman compose, podman-compose, docker compose, docker-compose." >&2
   exit 1
 fi
 
-echo "Starting services ($MODE) with ${COMPOSE_CMD[*]} using $COMPOSE_FILE"
+read -r -a COMPOSE_CMD <<< "$COMPOSE_CMD_STR"
+
+echo "Starting services ($MODE) using: ${COMPOSE_CMD[*]}"
+echo "Compose file: $COMPOSE_FILE"
+
 "${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" up -d --build
 
 echo "Services started successfully."
