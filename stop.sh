@@ -60,9 +60,9 @@ fi
 
 read -r -a COMPOSE_CMD <<< "$COMPOSE_CMD_STR"
 
-echo "Starting services ($MODE) using: ${COMPOSE_CMD[*]}"
+echo "Stopping services ($MODE) using: ${COMPOSE_CMD[*]}"
 echo "Compose file: $COMPOSE_FILE"
 
 "${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" down
 
-echo "Services started successfully."
+echo "Services stopped successfully."
