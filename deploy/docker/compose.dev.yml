@@ -4,9 +4,14 @@ services:
     environment:
       POSTGRES_DB: app
       POSTGRES_USER: app
-      POSTGRES_PASSWORD: app
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD:-app}
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - pg_app:/var/lib/postgresql/data
 
@@ -15,9 +20,14 @@ services:
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - pg_keycloak:/var/lib/postgresql/data
 
@@ -25,12 +35,12 @@ services:
     image: quay.io/keycloak/keycloak:26.0
     command: ["start-dev", "--import-realm"]
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres_keycloak:5432/keycloak
       KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
       KC_HTTP_RELATIVE_PATH: /auth
       KC_PROXY_HEADERS: xforwarded
     ports:
@@ -38,7 +48,8 @@ services:
     volumes:
       - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     depends_on:
-      - postgres_keycloak
+      postgres_keycloak:
+        condition: service_healthy
 
   grafana:
     image: grafana/grafana:11.2.0
