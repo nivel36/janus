@@ -55,6 +55,20 @@ access tokens issued by the configured realm (`issuer-uri`).
 - Login/logout UX should call Keycloak endpoints via the frontend Keycloak client.
 - Backend authorization for `/api/**` depends on a valid bearer token only.
 
+
+### Deployment hardening notes
+
+The compose files now support overriding sensitive defaults via environment variables:
+
+- `APP_DB_PASSWORD`
+- `KEYCLOAK_DB_PASSWORD`
+- `KEYCLOAK_ADMIN`
+- `KEYCLOAK_ADMIN_PASSWORD`
+
+If unset, local-development defaults are still applied.
+
+Both postgres services include healthchecks (`pg_isready`), and startup ordering waits for the Keycloak DB to be healthy before launching Keycloak.
+
 ## Docker (quick start/stop)
 
 From the project root, you can use these scripts:
