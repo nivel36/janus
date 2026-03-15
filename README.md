@@ -67,6 +67,8 @@ The compose files now support overriding sensitive defaults via environment vari
 
 If unset, local-development defaults are still applied.
 
+`APP_DB_PASSWORD` is also propagated to the backend datasource (`JANUS_DATASOURCE_PASSWORD`) in Docker deployment so database credentials stay aligned.
+
 Both postgres services include healthchecks (`pg_isready`), and startup ordering waits for the Keycloak DB to be healthy before launching Keycloak.
 
 ## Docker (quick start/stop)
