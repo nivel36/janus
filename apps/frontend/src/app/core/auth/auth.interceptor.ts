@@ -16,7 +16,7 @@ function isKeycloakRequest(url: string): boolean {
 }
 
 function isProtectedApiRequest(url: string): boolean {
-  if (url.startsWith(environment.apiUrl) || url.startsWith(environment.apiBaseUrl)) {
+  if (url.startsWith(environment.apiBaseUrl)) {
     return true;
   }
   const origin = globalThis.location?.origin;

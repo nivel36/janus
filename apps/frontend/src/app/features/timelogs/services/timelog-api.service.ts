@@ -6,7 +6,7 @@ import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TimeLogService {
-  private readonly baseUrl = `${environment.apiUrl}/employees`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/employees`;
 
   constructor(private readonly http: HttpClient) {}
 

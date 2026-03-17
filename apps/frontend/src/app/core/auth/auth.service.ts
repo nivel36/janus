@@ -49,7 +49,7 @@ interface LoginRedirectOptions {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly appUserBaseUrl = `${environment.apiUrl}/appusers`;
+  private readonly appUserBaseUrl = `${environment.apiBaseUrl}/appusers`;
   private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(
     Boolean(keycloak?.authenticated),
   );

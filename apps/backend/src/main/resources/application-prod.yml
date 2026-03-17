@@ -1,0 +1,51 @@
+# Copyright 2026 Abel Ferrer Jiménez
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${JANUS_DATASOURCE_URL:jdbc:postgresql://postgres:5432/app}
+    username: ${JANUS_DATASOURCE_USERNAME:app}
+    password: ${JANUS_DATASOURCE_PASSWORD:app}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URL}
+          jwk-set-uri: ${SPRING_JWT_ISSUER_URI}/protocol/openid-connect/certs
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/schema-postgres.sql
+      data-locations: classpath:sql/data.sql
+      continue-on-error: false
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+logging:
+  level:
+    root: INFO
+    web: INFO
+    es.nivel36.janus: INFO
+
+janus:
+  cors:
+    allowed-origins: ${JANUS_CORS_ALLOWED_ORIGINS:http://localhost}

@@ -3,84 +3,97 @@ services:
     build:
       context: ../..
       dockerfile: deploy/nginx/Dockerfile
+    container_name: janus-nginx-prod
     ports:
-      - "${NGINX_PORT:-4200}:80"
+      - "${NGINX_PORT:-80}:80"
     depends_on:
       - backend
       - keycloak
       - grafana
 
-  backend:
-    build:
-      context: ../../apps/backend
-      dockerfile: Dockerfile
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/auth/realms/janus-realm
-      - JANUS_DATASOURCE_PASSWORD=${APP_DB_PASSWORD:-app}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      keycloak:
-        condition: service_started
-
   postgres:
     image: postgres:16
+    container_name: janus-postgres-prod
     environment:
       POSTGRES_DB: app
       POSTGRES_USER: app
-      POSTGRES_PASSWORD: ${APP_DB_PASSWORD:-app}
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U app -d app"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
-      - pg_app:/var/lib/postgresql/data
+      - pg_app_prod:/var/lib/postgresql/data
 
   postgres_keycloak:
     image: postgres:16
+    container_name: janus-postgres-keycloak-prod
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
-      - pg_keycloak:/var/lib/postgresql/data
+      - pg_keycloak_prod:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0
-    command: ["start-dev", "--import-realm"]
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: janus-keycloak-prod
+    command: ["start", "--import-realm"]
     environment:
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres_keycloak:5432/keycloak
       KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
       KC_HTTP_RELATIVE_PATH: /auth
       KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: "http://localhost:4200/auth"
+      KC_HOSTNAME_STRICT: "false"
     volumes:
       - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     depends_on:
       postgres_keycloak:
         condition: service_healthy
 
+  backend:
+    build:
+      context: ../../apps/backend
+      dockerfile: Dockerfile
+    container_name: janus-backend-prod
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JANUS_DATASOURCE_URL: jdbc:postgresql://postgres:5432/app
+      JANUS_DATASOURCE_USERNAME: app
+      JANUS_DATASOURCE_PASSWORD: ${APP_DB_PASSWORD}
+      JWT_ISSUER_URL: ${JWT_ISSUER_URL}
+      SPRING_JWT_ISSUER_URI: ${SPRING_JWT_ISSUER_URI}
+      JANUS_CORS_ALLOWED_ORIGINS: ${JANUS_CORS_ALLOWED_ORIGINS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
   grafana:
-    image: grafana/grafana:11.2.0
+    image: grafana/grafana:12.4.1
+    container_name: janus-grafana-prod
     environment:
       GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/grafana/"
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     volumes:
-      - grafana_data:/var/lib/grafana
+      - grafana_data_prod:/var/lib/grafana
     depends_on:
       - postgres
 
 volumes:
-  pg_app:
-  pg_keycloak:
-  grafana_data:
+  pg_app_prod:
+  pg_keycloak_prod:
+  grafana_data_prod:

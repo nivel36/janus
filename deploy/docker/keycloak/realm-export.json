@@ -1,32 +1,26 @@
 {
   "realm": "janus-realm",
   "enabled": true,
-
   "roles": {
-    "realm": [
-      { "name": "JANUS_USER" }
-    ]
+    "realm": [{ "name": "JANUS_USER" }]
   },
-
   "clients": [
     {
       "clientId": "janus-spa",
       "enabled": true,
       "publicClient": true,
+      "bearerOnly": false,
       "protocol": "openid-connect",
       "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
-      "redirectUris": [
-        "http://localhost/*",
-        "http://localhost:4200/*"
-      ],
-      "webOrigins": [
-        "http://localhost",
-        "http://localhost:4200"
-      ]
+      "serviceAccountsEnabled": false,
+      "consentRequired": false,
+      "fullScopeAllowed": true,
+      "redirectUris": ["http://localhost/*", "http://localhost:4200/*"],
+      "webOrigins": ["http://localhost", "http://localhost:4200"]
     }
   ],
-
   "users": [
     {
       "username": "aferrer@nivel36.es",
@@ -38,7 +32,7 @@
       "credentials": [
         { "type": "password", "value": "Janus2026!", "temporary": false }
       ],
-      "realmRoles": [ "JANUS_USER" ]
+      "realmRoles": ["JANUS_USER"]
     }
   ]
 }

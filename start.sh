@@ -13,12 +13,19 @@ fi
 
 if [[ "$MODE" == "dev" ]]; then
   COMPOSE_FILE="$ROOT_DIR/deploy/docker/compose.dev.yml"
+  ENV_FILE=""
 else
   COMPOSE_FILE="$ROOT_DIR/deploy/docker/compose.yml"
+  ENV_FILE="$ROOT_DIR/deploy/docker/.env.prod"
 fi
 
 if [[ ! -f "$COMPOSE_FILE" ]]; then
   echo "Compose file not found at: $COMPOSE_FILE" >&2
+  exit 1
+fi
+
+if [[ "$MODE" == "prod" && ! -f "$ENV_FILE" ]]; then
+  echo "Env file not found at: $ENV_FILE" >&2
   exit 1
 fi
 
@@ -62,7 +69,14 @@ read -r -a COMPOSE_CMD <<< "$COMPOSE_CMD_STR"
 
 echo "Starting services ($MODE) using: ${COMPOSE_CMD[*]}"
 echo "Compose file: $COMPOSE_FILE"
+if [[ -n "$ENV_FILE" ]]; then
+  echo "Env file: $ENV_FILE"
+fi
 
-"${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" up -d --build
+if [[ -n "$ENV_FILE" ]]; then
+  "${COMPOSE_CMD[@]}" --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build
+else
+  "${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" up -d --build
+fi
 
 echo "Services started successfully."
