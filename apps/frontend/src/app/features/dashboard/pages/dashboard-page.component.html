@@ -12,14 +12,17 @@
         <section class="dashboard-content">
             <!-- MAIN CONTENT -->
             <section class="content">
-                <app-card styleClass="clock-in-card" [title]="clockActionLabelKey | translate">
+                <app-card
+                    styleClass="clock-in-card"
+                    [title]="clockActionTitleKey$ | async | translate"
+                >
                     <ng-template #cardHeader>
                         <app-clock styleClass="card-hour-container" timeClass="card-hour">
                         </app-clock>
 
                         @if (canClockInOut$ | async) {
                             <app-button [disabled]="isClockActionLoading" (click)="onClockAction()">
-                                {{ clockActionLabelKey | translate }}
+                                {{ clockActionLabelKey$ | async | translate }}
                             </app-button>
                         }
 

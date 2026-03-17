@@ -1,32 +1,34 @@
 {
-	"navigation": {
-		"janus": "Janus",
-		"dashboard": "Panell de control"
-	},
-	"timelog": {
-		"clockin": "Entrada",
-		"clockout": "Sortida",
-		"date": "Data",
-		"duration": "Duració",
-		"timelogs": "Fixatges",
-		"clockActionPermissionDenied": "No tens permisos per fitxar.",
-		"clockActionNetworkError": "No s'ha pogut registrar el fitxatge en aquest moment. Torna-ho a provar."
-	},
-	"employee": {
-		"employee": "Empleat",
-		"fullName": "Nom complet",
-		"location": "Lloc",
-		"todaysHour": "Horari"
-	},
-	"login": {
-		"title": "Inicia sessió",
-		"subtitle": "Accedeix al teu panell",
-		"username": "Usuari",
-		"password": "Contrasenya",
-		"usernamePlaceholder": "usuari@empresa.com",
-		"passwordPlaceholder": "Introdueix la contrasenya",
-		"submit": "Entrar",
-		"loading": "Accedint...",
-		"error": "No s'ha pogut iniciar sessió. Comprova les credencials i torna-ho a provar."
-	}
+  "navigation": {
+    "janus": "Janus",
+    "dashboard": "Panell de control"
+  },
+  "timelog": {
+    "activeWorkday": "Jornada en curs",
+    "workdayNotStarted": "Jornada no iniciada",
+    "clockin": "Entrada",
+    "clockout": "Sortida",
+    "date": "Data",
+    "duration": "Duració",
+    "timelogs": "Fixatges",
+    "clockActionPermissionDenied": "No tens permisos per fitxar.",
+    "clockActionNetworkError": "No s'ha pogut registrar el fitxatge en aquest moment. Torna-ho a provar."
+  },
+  "employee": {
+    "employee": "Empleat",
+    "fullName": "Nom complet",
+    "location": "Lloc",
+    "todaysHour": "Horari"
+  },
+  "login": {
+    "title": "Inicia sessió",
+    "subtitle": "Accedeix al teu panell",
+    "username": "Usuari",
+    "password": "Contrasenya",
+    "usernamePlaceholder": "usuari@empresa.com",
+    "passwordPlaceholder": "Introdueix la contrasenya",
+    "submit": "Entrar",
+    "loading": "Accedint...",
+    "error": "No s'ha pogut iniciar sessió. Comprova les credencials i torna-ho a provar."
+  }
 }

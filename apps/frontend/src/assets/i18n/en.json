@@ -1,32 +1,34 @@
 {
-	"navigation": {
-		"janus": "Janus",
-		"dashboard": "Dashboard"
-	},
-	"timelog": {
-		"clockin": "Clock in",
-		"clockout": "Clock out",
-		"date": "Date",
-		"duration": "Duration",
-		"timelogs": "Time logs",
-		"clockActionPermissionDenied": "You do not have permission to clock in or out.",
-		"clockActionNetworkError": "Unable to register your time action right now. Please try again."
-	},
-	"employee": {
-		"employee": "Employee",
-		"fullName": "Full Name",
-		"location": "Location",
-		"todaysHour": "Today's Hour"
-	},
-	"login": {
-		"title": "Sign in",
-		"subtitle": "Access your dashboard",
-		"username": "Username",
-		"password": "Password",
-		"usernamePlaceholder": "you@company.com",
-		"passwordPlaceholder": "Enter your password",
-		"submit": "Sign in",
-		"loading": "Signing in...",
-		"error": "Unable to sign in. Please check your credentials and try again."
-	}
+  "navigation": {
+    "janus": "Janus",
+    "dashboard": "Dashboard"
+  },
+  "timelog": {
+    "activeWorkday": "Active Workday",
+    "workdayNotStarted": "Workday not started",
+    "clockin": "Clock in",
+    "clockout": "Clock out",
+    "date": "Date",
+    "duration": "Duration",
+    "timelogs": "Time logs",
+    "clockActionPermissionDenied": "You do not have permission to clock in or out.",
+    "clockActionNetworkError": "Unable to register your time action right now. Please try again."
+  },
+  "employee": {
+    "employee": "Employee",
+    "fullName": "Full Name",
+    "location": "Location",
+    "todaysHour": "Today's Hour"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Access your dashboard",
+    "username": "Username",
+    "password": "Password",
+    "usernamePlaceholder": "you@company.com",
+    "passwordPlaceholder": "Enter your password",
+    "submit": "Sign in",
+    "loading": "Signing in...",
+    "error": "Unable to sign in. Please check your credentials and try again."
+  }
 }

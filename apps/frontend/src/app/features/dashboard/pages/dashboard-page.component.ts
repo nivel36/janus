@@ -5,7 +5,14 @@ import { AsyncPipe, NgIf } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { distinctUntilChanged, filter, firstValueFrom, map } from 'rxjs';
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
+  map,
+  shareReplay,
+} from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '../../../core/auth/auth.service';
@@ -38,12 +45,17 @@ export class DashboardPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly defaultWorksiteCode = 'BCN-HQ';
 
-  clockActionLabelKey = 'timelog.clockin';
+  private readonly latestTimeLogSubject = new BehaviorSubject<TimeLog | undefined>(undefined);
+  readonly latestTimeLog$ = this.latestTimeLogSubject.asObservable();
+
   clockActionFeedbackKey?: string;
   isClockActionLoading = false;
+  tableRefreshToken = 0;
+  employeeEmail!: string;
 
   readonly isAuthenticated$ = this.authService.isAuthenticated$;
   readonly username$ = this.authService.username$;
+
   readonly canClockInOut$ = this.authService.permissions$.pipe(
     map((permissions) => permissions.realmRoles.includes('JANUS_USER')),
   );
@@ -53,11 +65,17 @@ export class DashboardPageComponent implements OnInit {
     distinctUntilChanged(),
   );
 
-  private latestTimeLog?: TimeLog;
+  readonly clockActionTitleKey$ = this.latestTimeLog$.pipe(
+    map((timeLog) => this.getClockActionTitleKey(timeLog)),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
-  tableRefreshToken = 0;
-
-  employeeEmail!: string;
+  readonly clockActionLabelKey$ = this.latestTimeLog$.pipe(
+    map((timeLog) => this.getClockActionLabelKey(timeLog)),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   ngOnInit(): void {
     this.username$
@@ -86,16 +104,16 @@ export class DashboardPageComponent implements OnInit {
 
     try {
       const email = await firstValueFrom(this.username$.pipe(filter((u): u is string => !!u)));
-      const worksiteCode = this.latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode;
+      const latestTimeLog = this.latestTimeLogSubject.getValue();
+      const worksiteCode = latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode;
 
-      const action$ = this.shouldClockOut()
+      const action$ = this.shouldClockOut(latestTimeLog)
         ? this.timeLogService.clockOut(email, worksiteCode)
         : this.timeLogService.clockIn(email, worksiteCode);
 
       action$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (timeLog) => {
-          this.latestTimeLog = timeLog;
-          this.clockActionLabelKey = this.getClockActionLabelKey(timeLog);
+          this.latestTimeLogSubject.next(timeLog);
           this.clockActionFeedbackKey = undefined;
           this.tableRefreshToken += 1;
         },
@@ -118,18 +136,25 @@ export class DashboardPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.latestTimeLog = this.getLatestTimeLog(response);
-          this.clockActionLabelKey = this.getClockActionLabelKey(this.latestTimeLog);
+          this.latestTimeLogSubject.next(this.getLatestTimeLog(response));
         },
         error: () => {
-          this.latestTimeLog = undefined;
-          this.clockActionLabelKey = 'timelog.clockin';
+          this.latestTimeLogSubject.next(undefined);
         },
       });
   }
 
-  private shouldClockOut(): boolean {
-    return !!this.latestTimeLog && !this.extractExitTime(this.latestTimeLog.exitTime);
+  private shouldClockOut(timeLog?: TimeLog): boolean {
+    return !!timeLog && !this.extractExitTime(timeLog.exitTime);
+  }
+
+  private getClockActionTitleKey(timeLog?: TimeLog): string {
+    if (!timeLog) {
+      return 'timelog.workdayNotStarted';
+    }
+    return this.extractExitTime(timeLog.exitTime)
+      ? 'timelog.workdayNotStarted'
+      : 'timelog.activeWorkday';
   }
 
   private getClockActionLabelKey(timeLog?: TimeLog): string {

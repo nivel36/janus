@@ -1,32 +1,34 @@
 {
-	"navigation": {
-		"janus": "Janus",
-		"dashboard": "Panel de control"
-	},
-	"timelog": {
-		"clockin": "Entrada",
-		"clockout": "Salida",
-		"date": "Fecha",
-		"duration": "Duración",
-		"timelogs": "Fichajes",
-		"clockActionPermissionDenied": "No tienes permisos para fichar.",
-		"clockActionNetworkError": "No se pudo registrar el fichaje en este momento. Inténtalo de nuevo."
-	},
-	"employee": {
-		"employee": "Empleado",
-		"fullName": "Nombre completo",
-		"location": "Lugar",
-		"todaysHour": "Horario"
-	},
-	"login": {
-		"title": "Iniciar sesión",
-		"subtitle": "Accede a tu panel",
-		"username": "Usuario",
-		"password": "Contraseña",
-		"usernamePlaceholder": "usuario@empresa.com",
-		"passwordPlaceholder": "Introduce tu contraseña",
-		"submit": "Entrar",
-		"loading": "Accediendo...",
-		"error": "No se pudo iniciar sesión. Verifica tus credenciales e inténtalo de nuevo."
-	}
+  "navigation": {
+    "janus": "Janus",
+    "dashboard": "Panel de control"
+  },
+  "timelog": {
+    "activeWorkday": "Jornada en curso",
+    "workdayNotStarted": "Jornada no iniciada",
+    "clockin": "Entrada",
+    "clockout": "Salida",
+    "date": "Fecha",
+    "duration": "Duración",
+    "timelogs": "Fichajes",
+    "clockActionPermissionDenied": "No tienes permisos para fichar.",
+    "clockActionNetworkError": "No se pudo registrar el fichaje en este momento. Inténtalo de nuevo."
+  },
+  "employee": {
+    "employee": "Empleado",
+    "fullName": "Nombre completo",
+    "location": "Lugar",
+    "todaysHour": "Horario"
+  },
+  "login": {
+    "title": "Iniciar sesión",
+    "subtitle": "Accede a tu panel",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "usernamePlaceholder": "usuario@empresa.com",
+    "passwordPlaceholder": "Introduce tu contraseña",
+    "submit": "Entrar",
+    "loading": "Accediendo...",
+    "error": "No se pudo iniciar sesión. Verifica tus credenciales e inténtalo de nuevo."
+  }
 }
