@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -11,11 +11,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ClockComponent } from '../../../shared/ui/clock/clock.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
+import { UserCardComponent } from '../../../shared/ui/user-card/user-card.component';
 import { TimelogTableComponent } from '../../timelogs/components/timelog-table/timelog-table.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { TimeLogService } from '../../timelogs/services/timelog-api.service';
 import { TimeLog } from '../../timelogs/models/timelog';
-import { KEYCLOAK_CLIENT_ID } from '../../../core/auth/keycloak.constants';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -26,6 +26,7 @@ import { KEYCLOAK_CLIENT_ID } from '../../../core/auth/keycloak.constants';
     TranslatePipe,
     ClockComponent,
     CardComponent,
+    UserCardComponent,
     TimelogTableComponent,
     ButtonComponent,
   ],
@@ -42,14 +43,16 @@ export class DashboardPageComponent implements OnInit {
   clockActionFeedbackKey?: string;
   isClockActionLoading = false;
 
-  readonly isAuthenticated$ = this.authService.isAuthenticated$;
   readonly username$ = this.authService.username$;
   readonly canClockInOut$ = this.authService.permissions$.pipe(
     map((permissions) => permissions.realmRoles.includes('JANUS_USER')),
   );
 
   readonly fullName$ = this.authService.claims$.pipe(
-    map((c) => `${c?.given_name ?? ''} ${c?.family_name ?? ''}`.trim()),
+    map((c) => {
+      const claimFullName = `${c?.given_name ?? ''} ${c?.family_name ?? ''}`.trim();
+      return claimFullName || c?.name || c?.preferred_username || '';
+    }),
     distinctUntilChanged(),
   );
 

@@ -40,31 +40,7 @@
 
             <!-- ASIDE -->
             <section class="aside">
-                <app-card styleClass="user-card">
-                    <ng-template #cardHeader>
-                        <div class="user-card-header-content">
-                            <img class="avatar" src="assets/images/user.png" alt="User avatar" />
-                            <span class="user-card-title">
-                                {{ 'employee.employee' | translate }}
-                            </span>
-                        </div>
-                    </ng-template>
-
-                    <div class="data">
-                        <h3>{{ 'employee.fullName' | translate }}</h3>
-                        <p>{{ fullName$ | async }}</p>
-                    </div>
-
-                    <div class="data">
-                        <h3>{{ 'employee.location' | translate }}</h3>
-                        <p>Barcelona Headquarters</p>
-                    </div>
-
-                    <div class="data">
-                        <h3>{{ 'employee.todaysHour' | translate }}</h3>
-                        <p>9:00 - 17:30</p>
-                    </div>
-                </app-card>
+                <app-user-card [fullName]="fullName$ | async"></app-user-card>
             </section>
         </section>
     </section>
