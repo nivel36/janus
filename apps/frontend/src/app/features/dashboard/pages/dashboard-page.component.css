@@ -57,43 +57,6 @@
 	text-transform: uppercase;
 }
 
-.clock-card {
-	background-color: #f9d600;
-	color: #040404;
-	border-radius: 20px;
-	padding: 2.5rem;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 2rem;
-	box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.25);
-}
-
-.clock-info {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-}
-
-.clock-label {
-	text-transform: uppercase;
-	font-weight: 600;
-	letter-spacing: 0.18em;
-	font-size: 0.9rem;
-}
-
-.clock-time {
-	font-size: clamp(2.5rem, 5vw + 1rem, 3.5rem);
-	font-weight: 700;
-}
-
-@media ( max-width : 640px) {
-	.clock-card {
-		flex-direction: column;
-		align-items: flex-start;
-	}
-}
-
 
 .clock-action-feedback {
 	margin: 1rem 0 0;
