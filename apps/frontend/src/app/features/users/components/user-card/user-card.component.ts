@@ -4,7 +4,7 @@
 import { Component, Input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { CardComponent } from '../card/card.component';
+import { CardComponent } from '../../../../shared/ui/card/card.component';
 
 @Component({
   selector: 'app-user-card',

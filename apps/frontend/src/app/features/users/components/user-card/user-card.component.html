@@ -1,0 +1,25 @@
+<app-card styleClass="user-card">
+    <ng-template #cardHeader>
+        <div class="user-card-header-content">
+            <img class="avatar" [src]="avatarSrc" [alt]="avatarAlt" />
+            <span class="user-card-title">
+                {{ 'employee.employee' | translate }}
+            </span>
+        </div>
+    </ng-template>
+
+    <div class="data">
+        <h3>{{ 'employee.fullName' | translate }}</h3>
+        <p>{{ fullName || '—' }}</p>
+    </div>
+
+    <div class="data">
+        <h3>{{ 'employee.location' | translate }}</h3>
+        <p>{{ location }}</p>
+    </div>
+
+    <div class="data">
+        <h3>{{ 'employee.todaysHour' | translate }}</h3>
+        <p>{{ todaysHour }}</p>
+    </div>
+</app-card>
