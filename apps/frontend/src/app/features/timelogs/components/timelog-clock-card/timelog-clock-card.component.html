@@ -1,0 +1,20 @@
+<app-card styleClass="clock-in-card" [title]="clockActionTitleKey$ | async | translate">
+    <ng-template #cardHeader>
+        <app-clock styleClass="card-hour-container" timeClass="card-hour"></app-clock>
+
+        @if (canClockInOut$ | async) {
+            <app-button
+                [disabled]="(isClockActionLoading$ | async) ?? false"
+                (click)="onClockAction()"
+            >
+                {{ clockActionLabelKey$ | async | translate }}
+            </app-button>
+        }
+
+        @if (clockActionFeedbackKey$ | async; as feedbackKey) {
+            <p class="clock-action-feedback" role="status" aria-live="polite">
+                {{ feedbackKey | translate }}
+            </p>
+        }
+    </ng-template>
+</app-card>

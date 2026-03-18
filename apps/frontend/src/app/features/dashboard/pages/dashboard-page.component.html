@@ -12,27 +12,11 @@
         <section class="dashboard-content">
             <!-- MAIN CONTENT -->
             <section class="content">
-                <app-card
-                    styleClass="clock-in-card"
-                    [title]="clockActionTitleKey$ | async | translate"
+                <app-timelog-clock-card
+                    [employeeEmail]="employeeEmail"
+                    (clockActionDone)="onClockActionDone()"
                 >
-                    <ng-template #cardHeader>
-                        <app-clock styleClass="card-hour-container" timeClass="card-hour">
-                        </app-clock>
-
-                        @if (canClockInOut$ | async) {
-                            <app-button [disabled]="isClockActionLoading" (click)="onClockAction()">
-                                {{ clockActionLabelKey$ | async | translate }}
-                            </app-button>
-                        }
-
-                        @if (clockActionFeedbackKey) {
-                            <p class="clock-action-feedback" role="status" aria-live="polite">
-                                {{ clockActionFeedbackKey | translate }}
-                            </p>
-                        }
-                    </ng-template>
-                </app-card>
+                </app-timelog-clock-card>
 
                 <app-timelog-table
                     [employeeEmail]="employeeEmail"
