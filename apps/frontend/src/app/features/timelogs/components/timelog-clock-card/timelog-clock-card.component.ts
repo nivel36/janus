@@ -73,7 +73,7 @@ export class TimelogClockCardComponent {
   /**
    * Clicks on the clocking button.
    */
-  private readonly clockActionClickSubject = new Subject<void>();
+  private readonly clockActionClickSubject = new Subject<'auto' | 'force-opposite'>();
 
   /**
    * Manual trigger to reload the latest time log.
@@ -151,13 +151,22 @@ export class TimelogClockCardComponent {
   );
 
   /**
+   * i18n key for the secondary (opposite) action.
+   */
+  readonly oppositeClockActionLabelKey$ = this.latestTimeLog$.pipe(
+    map((timeLog) => (this.isOpenTimeLog(timeLog) ? 'timelog.clockin' : 'timelog.clockout')),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
    * Main execution flow for the clocking action.
    *
    * exhaustMap is used to ignore repeated clicks while an action is already in progress.
    */
   readonly clockActionResult$ = this.clockActionClickSubject.pipe(
     withLatestFrom(this.employeeEmail$, this.latestTimeLog$, this.canClockInOut$),
-    exhaustMap(([, employeeEmail, latestTimeLog, canClockInOut]) => {
+    exhaustMap(([mode, employeeEmail, latestTimeLog, canClockInOut]) => {
       if (!canClockInOut) {
         return of<ClockActionResult>({
           type: 'permissionDenied',
@@ -166,7 +175,13 @@ export class TimelogClockCardComponent {
       }
 
       const worksiteCode = latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode;
-      const action$ = this.isOpenTimeLog(latestTimeLog)
+
+      const shouldClockOut =
+        mode === 'force-opposite'
+          ? !this.isOpenTimeLog(latestTimeLog) // invertido
+          : this.isOpenTimeLog(latestTimeLog); // normal
+
+      const action$ = shouldClockOut
         ? this.timeLogService.clockOut(employeeEmail, worksiteCode)
         : this.timeLogService.clockIn(employeeEmail, worksiteCode);
 
@@ -220,7 +235,15 @@ export class TimelogClockCardComponent {
    * The actual logic lives in the clockActionResult$ stream.
    */
   onClockAction(): void {
-    this.clockActionClickSubject.next();
+    this.clockActionClickSubject.next('auto');
+  }
+
+  /**
+   * Executes the opposite clock action explicitly,
+   * bypassing the automatic decision.
+   */
+  onOppositeClockAction(): void {
+    this.clockActionClickSubject.next('force-opposite');
   }
 
   /**

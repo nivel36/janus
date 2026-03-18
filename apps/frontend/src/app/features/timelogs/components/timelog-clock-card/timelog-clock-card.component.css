@@ -1,3 +1,17 @@
-.clock-action-feedback {
-    margin-top: 0.75rem;
+.secondary-action {
+    color: black;
+    display: inline-block;
+    font-size: 0.85rem;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.secondary-action:hover {
+    opacity: 1;
+}
+
+.secondary-action.disabled {
+    pointer-events: none;
+    opacity: 0.4;
 }
