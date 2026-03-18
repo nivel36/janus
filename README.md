@@ -190,15 +190,6 @@ npm run build
 npm test
 ```
 
-## Obsolete information removed from previous versions of this README
-
-The following are no longer correct and should not be used:
-
-- Running `mvn clean install` from the repository root.
-- Starting the application with `java -jar Janus.jar` from the repository root.
-- Accessing the app at `http://localhost:8080/janus`.
-- Describing the project as a generic “Spring/Angular” app without the current Keycloak, Nginx, Grafana, monorepo, and Angular 20/Spring Boot 4 setup.
-
 ## License
 
 This project is licensed under the [Apache License 2.0](LICENSE).
