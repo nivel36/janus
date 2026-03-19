@@ -30,5 +30,10 @@
     "submit": "Entrar",
     "loading": "Accediendo...",
     "error": "No se pudo iniciar sesión. Verifica tus credenciales e inténtalo de nuevo."
+  },
+  "forbidden": {
+    "title": "Acceso denegado",
+    "message": "No tienes permisos para acceder a esta página.",
+    "backToHome": "Volver al inicio"
   }
 }

@@ -30,5 +30,10 @@
     "submit": "Entrar",
     "loading": "Accedint...",
     "error": "No s'ha pogut iniciar sessió. Comprova les credencials i torna-ho a provar."
+  },
+  "forbidden": {
+    "title": "Accés denegat",
+    "message": "No tens permisos per accedir a aquesta pàgina.",
+    "backToHome": "Torna a l'inici"
   }
 }
