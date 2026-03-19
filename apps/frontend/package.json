@@ -33,7 +33,6 @@
     "@primeuix/themes": "^1.2.5",
     "keycloak-js": "^26.2.3",
     "luxon": "^3.7.2",
-    "primeng": "^20.2.0",
     "rxjs": "^7.8.1",
     "tslib": "^2.6.2",
     "zone.js": "~0.15.0"

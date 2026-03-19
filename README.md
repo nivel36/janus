@@ -39,7 +39,7 @@ The backend currently exposes endpoints for:
 ## Technology stack
 
 - **Backend**: Java 25, Spring Boot 4, Spring Security, Spring Data JPA, Springdoc/OpenAPI.
-- **Frontend**: Angular 20, PrimeNG, ngx-translate, Luxon, keycloak-js.
+- **Frontend**: Angular 20, ngx-translate, Luxon, keycloak-js.
 - **Auth**: Keycloak 26.
 - **Database**: PostgreSQL 16.
 - **Observability**: Grafana 12 in the Docker deployment.
