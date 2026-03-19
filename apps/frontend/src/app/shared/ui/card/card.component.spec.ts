@@ -1,148 +1,240 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { CardComponent } from './card.component';
 
-/** Host 1: only title, no body, no footer */
 @Component({
-  template: `<app-card title="Clock in"></app-card>`,
-})
-class HostOnlyTitleComponent {}
-
-/** Host 2: title + extra in header, no body, no footer */
-@Component({
+  standalone: true,
+  imports: [CardComponent],
   template: `
-    <app-card title="Users">
-      <div card-header><button>Refresh</button></div>
+    <app-card
+      [title]="title"
+      [styleClass]="styleClass"
+      [titleClass]="titleClass"
+      [headerClass]="headerClass"
+      [footerClass]="footerClass"
+    >
+      <ng-template #cardHeader>
+        <div class="projected-header">Projected header</div>
+      </ng-template>
+
+      <p class="projected-body">Projected body</p>
+
+      <ng-template #cardFooter>
+        <div class="projected-footer">Projected footer</div>
+      </ng-template>
     </app-card>
   `,
 })
-class HostTitleAndHeaderExtraComponent {}
+class TestHostComponent {
+  title: string | null = null;
+  styleClass = '';
+  titleClass = '';
+  headerClass = '';
+  footerClass = '';
+}
 
-/** Host 3: body only */
 @Component({
+  standalone: true,
+  imports: [CardComponent],
   template: `
-    <app-card>
-      <p>Body content</p>
+    <app-card
+      [title]="title"
+      [styleClass]="styleClass"
+      [titleClass]="titleClass"
+      [headerClass]="headerClass"
+      [footerClass]="footerClass"
+    >
+      <p class="projected-body">Projected body only</p>
     </app-card>
   `,
 })
-class HostOnlyBodyComponent {}
+class TestHostWithoutTemplatesComponent {
+  title: string | null = null;
+  styleClass = '';
+  titleClass = '';
+  headerClass = '';
+  footerClass = '';
+}
 
-/** Host 4: header + body + footer */
-@Component({
-  template: `
-    <app-card title="Report">
-      <div card-header>Active filters: Q3</div>
-      <p>Content…</p>
-      <div card-footer>Page 1/3</div>
-    </app-card>
-  `,
-})
-class HostAllSectionsComponent {}
+describe('CardComponent', () => {
+  describe('with projected header and footer templates', () => {
+    let fixture: ComponentFixture<TestHostComponent>;
+    let hostComponent: TestHostComponent;
 
-/** Host 5: nothing projected and no title */
-@Component({
-  template: `<app-card></app-card>`,
-})
-class HostEmptyComponent {}
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [TestHostComponent],
+      }).compileComponents();
 
-describe('CardComponent content projection', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [
-        CardComponent,
-        HostOnlyTitleComponent,
-        HostTitleAndHeaderExtraComponent,
-        HostOnlyBodyComponent,
-        HostAllSectionsComponent,
-        HostEmptyComponent,
-      ],
-    }).compileComponents();
+      fixture = TestBed.createComponent(TestHostComponent);
+      hostComponent = fixture.componentInstance;
+    });
+
+    it('should create', () => {
+      fixture.detectChanges();
+
+      const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
+      const cardComponent = cardDebugElement.componentInstance as CardComponent;
+
+      expect(cardComponent).toBeTruthy();
+    });
+
+    it('should render the projected body content', () => {
+      fixture.detectChanges();
+
+      const bodyContent = fixture.nativeElement.querySelector('.projected-body');
+
+      expect(bodyContent).toBeTruthy();
+      expect(bodyContent.textContent.trim()).toBe('Projected body');
+    });
+
+    it('should render the title when provided', () => {
+      hostComponent.title = 'My card title';
+      fixture.detectChanges();
+
+      const titleElement = fixture.nativeElement.querySelector('.card-title');
+
+      expect(titleElement).toBeTruthy();
+      expect(titleElement.textContent.trim()).toBe('My card title');
+    });
+
+    it('should render the projected header template', () => {
+      fixture.detectChanges();
+
+      const projectedHeader = fixture.nativeElement.querySelector('.projected-header');
+
+      expect(projectedHeader).toBeTruthy();
+      expect(projectedHeader.textContent.trim()).toBe('Projected header');
+    });
+
+    it('should render the projected footer template', () => {
+      fixture.detectChanges();
+
+      const projectedFooter = fixture.nativeElement.querySelector('.projected-footer');
+
+      expect(projectedFooter).toBeTruthy();
+      expect(projectedFooter.textContent.trim()).toBe('Projected footer');
+    });
+
+    it('should apply custom CSS classes', () => {
+      hostComponent.title = 'Styled card';
+      hostComponent.styleClass = 'custom-card';
+      hostComponent.titleClass = 'custom-title';
+      hostComponent.headerClass = 'custom-header';
+      hostComponent.footerClass = 'custom-footer';
+
+      fixture.detectChanges();
+
+      const cardElement = fixture.nativeElement.querySelector('.card');
+      const titleElement = fixture.nativeElement.querySelector('.card-title');
+      const headerElement = fixture.nativeElement.querySelector('.card-header');
+      const footerElement = fixture.nativeElement.querySelector('.card-footer');
+
+      expect(cardElement.classList.contains('custom-card')).toBeTrue();
+      expect(titleElement.classList.contains('custom-title')).toBeTrue();
+      expect(headerElement.classList.contains('custom-header')).toBeTrue();
+      expect(footerElement.classList.contains('custom-footer')).toBeTrue();
+    });
+
+    it('should set hasHeader to true when a header template exists', () => {
+      fixture.detectChanges();
+
+      const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
+      const cardComponent = cardDebugElement.componentInstance as CardComponent;
+
+      expect(cardComponent.hasHeader).toBeTrue();
+    });
+
+    it('should set hasFooter to true when a footer template exists', () => {
+      fixture.detectChanges();
+
+      const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
+      const cardComponent = cardDebugElement.componentInstance as CardComponent;
+
+      expect(cardComponent.hasFooter).toBeTrue();
+    });
+
+    it('should render the header element when a header template exists even if title is null', () => {
+      fixture.detectChanges();
+
+      const headerElement = fixture.nativeElement.querySelector('.card-header');
+
+      expect(headerElement).toBeTruthy();
+    });
+
+    it('should render the footer element when a footer template exists', () => {
+      fixture.detectChanges();
+
+      const footerElement = fixture.nativeElement.querySelector('.card-footer');
+
+      expect(footerElement).toBeTruthy();
+    });
   });
 
-  function q(fixture: ComponentFixture<any>, selector: string): HTMLElement | null {
-    return fixture.debugElement.nativeElement.querySelector(selector);
-  }
+  describe('without projected header and footer templates', () => {
+    let fixture: ComponentFixture<TestHostWithoutTemplatesComponent>;
+    let hostComponent: TestHostWithoutTemplatesComponent;
 
-  it('renders header when title is present, without extra header content', () => {
-    const fixture = TestBed.createComponent(HostOnlyTitleComponent);
-    fixture.detectChanges();
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [TestHostWithoutTemplatesComponent],
+      }).compileComponents();
 
-    const header = q(fixture, '.card-header');
-    const titleEl = q(fixture, '.card-title');
-    const footer = q(fixture, '.card-footer');
+      fixture = TestBed.createComponent(TestHostWithoutTemplatesComponent);
+      hostComponent = fixture.componentInstance;
+    });
 
-    expect(header).withContext('header should exist').not.toBeNull();
-    expect(titleEl?.textContent?.trim()).toBe('Clock in');
-    expect(footer).withContext('footer should not exist').toBeNull();
-  });
+    it('should not render the header when there is no title and no header template', () => {
+      fixture.detectChanges();
 
-  it('renders header with title and [card-header] content', () => {
-    const fixture = TestBed.createComponent(HostTitleAndHeaderExtraComponent);
-    fixture.detectChanges();
+      const headerElement = fixture.nativeElement.querySelector('.card-header');
+      const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
+      const cardComponent = cardDebugElement.componentInstance as CardComponent;
 
-    const header = q(fixture, '.card-header');
-    const titleEl = q(fixture, '.card-title');
+      expect(headerElement).toBeNull();
+      expect(cardComponent.hasHeader).toBeFalse();
+    });
 
-    expect(header).not.toBeNull();
-    expect(titleEl?.textContent?.trim()).toBe('Users');
-    expect(header!.textContent).toContain('Refresh');
-  });
+    it('should render the header when title exists even if there is no header template', () => {
+      hostComponent.title = 'Title only';
+      fixture.detectChanges();
 
-  it('does not render header when there is no title and no [card-header]', () => {
-    const fixture = TestBed.createComponent(HostEmptyComponent);
-    fixture.detectChanges();
+      const headerElement = fixture.nativeElement.querySelector('.card-header');
+      const titleElement = fixture.nativeElement.querySelector('.card-title');
+      const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
+      const cardComponent = cardDebugElement.componentInstance as CardComponent;
 
-    const header = q(fixture, '.card-header');
-    expect(header).toBeNull();
-  });
+      expect(headerElement).toBeTruthy();
+      expect(titleElement).toBeTruthy();
+      expect(titleElement.textContent.trim()).toBe('Title only');
+      expect(cardComponent.hasHeader).toBeTrue();
+    });
 
-  it('renders footer when [card-footer] is present', () => {
-    const fixture = TestBed.createComponent(HostAllSectionsComponent);
-    fixture.detectChanges();
+    it('should not render the footer when there is no footer template', () => {
+      fixture.detectChanges();
 
-    const footer = q(fixture, '.card-footer');
-    expect(footer).not.toBeNull();
-    expect(footer!.textContent).toContain('Page 1/3');
-  });
+      const footerElement = fixture.nativeElement.querySelector('.card-footer');
+      const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
+      const cardComponent = cardDebugElement.componentInstance as CardComponent;
 
-  it('does not render footer when [card-footer] is absent', () => {
-    const fixture = TestBed.createComponent(HostOnlyBodyComponent);
-    fixture.detectChanges();
+      expect(footerElement).toBeNull();
+      expect(cardComponent.hasFooter).toBeFalse();
+    });
 
-    const footer = q(fixture, '.card-footer');
-    expect(footer).toBeNull();
-  });
+    it('should keep the body content rendered when there is no header or footer', () => {
+      fixture.detectChanges();
 
-  it('keeps body empty when no projected content is provided', () => {
-    const fixture = TestBed.createComponent(HostOnlyTitleComponent);
-    fixture.detectChanges();
+      const bodyContent = fixture.nativeElement.querySelector('.projected-body');
 
-    const body = q(fixture, '.card-body');
-    expect(body).not.toBeNull();
-    // CSS :empty is not evaluated in tests; check logical emptiness.
-    expect(body!.textContent?.trim()).toBe('');
-  });
-
-  it('shows body content when provided', () => {
-    const fixture = TestBed.createComponent(HostOnlyBodyComponent);
-    fixture.detectChanges();
-
-    const body = q(fixture, '.card-body');
-    expect(body).not.toBeNull();
-    expect(body!.textContent).toContain('Body content');
-  });
-
-  it('renders header, body, and footer when all are present', () => {
-    const fixture = TestBed.createComponent(HostAllSectionsComponent);
-    fixture.detectChanges();
-
-    expect(q(fixture, '.card-header')).not.toBeNull();
-    expect(q(fixture, '.card-title')!.textContent?.trim()).toBe('Report');
-    expect(q(fixture, '.card-body')!.textContent).toContain('Content…');
-    expect(q(fixture, '.card-footer')).not.toBeNull();
+      expect(bodyContent).toBeTruthy();
+      expect(bodyContent.textContent.trim()).toBe('Projected body only');
+    });
   });
 });
