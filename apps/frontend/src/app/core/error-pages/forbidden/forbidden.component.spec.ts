@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 
 import { ForbiddenComponent } from './forbidden.component';
@@ -13,7 +14,7 @@ describe('Forbidden', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ForbiddenComponent],
-      providers: [provideTranslateService()],
+      providers: [provideRouter([]), provideTranslateService()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ForbiddenComponent);
