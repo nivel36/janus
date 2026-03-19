@@ -4,6 +4,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { from, switchMap } from 'rxjs';
 import { keycloak } from './keycloak';
+
 import { environment } from '../../../environments/environment';
 
 const MIN_TOKEN_VALIDITY_SECONDS = 30;
@@ -24,9 +25,13 @@ function isProtectedApiRequest(url: string): boolean {
 }
 
 async function getTokenFresh(): Promise<string | undefined> {
-  if (!keycloak?.authenticated) return undefined;
+  if (!keycloak?.authenticated) {
+    return undefined;
+  }
 
-  if (refreshInFlight) return refreshInFlight;
+  if (refreshInFlight) {
+    return refreshInFlight;
+  }
 
   refreshInFlight = (async () => {
     try {
