@@ -30,5 +30,10 @@
     "submit": "Sign in",
     "loading": "Signing in...",
     "error": "Unable to sign in. Please check your credentials and try again."
+  },
+  "forbidden": {
+    "title": "Access denied",
+    "message": "You do not have permission to access this page.",
+    "backToHome": "Back to home"
   }
 }
