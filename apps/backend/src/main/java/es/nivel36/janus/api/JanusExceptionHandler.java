@@ -218,7 +218,7 @@ public class JanusExceptionHandler {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_INVALID_DATE_TIME);
 		pd.setTitle("Invalid date/time format");
-		pd.setDetail("Failed to parse date/time: " + ex.getParsedString());
+		pd.setDetail("The provided date/time value does not match the expected ISO-8601 format.");
 		addCommonProps(pd, request);
 		logger.warn("DateTimeParseException error {}", pd);
 		return pd;
@@ -229,7 +229,7 @@ public class JanusExceptionHandler {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_INVALID_DATE_TIME);
 		pd.setTitle("Invalid date/time format");
-		pd.setDetail("Failed to parse date/time: " + ex.getMessage());
+		pd.setDetail("The provided date/time value is not valid for the requested operation.");
 		addCommonProps(pd, request);
 		logger.warn("DateTimeException error {}", pd);
 		return pd;
@@ -240,7 +240,7 @@ public class JanusExceptionHandler {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_MALFORMED_REQUEST);
 		pd.setTitle("Malformed request");
-		pd.setDetail(ex.getMostSpecificCause().getMessage());
+		pd.setDetail("The request body could not be parsed. Check JSON syntax, field types and required fields.");
 		addCommonProps(pd, request);
 		logger.warn("HttpMessageNotReadableException error {}", pd);
 		return pd;

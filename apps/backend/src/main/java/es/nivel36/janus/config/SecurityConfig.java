@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -35,11 +36,22 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
+	private static final String API_CONTENT_SECURITY_POLICY = "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
+	private static final String API_PERMISSIONS_POLICY = "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()";
+
 	@Bean
 	SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
 		return http.cors(Customizer.withDefaults()) //
 				.csrf(CsrfConfigurer::disable) //
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //
+				.headers(headers -> { //
+					headers.contentTypeOptions(Customizer.withDefaults()); //
+					headers.frameOptions(frameOptions -> frameOptions.deny()); //
+					headers.referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.NO_REFERRER)); //
+					headers.permissionsPolicy(permissions -> permissions.policy(API_PERMISSIONS_POLICY)); //
+					headers.contentSecurityPolicy(csp -> csp.policyDirectives(API_CONTENT_SECURITY_POLICY)); //
+					headers.cacheControl(Customizer.withDefaults()); //
+				}) //
 				.authorizeHttpRequests(this::getAuthorizations) //
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())) //
 				.exceptionHandling(exception -> exception
@@ -59,7 +71,9 @@ public class SecurityConfig {
 		final CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOrigins(allowedOrigins);
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-		config.setAllowedHeaders(List.of("*"));
+		config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin"));
+		config.setAllowCredentials(false);
+		config.setMaxAge(3600L);
 
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/api/**", config);
