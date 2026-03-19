@@ -9,7 +9,6 @@ import { filter, map, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthService } from '../../../core/auth/auth.service';
-import { CardComponent } from '../../../shared/ui/card/card.component';
 import { UserCardComponent } from '../../users/components/user-card/user-card.component';
 import { TimelogTableComponent } from '../../timelogs/components/timelog-table/timelog-table.component';
 import { TimelogClockCardComponent } from '../../timelogs/components/timelog-clock-card/timelog-clock-card.component';

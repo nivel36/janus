@@ -23,8 +23,12 @@ export class PreferencesService {
 
   load(force = false): Observable<AppPreferences> {
     const current = this.prefs();
-    if (!force && current) return of(current);
-    if (!force && this.inflight) return this.inflight;
+    if (!force && current) {
+      return of(current);
+    }
+    if (!force && this.inflight) {
+      return this.inflight;
+    }
 
     this.inflight = this.http.get<AppPreferences>('/api/preferences').pipe(
       tap((v) => this.prefs.set(v)),
