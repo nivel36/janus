@@ -1,92 +1,193 @@
 # Janus
 
-Janus is a **Spring/Angular**-based application for managing company time records. It facilitates the tracking of employees' working hours, helping to comply with labor regulations and optimize time management.
+Janus is a time-tracking platform built as a monorepo with a **Spring Boot** backend and an **Angular** frontend. The backend already provides the business API, while the frontend is the Angular base from which the application UI is being built, with authentication delegated to **Keycloak**.
 
-## Features
+## Current architecture
 
-- **Time Logging**: Allows employees to easily record their clock-in and clock-out times.
-- **User Management**: Administer profiles with different roles and permissions.
-- **Custom Reports**: Generate detailed reports on worked hours, overtime, and absences.
-- **Integration**: Compatible with other systems via RESTful APIs.
+The repository is organized into these main parts:
+
+- `apps/backend`: Spring Boot 4 backend with REST API, PostgreSQL persistence, JWT validation, and business logic.
+- `apps/frontend`: Angular 20 application base where the user-facing app is being developed.
+- `deploy/docker`: Docker/Compose files for production-like and development infrastructure.
+- `deploy/nginx`: Nginx configuration used in the containerized production-like setup.
+
+## Project scope
+
+### Frontend
+
+The frontend should be understood as the **Angular application layer under construction**, not as a finished product.
+
+At this stage, `apps/frontend` provides the base needed to keep building the app:
+
+- Angular 20 project structure.
+- Build and development scripts.
+- Integration points for Keycloak authentication.
+- Internationalization resources (`en`, `es`, `ca`).
+- UI foundation for the future application experience.
+
+### Backend API
+
+The backend currently exposes endpoints for:
+
+- `appusers`: application user preferences and settings.
+- `employees`: employee management and worksite assignment.
+- `worksites`: worksite catalog and timezone management.
+- `schedules`: schedule definitions and schedule rules.
+- `timelogs`: clock-in, clock-out, manual entries, searches, and duration queries.
+- `clock-out-without-clock-in` event handling.
+
+## Technology stack
+
+- **Backend**: Java 25, Spring Boot 4, Spring Security, Spring Data JPA, Springdoc/OpenAPI.
+- **Frontend**: Angular 20, PrimeNG, ngx-translate, Luxon, keycloak-js.
+- **Auth**: Keycloak 26.
+- **Database**: PostgreSQL 16.
+- **Observability**: Grafana 12 in the Docker deployment.
+- **Web server (containerized setup)**: Nginx.
 
 ## Prerequisites
 
-- **Java 25** or higher.
-- A PostgreSQL relational database.
+Depending on how you want to run the project, you will need:
 
-## Installation
+### Local development
 
-1. **Clone the repository**:
+- **Java 25**
+- **Node.js 22** and **npm**
+- **Docker/Compose** or **Podman Compose** for the supporting infrastructure
+
+### Containerized production-like run
+
+- **Docker Compose**, **docker-compose**, **podman compose**, or **podman-compose**
+
+## Quick start
+
+### Option 1: production-like containerized run
+
+This mode builds the frontend and backend into containers and serves everything behind Nginx.
 
 ```bash
-git clone https://github.com/nivel36/janus.git
+./start.sh
 ```
 
-3. **Build the project**:
+By default, the script uses:
+
+- `deploy/docker/compose.yml`
+- `deploy/docker/.env.prod`
+
+To stop the environment:
 
 ```bash
-mvn clean install
+./stop.sh
 ```
 
-4. **Start the app**:
+To restart it:
 
 ```bash
-java -jar Janus.jar
+./restart.sh
 ```
 
-## Realm configuration (single source of truth)
+Default URLs in this mode:
 
-Use **`janus-realm`** as the unique Keycloak realm across all components to keep token issuer validation aligned:
+- App: `http://localhost:4200`
+- Keycloak: `http://localhost:4200/auth`
+- Grafana: `http://localhost:4200/grafana/`
+- API base path: `http://localhost:4200/api/v1`
 
-- Docker backend issuer: `deploy/docker/compose.yml` (`SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI`)
-- Frontend Keycloak config: `apps/frontend/src/environments/environment.ts` and `environment.prod.ts`
-- Imported Keycloak realm: `deploy/docker/keycloak/realm-export.json`
+> Note: the exposed port comes from `deploy/docker/.env.prod` and is currently set to `4200`.
 
-If you ever change the realm, update all three places in the same commit.
+### Option 2: local development
 
+This mode starts only the supporting services with Compose and runs frontend/backend directly from source.
 
-## Authentication flow (Keycloak-only)
+#### 1. Start infrastructure
 
-Authentication and logout are handled directly by Keycloak from the frontend.
-The backend is configured only as an OAuth2 Resource Server that validates JWT
-access tokens issued by the configured realm (`issuer-uri`).
+```bash
+./start.sh -dev
+```
 
-- There is no backend REST logout endpoint (`/api/v1/auth/logout` was removed).
-- Login/logout UX should call Keycloak endpoints via the frontend Keycloak client.
-- Backend authorization for `/api/**` depends on a valid bearer token only.
+This starts:
 
+- PostgreSQL for the application on `localhost:5432`
+- PostgreSQL for Keycloak on `localhost:5433`
+- Keycloak on `http://localhost:8081/auth`
+- Grafana on `http://localhost:3000`
 
-### Deployment hardening notes
+#### 2. Run the backend
 
-The compose files now support overriding sensitive defaults via environment variables:
+```bash
+cd apps/backend
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
 
+The backend runs on:
+
+- API: `http://localhost:8080/api/v1`
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- Health endpoint: `http://localhost:8080/actuator/health`
+
+#### 3. Run the frontend
+
+```bash
+cd apps/frontend
+npm ci
+npm start
+```
+
+The Angular dev server runs on:
+
+- Frontend: `http://localhost:4200`
+
+## Authentication model
+
+Authentication is **Keycloak-only**:
+
+- The frontend handles login and logout against Keycloak.
+- The backend is configured as an **OAuth2 Resource Server**.
+- Protected `/api/**` endpoints require a valid bearer token.
+- There is no backend logout REST endpoint.
+
+## Realm configuration
+
+Use **`janus-realm`** as the single source of truth across all components.
+
+If the realm changes, update these files together:
+
+- `deploy/docker/compose.yml`
+- `apps/frontend/src/environments/environment.ts`
+- `apps/frontend/src/environments/environment.prod.ts`
+- `deploy/docker/keycloak/realm-export.json`
+
+## Environment variables used in Docker
+
+The containerized deployment supports overriding these values:
+
+- `NGINX_PORT`
 - `APP_DB_PASSWORD`
 - `KEYCLOAK_DB_PASSWORD`
 - `KEYCLOAK_ADMIN`
 - `KEYCLOAK_ADMIN_PASSWORD`
+- `JWT_ISSUER_URL`
+- `SPRING_JWT_ISSUER_URI`
+- `JANUS_CORS_ALLOWED_ORIGINS`
 
-If unset, local-development defaults are still applied.
+## Useful commands
 
-`APP_DB_PASSWORD` is also propagated to the backend datasource (`JANUS_DATASOURCE_PASSWORD`) in Docker deployment so database credentials stay aligned.
-
-Both postgres services include healthchecks (`pg_isready`), and startup ordering waits for the Keycloak DB to be healthy before launching Keycloak.
-
-## Docker (quick start/stop)
-
-From the project root, you can use these scripts:
+### Backend
 
 ```bash
-./start.sh    # docker compose up -d --build
-./stop.sh     # docker compose down
-./restart.sh  # stop + start
+cd apps/backend
+./mvnw test
+./mvnw verify
+./mvnw -Pcoverage verify
 ```
 
-## Usage
+### Frontend
 
-Access the application via a web browser:
-
-```
-http://localhost:8080/janus
+```bash
+cd apps/frontend
+npm ci
+npm run build
+npm test
 ```
 
 ## License
