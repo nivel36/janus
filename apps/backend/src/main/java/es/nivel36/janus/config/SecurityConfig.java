@@ -48,7 +48,7 @@ public class SecurityConfig {
 					headers.contentTypeOptions(Customizer.withDefaults()); //
 					headers.frameOptions(frameOptions -> frameOptions.deny()); //
 					headers.referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.NO_REFERRER)); //
-					headers.permissionsPolicy(permissions -> permissions.policy(API_PERMISSIONS_POLICY)); //
+					headers.permissionsPolicyHeader(permissions -> permissions.policy(API_PERMISSIONS_POLICY)); //
 					headers.contentSecurityPolicy(csp -> csp.policyDirectives(API_CONTENT_SECURITY_POLICY)); //
 					headers.cacheControl(Customizer.withDefaults()); //
 				}) //
