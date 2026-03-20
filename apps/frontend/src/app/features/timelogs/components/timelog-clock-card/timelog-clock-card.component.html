@@ -1,38 +1,36 @@
-<app-card
-    styleClass="clock-in-card"
-    footerClass="clock-card-footer"
-    [title]="clockActionTitleKey$ | async | translate"
->
-    <ng-template #cardHeader>
-        <app-clock styleClass="card-hour-container" timeClass="card-hour"></app-clock>
+@if (vm$ | async; as vm) {
+    <app-card
+        styleClass="clock-in-card"
+        footerClass="clock-card-footer"
+        [title]="vm.clockActionTitleKey | translate"
+    >
+        <ng-template #cardHeader>
+            <app-clock styleClass="card-hour-container" timeClass="card-hour"></app-clock>
 
-        @if (canClockInOut$ | async) {
-            <app-button
-                [disabled]="(isClockActionLoading$ | async) ?? false"
-                (click)="onClockAction()"
-            >
-                {{ clockActionLabelKey$ | async | translate }}
-            </app-button>
-        }
+            @if (vm.canClockInOut) {
+                <app-button [disabled]="vm.isClockActionLoading" (click)="onClockAction()">
+                    {{ vm.clockActionLabelKey | translate }}
+                </app-button>
+            }
 
-        @if (clockActionFeedbackKey$ | async; as feedbackKey) {
-            <p class="clock-action-feedback" role="status" aria-live="polite">
-                {{ feedbackKey | translate }}
-            </p>
-        }
-    </ng-template>
+            @if (vm.clockActionFeedbackKey; as feedbackKey) {
+                <p class="clock-action-feedback" role="status" aria-live="polite">
+                    {{ feedbackKey | translate }}
+                </p>
+            }
+        </ng-template>
 
-    <ng-template #cardFooter>
-        @if (canClockInOut$ | async) {
-            <a
-                class="secondary-action"
-                [class.disabled]="(isClockActionLoading$ | async) ?? false"
-                (click)="onOppositeClockAction()"
-                role="button"
-                tabindex="0"
-            >
-                {{ oppositeClockActionLabelKey$ | async | translate }}
-            </a>
-        }
-    </ng-template>
-</app-card>
+        <ng-template #cardFooter>
+            @if (vm.canClockInOut) {
+                <button
+                    type="button"
+                    class="secondary-action"
+                    [disabled]="vm.isClockActionLoading"
+                    (click)="onOppositeClockAction()"
+                >
+                    {{ vm.oppositeClockActionLabelKey | translate }}
+                </button>
+            }
+        </ng-template>
+    </app-card>
+}

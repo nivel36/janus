@@ -9,7 +9,8 @@ import {
   Observable,
   Subject,
   catchError,
-  defer,
+  combineLatest,
+  concat,
   distinctUntilChanged,
   exhaustMap,
   filter,
@@ -30,12 +31,45 @@ import { TimeLog } from '../../models/timelog';
 import { TimeLogService } from '../../services/timelog-api.service';
 
 /**
+ * Requested clock action mode.
+ */
+type ClockActionMode = 'auto' | 'force-opposite';
+
+/**
  * Result of a clocking action.
  */
 type ClockActionResult =
   | { type: 'success'; employeeEmail: string; timeLog: TimeLog }
   | { type: 'permissionDenied'; feedbackKey: string }
   | { type: 'networkError'; feedbackKey: string };
+
+/**
+ * Internal state of the clocking action execution.
+ */
+type ClockActionState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'result'; result: ClockActionResult };
+
+/**
+ * View model consumed by the template.
+ */
+type TimelogClockCardViewModel = {
+  canClockInOut: boolean;
+  isClockActionLoading: boolean;
+  clockActionFeedbackKey?: string;
+  clockActionTitleKey: string;
+  clockActionLabelKey: string;
+  oppositeClockActionLabelKey: string;
+};
+
+/**
+ * Resolved data required to execute a clock action.
+ */
+type ResolvedClockAction = {
+  shouldClockOut: boolean;
+  worksiteCode: string;
+};
 
 /**
  * Self-contained card responsible for displaying and executing the clock in / clock out action.
@@ -72,9 +106,9 @@ export class TimelogClockCardComponent {
   readonly clockActionDone = output<void>();
 
   /**
-   * Clicks on the clocking button.
+   * Requests to execute a clocking action.
    */
-  private readonly clockActionClickSubject = new Subject<'auto' | 'force-opposite'>();
+  private readonly clockActionRequests$ = new Subject<ClockActionMode>();
 
   /**
    * Reactive observable of the employee email.
@@ -97,7 +131,7 @@ export class TimelogClockCardComponent {
   /**
    * Employee's latest known time log.
    *
-   * It is loaded:
+   * It is updated:
    * - when employeeEmail changes
    * - when a clocking action completes successfully, reusing the API response directly
    */
@@ -105,72 +139,155 @@ export class TimelogClockCardComponent {
     switchMap((employeeEmail) =>
       merge(
         this.searchLatestTimeLog(employeeEmail),
-        defer(() =>
-          this.successfulClockActionResult$.pipe(
-            filter((result) => result.employeeEmail === employeeEmail),
-            map((result) => result.timeLog),
-          ),
+        this.successfulClockActionResult$.pipe(
+          filter((result) => result.employeeEmail === employeeEmail),
+          map((result) => result.timeLog),
         ),
-      ),
+      ).pipe(startWith(undefined)),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   /**
-   * Main execution flow for the clocking action.
+   * Main execution state flow for the clocking action.
    *
    * exhaustMap is used to ignore repeated clicks while an action is already in progress.
    */
-  readonly clockActionResult$: Observable<ClockActionResult> = this.clockActionClickSubject.pipe(
+  readonly clockActionState$: Observable<ClockActionState> = this.clockActionRequests$.pipe(
     withLatestFrom(this.employeeEmail$, this.latestTimeLog$, this.canClockInOut$),
     exhaustMap(([mode, employeeEmail, latestTimeLog, canClockInOut]) => {
       if (!canClockInOut) {
-        return of<ClockActionResult>({
-          type: 'permissionDenied',
-          feedbackKey: 'timelog.clockActionPermissionDenied',
+        return of<ClockActionState>({
+          status: 'result',
+          result: {
+            type: 'permissionDenied',
+            feedbackKey: 'timelog.clockActionPermissionDenied',
+          },
         });
       }
 
-      const worksiteCode = latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode;
-
-      const shouldClockOut =
-        mode === 'force-opposite'
-          ? !this.isOpenTimeLog(latestTimeLog)
-          : this.isOpenTimeLog(latestTimeLog);
+      const { shouldClockOut, worksiteCode } = this.resolveClockAction(mode, latestTimeLog);
 
       const action$ = shouldClockOut
         ? this.timeLogService.clockOut(employeeEmail, worksiteCode)
         : this.timeLogService.clockIn(employeeEmail, worksiteCode);
 
-      return action$.pipe(
-        map((timeLog) => ({ type: 'success', employeeEmail, timeLog }) as ClockActionResult),
-        catchError(() =>
-          of<ClockActionResult>({
-            type: 'networkError',
-            feedbackKey: 'timelog.clockActionNetworkError',
-          }),
+      return concat(
+        of<ClockActionState>({ status: 'loading' }),
+        action$.pipe(
+          map(
+            (timeLog): ClockActionState => ({
+              status: 'result',
+              result: { type: 'success', employeeEmail, timeLog },
+            }),
+          ),
+          catchError(() =>
+            of<ClockActionState>({
+              status: 'result',
+              result: {
+                type: 'networkError',
+                feedbackKey: 'timelog.clockActionNetworkError',
+              },
+            }),
+          ),
         ),
       );
     }),
+    startWith<ClockActionState>({ status: 'idle' }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * Result emitted when a clocking action finishes.
+   */
+  readonly clockActionResult$: Observable<ClockActionResult> = this.clockActionState$.pipe(
+    filter(
+      (state): state is Extract<ClockActionState, { status: 'result' }> =>
+        state.status === 'result',
+    ),
+    map((state) => state.result),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   /**
    * Time log returned by a successful clocking action.
    */
-  readonly successfulClockActionResult$: Observable<Extract<ClockActionResult, { type: 'success' }>> =
-    this.clockActionResult$.pipe(
-      filter((result): result is Extract<ClockActionResult, { type: 'success' }> =>
+  readonly successfulClockActionResult$: Observable<
+    Extract<ClockActionResult, { type: 'success' }>
+  > = this.clockActionResult$.pipe(
+    filter(
+      (result): result is Extract<ClockActionResult, { type: 'success' }> =>
         result.type === 'success',
-      ),
-    );
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   /**
-   * Time log returned by a successful clocking action.
+   * Loading state of the button.
    */
-  readonly successfulClockActionTimeLog$: Observable<TimeLog> = this.successfulClockActionResult$.pipe(
-    map((result) => result.timeLog),
+  readonly isClockActionLoading$: Observable<boolean> = this.clockActionState$.pipe(
+    map((state) => state.status === 'loading'),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  /**
+   * i18n key for the feedback shown to the user.
+   *
+   * In case of success, the message is cleared.
+   */
+  readonly clockActionFeedbackKey$: Observable<string | undefined> = this.clockActionResult$.pipe(
+    map((result) => (result.type === 'success' ? undefined : result.feedbackKey)),
+    startWith(undefined),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * View model consumed by the template.
+   */
+  readonly vm$: Observable<TimelogClockCardViewModel> = combineLatest([
+    this.latestTimeLog$,
+    this.canClockInOut$,
+    this.isClockActionLoading$,
+    this.clockActionFeedbackKey$,
+  ]).pipe(
+    map(([latestTimeLog, canClockInOut, isClockActionLoading, clockActionFeedbackKey]) => {
+      const hasOpenTimeLog = this.isOpenTimeLog(latestTimeLog);
+
+      return {
+        canClockInOut,
+        isClockActionLoading,
+        clockActionFeedbackKey,
+        clockActionTitleKey: hasOpenTimeLog ? 'timelog.activeWorkday' : 'timelog.workdayNotStarted',
+        clockActionLabelKey: hasOpenTimeLog ? 'timelog.clockout' : 'timelog.clockin',
+        oppositeClockActionLabelKey: hasOpenTimeLog ? 'timelog.clockin' : 'timelog.clockout',
+      };
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  constructor() {
+    this.successfulClockActionResult$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.clockActionDone.emit();
+    });
+  }
+
+  /**
+   * Handles the main clock action request.
+   *
+   * The actual logic lives in the clockActionState$ stream.
+   */
+  onClockAction(): void {
+    this.clockActionRequests$.next('auto');
+  }
+
+  /**
+   * Executes the opposite clock action explicitly,
+   * bypassing the automatic decision.
+   */
+  onOppositeClockAction(): void {
+    this.clockActionRequests$.next('force-opposite');
+  }
 
   /**
    * Loads the latest timelog for the given employee.
@@ -179,86 +296,29 @@ export class TimelogClockCardComponent {
    * @returns An observable containing the most recent timelog,
    * or undefined if the request fails or no timelog is found.
    */
-  private searchLatestTimeLog(employeeEmail: string) {
-    return this.timeLogService.searchLatestByEmployee(employeeEmail).pipe(
-      catchError(() => of(undefined)),
-    );
+  private searchLatestTimeLog(employeeEmail: string): Observable<TimeLog | undefined> {
+    return this.timeLogService
+      .searchLatestByEmployee(employeeEmail)
+      .pipe(catchError(() => of(undefined)));
   }
 
   /**
-   * i18n key for the card title.
-   */
-  readonly clockActionTitleKey$ = this.latestTimeLog$.pipe(
-    map((timeLog) =>
-      this.isOpenTimeLog(timeLog) ? 'timelog.activeWorkday' : 'timelog.workdayNotStarted',
-    ),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
-
-  /**
-   * i18n key for the button label.
-   */
-  readonly clockActionLabelKey$ = this.latestTimeLog$.pipe(
-    map((timeLog) => (this.isOpenTimeLog(timeLog) ? 'timelog.clockout' : 'timelog.clockin')),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
-
-  /**
-   * i18n key for the secondary (opposite) action.
-   */
-  readonly oppositeClockActionLabelKey$ = this.latestTimeLog$.pipe(
-    map((timeLog) => (this.isOpenTimeLog(timeLog) ? 'timelog.clockin' : 'timelog.clockout')),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
-
-  /**
-   * Loading state of the button.
-   */
-  readonly isClockActionLoading$ = merge(
-    this.clockActionClickSubject.pipe(map(() => true)),
-    this.clockActionResult$.pipe(map(() => false)),
-  ).pipe(startWith(false), distinctUntilChanged(), shareReplay({ bufferSize: 1, refCount: true }));
-
-  /**
-   * i18n key for the feedback shown to the user.
+   * Resolves the effective action to execute from the current mode and timelog state.
    *
-   * In case of success, the message is cleared.
+   * @param mode Requested action mode.
+   * @param latestTimeLog Latest known timelog for the employee.
+   * @returns The action to execute and the worksite code to use.
    */
-  readonly clockActionFeedbackKey$ = this.clockActionResult$.pipe(
-    map((result) => (result.type === 'success' ? undefined : result.feedbackKey)),
-    startWith(undefined),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  private resolveClockAction(
+    mode: ClockActionMode,
+    latestTimeLog: TimeLog | undefined,
+  ): ResolvedClockAction {
+    const hasOpenTimeLog = this.isOpenTimeLog(latestTimeLog);
 
-  constructor() {
-    this.clockActionResult$
-      .pipe(
-        filter((result) => result.type === 'success'),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => {
-        this.clockActionDone.emit();
-      });
-  }
-
-  /**
-   * Handles the button click.
-   *
-   * The actual logic lives in the clockActionResult$ stream.
-   */
-  onClockAction(): void {
-    this.clockActionClickSubject.next('auto');
-  }
-
-  /**
-   * Executes the opposite clock action explicitly,
-   * bypassing the automatic decision.
-   */
-  onOppositeClockAction(): void {
-    this.clockActionClickSubject.next('force-opposite');
+    return {
+      shouldClockOut: mode === 'force-opposite' ? !hasOpenTimeLog : hasOpenTimeLog,
+      worksiteCode: latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode,
+    };
   }
 
   /**
@@ -271,5 +331,4 @@ export class TimelogClockCardComponent {
   private isOpenTimeLog(timeLog?: TimeLog): boolean {
     return !!timeLog && !timeLog.exitTime;
   }
-
 }

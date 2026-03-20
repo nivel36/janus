@@ -5,6 +5,8 @@
     text-decoration: none;
     cursor: pointer;
     opacity: 0.6;
+    background: none;
+    border: 0px;
 }
 
 .secondary-action:hover {
