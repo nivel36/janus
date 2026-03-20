@@ -6,9 +6,9 @@ import { Component, DestroyRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
+  ReplaySubject,
   Subject,
   catchError,
-  combineLatest,
   distinctUntilChanged,
   exhaustMap,
   filter,
@@ -76,9 +76,9 @@ export class TimelogClockCardComponent {
   private readonly clockActionClickSubject = new Subject<'auto' | 'force-opposite'>();
 
   /**
-   * Manual trigger to reload the latest time log.
+   * Internal state of the latest known time log.
    */
-  private readonly reloadLatestTimeLogSubject = new Subject<void>();
+  private readonly latestTimeLogStateSubject = new ReplaySubject<TimeLog | undefined>(1);
 
   /**
    * Reactive observable of the employee email.
@@ -98,20 +98,65 @@ export class TimelogClockCardComponent {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  readonly latestTimeLogReloadTrigger$ = merge(of(undefined), this.reloadLatestTimeLogSubject);
+  /**
+   * Main execution flow for the clocking action.
+   *
+   * exhaustMap is used to ignore repeated clicks while an action is already in progress.
+   */
+  readonly clockActionResult$ = this.clockActionClickSubject.pipe(
+    withLatestFrom(this.employeeEmail$, this.latestTimeLogStateSubject, this.canClockInOut$),
+    exhaustMap(([mode, employeeEmail, latestTimeLog, canClockInOut]) => {
+      if (!canClockInOut) {
+        return of<ClockActionResult>({
+          type: 'permissionDenied',
+          feedbackKey: 'timelog.clockActionPermissionDenied',
+        });
+      }
+
+      const worksiteCode = latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode;
+
+      const shouldClockOut =
+        mode === 'force-opposite'
+          ? !this.isOpenTimeLog(latestTimeLog) // invertido
+          : this.isOpenTimeLog(latestTimeLog); // normal
+
+      const action$ = shouldClockOut
+        ? this.timeLogService.clockOut(employeeEmail, worksiteCode)
+        : this.timeLogService.clockIn(employeeEmail, worksiteCode);
+
+      return action$.pipe(
+        map((timeLog) => ({ type: 'success', timeLog }) as ClockActionResult),
+        catchError(() =>
+          of<ClockActionResult>({
+            type: 'networkError',
+            feedbackKey: 'timelog.clockActionNetworkError',
+          }),
+        ),
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * Time log returned by a successful clocking action.
+   */
+  readonly successfulClockActionTimeLog$ = this.clockActionResult$.pipe(
+    filter((result): result is Extract<ClockActionResult, { type: 'success' }> =>
+      result.type === 'success',
+    ),
+    map((result) => result.timeLog),
+  );
 
   /**
    * Employee's latest known time log.
    *
-   * It is reloaded:
+   * It is loaded:
    * - when employeeEmail changes
-   * - when a clocking action completes successfully
+   * - when a clocking action completes successfully, reusing the API response directly
    */
   readonly latestTimeLog$ = this.employeeEmail$.pipe(
     switchMap((employeeEmail) =>
-      this.latestTimeLogReloadTrigger$.pipe(
-        switchMap(() => this.searchLatestTimeLog(employeeEmail)),
-      ),
+      merge(this.searchLatestTimeLog(employeeEmail), this.successfulClockActionTimeLog$),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -124,8 +169,7 @@ export class TimelogClockCardComponent {
    * or undefined if the request fails or no timelog is found.
    */
   private searchLatestTimeLog(employeeEmail: string) {
-    return this.timeLogService.searchByEmployee(employeeEmail, 0, 5).pipe(
-      map((timeLogs) => this.getLatestTimeLog(timeLogs)),
+    return this.timeLogService.searchLatestByEmployee(employeeEmail).pipe(
       catchError(() => of(undefined)),
     );
   }
@@ -160,45 +204,6 @@ export class TimelogClockCardComponent {
   );
 
   /**
-   * Main execution flow for the clocking action.
-   *
-   * exhaustMap is used to ignore repeated clicks while an action is already in progress.
-   */
-  readonly clockActionResult$ = this.clockActionClickSubject.pipe(
-    withLatestFrom(this.employeeEmail$, this.latestTimeLog$, this.canClockInOut$),
-    exhaustMap(([mode, employeeEmail, latestTimeLog, canClockInOut]) => {
-      if (!canClockInOut) {
-        return of<ClockActionResult>({
-          type: 'permissionDenied',
-          feedbackKey: 'timelog.clockActionPermissionDenied',
-        });
-      }
-
-      const worksiteCode = latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode;
-
-      const shouldClockOut =
-        mode === 'force-opposite'
-          ? !this.isOpenTimeLog(latestTimeLog) // invertido
-          : this.isOpenTimeLog(latestTimeLog); // normal
-
-      const action$ = shouldClockOut
-        ? this.timeLogService.clockOut(employeeEmail, worksiteCode)
-        : this.timeLogService.clockIn(employeeEmail, worksiteCode);
-
-      return action$.pipe(
-        map((timeLog) => ({ type: 'success', timeLog }) as ClockActionResult),
-        catchError(() =>
-          of<ClockActionResult>({
-            type: 'networkError',
-            feedbackKey: 'timelog.clockActionNetworkError',
-          }),
-        ),
-      );
-    }),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
-
-  /**
    * Loading state of the button.
    */
   readonly isClockActionLoading$ = merge(
@@ -218,13 +223,18 @@ export class TimelogClockCardComponent {
   );
 
   constructor() {
+    this.latestTimeLog$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((timeLog) => {
+        this.latestTimeLogStateSubject.next(timeLog);
+      });
+
     this.clockActionResult$
       .pipe(
         filter((result) => result.type === 'success'),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
-        this.reloadLatestTimeLogSubject.next();
         this.clockActionDone.emit();
       });
   }
@@ -257,21 +267,4 @@ export class TimelogClockCardComponent {
     return !!timeLog && !timeLog.exitTime;
   }
 
-  /**
-   * Returns the most recent time log from a collection.
-   *
-   * @param timeLogs List of time logs.
-   * @returns The time log with the most recent entryTime, or undefined if the list is empty.
-   */
-  private getLatestTimeLog(timeLogs: TimeLog[]): TimeLog | undefined {
-    return timeLogs.reduce<TimeLog | undefined>((latest, current) => {
-      if (!latest) {
-        return current;
-      }
-
-      return new Date(current.entryTime).getTime() > new Date(latest.entryTime).getTime()
-        ? current
-        : latest;
-    }, undefined);
-  }
 }
