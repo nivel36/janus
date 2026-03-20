@@ -1,8 +1,8 @@
 <section class="timelog">
 	<h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
 
-	<div *ngIf="error" class="timelog-message error">{{ error }}</div>
-	<div *ngIf="isLoading" class="timelog-message">Loading time	logs...</div>
+	<div *ngIf="errorKey" class="timelog-message error">{{ errorKey | translate }}</div>
+	<div *ngIf="isLoading" class="timelog-message">{{ 'timelog.loading' | translate }}</div>
 
 	<table *ngIf="!isLoading && timelogs.length" class="timelog-table">
 		<thead>
@@ -24,6 +24,6 @@
 		</tbody>
 	</table>
 
-	<div *ngIf="!isLoading && !timelogs.length && !error"
-		class="timelog-message">No time logs available yet.</div>
+	<div *ngIf="!isLoading && !timelogs.length && !errorKey"
+		class="timelog-message">{{ 'timelog.empty' | translate }}</div>
 </section>

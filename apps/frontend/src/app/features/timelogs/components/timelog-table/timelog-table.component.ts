@@ -32,7 +32,7 @@ export class TimelogTableComponent implements OnInit, OnChanges {
   @Input() refreshToken = 0;
   protected timelogs: TimeLog[] = [];
   protected isLoading = false;
-  protected error?: string;
+  protected errorKey?: string;
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly reload$ = new Subject<void>();
@@ -51,7 +51,7 @@ export class TimelogTableComponent implements OnInit, OnChanges {
           this.isLoading = false;
         },
         error: () => {
-          this.error = 'Unable to load time logs at this time.';
+          this.errorKey = 'timelog.loadError';
           this.isLoading = false;
         },
       });
@@ -66,7 +66,7 @@ export class TimelogTableComponent implements OnInit, OnChanges {
 
   private loadTimeLogs(): void {
     this.isLoading = true;
-    this.error = undefined;
+    this.errorKey = undefined;
     this.reload$.next();
   }
 

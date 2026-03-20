@@ -10,6 +10,9 @@
     "clockout": "Clock out",
     "date": "Date",
     "duration": "Duration",
+    "loading": "Loading time logs...",
+    "empty": "No time logs available yet.",
+    "loadError": "Unable to load time logs at this time.",
     "timelogs": "Time logs",
     "clockActionPermissionDenied": "You do not have permission to clock in or out.",
     "clockActionNetworkError": "Unable to register your time action right now. Please try again."
