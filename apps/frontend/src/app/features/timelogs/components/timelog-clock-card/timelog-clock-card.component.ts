@@ -6,9 +6,10 @@ import { Component, DestroyRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
-  ReplaySubject,
+  Observable,
   Subject,
   catchError,
+  defer,
   distinctUntilChanged,
   exhaustMap,
   filter,
@@ -32,7 +33,7 @@ import { TimeLogService } from '../../services/timelog-api.service';
  * Result of a clocking action.
  */
 type ClockActionResult =
-  | { type: 'success'; timeLog: TimeLog }
+  | { type: 'success'; employeeEmail: string; timeLog: TimeLog }
   | { type: 'permissionDenied'; feedbackKey: string }
   | { type: 'networkError'; feedbackKey: string };
 
@@ -76,11 +77,6 @@ export class TimelogClockCardComponent {
   private readonly clockActionClickSubject = new Subject<'auto' | 'force-opposite'>();
 
   /**
-   * Internal state of the latest known time log.
-   */
-  private readonly latestTimeLogStateSubject = new ReplaySubject<TimeLog | undefined>(1);
-
-  /**
    * Reactive observable of the employee email.
    */
   private readonly employeeEmail$ = toObservable(this.employeeEmail).pipe(
@@ -99,12 +95,34 @@ export class TimelogClockCardComponent {
   );
 
   /**
+   * Employee's latest known time log.
+   *
+   * It is loaded:
+   * - when employeeEmail changes
+   * - when a clocking action completes successfully, reusing the API response directly
+   */
+  readonly latestTimeLog$: Observable<TimeLog | undefined> = this.employeeEmail$.pipe(
+    switchMap((employeeEmail) =>
+      merge(
+        this.searchLatestTimeLog(employeeEmail),
+        defer(() =>
+          this.successfulClockActionResult$.pipe(
+            filter((result) => result.employeeEmail === employeeEmail),
+            map((result) => result.timeLog),
+          ),
+        ),
+      ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
    * Main execution flow for the clocking action.
    *
    * exhaustMap is used to ignore repeated clicks while an action is already in progress.
    */
-  readonly clockActionResult$ = this.clockActionClickSubject.pipe(
-    withLatestFrom(this.employeeEmail$, this.latestTimeLogStateSubject, this.canClockInOut$),
+  readonly clockActionResult$: Observable<ClockActionResult> = this.clockActionClickSubject.pipe(
+    withLatestFrom(this.employeeEmail$, this.latestTimeLog$, this.canClockInOut$),
     exhaustMap(([mode, employeeEmail, latestTimeLog, canClockInOut]) => {
       if (!canClockInOut) {
         return of<ClockActionResult>({
@@ -117,15 +135,15 @@ export class TimelogClockCardComponent {
 
       const shouldClockOut =
         mode === 'force-opposite'
-          ? !this.isOpenTimeLog(latestTimeLog) // invertido
-          : this.isOpenTimeLog(latestTimeLog); // normal
+          ? !this.isOpenTimeLog(latestTimeLog)
+          : this.isOpenTimeLog(latestTimeLog);
 
       const action$ = shouldClockOut
         ? this.timeLogService.clockOut(employeeEmail, worksiteCode)
         : this.timeLogService.clockIn(employeeEmail, worksiteCode);
 
       return action$.pipe(
-        map((timeLog) => ({ type: 'success', timeLog }) as ClockActionResult),
+        map((timeLog) => ({ type: 'success', employeeEmail, timeLog }) as ClockActionResult),
         catchError(() =>
           of<ClockActionResult>({
             type: 'networkError',
@@ -140,25 +158,18 @@ export class TimelogClockCardComponent {
   /**
    * Time log returned by a successful clocking action.
    */
-  readonly successfulClockActionTimeLog$ = this.clockActionResult$.pipe(
-    filter((result): result is Extract<ClockActionResult, { type: 'success' }> =>
-      result.type === 'success',
-    ),
-    map((result) => result.timeLog),
-  );
+  readonly successfulClockActionResult$: Observable<Extract<ClockActionResult, { type: 'success' }>> =
+    this.clockActionResult$.pipe(
+      filter((result): result is Extract<ClockActionResult, { type: 'success' }> =>
+        result.type === 'success',
+      ),
+    );
 
   /**
-   * Employee's latest known time log.
-   *
-   * It is loaded:
-   * - when employeeEmail changes
-   * - when a clocking action completes successfully, reusing the API response directly
+   * Time log returned by a successful clocking action.
    */
-  readonly latestTimeLog$ = this.employeeEmail$.pipe(
-    switchMap((employeeEmail) =>
-      merge(this.searchLatestTimeLog(employeeEmail), this.successfulClockActionTimeLog$),
-    ),
-    shareReplay({ bufferSize: 1, refCount: true }),
+  readonly successfulClockActionTimeLog$: Observable<TimeLog> = this.successfulClockActionResult$.pipe(
+    map((result) => result.timeLog),
   );
 
   /**
@@ -223,12 +234,6 @@ export class TimelogClockCardComponent {
   );
 
   constructor() {
-    this.latestTimeLog$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((timeLog) => {
-        this.latestTimeLogStateSubject.next(timeLog);
-      });
-
     this.clockActionResult$
       .pipe(
         filter((result) => result.type === 'success'),
