@@ -14,7 +14,7 @@ export class TimeLogService {
    * The `page` parameter follows Spring Data pagination (0-based index).
    */
   searchByEmployee(email: string, page?: number, size?: number): Observable<TimeLog[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('sort', 'entryTime,desc');
     if (page != null) {
       params = params.set('page', String(page));
     }
@@ -25,6 +25,17 @@ export class TimeLogService {
     return this.http
       .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
       .pipe(map((r) => r.content ?? []));
+  }
+
+  searchLatestByEmployee(email: string): Observable<TimeLog | undefined> {
+    const params = new HttpParams()
+      .set('page', '0')
+      .set('size', '1')
+      .set('sort', 'entryTime,desc');
+
+    return this.http
+      .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
+      .pipe(map((r) => r.content?.[0]));
   }
 
   clockIn(email: string, worksiteCode: string): Observable<TimeLog> {
