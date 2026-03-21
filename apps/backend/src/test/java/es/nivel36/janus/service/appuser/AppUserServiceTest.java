@@ -58,6 +58,7 @@ class AppUserServiceTest {
 		final ArgumentCaptor<AppUser> savedAppUserCaptor = ArgumentCaptor.forClass(AppUser.class);
 		verify(this.appUserRepository).save(savedAppUserCaptor.capture());
 		assertEquals("aferrer", savedAppUserCaptor.getValue().getUsername());
+		assertEquals(AppUser.DEFAULT_TIMEZONE, savedAppUserCaptor.getValue().getDefaultTimezone());
 	}
 
 	@Test

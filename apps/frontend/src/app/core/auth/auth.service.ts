@@ -11,6 +11,7 @@ interface AppUserResponse {
   username: string;
   locale: string;
   timeFormat: string;
+  defaultTimezone: string;
 }
 
 interface KeycloakClaims {

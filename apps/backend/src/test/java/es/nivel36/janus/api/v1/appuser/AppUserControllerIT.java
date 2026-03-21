@@ -47,13 +47,14 @@ class AppUserControllerIT {
 	private static final String BASE = "/api/v1/appusers";
 
 	@Test
-	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format) VALUES('jdoe','en-US','H24')" })
+	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testFindByUsernameShouldReturnUser() throws Exception {
 		mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt())).andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.username").value("jdoe")) //
 				.andExpect(jsonPath("$.locale").value("en-US")) //
-				.andExpect(jsonPath("$.timeFormat").value("H24"));
+				.andExpect(jsonPath("$.timeFormat").value("H24")) //
+				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
 	}
 
 	@Test
@@ -69,7 +70,7 @@ class AppUserControllerIT {
 	}
 
 	@Test
-	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format) VALUES('jdoe','en-US','H24')" })
+	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
 		String body = """
 				  {"username":"jdoe","locale":"en-US","timeFormat":"H24"}
@@ -90,7 +91,8 @@ class AppUserControllerIT {
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.username").value("asmith")) //
 				.andExpect(jsonPath("$.locale").value("en-GB")) //
-				.andExpect(jsonPath("$.timeFormat").value("H12"));
+				.andExpect(jsonPath("$.timeFormat").value("H12")) //
+				.andExpect(jsonPath("$.defaultTimezone").value("UTC"));
 		mvc.perform(get(BASE + "/{username}", "asmith").with(jwt())).andExpect(status().isOk());
 	}
 
@@ -110,7 +112,7 @@ class AppUserControllerIT {
 	}
 
 	@Test
-	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format) VALUES('jdoe','en-US','H24')" })
+	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		String body = """
 				  {"locale":"en-CA","timeFormat":"H12"}
@@ -121,11 +123,12 @@ class AppUserControllerIT {
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.username").value("jdoe")) //
 				.andExpect(jsonPath("$.locale").value("en-CA")) //
-				.andExpect(jsonPath("$.timeFormat").value("H12"));
+				.andExpect(jsonPath("$.timeFormat").value("H12")) //
+				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
 	}
 
 	@Test
-	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format) VALUES('jdoe','en-US','H24')" })
+	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
 		mvc.perform(delete(BASE + "/{username}", "jdoe").with(jwt())) //
 				.andExpect(status().isNoContent());
