@@ -47,18 +47,24 @@ class AppUserServiceTest {
 	}
 
 	@Test
-	void testCreateAppUserUsesUsernameLookupOnAccountBeforeSave() {
+	void testCreateAppUserUsesProvidedTimezoneBeforeSave() {
 		when(this.appUserRepository.existsByUsername("aferrer")).thenReturn(false);
 		when(this.passwordEncoder.encode("raw-password")).thenReturn("hashed-password");
 		when(this.appUserRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H12);
+		this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H12, "Europe/Madrid");
 
 		verify(this.appUserRepository).existsByUsername("aferrer");
 		final ArgumentCaptor<AppUser> savedAppUserCaptor = ArgumentCaptor.forClass(AppUser.class);
 		verify(this.appUserRepository).save(savedAppUserCaptor.capture());
 		assertEquals("aferrer", savedAppUserCaptor.getValue().getUsername());
-		assertEquals(AppUser.DEFAULT_TIMEZONE, savedAppUserCaptor.getValue().getDefaultTimezone());
+		assertEquals("Europe/Madrid", savedAppUserCaptor.getValue().getDefaultTimezone());
+	}
+
+	@Test
+	void testCreateAppUserThrowsWhenTimezoneIsInvalid() {
+		assertThrows(IllegalArgumentException.class,
+				() -> this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, "Mars/Olympus"));
 	}
 
 	@Test
@@ -66,14 +72,14 @@ class AppUserServiceTest {
 		when(this.appUserRepository.existsByUsername("aferrer")).thenReturn(true);
 
 		assertThrows(ResourceAlreadyExistsException.class,
-				() -> this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H24));
+				() -> this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, "Europe/Madrid"));
 
 		verify(this.appUserRepository).existsByUsername("aferrer");
 	}
 
 	@Test
 	void testFindAppUserByUsernameUsesAccountUsernameLookup() {
-		final AppUser appUser = new AppUser("aferrer", Locale.ENGLISH, TimeFormat.H24);
+		final AppUser appUser = new AppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, "Europe/Madrid");
 		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
 
 		final AppUser foundAppUser = this.appUserService.findAppUserByUsername("aferrer");
@@ -89,5 +95,18 @@ class AppUserServiceTest {
 		assertThrows(ResourceNotFoundException.class, () -> this.appUserService.findAppUserByUsername("missing-user"));
 
 		verify(this.appUserRepository).findByUsername("missing-user");
+	}
+
+	@Test
+	void testUpdateAppUserUpdatesTimezone() {
+		final AppUser appUser = new AppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, "Europe/Madrid");
+		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
+
+		final AppUser updatedAppUser = this.appUserService.updateAppUser("aferrer", Locale.CANADA, TimeFormat.H12,
+				"America/Toronto");
+
+		assertEquals(Locale.CANADA, updatedAppUser.getLocale());
+		assertEquals(TimeFormat.H12, updatedAppUser.getTimeFormat());
+		assertEquals("America/Toronto", updatedAppUser.getDefaultTimezone());
 	}
 }

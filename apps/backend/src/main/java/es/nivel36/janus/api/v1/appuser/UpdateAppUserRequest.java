@@ -24,11 +24,13 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload for updating an existing {@link AppUser}.
  *
- * @param locale     the preferred locale of the user expressed as a BCP 47
- *                   language tag (e.g. {@code "en-US"}); must not be blank and
- *                   must match the allowed pattern
- * @param timeFormat the preferred {@link TimeFormat} of the user; must not be
- *                   {@code null}
+ * @param locale          the preferred locale of the user expressed as a BCP 47
+ *                        language tag (e.g. {@code "en-US"}); must not be blank
+ *                        and must match the allowed pattern
+ * @param timeFormat      the preferred {@link TimeFormat} of the user; must not
+ *                        be {@code null}
+ * @param defaultTimezone the default timezone identifier of the user (for
+ *                        example {@code "Europe/Madrid"}); must not be blank
  */
 public record UpdateAppUserRequest( //
 		@NotBlank(message = "locale must not be blank") //
@@ -37,5 +39,8 @@ public record UpdateAppUserRequest( //
 		String locale, //
 
 		@NotNull(message = "timeFormat must not be null") //
-		TimeFormat timeFormat) {
+		TimeFormat timeFormat, //
+
+		@NotBlank(message = "defaultTimezone must not be blank") //
+		String defaultTimezone) {
 }

@@ -73,7 +73,7 @@ class AppUserControllerIT {
 	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
 		String body = """
-				  {"username":"jdoe","locale":"en-US","timeFormat":"H24"}
+				  {"username":"jdoe","locale":"en-US","timeFormat":"H24","defaultTimezone":"Europe/Madrid"}
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
@@ -83,7 +83,7 @@ class AppUserControllerIT {
 	@Test
 	void testCreateShouldReturn201AndBody() throws Exception {
 		String body = """
-				  {"username":"asmith","locale":"en-GB","timeFormat":"H12"}
+				  {"username":"asmith","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Europe/London"}
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
@@ -92,19 +92,30 @@ class AppUserControllerIT {
 				.andExpect(jsonPath("$.username").value("asmith")) //
 				.andExpect(jsonPath("$.locale").value("en-GB")) //
 				.andExpect(jsonPath("$.timeFormat").value("H12")) //
-				.andExpect(jsonPath("$.defaultTimezone").value("UTC"));
+				.andExpect(jsonPath("$.defaultTimezone").value("Europe/London"));
 		mvc.perform(get(BASE + "/{username}", "asmith").with(jwt())).andExpect(status().isOk());
+	}
+
+	@Test
+	void testCreateShouldRejectInvalidTimezone() throws Exception {
+		String body = """
+				  {"username":"asmith","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Mars/Olympus"}
+				""";
+
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
+				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testCreateShouldAcceptUsernamesWithAtSign() throws Exception {
 		String body = """
-				  {"username":"alice@example.com","locale":"en-GB","timeFormat":"H12"}
+				  {"username":"alice@example.com","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Europe/London"}
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isCreated()) //
-				.andExpect(jsonPath("$.username").value("alice@example.com"));
+				.andExpect(jsonPath("$.username").value("alice@example.com")) //
+				.andExpect(jsonPath("$.defaultTimezone").value("Europe/London"));
 
 		mvc.perform(get(BASE + "/{username}", "alice@example.com").with(jwt())) //
 				.andExpect(status().isOk()) //
@@ -115,7 +126,7 @@ class AppUserControllerIT {
 	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		String body = """
-				  {"locale":"en-CA","timeFormat":"H12"}
+				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
 				""";
 
 		mvc.perform(put(BASE + "/{username}", "jdoe").with(jwt()) //
@@ -124,7 +135,7 @@ class AppUserControllerIT {
 				.andExpect(jsonPath("$.username").value("jdoe")) //
 				.andExpect(jsonPath("$.locale").value("en-CA")) //
 				.andExpect(jsonPath("$.timeFormat").value("H12")) //
-				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
+				.andExpect(jsonPath("$.defaultTimezone").value("America/Toronto"));
 	}
 
 	@Test

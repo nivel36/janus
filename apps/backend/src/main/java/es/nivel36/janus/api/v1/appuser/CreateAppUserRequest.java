@@ -24,19 +24,15 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload for creating a new {@link AppUser}.
  *
- * @param username   the unique username used to identify the user; must not be
- *                   blank and must match the allowed pattern
- * @param name       the user's first name; must not be blank and must match the
- *                   allowed pattern
- * @param surname    the user's surname; must not be blank and must match the
- *                   allowed pattern
- * @param password   the raw password for the user; must not be blank and must
- *                   meet minimum length requirements
- * @param locale     the preferred locale of the user expressed as a BCP 47
- *                   language tag (e.g. {@code "en-US"}); must not be blank and
- *                   must match the allowed pattern
- * @param timeFormat the preferred {@link TimeFormat} of the user; must not be
- *                   {@code null}
+ * @param username        the unique username used to identify the user; must not
+ *                        be blank and must match the allowed pattern
+ * @param locale          the preferred locale of the user expressed as a BCP 47
+ *                        language tag (e.g. {@code "en-US"}); must not be blank
+ *                        and must match the allowed pattern
+ * @param timeFormat      the preferred {@link TimeFormat} of the user; must not
+ *                        be {@code null}
+ * @param defaultTimezone the default timezone identifier of the user (for
+ *                        example {@code "Europe/Madrid"}); must not be blank
  */
 public record CreateAppUserRequest( //
 		@NotBlank(message = "username must not be blank") //
@@ -50,5 +46,8 @@ public record CreateAppUserRequest( //
 		String locale, //
 
 		@NotNull(message = "timeFormat must not be null") //
-		TimeFormat timeFormat) {
+		TimeFormat timeFormat, //
+
+		@NotBlank(message = "defaultTimezone must not be blank") //
+		String defaultTimezone) {
 }
