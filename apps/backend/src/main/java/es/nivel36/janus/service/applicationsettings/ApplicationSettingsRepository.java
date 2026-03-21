@@ -13,28 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.service.admin;
+package es.nivel36.janus.service.applicationsettings;
 
-import org.springframework.stereotype.Component;
+import java.util.Optional;
 
-import es.nivel36.janus.service.timelog.TimeLog;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-@Component
-public class AdminService {
+/**
+ * Repository for accessing {@link ApplicationSettings} records.
+ */
+@Repository
+interface ApplicationSettingsRepository extends CrudRepository<ApplicationSettings, Long> {
 
 	/**
-	 * Number of days during which a time log can be modified
-	 */
-	private int daysUntilLocked = 7;
-
-	/**
-	 * Returns the number of days during which a {@link TimeLog} remains modifiable
-	 * before it becomes locked.
+	 * Retrieves the first persisted settings row.
 	 *
-	 * @return the number of days left until the {@link TimeLog} can no longer be
-	 *         modified
+	 * @return the stored application settings, if any.
 	 */
-	public int getDaysUntilLocked() {
-		return daysUntilLocked;
-	}
+	Optional<ApplicationSettings> findFirstByOrderByIdAsc();
 }

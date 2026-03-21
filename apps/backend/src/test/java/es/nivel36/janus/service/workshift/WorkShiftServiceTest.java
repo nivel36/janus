@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import es.nivel36.janus.service.admin.AdminService;
+import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
@@ -61,7 +61,7 @@ class WorkShiftServiceTest {
 	private @Mock WorkshiftRepository workshiftRepository;
 	private @Mock TimeLogService timeLogService;
 	private @Mock ScheduleService scheduleService;
-	private @Mock AdminService adminService;
+	private @Mock ApplicationSettingsService applicationSettingsService;
 	private @Mock Clock clock;
 	private @InjectMocks WorkShiftService workShiftService;
 	private Employee employee;
@@ -343,7 +343,7 @@ class WorkShiftServiceTest {
 		when(timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(employee, date)).thenReturn(Optional.of(timeRange));
-		when(adminService.getDaysUntilLocked()).thenReturn(7);
+		when(applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
 
 		// Act
 		final WorkShift result = this.workShiftService.findWorkShift(this.employee, this.worksite, date);
@@ -374,7 +374,7 @@ class WorkShiftServiceTest {
 		when(timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(scheduleService.findTimeRangeForEmployeeByDate(employee, date)).thenReturn(Optional.empty());
-		when(adminService.getDaysUntilLocked()).thenReturn(7);
+		when(applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
 
 		// Act
 		final WorkShift result = this.workShiftService.findWorkShift(this.employee, this.worksite, date);
