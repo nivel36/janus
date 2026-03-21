@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.service.appuser;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -92,26 +94,31 @@ public class AppUserService {
 	 * the operation will fail.
 	 * </p>
 	 *
-	 * @param username   the unique username of the user. Can't be {@code null} or
-	 *                   blank.
-	 * @param locale     the preferred {@link Locale} of the user. Can't be
-	 *                   {@code null}.
-	 * @param timeFormat the preferred {@link TimeFormat} of the user. Can't be
-	 *                   {@code null}.
+	 * @param username        the unique username of the user. Can't be {@code null}
+	 *                        or blank.
+	 * @param locale          the preferred {@link Locale} of the user. Can't be
+	 *                        {@code null}.
+	 * @param timeFormat      the preferred {@link TimeFormat} of the user. Can't be
+	 *                        {@code null}.
+	 * @param defaultTimezone the preferred default timezone of the user. Can't be
+	 *                        {@code null} or blank.
 	 *
 	 * @return the newly created {@link AppUser}
 	 *
 	 * @throws NullPointerException           if any parameter is {@code null}
-	 * @throws IllegalArgumentException       if any string parameter is blank
+	 * @throws IllegalArgumentException       if any string parameter is blank or if
+	 *                                        {@code defaultTimezone} is invalid
 	 * @throws ResourceAlreadyExistsException if a user with the given username
 	 *                                        already exists
 	 */
 	@Transactional
-	public AppUser createAppUser(final String username, final Locale locale, final TimeFormat timeFormat) {
+	public AppUser createAppUser(final String username, final Locale locale, final TimeFormat timeFormat,
+			final String defaultTimezone) {
 
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
 		Objects.requireNonNull(locale, "locale cannot be null.");
 		Objects.requireNonNull(timeFormat, "timeFormat cannot be null.");
+		final String normalizedDefaultTimezone = this.normalizeTimezone(defaultTimezone);
 
 		logger.debug("Creating new application user {}", username);
 
@@ -120,7 +127,7 @@ public class AppUserService {
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
 
-		final AppUser appUser = new AppUser(username.trim(), locale, timeFormat);
+		final AppUser appUser = new AppUser(username.trim(), locale, timeFormat, normalizedDefaultTimezone);
 
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
@@ -136,28 +143,35 @@ public class AppUserService {
 	 * used as the immutable identifier of the user.
 	 * </p>
 	 *
-	 * @param username      the unique username of the user to update. Can't be
-	 *                      {@code null} or blank.
-	 * @param newLocale     the new preferred {@link Locale}. Can't be {@code null}.
-	 * @param newTimeFormat the new preferred {@link TimeFormat}. Can't be
-	 *                      {@code null}.
+	 * @param username           the unique username of the user to update. Can't be
+	 *                           {@code null} or blank.
+	 * @param newLocale          the new preferred {@link Locale}. Can't be
+	 *                           {@code null}.
+	 * @param newTimeFormat      the new preferred {@link TimeFormat}. Can't be
+	 *                           {@code null}.
+	 * @param newDefaultTimezone the new preferred default timezone. Can't be
+	 *                           {@code null} or blank.
 	 *
 	 * @return the updated {@link AppUser}
 	 *
 	 * @throws NullPointerException      if any parameter is {@code null}
-	 * @throws IllegalArgumentException  if any string parameter is blank
+	 * @throws IllegalArgumentException  if any string parameter is blank or if
+	 *                                   {@code newDefaultTimezone} is invalid
 	 * @throws ResourceNotFoundException if no user exists with the given username
 	 */
 	@Transactional
-	public AppUser updateAppUser(final String username, final Locale newLocale, final TimeFormat newTimeFormat) {
+	public AppUser updateAppUser(final String username, final Locale newLocale, final TimeFormat newTimeFormat,
+			final String newDefaultTimezone) {
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
 		Objects.requireNonNull(newLocale, "newLocale cannot be null.");
 		Objects.requireNonNull(newTimeFormat, "newTimeFormat cannot be null.");
+		final String normalizedDefaultTimezone = this.normalizeTimezone(newDefaultTimezone);
 		logger.debug("Updating AppUser {}", username);
 
 		final AppUser appUser = this.findAppUser(username);
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
+		appUser.setDefaultTimezone(normalizedDefaultTimezone);
 		return appUser;
 	}
 
@@ -183,5 +197,14 @@ public class AppUserService {
 			throw new ResourceNotFoundException("There is no application user with username " + username);
 		}
 		return appUser;
+	}
+
+	private String normalizeTimezone(final String timezone) {
+		final String trimmedTimezone = Strings.requireNonBlank(timezone, "defaultTimezone cannot be null or blank.").trim();
+		try {
+			return ZoneId.of(trimmedTimezone).getId();
+		} catch (final DateTimeException ex) {
+			throw new IllegalArgumentException("defaultTimezone must be a valid IANA timezone.", ex);
+		}
 	}
 }

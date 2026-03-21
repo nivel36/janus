@@ -31,6 +31,7 @@ public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 		if (appUser == null) {
 			return null;
 		}
-		return new AppUserResponse(appUser.getUsername(), appUser.getLocale().toLanguageTag(), appUser.getTimeFormat());
+		return new AppUserResponse(appUser.getUsername(), appUser.getLocale().toLanguageTag(), appUser.getTimeFormat(),
+				appUser.getDefaultTimezone());
 	}
 }
