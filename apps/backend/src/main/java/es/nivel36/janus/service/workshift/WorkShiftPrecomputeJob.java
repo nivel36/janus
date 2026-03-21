@@ -33,7 +33,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.nivel36.janus.service.admin.AdminService;
+import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.ScheduleService;
@@ -59,7 +59,7 @@ public class WorkShiftPrecomputeJob {
 	private final TimeLogService timeLogService;
 	private final ScheduleService scheduleService;
 	private final EmployeeService employeeService;
-	private final AdminService adminService;
+	private final ApplicationSettingsService applicationSettingsService;
 	private final Clock clock;
 	private final ShiftPolicy policy;
 
@@ -75,7 +75,7 @@ public class WorkShiftPrecomputeJob {
 	 *                            precomputation; never {@code null}
 	 * @param scheduleService     Service used to obtain scheduled time ranges.
 	 *                            Can't be {@code null}.
-	 * @param adminService        service that provides admin policies (e.g.,
+	 * @param applicationSettingsService        service that provides admin policies (e.g.,
 	 *                            locking horizon); never {@code null}
 	 * @param clock               clock used to derive the target anchor; never
 	 *                            {@code null}
@@ -83,12 +83,12 @@ public class WorkShiftPrecomputeJob {
 	 */
 	public WorkShiftPrecomputeJob(final WorkshiftRepository workshiftRepository, final TimeLogService timeLogService,
 			final ScheduleService scheduleService, final EmployeeService employeeService,
-			final AdminService adminService, final Clock clock) {
+			final ApplicationSettingsService applicationSettingsService, final Clock clock) {
 		this.workshiftRepository = Objects.requireNonNull(workshiftRepository, "workshiftRepository must not be null");
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService must not be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService must not be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService must not be null");
-		this.adminService = Objects.requireNonNull(adminService, "adminService must not be null");
+		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService, "applicationSettingsService must not be null");
 		this.clock = Objects.requireNonNull(clock, "clock must not be null");
 		this.policy = ShiftPolicy.defaultPolicy();
 	}
@@ -96,7 +96,7 @@ public class WorkShiftPrecomputeJob {
 	/**
 	 * Executes the nightly batch that generates {@link WorkShift} records from
 	 * orphan {@link TimeLog} entries older than the locking horizon defined by
-	 * {@link AdminService}.
+	 * {@link ApplicationSettingsService}.
 	 * <p>
 	 * Policy: {@code targetAnchor = now(clock) - (daysUntilLocked + 1)}. For each
 	 * employee, all orphan logs with {@code entryTime} in
@@ -109,7 +109,7 @@ public class WorkShiftPrecomputeJob {
 	@Scheduled(cron = "0 15 2 * * *")
 	@Transactional
 	public void run() {
-		final int daysUntilLocked = this.adminService.getDaysUntilLocked();
+		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
 		final Instant target = this.clock.instant().minus(daysUntilLocked + 1L, ChronoUnit.DAYS);
 		log.debug("WorkShift precompute started; daysUntilLocked={} targetAnchor={}", daysUntilLocked, target);
 

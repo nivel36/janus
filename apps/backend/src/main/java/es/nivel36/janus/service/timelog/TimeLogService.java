@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.service.ResourceNotFoundException;
-import es.nivel36.janus.service.admin.AdminService;
+import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.worksite.Worksite;
 
@@ -57,7 +57,7 @@ public class TimeLogService {
 
 	private final TimeLogRepository timeLogRepository;
 	private final ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository;
-	private final AdminService adminService;
+	private final ApplicationSettingsService applicationSettingsService;
 	private final Clock clock;
 
 	/**
@@ -70,7 +70,7 @@ public class TimeLogService {
 	 *                                              {@link ClockOutWithoutClockInEvent}
 	 *                                              instances. Can't be
 	 *                                              {@code null}.
-	 * @param adminService                          service providing administrative
+	 * @param applicationSettingsService                          service providing administrative
 	 *                                              configuration. Can't be
 	 *                                              {@code null}.
 	 * @param clock                                 clock used to retrieve the
@@ -80,11 +80,11 @@ public class TimeLogService {
 	 */
 	public TimeLogService(final TimeLogRepository timeLogRepository,
 			final ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository,
-			final AdminService adminService, final Clock clock) {
+			final ApplicationSettingsService applicationSettingsService, final Clock clock) {
 		this.timeLogRepository = Objects.requireNonNull(timeLogRepository, "timeLogRepository can't be null");
 		this.clockOutWithoutClockInEventRepository = Objects.requireNonNull(clockOutWithoutClockInEventRepository,
 				"clockOutWithoutClockInEventRepository can't be null");
-		this.adminService = Objects.requireNonNull(adminService, "adminService can't be null");
+		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService, "applicationSettingsService can't be null");
 		this.clock = Objects.requireNonNull(clock, "clock can't be null");
 	}
 
@@ -155,7 +155,7 @@ public class TimeLogService {
 	}
 
 	private Instant getModificationLowerBound(final Instant now) {
-		final int daysUntilLocked = this.adminService.getDaysUntilLocked();
+		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
 		final Duration lockDuration = Duration.ofDays(daysUntilLocked);
 		return now.minus(lockDuration);
 	}
@@ -269,7 +269,7 @@ public class TimeLogService {
 		logger.debug("Deleting time log {}", timeLog.getId());
 
 		final Instant now = this.clock.instant();
-		final Duration lockDuration = Duration.ofDays(this.adminService.getDaysUntilLocked());
+		final Duration lockDuration = Duration.ofDays(this.applicationSettingsService.getDaysUntilLocked());
 
 		if (!timeLog.getEntryTime().plus(lockDuration).isAfter(now)) {
 			throw new TimeLogModificationNotAllowedException(

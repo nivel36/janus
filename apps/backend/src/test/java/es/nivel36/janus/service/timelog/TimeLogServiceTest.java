@@ -42,7 +42,7 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import es.nivel36.janus.service.admin.AdminService;
+import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.worksite.Worksite;
@@ -53,7 +53,7 @@ class TimeLogServiceTest {
 	private static final Logger logger = LoggerFactory.getLogger(TimeLogServiceTest.class);
 
 	private @Mock TimeLogRepository timeLogRepository;
-	private @Mock AdminService adminService;
+	private @Mock ApplicationSettingsService applicationSettingsService;
 	private @Mock WorksiteService worksiteService;
 	private @Mock Clock clock;
 	private @Mock ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository;
@@ -82,7 +82,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 		final Instant entry = now();
 
 		// Act
@@ -121,7 +121,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 		final Instant eightHoursBefore = fixedNow.minus(8, ChronoUnit.HOURS);
 
 		final TimeLog existingTimeLog = new TimeLog(this.employee, this.worksite, eightHoursBefore);
@@ -141,7 +141,7 @@ class TimeLogServiceTest {
 		logger.info("Test clock out with no previous log");
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 		when(this.timeLogRepository.findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(this.employee,
 				this.worksite)).thenReturn(null);
 		final Instant now = now();
@@ -156,7 +156,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		final Instant entry = fixedNow.minus(1, ChronoUnit.DAYS); // dentro de ventana (3 días)
 		final Instant exit = fixedNow.minus(2, ChronoUnit.HOURS); // dentro de ventana (3 días)
@@ -186,7 +186,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		// Act & Assert
 		final Instant oneHourBefore = fixedNow.minus(1, ChronoUnit.HOURS);
@@ -201,7 +201,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		// Act & Assert
 		final Instant oneHourBefore = fixedNow.minus(1, ChronoUnit.HOURS);
@@ -216,7 +216,7 @@ class TimeLogServiceTest {
 
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(clock.instant()).thenReturn(fixedNow);
-		when(adminService.getDaysUntilLocked()).thenReturn(3);
+		when(applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		assertThrows(TimeLogModificationNotAllowedException.class,
 				() -> timeLogService.createTimeLog(employee, worksite, entry, exit));
@@ -259,7 +259,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		final Instant entry = fixedNow.minus(1, ChronoUnit.HOURS); // posterior a exit
 		final Instant exit = fixedNow.minus(2, ChronoUnit.HOURS);
@@ -276,7 +276,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		final Instant entryTime = fixedNow.minus(2, ChronoUnit.DAYS);
 		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
@@ -300,7 +300,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		final Instant entryTime = fixedNow.minus(4, ChronoUnit.DAYS).atZone(ZoneOffset.UTC).toInstant();
 		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
@@ -316,7 +316,7 @@ class TimeLogServiceTest {
 		// Arrange
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.adminService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		final Instant entryTime = fixedNow.minus(3, ChronoUnit.DAYS);
 		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);

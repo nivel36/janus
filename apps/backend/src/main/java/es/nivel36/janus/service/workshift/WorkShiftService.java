@@ -30,7 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.nivel36.janus.service.admin.AdminService;
+import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.schedule.TimeRange;
@@ -66,7 +66,7 @@ public class WorkShiftService {
 	private final WorkshiftRepository workshiftRepository;
 	private final TimeLogService timeLogService;
 	private final ScheduleService scheduleService;
-	private final AdminService adminService;
+	private final ApplicationSettingsService applicationSettingsService;
 	private final Clock clock;
 	private final ShiftPolicy policy;
 
@@ -79,7 +79,7 @@ public class WorkShiftService {
 	 *                            be {@code null}.
 	 * @param scheduleService     Service used to obtain scheduled time ranges.
 	 *                            Can't be {@code null}.
-	 * @param adminService        Service providing administrative configuration.
+	 * @param applicationSettingsService        Service providing administrative configuration.
 	 *                            Can't be {@code null}.
 	 * @param clock               Clock used to determine the current date and time.
 	 *                            Can't be {@code null}.
@@ -87,11 +87,11 @@ public class WorkShiftService {
 	 * @throws NullPointerException if any dependency is {@code null}
 	 */
 	public WorkShiftService(final WorkshiftRepository workshiftRepository, final TimeLogService timeLogService,
-			final ScheduleService scheduleService, final AdminService adminService, final Clock clock) {
+			final ScheduleService scheduleService, final ApplicationSettingsService applicationSettingsService, final Clock clock) {
 		this.workshiftRepository = Objects.requireNonNull(workshiftRepository, "workshiftRepository must not be null");
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService must not be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService must not be null");
-		this.adminService = Objects.requireNonNull(adminService, "adminService must not be null");
+		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService, "applicationSettingsService must not be null");
 		this.clock = Objects.requireNonNull(clock, "clock must not be null");
 		this.policy = ShiftPolicy.defaultPolicy();
 	}
@@ -135,7 +135,7 @@ public class WorkShiftService {
 
 		logger.debug("Finding work shift for employee {} at worksite {} at {}", employee, worksite, date);
 		final LocalDate today = this.clock.instant().atZone(timeZone).toLocalDate();
-		final int daysUntilLocked = this.adminService.getDaysUntilLocked();
+		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
 		final LocalDate lockDate = date.plusDays(daysUntilLocked);
 		if (!lockDate.isAfter(today)) {
 			logger.trace("Lock date has passed. Searching the workshift in the data base");
