@@ -16,7 +16,6 @@
 package es.nivel36.janus.service.applicationsettings;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,8 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import es.nivel36.janus.service.ResourceNotFoundException;
 
 class ApplicationSettingsServiceTest {
 
@@ -52,11 +49,12 @@ class ApplicationSettingsServiceTest {
 	}
 
 	@Test
-	void testGetDaysUntilLockedThrowsWhenSettingsAreMissing() {
+	void testGetDaysUntilLockedFallsBackToDefaultWhenSettingsAreMissing() {
 		when(this.applicationSettingsRepository.findFirstByOrderByIdAsc()).thenReturn(Optional.empty());
 
-		assertThrows(ResourceNotFoundException.class, () -> this.applicationSettingsService.getDaysUntilLocked());
+		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
 
+		assertEquals(ApplicationSettingsService.DEFAULT_DAYS_UNTIL_LOCKED, daysUntilLocked);
 		verify(this.applicationSettingsRepository).findFirstByOrderByIdAsc();
 	}
 }

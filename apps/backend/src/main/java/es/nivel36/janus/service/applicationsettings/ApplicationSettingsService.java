@@ -28,6 +28,8 @@ import es.nivel36.janus.service.timelog.TimeLog;
 @Service
 public class ApplicationSettingsService {
 
+	static final int DEFAULT_DAYS_UNTIL_LOCKED = 7;
+
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationSettingsService.class);
 
 	private final ApplicationSettingsRepository applicationSettingsRepository;
@@ -47,7 +49,12 @@ public class ApplicationSettingsService {
 	@Transactional(readOnly = true)
 	public int getDaysUntilLocked() {
 		logger.debug("Loading admin configuration to resolve daysUntilLocked");
-		return this.findApplicationSettings().getDaysUntilLocked();
+		return this.applicationSettingsRepository.findFirstByOrderByIdAsc().map(ApplicationSettings::getDaysUntilLocked)
+				.orElseGet(() -> {
+					logger.warn("Application settings are missing; falling back to default daysUntilLocked={}",
+							DEFAULT_DAYS_UNTIL_LOCKED);
+					return DEFAULT_DAYS_UNTIL_LOCKED;
+				});
 	}
 
 	@Transactional(readOnly = true)
