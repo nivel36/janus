@@ -19,6 +19,7 @@ import java.net.URI;
 import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.format.DateTimeParseException;
+import java.time.zone.ZoneRulesException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -177,6 +178,17 @@ public class JanusExceptionHandler {
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
 		logger.warn("ClockOutWithoutClockInException error {}", pd);
+		return pd;
+	}
+	
+	@ExceptionHandler(ZoneRulesException.class)
+	ProblemDetail handleZoneRulesException(ZoneRulesException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setTitle("Incorrect TimeZone");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("ZoneRulesException error {}", pd);
 		return pd;
 	}
 

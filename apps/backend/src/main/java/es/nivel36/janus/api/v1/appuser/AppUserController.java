@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
+import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -95,8 +96,9 @@ public class AppUserController {
 		logger.debug("Create app user ACTION performed");
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
+		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
 		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), locale,
-				request.timeFormat(), request.defaultTimezone());
+				request.timeFormat(), defaultTimezone);
 		final AppUserResponse response = this.appUserResponseMapper.map(createdAppUser);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -117,8 +119,9 @@ public class AppUserController {
 		logger.debug("Update app user ACTION performed");
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
+		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
 		final AppUser updatedAppUser = this.appUserService.updateAppUser(username, locale, request.timeFormat(),
-				request.defaultTimezone());
+				defaultTimezone);
 		final AppUserResponse response = this.appUserResponseMapper.map(updatedAppUser);
 		return ResponseEntity.ok(response);
 	}

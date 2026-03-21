@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.appuser;
 
 import java.io.Serializable;
+import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -40,7 +41,7 @@ import jakarta.validation.constraints.NotNull;
 public class AppUser implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	public static final String DEFAULT_TIMEZONE = "UTC";
+	public static final ZoneId DEFAULT_TIMEZONE = ZoneId.of("UTC");
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,9 +59,8 @@ public class AppUser implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private TimeFormat timeFormat;
 
-	@NotEmpty
-	@Column(nullable = false)
-	private String defaultTimezone;
+	@NotNull
+	private ZoneId defaultTimezone;
 
 	AppUser() {
 	}
@@ -69,11 +69,11 @@ public class AppUser implements Serializable {
 		this(username, locale, timeFormat, DEFAULT_TIMEZONE);
 	}
 
-	public AppUser(final String username, final Locale locale, final TimeFormat timeFormat, final String defaultTimezone) {
+	public AppUser(final String username, final Locale locale, final TimeFormat timeFormat, final ZoneId defaultTimezone) {
 		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
-		this.defaultTimezone = Strings.requireNonBlank(defaultTimezone, "defaultTimezone can't be null or blank");
+		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null or blank");
 	}
 
 	public Long getId() {
@@ -104,12 +104,12 @@ public class AppUser implements Serializable {
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 	}
 
-	public String getDefaultTimezone() {
+	public ZoneId getDefaultTimezone() {
 		return defaultTimezone;
 	}
 
-	public void setDefaultTimezone(final String defaultTimezone) {
-		this.defaultTimezone = Strings.requireNonBlank(defaultTimezone, "defaultTimezone can't be null or blank");
+	public void setDefaultTimezone(final ZoneId defaultTimezone) {
+		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null or blank");
 	}
 
 	@Override

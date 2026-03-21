@@ -18,6 +18,7 @@ package es.nivel36.janus.api.v1.appuser;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 
 /**
@@ -31,7 +32,10 @@ public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 		if (appUser == null) {
 			return null;
 		}
-		return new AppUserResponse(appUser.getUsername(), appUser.getLocale().toLanguageTag(), appUser.getTimeFormat(),
-				appUser.getDefaultTimezone());
+		final String username = appUser.getUsername();
+		final String locale = appUser.getLocale().toLanguageTag();
+		final TimeFormat timeFormat = appUser.getTimeFormat();
+		final String defaultTimeZone = appUser.getDefaultTimezone().getId();
+		return new AppUserResponse(username, locale, timeFormat, defaultTimeZone);
 	}
 }

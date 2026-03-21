@@ -21,6 +21,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.ZoneId;
+import java.time.zone.ZoneRulesException;
 import java.util.Locale;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -52,34 +54,34 @@ class AppUserServiceTest {
 		when(this.passwordEncoder.encode("raw-password")).thenReturn("hashed-password");
 		when(this.appUserRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H12, "Europe/Madrid");
+		this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H12, ZoneId.of("Europe/Madrid"));
 
 		verify(this.appUserRepository).existsByUsername("aferrer");
 		final ArgumentCaptor<AppUser> savedAppUserCaptor = ArgumentCaptor.forClass(AppUser.class);
 		verify(this.appUserRepository).save(savedAppUserCaptor.capture());
 		assertEquals("aferrer", savedAppUserCaptor.getValue().getUsername());
-		assertEquals("Europe/Madrid", savedAppUserCaptor.getValue().getDefaultTimezone());
+		assertEquals("Europe/Madrid", savedAppUserCaptor.getValue().getDefaultTimezone().getId());
 	}
 
 	@Test
 	void testCreateAppUserThrowsWhenTimezoneIsInvalid() {
-		assertThrows(IllegalArgumentException.class,
-				() -> this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, "Mars/Olympus"));
+		assertThrows(ZoneRulesException.class, () -> this.appUserService.createAppUser("aferrer", Locale.ENGLISH,
+				TimeFormat.H24, ZoneId.of("Mars/Olympus")));
 	}
 
 	@Test
 	void testCreateAppUserThrowsWhenUsernameAlreadyExistsByAccountUsername() {
 		when(this.appUserRepository.existsByUsername("aferrer")).thenReturn(true);
 
-		assertThrows(ResourceAlreadyExistsException.class,
-				() -> this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, "Europe/Madrid"));
+		assertThrows(ResourceAlreadyExistsException.class, () -> this.appUserService.createAppUser("aferrer",
+				Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Europe/Madrid")));
 
 		verify(this.appUserRepository).existsByUsername("aferrer");
 	}
 
 	@Test
 	void testFindAppUserByUsernameUsesAccountUsernameLookup() {
-		final AppUser appUser = new AppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, "Europe/Madrid");
+		final AppUser appUser = new AppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Europe/Madrid"));
 		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
 
 		final AppUser foundAppUser = this.appUserService.findAppUserByUsername("aferrer");
@@ -99,14 +101,14 @@ class AppUserServiceTest {
 
 	@Test
 	void testUpdateAppUserUpdatesTimezone() {
-		final AppUser appUser = new AppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, "Europe/Madrid");
+		final AppUser appUser = new AppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Europe/Madrid"));
 		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
 
 		final AppUser updatedAppUser = this.appUserService.updateAppUser("aferrer", Locale.CANADA, TimeFormat.H12,
-				"America/Toronto");
+				ZoneId.of("America/Toronto"));
 
 		assertEquals(Locale.CANADA, updatedAppUser.getLocale());
 		assertEquals(TimeFormat.H12, updatedAppUser.getTimeFormat());
-		assertEquals("America/Toronto", updatedAppUser.getDefaultTimezone());
+		assertEquals("America/Toronto", updatedAppUser.getDefaultTimezone().getId());
 	}
 }

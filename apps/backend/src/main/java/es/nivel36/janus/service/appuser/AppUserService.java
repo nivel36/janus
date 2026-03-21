@@ -15,7 +15,6 @@
  */
 package es.nivel36.janus.service.appuser;
 
-import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Objects;
@@ -113,12 +112,12 @@ public class AppUserService {
 	 */
 	@Transactional
 	public AppUser createAppUser(final String username, final Locale locale, final TimeFormat timeFormat,
-			final String defaultTimezone) {
+			final ZoneId defaultTimezone) {
 
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
 		Objects.requireNonNull(locale, "locale cannot be null.");
 		Objects.requireNonNull(timeFormat, "timeFormat cannot be null.");
-		final String normalizedDefaultTimezone = this.normalizeTimezone(defaultTimezone);
+		Objects.requireNonNull(timeFormat, "defaultTimezone cannot be null.");
 
 		logger.debug("Creating new application user {}", username);
 
@@ -127,7 +126,7 @@ public class AppUserService {
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
 
-		final AppUser appUser = new AppUser(username.trim(), locale, timeFormat, normalizedDefaultTimezone);
+		final AppUser appUser = new AppUser(username.trim(), locale, timeFormat, defaultTimezone);
 
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
@@ -161,17 +160,17 @@ public class AppUserService {
 	 */
 	@Transactional
 	public AppUser updateAppUser(final String username, final Locale newLocale, final TimeFormat newTimeFormat,
-			final String newDefaultTimezone) {
+			final ZoneId newDefaultTimezone) {
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
 		Objects.requireNonNull(newLocale, "newLocale cannot be null.");
 		Objects.requireNonNull(newTimeFormat, "newTimeFormat cannot be null.");
-		final String normalizedDefaultTimezone = this.normalizeTimezone(newDefaultTimezone);
+		Objects.requireNonNull(newDefaultTimezone, "newDefaultTimezone cannot be null.");
 		logger.debug("Updating AppUser {}", username);
 
 		final AppUser appUser = this.findAppUser(username);
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
-		appUser.setDefaultTimezone(normalizedDefaultTimezone);
+		appUser.setDefaultTimezone(newDefaultTimezone);
 		return appUser;
 	}
 
@@ -197,14 +196,5 @@ public class AppUserService {
 			throw new ResourceNotFoundException("There is no application user with username " + username);
 		}
 		return appUser;
-	}
-
-	private String normalizeTimezone(final String timezone) {
-		final String trimmedTimezone = Strings.requireNonBlank(timezone, "defaultTimezone cannot be null or blank.").trim();
-		try {
-			return ZoneId.of(trimmedTimezone).getId();
-		} catch (final DateTimeException ex) {
-			throw new IllegalArgumentException("defaultTimezone must be a valid IANA timezone.", ex);
-		}
 	}
 }
