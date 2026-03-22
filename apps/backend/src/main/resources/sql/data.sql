@@ -38,7 +38,7 @@ INSERT INTO day_of_week_time_range (schedule_rule_id, start_time, end_time, day_
 
 INSERT INTO employee (name, surname, email, schedule_id) VALUES ('Abel', 'Ferrer Jiménez', 'aferrer@nivel36.es', 1);
 
-INSERT INTO worksite (name, code, time_zone) VALUES ('Barcelona Headquarters', 'BCN-HQ', 'UTC+1');
+INSERT INTO worksite (name, code, time_zone, scope) VALUES ('Barcelona Headquarters', 'BCN-HQ', 'UTC+1', 'GLOBAL');
 
 INSERT INTO employee_worksite (employee_id, worksite_id) VALUES (1,1);
 
@@ -47,4 +47,3 @@ INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time,
 INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-22T07:34:45Z'::timestamp,'2024-04-22T16:11:31Z'::timestamp, 31006);
 INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time,exit_time, work_duration) VALUES (1,1,NULL,'2024-04-23T07:33:51Z'::timestamp,'2024-04-23T16:11:42Z'::timestamp, 31071);
 --INSERT INTO time_log (employee_id,worksite_id,workshift_id,entry_time) VALUES (1,1,NULL,'2024-04-24T07:30:12Z'::timestamp);
-

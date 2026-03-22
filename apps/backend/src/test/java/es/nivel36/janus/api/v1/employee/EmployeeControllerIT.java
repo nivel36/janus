@@ -138,7 +138,7 @@ class EmployeeControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)", //
-			"INSERT INTO worksite(id,code,name,time_zone) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2')", //
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')", //
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" //
 	})
 	void testAddExistingWorksiteShouldReturn200() throws Exception {
@@ -151,7 +151,7 @@ class EmployeeControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
 			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)", //
-			"INSERT INTO worksite(id,code,name,time_zone) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2')" //
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" //
 	})
 	void testAddWorksiteShouldReturn200AndBody() throws Exception {
 		mvc.perform(post(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt())) //
@@ -163,7 +163,7 @@ class EmployeeControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
 			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)", //
-			"INSERT INTO worksite(id,code,name,time_zone) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2')" //
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" //
 	})
 	void testRemoveUnassignedWorksiteShouldReturn200AndBody() throws Exception {
 		mvc.perform(delete(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt())) //
@@ -175,7 +175,7 @@ class EmployeeControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)", //
-			"INSERT INTO worksite(id,code,name,time_zone) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2')", //
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')", //
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" //
 	})
 	void testRemoveWorksiteShouldReturn200AndBody() throws Exception {
