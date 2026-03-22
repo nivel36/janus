@@ -64,6 +64,61 @@ class TimeLogControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
+	})
+	void testClockInShouldAllowGlobalWorksite() throws Exception {
+		final String entry = "2025-08-04T09:30:00Z";
+
+		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+				.param("worksiteCode", "BCN-HQ") //
+				.param("entryTime", entry).with(jwt())) //
+				.andExpect(status().isCreated()) //
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
+				.andExpect(jsonPath("$.entryTime").value(entry)) //
+				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+	}
+
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',1)"//
+	})
+	void testClockInShouldAllowOwnPersonalWorksite() throws Exception {
+		final String entry = "2025-08-04T09:30:00Z";
+
+		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+				.param("worksiteCode", "HOME-AF") //
+				.param("entryTime", entry).with(jwt())) //
+				.andExpect(status().isCreated()) //
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
+				.andExpect(jsonPath("$.entryTime").value(entry)) //
+				.andExpect(jsonPath("$.worksiteCode").value("HOME-AF"));
+	}
+
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-ADA','Home Office Ada','UTC+2','PERSONAL',2)"//
+	})
+	void testClockInShouldRejectForeignPersonalWorksite() throws Exception {
+		final String entry = "2025-08-04T09:30:00Z";
+
+		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+				.param("worksiteCode", "HOME-ADA") //
+				.param("entryTime", entry).with(jwt())) //
+				.andExpect(status().isForbidden()) //
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
+				.andExpect(jsonPath("$.title").value("Worksite access denied")) //
+				.andExpect(jsonPath("$.detail").value("Employee aferrer@nivel36.es cannot use personal worksite HOME-ADA because it belongs to another employee"));
+	}
+
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})

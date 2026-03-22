@@ -176,6 +176,43 @@ public class WorksiteService {
 	}
 
 	/**
+	 * Verifies that the given employee is allowed to use the specified worksite.
+	 *
+	 * <p>
+	 * Global worksites can be used by any employee. Personal worksites can only be
+	 * used by their owner employee.
+	 * </p>
+	 *
+	 * @param employee the employee attempting to use the worksite; must not be
+	 *                 {@code null}
+	 * @param worksite the target worksite; must not be {@code null}
+	 * @throws NullPointerException           if {@code employee} or {@code worksite}
+	 *                                        is {@code null}
+	 * @throws WorksiteAccessDeniedException  if the employee is not allowed to use
+	 *                                        the worksite
+	 */
+	@Transactional(readOnly = true)
+	public void assertEmployeeCanUseWorksite(final Employee employee, final Worksite worksite) {
+		Objects.requireNonNull(employee, "employee can't be null");
+		Objects.requireNonNull(worksite, "worksite can't be null");
+
+		if (worksite.getScope() == WorksiteScope.GLOBAL) {
+			return;
+		}
+
+		final Employee ownerEmployee = worksite.getOwnerEmployee();
+		if (ownerEmployee != null && Objects.equals(ownerEmployee.getId(), employee.getId())) {
+			return;
+		}
+
+		logger.warn("Employee {} is not allowed to use personal worksite {} owned by {}", employee.getEmail(),
+				worksite.getCode(), ownerEmployee == null ? null : ownerEmployee.getEmail());
+		throw new WorksiteAccessDeniedException(
+				"Employee %s cannot use personal worksite %s because it belongs to another employee"
+						.formatted(employee.getEmail(), worksite.getCode()));
+	}
+
+	/**
 	 * Updates an existing {@link Worksite} with the provided classification data.
 	 *
 	 * @param code            the code identifying the worksite to update; must not
