@@ -160,7 +160,7 @@ public class TimeLog implements Serializable {
 	 * solely to allow frameworks such as JPA to instantiate the entity.
 	 * </p>
 	 */
-	protected TimeLog() {
+	TimeLog() {
 	}
 
 	/**

@@ -40,7 +40,7 @@ class ApplicationSettingsServiceTest {
 	@Test
 	void testGetDaysUntilLockedReturnsPersistedValue() {
 		when(this.applicationSettingsRepository.findFirstByOrderByIdAsc())
-				.thenReturn(Optional.of(new ApplicationSettings(7)));
+				.thenReturn(Optional.of(new ApplicationSettings(7, false, false)));
 
 		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
 

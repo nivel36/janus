@@ -29,6 +29,8 @@ import es.nivel36.janus.service.timelog.TimeLog;
 public class ApplicationSettingsService {
 
 	static final int DEFAULT_DAYS_UNTIL_LOCKED = 7;
+	static final boolean DEFAULT_EMPLOYEE_WORKPLACE_CREATION_ALLOWED = false;
+	static final boolean DEFAULT_WORKSITE_CHANGE_DURING_SHIFT_ALLOWED = false;
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationSettingsService.class);
 
@@ -58,12 +60,36 @@ public class ApplicationSettingsService {
 	}
 
 	@Transactional(readOnly = true)
+	public boolean isEmployeeWorkplaceCreationAllowed() {
+		logger.debug("Loading admin configuration to resolve daysUntilLocked");
+		return this.applicationSettingsRepository.findFirstByOrderByIdAsc()
+				.map(ApplicationSettings::isEmployeeWorkplaceCreationAllowed).orElseGet(() -> {
+					logger.warn(
+							"Application settings are missing; falling back to default employeeWorkplaceCreationAllowed={}",
+							DEFAULT_EMPLOYEE_WORKPLACE_CREATION_ALLOWED);
+					return DEFAULT_EMPLOYEE_WORKPLACE_CREATION_ALLOWED;
+				});
+	}
+
+	@Transactional(readOnly = true)
+	public boolean isWorksiteChangeDuringShiftAllowed() {
+		logger.debug("Loading admin configuration to resolve daysUntilLocked");
+		return this.applicationSettingsRepository.findFirstByOrderByIdAsc()
+				.map(ApplicationSettings::isWorksiteChangeDuringShiftAllowed).orElseGet(() -> {
+					logger.warn(
+							"Application settings are missing; falling back to default worksiteChangeDuringShiftAllowed={}",
+							DEFAULT_WORKSITE_CHANGE_DURING_SHIFT_ALLOWED);
+					return DEFAULT_WORKSITE_CHANGE_DURING_SHIFT_ALLOWED;
+				});
+	}
+
+	@Transactional(readOnly = true)
 	ApplicationSettings getApplicationSettings() {
 		return this.findApplicationSettings();
 	}
 
 	private ApplicationSettings findApplicationSettings() {
-		return this.applicationSettingsRepository.findFirstByOrderByIdAsc().orElseThrow(
-				() -> new ResourceNotFoundException("Application settings have not been configured yet"));
+		return this.applicationSettingsRepository.findFirstByOrderByIdAsc()
+				.orElseThrow(() -> new ResourceNotFoundException("Application settings have not been configured yet"));
 	}
 }
