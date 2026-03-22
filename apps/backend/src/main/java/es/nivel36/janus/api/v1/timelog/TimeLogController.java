@@ -271,6 +271,8 @@ public class TimeLogController {
 		try {
 			this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
 		} catch (final WorksiteAccessDeniedException ex) {
+			// The worksite may have changed between clock-in and clock-out, so we allow the
+			// clock-out.
 			if (!this.timeLogService.hasOpenTimeLog(employee, worksite)) {
 				throw ex;
 			}
