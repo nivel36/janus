@@ -43,6 +43,7 @@ import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import es.nivel36.janus.service.worksite.WorksiteService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -121,7 +122,7 @@ public class TimeLogController {
 		logger.debug("Clock-in ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
+		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
 		final TimeLog clockIn;
 		if (entryTime != null) {
 			clockIn = this.timeLogService.clockIn(employee, worksite, entryTime);
@@ -165,7 +166,7 @@ public class TimeLogController {
 		logger.debug("Clock-out ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
+		final Worksite worksite = this.findWorksiteForClockOut(employee, worksiteCode);
 		final TimeLog clockOut;
 		if (exitTime != null) {
 			clockOut = this.timeLogService.clockOut(employee, worksite, exitTime);
@@ -203,7 +204,7 @@ public class TimeLogController {
 		logger.debug("Create time log ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
+		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
 		final Instant entryTime = timeLog.entryTime();
 		final Instant exitTime = timeLog.exitTime();
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
@@ -257,6 +258,24 @@ public class TimeLogController {
 		}
 		final Page<TimeLogResponse> timeLogResponse = timeLogs.map(this.timeLogResponseMapper::map);
 		return ResponseEntity.ok(timeLogResponse);
+	}
+
+	private Worksite findWorksiteForNewRecord(final Employee employee, final String worksiteCode) {
+		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
+		this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
+		return worksite;
+	}
+
+	private Worksite findWorksiteForClockOut(final Employee employee, final String worksiteCode) {
+		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
+		try {
+			this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
+		} catch (final WorksiteAccessDeniedException ex) {
+			if (!this.timeLogService.hasOpenTimeLog(employee, worksite)) {
+				throw ex;
+			}
+		}
+		return worksite;
 	}
 
 	/**

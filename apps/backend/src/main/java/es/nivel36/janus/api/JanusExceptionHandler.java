@@ -50,6 +50,7 @@ import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
 import es.nivel36.janus.service.timelog.TimeLogChronologyException;
 import es.nivel36.janus.service.timelog.TimeLogDeletedException;
 import es.nivel36.janus.service.timelog.TimeLogModificationNotAllowedException;
+import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -79,6 +80,7 @@ public class JanusExceptionHandler {
 	private static final URI TYPE_VALIDATION_ERROR = URI.create("urn:problem:validation-error");
 	private static final URI TYPE_CONSTRAINT_VIOLATION = URI.create("urn:problem:constraint-violation");
 	private static final URI TYPE_INTERNAL_ERROR = URI.create("urn:problem:internal");
+	private static final URI TYPE_ACCESS_DENIED = URI.create("urn:problem:access-denied");
 
 	private final Clock clock;
 
@@ -200,6 +202,19 @@ public class JanusExceptionHandler {
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
 		logger.warn("EventAlreadyFinalizedException error {}", pd);
+		return pd;
+	}
+
+
+	@ExceptionHandler(WorksiteAccessDeniedException.class)
+	ProblemDetail handleWorksiteAccessDenied(final WorksiteAccessDeniedException ex,
+			final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+		pd.setType(TYPE_ACCESS_DENIED);
+		pd.setTitle("Worksite access denied");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("WorksiteAccessDeniedException error {}", pd);
 		return pd;
 	}
 

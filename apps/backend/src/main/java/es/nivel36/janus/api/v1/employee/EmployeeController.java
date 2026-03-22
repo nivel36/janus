@@ -168,6 +168,7 @@ public class EmployeeController {
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
+		this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
 		this.employeeService.addWorksiteToEmployee(worksite, employee);
 
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
