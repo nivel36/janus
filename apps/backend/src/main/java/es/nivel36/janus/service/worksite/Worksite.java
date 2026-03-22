@@ -31,11 +31,15 @@ import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -49,6 +53,12 @@ import jakarta.validation.constraints.NotNull;
  * ({@code code}) and has a human-readable {@code name}. Each worksite is
  * associated with a {@link ZoneId} that defines the local time zone used when
  * interpreting time-based data.
+ * </p>
+ *
+ * <p>
+ * A worksite can be {@link WorksiteScope#GLOBAL global}, which makes it visible
+ * to every employee, or {@link WorksiteScope#PERSONAL personal}, in which case
+ * it must belong to exactly one owner employee.
  * </p>
  *
  * <p>
@@ -123,6 +133,34 @@ public class Worksite implements Serializable {
 	private ZoneId timeZone;
 
 	/**
+	 * Visibility scope of the worksite.
+	 *
+	 * <p>
+	 * {@link WorksiteScope#GLOBAL Global} worksites are visible to all employees
+	 * and must not define an owner. {@link WorksiteScope#PERSONAL Personal}
+	 * worksites belong to exactly one employee and therefore require
+	 * {@link #ownerEmployee} to be populated.
+	 * </p>
+	 */
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	@Column(name = "scope")
+	private WorksiteScope scope;
+
+	/**
+	 * Owner employee of a personal worksite.
+	 *
+	 * <p>
+	 * This association is optional only for {@link WorksiteScope#GLOBAL} worksites.
+	 * For {@link WorksiteScope#PERSONAL} worksites, it is mandatory and identifies
+	 * the single employee that owns the worksite.
+	 * </p>
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "owner_employee_id")
+	private Employee ownerEmployee;
+
+	/**
 	 * Logical deletion flag.
 	 *
 	 * <p>
@@ -134,12 +172,14 @@ public class Worksite implements Serializable {
 	private boolean deleted = false;
 
 	/**
-	 * Employees assigned to this worksite.
+	 * Employees explicitly associated with this worksite through the legacy
+	 * employee-worksite link table.
 	 *
 	 * <p>
 	 * This is the inverse side of the many-to-many relationship defined in
-	 * {@link Employee}. The returned collection must be treated as read-only from
-	 * outside the entity.
+	 * {@link Employee}. The collection is still kept because that association may
+	 * continue to serve secondary purposes, even though visibility is now primarily
+	 * determined by {@link #scope} and {@link #ownerEmployee}.
 	 * </p>
 	 */
 	@ManyToMany(mappedBy = "worksites")
@@ -168,7 +208,7 @@ public class Worksite implements Serializable {
 	}
 
 	/**
-	 * Creates a new {@code Worksite} with the given attributes.
+	 * Creates a new global {@code Worksite} with the given attributes.
 	 *
 	 * @param code     the unique business code of the worksite; must not be
 	 *                 {@code null} or blank
@@ -177,21 +217,41 @@ public class Worksite implements Serializable {
 	 * @param timeZone the time zone associated with the worksite; must not be
 	 *                 {@code null}
 	 *
-	 * @throws NullPointerException if {@code timeZone} is {@code null}
+	 * @throws NullPointerException     if {@code timeZone} is {@code null}
 	 * @throws IllegalArgumentException if {@code code} or {@code name} is blank
 	 */
 	public Worksite(final String code, final String name, final ZoneId timeZone) {
-		this.code = Strings.requireNonBlank(code, "code can't be null or blank");
-		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
-		this.timeZone = Objects.requireNonNull(timeZone, "timeZone can't be null");
+		this(code, name, timeZone, WorksiteScope.GLOBAL, null);
 	}
 
 	/**
-	 * Returns the surrogate identifier of the worksite.
+	 * Creates a new {@code Worksite} with the provided scope semantics.
 	 *
-	 * @return the internal identifier, or {@code null} if the entity has not yet
-	 *         been persisted
+	 * @param code          the unique business code of the worksite; must not be
+	 *                      {@code null} or blank
+	 * @param name          the human-readable name of the worksite; must not be
+	 *                      {@code null} or blank
+	 * @param timeZone      the time zone associated with the worksite; must not be
+	 *                      {@code null}
+	 * @param scope         the worksite scope; must not be {@code null}
+	 * @param ownerEmployee the owner employee for personal worksites; must be
+	 *                      {@code null} for global worksites and non-null for
+	 *                      personal ones
+	 *
+	 * @throws NullPointerException     if {@code timeZone} or {@code scope} is
+	 *                                  {@code null}, or if {@code ownerEmployee} is
+	 *                                  missing for a personal worksite
+	 * @throws IllegalArgumentException if {@code code} or {@code name} is blank, or
+	 *                                  if a global worksite receives an owner
 	 */
+	public Worksite(final String code, final String name, final ZoneId timeZone, final WorksiteScope scope,
+			final Employee ownerEmployee) {
+		this.code = Strings.requireNonBlank(code, "code can't be null or blank");
+		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
+		this.timeZone = Objects.requireNonNull(timeZone, "timeZone can't be null");
+		this.applyScope(scope, ownerEmployee);
+	}
+
 	public Long getId() {
 		return this.id;
 	}
@@ -211,30 +271,14 @@ public class Worksite implements Serializable {
 		this.id = id;
 	}
 
-	/**
-	 * Returns the human-readable name of the worksite.
-	 *
-	 * @return the name of the worksite
-	 */
 	public String getName() {
 		return this.name;
 	}
 
-	/**
-	 * Updates the human-readable name of the worksite.
-	 *
-	 * @param name the new name of the worksite; must not be {@code null} or blank
-	 * @throws IllegalArgumentException if {@code name} is blank
-	 */
 	public void setName(final String name) {
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 	}
 
-	/**
-	 * Returns the unique business code of the worksite.
-	 *
-	 * @return the natural identifier of the worksite
-	 */
 	public String getCode() {
 		return this.code;
 	}
@@ -259,11 +303,53 @@ public class Worksite implements Serializable {
 	}
 
 	/**
-	 * Indicates whether this worksite is logically deleted.
+	 * Returns the visibility scope of the worksite.
 	 *
-	 * @return {@code true} if the worksite is marked as deleted; {@code false}
-	 *         otherwise
+	 * @return the current {@link WorksiteScope}
 	 */
+	public WorksiteScope getScope() {
+		return this.scope;
+	}
+
+	/**
+	 * Returns the owner employee when the worksite is personal.
+	 *
+	 * @return the owner employee, or {@code null} for global worksites
+	 */
+	public Employee getOwnerEmployee() {
+		return this.ownerEmployee;
+	}
+
+	/**
+	 * Updates the scope classification of the worksite while enforcing the
+	 * consistency contract between {@code scope} and {@code ownerEmployee}.
+	 *
+	 * @param scope         the new scope; must not be {@code null}
+	 * @param ownerEmployee the new owner employee; required for personal worksites
+	 *                      and forbidden for global ones
+	 *
+	 * @throws NullPointerException     if {@code scope} is {@code null}, or if a
+	 *                                  personal worksite is updated without owner
+	 * @throws IllegalArgumentException if a global worksite is updated with an
+	 *                                  owner
+	 */
+	public void updateScope(final WorksiteScope scope, final Employee ownerEmployee) {
+		this.applyScope(scope, ownerEmployee);
+	}
+
+	private void applyScope(final WorksiteScope scope, final Employee ownerEmployee) {
+		this.scope = Objects.requireNonNull(scope, "scope can't be null");
+		if (scope == WorksiteScope.GLOBAL) {
+			if (ownerEmployee != null) {
+				throw new IllegalArgumentException("global worksites can't have an owner employee");
+			}
+			this.ownerEmployee = null;
+			return;
+		}
+		this.ownerEmployee = Objects.requireNonNull(ownerEmployee,
+				"personal worksites require an owner employee");
+	}
+
 	public boolean isDeleted() {
 		return this.deleted;
 	}
@@ -284,7 +370,8 @@ public class Worksite implements Serializable {
 	}
 
 	/**
-	 * Returns an unmodifiable view of the employees assigned to this worksite.
+	 * Returns an unmodifiable view of the employees explicitly assigned to this
+	 * worksite through the legacy association.
 	 *
 	 * <p>
 	 * The returned collection may be temporarily out of sync if employees are added
@@ -299,7 +386,7 @@ public class Worksite implements Serializable {
 	}
 
 	/**
-	 * Replaces the set of employees assigned to this worksite.
+	 * Replaces the set of explicitly assigned employees.
 	 *
 	 * <p>
 	 * This method exists exclusively for testing purposes and must not be used in

@@ -87,12 +87,9 @@ public class WorksiteController {
 	 * @return a {@link ResponseEntity} containing the requested worksite
 	 */
 	@GetMapping("/{worksiteCode}")
-	public ResponseEntity<WorksiteResponse> findWorksite( //
-			final @PathVariable("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode) {
+	public ResponseEntity<WorksiteResponse> findWorksite(
+			final @PathVariable("worksiteCode")
+			@Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode) {
 		logger.debug("Find worksite ACTION performed");
 
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
@@ -103,6 +100,12 @@ public class WorksiteController {
 	/**
 	 * Creates a new worksite.
 	 *
+	 * <p>
+	 * The request may describe either a global worksite or a personal one. For
+	 * personal worksites, the owner employee id is forwarded to the service layer
+	 * so it can resolve and validate the owner relation.
+	 * </p>
+	 *
 	 * @param request the payload describing the worksite to create; must not be
 	 *                {@code null}
 	 * @return a {@link ResponseEntity} containing the created worksite
@@ -111,12 +114,8 @@ public class WorksiteController {
 	public ResponseEntity<WorksiteResponse> createWorksite(@Valid @RequestBody final CreateWorksiteRequest request) {
 		logger.debug("Create worksite ACTION performed");
 
-		final String code = request.code();
-		final String name = request.name();
-		final String timeZone = request.timeZone();
-		final ZoneId timeZoneId = ZoneId.of(timeZone);
-
-		final Worksite worksite = this.worksiteService.createWorksite(code, name, timeZoneId);
+		final Worksite worksite = this.worksiteService.createWorksite(request.code(), request.name(),
+				ZoneId.of(request.timeZone()), request.scope(), request.ownerEmployeeId());
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -131,19 +130,13 @@ public class WorksiteController {
 	 * @return a {@link ResponseEntity} containing the updated worksite
 	 */
 	@PutMapping("/{worksiteCode}")
-	public ResponseEntity<WorksiteResponse> updateWorksite(final @PathVariable("worksiteCode") //
-	@Pattern(//
-			regexp = "[A-Za-z0-9_-]{1,50}", //
-			message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-	String worksiteCode, //
+	public ResponseEntity<WorksiteResponse> updateWorksite(final @PathVariable("worksiteCode")
+	@Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@Valid @RequestBody final UpdateWorksiteRequest request) {
 		logger.debug("Update worksite ACTION performed");
 
-		final String name = request.name();
-		final String timeZone = request.timeZone();
-		final ZoneId timeZoneId = ZoneId.of(timeZone);
-
-		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, name, timeZoneId);
+		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, request.name(),
+				ZoneId.of(request.timeZone()), request.scope(), request.ownerEmployeeId());
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
 		return ResponseEntity.ok(response);
 	}
@@ -155,11 +148,8 @@ public class WorksiteController {
 	 * @return a {@link ResponseEntity} with an empty body and HTTP 204 status
 	 */
 	@DeleteMapping("/{worksiteCode}")
-	public ResponseEntity<Void> deleteWorksite(final @PathVariable("worksiteCode") //
-	@Pattern(//
-			regexp = "[A-Za-z0-9_-]{1,50}", //
-			message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-	String worksiteCode) {
+	public ResponseEntity<Void> deleteWorksite(final @PathVariable("worksiteCode")
+	@Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode) {
 		logger.debug("Delete worksite ACTION performed");
 
 		final Worksite workiste = this.worksiteService.findWorksiteByCode(worksiteCode);
