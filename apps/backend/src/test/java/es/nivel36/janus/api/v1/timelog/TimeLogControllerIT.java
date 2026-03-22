@@ -204,6 +204,27 @@ class TimeLogControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',2)",
+			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES (1,1,'2025-08-04T07:30:00Z'::timestamp)" })
+	void testClockOutShouldAllowClosingOpenTimeLogAfterPersonalWorksiteTransfer() throws Exception {
+		final String entry = "2025-08-04T07:30:00Z";
+		final String exit = "2025-08-04T16:00:00Z";
+
+		mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
+				.param("worksiteCode", "HOME-AF") //
+				.param("exitTime", exit).with(jwt())) //
+				.andExpect(status().isOk()) //
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
+				.andExpect(jsonPath("$.entryTime").value(entry)) //
+				.andExpect(jsonPath("$.exitTime").value(exit)) //
+				.andExpect(jsonPath("$.worksiteCode").value("HOME-AF"));
+	}
+
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})

@@ -117,7 +117,7 @@ public class ClockOutWithoutClockInEventController {
 		logger.debug("Resolve clock-out-without-clock-in event ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findUsableWorksite(employee, worksiteCode);
+		final Worksite worksite = this.findRecordedWorksite(worksiteCode);
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 
@@ -158,7 +158,7 @@ public class ClockOutWithoutClockInEventController {
 		logger.debug("Invalidate clock-out-without-clock-in event ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findUsableWorksite(employee, worksiteCode);
+		final Worksite worksite = this.findRecordedWorksite(worksiteCode);
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 		final Optional<String> reason = request == null ? Optional.empty() : toOptionalReason(request.reason());
@@ -196,7 +196,7 @@ public class ClockOutWithoutClockInEventController {
 		logger.debug("Find clock-out-without-clock-in event ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findUsableWorksite(employee, worksiteCode);
+		final Worksite worksite = this.findRecordedWorksite(worksiteCode);
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper
@@ -206,10 +206,8 @@ public class ClockOutWithoutClockInEventController {
 
 
 
-	private Worksite findUsableWorksite(final Employee employee, final String worksiteCode) {
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
-		return worksite;
+	private Worksite findRecordedWorksite(final String worksiteCode) {
+		return this.worksiteService.findWorksiteByCode(worksiteCode);
 	}
 
 	private Optional<String> toOptionalReason(final String reason) {
