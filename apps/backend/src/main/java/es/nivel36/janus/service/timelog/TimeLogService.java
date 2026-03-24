@@ -70,7 +70,7 @@ public class TimeLogService {
 	 *                                              {@link ClockOutWithoutClockInEvent}
 	 *                                              instances. Can't be
 	 *                                              {@code null}.
-	 * @param applicationSettingsService                          service providing administrative
+	 * @param applicationSettingsService            service providing administrative
 	 *                                              configuration. Can't be
 	 *                                              {@code null}.
 	 * @param clock                                 clock used to retrieve the
@@ -84,7 +84,8 @@ public class TimeLogService {
 		this.timeLogRepository = Objects.requireNonNull(timeLogRepository, "timeLogRepository can't be null");
 		this.clockOutWithoutClockInEventRepository = Objects.requireNonNull(clockOutWithoutClockInEventRepository,
 				"clockOutWithoutClockInEventRepository can't be null");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService, "applicationSettingsService can't be null");
+		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
+				"applicationSettingsService can't be null");
 		this.clock = Objects.requireNonNull(clock, "clock can't be null");
 	}
 
@@ -214,8 +215,8 @@ public class TimeLogService {
 		Objects.requireNonNull(employee, "employee cannot be null.");
 		Objects.requireNonNull(worksite, "worksite cannot be null.");
 
-		return this.timeLogRepository
-				.findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(employee, worksite) != null;
+		return this.timeLogRepository.findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(employee,
+				worksite) != null;
 	}
 
 	/**
@@ -261,6 +262,11 @@ public class TimeLogService {
 					worksite, truncatedExitTime, now);
 			this.clockOutWithoutClockInEventRepository.save(clockOutWithoutClockInEvent);
 			throw new ClockOutWithoutClockInException();
+		}
+
+		if (applicationSettingsService.isWorksiteChangeDuringShiftAllowed()
+				&& !lastTimeLog.getWorksite().equals(worksite)) {
+			throw new WorksiteMismatchOnClockOutException(lastTimeLog.getWorksite(), worksite);
 		}
 
 		lastTimeLog.close(truncatedExitTime);

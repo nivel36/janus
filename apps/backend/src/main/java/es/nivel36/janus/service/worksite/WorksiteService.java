@@ -53,8 +53,8 @@ public class WorksiteService {
 	 *
 	 * @param worksiteRepository the repository used to access worksite data; must
 	 *                           not be {@code null}
-	 * @param employeeService    service used to resolve owner employees for
-	 *                           personal worksites; must not be {@code null}
+	 * @param employeeService    the employee service to asign a worksite to the
+	 *                           employee
 	 * @throws NullPointerException if any argument is {@code null}
 	 */
 	public WorksiteService(final WorksiteRepository worksiteRepository, final EmployeeService employeeService) {
@@ -81,16 +81,15 @@ public class WorksiteService {
 	 * Retrieves all worksites visible to the specified employee.
 	 *
 	 * <p>
-	 * Visibility is primarily driven by {@link WorksiteScope}: global worksites
-	 * are visible to everyone and personal worksites are visible to their owner.
-	 * The repository still considers the legacy employee-worksite association to
+	 * Visibility is primarily driven by {@link WorksiteScope}: global worksites are
+	 * visible to everyone and personal worksites are visible to their owner. The
+	 * repository still considers the legacy employee-worksite association to
 	 * preserve any remaining secondary functional purpose.
 	 * </p>
 	 *
 	 * @param employee the employee whose visible worksites should be retrieved;
 	 *                 must not be {@code null}
-	 * @return a list of worksites visible to the given employee; never
-	 *         {@code null}
+	 * @return a list of worksites visible to the given employee; never {@code null}
 	 * @throws NullPointerException if {@code employee} is {@code null}
 	 */
 	@Transactional(readOnly = true)
@@ -106,16 +105,16 @@ public class WorksiteService {
 	/**
 	 * Creates a new {@link Worksite} with the provided classification data.
 	 *
-	 * @param code            the unique code identifying the worksite; must not be
-	 *                        {@code null} and not be used by another worksite
-	 * @param name            the human readable name of the worksite; must not be
-	 *                        {@code null}
-	 * @param timeZone        the {@link ZoneId} associated with the worksite; must
-	 *                        not be {@code null}
-	 * @param scope           the scope assigned to the worksite; must not be
-	 *                        {@code null}
-	 * @param ownerEmployeeId identifier of the owner employee for personal
-	 *                        worksites; must be {@code null} for global worksites
+	 * @param code          the unique code identifying the worksite; must not be
+	 *                      {@code null} and not be used by another worksite
+	 * @param name          the human readable name of the worksite; must not be
+	 *                      {@code null}
+	 * @param timeZone      the {@link ZoneId} associated with the worksite; must
+	 *                      not be {@code null}
+	 * @param scope         the scope assigned to the worksite; must not be
+	 *                      {@code null}
+	 * @param ownerEmployee the owner employee for personal worksites; must be
+	 *                      {@code null} for global worksites
 	 * @return the persisted {@link Worksite}
 	 * @throws NullPointerException           if any mandatory argument is
 	 *                                        {@code null}
@@ -129,7 +128,7 @@ public class WorksiteService {
 	 */
 	@Transactional
 	public Worksite createWorksite(final String code, final String name, final ZoneId timeZone,
-			final WorksiteScope scope, final Long ownerEmployeeId) {
+			final WorksiteScope scope, final Employee ownerEmployee) {
 		Objects.requireNonNull(code, "code can't be null");
 		Objects.requireNonNull(name, "name can't be null");
 		Objects.requireNonNull(timeZone, "timeZone can't be null");
@@ -142,9 +141,13 @@ public class WorksiteService {
 			throw new ResourceAlreadyExistsException("Worksite already exists with code " + code);
 		}
 
-		final Employee ownerEmployee = this.resolveOwnerEmployee(scope, ownerEmployeeId);
+		this.checkOwner(scope, ownerEmployee);
+
 		final Worksite worksite = new Worksite(code, name, timeZone, scope, ownerEmployee);
 		final Worksite savedWorksite = this.worksiteRepository.save(worksite);
+		if (scope == WorksiteScope.PERSONAL) {
+			employeeService.addWorksiteToEmployee(savedWorksite, ownerEmployee);
+		}
 		logger.trace("Worksite {} created successfully", code);
 		return savedWorksite;
 	}
@@ -186,12 +189,11 @@ public class WorksiteService {
 	 * @param employee the employee attempting to use the worksite; must not be
 	 *                 {@code null}
 	 * @param worksite the target worksite; must not be {@code null}
-	 * @throws NullPointerException           if {@code employee} or {@code worksite}
-	 *                                        is {@code null}
-	 * @throws WorksiteAccessDeniedException  if the employee is not allowed to use
-	 *                                        the worksite
+	 * @throws NullPointerException          if {@code employee} or {@code worksite}
+	 *                                       is {@code null}
+	 * @throws WorksiteAccessDeniedException if the employee is not allowed to use
+	 *                                       the worksite
 	 */
-	@Transactional(readOnly = true)
 	public void assertEmployeeCanUseWorksite(final Employee employee, final Worksite worksite) {
 		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(worksite, "worksite can't be null");
@@ -215,14 +217,14 @@ public class WorksiteService {
 	/**
 	 * Updates an existing {@link Worksite} with the provided classification data.
 	 *
-	 * @param code            the code identifying the worksite to update; must not
-	 *                        be {@code null}
-	 * @param newName         the new name to assign; must not be {@code null}
-	 * @param newTimeZone     the new {@link ZoneId} to assign; must not be
-	 *                        {@code null}
-	 * @param newScope        the new worksite scope; must not be {@code null}
-	 * @param ownerEmployeeId identifier of the owner employee for personal
-	 *                        worksites; must be {@code null} for global worksites
+	 * @param code          the code identifying the worksite to update; must not be
+	 *                      {@code null}
+	 * @param newName       the new name to assign; must not be {@code null}
+	 * @param newTimeZone   the new {@link ZoneId} to assign; must not be
+	 *                      {@code null}
+	 * @param newScope      the new worksite scope; must not be {@code null}
+	 * @param ownerEmployee the owner employee for personal worksites; must be
+	 *                      {@code null} for global worksites
 	 * @return the updated {@link Worksite}
 	 * @throws NullPointerException      if any mandatory argument is {@code null}
 	 * @throws IllegalArgumentException  if the combination of {@code newScope} and
@@ -232,15 +234,16 @@ public class WorksiteService {
 	 */
 	@Transactional
 	public Worksite updateWorksite(final String code, final String newName, final ZoneId newTimeZone,
-			final WorksiteScope newScope, final Long ownerEmployeeId) {
+			final WorksiteScope newScope, final Employee ownerEmployee) {
 		Objects.requireNonNull(code, "code can't be null");
 		Objects.requireNonNull(newName, "newName can't be null");
 		Objects.requireNonNull(newTimeZone, "newTimeZone can't be null");
 		Objects.requireNonNull(newScope, "newScope can't be null");
 		logger.debug("Updating worksite with code {}", code);
 
+		this.checkOwner(newScope, ownerEmployee);
+
 		final Worksite worksite = this.findWorksite(code);
-		final Employee ownerEmployee = this.resolveOwnerEmployee(newScope, ownerEmployeeId);
 		worksite.setName(newName);
 		worksite.setTimeZone(newTimeZone);
 		worksite.updateScope(newScope, ownerEmployee);
@@ -250,27 +253,14 @@ public class WorksiteService {
 		return updatedWorksite;
 	}
 
-	/**
-	 * Resolves the owner employee required by the target worksite scope.
-	 *
-	 * @param scope           the scope to validate; must not be {@code null}
-	 * @param ownerEmployeeId identifier of the owner employee, if any
-	 * @return the resolved owner employee for personal worksites, or
-	 *         {@code null} for global worksites
-	 * @throws IllegalArgumentException  if the scope-owner combination is invalid
-	 * @throws ResourceNotFoundException if the owner employee id does not exist
-	 */
-	private Employee resolveOwnerEmployee(final WorksiteScope scope, final Long ownerEmployeeId) {
+	private void checkOwner(final WorksiteScope scope, final Employee ownerEmployee) {
 		if (scope == WorksiteScope.GLOBAL) {
-			if (ownerEmployeeId != null) {
+			if (ownerEmployee != null) {
 				throw new IllegalArgumentException("global worksites can't define an owner employee");
 			}
-			return null;
+		} else if (ownerEmployee == null) {
+			throw new IllegalArgumentException("personal worksites require an owner employee");
 		}
-		if (ownerEmployeeId == null) {
-			throw new IllegalArgumentException("personal worksites require ownerEmployeeId");
-		}
-		return this.employeeService.findEmployeeById(ownerEmployeeId);
 	}
 
 	/**

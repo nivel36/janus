@@ -15,21 +15,12 @@
  */
 package es.nivel36.janus.service.applicationsettings;
 
-import java.util.Optional;
-
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
  * Repository for accessing {@link ApplicationSettings} records.
  */
 @Repository
-interface ApplicationSettingsRepository extends CrudRepository<ApplicationSettings, Long> {
-
-	/**
-	 * Retrieves the first persisted settings row.
-	 *
-	 * @return the stored application settings, if any.
-	 */
-	Optional<ApplicationSettings> findFirstByOrderByIdAsc();
+public interface ApplicationSettingsRepository extends JpaRepository<ApplicationSettings, Long> {
 }

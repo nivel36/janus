@@ -22,6 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
 import es.nivel36.janus.service.schedule.ScheduleService;
@@ -48,13 +52,16 @@ public class ScheduleController {
 	private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
 
 	private final ScheduleService scheduleService;
+	private final EmployeeService employeeService;
 	private final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper;
 	private final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper;
 
-	public ScheduleController(final ScheduleService scheduleService,
-			final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper,
+	public ScheduleController(final ScheduleService scheduleService, //
+			final EmployeeService employeeService, //
+			final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper, //
 			final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper) {
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
+		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.scheduleResponseMapper = Objects.requireNonNull(scheduleResponseMapper,
 				"scheduleResponseMapper can't be null");
 		this.scheduleRuleDefinitionMapper = Objects.requireNonNull(scheduleRuleDefinitionMapper,
@@ -66,8 +73,9 @@ public class ScheduleController {
 	 *
 	 * @return a {@link ResponseEntity} containing the list of schedules
 	 */
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@GetMapping
-	public ResponseEntity<List<ScheduleResponse>> getSchedules() {
+	public ResponseEntity<List<ScheduleResponse>> findAllSchedules() {
 		logger.debug("List schedules ACTION performed");
 
 		final List<Schedule> schedules = this.scheduleService.findAllSchedules();
@@ -81,14 +89,23 @@ public class ScheduleController {
 	 * @param scheduleCode the unique code of the schedule; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the requested schedule
 	 */
+	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
 	@GetMapping("/{scheduleCode}")
 	public ResponseEntity<ScheduleResponse> findSchedule(final @PathVariable("scheduleCode") //
 	@Pattern( //
 			regexp = "[A-Za-z0-9_-]{1,50}", //
 			message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
 	) //
-	String scheduleCode) {
+	String scheduleCode, Authentication authentication) {
 		logger.debug("Find schedule ACTION performed");
+
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+
+		if (employeeRole && !employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
+			throw new AccessDeniedException("Employees can only search his own schedule");
+		}
 
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
 		final ScheduleResponse response = this.scheduleResponseMapper.map(schedule);
@@ -102,6 +119,7 @@ public class ScheduleController {
 	 *                {@code null}
 	 * @return a {@link ResponseEntity} containing the created schedule
 	 */
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@PostMapping
 	public ResponseEntity<ScheduleResponse> createSchedule(@Valid @RequestBody final CreateScheduleRequest request) {
 		logger.debug("Create schedule ACTION performed");
@@ -124,6 +142,7 @@ public class ScheduleController {
 	 *                     {@code null}
 	 * @return a {@link ResponseEntity} containing the updated schedule
 	 */
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@PutMapping("/{scheduleCode}")
 	public ResponseEntity<ScheduleResponse> updateSchedule(final @PathVariable("scheduleCode") //
 	@Pattern( //
@@ -145,6 +164,7 @@ public class ScheduleController {
 	 * @param scheduleCode the unique code of the schedule; must not be {@code null}
 	 * @return a {@link ResponseEntity} with an empty body and HTTP 204 status
 	 */
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@DeleteMapping("/{scheduleCode}")
 	public ResponseEntity<Void> deleteSchedule(final @PathVariable("scheduleCode") //
 	@Pattern( //

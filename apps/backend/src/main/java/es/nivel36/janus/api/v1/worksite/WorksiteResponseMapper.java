@@ -41,7 +41,7 @@ public class WorksiteResponseMapper implements Mapper<Worksite, WorksiteResponse
 		final ZoneId timeZone = worksite.getTimeZone();
 		final WorksiteScope scope = worksite.getScope();
 		final Employee ownerEmployee = worksite.getOwnerEmployee();
-		final Long ownerEmployeeId = ownerEmployee == null ? null : ownerEmployee.getId();
-		return new WorksiteResponse(code, name, timeZone.getId(), scope, ownerEmployeeId);
+		final String ownerEmployeeEmail = ownerEmployee == null ? null : ownerEmployee.getEmail();
+		return new WorksiteResponse(code, name, timeZone.getId(), scope, ownerEmployeeEmail);
 	}
 }

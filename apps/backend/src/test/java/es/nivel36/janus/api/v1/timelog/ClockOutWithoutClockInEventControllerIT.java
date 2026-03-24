@@ -61,6 +61,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
@@ -82,6 +83,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
@@ -108,6 +110,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",

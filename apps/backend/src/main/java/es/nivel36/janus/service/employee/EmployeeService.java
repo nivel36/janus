@@ -296,4 +296,35 @@ public class EmployeeService {
 		}
 		return employee;
 	}
+
+	/**
+	 * Determines whether an employee identified by the given email address is
+	 * assigned to a schedule with the specified business code.
+	 *
+	 * <p>
+	 * This method checks for the existence of an {@link Employee} whose natural
+	 * identifier ({@code email}) matches the provided value and whose associated
+	 * {@link Schedule} has the given {@code code}.
+	 * </p>
+	 *
+	 * <p>
+	 * Both the employee email and the schedule code are treated as business
+	 * identifiers. The method returns {@code true} as soon as a matching assignment
+	 * is found.
+	 * </p>
+	 *
+	 * @param employeeEmail the unique email address of the employee; must not be
+	 *                      {@code null}
+	 * @param scheduleCode  the business code of the schedule; must not be
+	 *                      {@code null}
+	 * @return {@code true} if an employee with the given email is assigned to the
+	 *         specified schedule; {@code false} otherwise
+	 */
+	public boolean isAssignedToSchedule(String employeeEmail, String scheduleCode) {
+		Objects.requireNonNull(employeeEmail, "employeeEmail cannot be null.");
+		Objects.requireNonNull(scheduleCode, "scheduleCode cannot be null.");
+
+		logger.debug("Checking if the employee {} is assigned to schedule {}", employeeEmail, scheduleCode);
+		return this.employeeRepository.existsByEmailAndSchedule_Code(employeeEmail, scheduleCode);
+	}
 }

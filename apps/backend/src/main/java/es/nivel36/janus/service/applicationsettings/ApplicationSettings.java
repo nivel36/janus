@@ -20,8 +20,6 @@ import java.util.Objects;
 
 import es.nivel36.janus.service.timelog.TimeLog;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -41,17 +39,17 @@ import jakarta.validation.constraints.PositiveOrZero;
 public class ApplicationSettings implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	public static final Long GLOBAL_SETTINGS_ID = 1L;
 
 	/**
 	 * Unique identifier of the application settings entity.
 	 * <p>
-	 * This value is auto-generated and has no business meaning. It may be
-	 * {@code null} if the entity has not yet been persisted.
+	 * As there can only be one setting per app and it cannot be created or deleted,
+	 * the ID value is fixed at 1
 	 * </p>
 	 */
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Long id = GLOBAL_SETTINGS_ID;
 
 	/**
 	 * Number of days during which a {@link TimeLog} remains modifiable.

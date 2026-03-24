@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package es.nivel36.janus.api.v1.timelog;
-
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
@@ -63,6 +62,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
@@ -81,6 +81,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',1)"//
@@ -99,6 +100,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
@@ -118,6 +120,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
@@ -136,6 +139,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
@@ -157,6 +161,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
@@ -183,6 +188,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')", //
 			"INSERT INTO employee(id, name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)", //
 			"INSERT INTO worksite(id, code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')", //
@@ -203,6 +209,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
@@ -224,6 +231,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
@@ -248,6 +256,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
@@ -272,6 +281,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
@@ -290,6 +300,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
@@ -307,6 +318,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
@@ -329,6 +341,7 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (1, 7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
