@@ -57,8 +57,9 @@ import jakarta.validation.constraints.NotNull;
  *
  * <p>
  * A worksite can be {@link WorksiteScope#GLOBAL global}, which makes it visible
- * to every employee, or {@link WorksiteScope#PERSONAL personal}, in which case
- * it must belong to exactly one owner employee.
+ * to every employee, {@link WorksiteScope#ASSIGNED assigned}, which requires an
+ * explicit employee assignment, or {@link WorksiteScope#PERSONAL personal}, in
+ * which case it must belong to exactly one owner employee.
  * </p>
  *
  * <p>
@@ -136,9 +137,9 @@ public class Worksite implements Serializable {
 	 * Visibility scope of the worksite.
 	 *
 	 * <p>
-	 * {@link WorksiteScope#GLOBAL Global} worksites are visible to all employees
-	 * and must not define an owner. {@link WorksiteScope#PERSONAL Personal}
-	 * worksites belong to exactly one employee and therefore require
+	 * {@link WorksiteScope#GLOBAL Global} and {@link WorksiteScope#ASSIGNED
+	 * Assigned} worksites must not define an owner. {@link WorksiteScope#PERSONAL
+	 * Personal} worksites belong to exactly one employee and therefore require
 	 * {@link #ownerEmployee} to be populated.
 	 * </p>
 	 */
@@ -151,9 +152,10 @@ public class Worksite implements Serializable {
 	 * Owner employee of a personal worksite.
 	 *
 	 * <p>
-	 * This association is optional only for {@link WorksiteScope#GLOBAL} worksites.
-	 * For {@link WorksiteScope#PERSONAL} worksites, it is mandatory and identifies
-	 * the single employee that owns the worksite.
+	 * This association is optional for {@link WorksiteScope#GLOBAL} and
+	 * {@link WorksiteScope#ASSIGNED} worksites. For
+	 * {@link WorksiteScope#PERSONAL} worksites, it is mandatory and identifies the
+	 * single employee that owns the worksite.
 	 * </p>
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -314,7 +316,7 @@ public class Worksite implements Serializable {
 	/**
 	 * Returns the owner employee when the worksite is personal.
 	 *
-	 * @return the owner employee, or {@code null} for global worksites
+	 * @return the owner employee, or {@code null} for global/assigned worksites
 	 */
 	public Employee getOwnerEmployee() {
 		return this.ownerEmployee;
@@ -326,12 +328,12 @@ public class Worksite implements Serializable {
 	 *
 	 * @param scope         the new scope; must not be {@code null}
 	 * @param ownerEmployee the new owner employee; required for personal worksites
-	 *                      and forbidden for global ones
+	 *                      and forbidden for global/assigned ones
 	 *
 	 * @throws NullPointerException     if {@code scope} is {@code null}, or if a
 	 *                                  personal worksite is updated without owner
-	 * @throws IllegalArgumentException if a global worksite is updated with an
-	 *                                  owner
+	 * @throws IllegalArgumentException if a global/assigned worksite is updated
+	 *                                  with an owner
 	 */
 	public void updateScope(final WorksiteScope scope, final Employee ownerEmployee) {
 		this.applyScope(scope, ownerEmployee);
@@ -339,9 +341,9 @@ public class Worksite implements Serializable {
 
 	private void applyScope(final WorksiteScope scope, final Employee ownerEmployee) {
 		this.scope = Objects.requireNonNull(scope, "scope can't be null");
-		if (scope == WorksiteScope.GLOBAL) {
+		if (scope != WorksiteScope.PERSONAL) {
 			if (ownerEmployee != null) {
-				throw new IllegalArgumentException("global worksites can't have an owner employee");
+				throw new IllegalArgumentException("global or assigned worksites can't have an owner employee");
 			}
 			this.ownerEmployee = null;
 			return;

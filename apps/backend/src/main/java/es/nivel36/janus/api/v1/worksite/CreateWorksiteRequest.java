@@ -63,8 +63,8 @@ String code, //
 		) //
 		String ownerEmployeeEmail) {
 
-	@AssertTrue(message = "ownerEmployeeEmail must not be null when scope is not GLOBAL")
+	@AssertTrue(message = "ownerEmployeeEmail must not be null when scope is PERSONAL")
 	public boolean isOwnerEmailValidForScope() {
-		return scope == WorksiteScope.GLOBAL || ownerEmployeeEmail != null;
+		return scope != WorksiteScope.PERSONAL || ownerEmployeeEmail != null;
 	}
 }
