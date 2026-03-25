@@ -29,11 +29,6 @@ public enum WorksiteScope {
 	 * Worksite visible to every employee.
 	 */
 	GLOBAL,
-	
-	/**
-	 * Worksite visible to a selected group.
-	 */
-	GROUP,
 
 	/**
 	 * Worksite owned by a single employee.

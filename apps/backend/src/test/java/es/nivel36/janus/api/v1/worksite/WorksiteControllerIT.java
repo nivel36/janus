@@ -48,6 +48,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"
 	})
 	void testListShouldReturnSeededWorksite() throws Exception {
@@ -60,6 +61,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"
 	})
 	void testFindByCodeShouldReturnWorksite() throws Exception {
@@ -69,7 +71,7 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.name").value("Barcelona Headquarters"))
 				.andExpect(jsonPath("$.timeZone").value("UTC+02:00"))
 				.andExpect(jsonPath("$.scope").value("GLOBAL"))
-				.andExpect(jsonPath("$.ownerEmployeeId").isEmpty());
+				.andExpect(jsonPath("$.ownerEmployeeEmail").isEmpty());
 	}
 
 	@Test
@@ -84,6 +86,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"
 	})
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
@@ -110,7 +113,7 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.name").value("Madrid Hub"))
 				.andExpect(jsonPath("$.timeZone").value("Europe/Madrid"))
 				.andExpect(jsonPath("$.scope").value("GLOBAL"))
-				.andExpect(jsonPath("$.ownerEmployeeId").isEmpty());
+				.andExpect(jsonPath("$.ownerEmployeeEmail").isEmpty());
 
 		mvc.perform(get(BASE).with(jwt())).andExpect(status().isOk())
 				.andExpect(jsonPath("$[?(@.code=='%s')]".formatted(code)).exists());
@@ -118,23 +121,25 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)"
 	})
 	void testCreatePersonalShouldReturn201AndBody() throws Exception {
 		String body = """
-				  {"code":"ABEL-HOME","name":"Home Office","timeZone":"Europe/Madrid","scope":"PERSONAL","ownerEmployeeId":1}
+				  {"code":"ABEL-HOME","name":"Home Office","timeZone":"Europe/Madrid","scope":"PERSONAL","ownerEmployeeEmail":"aferrer@nivel36.es"}
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()))
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.code").value("ABEL-HOME"))
 				.andExpect(jsonPath("$.scope").value("PERSONAL"))
-				.andExpect(jsonPath("$.ownerEmployeeId").value(1));
+				.andExpect(jsonPath("$.ownerEmployeeEmail").value("aferrer@nivel36.es"));
 	}
 
 	@Test
 	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"
 	})
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
@@ -152,23 +157,25 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"
 	})
 	void testUpdateToPersonalShouldReturn200AndUpdatedBody() throws Exception {
 		String body = """
-				  {"name":"Barcelona Home","timeZone":"UTC+1","scope":"PERSONAL","ownerEmployeeId":1}
+				  {"name":"Barcelona Home","timeZone":"UTC+1","scope":"PERSONAL","ownerEmployeeEmail":"aferrer@nivel36.es"}
 				""";
 
 		mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.scope").value("PERSONAL"))
-				.andExpect(jsonPath("$.ownerEmployeeId").value(1));
+				.andExpect(jsonPath("$.ownerEmployeeEmail").value("aferrer@nivel36.es"));
 	}
 
 	@Test
 	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed) VALUES (7, true, false)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"
 	})
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {

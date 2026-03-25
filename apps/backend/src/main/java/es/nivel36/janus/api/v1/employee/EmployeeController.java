@@ -21,6 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -84,6 +87,7 @@ public class EmployeeController {
 	 *                      {@code null}
 	 * @return the {@link EmployeeResponse} matching the email
 	 */
+	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
 	@GetMapping("/by-email/{employeeEmail}")
 	public ResponseEntity<EmployeeResponse> findEmployeeByEmail( //
 			final @PathVariable("employeeEmail") //
@@ -91,9 +95,16 @@ public class EmployeeController {
 					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
 					message = "must be a valid and safe email address (max 254)" //
 			) //
-			String employeeEmail) {
+			String employeeEmail, final Authentication authentication) {
 		logger.debug("Find employee by email ACTION performed");
 
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+
+		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+			throw new AccessDeniedException("Employees can only search his own user");
+		}
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
 		return ResponseEntity.ok(response);
@@ -106,6 +117,7 @@ public class EmployeeController {
 	 *                {@code null}
 	 * @return the created {@link EmployeeResponse}
 	 */
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@PostMapping
 	public ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody final CreateEmployeeRequest request) {
 		logger.debug("Create employee ACTION performed");
@@ -126,6 +138,7 @@ public class EmployeeController {
 	 *                      be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
+	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
 	@PutMapping("/{employeeEmail}")
 	public ResponseEntity<EmployeeResponse> updateEmployee(//
 			final @PathVariable("employeeEmail") //
@@ -134,9 +147,16 @@ public class EmployeeController {
 					message = "must be a valid and safe email address (max 254)" //
 			) //
 			String employeeEmail, //
-			@Valid @RequestBody final UpdateEmployeeRequest request) {
+			@Valid @RequestBody final UpdateEmployeeRequest request, final Authentication authentication) {
 		logger.debug("Update employee ACTION performed");
 
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+
+		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+			throw new AccessDeniedException("Employees can only search his own employee");
+		}
 		final Schedule schedule = this.scheduleService.findScheduleByCode(request.scheduleCode());
 		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, request.name(),
 				request.surname(), schedule);
@@ -151,6 +171,7 @@ public class EmployeeController {
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@PostMapping("/{employeeEmail}/worksites/{worksiteCode}")
 	public ResponseEntity<EmployeeResponse> addWorksiteToEmployee( //
 			final @PathVariable("employeeEmail") //
@@ -163,9 +184,9 @@ public class EmployeeController {
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
 			) //
-			String worksiteCode) {
+			String worksiteCode, final Authentication authentication) {
 		logger.debug("Add worksite to employee ACTION performed");
-
+		
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
@@ -182,6 +203,7 @@ public class EmployeeController {
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@DeleteMapping("/{employeeEmail}/worksites/{worksiteCode}")
 	public ResponseEntity<EmployeeResponse> removeWorksiteFromEmployee( //
 			final @PathVariable("employeeEmail") //
@@ -211,6 +233,7 @@ public class EmployeeController {
 	 * @param employeeEmail the email of the employee; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@DeleteMapping("/{employeeEmail}")
 	public ResponseEntity<Void> deleteEmployee(//
 			final @PathVariable("employeeEmail") //

@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.applicationsettings;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,22 +40,19 @@ class ApplicationSettingsServiceTest {
 
 	@Test
 	void testGetDaysUntilLockedReturnsPersistedValue() {
-		when(this.applicationSettingsRepository.findFirstByOrderByIdAsc())
+		when(this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID))
 				.thenReturn(Optional.of(new ApplicationSettings(7, false, false)));
 
 		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
 
 		assertEquals(7, daysUntilLocked);
-		verify(this.applicationSettingsRepository).findFirstByOrderByIdAsc();
+		verify(this.applicationSettingsRepository).findById(ApplicationSettings.GLOBAL_SETTINGS_ID);
 	}
 
 	@Test
 	void testGetDaysUntilLockedFallsBackToDefaultWhenSettingsAreMissing() {
-		when(this.applicationSettingsRepository.findFirstByOrderByIdAsc()).thenReturn(Optional.empty());
+		when(this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID)).thenReturn(Optional.empty());
 
-		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
-
-		assertEquals(ApplicationSettingsService.DEFAULT_DAYS_UNTIL_LOCKED, daysUntilLocked);
-		verify(this.applicationSettingsRepository).findFirstByOrderByIdAsc();
+		assertThrows(IllegalStateException.class, () -> this.applicationSettingsService.getDaysUntilLocked());
 	}
 }

@@ -27,6 +27,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -105,6 +108,7 @@ public class TimeLogController {
 	 *                      must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
+	@PreAuthorize("hasRole('EMPLOYEE')")
 	@PostMapping("/clock-in")
 	public ResponseEntity<TimeLogResponse> clockIn( //
 			final @PathVariable("employeeEmail") //
@@ -118,8 +122,16 @@ public class TimeLogController {
 			@Pattern( //
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode) {
+			String worksiteCode, Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
+		
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+
+		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+			throw new AccessDeniedException("Employees can only create their own clock-in records");
+		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
@@ -149,6 +161,7 @@ public class TimeLogController {
 	 *                                         closed because it does not have an
 	 *                                         entry time
 	 */
+	@PreAuthorize("hasRole('EMPLOYEE')")
 	@PostMapping("/clock-out")
 	public ResponseEntity<TimeLogResponse> clockOut( //
 			final @PathVariable("employeeEmail") //
@@ -162,8 +175,16 @@ public class TimeLogController {
 			@Pattern( //
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode) throws ClockOutWithoutClockInException {
+			String worksiteCode, final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
+		
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+
+		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+			throw new AccessDeniedException("Employees can only create their own clock-out records");
+		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForClockOut(employee, worksiteCode);
@@ -187,6 +208,7 @@ public class TimeLogController {
 	 *                      entry and exit times; must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
+	@PreAuthorize("hasRole('EMPLOYEE')")
 	@PostMapping("/")
 	public ResponseEntity<TimeLogResponse> createTimeLog( //
 			final @PathVariable("employeeEmail") //
@@ -200,8 +222,16 @@ public class TimeLogController {
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
 			String worksiteCode, //
-			final @Valid @RequestBody CreateTimeLogRequest timeLog) {
+			final @Valid @RequestBody CreateTimeLogRequest timeLog, final Authentication authentication) {
 		logger.debug("Create time log ACTION performed");
+		
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+
+		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+			throw new AccessDeniedException("Employees can only create their own clock-in/clock-out records");
+		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
@@ -229,6 +259,7 @@ public class TimeLogController {
 	 * @throws IllegalArgumentException if only one of {@code fromInstant} or
 	 *                                  {@code toInstant} is provided
 	 */
+	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
 	@GetMapping("/")
 	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee( //
 			final @PathVariable("employeeEmail") //
@@ -273,7 +304,7 @@ public class TimeLogController {
 		} catch (final WorksiteAccessDeniedException ex) {
 			// The worksite may have changed between clock-in and clock-out, so we allow the
 			// clock-out.
-			if (!this.timeLogService.hasOpenTimeLog(employee, worksite)) {
+			if (!this.timeLogService.hasOpenTimeLog(employee)) {
 				throw ex;
 			}
 		}
@@ -287,6 +318,7 @@ public class TimeLogController {
 	 * @param entryTime     the entry time of the time log; must not be {@code null}
 	 * @return the {@link TimeLogResponse} entry
 	 */
+	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
 	@GetMapping("/{entryTime}")
 	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(//
 			final @PathVariable("employeeEmail") //
@@ -313,6 +345,7 @@ public class TimeLogController {
 	 * @return a {@link ResponseEntity} with no content (HTTP 204) if the deletion
 	 *         succeeds
 	 */
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/{entryTime}")
 	public ResponseEntity<Void> deleteTimeLog(//
 			final @PathVariable("employeeEmail") //

@@ -50,6 +50,7 @@ import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
 import es.nivel36.janus.service.timelog.TimeLogChronologyException;
 import es.nivel36.janus.service.timelog.TimeLogDeletedException;
 import es.nivel36.janus.service.timelog.TimeLogModificationNotAllowedException;
+import es.nivel36.janus.service.timelog.WorksiteMismatchOnClockOutException;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -138,7 +139,7 @@ public class JanusExceptionHandler {
 		logger.warn("TimeLogChronologyException error {}", pd);
 		return pd;
 	}
-	
+
 	@ExceptionHandler(TimeLogAlreadyClosedException.class)
 	ProblemDetail handleTimeLogAlreadyClosed(TimeLogAlreadyClosedException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -149,7 +150,7 @@ public class JanusExceptionHandler {
 		logger.warn("TimeLogAlreadyClosedException error {}", pd);
 		return pd;
 	}
-	
+
 	@ExceptionHandler(TimeLogDeletedException.class)
 	ProblemDetail handleTimeLogDeleted(TimeLogDeletedException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -160,12 +161,13 @@ public class JanusExceptionHandler {
 		logger.warn("TimeLogDeletedException error {}", pd);
 		return pd;
 	}
-	
+
 	@ExceptionHandler(TimeLogModificationNotAllowedException.class)
-	ProblemDetail handleTimeLogModificationNotAllowed(TimeLogModificationNotAllowedException ex, final HttpServletRequest request) {
+	ProblemDetail handleTimeLogModificationNotAllowed(TimeLogModificationNotAllowedException ex,
+			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
-		pd.setTitle("The modification window has expired");
+		pd.setTitle("Time log not allowed");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
 		logger.warn("TimeLogModificationNotAllowedException error {}", pd);
@@ -176,13 +178,25 @@ public class JanusExceptionHandler {
 	ProblemDetail handleClockOutWithoutClockIn(ClockOutWithoutClockInException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
-		pd.setTitle("Invlaid Clock out");
+		pd.setTitle("Invalid Clock out");
 		pd.setDetail(ex.getMessage());
 		addCommonProps(pd, request);
 		logger.warn("ClockOutWithoutClockInException error {}", pd);
 		return pd;
 	}
-	
+
+	@ExceptionHandler(WorksiteMismatchOnClockOutException.class)
+	ProblemDetail handleWorksiteMismatchOnClockOut(WorksiteMismatchOnClockOutException ex,
+			final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setTitle("Invalid Clock out");
+		pd.setDetail("Cannot clock out in worksite " + ex.getActual() + " when shift started in " + ex.getExpected());
+		addCommonProps(pd, request);
+		logger.warn("WorksiteMismatchOnClockOutException error {}", pd);
+		return pd;
+	}
+
 	@ExceptionHandler(ZoneRulesException.class)
 	ProblemDetail handleZoneRulesException(ZoneRulesException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -205,10 +219,8 @@ public class JanusExceptionHandler {
 		return pd;
 	}
 
-
 	@ExceptionHandler(WorksiteAccessDeniedException.class)
-	ProblemDetail handleWorksiteAccessDenied(final WorksiteAccessDeniedException ex,
-			final HttpServletRequest request) {
+	ProblemDetail handleWorksiteAccessDenied(final WorksiteAccessDeniedException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
 		pd.setType(TYPE_ACCESS_DENIED);
 		pd.setTitle("Worksite access denied");

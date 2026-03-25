@@ -23,6 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -72,13 +75,21 @@ public class AppUserController {
 	 * @param username the unique username of the user; must not be {@code null}
 	 * @return the {@link AppUserResponse} matching the username
 	 */
+	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
 	@GetMapping("/{username}")
 	public ResponseEntity<AppUserResponse> findAppUser(final @PathVariable("username") //
 	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
 			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-	String username) {
+	String username, final Authentication authentication) {
 		logger.debug("Find app user ACTION performed");
 
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+
+		if (employeeRole && !authenticatedEmail.equals(username)) {
+			throw new AccessDeniedException("Employees can only search his own user");
+		}
 		final AppUser appUser = this.appUserService.findAppUserByUsername(username);
 		final AppUserResponse response = this.appUserResponseMapper.map(appUser);
 		return ResponseEntity.ok(response);
@@ -91,6 +102,7 @@ public class AppUserController {
 	 *                {@code null}
 	 * @return the created {@link AppUserResponse}
 	 */
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
 	public ResponseEntity<AppUserResponse> createAppUser(@Valid @RequestBody final CreateAppUserRequest request) {
 		logger.debug("Create app user ACTION performed");
@@ -111,12 +123,26 @@ public class AppUserController {
 	 * @param request  the payload containing the new data; must not be {@code null}
 	 * @return the updated {@link AppUserResponse}
 	 */
+	@PreAuthorize("hasAnyRole('EMPLOYEE', 'USER', 'ADMIN')")
 	@PutMapping("/{username}")
 	public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
 	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
 			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-	String username, @Valid @RequestBody final UpdateAppUserRequest request) {
+	String username, @Valid @RequestBody final UpdateAppUserRequest request, final Authentication authentication) {
 		logger.debug("Update app user ACTION performed");
+		
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		if (employeeRole && !authenticatedEmail.equals(username)) {
+			throw new AccessDeniedException("Employees can only update his own user");
+		}
+		final boolean userRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+		
+		if (userRole && !authenticatedEmail.equals(username)) {
+			throw new AccessDeniedException("Users can only update his own user");
+		}
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
 		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
@@ -132,6 +158,7 @@ public class AppUserController {
 	 * @param username the username of the app user; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{username}")
 	public ResponseEntity<Void> deleteAppUser(final @PathVariable("username") //
 	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
