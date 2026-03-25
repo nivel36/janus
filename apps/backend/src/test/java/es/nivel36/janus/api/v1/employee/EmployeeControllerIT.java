@@ -163,6 +163,18 @@ class EmployeeControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
 			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)", //
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-PROJ','Barcelona Project Site','UTC+2','ASSIGNED')" //
+	})
+	void testAddAssignedWorksiteShouldReturn200AndBody() throws Exception {
+		mvc.perform(post(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-PROJ").with(jwt())) //
+				.andExpect(status().isOk()) //
+				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"));
+	}
+
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
+			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)", //
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" //
 	})
 	void testRemoveUnassignedWorksiteShouldReturn200AndBody() throws Exception {

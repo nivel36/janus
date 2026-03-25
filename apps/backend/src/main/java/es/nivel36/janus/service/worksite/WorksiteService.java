@@ -36,8 +36,8 @@ import es.nivel36.janus.service.employee.EmployeeService;
  * <p>
  * In addition to basic CRUD operations, this service centralizes the business
  * rules introduced by {@link WorksiteScope}: global worksites are visible to
- * every employee and must not have an owner, while personal worksites require a
- * valid owner employee.
+ * every employee, assigned worksites are limited to explicitly assigned
+ * employees, and personal worksites require a valid owner employee.
  * </p>
  */
 @Service
@@ -82,9 +82,8 @@ public class WorksiteService {
 	 *
 	 * <p>
 	 * Visibility is primarily driven by {@link WorksiteScope}: global worksites are
-	 * visible to everyone and personal worksites are visible to their owner. The
-	 * repository still considers the legacy employee-worksite association to
-	 * preserve any remaining secondary functional purpose.
+	 * visible to everyone, assigned worksites are visible to explicitly assigned
+	 * employees and personal worksites are visible to their owner.
 	 * </p>
 	 *
 	 * @param employee the employee whose visible worksites should be retrieved;
@@ -114,7 +113,7 @@ public class WorksiteService {
 	 * @param scope         the scope assigned to the worksite; must not be
 	 *                      {@code null}
 	 * @param ownerEmployee the owner employee for personal worksites; must be
-	 *                      {@code null} for global worksites
+	 *                      {@code null} for global/assigned worksites
 	 * @return the persisted {@link Worksite}
 	 * @throws NullPointerException           if any mandatory argument is
 	 *                                        {@code null}
@@ -182,8 +181,9 @@ public class WorksiteService {
 	 * Verifies that the given employee is allowed to use the specified worksite.
 	 *
 	 * <p>
-	 * Global worksites can be used by any employee. Personal worksites can only be
-	 * used by their owner employee.
+	 * Global worksites can be used by any employee. Assigned worksites can only be
+	 * used by explicitly assigned employees. Personal worksites can only be used by
+	 * their owner employee.
 	 * </p>
 	 *
 	 * @param employee the employee attempting to use the worksite; must not be
@@ -200,6 +200,16 @@ public class WorksiteService {
 
 		if (worksite.getScope() == WorksiteScope.GLOBAL) {
 			return;
+		}
+		if (worksite.getScope() == WorksiteScope.ASSIGNED) {
+			final boolean assigned = this.employeeService.isAssignedToWorksite(employee.getEmail(), worksite.getCode());
+			if (assigned) {
+				return;
+			}
+			logger.warn("Employee {} is not assigned to worksite {}", employee.getEmail(), worksite.getCode());
+			throw new WorksiteAccessDeniedException(
+					"Employee %s cannot use assigned worksite %s because it is not assigned"
+							.formatted(employee.getEmail(), worksite.getCode()));
 		}
 
 		final Employee ownerEmployee = worksite.getOwnerEmployee();
@@ -224,7 +234,7 @@ public class WorksiteService {
 	 *                      {@code null}
 	 * @param newScope      the new worksite scope; must not be {@code null}
 	 * @param ownerEmployee the owner employee for personal worksites; must be
-	 *                      {@code null} for global worksites
+	 *                      {@code null} for global/assigned worksites
 	 * @return the updated {@link Worksite}
 	 * @throws NullPointerException      if any mandatory argument is {@code null}
 	 * @throws IllegalArgumentException  if the combination of {@code newScope} and
@@ -254,9 +264,9 @@ public class WorksiteService {
 	}
 
 	private void checkOwner(final WorksiteScope scope, final Employee ownerEmployee) {
-		if (scope == WorksiteScope.GLOBAL) {
+		if (scope != WorksiteScope.PERSONAL) {
 			if (ownerEmployee != null) {
-				throw new IllegalArgumentException("global worksites can't define an owner employee");
+				throw new IllegalArgumentException("global or assigned worksites can't define an owner employee");
 			}
 		} else if (ownerEmployee == null) {
 			throw new IllegalArgumentException("personal worksites require an owner employee");

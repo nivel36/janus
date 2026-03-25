@@ -39,6 +39,7 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.service.worksite.WorksiteScope;
 import es.nivel36.janus.service.worksite.WorksiteService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -189,7 +190,9 @@ public class EmployeeController {
 		
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
+		if (worksite.getScope() != WorksiteScope.ASSIGNED) {
+			this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
+		}
 		this.employeeService.addWorksiteToEmployee(worksite, employee);
 
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
