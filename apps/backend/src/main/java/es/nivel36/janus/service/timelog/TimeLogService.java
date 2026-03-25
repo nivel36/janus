@@ -202,21 +202,17 @@ public class TimeLogService {
 	}
 
 	/**
-	 * Indicates whether the employee currently has an open {@link TimeLog} at the
-	 * specified worksite.
+	 * Indicates whether the employee currently has an open {@link TimeLog}.
 	 *
 	 * @param employee the employee to inspect; must not be {@code null}.
-	 * @param worksite the worksite to inspect; must not be {@code null}.
 	 * @return {@code true} when an open time log exists for the employee and
 	 *         worksite; {@code false} otherwise.
 	 */
 	@Transactional(readOnly = true)
-	public boolean hasOpenTimeLog(final Employee employee, final Worksite worksite) {
+	public boolean hasOpenTimeLog(final Employee employee) {
 		Objects.requireNonNull(employee, "employee cannot be null.");
-		Objects.requireNonNull(worksite, "worksite cannot be null.");
 
-		return this.timeLogRepository.findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(employee,
-				worksite) != null;
+		return this.timeLogRepository.findTopByEmployeeAndExitTimeIsNullOrderByEntryTimeDesc(employee) != null;
 	}
 
 	/**
@@ -255,7 +251,7 @@ public class TimeLogService {
 		this.assertWithinEditableWindow(truncatedExitTime, lockThreshold, now);
 
 		final TimeLog lastTimeLog = this.timeLogRepository
-				.findTopByEmployeeAndWorksiteAndExitTimeIsNullOrderByEntryTimeDesc(employee, worksite);
+				.findTopByEmployeeAndExitTimeIsNullOrderByEntryTimeDesc(employee);
 
 		if (lastTimeLog == null) {
 			final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = new ClockOutWithoutClockInEvent(employee,
