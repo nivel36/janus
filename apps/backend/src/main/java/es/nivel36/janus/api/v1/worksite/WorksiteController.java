@@ -130,9 +130,9 @@ public class WorksiteController {
 			final Authentication authentication) {
 		logger.debug("Create worksite ACTION performed");
 
-	    final boolean employeeRole = authentication.getAuthorities().stream()
-	            .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
-	    final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = authentication.getName();
 
 		if (employeeRole) {
 			if (request.scope() != WorksiteScope.PERSONAL) {
@@ -182,9 +182,9 @@ public class WorksiteController {
 			@Valid @RequestBody final UpdateWorksiteRequest request, final Authentication authentication) {
 		logger.debug("Update worksite ACTION performed");
 
-	    final boolean employeeRole = authentication.getAuthorities().stream()
-	            .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
-	    final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = authentication.getName();
 
 		final Employee ownerEmployee;
 		if (employeeRole) {
@@ -195,7 +195,16 @@ public class WorksiteController {
 			if (!applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
 			}
-			ownerEmployee = employeeService.findEmployeeByEmail(authenticatedEmail);
+
+			if (!request.ownerEmployeeEmail().equals(authenticatedEmail)) {
+				throw new AccessDeniedException("Employees can only update their personal worksites");
+			}
+
+			if (!employeeService.isAssignedToWorksite(worksiteCode, authenticatedEmail)) {
+				throw new AccessDeniedException("Employees can only update their personal worksites");
+			}
+
+			ownerEmployee = employeeService.findEmployeeByEmail(request.ownerEmployeeEmail());
 		} else {
 			ownerEmployee = request.ownerEmployeeEmail() == null //
 					? null //

@@ -232,7 +232,7 @@ public class EmployeeService {
 		Objects.requireNonNull(employee, "employee can't be null");
 
 		logger.debug("Adding worksite {} to employee {}", worksite, employee);
-
+		
 		final boolean added = employee.assignToWorksite(worksite);
 		if (added) {
 			this.employeeRepository.save(employee);
@@ -326,5 +326,36 @@ public class EmployeeService {
 
 		logger.debug("Checking if the employee {} is assigned to schedule {}", employeeEmail, scheduleCode);
 		return this.employeeRepository.existsByEmailAndSchedule_Code(employeeEmail, scheduleCode);
+	}
+	
+	/**
+	 * Determines whether an employee identified by the given email address is
+	 * assigned to a worksite with the specified business code.
+	 *
+	 * <p>
+	 * This method checks for the existence of an {@link Employee} whose natural
+	 * identifier ({@code email}) matches the provided value and whose associated
+	 * {@link Worksite} has the given {@code code}.
+	 * </p>
+	 *
+	 * <p>
+	 * Both the employee email and the worksite code are treated as business
+	 * identifiers. The method returns {@code true} as soon as a matching assignment
+	 * is found.
+	 * </p>
+	 *
+	 * @param employeeEmail the unique email address of the employee; must not be
+	 *                      {@code null}
+	 * @param worksiteCode  the business code of the worksite; must not be
+	 *                      {@code null}
+	 * @return {@code true} if an employee with the given email is assigned to the
+	 *         specified schedule; {@code false} otherwise
+	 */
+	public boolean isAssignedToWorksite(String employeeEmail, String worksiteCode) {
+		Objects.requireNonNull(employeeEmail, "employeeEmail cannot be null.");
+		Objects.requireNonNull(worksiteCode, "worksiteCode cannot be null.");
+
+		logger.debug("Checking if the employee {} is assigned to schedule {}", employeeEmail, worksiteCode);
+		return this.employeeRepository.existsByEmailAndWorksites_Code(employeeEmail, worksiteCode);
 	}
 }

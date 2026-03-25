@@ -105,4 +105,15 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 *         specified schedule; {@code false} otherwise
 	 */
 	boolean existsByEmailAndSchedule_Code(String employeeEmail, String scheduleCode);
+
+	/**
+	 * Indicates whether an employee identified by the given email is assigned to a
+	 * worksite identified by the given code.
+	 *
+	 * @param email        the employee email
+	 * @param worksiteCode the worksite code
+	 * @return {@code true} if the employee is assigned to the worksite;
+	 *         {@code false} otherwise
+	 */
+	boolean existsByEmailAndWorksites_Code(String email, String worksiteCode);
 }
