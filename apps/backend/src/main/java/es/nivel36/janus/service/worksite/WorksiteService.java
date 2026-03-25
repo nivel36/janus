@@ -202,8 +202,7 @@ public class WorksiteService {
 			return;
 		}
 		if (worksite.getScope() == WorksiteScope.ASSIGNED) {
-			final boolean assigned = worksite.getEmployees().stream()
-					.anyMatch(assignedEmployee -> Objects.equals(assignedEmployee.getId(), employee.getId()));
+			final boolean assigned = this.employeeService.isAssignedToWorksite(employee.getEmail(), worksite.getCode());
 			if (assigned) {
 				return;
 			}
