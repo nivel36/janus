@@ -34,6 +34,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -357,15 +358,26 @@ public class JanusExceptionHandler {
 		logger.warn("ConstraintViolationException error {}", pd);
 		return pd;
 	}
-
-	@ExceptionHandler(Exception.class)
-	ProblemDetail handleGeneric(final Exception ex, final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+	
+	@ExceptionHandler(AuthorizationDeniedException.class)
+	ProblemDetail handleAuthorizationDeniedException(final AuthorizationDeniedException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
 		pd.setType(TYPE_INTERNAL_ERROR);
 		pd.setTitle("Internal server error");
 		pd.setDetail("An unexpected error occurred");
 		addCommonProps(pd, request);
-		logger.error("Exception error", ex);
+		logger.error("AuthorizationDeniedException error", ex);
+		return pd;
+	}
+
+	@ExceptionHandler(Exception.class)
+	ProblemDetail handleGeneric(final Exception ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+		pd.setType(TYPE_ACCESS_DENIED);
+		pd.setTitle("Access denied");
+		pd.setDetail(ex.getMessage());
+		addCommonProps(pd, request);
+		logger.warn("Exception error", ex);
 		return pd;
 	}
 

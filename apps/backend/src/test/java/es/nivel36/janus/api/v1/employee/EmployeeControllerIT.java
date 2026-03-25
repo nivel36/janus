@@ -16,6 +16,7 @@
 package es.nivel36.janus.api.v1.employee;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,7 +53,8 @@ class EmployeeControllerIT {
 			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
 	})
 	void testFindByEmailShouldReturn200() throws Exception {
-		mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt())) //
+		mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt()//
+				.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.name").value("Abel")) //
@@ -63,13 +65,15 @@ class EmployeeControllerIT {
 
 	@Test
 	void testFindByUnknownEmailShouldReturn404() throws Exception {
-		mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt())) //
+		mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt()//
+				.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	void testFindByInvalidEmailShouldReturn400() throws Exception {
-		mvc.perform(get(BASE + "/by-email/{email}", "not-an-email").with(jwt())) //
+		mvc.perform(get(BASE + "/by-email/{email}", "not-an-email").with(jwt()//
+				.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
 
@@ -81,7 +85,8 @@ class EmployeeControllerIT {
 		String body = """
 				{"name":"Abel","surname":"Ferrer","email":"aferrer@nivel36.es","scheduleCode":"STD-WH"}
 				""";
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+				.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.name").value("Abel")) //
@@ -89,7 +94,8 @@ class EmployeeControllerIT {
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es")) //
 				.andExpect(jsonPath("$.scheduleCode").value("STD-WH"));
 
-		mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt())) //
+		mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt() //
+				.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"));
 	}
@@ -103,7 +109,8 @@ class EmployeeControllerIT {
 		String body = """
 				{"name":"Abel","surname":"Ferrer","email":"aferrer@nivel36.es","scheduleCode":"STD-WH"}
 				""";
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt())) //
+		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+				.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
 
@@ -126,7 +133,9 @@ class EmployeeControllerIT {
 		String body = """
 				{"name":"Abel","surname":"Ferrer Jiménez","scheduleCode":"STD-WH"}
 				""";
-		mvc.perform(put(BASE + "/{employeeEmail}", "aferrer@nivel36.es").contentType(APPLICATION_JSON).content(body).with(jwt())) //
+		mvc.perform(put(BASE + "/{employeeEmail}", "aferrer@nivel36.es").contentType(APPLICATION_JSON).content(body)
+				.with(jwt() //
+						.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es")) //
 				.andExpect(jsonPath("$.name").value("Abel")) //
@@ -142,7 +151,9 @@ class EmployeeControllerIT {
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" //
 	})
 	void testAddExistingWorksiteShouldReturn200() throws Exception {
-		mvc.perform(post(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt())) //
+		mvc.perform(
+				post(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt()//
+						.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"));
 	}
@@ -154,7 +165,8 @@ class EmployeeControllerIT {
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" //
 	})
 	void testAddWorksiteShouldReturn200AndBody() throws Exception {
-		mvc.perform(post(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt())) //
+		mvc.perform(post(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt()//
+				.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"));
 	}
@@ -166,7 +178,9 @@ class EmployeeControllerIT {
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-PROJ','Barcelona Project Site','UTC+2','ASSIGNED')" //
 	})
 	void testAddAssignedWorksiteShouldReturn200AndBody() throws Exception {
-		mvc.perform(post(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-PROJ").with(jwt())) //
+		mvc.perform(
+				post(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-PROJ").with(jwt()//
+						.authorities(createAuthorityList("ROLE_ADMIN"))))
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"));
 	}
@@ -178,7 +192,9 @@ class EmployeeControllerIT {
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" //
 	})
 	void testRemoveUnassignedWorksiteShouldReturn200AndBody() throws Exception {
-		mvc.perform(delete(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt())) //
+		mvc.perform(
+				delete(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt()//
+						.authorities(createAuthorityList("ROLE_ADMIN"))))
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"));
 	}
@@ -191,7 +207,9 @@ class EmployeeControllerIT {
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" //
 	})
 	void testRemoveWorksiteShouldReturn200AndBody() throws Exception {
-		mvc.perform(delete(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt())) //
+		mvc.perform(
+				delete(BASE + "/{employeeEmail}/worksites/{worksiteCode}", "aferrer@nivel36.es", "BCN-HQ").with(jwt()//
+						.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"));
 	}
@@ -202,10 +220,12 @@ class EmployeeControllerIT {
 			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
 	})
 	void testDeleteShouldReturn204AndDisappearFromFind() throws Exception {
-		mvc.perform(delete(BASE + "/{employeeEmail}", "aferrer@nivel36.es").with(jwt())) //
+		mvc.perform(delete(BASE + "/{employeeEmail}", "aferrer@nivel36.es").with(jwt()//
+				.authorities(createAuthorityList("ROLE_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
-		mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt()))//
+		mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt()//
+				.authorities(createAuthorityList("ROLE_ADMIN"))))//
 				.andExpect(status().isNotFound());
 	}
 }
