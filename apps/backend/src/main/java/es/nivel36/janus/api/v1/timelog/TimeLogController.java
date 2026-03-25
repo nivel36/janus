@@ -124,7 +124,7 @@ public class TimeLogController {
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
 			String worksiteCode, Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
-		
+
 		final String authenticatedEmail = authentication.getName();
 		final boolean employeeRole = authentication.getAuthorities().stream()
 				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
@@ -177,7 +177,7 @@ public class TimeLogController {
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
 			String worksiteCode, final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
-		
+
 		final String authenticatedEmail = authentication.getName();
 		final boolean employeeRole = authentication.getAuthorities().stream()
 				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
@@ -224,7 +224,7 @@ public class TimeLogController {
 			String worksiteCode, //
 			final @Valid @RequestBody CreateTimeLogRequest timeLog, final Authentication authentication) {
 		logger.debug("Create time log ACTION performed");
-		
+
 		final String authenticatedEmail = authentication.getName();
 		final boolean employeeRole = authentication.getAuthorities().stream()
 				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
@@ -270,7 +270,8 @@ public class TimeLogController {
 			String employeeEmail, //
 			final @RequestParam(value = "fromInstant", required = false) Instant fromInstant, //
 			final @RequestParam(value = "toInstant", required = false) Instant toInstant, //
-			final @PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable) {
+			final @PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable,
+			Authentication authentication) {
 		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
 		}
@@ -278,6 +279,14 @@ public class TimeLogController {
 			throw new IllegalArgumentException("toInstant must be after fromInstant");
 		}
 		logger.debug("Search time logs by employee ACTION performed");
+
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+
+		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+			throw new AccessDeniedException("Employees can only search their own time log records");
+		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Page<TimeLog> timeLogs;
@@ -327,8 +336,16 @@ public class TimeLogController {
 					message = "must be a valid and safe email address (max 254)" //
 			) //
 			String employeeEmail, //
-			final @PathVariable("entryTime") Instant entryTime) {
+			final @PathVariable("entryTime") Instant entryTime, final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
+
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+
+		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+			throw new AccessDeniedException("Employees can only search their own time log records");
+		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
