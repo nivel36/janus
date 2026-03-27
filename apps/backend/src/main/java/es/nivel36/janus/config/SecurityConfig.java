@@ -15,7 +15,10 @@
  */
 package es.nivel36.janus.config;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +30,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
@@ -55,7 +63,8 @@ public class SecurityConfig {
 					headers.cacheControl(Customizer.withDefaults()); //
 				}) //
 				.authorizeHttpRequests(this::getAuthorizations) //
-				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())) //
+				.oauth2ResourceServer(
+						oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))) //
 				.exceptionHandling(exception -> exception
 						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))) //
 				.build();
@@ -80,5 +89,46 @@ public class SecurityConfig {
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/api/**", config);
 		return source;
+	}
+
+	@Bean
+	JwtAuthenticationConverter jwtAuthenticationConverter() {
+		final JwtGrantedAuthoritiesConverter scopesConverter = new JwtGrantedAuthoritiesConverter();
+
+		final JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
+		authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> Stream.concat(
+				scopesConverter.convert(jwt).stream(),
+				extractKeycloakRoles(jwt).stream()).distinct().toList());
+		return authenticationConverter;
+	}
+
+	private Collection<GrantedAuthority> extractKeycloakRoles(final Jwt jwt) {
+		return Stream.concat(
+				extractRoles(jwt, "realm_access"),
+				extractRoles(jwt, "resource_access")).distinct().toList();
+	}
+
+	private Stream<GrantedAuthority> extractRoles(final Jwt jwt, final String claimName) {
+		final Map<String, Object> claim = jwt.getClaimAsMap(claimName);
+		if (claim == null) {
+			return Stream.empty();
+		}
+
+		if ("realm_access".equals(claimName)) {
+			return getRolesFromMap(claim);
+		}
+
+		return claim.values().stream().filter(Map.class::isInstance).map(Map.class::cast).flatMap(this::getRolesFromMap);
+	}
+
+	private Stream<GrantedAuthority> getRolesFromMap(final Map<String, Object> source) {
+		final Object roles = source.get("roles");
+		if (!(roles instanceof Collection<?> roleValues)) {
+			return Stream.empty();
+		}
+
+		return roleValues.stream().filter(String.class::isInstance).map(String.class::cast).map(String::trim)
+				.filter(role -> !role.isBlank()).map(role -> role.toUpperCase())
+				.map(role -> new SimpleGrantedAuthority("ROLE_" + role));
 	}
 }
