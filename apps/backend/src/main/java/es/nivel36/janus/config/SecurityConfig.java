@@ -104,21 +104,27 @@ public class SecurityConfig {
 
 	private Collection<GrantedAuthority> extractKeycloakRoles(final Jwt jwt) {
 		return Stream.concat(
-				extractRoles(jwt, "realm_access"),
-				extractRoles(jwt, "resource_access")).distinct().toList();
+				extractRealmRoles(jwt),
+				extractResourceRoles(jwt)).distinct().toList();
 	}
 
-	private Stream<GrantedAuthority> extractRoles(final Jwt jwt, final String claimName) {
-		final Map<String, Object> claim = jwt.getClaimAsMap(claimName);
-		if (claim == null) {
+	private Stream<GrantedAuthority> extractRealmRoles(final Jwt jwt) {
+		final Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
+		if (realmAccess == null) {
 			return Stream.empty();
 		}
 
-		if ("realm_access".equals(claimName)) {
-			return getRolesFromMap(claim);
+		return getRolesFromMap(realmAccess);
+	}
+
+	private Stream<GrantedAuthority> extractResourceRoles(final Jwt jwt) {
+		final Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
+		if (resourceAccess == null) {
+			return Stream.empty();
 		}
 
-		return claim.values().stream().filter(Map.class::isInstance).map(Map.class::cast).flatMap(this::getRolesFromMap);
+		return resourceAccess.values().stream().filter(Map.class::isInstance).map(Map.class::cast)
+				.flatMap(this::getRolesFromMap);
 	}
 
 	private Stream<GrantedAuthority> getRolesFromMap(final Map<String, Object> source) {
