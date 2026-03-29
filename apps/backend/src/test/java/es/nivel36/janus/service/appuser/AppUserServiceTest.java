@@ -73,8 +73,11 @@ class AppUserServiceTest {
 	void testCreateAppUserThrowsWhenUsernameAlreadyExistsByAccountUsername() {
 		when(this.appUserRepository.existsByUsername("aferrer")).thenReturn(true);
 
-		assertThrows(ResourceAlreadyExistsException.class, () -> this.appUserService.createAppUser("aferrer",
-				Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Europe/Madrid")));
+		final ZoneId zoneId = ZoneId.of("Europe/Madrid");
+		
+		assertThrows(ResourceAlreadyExistsException.class, () -> {
+			this.appUserService.createAppUser("aferrer", Locale.ENGLISH, TimeFormat.H24, zoneId);
+		});
 
 		verify(this.appUserRepository).existsByUsername("aferrer");
 	}

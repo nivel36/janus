@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-public class KeycloakJwtRolesConverterTest {
+class KeycloakJwtRolesConverterTest {
 
 	@Test
 	void jwtAuthenticationConverterShouldMapRealmAndResourceRolesToAuthorities() {
