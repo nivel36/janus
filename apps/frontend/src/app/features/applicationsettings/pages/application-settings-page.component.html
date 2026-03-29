@@ -1,0 +1,42 @@
+<main class="app-shell">
+  <section class="settings-page">
+    <header class="settings-header">
+      <h1>{{ 'navigation.janus' | translate }}</h1>
+      <span>{{ 'applicationSettings.title' | translate }}</span>
+    </header>
+
+    <section class="settings-card" *ngIf="!loading; else loadingState">
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <label>
+          {{ 'applicationSettings.fields.daysUntilLocked' | translate }}
+          <input type="number" min="0" formControlName="daysUntilLocked" />
+        </label>
+
+        <label>
+          <input type="checkbox" formControlName="employeeWorkplaceCreationAllowed" />
+          {{ 'applicationSettings.fields.employeeWorkplaceCreationAllowed' | translate }}
+        </label>
+
+        <label>
+          <input type="checkbox" formControlName="worksiteChangeDuringShiftAllowed" />
+          {{ 'applicationSettings.fields.worksiteChangeDuringShiftAllowed' | translate }}
+        </label>
+
+        <p class="message error" *ngIf="errorMessage">{{ errorMessage | translate }}</p>
+        <p class="message success" *ngIf="successMessage">{{ successMessage | translate }}</p>
+
+        <div class="actions" *ngIf="isAdmin">
+          <button type="submit" [disabled]="form.invalid || saving">
+            {{ 'applicationSettings.actions.save' | translate }}
+          </button>
+        </div>
+      </form>
+
+      <p *ngIf="!isAdmin" class="read-only">{{ 'applicationSettings.messages.readOnly' | translate }}</p>
+    </section>
+  </section>
+</main>
+
+<ng-template #loadingState>
+  <p class="message">{{ 'applicationSettings.messages.loading' | translate }}</p>
+</ng-template>

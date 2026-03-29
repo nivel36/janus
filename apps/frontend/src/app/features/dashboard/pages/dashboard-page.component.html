@@ -4,9 +4,12 @@
             <h1 class="brand">
                 {{ 'navigation.janus' | translate }}
             </h1>
-            <span class="section-label">
-                {{ 'navigation.dashboard' | translate }}
-            </span>
+            <div class="header-actions">
+                <a routerLink="/application-settings">{{ 'navigation.applicationSettings' | translate }}</a>
+                <span class="section-label">
+                    {{ 'navigation.dashboard' | translate }}
+                </span>
+            </div>
         </header>
 
         <section class="dashboard-content">
