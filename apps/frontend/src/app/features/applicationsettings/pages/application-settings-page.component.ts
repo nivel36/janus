@@ -21,8 +21,8 @@ export class ApplicationSettingsPageComponent implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     daysUntilLocked: [0, [Validators.required, Validators.min(0)]],
-    employeeWorkplaceCreationAllowed: [false, [Validators.required]],
-    worksiteChangeDuringShiftAllowed: [false, [Validators.required]],
+    employeeWorkplaceCreationAllowed: [false],
+    worksiteChangeDuringShiftAllowed: [false],
   });
 
   loading = true;
