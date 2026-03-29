@@ -1,0 +1,14 @@
+<button
+  type="button"
+  class="toggle-button"
+  [class.toggle-button--checked]="checked"
+  [class.toggle-button--disabled]="disabled"
+  role="switch"
+  [attr.aria-checked]="checked"
+  [attr.aria-label]="checked ? onLabel : offLabel"
+  [disabled]="disabled"
+  (click)="onToggle()"
+>
+  <span class="toggle-button__icon" aria-hidden="true">{{ checked ? '✓' : '✕' }}</span>
+  <span class="toggle-button__knob" aria-hidden="true"></span>
+</button>
