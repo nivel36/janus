@@ -61,6 +61,12 @@ export class ApplicationSettingsPageComponent implements OnInit {
     });
   }
 
+
+
+  get daysUntilLockedSliderMax(): number {
+    return Math.max(120, this.form.controls.daysUntilLocked.value);
+  }
+
   save(): void {
     if (!this.isAdmin || this.form.invalid || this.saving) {
       return;
