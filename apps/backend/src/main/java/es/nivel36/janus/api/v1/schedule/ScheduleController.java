@@ -24,7 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +40,7 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
 import es.nivel36.janus.service.schedule.ScheduleService;
+import es.nivel36.janus.util.KeycloakJwtRolesConverter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -73,7 +75,7 @@ public class ScheduleController {
 	 *
 	 * @return a {@link ResponseEntity} containing the list of schedules
 	 */
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
 	@GetMapping
 	public ResponseEntity<List<ScheduleResponse>> findAllSchedules() {
 		logger.debug("List schedules ACTION performed");
@@ -89,19 +91,19 @@ public class ScheduleController {
 	 * @param scheduleCode the unique code of the schedule; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the requested schedule
 	 */
-	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
 	@GetMapping("/{scheduleCode}")
 	public ResponseEntity<ScheduleResponse> findSchedule(final @PathVariable("scheduleCode") //
 	@Pattern( //
 			regexp = "[A-Za-z0-9_-]{1,50}", //
 			message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
 	) //
-	String scheduleCode, Authentication authentication) {
+	String scheduleCode, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Find schedule ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 
 		if (employeeRole && !employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
 			throw new AccessDeniedException("Employees can only search his own schedule");
@@ -119,7 +121,7 @@ public class ScheduleController {
 	 *                {@code null}
 	 * @return a {@link ResponseEntity} containing the created schedule
 	 */
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
 	@PostMapping
 	public ResponseEntity<ScheduleResponse> createSchedule(@Valid @RequestBody final CreateScheduleRequest request) {
 		logger.debug("Create schedule ACTION performed");
@@ -142,7 +144,7 @@ public class ScheduleController {
 	 *                     {@code null}
 	 * @return a {@link ResponseEntity} containing the updated schedule
 	 */
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
 	@PutMapping("/{scheduleCode}")
 	public ResponseEntity<ScheduleResponse> updateSchedule(final @PathVariable("scheduleCode") //
 	@Pattern( //
@@ -164,7 +166,7 @@ public class ScheduleController {
 	 * @param scheduleCode the unique code of the schedule; must not be {@code null}
 	 * @return a {@link ResponseEntity} with an empty body and HTTP 204 status
 	 */
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
 	@DeleteMapping("/{scheduleCode}")
 	public ResponseEntity<Void> deleteSchedule(final @PathVariable("scheduleCode") //
 	@Pattern( //

@@ -51,7 +51,7 @@ class AppUserControllerIT {
 	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testFindByUsernameShouldReturnUser() throws Exception {
 		mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.username").value("jdoe")) //
@@ -63,7 +63,7 @@ class AppUserControllerIT {
 	@Test
 	void testFindUnknownUserShouldReturn404() throws Exception {
 		mvc.perform(get(BASE + "/{username}", "unknown").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNotFound());
 	}
 
@@ -81,7 +81,7 @@ class AppUserControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
 
@@ -92,7 +92,7 @@ class AppUserControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.username").value("asmith")) //
@@ -100,7 +100,7 @@ class AppUserControllerIT {
 				.andExpect(jsonPath("$.timeFormat").value("H12")) //
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/London"));
 		mvc.perform(get(BASE + "/{username}", "asmith").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))).andExpect(status().isOk());
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk());
 	}
 
 	@Test
@@ -110,7 +110,7 @@ class AppUserControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
 
@@ -121,13 +121,13 @@ class AppUserControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(jsonPath("$.username").value("alice@example.com")) //
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/London"));
 
 		mvc.perform(get(BASE + "/{username}", "alice@example.com").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.username").value("alice@example.com"));
 	}
@@ -140,7 +140,7 @@ class AppUserControllerIT {
 				""";
 
 		mvc.perform(put(BASE + "/{username}", "jdoe").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN"))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))) //
 				.contentType(APPLICATION_JSON).content(body)) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.username").value("jdoe")) //
@@ -153,11 +153,11 @@ class AppUserControllerIT {
 	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
 		mvc.perform(delete(BASE + "/{username}", "jdoe").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
 		mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNotFound()); //
 	}
 }

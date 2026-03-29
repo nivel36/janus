@@ -2,7 +2,11 @@
   "realm": "janus-realm",
   "enabled": true,
   "roles": {
-    "realm": [{ "name": "JANUS_USER" }]
+    "realm": [
+      { "name": "JANUS_USER" },
+      { "name": "JANUS_EMPLOYEE" },
+      { "name": "JANUS_ADMIN" }
+    ]
   },
   "clients": [
     {
@@ -32,7 +36,7 @@
       "credentials": [
         { "type": "password", "value": "Janus2026!", "temporary": false }
       ],
-      "realmRoles": ["JANUS_USER"]
+      "realmRoles": ["JANUS_EMPLOYEE", "JANUS_USER", "JANUS_ADMIN"]
     }
   ]
 }

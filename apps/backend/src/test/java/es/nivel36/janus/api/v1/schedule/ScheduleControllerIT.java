@@ -73,7 +73,7 @@ class ScheduleControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.code").value("STD-WH")) //
@@ -106,11 +106,11 @@ class ScheduleControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
@@ -140,11 +140,11 @@ class ScheduleControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
 		mvc.perform(get(BASE).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$[0].code").value("STD-WH"));
@@ -175,11 +175,11 @@ class ScheduleControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
 		mvc.perform(get(BASE + "/{code}", "STD-WH").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.name").value("Standard Work Hours")) //
@@ -211,7 +211,7 @@ class ScheduleControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(createBody).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
 		String updateBody = """
@@ -236,7 +236,7 @@ class ScheduleControllerIT {
 				""";
 
 		mvc.perform(put(BASE + "/{code}", "STD-WH").contentType(APPLICATION_JSON).content(updateBody).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.name").value("Updated Work Hours")) //
@@ -268,11 +268,11 @@ class ScheduleControllerIT {
 				""";
 
 		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
 		mvc.perform(delete(BASE + "/{code}", "STD-WH").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 	}
 
@@ -281,7 +281,7 @@ class ScheduleControllerIT {
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES (1,'Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void testDeleteScheduleWithAssignedEmployeesShouldReturn409() throws Exception {
 		mvc.perform(delete(BASE + "/{code}", "IN-USE").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isConflict()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}

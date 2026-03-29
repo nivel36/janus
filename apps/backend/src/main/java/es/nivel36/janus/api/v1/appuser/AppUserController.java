@@ -25,7 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
+import es.nivel36.janus.util.KeycloakJwtRolesConverter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -75,17 +77,17 @@ public class AppUserController {
 	 * @param username the unique username of the user; must not be {@code null}
 	 * @return the {@link AppUserResponse} matching the username
 	 */
-	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
 	@GetMapping("/{username}")
 	public ResponseEntity<AppUserResponse> findAppUser(final @PathVariable("username") //
 	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
 			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-	String username, final Authentication authentication) {
+	String username, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Find app user ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 
 		if (employeeRole && !authenticatedEmail.equals(username)) {
 			throw new AccessDeniedException("Employees can only search his own user");
@@ -102,7 +104,7 @@ public class AppUserController {
 	 *                {@code null}
 	 * @return the created {@link AppUserResponse}
 	 */
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@PostMapping
 	public ResponseEntity<AppUserResponse> createAppUser(@Valid @RequestBody final CreateAppUserRequest request) {
 		logger.debug("Create app user ACTION performed");
@@ -123,22 +125,22 @@ public class AppUserController {
 	 * @param request  the payload containing the new data; must not be {@code null}
 	 * @return the updated {@link AppUserResponse}
 	 */
-	@PreAuthorize("hasAnyRole('EMPLOYEE', 'USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	@PutMapping("/{username}")
 	public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
 	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
 			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-	String username, @Valid @RequestBody final UpdateAppUserRequest request, final Authentication authentication) {
+	String username, @Valid @RequestBody final UpdateAppUserRequest request,final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Update app user ACTION performed");
 		
-		final String authenticatedEmail = authentication.getName();
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 		if (employeeRole && !authenticatedEmail.equals(username)) {
 			throw new AccessDeniedException("Employees can only update his own user");
 		}
-		final boolean userRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+		final boolean userRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_USER"));
 		
 		if (userRole && !authenticatedEmail.equals(username)) {
 			throw new AccessDeniedException("Users can only update his own user");
@@ -158,7 +160,7 @@ public class AppUserController {
 	 * @param username the username of the app user; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@DeleteMapping("/{username}")
 	public ResponseEntity<Void> deleteAppUser(final @PathVariable("username") //
 	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //

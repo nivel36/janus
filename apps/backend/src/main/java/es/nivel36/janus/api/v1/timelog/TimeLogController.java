@@ -29,7 +29,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,6 +49,7 @@ import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import es.nivel36.janus.service.worksite.WorksiteService;
+import es.nivel36.janus.util.KeycloakJwtRolesConverter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -108,7 +110,7 @@ public class TimeLogController {
 	 *                      must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
-	@PreAuthorize("hasRole('EMPLOYEE')")
+	@PreAuthorize("hasRole('JANUS_EMPLOYEE')")
 	@PostMapping("/clock-in")
 	public ResponseEntity<TimeLogResponse> clockIn( //
 			final @PathVariable("employeeEmail") //
@@ -122,12 +124,12 @@ public class TimeLogController {
 			@Pattern( //
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, Authentication authentication) {
+			String worksiteCode, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Clock-in ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only create their own clock-in records");
@@ -161,7 +163,7 @@ public class TimeLogController {
 	 *                                         closed because it does not have an
 	 *                                         entry time
 	 */
-	@PreAuthorize("hasRole('EMPLOYEE')")
+	@PreAuthorize("hasRole('JANUS_EMPLOYEE')")
 	@PostMapping("/clock-out")
 	public ResponseEntity<TimeLogResponse> clockOut( //
 			final @PathVariable("employeeEmail") //
@@ -175,12 +177,12 @@ public class TimeLogController {
 			@Pattern( //
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, final Authentication authentication) throws ClockOutWithoutClockInException {
+			String worksiteCode, final @AuthenticationPrincipal Jwt jwt) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only create their own clock-out records");
@@ -208,7 +210,7 @@ public class TimeLogController {
 	 *                      entry and exit times; must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
-	@PreAuthorize("hasRole('EMPLOYEE')")
+	@PreAuthorize("hasRole('JANUS_EMPLOYEE')")
 	@PostMapping("/")
 	public ResponseEntity<TimeLogResponse> createTimeLog( //
 			final @PathVariable("employeeEmail") //
@@ -222,12 +224,12 @@ public class TimeLogController {
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
 			String worksiteCode, //
-			final @Valid @RequestBody CreateTimeLogRequest timeLog, final Authentication authentication) {
+			final @Valid @RequestBody CreateTimeLogRequest timeLog, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Create time log ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only create their own clock-in/clock-out records");
@@ -259,7 +261,7 @@ public class TimeLogController {
 	 * @throws IllegalArgumentException if only one of {@code fromInstant} or
 	 *                                  {@code toInstant} is provided
 	 */
-	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
 	@GetMapping("/")
 	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee( //
 			final @PathVariable("employeeEmail") //
@@ -271,7 +273,7 @@ public class TimeLogController {
 			final @RequestParam(value = "fromInstant", required = false) Instant fromInstant, //
 			final @RequestParam(value = "toInstant", required = false) Instant toInstant, //
 			final @PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable,
-			Authentication authentication) {
+			final @AuthenticationPrincipal Jwt jwt) {
 		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
 		}
@@ -280,9 +282,9 @@ public class TimeLogController {
 		}
 		logger.debug("Search time logs by employee ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only search their own time log records");
@@ -327,7 +329,7 @@ public class TimeLogController {
 	 * @param entryTime     the entry time of the time log; must not be {@code null}
 	 * @return the {@link TimeLogResponse} entry
 	 */
-	@PreAuthorize("hasAnyRole('EMPLOYEE','USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
 	@GetMapping("/{entryTime}")
 	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(//
 			final @PathVariable("employeeEmail") //
@@ -336,12 +338,12 @@ public class TimeLogController {
 					message = "must be a valid and safe email address (max 254)" //
 			) //
 			String employeeEmail, //
-			final @PathVariable("entryTime") Instant entryTime, final Authentication authentication) {
+			final @PathVariable("entryTime") Instant entryTime, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only search their own time log records");
@@ -362,7 +364,7 @@ public class TimeLogController {
 	 * @return a {@link ResponseEntity} with no content (HTTP 204) if the deletion
 	 *         succeeds
 	 */
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@DeleteMapping("/{entryTime}")
 	public ResponseEntity<Void> deleteTimeLog(//
 			final @PathVariable("employeeEmail") //

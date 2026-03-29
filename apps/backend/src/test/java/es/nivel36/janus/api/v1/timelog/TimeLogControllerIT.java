@@ -76,7 +76,7 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -96,7 +96,7 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "HOME-AF") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -117,7 +117,7 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-PROJ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -137,7 +137,7 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-PROJ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isForbidden()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
 				.andExpect(jsonPath("$.title").value("Worksite access denied")) //
@@ -159,7 +159,7 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "HOME-ADA") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isForbidden()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
 				.andExpect(jsonPath("$.title").value("Worksite access denied")) //
@@ -180,7 +180,7 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -200,13 +200,13 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isBadRequest()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
@@ -224,17 +224,17 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
 		mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -255,7 +255,7 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("exitTime", exit).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -278,7 +278,7 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
 				.param("worksiteCode", "HOME-AF") //
 				.param("exitTime", exit).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -303,7 +303,7 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -329,13 +329,13 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isOk());
 
 		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isBadRequest());
 	}
 
@@ -351,11 +351,11 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", "2025-08-06T08:00:00Z").with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
 		mvc.perform(get(BASE + "/", "aferrer@nivel36.es").with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON));
 	}
@@ -370,13 +370,13 @@ class TimeLogControllerIT {
 	void testSearchByEmployeeWithInvalidRangeShouldFail400() throws Exception {
 		mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
 				.param("fromInstant", "2025-08-10T10:00:00Z").with(jwt()//
-						.authorities(createAuthorityList("ROLE_ADMIN")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 
 		mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
 				.param("fromInstant", "2025-08-10T10:00:00Z") //
 				.param("toInstant", "2025-08-09T10:00:00Z").with(jwt()//
-						.authorities(createAuthorityList("ROLE_ADMIN")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
 
@@ -394,11 +394,11 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
 		mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
@@ -419,17 +419,17 @@ class TimeLogControllerIT {
 		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_EMPLOYEE")))) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
 		// delete //
 		mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN")))) //
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
 		// verify //
 		mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
-				.authorities(createAuthorityList("ROLE_ADMIN"))))//
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))//
 				.andExpect(status().isNotFound());
 	}
 

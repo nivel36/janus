@@ -25,7 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +43,7 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteScope;
 import es.nivel36.janus.service.worksite.WorksiteService;
+import es.nivel36.janus.util.KeycloakJwtRolesConverter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -85,7 +87,7 @@ public class WorksiteController {
 	 * @return a {@link ResponseEntity} containing the list of worksites
 	 */
 	@GetMapping
-	@PreAuthorize("hasAnyRole('EMPLOYEE', 'USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	public ResponseEntity<List<WorksiteResponse>> findAllWorksites() {
 		logger.debug("List worksites ACTION performed");
 
@@ -101,7 +103,7 @@ public class WorksiteController {
 	 * @return a {@link ResponseEntity} containing the requested worksite
 	 */
 	@GetMapping("/{worksiteCode}")
-	@PreAuthorize("hasAnyRole('EMPLOYEE', 'USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	public ResponseEntity<WorksiteResponse> findWorksite(
 			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode) {
 		logger.debug("Find worksite ACTION performed");
@@ -125,14 +127,14 @@ public class WorksiteController {
 	 * @return a {@link ResponseEntity} containing the created worksite
 	 */
 	@PostMapping
-	@PreAuthorize("hasAnyRole('EMPLOYEE', 'USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	public ResponseEntity<WorksiteResponse> createWorksite(@Valid @RequestBody final CreateWorksiteRequest request,
-			final Authentication authentication) {
+			final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Create worksite ACTION performed");
 
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 
 		if (employeeRole) {
 			if (request.scope() != WorksiteScope.PERSONAL) {
@@ -175,16 +177,16 @@ public class WorksiteController {
 	 *                     {@code null}
 	 * @return a {@link ResponseEntity} containing the updated worksite
 	 */
-	@PreAuthorize("hasAnyRole('EMPLOYEE', 'USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	@PutMapping("/{worksiteCode}")
 	public ResponseEntity<WorksiteResponse> updateWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
-			@Valid @RequestBody final UpdateWorksiteRequest request, final Authentication authentication) {
+			@Valid @RequestBody final UpdateWorksiteRequest request, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Update worksite ACTION performed");
 
-		final boolean employeeRole = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
 
 		final Employee ownerEmployee;
 		if (employeeRole) {
@@ -225,7 +227,7 @@ public class WorksiteController {
 	 * @param worksiteCode the unique code of the worksite; must not be {@code null}
 	 * @return a {@link ResponseEntity} with an empty body and HTTP 204 status
 	 */
-	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
 	@DeleteMapping("/{worksiteCode}")
 	public ResponseEntity<Void> deleteWorksite(
 			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode) {

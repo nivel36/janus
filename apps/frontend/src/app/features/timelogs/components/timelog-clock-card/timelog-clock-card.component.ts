@@ -123,7 +123,7 @@ export class TimelogClockCardComponent {
    * Indicates whether the user has permission to clock in/out.
    */
   readonly canClockInOut$ = this.authService.permissions$.pipe(
-    map((permissions) => permissions.realmRoles.includes('JANUS_USER')),
+    map((permissions) => permissions.realmRoles.includes('JANUS_EMPLOYEE')),
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
