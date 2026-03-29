@@ -7,10 +7,16 @@
 
     <section class="settings-card" *ngIf="!loading; else loadingState">
       <form [formGroup]="form" (ngSubmit)="save()">
-        <label>
-          {{ 'applicationSettings.fields.daysUntilLocked' | translate }}
-          <input type="number" min="0" formControlName="daysUntilLocked" />
-        </label>
+        <app-range-slider
+          [label]="'applicationSettings.fields.daysUntilLocked' | translate"
+          unit="días"
+          [min]="0"
+          [max]="90"
+          [step]="1"
+          [disabled]="form.disabled"
+          [value]="form.controls.daysUntilLocked.value"
+          (valueChange)="form.controls.daysUntilLocked.setValue($event)"
+        />
 
         <label>
           <input type="checkbox" formControlName="employeeWorkplaceCreationAllowed" />

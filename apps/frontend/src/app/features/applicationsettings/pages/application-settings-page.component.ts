@@ -6,11 +6,12 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
 import { ApplicationSettings } from '../models/application-settings';
+import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
 
 @Component({
   selector: 'app-application-settings-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, RangeSliderComponent],
   templateUrl: './application-settings-page.component.html',
   styleUrl: './application-settings-page.component.css',
 })
