@@ -1,7 +1,8 @@
 {
   "navigation": {
     "janus": "Janus",
-    "dashboard": "Panel de control"
+    "dashboard": "Panel de control",
+    "applicationSettings": "Configuración"
   },
   "timelog": {
     "activeWorkday": "Jornada en curso",
@@ -38,5 +39,25 @@
     "title": "Acceso denegado",
     "message": "No tienes permisos para acceder a esta página.",
     "backToHome": "Volver al inicio"
+  },
+  "applicationSettings": {
+    "title": "Configuración de la aplicación",
+    "fields": {
+      "daysUntilLocked": "Días hasta bloqueo",
+      "employeeWorkplaceCreationAllowed": "Permitir que empleados creen centros de trabajo",
+      "worksiteChangeDuringShiftAllowed": "Permitir cambiar de centro durante el turno"
+    },
+    "actions": {
+      "save": "Guardar configuración"
+    },
+    "messages": {
+      "loading": "Cargando configuración...",
+      "updated": "Configuración actualizada correctamente.",
+      "readOnly": "Modo solo lectura. Solo JANUS_ADMIN puede actualizar ajustes."
+    },
+    "errors": {
+      "load": "No se pudo cargar la configuración.",
+      "update": "No se pudo actualizar la configuración."
+    }
   }
 }

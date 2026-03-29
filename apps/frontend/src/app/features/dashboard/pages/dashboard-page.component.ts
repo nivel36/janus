@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { AsyncPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -18,6 +19,7 @@ import { TimelogClockCardComponent } from '../../timelogs/components/timelog-clo
   standalone: true,
   imports: [
     AsyncPipe,
+    RouterLink,
     FormsModule,
     TranslatePipe,
     UserCardComponent,

@@ -1,7 +1,8 @@
 {
   "navigation": {
     "janus": "Janus",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "applicationSettings": "Application settings"
   },
   "timelog": {
     "activeWorkday": "Active Workday",
@@ -38,5 +39,25 @@
     "title": "Access denied",
     "message": "You do not have permission to access this page.",
     "backToHome": "Back to home"
+  },
+  "applicationSettings": {
+    "title": "Application settings",
+    "fields": {
+      "daysUntilLocked": "Days until lock",
+      "employeeWorkplaceCreationAllowed": "Allow employees to create worksites",
+      "worksiteChangeDuringShiftAllowed": "Allow worksite change during shift"
+    },
+    "actions": {
+      "save": "Save settings"
+    },
+    "messages": {
+      "loading": "Loading application settings...",
+      "updated": "Settings updated successfully.",
+      "readOnly": "Read-only mode. Only JANUS_ADMIN can update settings."
+    },
+    "errors": {
+      "load": "Unable to load application settings.",
+      "update": "Unable to update application settings."
+    }
   }
 }
