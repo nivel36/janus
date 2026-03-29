@@ -97,7 +97,7 @@ public class SecurityConfig {
 	 * @throws Exception if the security configuration cannot be built.
 	 */
 	@Bean
-	SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
+	SecurityFilterChain securityFilterChain(final HttpSecurity http) {
 		return http.cors(Customizer.withDefaults()) //
 				.csrf(CsrfConfigurer::disable) //
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //
