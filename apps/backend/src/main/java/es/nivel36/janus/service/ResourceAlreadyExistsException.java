@@ -57,7 +57,7 @@ public class ResourceAlreadyExistsException extends RuntimeException {
 	 *
 	 * @param message the detail message providing more information about the cause
 	 */
-	public ResourceAlreadyExistsException(String message) {
+	public ResourceAlreadyExistsException(final String message) {
 		super(message);
 	}
 
@@ -66,7 +66,7 @@ public class ResourceAlreadyExistsException extends RuntimeException {
 	 *
 	 * @param cause the underlying cause of this exception; may be {@code null}
 	 */
-	public ResourceAlreadyExistsException(Throwable cause) {
+	public ResourceAlreadyExistsException(final Throwable cause) {
 		super(cause);
 	}
 
@@ -76,7 +76,7 @@ public class ResourceAlreadyExistsException extends RuntimeException {
 	 * @param message the detail message providing more information about the cause
 	 * @param cause   the underlying cause of this exception; may be {@code null}
 	 */
-	public ResourceAlreadyExistsException(String message, Throwable cause) {
+	public ResourceAlreadyExistsException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
@@ -91,8 +91,8 @@ public class ResourceAlreadyExistsException extends RuntimeException {
 	 * @param enableSuppression  whether suppression is enabled or disabled
 	 * @param writableStackTrace whether the stack trace should be writable
 	 */
-	public ResourceAlreadyExistsException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
+	public ResourceAlreadyExistsException(final String message, final Throwable cause, final boolean enableSuppression,
+			final boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 }

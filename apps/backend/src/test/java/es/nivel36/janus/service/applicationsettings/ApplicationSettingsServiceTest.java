@@ -51,7 +51,8 @@ class ApplicationSettingsServiceTest {
 
 	@Test
 	void testGetDaysUntilLockedFallsBackToDefaultWhenSettingsAreMissing() {
-		when(this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID)).thenReturn(Optional.empty());
+		when(this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID))
+				.thenReturn(Optional.empty());
 
 		assertThrows(IllegalStateException.class, () -> this.applicationSettingsService.getDaysUntilLocked());
 	}

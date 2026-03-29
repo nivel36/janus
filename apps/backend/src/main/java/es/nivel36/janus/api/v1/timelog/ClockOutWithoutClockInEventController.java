@@ -122,7 +122,7 @@ public class ClockOutWithoutClockInEventController {
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 
 		final ClockOutWithoutClockInEvent resolvedClockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
-				.resolve(clockOutWithoutClockInEvent, request.entryTime(), toOptionalReason(request.reason()));
+				.resolve(clockOutWithoutClockInEvent, request.entryTime(), this.toOptionalReason(request.reason()));
 		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper
 				.map(resolvedClockOutWithoutClockInEvent);
 		return ResponseEntity.ok(response);
@@ -161,7 +161,7 @@ public class ClockOutWithoutClockInEventController {
 		final Worksite worksite = this.findRecordedWorksite(worksiteCode);
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
-		final Optional<String> reason = request == null ? Optional.empty() : toOptionalReason(request.reason());
+		final Optional<String> reason = request == null ? Optional.empty() : this.toOptionalReason(request.reason());
 		final ClockOutWithoutClockInEvent invalidatedClockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.invalidate(clockOutWithoutClockInEvent, reason);
 		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper
@@ -203,8 +203,6 @@ public class ClockOutWithoutClockInEventController {
 				.map(clockOutWithoutClockInEvent);
 		return ResponseEntity.ok(response);
 	}
-
-
 
 	private Worksite findRecordedWorksite(final String worksiteCode) {
 		return this.worksiteService.findWorksiteByCode(worksiteCode);

@@ -35,12 +35,8 @@ import es.nivel36.janus.service.schedule.Schedule;
 @ExtendWith(MockitoExtension.class)
 class WorksiteServiceTest {
 
-	@Mock
-	private WorksiteRepository worksiteRepository;
-
-	@Mock
-	private EmployeeService employeeService;
-
+	private @Mock WorksiteRepository worksiteRepository;
+	private @Mock EmployeeService employeeService;
 	private WorksiteService worksiteService;
 
 	@BeforeEach

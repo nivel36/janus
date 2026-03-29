@@ -75,7 +75,7 @@ final class TimeIntervals {
 	 *         are no intervals
 	 */
 	Duration totalCoveredDuration() {
-		return intervals.stream().map(TimeInterval::duration).reduce(Duration.ZERO, Duration::plus);
+		return this.intervals.stream().map(TimeInterval::duration).reduce(Duration.ZERO, Duration::plus);
 	}
 
 	/**
@@ -89,12 +89,12 @@ final class TimeIntervals {
 	 *         fewer than two intervals
 	 */
 	Duration totalGapDuration() {
-		if (intervals.size() < 2) {
+		if (this.intervals.size() < 2) {
 			return Duration.ZERO;
 		}
 		Duration total = Duration.ZERO;
-		for (int i = 0; i < intervals.size() - 1; i++) {
-			total = total.plus(Duration.between(intervals.get(i).endsAt(), intervals.get(i + 1).startsAt()));
+		for (int i = 0; i < this.intervals.size() - 1; i++) {
+			total = total.plus(Duration.between(this.intervals.get(i).endsAt(), this.intervals.get(i + 1).startsAt()));
 		}
 		return total;
 	}

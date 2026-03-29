@@ -67,18 +67,18 @@ public class WorkShiftPrecomputeJob {
 	 * Constructs the scheduled job that materializes historical work-shift
 	 * summaries.
 	 *
-	 * @param workshiftRepository repository that persists {@link WorkShift}
-	 *                            aggregates; never {@code null}
-	 * @param timeLogService      service that queries {@link TimeLog} data; never
-	 *                            {@code null}
-	 * @param employeeService     service that provides employees pending
-	 *                            precomputation; never {@code null}
-	 * @param scheduleService     Service used to obtain scheduled time ranges.
-	 *                            Can't be {@code null}.
-	 * @param applicationSettingsService        service that provides admin policies (e.g.,
-	 *                            locking horizon); never {@code null}
-	 * @param clock               clock used to derive the target anchor; never
-	 *                            {@code null}
+	 * @param workshiftRepository        repository that persists {@link WorkShift}
+	 *                                   aggregates; never {@code null}
+	 * @param timeLogService             service that queries {@link TimeLog} data;
+	 *                                   never {@code null}
+	 * @param employeeService            service that provides employees pending
+	 *                                   precomputation; never {@code null}
+	 * @param scheduleService            Service used to obtain scheduled time
+	 *                                   ranges. Can't be {@code null}.
+	 * @param applicationSettingsService service that provides admin policies (e.g.,
+	 *                                   locking horizon); never {@code null}
+	 * @param clock                      clock used to derive the target anchor;
+	 *                                   never {@code null}
 	 * @throws NullPointerException if any argument is {@code null}
 	 */
 	public WorkShiftPrecomputeJob(final WorkshiftRepository workshiftRepository, final TimeLogService timeLogService,
@@ -88,7 +88,8 @@ public class WorkShiftPrecomputeJob {
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService must not be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService must not be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService must not be null");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService, "applicationSettingsService must not be null");
+		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
+				"applicationSettingsService must not be null");
 		this.clock = Objects.requireNonNull(clock, "clock must not be null");
 		this.policy = ShiftPolicy.defaultPolicy();
 	}

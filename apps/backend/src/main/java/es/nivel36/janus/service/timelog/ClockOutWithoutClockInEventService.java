@@ -154,7 +154,7 @@ public class ClockOutWithoutClockInEventService {
 	 */
 	@Transactional(readOnly = true)
 	public ClockOutWithoutClockInEvent findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(
-			Employee employee, Worksite worksite, Instant exitTime) {
+			final Employee employee, final Worksite worksite, final Instant exitTime) {
 		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(worksite, "worksite can't be null");
 		Objects.requireNonNull(exitTime, "exitTime can't be null");

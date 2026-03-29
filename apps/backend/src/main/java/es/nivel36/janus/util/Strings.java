@@ -46,7 +46,7 @@ public class Strings {
 	 * @throws NullPointerException     if {@code value} is {@code null}
 	 * @throws IllegalArgumentException if {@code value} is blank
 	 */
-	public static String requireNonBlank(String value, String message) {
+	public static String requireNonBlank(final String value, final String message) {
 		if (value == null) {
 			throw new NullPointerException(message);
 		}

@@ -71,7 +71,7 @@ public class WorksiteService {
 	public List<Worksite> findAllWorksites() {
 		logger.debug("Retrieving all worksites");
 
-		final Iterable<Worksite> worksites = worksiteRepository.findAll();
+		final Iterable<Worksite> worksites = this.worksiteRepository.findAll();
 		final List<Worksite> worksitesList = StreamSupport.stream(worksites.spliterator(), false).toList();
 		logger.trace("Found {} worksites", worksitesList.size());
 		return worksitesList;
@@ -96,7 +96,7 @@ public class WorksiteService {
 		Objects.requireNonNull(employee, "employee can't be null");
 		logger.debug("Finding worksites visible by employee {}", employee);
 
-		final List<Worksite> worksites = worksiteRepository.findVisibleByEmployee(employee);
+		final List<Worksite> worksites = this.worksiteRepository.findVisibleByEmployee(employee);
 		logger.trace("Found {} worksites", worksites.size());
 		return worksites;
 	}
@@ -145,7 +145,7 @@ public class WorksiteService {
 		final Worksite worksite = new Worksite(code, name, timeZone, scope, ownerEmployee);
 		final Worksite savedWorksite = this.worksiteRepository.save(worksite);
 		if (scope == WorksiteScope.PERSONAL) {
-			employeeService.addWorksiteToEmployee(savedWorksite, ownerEmployee);
+			this.employeeService.addWorksiteToEmployee(savedWorksite, ownerEmployee);
 		}
 		logger.trace("Worksite {} created successfully", code);
 		return savedWorksite;

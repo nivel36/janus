@@ -24,8 +24,8 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload for creating a new {@link AppUser}.
  *
- * @param username        the unique username used to identify the user; must not
- *                        be blank and must match the allowed pattern
+ * @param username        the unique username used to identify the user; must
+ *                        not be blank and must match the allowed pattern
  * @param locale          the preferred locale of the user expressed as a BCP 47
  *                        language tag (e.g. {@code "en-US"}); must not be blank
  *                        and must match the allowed pattern

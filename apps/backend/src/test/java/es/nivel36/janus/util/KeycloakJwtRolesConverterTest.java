@@ -27,21 +27,19 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 public class KeycloakJwtRolesConverterTest {
-	
+
 	@Test
 	void jwtAuthenticationConverterShouldMapRealmAndResourceRolesToAuthorities() {
-		final Jwt jwt = buildJwt(Map.of(
-				"realm_access", Map.of("roles", List.of("JANUS_EMPLOYEE", "JANUS_ADMIN")),
+		final Jwt jwt = this.buildJwt(Map.of("realm_access", Map.of("roles", List.of("JANUS_EMPLOYEE", "JANUS_ADMIN")),
 				"resource_access", Map.of("janus-api", Map.of("roles", List.of("JANUS_USER")))));
 
-		final  Collection<GrantedAuthority> authorities = KeycloakJwtRolesConverter.extract(jwt);
+		final Collection<GrantedAuthority> authorities = KeycloakJwtRolesConverter.extract(jwt);
 
-		assertThat(authorities).extracting("authority")
-				.contains("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN", "ROLE_JANUS_USER");
+		assertThat(authorities).extracting("authority").contains("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN",
+				"ROLE_JANUS_USER");
 	}
 
 	private Jwt buildJwt(final Map<String, Object> claims) {
-		return new Jwt("token", Instant.now(), Instant.now().plusSeconds(300),
-				Map.of("alg", "none"), claims);
+		return new Jwt("token", Instant.now(), Instant.now().plusSeconds(300), Map.of("alg", "none"), claims);
 	}
 }

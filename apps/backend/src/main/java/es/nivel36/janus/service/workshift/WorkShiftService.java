@@ -73,25 +73,27 @@ public class WorkShiftService {
 	/**
 	 * Creates a new {@code WorkShiftService} with all required dependencies.
 	 *
-	 * @param workshiftRepository Repository used to persist and retrieve work
-	 *                            shifts. Can't be {@code null}.
-	 * @param timeLogService      Service used to retrieve employee time logs. Can't
-	 *                            be {@code null}.
-	 * @param scheduleService     Service used to obtain scheduled time ranges.
-	 *                            Can't be {@code null}.
-	 * @param applicationSettingsService        Service providing administrative configuration.
-	 *                            Can't be {@code null}.
-	 * @param clock               Clock used to determine the current date and time.
-	 *                            Can't be {@code null}.
+	 * @param workshiftRepository        Repository used to persist and retrieve
+	 *                                   work shifts. Can't be {@code null}.
+	 * @param timeLogService             Service used to retrieve employee time
+	 *                                   logs. Can't be {@code null}.
+	 * @param scheduleService            Service used to obtain scheduled time
+	 *                                   ranges. Can't be {@code null}.
+	 * @param applicationSettingsService Service providing administrative
+	 *                                   configuration. Can't be {@code null}.
+	 * @param clock                      Clock used to determine the current date
+	 *                                   and time. Can't be {@code null}.
 	 *
 	 * @throws NullPointerException if any dependency is {@code null}
 	 */
 	public WorkShiftService(final WorkshiftRepository workshiftRepository, final TimeLogService timeLogService,
-			final ScheduleService scheduleService, final ApplicationSettingsService applicationSettingsService, final Clock clock) {
+			final ScheduleService scheduleService, final ApplicationSettingsService applicationSettingsService,
+			final Clock clock) {
 		this.workshiftRepository = Objects.requireNonNull(workshiftRepository, "workshiftRepository must not be null");
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService must not be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService must not be null");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService, "applicationSettingsService must not be null");
+		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
+				"applicationSettingsService must not be null");
 		this.clock = Objects.requireNonNull(clock, "clock must not be null");
 		this.policy = ShiftPolicy.defaultPolicy();
 	}
@@ -147,12 +149,12 @@ public class WorkShiftService {
 			}
 		}
 		logger.trace("Building the work shift");
-		final Page<TimeLog> logsPage = findTimeLogs(employee, date, timeZone);
+		final Page<TimeLog> logsPage = this.findTimeLogs(employee, date, timeZone);
 		final TimeLogs orderedLogs = new TimeLogs(logsPage.getContent());
 		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, date);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();
-		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, timeZone, policy);
+		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, timeZone, this.policy);
 		return new WorkShiftComposer(strategy).compose(employee, date, orderedLogs);
 	}
 

@@ -129,7 +129,7 @@ public class TimeLogController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only create their own clock-in records");
@@ -141,7 +141,7 @@ public class TimeLogController {
 		if (entryTime != null) {
 			clockIn = this.timeLogService.clockIn(employee, worksite, entryTime);
 		} else {
-			clockIn = this.timeLogService.clockIn(employee, worksite, clock.instant());
+			clockIn = this.timeLogService.clockIn(employee, worksite, this.clock.instant());
 		}
 
 		final TimeLogResponse timeLog = this.timeLogResponseMapper.map(clockIn);
@@ -182,7 +182,7 @@ public class TimeLogController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only create their own clock-out records");
@@ -194,7 +194,7 @@ public class TimeLogController {
 		if (exitTime != null) {
 			clockOut = this.timeLogService.clockOut(employee, worksite, exitTime);
 		} else {
-			clockOut = this.timeLogService.clockOut(employee, worksite, clock.instant());
+			clockOut = this.timeLogService.clockOut(employee, worksite, this.clock.instant());
 		}
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(clockOut);
 		return ResponseEntity.ok(timeLogResponse);
@@ -229,7 +229,7 @@ public class TimeLogController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only create their own clock-in/clock-out records");
@@ -284,7 +284,7 @@ public class TimeLogController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only search their own time log records");
@@ -343,7 +343,7 @@ public class TimeLogController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only search their own time log records");
@@ -377,7 +377,7 @@ public class TimeLogController {
 		logger.debug("Delete time log ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final TimeLog timeLog = timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
+		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		this.timeLogService.deleteTimeLog(timeLog);
 		return ResponseEntity.noContent().build();
 	}

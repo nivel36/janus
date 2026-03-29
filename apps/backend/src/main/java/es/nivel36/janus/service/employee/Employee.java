@@ -144,7 +144,7 @@ public class Employee implements Serializable {
 	 */
 	@ManyToMany
 	@JoinTable(name = "employee_worksite", joinColumns = @JoinColumn(name = "employee_id"), inverseJoinColumns = @JoinColumn(name = "worksite_id"))
-	private Set<Worksite> worksites = new HashSet<>();
+	private final Set<Worksite> worksites = new HashSet<>();
 
 	/**
 	 * The set of time logs registered by this employee.
@@ -179,10 +179,11 @@ public class Employee implements Serializable {
 	 *                 {@code null} or blank
 	 * @param schedule the work schedule assigned to the employee; must not be
 	 *                 {@code null}
-	 *                 
-	 * @throws NullPointerException if name, surname, email or schedule is {@code null}
-	 * @throws IllegalArgumentException if name, surname, email is empty
 	 * 
+	 * @throws NullPointerException     if name, surname, email or schedule is
+	 *                                  {@code null}
+	 * @throws IllegalArgumentException if name, surname, email is empty
+	 *
 	 */
 	public Employee(final String name, final String surname, final String email, final Schedule schedule) {
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
@@ -280,8 +281,8 @@ public class Employee implements Serializable {
 	 * Assigns a new work schedule to the employee.
 	 *
 	 * @param schedule the {@link Schedule} to assign; must not be {@code null}
-	 * 
-	 * @throws NullPointerException     if schedule is {@code null}
+	 *
+	 * @throws NullPointerException if schedule is {@code null}
 	 */
 	public void setSchedule(final Schedule schedule) {
 		this.schedule = Objects.requireNonNull(schedule, "schedule can't be null");
@@ -292,7 +293,7 @@ public class Employee implements Serializable {
 	 *
 	 * @param name    the new first name; must not be {@code null} or blank
 	 * @param surname the new surname; must not be {@code null} or blank
-	 * 
+	 *
 	 * @throws NullPointerException     if name or surname is {@code null}
 	 * @throws IllegalArgumentException if name or surname is blank
 	 */
@@ -311,7 +312,7 @@ public class Employee implements Serializable {
 	 *
 	 * @param timeLogs the set of {@link TimeLog} entries to assign; must not be
 	 *                 {@code null}
-	 *                 
+	 * 
 	 * @throws NullPointerException if timeLogs is {@code null}
 	 */
 	void setTimeLogs(final Set<TimeLog> timeLogs) {
@@ -323,7 +324,7 @@ public class Employee implements Serializable {
 	 *
 	 * @param worksite the {@link Worksite} to assign; must not be {@code null}
 	 * @return {@code true} if the worksite was not already assigned
-	 * 
+	 *
 	 * @throws NullPointerException if worksite is {@code null}
 	 */
 	public boolean assignToWorksite(final Worksite worksite) {
@@ -336,7 +337,7 @@ public class Employee implements Serializable {
 	 *
 	 * @param worksite the {@link Worksite} to remove; must not be {@code null}
 	 * @return {@code true} if the worksite was previously assigned
-	 * 
+	 *
 	 * @throws NullPointerException if worksite is {@code null}
 	 */
 	public boolean removeFromWorksite(final Worksite worksite) {

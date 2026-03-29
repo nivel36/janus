@@ -103,7 +103,7 @@ public class EmployeeController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only search his own user");
@@ -155,7 +155,7 @@ public class EmployeeController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only search his own employee");
@@ -189,7 +189,7 @@ public class EmployeeController {
 			) //
 			String worksiteCode, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Add worksite to employee ACTION performed");
-		
+
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		if (worksite.getScope() != WorksiteScope.ASSIGNED) {

@@ -59,7 +59,7 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		final Instant exitTime = exitTimeValue;
 
 		final Duration workDurationValue = entity.getWorkDuration();
-		final DurationResponse workDurationResponse = mapWorkDuration(workDurationValue);
+		final DurationResponse workDurationResponse = this.mapWorkDuration(workDurationValue);
 		final DurationResponse workTime = workDurationResponse;
 
 		return new TimeLogResponse(employeeEmail, worksiteCode, worksiteZoneId, entryTime, exitTime, workTime);

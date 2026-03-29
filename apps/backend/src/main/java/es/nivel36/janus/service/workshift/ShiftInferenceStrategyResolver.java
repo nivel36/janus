@@ -44,7 +44,7 @@ class ShiftInferenceStrategyResolver {
 	 *         the provided context
 	 * @throws NullPointerException if any of the parameters is {@code null}
 	 */
-	ShiftInferenceStrategy resolve(final Optional<TimeRange> timeRange, ZoneId timeZone, final ShiftPolicy policy) {
+	ShiftInferenceStrategy resolve(final Optional<TimeRange> timeRange, final ZoneId timeZone, final ShiftPolicy policy) {
 		return timeRange.<ShiftInferenceStrategy>map(tr -> new ScheduledShiftStrategy(policy, tr, timeZone))
 				.orElseGet(() -> new UnscheduledShiftStrategy(policy, timeZone));
 	}

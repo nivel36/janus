@@ -52,7 +52,7 @@ public class WorksiteMismatchOnClockOutException extends RuntimeException {
 	 * @param actual   the actual {@link Worksite} where the user attempted to clock
 	 *                 out
 	 */
-	public WorksiteMismatchOnClockOutException(Worksite expected, Worksite actual) {
+	public WorksiteMismatchOnClockOutException(final Worksite expected, final Worksite actual) {
 		this.expected = expected;
 		this.actual = actual;
 	}
@@ -64,7 +64,7 @@ public class WorksiteMismatchOnClockOutException extends RuntimeException {
 	 * @return the expected {@link Worksite}, never {@code null}
 	 */
 	public Worksite getExpected() {
-		return expected;
+		return this.expected;
 	}
 
 	/**
@@ -74,6 +74,6 @@ public class WorksiteMismatchOnClockOutException extends RuntimeException {
 	 * @return the actual {@link Worksite}, never {@code null}
 	 */
 	public Worksite getActual() {
-		return actual;
+		return this.actual;
 	}
 }

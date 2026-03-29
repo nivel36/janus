@@ -85,10 +85,10 @@ final class ShiftWindow {
 	}
 
 	TimeInterval expandedBy(final Duration margin) {
-		return interval.expandBy(margin);
+		return this.interval.expandBy(margin);
 	}
 
 	TimeInterval interval() {
-		return interval;
+		return this.interval;
 	}
 }

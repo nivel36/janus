@@ -75,7 +75,7 @@ final class LeftSegmentExtractor implements TimeLogsExtractor {
 
 		final PauseInfo firstPause = pauses.getFirst();
 		final TimeLog cutAt = firstPause.before();
-		
+
 		final int toIndex = timeLogs.indexOf(cutAt);
 		if (toIndex < 0) {
 			throw new IllegalStateException("Pause 'before' log not found in timeLogs");

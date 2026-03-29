@@ -10,7 +10,7 @@ public class ScheduleRuleTimeRangeDefinitionMapper
 		implements Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> {
 
 	@Override
-	public ScheduleRuleTimeRangeDefinition map(ScheduleRuleTimeRangeRequest object) {
+	public ScheduleRuleTimeRangeDefinition map(final ScheduleRuleTimeRangeRequest object) {
 		if (object == null) {
 			return null;
 		}

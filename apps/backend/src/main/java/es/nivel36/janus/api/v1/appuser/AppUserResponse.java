@@ -22,8 +22,8 @@ import es.nivel36.janus.service.appuser.AppUser;
  * Response DTO exposing the public representation of an {@link AppUser}.
  *
  * @param username        the unique username of the user
- * @param locale          the user's preferred locale expressed as a BCP 47 language
- *                        tag
+ * @param locale          the user's preferred locale expressed as a BCP 47
+ *                        language tag
  * @param timeFormat      the preferred {@link TimeFormat}
  * @param defaultTimezone the default timezone of the user
  */

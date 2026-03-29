@@ -73,7 +73,7 @@ class WorkShiftServiceTest {
 		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", new Schedule("CODE", "Name"));
 		final ZoneId utcZone = ZoneId.of("UTC");
 		this.worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
-		employee.assignToWorksite(worksite);
+		this.employee.assignToWorksite(this.worksite);
 	}
 
 	public static Stream<Arguments> provideTimeLogArguments() {
@@ -317,7 +317,7 @@ class WorkShiftServiceTest {
 		); //
 	}
 
-	private static Instant buildInstant(LocalDate date, int hour, int minutes) {
+	private static Instant buildInstant(final LocalDate date, final int hour, final int minutes) {
 		final ZoneId utcZone = ZoneId.of("UTC");
 		return LocalDateTime.of(date, LocalTime.of(hour, minutes)).atZone(utcZone).toInstant();
 	}
@@ -325,25 +325,26 @@ class WorkShiftServiceTest {
 	@ParameterizedTest
 	@MethodSource("provideTimeLogArguments")
 	void testFindWorkShiftForWorkingDay(final List<TimeLog> timeLogs, final Duration expectedTotalWorkTime,
-			final Duration expectedTotalPauseTime, Instant startWorkShiftTime, Instant endWorkShiftTime,
-			LocalTime startTime, LocalTime endTime) {
+			final Duration expectedTotalPauseTime, final Instant startWorkShiftTime, final Instant endWorkShiftTime,
+			final LocalTime startTime, final LocalTime endTime) {
 		logger.info("Test find work shift for working day");
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 		final TimeRange timeRange = new TimeRange(startTime, endTime);
 		final Pageable page = Pageable.unpaged();
 
-		final ZoneId z = worksite.getTimeZone();
+		final ZoneId z = this.worksite.getTimeZone();
 		final Instant fromInstant = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
 		final Instant toInstant = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
 
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
-				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
-		when(this.scheduleService.findTimeRangeForEmployeeByDate(employee, date)).thenReturn(Optional.of(timeRange));
-		when(applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
+		when(this.timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(this.employee, fromInstant, toInstant,
+				page)).thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
+		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))
+				.thenReturn(Optional.of(timeRange));
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
 
 		// Act
 		final WorkShift result = this.workShiftService.findWorkShift(this.employee, this.worksite, date);
@@ -358,23 +359,23 @@ class WorkShiftServiceTest {
 	@ParameterizedTest
 	@MethodSource("provideTimeLogArguments")
 	void testFindWorkShiftForNonWorkingDay(final List<TimeLog> timeLogs, final Duration expectedTotalWorkTime,
-			final Duration expectedTotalPauseTime, Instant startWorkShiftTime, Instant endWorkShiftTime) {
+			final Duration expectedTotalPauseTime, final Instant startWorkShiftTime, final Instant endWorkShiftTime) {
 		logger.info("Test find work shift for non working day");
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 		final Pageable page = Pageable.unpaged();
 
-		final ZoneId z = worksite.getTimeZone();
+		final ZoneId z = this.worksite.getTimeZone();
 		final Instant fromInstant = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
 		final Instant toInstant = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
 
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant, page))
-				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
-		when(scheduleService.findTimeRangeForEmployeeByDate(employee, date)).thenReturn(Optional.empty());
-		when(applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
+		when(this.timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(this.employee, fromInstant, toInstant,
+				page)).thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
+		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date)).thenReturn(Optional.empty());
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
 
 		// Act
 		final WorkShift result = this.workShiftService.findWorkShift(this.employee, this.worksite, date);

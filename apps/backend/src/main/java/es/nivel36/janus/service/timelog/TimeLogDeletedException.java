@@ -35,7 +35,7 @@ public class TimeLogDeletedException extends RuntimeException {
 	 *
 	 * @param message the detail message
 	 */
-	public TimeLogDeletedException(String message) {
+	public TimeLogDeletedException(final String message) {
 		super(message);
 	}
 
@@ -45,7 +45,7 @@ public class TimeLogDeletedException extends RuntimeException {
 	 * @param message the detail message
 	 * @param cause   the cause of the exception
 	 */
-	public TimeLogDeletedException(String message, Throwable cause) {
+	public TimeLogDeletedException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
@@ -61,8 +61,8 @@ public class TimeLogDeletedException extends RuntimeException {
 	 * @param enableSuppression  whether suppression is enabled or disabled.
 	 * @param writableStackTrace whether the stack trace should be writable.
 	 */
-	public TimeLogDeletedException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
+	public TimeLogDeletedException(final String message, final Throwable cause, final boolean enableSuppression,
+			final boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 }

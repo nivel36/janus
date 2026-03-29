@@ -35,7 +35,7 @@ public class JanusApplication {
 	 *
 	 * @param args optional command-line arguments forwarded to Spring Boot
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		SpringApplication.run(JanusApplication.class, args);
 	}
 }

@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * <p>
  * Example usage in a service:
- * 
+ *
  * <pre>
  * &#64;Service
  * public class TimeLogService {

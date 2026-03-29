@@ -39,8 +39,8 @@ import jakarta.validation.constraints.NotNull;
  * </p>
  *
  * <p>
- * This class is {@link Embeddable} and has no independent identity. Equality and
- * hash code are based solely on the {@code startTime} and {@code endTime}
+ * This class is {@link Embeddable} and has no independent identity. Equality
+ * and hash code are based solely on the {@code startTime} and {@code endTime}
  * values.
  * </p>
  */
@@ -85,8 +85,8 @@ public class TimeRange implements Serializable {
 	 * Creates a new {@code TimeRange} with the given start and end times.
 	 *
 	 * <p>
-	 * The resulting range represents the interval {@code [startTime, endTime)}.
-	 * If {@code endTime} is before {@code startTime}, the range is assumed to span
+	 * The resulting range represents the interval {@code [startTime, endTime)}. If
+	 * {@code endTime} is before {@code startTime}, the range is assumed to span
 	 * across midnight into the next day.
 	 * </p>
 	 *
@@ -157,8 +157,7 @@ public class TimeRange implements Serializable {
 			return false;
 		}
 		final TimeRange other = (TimeRange) obj;
-		return Objects.equals(this.startTime, other.startTime)
-				&& Objects.equals(this.endTime, other.endTime);
+		return Objects.equals(this.startTime, other.startTime) && Objects.equals(this.endTime, other.endTime);
 	}
 
 	@Override

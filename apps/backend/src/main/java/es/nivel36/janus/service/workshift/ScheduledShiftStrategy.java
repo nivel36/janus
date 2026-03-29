@@ -32,17 +32,17 @@ import es.nivel36.janus.service.timelog.TimeLogs;
  *
  * <p>
  * This strategy selects {@link TimeLog} entries that overlap a scheduled
- * {@link ShiftWindow} expanded by a configurable selection margin defined
- * in the {@link ShiftPolicy}. The scheduled window itself is used as the
- * reference boundary for inference.
+ * {@link ShiftWindow} expanded by a configurable selection margin defined in
+ * the {@link ShiftPolicy}. The scheduled window itself is used as the reference
+ * boundary for inference.
  *
  * <p>
- * The selection margin is applied symmetrically before the start and after
- * the end of the scheduled shift window.
+ * The selection margin is applied symmetrically before the start and after the
+ * end of the scheduled shift window.
  *
  * <p>
- * This strategy is intended to be used when a fixed scheduled time range
- * is available and time logs must be correlated against it.
+ * This strategy is intended to be used when a fixed scheduled time range is
+ * available and time logs must be correlated against it.
  */
 final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 
@@ -65,22 +65,16 @@ final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 	/**
 	 * Creates a new {@code ScheduledShiftStrategy}.
 	 *
-	 * @param policy
-	 *        Policy containing the selection margin used to expand the scheduled
-	 *        shift window. Can't be {@code null}.
-	 * @param timeRange
-	 *        Scheduled time range used to build the shift window. Can't be
-	 *        {@code null}.
-	 * @param timeZone
-	 *        Time zone used to compute the scheduled shift window. Can't be
-	 *        {@code null}.
+	 * @param policy    Policy containing the selection margin used to expand the
+	 *                  scheduled shift window. Can't be {@code null}.
+	 * @param timeRange Scheduled time range used to build the shift window. Can't
+	 *                  be {@code null}.
+	 * @param timeZone  Time zone used to compute the scheduled shift window. Can't
+	 *                  be {@code null}.
 	 *
 	 * @throws NullPointerException if any argument is {@code null}
 	 */
-	ScheduledShiftStrategy(
-			final ShiftPolicy policy,
-			final TimeRange timeRange,
-			final ZoneId timeZone) {
+	ScheduledShiftStrategy(final ShiftPolicy policy, final TimeRange timeRange, final ZoneId timeZone) {
 
 		this.policy = Objects.requireNonNull(policy, "policy must not be null.");
 		this.timeRange = Objects.requireNonNull(timeRange, "timeRange must not be null.");
@@ -92,15 +86,13 @@ final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 	 *
 	 * <p>
 	 * The inference associates all {@link TimeLog} entries whose time interval
-	 * overlaps the scheduled {@link ShiftWindow} expanded by the selection
-	 * margin defined in the {@link ShiftPolicy}.
+	 * overlaps the scheduled {@link ShiftWindow} expanded by the selection margin
+	 * defined in the {@link ShiftPolicy}.
 	 *
-	 * @param date
-	 *        Date for which the scheduled shift window is computed. Can't be
-	 *        {@code null}.
-	 * @param orderedLogs
-	 *        Ordered collection of time logs to be evaluated. Can't be
-	 *        {@code null}.
+	 * @param date        Date for which the scheduled shift window is computed.
+	 *                    Can't be {@code null}.
+	 * @param orderedLogs Ordered collection of time logs to be evaluated. Can't be
+	 *                    {@code null}.
 	 *
 	 * @return A {@link TimeLogs} instance containing all logs that overlap the
 	 *         expanded scheduled shift window.

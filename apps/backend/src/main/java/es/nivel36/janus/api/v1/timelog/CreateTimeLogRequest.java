@@ -31,7 +31,7 @@ import jakarta.validation.constraints.NotNull;
  * 2025-09-12T08:30:00Z).
  * <p>
  * The entry time must be before the exit time.
- * 
+ *
  * @param entryTime the entry instant in UTC (ISO-8601); can't be {@code null}
  * @param exitTime  the exit instant in UTC (ISO-8601); must be after entryTime
  *                  and can't be {@code null}
@@ -51,6 +51,6 @@ public record CreateTimeLogRequest(@NotNull Instant entryTime, @NotNull Instant 
 		if (this.entryTime == null || this.exitTime == null) {
 			return true;
 		}
-		return exitTime.isAfter(entryTime);
+		return this.exitTime.isAfter(this.entryTime);
 	}
 }

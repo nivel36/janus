@@ -24,7 +24,7 @@ import es.nivel36.janus.service.employee.Employee;
  * @param surname      the employee's surname
  * @param email        the employee's unique email address
  * @param scheduleCode the code of the employee's schedule
- * 
+ *
  */
 public record EmployeeResponse(String name, String surname, String email, String scheduleCode) {
 }

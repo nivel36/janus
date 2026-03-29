@@ -56,8 +56,8 @@ public class ZoneIdConverter implements AttributeConverter<ZoneId, String> {
 	 *         {@code null} if the input was {@code null}
 	 */
 	@Override
-	public String convertToDatabaseColumn(ZoneId zoneId) {
-		return (zoneId != null ? zoneId.getId() : null);
+	public String convertToDatabaseColumn(final ZoneId zoneId) {
+		return zoneId != null ? zoneId.getId() : null;
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class ZoneIdConverter implements AttributeConverter<ZoneId, String> {
 	 *         input was {@code null}
 	 */
 	@Override
-	public ZoneId convertToEntityAttribute(String dbData) {
-		return (dbData != null ? ZoneId.of(dbData) : null);
+	public ZoneId convertToEntityAttribute(final String dbData) {
+		return dbData != null ? ZoneId.of(dbData) : null;
 	}
 }

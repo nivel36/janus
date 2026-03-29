@@ -63,14 +63,10 @@ class TimeIntervalTest {
 
 	@Test
 	void testOverlapsSuccess() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T10:30:00Z"),
-				Instant.parse("2025-01-01T11:30:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T10:30:00Z"),
+				Instant.parse("2025-01-01T11:30:00Z"));
 
 		assertTrue(a.overlaps(b));
 		assertTrue(b.overlaps(a));
@@ -78,14 +74,10 @@ class TimeIntervalTest {
 
 	@Test
 	void testOverlapsAdjacentIntervalsFailure() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T11:00:00Z"),
-				Instant.parse("2025-01-01T12:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T11:00:00Z"),
+				Instant.parse("2025-01-01T12:00:00Z"));
 
 		assertFalse(a.overlaps(b));
 		assertFalse(b.overlaps(a));
@@ -99,14 +91,10 @@ class TimeIntervalTest {
 
 	@Test
 	void testTouchesSuccess() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T11:00:00Z"),
-				Instant.parse("2025-01-01T12:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T11:00:00Z"),
+				Instant.parse("2025-01-01T12:00:00Z"));
 
 		assertTrue(a.touches(b));
 		assertTrue(b.touches(a));
@@ -114,70 +102,50 @@ class TimeIntervalTest {
 
 	@Test
 	void testTouchesOverlappingIntervalsFailure() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:30:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T11:00:00Z"),
-				Instant.parse("2025-01-01T12:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:30:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T11:00:00Z"),
+				Instant.parse("2025-01-01T12:00:00Z"));
 
 		assertFalse(a.touches(b));
 	}
 
 	@Test
 	void testOverlapsOrTouchesWithOverlapSuccess() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T10:30:00Z"),
-				Instant.parse("2025-01-01T11:30:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T10:30:00Z"),
+				Instant.parse("2025-01-01T11:30:00Z"));
 
 		assertTrue(a.overlapsOrTouches(b));
 	}
 
 	@Test
 	void testOverlapsOrTouchesWithTouchSuccess() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T11:00:00Z"),
-				Instant.parse("2025-01-01T12:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T11:00:00Z"),
+				Instant.parse("2025-01-01T12:00:00Z"));
 
 		assertTrue(a.overlapsOrTouches(b));
 	}
 
 	@Test
 	void testOverlapsOrTouchesDisjointFailure() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T12:00:00Z"),
-				Instant.parse("2025-01-01T13:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T12:00:00Z"),
+				Instant.parse("2025-01-01T13:00:00Z"));
 
 		assertFalse(a.overlapsOrTouches(b));
 	}
 
 	@Test
 	void testMergeWithOverlappingIntervalsSuccess() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T10:30:00Z"),
-				Instant.parse("2025-01-01T12:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T10:30:00Z"),
+				Instant.parse("2025-01-01T12:00:00Z"));
 
 		final TimeInterval merged = a.mergeWith(b);
 
@@ -187,14 +155,10 @@ class TimeIntervalTest {
 
 	@Test
 	void testMergeWithTouchingIntervalsSuccess() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T11:00:00Z"),
-				Instant.parse("2025-01-01T12:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T11:00:00Z"),
+				Instant.parse("2025-01-01T12:00:00Z"));
 
 		final TimeInterval merged = a.mergeWith(b);
 
@@ -204,28 +168,20 @@ class TimeIntervalTest {
 
 	@Test
 	void testMergeWithDisjointIntervalsFailure() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T12:00:00Z"),
-				Instant.parse("2025-01-01T13:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T12:00:00Z"),
+				Instant.parse("2025-01-01T13:00:00Z"));
 
 		assertThrows(IllegalArgumentException.class, () -> a.mergeWith(b));
 	}
 
 	@Test
 	void testIntersectOverlappingIntervalsSuccess() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T12:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T11:00:00Z"),
-				Instant.parse("2025-01-01T13:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T12:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T11:00:00Z"),
+				Instant.parse("2025-01-01T13:00:00Z"));
 
 		final TimeInterval intersection = a.intersect(b);
 
@@ -236,24 +192,18 @@ class TimeIntervalTest {
 
 	@Test
 	void testIntersectNonOverlappingIntervalsReturnsNull() {
-		final TimeInterval a = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
-		final TimeInterval b = new TimeInterval(
-				Instant.parse("2025-01-01T11:00:00Z"),
-				Instant.parse("2025-01-01T12:00:00Z")
-		);
+		final TimeInterval a = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
+		final TimeInterval b = new TimeInterval(Instant.parse("2025-01-01T11:00:00Z"),
+				Instant.parse("2025-01-01T12:00:00Z"));
 
 		assertNull(a.intersect(b));
 	}
 
 	@Test
 	void testExpandBySuccess() {
-		final TimeInterval interval = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
+		final TimeInterval interval = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
 
 		final TimeInterval expanded = interval.expandBy(Duration.ofMinutes(15));
 
@@ -263,10 +213,8 @@ class TimeIntervalTest {
 
 	@Test
 	void testEndsAtOrBeforeSuccess() {
-		final TimeInterval interval = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
+		final TimeInterval interval = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
 
 		assertTrue(interval.endsAtOrBefore(Instant.parse("2025-01-01T12:00:00Z")));
 		assertFalse(interval.endsAtOrBefore(Instant.parse("2025-01-01T10:30:00Z")));
@@ -274,10 +222,8 @@ class TimeIntervalTest {
 
 	@Test
 	void testStartsAtOrAfterSuccess() {
-		final TimeInterval interval = new TimeInterval(
-				Instant.parse("2025-01-01T10:00:00Z"),
-				Instant.parse("2025-01-01T11:00:00Z")
-		);
+		final TimeInterval interval = new TimeInterval(Instant.parse("2025-01-01T10:00:00Z"),
+				Instant.parse("2025-01-01T11:00:00Z"));
 
 		assertTrue(interval.startsAtOrAfter(Instant.parse("2025-01-01T09:00:00Z")));
 		assertFalse(interval.startsAtOrAfter(Instant.parse("2025-01-01T10:30:00Z")));

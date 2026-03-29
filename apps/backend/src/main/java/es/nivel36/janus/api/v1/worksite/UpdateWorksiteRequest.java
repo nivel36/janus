@@ -57,6 +57,6 @@ public record UpdateWorksiteRequest( //
 
 	@AssertTrue(message = "ownerEmployeeEmail must not be null when scope is PERSONAL")
 	public boolean isOwnerEmailValidForScope() {
-		return scope != WorksiteScope.PERSONAL || ownerEmployeeEmail != null;
+		return this.scope != WorksiteScope.PERSONAL || this.ownerEmployeeEmail != null;
 	}
 }

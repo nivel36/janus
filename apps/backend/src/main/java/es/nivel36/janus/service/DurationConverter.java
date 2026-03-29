@@ -55,7 +55,7 @@ public class DurationConverter implements AttributeConverter<Duration, Long> {
 	 *         {@code null} if input was {@code null}
 	 */
 	@Override
-	public Long convertToDatabaseColumn(Duration duration) {
+	public Long convertToDatabaseColumn(final Duration duration) {
 		return duration != null ? duration.getSeconds() : null;
 	}
 
@@ -68,7 +68,7 @@ public class DurationConverter implements AttributeConverter<Duration, Long> {
 	 *         was {@code null}
 	 */
 	@Override
-	public Duration convertToEntityAttribute(Long dbData) {
+	public Duration convertToEntityAttribute(final Long dbData) {
 		return dbData != null ? Duration.ofSeconds(dbData) : null;
 	}
 }

@@ -103,119 +103,119 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_NOT_FOUND);
 		pd.setTitle("Resource not found");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("EntityNotFoundException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(ResourceNotFoundException.class)
-	ProblemDetail handleResourceNotFound(ResourceNotFoundException ex, final HttpServletRequest request) {
+	ProblemDetail handleResourceNotFound(final ResourceNotFoundException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
 		pd.setType(TYPE_NOT_FOUND);
 		pd.setTitle("Resource not found");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("ResourceNotFoundException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(ResourceAlreadyExistsException.class)
-	ProblemDetail handleResourceAlreadyExists(ResourceAlreadyExistsException ex, final HttpServletRequest request) {
+	ProblemDetail handleResourceAlreadyExists(final ResourceAlreadyExistsException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Resource already exists");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("ResourceAlreadyExistsException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(TimeLogChronologyException.class)
-	ProblemDetail handleTimeLogChronology(TimeLogChronologyException ex, final HttpServletRequest request) {
+	ProblemDetail handleTimeLogChronology(final TimeLogChronologyException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Invalid chronological order");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("TimeLogChronologyException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(TimeLogAlreadyClosedException.class)
-	ProblemDetail handleTimeLogAlreadyClosed(TimeLogAlreadyClosedException ex, final HttpServletRequest request) {
+	ProblemDetail handleTimeLogAlreadyClosed(final TimeLogAlreadyClosedException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Time log already closed");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("TimeLogAlreadyClosedException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(TimeLogDeletedException.class)
-	ProblemDetail handleTimeLogDeleted(TimeLogDeletedException ex, final HttpServletRequest request) {
+	ProblemDetail handleTimeLogDeleted(final TimeLogDeletedException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Time log has been deleted");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("TimeLogDeletedException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(TimeLogModificationNotAllowedException.class)
-	ProblemDetail handleTimeLogModificationNotAllowed(TimeLogModificationNotAllowedException ex,
+	ProblemDetail handleTimeLogModificationNotAllowed(final TimeLogModificationNotAllowedException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Time log not allowed");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("TimeLogModificationNotAllowedException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(ClockOutWithoutClockInException.class)
-	ProblemDetail handleClockOutWithoutClockIn(ClockOutWithoutClockInException ex, final HttpServletRequest request) {
+	ProblemDetail handleClockOutWithoutClockIn(final ClockOutWithoutClockInException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Invalid Clock out");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("ClockOutWithoutClockInException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(WorksiteMismatchOnClockOutException.class)
-	ProblemDetail handleWorksiteMismatchOnClockOut(WorksiteMismatchOnClockOutException ex,
+	ProblemDetail handleWorksiteMismatchOnClockOut(final WorksiteMismatchOnClockOutException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Invalid Clock out");
 		pd.setDetail("Cannot clock out in worksite " + ex.getActual() + " when shift started in " + ex.getExpected());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("WorksiteMismatchOnClockOutException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(ZoneRulesException.class)
-	ProblemDetail handleZoneRulesException(ZoneRulesException ex, final HttpServletRequest request) {
+	ProblemDetail handleZoneRulesException(final ZoneRulesException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Incorrect TimeZone");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("ZoneRulesException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(EventAlreadyFinalizedException.class)
-	ProblemDetail handleEventAlreadyFinalized(EventAlreadyFinalizedException ex, final HttpServletRequest request) {
+	ProblemDetail handleEventAlreadyFinalized(final EventAlreadyFinalizedException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Event already finalized");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("EventAlreadyFinalizedException error {}", pd);
 		return pd;
 	}
@@ -226,7 +226,7 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_ACCESS_DENIED);
 		pd.setTitle("Worksite access denied");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("WorksiteAccessDeniedException error {}", pd);
 		return pd;
 	}
@@ -237,7 +237,7 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_INVALID_ARGUMENT);
 		pd.setTitle("Invalid argument");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("IllegalArgumentException error {}", pd);
 		return pd;
 	}
@@ -248,7 +248,7 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Operation conflict");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.error("IllegalStateException error {}", pd);
 		return pd;
 	}
@@ -259,7 +259,7 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_INVALID_DATE_TIME);
 		pd.setTitle("Invalid date/time format");
 		pd.setDetail("The provided date/time value does not match the expected ISO-8601 format.");
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("DateTimeParseException error {}", pd);
 		return pd;
 	}
@@ -270,7 +270,7 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_INVALID_DATE_TIME);
 		pd.setTitle("Invalid date/time format");
 		pd.setDetail("The provided date/time value is not valid for the requested operation.");
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("DateTimeException error {}", pd);
 		return pd;
 	}
@@ -281,7 +281,7 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_MALFORMED_REQUEST);
 		pd.setTitle("Malformed request");
 		pd.setDetail("The request body could not be parsed. Check JSON syntax, field types and required fields.");
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("HttpMessageNotReadableException error {}", pd);
 		return pd;
 	}
@@ -293,7 +293,7 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_MISSING_PARAMETER);
 		pd.setTitle("Missing parameter");
 		pd.setDetail("Required parameter '" + ex.getParameterName() + "' is missing");
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("MissingServletRequestParameterException error {}", pd);
 		return pd;
 	}
@@ -304,7 +304,7 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_TYPE_MISMATCH);
 		pd.setTitle("Type mismatch");
 		pd.setDetail("Parameter '" + ex.getName() + "' has invalid value " + ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("MethodArgumentTypeMismatchException error {}", pd);
 		return pd;
 	}
@@ -318,13 +318,13 @@ public class JanusExceptionHandler {
 		pd.setDetail("Request contains invalid fields");
 		pd.setProperty("errors", ex.getBindingResult().getFieldErrors().stream()
 				.map(err -> "%s: %s".formatted(err.getField(), err.getDefaultMessage())).toList());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("MethodArgumentNotValidException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(HandlerMethodValidationException.class)
-	ProblemDetail handle(HandlerMethodValidationException ex) {
+	ProblemDetail handle(final HandlerMethodValidationException ex) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_VALIDATION_ERROR);
 		pd.setTitle("Validation error");
@@ -354,18 +354,19 @@ public class JanusExceptionHandler {
 		pd.setDetail("One or more constraints were violated");
 		pd.setProperty("violations", ex.getConstraintViolations().stream()
 				.map(v -> "%s: %s".formatted(v.getPropertyPath(), v.getMessage())).toList());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("ConstraintViolationException error {}", pd);
 		return pd;
 	}
-	
+
 	@ExceptionHandler(AuthorizationDeniedException.class)
-	ProblemDetail handleAuthorizationDeniedException(final AuthorizationDeniedException ex, final HttpServletRequest request) {
+	ProblemDetail handleAuthorizationDeniedException(final AuthorizationDeniedException ex,
+			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
 		pd.setType(TYPE_INTERNAL_ERROR);
 		pd.setTitle("Internal server error");
 		pd.setDetail("An unexpected error occurred");
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.error("AuthorizationDeniedException error", ex);
 		return pd;
 	}
@@ -376,13 +377,13 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_ACCESS_DENIED);
 		pd.setTitle("Access denied");
 		pd.setDetail(ex.getMessage());
-		addCommonProps(pd, request);
+		this.addCommonProps(pd, request);
 		logger.warn("Exception error", ex);
 		return pd;
 	}
 
 	private void addCommonProps(final ProblemDetail pd, final HttpServletRequest request) {
-		pd.setProperty("timestamp", clock.instant().toString());
+		pd.setProperty("timestamp", this.clock.instant().toString());
 		if (request != null) {
 			pd.setProperty("instance", request.getRequestURI());
 		}

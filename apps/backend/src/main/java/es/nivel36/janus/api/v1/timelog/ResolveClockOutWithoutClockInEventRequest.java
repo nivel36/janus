@@ -22,8 +22,8 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Request payload used to resolve a {@code ClockOutWithoutClockInEvent}.
  *
- * @param entryTime mandatory entry time that will be used to build the resolving
- *                  time log
+ * @param entryTime mandatory entry time that will be used to build the
+ *                  resolving time log
  * @param reason    optional reason explaining why the event is being resolved
  */
 public record ResolveClockOutWithoutClockInEventRequest(@NotNull Instant entryTime, String reason) {

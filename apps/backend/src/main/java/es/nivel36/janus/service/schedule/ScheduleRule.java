@@ -125,7 +125,7 @@ public class ScheduleRule implements Serializable {
 	 * </p>
 	 */
 	@OneToMany(mappedBy = "scheduleRule", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<DayOfWeekTimeRange> dayOfWeekRanges = new ArrayList<>();
+	private final List<DayOfWeekTimeRange> dayOfWeekRanges = new ArrayList<>();
 
 	/**
 	 * Protected no-argument constructor required by persistence frameworks.

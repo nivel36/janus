@@ -93,7 +93,7 @@ public class KeycloakJwtRolesConverter {
 
 	private static Stream<GrantedAuthority> getRolesFromMap(final Map<String, Object> source) {
 		final Object roles = source.get("roles");
-		if (!(roles instanceof Collection<?> roleValues)) {
+		if (!(roles instanceof final Collection<?> roleValues)) {
 			return Stream.empty();
 		}
 

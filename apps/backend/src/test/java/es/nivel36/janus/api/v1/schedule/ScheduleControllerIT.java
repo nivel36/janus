@@ -15,9 +15,9 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
-import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -50,7 +50,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testCreateScheduleShouldReturn201AndBody() throws Exception {
-		String body = """
+		final String body = """
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
@@ -72,7 +72,7 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -83,7 +83,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testCreateDuplicatedScheduleShouldReturn400() throws Exception {
-		String body = """
+		final String body = """
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
@@ -105,11 +105,11 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
@@ -117,7 +117,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testGetSchedulesShouldReturn200AndBody() throws Exception {
-		String body = """
+		final String body = """
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
@@ -139,11 +139,11 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(get(BASE).with(jwt()//
+		this.mvc.perform(get(BASE).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -152,7 +152,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testFindScheduleShouldReturn200AndBody() throws Exception {
-		String body = """
+		final String body = """
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
@@ -174,11 +174,11 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(get(BASE + "/{code}", "STD-WH").with(jwt()//
+		this.mvc.perform(get(BASE + "/{code}", "STD-WH").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -188,7 +188,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testUpdateScheduleShouldReturn200AndBody() throws Exception {
-		String createBody = """
+		final String createBody = """
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
@@ -210,11 +210,11 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(createBody).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(createBody).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		String updateBody = """
+		final String updateBody = """
 				{
 				  "name": "Updated Work Hours",
 				  "rules": [
@@ -235,7 +235,7 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(put(BASE + "/{code}", "STD-WH").contentType(APPLICATION_JSON).content(updateBody).with(jwt()//
+		this.mvc.perform(put(BASE + "/{code}", "STD-WH").contentType(APPLICATION_JSON).content(updateBody).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -245,7 +245,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testDeleteScheduleShouldReturn204() throws Exception {
-		String body = """
+		final String body = """
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
@@ -267,11 +267,11 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(delete(BASE + "/{code}", "STD-WH").with(jwt()//
+		this.mvc.perform(delete(BASE + "/{code}", "STD-WH").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 	}
@@ -280,7 +280,7 @@ class ScheduleControllerIT {
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES (1,'IN-USE','In Use Schedule')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES (1,'Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void testDeleteScheduleWithAssignedEmployeesShouldReturn409() throws Exception {
-		mvc.perform(delete(BASE + "/{code}", "IN-USE").with(jwt()//
+		this.mvc.perform(delete(BASE + "/{code}", "IN-USE").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isConflict()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));

@@ -15,8 +15,8 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
-import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -48,9 +48,10 @@ class AppUserControllerIT {
 	private static final String BASE = "/api/v1/appusers";
 
 	@Test
-	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
+	@Sql(statements = {
+			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testFindByUsernameShouldReturnUser() throws Exception {
-		mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt()//
+		this.mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -62,36 +63,37 @@ class AppUserControllerIT {
 
 	@Test
 	void testFindUnknownUserShouldReturn404() throws Exception {
-		mvc.perform(get(BASE + "/{username}", "unknown").with(jwt()//
+		this.mvc.perform(get(BASE + "/{username}", "unknown").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	void testFindWithInvalidPatternShouldFail400() throws Exception {
-		mvc.perform(get(BASE + "/{username}", "bad user").with(jwt())) //
+		this.mvc.perform(get(BASE + "/{username}", "bad user").with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
-	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
+	@Sql(statements = {
+			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
-		String body = """
+		final String body = """
 				  {"username":"jdoe","locale":"en-US","timeFormat":"H24","defaultTimezone":"Europe/Madrid"}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testCreateShouldReturn201AndBody() throws Exception {
-		String body = """
+		final String body = """
 				  {"username":"asmith","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Europe/London"}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -99,47 +101,48 @@ class AppUserControllerIT {
 				.andExpect(jsonPath("$.locale").value("en-GB")) //
 				.andExpect(jsonPath("$.timeFormat").value("H12")) //
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/London"));
-		mvc.perform(get(BASE + "/{username}", "asmith").with(jwt()//
+		this.mvc.perform(get(BASE + "/{username}", "asmith").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk());
 	}
 
 	@Test
 	void testCreateShouldRejectInvalidTimezone() throws Exception {
-		String body = """
+		final String body = """
 				  {"username":"asmith","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Mars/Olympus"}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testCreateShouldAcceptUsernamesWithAtSign() throws Exception {
-		String body = """
+		final String body = """
 				  {"username":"alice@example.com","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Europe/London"}
 				""";
 
-		mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(jsonPath("$.username").value("alice@example.com")) //
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/London"));
 
-		mvc.perform(get(BASE + "/{username}", "alice@example.com").with(jwt()//
+		this.mvc.perform(get(BASE + "/{username}", "alice@example.com").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.username").value("alice@example.com"));
 	}
 
 	@Test
-	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
+	@Sql(statements = {
+			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
-		String body = """
+		final String body = """
 				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
 				""";
 
-		mvc.perform(put(BASE + "/{username}", "jdoe").with(jwt()//
+		this.mvc.perform(put(BASE + "/{username}", "jdoe").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))) //
 				.contentType(APPLICATION_JSON).content(body)) //
 				.andExpect(status().isOk()) //
@@ -150,13 +153,14 @@ class AppUserControllerIT {
 	}
 
 	@Test
-	@Sql(statements = { "INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
+	@Sql(statements = {
+			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
-		mvc.perform(delete(BASE + "/{username}", "jdoe").with(jwt()//
+		this.mvc.perform(delete(BASE + "/{username}", "jdoe").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
-		mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt()//
+		this.mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNotFound()); //
 	}

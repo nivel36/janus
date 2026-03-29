@@ -87,7 +87,7 @@ public class AppUserController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole && !authenticatedEmail.equals(username)) {
 			throw new AccessDeniedException("Employees can only search his own user");
@@ -130,18 +130,18 @@ public class AppUserController {
 	public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
 	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
 			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-	String username, @Valid @RequestBody final UpdateAppUserRequest request,final @AuthenticationPrincipal Jwt jwt) {
+	String username, @Valid @RequestBody final UpdateAppUserRequest request, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Update app user ACTION performed");
-		
+
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 		if (employeeRole && !authenticatedEmail.equals(username)) {
 			throw new AccessDeniedException("Employees can only update his own user");
 		}
 		final boolean userRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_USER"));
-		
+				.anyMatch(a -> "ROLE_JANUS_USER".equals(a.getAuthority()));
+
 		if (userRole && !authenticatedEmail.equals(username)) {
 			throw new AccessDeniedException("Users can only update his own user");
 		}

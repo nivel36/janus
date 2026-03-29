@@ -41,7 +41,7 @@ public final class TimeLogs implements Iterable<TimeLog> {
 		Objects.requireNonNull(timeLogs, "timeLogsList cannot be null");
 
 		if (timeLogs.stream().anyMatch(Objects::isNull)) {
-		    throw new NullPointerException("timeLogsList contains null elements");
+			throw new NullPointerException("timeLogsList contains null elements");
 		}
 
 		final List<TimeLog> sorted = timeLogs.stream() //
@@ -94,20 +94,20 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	 * Returns the total worked duration across all time logs.
 	 */
 	public Duration getTotalDuration() {
-		return timeLogsList.stream().map(TimeLog::getWorkDuration).reduce(Duration.ZERO, Duration::plus);
+		return this.timeLogsList.stream().map(TimeLog::getWorkDuration).reduce(Duration.ZERO, Duration::plus);
 	}
 
 	@Override
 	public Iterator<TimeLog> iterator() {
-		return timeLogsList.iterator();
+		return this.timeLogsList.iterator();
 	}
 
 	public boolean isEmpty() {
-		return timeLogsList.isEmpty();
+		return this.timeLogsList.isEmpty();
 	}
 
 	public int size() {
-		return timeLogsList.size();
+		return this.timeLogsList.size();
 	}
 
 	/**

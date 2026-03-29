@@ -39,6 +39,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 public class ApplicationSettings implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
 	public static final Long GLOBAL_SETTINGS_ID = 1L;
 
 	/**
@@ -156,7 +157,7 @@ public class ApplicationSettings implements Serializable {
 
 	/**
 	 * Sets the identifier of this application settings.
-	 * 
+	 *
 	 * <p>
 	 * This method is intended for testing purposes only and should not be used in
 	 * production code. It exists to allow controlled assignment of the identifier
@@ -165,7 +166,7 @@ public class ApplicationSettings implements Serializable {
 	 *
 	 * @param id the identifier to assign
 	 */
-	void setId(Long id) {
+	void setId(final Long id) {
 		this.id = id;
 	}
 

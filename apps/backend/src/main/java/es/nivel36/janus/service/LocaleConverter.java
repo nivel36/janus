@@ -25,11 +25,11 @@ public class LocaleConverter implements AttributeConverter<Locale, String> {
 
 	@Override
 	public String convertToDatabaseColumn(final Locale locale) {
-		return (locale != null ? locale.toLanguageTag() : null);
+		return locale != null ? locale.toLanguageTag() : null;
 	}
 
 	@Override
 	public Locale convertToEntityAttribute(final String dbValue) {
-		return (dbValue != null ? Locale.forLanguageTag(dbValue) : null);
+		return dbValue != null ? Locale.forLanguageTag(dbValue) : null;
 	}
 }

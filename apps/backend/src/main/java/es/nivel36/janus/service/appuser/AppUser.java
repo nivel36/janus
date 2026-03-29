@@ -69,7 +69,8 @@ public class AppUser implements Serializable {
 		this(username, locale, timeFormat, DEFAULT_TIMEZONE);
 	}
 
-	public AppUser(final String username, final Locale locale, final TimeFormat timeFormat, final ZoneId defaultTimezone) {
+	public AppUser(final String username, final Locale locale, final TimeFormat timeFormat,
+			final ZoneId defaultTimezone) {
 		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
@@ -77,7 +78,7 @@ public class AppUser implements Serializable {
 	}
 
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	void setId(final Long id) {
@@ -85,11 +86,11 @@ public class AppUser implements Serializable {
 	}
 
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 
 	public Locale getLocale() {
-		return locale;
+		return this.locale;
 	}
 
 	public void setLocale(final Locale locale) {
@@ -97,7 +98,7 @@ public class AppUser implements Serializable {
 	}
 
 	public TimeFormat getTimeFormat() {
-		return timeFormat;
+		return this.timeFormat;
 	}
 
 	public void setTimeFormat(final TimeFormat timeFormat) {
@@ -105,7 +106,7 @@ public class AppUser implements Serializable {
 	}
 
 	public ZoneId getDefaultTimezone() {
-		return defaultTimezone;
+		return this.defaultTimezone;
 	}
 
 	public void setDefaultTimezone(final ZoneId defaultTimezone) {
@@ -117,7 +118,7 @@ public class AppUser implements Serializable {
 		if (this == obj) {
 			return true;
 		}
-		if ((obj == null) || (this.getClass() != obj.getClass())) {
+		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final AppUser other = (AppUser) obj;

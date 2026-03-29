@@ -82,7 +82,7 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	 * If no anchor is found, if the input list is empty, or if the computed range
 	 * is invalid, an empty list is returned.
 	 * </p>
-	 * 
+	 *
 	 * Precondition:</br>
 	 * - pauses must contain at least two pause</br>
 	 * - timeLogs must contain at least two timeLog
@@ -111,18 +111,17 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 			throw new IllegalStateException("At least two time logs are required");
 		}
 
-		final TimeLog anchor = findAnchor(date, timeLogs);
+		final TimeLog anchor = this.findAnchor(date, timeLogs);
 		if (anchor == null) {
 			return new TimeLogs(List.of());
 		}
 
-		final PauseInfo leftPause = findLastPauseBefore(anchor, pauses);
-		final PauseInfo rightPause = findFirstPauseAfterOrAt(anchor, pauses);
+		final PauseInfo leftPause = this.findLastPauseBefore(anchor, pauses);
+		final PauseInfo rightPause = this.findFirstPauseAfterOrAt(anchor, pauses);
 
-		final int startIndex = (leftPause != null) ? indexOfOrFail(timeLogs, leftPause.after(), "left pause 'after'")
-				: 0;
+		final int startIndex = leftPause != null ? indexOfOrFail(timeLogs, leftPause.after(), "left pause 'after'") : 0;
 
-		final int endIndex = (rightPause != null) ? indexOfOrFail(timeLogs, rightPause.before(), "right pause 'before'")
+		final int endIndex = rightPause != null ? indexOfOrFail(timeLogs, rightPause.before(), "right pause 'before'")
 				: timeLogs.size() - 1;
 
 		if (startIndex > endIndex) {
@@ -136,7 +135,7 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	private TimeLog findAnchor(final LocalDate date, final TimeLogs timeLogs) {
 		for (final TimeLog log : timeLogs) {
 			final Instant in = log.getEntryTime();
-			if (in != null && in.atZone(zoneId).toLocalDate().equals(date)) {
+			if (in != null && in.atZone(this.zoneId).toLocalDate().equals(date)) {
 				return log;
 			}
 		}

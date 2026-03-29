@@ -66,9 +66,9 @@ import jakarta.validation.constraints.NotNull;
  * <strong>Soft delete:</strong> this entity uses logical deletion via the
  * {@code deleted} flag. The Hibernate annotations
  * {@link org.hibernate.annotations.SQLDelete} and
- * {@link org.hibernate.annotations.SQLRestriction} ensure that delete operations
- * update the flag instead of physically removing the row, and that queries
- * exclude logically deleted records by default.
+ * {@link org.hibernate.annotations.SQLRestriction} ensure that delete
+ * operations update the flag instead of physically removing the row, and that
+ * queries exclude logically deleted records by default.
  * </p>
  *
  * <p>
@@ -126,8 +126,8 @@ public class Worksite implements Serializable {
 	 *
 	 * <p>
 	 * Determines how local dates and times are interpreted for this worksite. The
-	 * value is persisted as a string (for example, {@code "Europe/Madrid"}) using
-	 * a JPA {@link jakarta.persistence.Converter}.
+	 * value is persisted as a string (for example, {@code "Europe/Madrid"}) using a
+	 * JPA {@link jakarta.persistence.Converter}.
 	 * </p>
 	 */
 	@NotNull
@@ -153,9 +153,9 @@ public class Worksite implements Serializable {
 	 *
 	 * <p>
 	 * This association is optional for {@link WorksiteScope#GLOBAL} and
-	 * {@link WorksiteScope#ASSIGNED} worksites. For
-	 * {@link WorksiteScope#PERSONAL} worksites, it is mandatory and identifies the
-	 * single employee that owns the worksite.
+	 * {@link WorksiteScope#ASSIGNED} worksites. For {@link WorksiteScope#PERSONAL}
+	 * worksites, it is mandatory and identifies the single employee that owns the
+	 * worksite.
 	 * </p>
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -348,8 +348,7 @@ public class Worksite implements Serializable {
 			this.ownerEmployee = null;
 			return;
 		}
-		this.ownerEmployee = Objects.requireNonNull(ownerEmployee,
-				"personal worksites require an owner employee");
+		this.ownerEmployee = Objects.requireNonNull(ownerEmployee, "personal worksites require an owner employee");
 	}
 
 	public boolean isDeleted() {

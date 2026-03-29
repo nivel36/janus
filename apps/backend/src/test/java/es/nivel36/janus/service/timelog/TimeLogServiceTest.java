@@ -67,7 +67,7 @@ class TimeLogServiceTest {
 		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", new Schedule("CODE", "Name"));
 		final ZoneId utcZone = ZoneId.of("UTC");
 		this.worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
-		employee.assignToWorksite(worksite);
+		this.employee.assignToWorksite(this.worksite);
 		when(this.clock.getZone()).thenReturn(utcZone);
 		when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv -> inv.getArgument(0));
 	}
@@ -83,7 +83,7 @@ class TimeLogServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
-		final Instant entry = now();
+		final Instant entry = this.now();
 
 		// Act
 		final TimeLog timeLog = this.timeLogService.clockIn(this.employee, this.worksite, entry);
@@ -101,7 +101,7 @@ class TimeLogServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		final Instant now = now();
+		final Instant now = this.now();
 		assertThrows(NullPointerException.class, () -> {
 			this.timeLogService.clockIn(null, this.worksite, now);
 		});
@@ -129,11 +129,11 @@ class TimeLogServiceTest {
 				.thenReturn(existingTimeLog);
 
 		// Act
-		final TimeLog result = this.timeLogService.clockOut(this.employee, this.worksite, now());
+		final TimeLog result = this.timeLogService.clockOut(this.employee, this.worksite, this.now());
 
 		// Assert
 		assertNotNull(result);
-		assertEquals(now(), result.getExitTime());
+		assertEquals(this.now(), result.getExitTime());
 	}
 
 	@Test
@@ -144,7 +144,7 @@ class TimeLogServiceTest {
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 		when(this.timeLogRepository.findTopByEmployeeAndExitTimeIsNullOrderByEntryTimeDesc(this.employee))
 				.thenReturn(null);
-		final Instant now = now();
+		final Instant now = this.now();
 		assertThrows(ClockOutWithoutClockInException.class, () -> {
 			this.timeLogService.clockOut(this.employee, this.worksite, now);
 		});
@@ -191,7 +191,7 @@ class TimeLogServiceTest {
 		// Act & Assert
 		final Instant oneHourBefore = fixedNow.minus(1, ChronoUnit.HOURS);
 		assertThrows(NullPointerException.class,
-				() -> timeLogService.createTimeLog(employee, worksite, null, oneHourBefore));
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, null, oneHourBefore));
 		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
@@ -212,16 +212,16 @@ class TimeLogServiceTest {
 
 	@ParameterizedTest(name = "{index} => {0}")
 	@MethodSource("provideInvalidEntryExitPairs")
-	void testCreateTimeLogInvalidEntryExitShouldThrow(String description, Instant entry, Instant exit) {
+	void testCreateTimeLogInvalidEntryExitShouldThrow(final String description, final Instant entry, final Instant exit) {
 
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(clock.instant()).thenReturn(fixedNow);
-		when(applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		assertThrows(TimeLogModificationNotAllowedException.class,
-				() -> timeLogService.createTimeLog(employee, worksite, entry, exit));
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, entry, exit));
 
-		verify(timeLogRepository, times(0)).save(any());
+		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
 	private static Stream<Arguments> provideInvalidEntryExitPairs() {

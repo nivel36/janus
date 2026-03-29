@@ -168,7 +168,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * @return the detection instant, never {@code null}.
 	 */
 	public Instant getDetectedAt() {
-		return detectedAt;
+		return this.detectedAt;
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * @return the employee, never {@code null}.
 	 */
 	public Employee getEmployee() {
-		return employee;
+		return this.employee;
 	}
 
 	/**
@@ -186,7 +186,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * @return the exit time, never {@code null}.
 	 */
 	public Instant getExitTime() {
-		return exitTime;
+		return this.exitTime;
 	}
 
 	/**
@@ -196,7 +196,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 *         persisted.
 	 */
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * @return the reason, or {@code null} if none was provided.
 	 */
 	public String getReason() {
-		return reason;
+		return this.reason;
 	}
 
 	/**
@@ -216,7 +216,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 *         resolved.
 	 */
 	public TimeLog getResolvedTimeLog() {
-		return resolvedTimeLog;
+		return this.resolvedTimeLog;
 	}
 
 	/**
@@ -225,9 +225,9 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * @return the worksite, never {@code null}.
 	 */
 	public Worksite getWorksite() {
-		return worksite;
+		return this.worksite;
 	}
-	
+
 	/**
 	 * Sets the identifier of this event.
 	 *
@@ -247,7 +247,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * @return {@code true} if the event is finalized; {@code false} otherwise.
 	 */
 	public boolean isFinalized() {
-		return invalidated || resolved;
+		return this.invalidated || this.resolved;
 	}
 
 	/**
@@ -256,7 +256,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * @return {@code true} if the event is invalidated; {@code false} otherwise.
 	 */
 	public boolean isInvalidated() {
-		return invalidated;
+		return this.invalidated;
 	}
 
 	/**
@@ -265,7 +265,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * @return {@code true} if the event is resolved; {@code false} otherwise.
 	 */
 	public boolean isResolved() {
-		return resolved;
+		return this.resolved;
 	}
 
 	/**
@@ -329,7 +329,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	}
 
 	private void assertNotFinalized() {
-		if (isFinalized()) {
+		if (this.isFinalized()) {
 			throw new EventAlreadyFinalizedException();
 		}
 	}
@@ -339,22 +339,22 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 		if (this == obj) {
 			return true;
 		}
-		if ((obj == null) || (getClass() != obj.getClass())) {
+		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
 		final ClockOutWithoutClockInEvent other = (ClockOutWithoutClockInEvent) obj;
-		return Objects.equals(detectedAt, other.detectedAt) && Objects.equals(employee, other.employee)
-				&& Objects.equals(exitTime, other.exitTime) && Objects.equals(worksite, other.worksite);
+		return Objects.equals(this.detectedAt, other.detectedAt) && Objects.equals(this.employee, other.employee)
+				&& Objects.equals(this.exitTime, other.exitTime) && Objects.equals(this.worksite, other.worksite);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(detectedAt, employee, exitTime, worksite);
+		return Objects.hash(this.detectedAt, this.employee, this.exitTime, this.worksite);
 	}
 
 	@Override
 	public String toString() {
-		return "ClockOutWithoutClockInEvent [employee=" + employee + ", worksite=" + worksite + ", exitTime=" + exitTime
-				+ ", detectedAt=" + detectedAt + ", resolved=" + resolved + "]";
+		return "ClockOutWithoutClockInEvent [employee=" + this.employee + ", worksite=" + this.worksite + ", exitTime="
+				+ this.exitTime + ", detectedAt=" + this.detectedAt + ", resolved=" + this.resolved + "]";
 	}
 }

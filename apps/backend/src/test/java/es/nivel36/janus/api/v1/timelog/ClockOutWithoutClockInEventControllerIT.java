@@ -55,8 +55,8 @@ class ClockOutWithoutClockInEventControllerIT {
 	@BeforeEach
 	void beforeTest() {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 8, 0, 0).toInstant(ZoneOffset.UTC);
-		when(clock.instant()).thenReturn(fixedNow);
-		when(clock.getZone()).thenReturn(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.clock.getZone()).thenReturn(ZoneOffset.UTC);
 	}
 
 	@Test
@@ -70,7 +70,7 @@ class ClockOutWithoutClockInEventControllerIT {
 	void testFindClockOutWithoutClockInEventShouldAllowTransferredPersonalWorksite() throws Exception {
 		final String exit = "2025-08-04T16:00:00Z";
 
-		mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", exit) //
+		this.mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF").with(jwt())) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -96,7 +96,7 @@ class ClockOutWithoutClockInEventControllerIT {
 				  {"entryTime":"%s","reason":"Worked from home before the transfer"}
 				""".formatted(entry);
 
-		mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", exit) //
+		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
 				.contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isOk()) //
@@ -122,7 +122,7 @@ class ClockOutWithoutClockInEventControllerIT {
 				  {"reason":"Handled manually after transfer"}
 				""";
 
-		mvc.perform(post(BASE + "/{exitTime}/invalidate", "aferrer@nivel36.es", exit) //
+		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
 				.contentType(APPLICATION_JSON).content(body).with(jwt())) //
 				.andExpect(status().isOk()) //

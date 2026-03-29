@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 @TestConfiguration
 public class SecurityTestConfiguration {
-	
+
 	@Bean
 	JwtDecoder jwtDecoder() {
 		return token -> Jwt.withTokenValue(token) //

@@ -15,11 +15,10 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,8 +58,8 @@ class TimeLogControllerIT {
 	@BeforeEach
 	void beforeTest() {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 8, 0, 0).toInstant(ZoneOffset.UTC);
-		when(clock.instant()).thenReturn(fixedNow);
-		when(clock.getZone()).thenReturn(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.clock.getZone()).thenReturn(ZoneOffset.UTC);
 	}
 
 	@Test
@@ -73,7 +72,7 @@ class TimeLogControllerIT {
 	void testClockInShouldAllowGlobalWorksite() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -93,7 +92,7 @@ class TimeLogControllerIT {
 	void testClockInShouldAllowOwnPersonalWorksite() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "HOME-AF") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -114,7 +113,7 @@ class TimeLogControllerIT {
 	void testClockInShouldAllowAssignedWorksiteWhenEmployeeIsAssigned() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-PROJ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -134,7 +133,7 @@ class TimeLogControllerIT {
 	void testClockInShouldRejectAssignedWorksiteWhenEmployeeIsNotAssigned() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-PROJ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -156,7 +155,7 @@ class TimeLogControllerIT {
 	void testClockInShouldRejectForeignPersonalWorksite() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "HOME-ADA") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -175,9 +174,9 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testClockInShouldReturn201AndBody() throws Exception {
-		String entry = "2025-08-04T09:30:00Z";
+		final String entry = "2025-08-04T09:30:00Z";
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -195,15 +194,15 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testClockInWithDuplicatedEntryTimeShouldFail400() throws Exception {
-		String entry = "2025-08-04T09:30:00Z";
+		final String entry = "2025-08-04T09:30:00Z";
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -219,19 +218,19 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testClockInWithDuplicatedDeletedEntryTimeShouldReturn201AndBody() throws Exception {
-		String entry = "2025-08-04T09:30:00Z";
+		final String entry = "2025-08-04T09:30:00Z";
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
+		this.mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -249,10 +248,10 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(id, code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')", //
 			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES (1,1,'2025-08-04T07:30:00Z'::timestamp)" })
 	void testClockOutShouldReturn200AndBody() throws Exception {
-		String entry = "2025-08-04T07:30:00Z";
-		String exit = "2025-08-04T16:00:00Z";
+		final String entry = "2025-08-04T07:30:00Z";
+		final String exit = "2025-08-04T16:00:00Z";
 
-		mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("exitTime", exit).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -275,7 +274,7 @@ class TimeLogControllerIT {
 		final String entry = "2025-08-04T07:30:00Z";
 		final String exit = "2025-08-04T16:00:00Z";
 
-		mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
 				.param("worksiteCode", "HOME-AF") //
 				.param("exitTime", exit).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -294,13 +293,13 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testCreateTimeLogShouldReturn200AndBody() throws Exception {
-		String entry = "2025-08-05T07:30:00Z";
-		String exit = "2025-08-05T16:00:00Z";
-		String body = """
+		final String entry = "2025-08-05T07:30:00Z";
+		final String exit = "2025-08-05T16:00:00Z";
+		final String body = """
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
 
-		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -320,19 +319,19 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testCreateDuplicatedTimeLogShouldReturn400() throws Exception {
-		String entry = "2025-08-05T09:00:00Z";
-		String exit = "2025-08-05T17:30:00Z";
-		String body = """
+		final String entry = "2025-08-05T09:00:00Z";
+		final String exit = "2025-08-05T17:30:00Z";
+		final String body = """
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
 
-		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isOk());
 
-		mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -348,13 +347,13 @@ class TimeLogControllerIT {
 	})
 	void testSearchByEmployeeShouldReturn200() throws Exception {
 		// seed: one log //
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", "2025-08-06T08:00:00Z").with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(get(BASE + "/", "aferrer@nivel36.es").with(jwt()//
+		this.mvc.perform(get(BASE + "/", "aferrer@nivel36.es").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON));
@@ -368,12 +367,12 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testSearchByEmployeeWithInvalidRangeShouldFail400() throws Exception {
-		mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
+		this.mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
 				.param("fromInstant", "2025-08-10T10:00:00Z").with(jwt()//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 
-		mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
+		this.mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
 				.param("fromInstant", "2025-08-10T10:00:00Z") //
 				.param("toInstant", "2025-08-09T10:00:00Z").with(jwt()//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
@@ -388,16 +387,16 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testFindTimeLogByEmployeeAndEntryTimeShouldReturnBody() throws Exception {
-		String entry = "2025-08-07T07:45:00Z";
+		final String entry = "2025-08-07T07:45:00Z";
 
 		// seed //
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
+		this.mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -413,36 +412,36 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testDeleteShouldReturn204AndFindReturns404() throws Exception {
-		String entry = "2025-08-07T06:30:00Z";
+		final String entry = "2025-08-07T06:30:00Z";
 
 		// seed //
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
 		// delete //
-		mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
+		this.mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
 		// verify //
-		mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
+		this.mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))//
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	void testClockInWithInvalidEmailShouldFail400() throws Exception {
-		mvc.perform(post(BASE + "/clock-in", "bad email") //
+		this.mvc.perform(post(BASE + "/clock-in", "bad email") //
 				.param("worksiteCode", "BCN-HQ").with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testClockInWithInvalidWorksiteCodeShouldFail400() throws Exception {
-		mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
+		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BAD CODE").with(jwt())) //
 				.andExpect(status().isBadRequest());
 	}

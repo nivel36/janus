@@ -28,6 +28,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
 
 /**
@@ -100,7 +101,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * been closed yet (i.e. {@code exitTime IS NULL}), ordered by {@code entryTime}
 	 * descending.
 	 *
-	 * @param employee the employee whose last open time log is to be found 
+	 * @param employee the employee whose last open time log is to be found
 	 * @return the most recent open time log, or {@code null} if none exist
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })

@@ -76,7 +76,7 @@ final class WorkShiftComposer {
 	 *         returned work shift will contain no time logs and zero durations.
 	 * @throws NullPointerException if any of the parameters is {@code null}
 	 */
-	WorkShift compose(Employee employee, LocalDate date, TimeLogs orderedLogs) {
+	WorkShift compose(final Employee employee, final LocalDate date, final TimeLogs orderedLogs) {
 		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(date, "date can't be null");
 		Objects.requireNonNull(orderedLogs, "orderedLogs can't be null");

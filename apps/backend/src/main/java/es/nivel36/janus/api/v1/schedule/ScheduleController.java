@@ -81,7 +81,7 @@ public class ScheduleController {
 		logger.debug("List schedules ACTION performed");
 
 		final List<Schedule> schedules = this.scheduleService.findAllSchedules();
-		final List<ScheduleResponse> responses = schedules.stream().map(scheduleResponseMapper::map).toList();
+		final List<ScheduleResponse> responses = schedules.stream().map(this.scheduleResponseMapper::map).toList();
 		return ResponseEntity.ok(responses);
 	}
 
@@ -103,9 +103,9 @@ public class ScheduleController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
-		if (employeeRole && !employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
+		if (employeeRole && !this.employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
 			throw new AccessDeniedException("Employees can only search his own schedule");
 		}
 
@@ -131,8 +131,8 @@ public class ScheduleController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	public List<ScheduleRuleDefinition> map(List<ScheduleRuleRequest> rules) {
-		return rules.stream().map(scheduleRuleDefinitionMapper::map).toList();
+	public List<ScheduleRuleDefinition> map(final List<ScheduleRuleRequest> rules) {
+		return rules.stream().map(this.scheduleRuleDefinitionMapper::map).toList();
 	}
 
 	/**

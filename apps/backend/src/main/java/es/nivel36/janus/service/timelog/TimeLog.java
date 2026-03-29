@@ -49,7 +49,7 @@ import jakarta.validation.constraints.NotNull;
  * the entry time, which together form the natural key. This constraint is
  * enforced at the database level.
  * </p>
- * 
+ *
  * <p>
  * For calculation efficiency reasons, the duration of the object is calculated
  * automatically once it is closed using the {@link #close(Instant)} method.
@@ -108,8 +108,8 @@ public class TimeLog implements Serializable {
 	/**
 	 * The work shift to which this time log belongs.
 	 * <p>
-	 * This association is optional while the work shift is being composed, but
-	 * once assigned it should remain immutable.
+	 * This association is optional while the work shift is being composed, but once
+	 * assigned it should remain immutable.
 	 * </p>
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -164,8 +164,8 @@ public class TimeLog implements Serializable {
 	}
 
 	/**
-	 * Creates a new open {@link TimeLog} with the given employee, worksite and entry
-	 * time.
+	 * Creates a new open {@link TimeLog} with the given employee, worksite and
+	 * entry time.
 	 *
 	 * @param employee  the employee associated with this time log; can't be
 	 *                  {@code null}
@@ -182,8 +182,8 @@ public class TimeLog implements Serializable {
 	}
 
 	/**
-	 * Creates a new closed {@link TimeLog} with the given employee, worksite, entry time
-	 * and exit time.
+	 * Creates a new closed {@link TimeLog} with the given employee, worksite, entry
+	 * time and exit time.
 	 *
 	 * @param employee  the employee associated with this time log; can't be
 	 *                  {@code null}
@@ -227,7 +227,7 @@ public class TimeLog implements Serializable {
 	 * @return the associated {@link Worksite}; never {@code null}
 	 */
 	public Worksite getWorksite() {
-		return worksite;
+		return this.worksite;
 	}
 
 	/**
@@ -236,7 +236,7 @@ public class TimeLog implements Serializable {
 	 * @return the associated {@link WorkShift}, or {@code null} if not assigned
 	 */
 	public WorkShift getWorkShift() {
-		return workShift;
+		return this.workShift;
 	}
 
 	/**
@@ -273,7 +273,7 @@ public class TimeLog implements Serializable {
 	 * @return {@code true} if the time log is deleted; {@code false} otherwise
 	 */
 	public boolean isDeleted() {
-		return deleted;
+		return this.deleted;
 	}
 
 	/**
@@ -293,7 +293,7 @@ public class TimeLog implements Serializable {
 
 	/**
 	 * Sets the identifier of this time log.
-	 * 
+	 *
 	 * <p>
 	 * This method is intended for testing purposes only and should not be used in
 	 * production code. It exists to allow controlled assignment of the identifier
@@ -308,7 +308,7 @@ public class TimeLog implements Serializable {
 
 	/**
 	 * Marks this time log as logically deleted or not.
-	 * 
+	 *
 	 * <p>
 	 * This method is intended for testing purposes only and should not be used in
 	 * production code. It exists to allow controlled assignment of the identifier
@@ -337,7 +337,7 @@ public class TimeLog implements Serializable {
 	 */
 	public void close(final Instant exitTime) {
 		Objects.requireNonNull(exitTime, "exitTime cannot be null");
-		if (isClosed()) {
+		if (this.isClosed()) {
 			throw new TimeLogAlreadyClosedException();
 		}
 		this.assertNotDeleted();
@@ -347,7 +347,7 @@ public class TimeLog implements Serializable {
 	}
 
 	private void assertNotDeleted() {
-		if (deleted) {
+		if (this.deleted) {
 			throw new TimeLogDeletedException("TimeLog is deleted and cannot be modified");
 		}
 	}
@@ -366,7 +366,7 @@ public class TimeLog implements Serializable {
 	 *         otherwise
 	 */
 	public boolean isOpen() {
-		return exitTime == null;
+		return this.exitTime == null;
 	}
 
 	/**
@@ -376,7 +376,7 @@ public class TimeLog implements Serializable {
 	 *         otherwise
 	 */
 	public boolean isClosed() {
-		return exitTime != null;
+		return this.exitTime != null;
 	}
 
 	@Override

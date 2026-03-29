@@ -24,16 +24,16 @@ public class EventAlreadyFinalizedException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a new {@code EventAlreadyFinalizedException} with no detail message or
-	 * cause.
+	 * Creates a new {@code EventAlreadyFinalizedException} with no detail message
+	 * or cause.
 	 */
 	public EventAlreadyFinalizedException() {
 		super("The ClockOutWithoutClockInEvent record cannot be finalized because it has already been finalized.");
 	}
 
 	/**
-	 * Creates a new {@code EventAlreadyFinalizedException} with the specified detail
-	 * message.
+	 * Creates a new {@code EventAlreadyFinalizedException} with the specified
+	 * detail message.
 	 *
 	 * @param message the detail message (saved for later retrieval by
 	 *                {@link Throwable#getMessage()})
@@ -43,7 +43,8 @@ public class EventAlreadyFinalizedException extends RuntimeException {
 	}
 
 	/**
-	 * Creates a new {@code EventAlreadyFinalizedException} with the specified cause.
+	 * Creates a new {@code EventAlreadyFinalizedException} with the specified
+	 * cause.
 	 *
 	 * @param cause the cause (saved for later retrieval by
 	 *              {@link Throwable#getCause()}). A {@code null} value is
@@ -54,8 +55,8 @@ public class EventAlreadyFinalizedException extends RuntimeException {
 	}
 
 	/**
-	 * Creates a new {@code EventAlreadyFinalizedException} with the specified detail
-	 * message and cause.
+	 * Creates a new {@code EventAlreadyFinalizedException} with the specified
+	 * detail message and cause.
 	 *
 	 * @param message the detail message
 	 * @param cause   the cause (a {@code null} value is permitted)
@@ -65,9 +66,9 @@ public class EventAlreadyFinalizedException extends RuntimeException {
 	}
 
 	/**
-	 * Creates a new {@code EventAlreadyFinalizedException} with the specified detail
-	 * message, cause, suppression enabled or disabled, and writable stack trace
-	 * enabled or disabled.
+	 * Creates a new {@code EventAlreadyFinalizedException} with the specified
+	 * detail message, cause, suppression enabled or disabled, and writable stack
+	 * trace enabled or disabled.
 	 *
 	 * @param message            the detail message
 	 * @param cause              the cause (a {@code null} value is permitted)

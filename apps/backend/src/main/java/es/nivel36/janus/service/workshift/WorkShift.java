@@ -290,7 +290,7 @@ public class WorkShift implements Serializable {
 
 	@Override
 	public String toString() {
-		return "WorkShift [id=" + id + (employee != null ? ", employee=" + employee.getName() : "") + ", date="
-				+ (date != null ? date : "null") + "]";
+		return "WorkShift [id=" + this.id + (this.employee != null ? ", employee=" + this.employee.getName() : "")
+				+ ", date=" + (this.date != null ? this.date : "null") + "]";
 	}
 }

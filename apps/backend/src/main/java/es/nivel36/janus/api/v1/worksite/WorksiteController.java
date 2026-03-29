@@ -92,7 +92,7 @@ public class WorksiteController {
 		logger.debug("List worksites ACTION performed");
 
 		final List<Worksite> worksites = this.worksiteService.findAllWorksites();
-		final List<WorksiteResponse> responses = worksites.stream().map(worksiteResponseMapper::map).toList();
+		final List<WorksiteResponse> responses = worksites.stream().map(this.worksiteResponseMapper::map).toList();
 		return ResponseEntity.ok(responses);
 	}
 
@@ -134,14 +134,14 @@ public class WorksiteController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole) {
 			if (request.scope() != WorksiteScope.PERSONAL) {
 				throw new AccessDeniedException("Employees can only create personal worksites");
 			}
 
-			if (!applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
+			if (!this.applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
 			}
 
@@ -156,7 +156,7 @@ public class WorksiteController {
 
 		final Employee employee = ownerEmployeeEmail == null //
 				? null //
-				: employeeService.findEmployeeByEmail(ownerEmployeeEmail); //
+				: this.employeeService.findEmployeeByEmail(ownerEmployeeEmail); //
 
 		final String code = request.code();
 		final String name = request.name();
@@ -186,7 +186,7 @@ public class WorksiteController {
 
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_JANUS_EMPLOYEE"));
+				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		final Employee ownerEmployee;
 		if (employeeRole) {
@@ -194,23 +194,19 @@ public class WorksiteController {
 				throw new AccessDeniedException("Employees can only update personal worksites");
 			}
 
-			if (!applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
+			if (!this.applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
 			}
 
-			if (!request.ownerEmployeeEmail().equals(authenticatedEmail)) {
+			if (!request.ownerEmployeeEmail().equals(authenticatedEmail) || !this.employeeService.isAssignedToWorksite(worksiteCode, authenticatedEmail)) {
 				throw new AccessDeniedException("Employees can only update their personal worksites");
 			}
 
-			if (!employeeService.isAssignedToWorksite(worksiteCode, authenticatedEmail)) {
-				throw new AccessDeniedException("Employees can only update their personal worksites");
-			}
-
-			ownerEmployee = employeeService.findEmployeeByEmail(request.ownerEmployeeEmail());
+			ownerEmployee = this.employeeService.findEmployeeByEmail(request.ownerEmployeeEmail());
 		} else {
 			ownerEmployee = request.ownerEmployeeEmail() == null //
 					? null //
-					: employeeService.findEmployeeByEmail(request.ownerEmployeeEmail()); //
+					: this.employeeService.findEmployeeByEmail(request.ownerEmployeeEmail()); //
 		}
 		final String name = request.name();
 		final ZoneId zoneId = ZoneId.of(request.timeZone());

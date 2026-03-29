@@ -29,7 +29,7 @@ package es.nivel36.janus.service;
  * <p>
  * <b>Examples:</b>
  * </p>
- * 
+ *
  * <pre>{@code
  * // Service layer example
  * public Employee findEmployeeByEmail(String email) {
@@ -55,7 +55,7 @@ public class ResourceNotFoundException extends RuntimeException {
 	 *
 	 * @param message the detail message providing more information about the cause
 	 */
-	public ResourceNotFoundException(String message) {
+	public ResourceNotFoundException(final String message) {
 		super(message);
 	}
 
@@ -64,7 +64,7 @@ public class ResourceNotFoundException extends RuntimeException {
 	 *
 	 * @param cause the underlying cause of this exception; may be {@code null}
 	 */
-	public ResourceNotFoundException(Throwable cause) {
+	public ResourceNotFoundException(final Throwable cause) {
 		super(cause);
 	}
 
@@ -74,7 +74,7 @@ public class ResourceNotFoundException extends RuntimeException {
 	 * @param message the detail message providing more information about the cause
 	 * @param cause   the underlying cause of this exception; may be {@code null}
 	 */
-	public ResourceNotFoundException(String message, Throwable cause) {
+	public ResourceNotFoundException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
@@ -89,8 +89,8 @@ public class ResourceNotFoundException extends RuntimeException {
 	 * @param enableSuppression  whether suppression is enabled or disabled
 	 * @param writableStackTrace whether the stack trace should be writable
 	 */
-	public ResourceNotFoundException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
+	public ResourceNotFoundException(final String message, final Throwable cause, final boolean enableSuppression,
+			final boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 }

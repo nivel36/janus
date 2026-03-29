@@ -232,7 +232,7 @@ public class EmployeeService {
 		Objects.requireNonNull(employee, "employee can't be null");
 
 		logger.debug("Adding worksite {} to employee {}", worksite, employee);
-		
+
 		final boolean added = employee.assignToWorksite(worksite);
 		if (added) {
 			this.employeeRepository.save(employee);
@@ -320,14 +320,14 @@ public class EmployeeService {
 	 * @return {@code true} if an employee with the given email is assigned to the
 	 *         specified schedule; {@code false} otherwise
 	 */
-	public boolean isAssignedToSchedule(String employeeEmail, String scheduleCode) {
+	public boolean isAssignedToSchedule(final String employeeEmail, final String scheduleCode) {
 		Objects.requireNonNull(employeeEmail, "employeeEmail cannot be null.");
 		Objects.requireNonNull(scheduleCode, "scheduleCode cannot be null.");
 
 		logger.debug("Checking if the employee {} is assigned to schedule {}", employeeEmail, scheduleCode);
 		return this.employeeRepository.existsByEmailAndSchedule_Code(employeeEmail, scheduleCode);
 	}
-	
+
 	/**
 	 * Determines whether an employee identified by the given email address is
 	 * assigned to a worksite with the specified business code.
@@ -351,7 +351,7 @@ public class EmployeeService {
 	 * @return {@code true} if an employee with the given email is assigned to the
 	 *         specified schedule; {@code false} otherwise
 	 */
-	public boolean isAssignedToWorksite(String employeeEmail, String worksiteCode) {
+	public boolean isAssignedToWorksite(final String employeeEmail, final String worksiteCode) {
 		Objects.requireNonNull(employeeEmail, "employeeEmail cannot be null.");
 		Objects.requireNonNull(worksiteCode, "worksiteCode cannot be null.");
 

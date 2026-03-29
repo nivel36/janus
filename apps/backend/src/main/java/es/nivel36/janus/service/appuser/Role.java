@@ -19,7 +19,5 @@ package es.nivel36.janus.service.appuser;
  * Roles supported by the application.
  */
 public enum Role {
-	JANUS_ADMIN,
-	JANUS_USER,
-	JANUS_EMPLOYEE
+	JANUS_ADMIN, JANUS_USER, JANUS_EMPLOYEE
 }

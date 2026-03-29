@@ -12,25 +12,25 @@ import es.nivel36.janus.service.schedule.ScheduleRuleTimeRangeDefinition;
 @Component
 public class ScheduleRuleDefinitionMapper implements Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> {
 
-	private Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper;
+	private final Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper;
 
 	public ScheduleRuleDefinitionMapper(
-			Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper) {
+			final Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper) {
 		this.scheduleRuleTimeRangeDefinitionMapper = Objects.requireNonNull(scheduleRuleTimeRangeDefinitionMapper,
 				"scheduleRuleTimeRangeDefinitionMapper can't be null");
 	}
 
 	@Override
-	public ScheduleRuleDefinition map(ScheduleRuleRequest object) {
+	public ScheduleRuleDefinition map(final ScheduleRuleRequest object) {
 		if (object == null) {
 			return null;
 		}
 		return new ScheduleRuleDefinition(object.name(), object.startDate(), object.endDate(),
-				mapScheduleRuleTimeRangeDefinition(object.dayOfWeekRanges()));
+				this.mapScheduleRuleTimeRangeDefinition(object.dayOfWeekRanges()));
 	}
 
 	public List<ScheduleRuleTimeRangeDefinition> mapScheduleRuleTimeRangeDefinition(
-			List<ScheduleRuleTimeRangeRequest> scheduleRuleTimeRangeRequest) {
-		return scheduleRuleTimeRangeRequest.stream().map(scheduleRuleTimeRangeDefinitionMapper::map).toList();
+			final List<ScheduleRuleTimeRangeRequest> scheduleRuleTimeRangeRequest) {
+		return scheduleRuleTimeRangeRequest.stream().map(this.scheduleRuleTimeRangeDefinitionMapper::map).toList();
 	}
 }
