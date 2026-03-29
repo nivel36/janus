@@ -25,25 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service responsible for managing and retrieving global
  * {@link ApplicationSettings}.
- *
- * <p>
- * This service provides methods to access and update application-wide
- * configuration values stored in a persistent layer. The settings are uniquely
- * identified by {@link ApplicationSettings#GLOBAL_SETTINGS_ID}, meaning there
- * is a single global configuration instance for the entire application.
- *
- * <p>
- * All read operations are executed in a read-only transactional context, while
- * update operations are executed within a standard transactional context to
- * ensure data consistency.
- *
- * <p>
- * Example usage:
- *
- * <pre>{@code
- * ApplicationSettings settings = applicationSettingsService.getApplicationSettings();
- * int days = applicationSettingsService.getDaysUntilLocked();
- * }</pre>
+ * 
  */
 @Service
 public class ApplicationSettingsService {
@@ -87,9 +69,7 @@ public class ApplicationSettingsService {
 	public ApplicationSettings update(final int daysUntilLocked, final boolean employeeWorkplaceCreationAllowed,
 			final boolean worksiteChangeDuringShiftAllowed) {
 		logger.debug("Updating application settings");
-		final ApplicationSettings applicationSettings = this.applicationSettingsRepository
-				.findById(ApplicationSettings.GLOBAL_SETTINGS_ID)
-				.orElseThrow(() -> new IllegalStateException("Global application settings row is missing"));
+		final ApplicationSettings applicationSettings = this.findById();
 		applicationSettings.setDaysUntilLocked(daysUntilLocked);
 		applicationSettings.setEmployeeWorkplaceCreationAllowed(employeeWorkplaceCreationAllowed);
 		applicationSettings.setWorksiteChangeDuringShiftAllowed(worksiteChangeDuringShiftAllowed);
@@ -104,8 +84,12 @@ public class ApplicationSettingsService {
 	 *                               not exist.
 	 */
 	@Transactional(readOnly = true)
-	public ApplicationSettings getApplicationSettings() {
+	public ApplicationSettings findApplicationSettings() {
 		logger.debug("Finding application settings");
+		return this.findById();
+	}
+
+	private ApplicationSettings findById() {
 		return this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID)
 				.orElseThrow(() -> new IllegalStateException("Global application settings row is missing"));
 	}
@@ -114,10 +98,12 @@ public class ApplicationSettingsService {
 	 * Retrieves the number of days before entities become locked.
 	 *
 	 * @return the number of days until locked.
+	 * @throws IllegalStateException if the global application settings entry does
+	 *                               not exist.
 	 */
 	@Transactional(readOnly = true)
 	public int getDaysUntilLocked() {
-		return this.getApplicationSettings().getDaysUntilLocked();
+		return this.findById().getDaysUntilLocked();
 	}
 
 	/**
@@ -125,10 +111,12 @@ public class ApplicationSettingsService {
 	 *
 	 * @return {@code true} if workplace creation is allowed for employees;
 	 *         {@code false} otherwise.
+	 * @throws IllegalStateException if the global application settings entry does
+	 *                               not exist.
 	 */
 	@Transactional(readOnly = true)
 	public boolean isEmployeeWorkplaceCreationAllowed() {
-		return this.getApplicationSettings().isEmployeeWorkplaceCreationAllowed();
+		return this.findById().isEmployeeWorkplaceCreationAllowed();
 	}
 
 	/**
@@ -136,9 +124,11 @@ public class ApplicationSettingsService {
 	 *
 	 * @return {@code true} if worksite changes during a shift are allowed;
 	 *         {@code false} otherwise.
+	 * @throws IllegalStateException if the global application settings entry does
+	 *                               not exist.
 	 */
 	@Transactional(readOnly = true)
 	public boolean isWorksiteChangeDuringShiftAllowed() {
-		return this.getApplicationSettings().isWorksiteChangeDuringShiftAllowed();
+		return this.findById().isWorksiteChangeDuringShiftAllowed();
 	}
 }
