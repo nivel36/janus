@@ -9,29 +9,31 @@
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 1rem;
+  color: #f9d600;
 }
 
 .settings-card {
-  background: #fff;
+  background: #0d0d0d;
   border-radius: 12px;
-  padding: 1rem;
-  border: 1px solid #d8dde4;
+  padding: 1.25rem;
+  border: 1px solid #f9d600;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
 }
 
 label {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  color: #ffffff;
 }
 
-input[type='number'] {
-  width: 120px;
+input[type='checkbox'] {
+  accent-color: #f9d600;
 }
 
 .actions {
@@ -42,10 +44,11 @@ input[type='number'] {
 button {
   border: 0;
   border-radius: 8px;
-  background: #2f73ff;
-  color: #fff;
+  background: #f9d600;
+  color: #111111;
   padding: 0.6rem 1.1rem;
   cursor: pointer;
+  font-weight: 700;
 }
 
 button:disabled {
@@ -58,14 +61,29 @@ button:disabled {
 }
 
 .error {
-  color: #ba1a1a;
+  color: #ff8a8a;
 }
 
 .success {
-  color: #1b873f;
+  color: #7dff9f;
 }
 
 .read-only {
   margin-top: 0.5rem;
-  color: #6b7280;
+  color: #d8d8d8;
+}
+
+
+.days-until-locked-control {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.days-until-locked-input {
+  width: 8rem;
+  background: #111111;
+  color: #ffffff;
+  border: 1px solid #f9d600;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
 }
