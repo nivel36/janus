@@ -22,21 +22,24 @@ describe('ToggleButtonComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit checkedChange with true when unchecked is toggled', () => {
+  it('should update checked and emit checkedChange when toggled', () => {
     const emitSpy = spyOn(component.checkedChange, 'emit');
 
     component.checked = false;
     component.onToggle();
 
+    expect(component.checked).toBeTrue();
     expect(emitSpy).toHaveBeenCalledWith(true);
   });
 
-  it('should not emit checkedChange when disabled', () => {
+  it('should not update checked or emit checkedChange when disabled', () => {
     const emitSpy = spyOn(component.checkedChange, 'emit');
 
+    component.checked = false;
     component.disabled = true;
     component.onToggle();
 
+    expect(component.checked).toBeFalse();
     expect(emitSpy).not.toHaveBeenCalled();
   });
 });

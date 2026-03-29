@@ -21,6 +21,7 @@ export class ToggleButtonComponent {
       return;
     }
 
-    this.checkedChange.emit(!this.checked);
+    this.checked = !this.checked;
+    this.checkedChange.emit(this.checked);
   }
 }
