@@ -1,20 +1,49 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, forwardRef, Input } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-toggle-button',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './toggle-button.component.html',
   styleUrl: './toggle-button.component.css',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ToggleButtonComponent),
+      multi: true,
+    },
+  ],
 })
-export class ToggleButtonComponent {
-  @Input() checked = false;
-  @Input() disabled = false;
-  @Input() onLabel = 'Activado';
-  @Input() offLabel = 'Desactivado';
-  @Output() checkedChange = new EventEmitter<boolean>();
+export class ToggleButtonComponent implements ControlValueAccessor {
+  @Input() onLabel = 'On';
+  @Input() offLabel = 'Off';
+
+  checked = false;
+  disabled = false;
+
+  private onChange: (value: boolean) => void = () => {};
+  private onTouched: () => void = () => {};
+
+  writeValue(value: boolean | null): void {
+    this.checked = !!value;
+  }
+
+  registerOnChange(fn: (value: boolean) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
 
   onToggle(): void {
     if (this.disabled) {
@@ -22,6 +51,7 @@ export class ToggleButtonComponent {
     }
 
     this.checked = !this.checked;
-    this.checkedChange.emit(this.checked);
+    this.onChange(this.checked);
+    this.onTouched();
   }
 }

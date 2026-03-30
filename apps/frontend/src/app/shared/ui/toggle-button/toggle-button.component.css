@@ -1,63 +1,65 @@
 :host {
-  display: inline-flex;
+    display: inline-flex;
 }
 
 .toggle-button {
-  width: 9rem;
-  height: 3.5rem;
-  border: 0;
-  border-radius: 999px;
-  background: #0a0a0a;
-  color: #f9d600;
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    width: 6rem;
+    height: 2.33rem;
+    border: 0;
+    border-radius: 999px;
+    background: #0a0a0a;
+    color: #f9d600;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.67rem;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .toggle-button:hover,
 .toggle-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(249, 214, 0, 0.3);
+    box-shadow: 0 0 0 2px rgba(249, 214, 0, 0.3);
 }
 
 .toggle-button__icon {
-  font-size: 1.7rem;
-  font-weight: 700;
-  line-height: 1;
-  transform: translateX(1.85rem);
-  transition: transform 0.2s ease;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    transform: translateX(1.23rem);
+    transition: transform 0.2s ease;
 }
 
 .toggle-button__knob {
-  width: 2.8rem;
-  height: 2.8rem;
-  border-radius: 50%;
-  background-color: #f9d600;
-  position: absolute;
-  top: 0.35rem;
-  left: 0.35rem;
-  box-shadow: 0 0.3rem 0.75rem rgba(0, 0, 0, 0.35);
-  transition: transform 0.2s ease;
+    width: 1.87rem;
+    height: 1.87rem;
+    border-radius: 50%;
+    background-color: #f9d600;
+    position: absolute;
+    top: 0.23rem;
+    left: 0.23rem;
+    box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease;
 }
 
 .toggle-button--checked {
-  background: linear-gradient(180deg, #ffe44d 0%, #f9d600 100%);
-  color: #0a0a0a;
+    background: linear-gradient(180deg, #ffe44d 0%, #f9d600 100%);
+    color: #0a0a0a;
 }
 
 .toggle-button--checked .toggle-button__icon {
-  transform: translateX(-1.85rem);
+    transform: translateX(-1.23rem);
 }
 
 .toggle-button--checked .toggle-button__knob {
-  transform: translateX(5rem);
-  background-color: #111111;
+    transform: translateX(3.33rem);
+    background-color: #111111;
 }
 
 .toggle-button--disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+    opacity: 0.6;
+    cursor: not-allowed;
 }

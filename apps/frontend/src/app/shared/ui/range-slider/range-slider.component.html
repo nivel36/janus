@@ -1,20 +1,21 @@
 <div class="range-slider">
-  <div class="range-slider__header">
-    <span class="range-slider__label">{{ label }}</span>
-    <span class="range-slider__value">{{ value }}{{ unit ? ' ' + unit : '' }}</span>
-  </div>
+    <div class="range-slider__header">
+        <span class="range-slider__label">{{ label }}</span>
+        <span class="range-slider__value">{{ value }}{{ unit ? ' ' + unit : '' }}</span>
+    </div>
 
-  <div class="range-slider__track-wrapper">
-    <input
-      type="range"
-      class="range-slider__input"
-      [min]="min"
-      [max]="max"
-      [step]="step"
-      [value]="value"
-      [disabled]="disabled"
-      [style.--progress]="progressPercent + '%'"
-      (input)="onInput($event)"
-    />
-  </div>
+    <div class="range-slider__track-wrapper">
+        <input
+            type="range"
+            class="range-slider__input"
+            [min]="min"
+            [max]="max"
+            [step]="step"
+            [value]="value"
+            [disabled]="disabled"
+            [style.--progress]="progressPercent + '%'"
+            [style.--progress-value]="progressPercent"
+            (input)="onInput($event)"
+        />
+    </div>
 </div>

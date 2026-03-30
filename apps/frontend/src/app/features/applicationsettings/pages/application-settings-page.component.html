@@ -1,56 +1,57 @@
 <main class="app-shell">
-  <section class="settings-page">
-    <header class="settings-header">
-      <h1>{{ 'navigation.janus' | translate }}</h1>
-      <span>{{ 'applicationSettings.title' | translate }}</span>
-    </header>
+    <section class="settings-page">
+        <header class="settings-header">
+            <h1>{{ 'navigation.janus' | translate }}</h1>
+            <span>{{ 'applicationSettings.title' | translate }}</span>
+        </header>
 
-    <section class="settings-card" *ngIf="!loading; else loadingState">
-      <form [formGroup]="form" (ngSubmit)="save()">
-        <div class="days-until-locked-control">
-          <app-range-slider
-            [label]="'applicationSettings.fields.daysUntilLocked' | translate"
-            [min]="0"
-            [max]="daysUntilLockedSliderMax"
-            [step]="1"
-            [disabled]="form.disabled"
-            [value]="form.controls.daysUntilLocked.value"
-            (valueChange)="form.controls.daysUntilLocked.setValue($event)"
-          />
-          <input
-            type="number"
-            min="0"
-            formControlName="daysUntilLocked"
-            class="days-until-locked-input"
-            [attr.aria-label]="'applicationSettings.fields.daysUntilLocked' | translate"
-          />
-        </div>
+        <section class="settings-card" *ngIf="!loading; else loadingState">
+            <form [formGroup]="form" (ngSubmit)="save()">
+                <div class="days-until-locked-control">
+                    <app-range-slider
+                        [label]="'applicationSettings.fields.daysUntilLocked' | translate"
+                        [min]="0"
+                        [max]="daysUntilLockedSliderMax"
+                        [step]="1"
+                        [disabled]="form.disabled"
+                        [value]="form.controls.daysUntilLocked.value"
+                        (valueChange)="form.controls.daysUntilLocked.setValue($event)"
+                    />
+                </div>
 
-        <label>
-          <input type="checkbox" formControlName="employeeWorkplaceCreationAllowed" />
-          {{ 'applicationSettings.fields.employeeWorkplaceCreationAllowed' | translate }}
-        </label>
+                <label>
+                    <app-toggle-button
+                        formControlName="employeeWorkplaceCreationAllowed"
+                    ></app-toggle-button>
+                    {{ 'applicationSettings.fields.employeeWorkplaceCreationAllowed' | translate }}
+                </label>
 
-        <label>
-          <input type="checkbox" formControlName="worksiteChangeDuringShiftAllowed" />
-          {{ 'applicationSettings.fields.worksiteChangeDuringShiftAllowed' | translate }}
-        </label>
+                <label>
+                    <app-toggle-button
+                        formControlName="worksiteChangeDuringShiftAllowed"
+                    ></app-toggle-button>
+                    {{ 'applicationSettings.fields.worksiteChangeDuringShiftAllowed' | translate }}
+                </label>
 
-        <p class="message error" *ngIf="errorMessage">{{ errorMessage | translate }}</p>
-        <p class="message success" *ngIf="successMessage">{{ successMessage | translate }}</p>
+                <p class="message error" *ngIf="errorMessage">{{ errorMessage | translate }}</p>
+                <p class="message success" *ngIf="successMessage">
+                    {{ successMessage | translate }}
+                </p>
 
-        <div class="actions" *ngIf="isAdmin">
-          <button type="submit" [disabled]="form.invalid || saving">
-            {{ 'applicationSettings.actions.save' | translate }}
-          </button>
-        </div>
-      </form>
+                <div class="actions" *ngIf="isAdmin">
+                    <button type="submit" [disabled]="form.invalid || saving">
+                        {{ 'applicationSettings.actions.save' | translate }}
+                    </button>
+                </div>
+            </form>
 
-      <p *ngIf="!isAdmin" class="read-only">{{ 'applicationSettings.messages.readOnly' | translate }}</p>
+            <p *ngIf="!isAdmin" class="read-only">
+                {{ 'applicationSettings.messages.readOnly' | translate }}
+            </p>
+        </section>
     </section>
-  </section>
 </main>
 
 <ng-template #loadingState>
-  <p class="message">{{ 'applicationSettings.messages.loading' | translate }}</p>
+    <p class="message">{{ 'applicationSettings.messages.loading' | translate }}</p>
 </ng-template>

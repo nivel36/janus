@@ -7,11 +7,18 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
 import { ApplicationSettings } from '../models/application-settings';
 import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
+import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-button.component';
 
 @Component({
   selector: 'app-application-settings-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, RangeSliderComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    TranslatePipe,
+    RangeSliderComponent,
+    ToggleButtonComponent,
+  ],
   templateUrl: './application-settings-page.component.html',
   styleUrl: './application-settings-page.component.css',
 })
@@ -61,10 +68,8 @@ export class ApplicationSettingsPageComponent implements OnInit {
     });
   }
 
-
-
   get daysUntilLockedSliderMax(): number {
-    return Math.max(120, this.form.controls.daysUntilLocked.value);
+    return Math.max(31, this.form.controls.daysUntilLocked.value);
   }
 
   save(): void {
