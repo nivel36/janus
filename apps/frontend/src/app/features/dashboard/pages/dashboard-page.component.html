@@ -1,36 +1,23 @@
-<main class="app-shell">
-    <section class="dashboard">
-        <header class="dashboard-header">
-            <h1 class="brand">
-                {{ 'navigation.janus' | translate }}
-            </h1>
-            <div class="header-actions">
-                <span class="section-label">
-                    {{ 'navigation.dashboard' | translate }}
-                </span>
-            </div>
-        </header>
+<app-page-template appNameKey="navigation.janus" pageNameKey="navigation.dashboard">
+    <section page-body class="dashboard-content">
+        <section class="content">
+            @if (employeeEmail$ | async; as employeeEmail) {
+                <app-timelog-clock-card
+                    [employeeEmail]="employeeEmail"
+                    (clockActionDone)="onClockActionDone()"
+                />
 
-        <section class="dashboard-content">
-            <!-- MAIN CONTENT -->
-            <section class="content">
-                @if (employeeEmail$ | async; as employeeEmail) {
-                    <app-timelog-clock-card
-                        [employeeEmail]="employeeEmail"
-                        (clockActionDone)="onClockActionDone()"
-                    />
+                <app-timelog-table
+                    [employeeEmail]="employeeEmail"
+                    [refreshToken]="tableRefreshToken"
+                />
+            }
+        </section>
 
-                    <app-timelog-table
-                        [employeeEmail]="employeeEmail"
-                        [refreshToken]="tableRefreshToken"
-                    />
-                }
-            </section>
-
-            <!-- ASIDE -->
-            <section class="aside">
-                <app-user-card [fullName]="fullName$ | async"></app-user-card>
-            </section>
+        <section class="aside">
+            <app-user-card [fullName]="fullName$ | async"></app-user-card>
         </section>
     </section>
-</main>
+
+    <div page-footer></div>
+</app-page-template>

@@ -4,12 +4,12 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
 
 import { CurrentUserFacade } from '../../../core/auth/current-user.facade';
-import { UserCardComponent } from '../../users/components/user-card/user-card.component';
-import { TimelogTableComponent } from '../../timelogs/components/timelog-table/timelog-table.component';
+import { PageTemplateComponent } from '../../../shared/layout/page-template/page-template.component';
 import { TimelogClockCardComponent } from '../../timelogs/components/timelog-clock-card/timelog-clock-card.component';
+import { TimelogTableComponent } from '../../timelogs/components/timelog-table/timelog-table.component';
+import { UserCardComponent } from '../../users/components/user-card/user-card.component';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -17,7 +17,7 @@ import { TimelogClockCardComponent } from '../../timelogs/components/timelog-clo
   imports: [
     AsyncPipe,
     FormsModule,
-    TranslatePipe,
+    PageTemplateComponent,
     UserCardComponent,
     TimelogTableComponent,
     TimelogClockCardComponent,
