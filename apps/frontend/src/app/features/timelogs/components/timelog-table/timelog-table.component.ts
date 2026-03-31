@@ -1,20 +1,17 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CommonModule, DatePipe } from '@angular/common';
 import {
+  ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
+  computed,
   inject,
+  input,
+  resource,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
-import { finalize, switchMap } from 'rxjs/operators';
 
 import { TimeLogService } from '../../services/timelog-api.service';
 import { TimeLog } from '../../models/timelog';
@@ -23,56 +20,38 @@ import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
 @Component({
   selector: 'app-timelog-table',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, DatePipe, DurationPipe],
+  imports: [TranslatePipe, DatePipe, DurationPipe],
   templateUrl: './timelog-table.component.html',
   styleUrl: './timelog-table.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TimelogTableComponent implements OnInit, OnChanges {
-  @Input({ required: true }) employeeEmail!: string;
-  @Input() refreshToken = 0;
-  protected timelogs: TimeLog[] = [];
-  protected isLoading = false;
-  protected errorKey?: string;
+export class TimelogTableComponent {
+  readonly employeeEmail = input.required<string>();
+  readonly refreshToken = input(0);
 
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly reload$ = new Subject<void>();
+  private readonly timeLogService = inject(TimeLogService);
 
-  constructor(private readonly timeLogService: TimeLogService) {}
+  protected readonly timelogsResource = resource<
+    TimeLog[],
+    { employeeEmail: string; refreshToken: number }
+  >({
+    params: () => ({
+      employeeEmail: this.employeeEmail(),
+      refreshToken: this.refreshToken(),
+    }),
+    loader: async ({ params }) =>
+      await firstValueFrom(this.timeLogService.searchByEmployee(params.employeeEmail)),
+    defaultValue: [],
+  });
 
-  ngOnInit(): void {
-    this.reload$
-      .pipe(
-        switchMap(() => this.fetchTimeLogs()),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (response) => {
-          this.timelogs = response;
-          this.isLoading = false;
-        },
-        error: () => {
-          this.errorKey = 'timelog.loadError';
-          this.isLoading = false;
-        },
-      });
-    this.loadTimeLogs();
-  }
+  protected readonly timelogs = computed(() => this.timelogsResource.value());
+  protected readonly isLoading = computed(() => this.timelogsResource.isLoading());
+  protected readonly hasError = computed(() => this.timelogsResource.error() !== undefined);
+  protected readonly isEmpty = computed(
+    () => !this.isLoading() && !this.hasError() && this.timelogs().length === 0,
+  );
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['employeeEmail'] || changes['refreshToken']) {
-      this.loadTimeLogs();
-    }
-  }
-
-  private loadTimeLogs(): void {
-    this.isLoading = true;
-    this.errorKey = undefined;
-    this.reload$.next();
-  }
-
-  private fetchTimeLogs() {
-    return this.timeLogService
-      .searchByEmployee(this.employeeEmail)
-      .pipe(finalize(() => (this.isLoading = false)));
+  protected trackByTimelog(index: number, timelog: TimeLog): string {
+    return `${timelog.entryTime}-${timelog.exitTime ?? 'open'}-${index}`;
   }
 }

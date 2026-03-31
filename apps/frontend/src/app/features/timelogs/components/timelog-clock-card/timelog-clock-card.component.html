@@ -8,7 +8,7 @@
             <app-clock styleClass="card-hour-container" timeClass="card-hour"></app-clock>
 
             @if (vm.canClockInOut) {
-                <app-button [disabled]="vm.isClockActionLoading" (click)="onClockAction()">
+                <app-button [disabled]="vm.isClockActionLoading" (clicked)="onClockAction()">
                     {{ vm.clockActionLabelKey | translate }}
                 </app-button>
             }

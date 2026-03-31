@@ -47,7 +47,7 @@
   "applicationSettings": {
     "title": "Configuración de la aplicación",
     "fields": {
-      "daysUntilLocked": "Días hasta bloqueo",
+      "daysUntilLocked": "Días hasta el bloqueo de los fichajes",
       "employeeWorkplaceCreationAllowed": "Permitir que empleados creen centros de trabajo",
       "worksiteChangeDuringShiftAllowed": "Permitir cambiar de centro durante el turno"
     },

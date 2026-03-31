@@ -1,17 +1,17 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
-import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
-import { ApplicationSettings } from '../models/application-settings';
-import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
-import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-button.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
-import { Location } from '@angular/common';
-import { Router } from '@angular/router';
+import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
+import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-button.component';
+import { ApplicationSettings } from '../models/application-settings';
+import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
 
 @Component({
   selector: 'app-application-settings-page',
@@ -32,11 +32,8 @@ export class ApplicationSettingsPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly settingsApiService = inject(ApplicationSettingsApiService);
-
-  constructor(
-    private location: Location,
-    private router: Router,
-  ) {}
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
 
   readonly form = this.fb.nonNullable.group({
     daysUntilLocked: [0, [Validators.required, Validators.min(0)]],
@@ -47,10 +44,13 @@ export class ApplicationSettingsPageComponent implements OnInit {
   loading = true;
   saving = false;
   errorMessage = '';
-  successMessage = '';
 
   get isAdmin(): boolean {
     return this.authService.hasRealmRole('JANUS_ADMIN');
+  }
+
+  get daysUntilLockedSliderMax(): number {
+    return Math.max(31, this.form.controls.daysUntilLocked.value);
   }
 
   ngOnInit(): void {
@@ -60,57 +60,64 @@ export class ApplicationSettingsPageComponent implements OnInit {
   loadSettings(): void {
     this.loading = true;
     this.errorMessage = '';
-    this.successMessage = '';
 
-    this.settingsApiService.find().subscribe({
-      next: (settings) => {
-        this.form.reset(settings);
-        if (!this.isAdmin) {
-          this.form.disable();
-        } else {
-          this.form.enable();
-        }
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.errorMessage = 'applicationSettings.errors.load';
-      },
-    });
+    this.settingsApiService
+      .find()
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        }),
+      )
+      .subscribe({
+        next: (settings) => {
+          this.form.reset(settings);
+
+          if (!this.isAdmin) {
+            this.form.disable();
+          } else {
+            this.form.enable();
+          }
+        },
+        error: () => {
+          this.errorMessage = 'applicationSettings.errors.load';
+        },
+      });
   }
 
-  get daysUntilLockedSliderMax(): number {
-    return Math.max(31, this.form.controls.daysUntilLocked.value);
-  }
-
-  goBack() {
+  goBack(): void {
     if (window.history.length > 1) {
       this.location.back();
-    } else {
-      this.router.navigate(['/']);
+      return;
     }
+
+    this.router.navigate(['/']);
   }
 
   save(): void {
-    if (!this.isAdmin || this.form.invalid || this.saving) {
+    if (!this.isAdmin || this.saving || this.form.invalid) {
       return;
     }
 
     this.saving = true;
     this.errorMessage = '';
-    this.successMessage = '';
+
     const payload: ApplicationSettings = this.form.getRawValue();
 
-    this.settingsApiService.update(payload).subscribe({
-      next: (updatedSettings) => {
-        this.form.reset(updatedSettings);
-        this.saving = false;
-        this.successMessage = 'applicationSettings.messages.updated';
-      },
-      error: () => {
-        this.saving = false;
-        this.errorMessage = 'applicationSettings.errors.update';
-      },
-    });
+    this.settingsApiService
+      .update(payload)
+      .pipe(
+        finalize(() => {
+          this.saving = false;
+        }),
+      )
+      .subscribe({
+        next: (updatedSettings) => {
+          this.form.reset(updatedSettings);
+          this.goBack();
+        },
+        error: () => {
+          this.errorMessage = 'applicationSettings.errors.update';
+        },
+      });
   }
 }

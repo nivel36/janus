@@ -55,7 +55,7 @@ type ClockActionState =
  * View model consumed by the template.
  */
 type TimelogClockCardViewModel = {
-  canClockInOut: boolean;
+  hasClockInOutPermission: boolean;
   isClockActionLoading: boolean;
   clockActionFeedbackKey?: string;
   clockActionTitleKey: string;
@@ -122,7 +122,7 @@ export class TimelogClockCardComponent {
   /**
    * Indicates whether the user has permission to clock in/out.
    */
-  readonly canClockInOut$ = this.authService.permissions$.pipe(
+  readonly hasClockInOutPermission$ = this.authService.permissions$.pipe(
     map((permissions) => permissions.realmRoles.includes('JANUS_EMPLOYEE')),
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
@@ -154,7 +154,7 @@ export class TimelogClockCardComponent {
    * exhaustMap is used to ignore repeated clicks while an action is already in progress.
    */
   readonly clockActionState$: Observable<ClockActionState> = this.clockActionRequests$.pipe(
-    withLatestFrom(this.employeeEmail$, this.latestTimeLog$, this.canClockInOut$),
+    withLatestFrom(this.employeeEmail$, this.latestTimeLog$, this.hasClockInOutPermission$),
     exhaustMap(([mode, employeeEmail, latestTimeLog, canClockInOut]) => {
       if (!canClockInOut) {
         return of<ClockActionState>({
@@ -247,22 +247,26 @@ export class TimelogClockCardComponent {
    */
   readonly vm$: Observable<TimelogClockCardViewModel> = combineLatest([
     this.latestTimeLog$,
-    this.canClockInOut$,
+    this.hasClockInOutPermission$,
     this.isClockActionLoading$,
     this.clockActionFeedbackKey$,
   ]).pipe(
-    map(([latestTimeLog, canClockInOut, isClockActionLoading, clockActionFeedbackKey]) => {
-      const hasOpenTimeLog = this.isOpenTimeLog(latestTimeLog);
+    map(
+      ([latestTimeLog, hasClockInOutPermission, isClockActionLoading, clockActionFeedbackKey]) => {
+        const hasOpenTimeLog = this.isOpenTimeLog(latestTimeLog);
 
-      return {
-        canClockInOut,
-        isClockActionLoading,
-        clockActionFeedbackKey,
-        clockActionTitleKey: hasOpenTimeLog ? 'timelog.activeWorkday' : 'timelog.workdayNotStarted',
-        clockActionLabelKey: hasOpenTimeLog ? 'timelog.clockout' : 'timelog.clockin',
-        oppositeClockActionLabelKey: hasOpenTimeLog ? 'timelog.clockin' : 'timelog.clockout',
-      };
-    }),
+        return {
+          hasClockInOutPermission,
+          isClockActionLoading,
+          clockActionFeedbackKey,
+          clockActionTitleKey: hasOpenTimeLog
+            ? 'timelog.activeWorkday'
+            : 'timelog.workdayNotStarted',
+          clockActionLabelKey: hasOpenTimeLog ? 'timelog.clockout' : 'timelog.clockin',
+          oppositeClockActionLabelKey: hasOpenTimeLog ? 'timelog.clockin' : 'timelog.clockout',
+        };
+      },
+    ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 

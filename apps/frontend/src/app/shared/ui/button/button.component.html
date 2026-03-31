@@ -2,6 +2,7 @@
     [class]="'app-button ' + variantClass + ' ' + styleClass"
     [attr.type]="type"
     [disabled]="disabled"
+    (click)="clicked.emit($event)"
 >
     @if (hasIconOnLeft) {
         <span class="button-icon" aria-hidden="true">{{ icon }}</span>

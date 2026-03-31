@@ -1,29 +1,50 @@
 <section class="timelog">
-	<h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
+    <h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
 
-	<div *ngIf="errorKey" class="timelog-message error">{{ errorKey | translate }}</div>
-	<div *ngIf="isLoading" class="timelog-message">{{ 'timelog.loading' | translate }}</div>
+    @if (hasError()) {
+        <div class="timelog-message error">
+            {{ 'timelog.loadError' | translate }}
+        </div>
+    }
 
-	<table *ngIf="!isLoading && timelogs.length" class="timelog-table">
-		<thead>
-			<tr>
-				<th scope="col">{{ 'timelog.date' | translate }}</th>
-				<th scope="col">{{ 'timelog.clockin' | translate }}</th>
-				<th scope="col">{{ 'timelog.clockout' | translate }}</th>
-				<th scope="col">{{ 'timelog.duration' | translate }}</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr *ngFor="let timelog of timelogs">
-				<td>{{ timelog.entryTime | date: 'MM/dd/yyyy' }}</td>
-				<td>{{ timelog.entryTime | date: 'hh:mm a' }}</td>
-				<td>{{ timelog.exitTime ? (timelog.exitTime | date: 'hh:mm a')
-					: '—' }}</td>
-				<td>{{ timelog.workTime | duration }}</td>
-			</tr>
-		</tbody>
-	</table>
+    @if (isLoading()) {
+        <div class="timelog-message">
+            {{ 'timelog.loading' | translate }}
+        </div>
+    }
 
-	<div *ngIf="!isLoading && !timelogs.length && !errorKey"
-		class="timelog-message">{{ 'timelog.empty' | translate }}</div>
+    @if (!isLoading() && timelogs().length > 0) {
+        <table class="timelog-table">
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'timelog.date' | translate }}</th>
+                    <th scope="col">{{ 'timelog.clockin' | translate }}</th>
+                    <th scope="col">{{ 'timelog.clockout' | translate }}</th>
+                    <th scope="col">{{ 'timelog.duration' | translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (timelog of timelogs(); track trackByTimelog($index, timelog)) {
+                    <tr>
+                        <td>{{ timelog.entryTime | date: 'MM/dd/yyyy' }}</td>
+                        <td>{{ timelog.entryTime | date: 'hh:mm a' }}</td>
+                        <td>
+                            @if (timelog.exitTime) {
+                                {{ timelog.exitTime | date: 'hh:mm a' }}
+                            } @else {
+                                —
+                            }
+                        </td>
+                        <td>{{ timelog.workTime | duration }}</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (isEmpty()) {
+        <div class="timelog-message">
+            {{ 'timelog.empty' | translate }}
+        </div>
+    }
 </section>

@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 type ButtonVariant = 'default' | 'main' | 'secondary';
 type ButtonType = 'button' | 'submit' | 'reset';
@@ -22,6 +22,7 @@ export class ButtonComponent {
   @Input() iconPosition: IconPosition = 'left';
   @Input() disabled = false;
   @Input() styleClass = '';
+  @Output() clicked = new EventEmitter<MouseEvent>();
 
   get variantClass(): string {
     return `button--${this.variant}`;

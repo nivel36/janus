@@ -16,13 +16,11 @@
                 <form [formGroup]="form" (ngSubmit)="save()">
                     <div class="days-until-locked-control">
                         <app-range-slider
+                            formControlName="daysUntilLocked"
                             [label]="'applicationSettings.fields.daysUntilLocked' | translate"
                             [min]="0"
                             [max]="daysUntilLockedSliderMax"
                             [step]="1"
-                            [disabled]="form.disabled"
-                            [value]="form.controls.daysUntilLocked.value"
-                            (valueChange)="form.controls.daysUntilLocked.setValue($event)"
                         />
                     </div>
 
@@ -46,18 +44,19 @@
                         }}
                     </label>
 
-                    <p class="message error" *ngIf="errorMessage">{{ errorMessage | translate }}</p>
-                    <p class="message success" *ngIf="successMessage">
-                        {{ successMessage | translate }}
+                    <p class="message error" *ngIf="errorMessage">
+                        {{ errorMessage | translate }}
                     </p>
+
                     <div class="buttons">
-                        <app-button variant="secondary" (click)="goBack()">
+                        <app-button type="button" variant="secondary" (clicked)="goBack()">
                             {{ 'actions.cancel' | translate }}
                         </app-button>
+
                         @if (isAdmin) {
                             <app-button
+                                type="submit"
                                 [disabled]="form.invalid || saving"
-                                (click)="save()"
                                 variant="main"
                             >
                                 {{ 'actions.save' | translate }}
@@ -69,7 +68,3 @@
         </section>
     </section>
 </main>
-
-<ng-template #loadingState>
-    <p class="message">{{ 'applicationSettings.messages.loading' | translate }}</p>
-</ng-template>
