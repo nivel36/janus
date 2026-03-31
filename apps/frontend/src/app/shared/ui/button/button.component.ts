@@ -4,7 +4,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
-type ButtonVariant = 'default' | 'error' | 'info' | 'success' | 'neutral';
+type ButtonVariant = 'default' | 'main' | 'secondary';
 type ButtonType = 'button' | 'submit' | 'reset';
 type IconPosition = 'left' | 'right';
 

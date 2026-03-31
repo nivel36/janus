@@ -4,6 +4,10 @@
     "dashboard": "Panell de control",
     "applicationSettings": "Configuració"
   },
+  "actions": {
+    "save": "Desa",
+    "cancel": "Cancel·la"
+  },
   "timelog": {
     "activeWorkday": "Jornada en curs",
     "workdayNotStarted": "Jornada no iniciada",
@@ -43,12 +47,9 @@
   "applicationSettings": {
     "title": "Configuració de l'aplicació",
     "fields": {
-      "daysUntilLocked": "Dies fins al bloqueig",
+      "daysUntilLocked": "Dies fins al bloqueig dels fixatges",
       "employeeWorkplaceCreationAllowed": "Permetre que empleats creïn centres de treball",
       "worksiteChangeDuringShiftAllowed": "Permetre canvi de centre durant el torn"
-    },
-    "actions": {
-      "save": "Desa la configuració"
     },
     "messages": {
       "loading": "S'està carregant la configuració...",

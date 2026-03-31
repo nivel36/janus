@@ -4,6 +4,10 @@
     "dashboard": "Panel de control",
     "applicationSettings": "Configuración"
   },
+  "actions": {
+    "save": "Guarda",
+    "cancel": "Cancela"
+  },
   "timelog": {
     "activeWorkday": "Jornada en curso",
     "workdayNotStarted": "Jornada no iniciada",
@@ -46,9 +50,6 @@
       "daysUntilLocked": "Días hasta bloqueo",
       "employeeWorkplaceCreationAllowed": "Permitir que empleados creen centros de trabajo",
       "worksiteChangeDuringShiftAllowed": "Permitir cambiar de centro durante el turno"
-    },
-    "actions": {
-      "save": "Guardar configuración"
     },
     "messages": {
       "loading": "Cargando configuración...",

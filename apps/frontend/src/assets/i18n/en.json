@@ -4,6 +4,10 @@
     "dashboard": "Dashboard",
     "applicationSettings": "Application settings"
   },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel"
+  },
   "timelog": {
     "activeWorkday": "Active Workday",
     "workdayNotStarted": "Workday not started",
@@ -43,12 +47,9 @@
   "applicationSettings": {
     "title": "Application settings",
     "fields": {
-      "daysUntilLocked": "Days until lock",
+      "daysUntilLocked": "Days until time logs are locked",
       "employeeWorkplaceCreationAllowed": "Allow employees to create worksites",
       "worksiteChangeDuringShiftAllowed": "Allow worksite change during shift"
-    },
-    "actions": {
-      "save": "Save settings"
     },
     "messages": {
       "loading": "Loading application settings...",
