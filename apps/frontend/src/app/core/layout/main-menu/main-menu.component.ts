@@ -27,6 +27,6 @@ export class MainMenuComponent {
   }
 
   goToSettings(): void {
-    this.router.navigate(['/settings']);
+    this.router.navigate(['/application-settings']);
   }
 }

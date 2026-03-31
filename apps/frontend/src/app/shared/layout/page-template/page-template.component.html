@@ -1,0 +1,22 @@
+<main class="app-shell">
+    <section class="page-template">
+        <header class="page-header">
+            <h1 class="brand">
+                {{ appNameKey | translate }}
+            </h1>
+            <div class="header-actions">
+                <span class="section-label">
+                    {{ pageNameKey | translate }}
+                </span>
+            </div>
+        </header>
+
+        <section class="page-body">
+            <ng-content select="[page-body]"></ng-content>
+        </section>
+
+        <footer class="page-footer">
+            <ng-content select="[page-footer]"></ng-content>
+        </footer>
+    </section>
+</main>
