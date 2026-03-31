@@ -7,7 +7,7 @@
         <ng-template #cardHeader>
             <app-clock styleClass="card-hour-container" timeClass="card-hour"></app-clock>
 
-            @if (vm.canClockInOut) {
+            @if (vm.hasClockInOutPermission) {
                 <app-button [disabled]="vm.isClockActionLoading" (clicked)="onClockAction()">
                     {{ vm.clockActionLabelKey | translate }}
                 </app-button>
@@ -21,7 +21,7 @@
         </ng-template>
 
         <ng-template #cardFooter>
-            @if (vm.canClockInOut) {
+            @if (vm.hasClockInOutPermission) {
                 <button
                     type="button"
                     class="secondary-action"

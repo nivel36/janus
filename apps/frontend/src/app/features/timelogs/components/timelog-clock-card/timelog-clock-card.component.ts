@@ -23,7 +23,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 
-import { AuthService } from '../../../../core/auth/auth.service';
+import { CurrentUserFacade } from '../../../../core/auth/current-user.facade';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../../shared/ui/card/card.component';
 import { ClockComponent } from '../../../../shared/ui/clock/clock.component';
@@ -89,7 +89,7 @@ type ResolvedClockAction = {
   styleUrl: './timelog-clock-card.component.css',
 })
 export class TimelogClockCardComponent {
-  private readonly authService = inject(AuthService);
+  private readonly currentUser = inject(CurrentUserFacade);
   private readonly timeLogService = inject(TimeLogService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -122,11 +122,7 @@ export class TimelogClockCardComponent {
   /**
    * Indicates whether the user has permission to clock in/out.
    */
-  readonly hasClockInOutPermission$ = this.authService.permissions$.pipe(
-    map((permissions) => permissions.realmRoles.includes('JANUS_EMPLOYEE')),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  readonly hasClockInOutPermission$ = this.currentUser.isEmployee$;
 
   /**
    * Employee's latest known time log.

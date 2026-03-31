@@ -1,0 +1,14 @@
+@if (currentUser$ | async; as user) {
+    <nav class="main-menu">
+        <div class="left">
+            <!-- navegación general -->
+        </div>
+
+        <div class="right">
+            <span class="user-name">{{ user.fullName }}</span>
+
+            <button (click)="goToSettings()">Configuración</button>
+            <button (click)="logout()">Salir</button>
+        </div>
+    </nav>
+}

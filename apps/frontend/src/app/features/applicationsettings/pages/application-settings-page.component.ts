@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
-import { AuthService } from '../../../core/auth/auth.service';
+import { CurrentUserFacade } from '../../../core/auth/current-user.facade';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
@@ -30,7 +30,7 @@ import { ApplicationSettingsApiService } from '../services/application-settings-
 })
 export class ApplicationSettingsPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
+  private readonly currentUser = inject(CurrentUserFacade);
   private readonly settingsApiService = inject(ApplicationSettingsApiService);
   private readonly location = inject(Location);
   private readonly router = inject(Router);
@@ -46,7 +46,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
   errorMessage = '';
 
   get isAdmin(): boolean {
-    return this.authService.hasRealmRole('JANUS_ADMIN');
+    return this.currentUser.isAdmin();
   }
 
   get daysUntilLockedSliderMax(): number {

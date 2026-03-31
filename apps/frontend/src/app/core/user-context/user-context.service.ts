@@ -18,12 +18,8 @@ export class UserContextService {
         switchMap(() => this.prefs.load(false)),
       )
       .subscribe({
-        error: () => {
-          /* decide si ignoras */
-        },
+        error: () => {},
       });
-
-    // cuando pasa a no autenticado, limpia
     this.auth.isAuthenticated$.pipe(filter((v) => !v)).subscribe(() => this.prefs.clear());
   }
 }

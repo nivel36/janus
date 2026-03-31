@@ -1,6 +1,4 @@
-/**
- * SPDX-License-Identifier: Apache-2.0
- */
+/** * SPDX-License-Identifier: Apache-2.0 */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,11 +10,9 @@ import {
 import { DatePipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
-
 import { TimeLogService } from '../../services/timelog-api.service';
 import { TimeLog } from '../../models/timelog';
 import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
-
 @Component({
   selector: 'app-timelog-table',
   standalone: true,
@@ -28,22 +24,19 @@ import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
 export class TimelogTableComponent {
   readonly employeeEmail = input.required<string>();
   readonly refreshToken = input(0);
-
   private readonly timeLogService = inject(TimeLogService);
-
   protected readonly timelogsResource = resource<
     TimeLog[],
-    { employeeEmail: string; refreshToken: number }
+    {
+      employeeEmail: string;
+      refreshToken: number;
+    }
   >({
-    params: () => ({
-      employeeEmail: this.employeeEmail(),
-      refreshToken: this.refreshToken(),
-    }),
+    params: () => ({ employeeEmail: this.employeeEmail(), refreshToken: this.refreshToken() }),
     loader: async ({ params }) =>
       await firstValueFrom(this.timeLogService.searchByEmployee(params.employeeEmail)),
     defaultValue: [],
   });
-
   protected readonly timelogs = computed(() => this.timelogsResource.value());
   protected readonly isLoading = computed(() => this.timelogsResource.isLoading());
   protected readonly hasError = computed(() => this.timelogsResource.error() !== undefined);
