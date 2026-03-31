@@ -8,6 +8,10 @@ import { ApplicationSettingsApiService } from '../services/application-settings-
 import { ApplicationSettings } from '../models/application-settings';
 import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
 import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-button.component';
+import { ButtonComponent } from '../../../shared/ui/button/button.component';
+import { CardComponent } from '../../../shared/ui/card/card.component';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-application-settings-page',
@@ -18,6 +22,8 @@ import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-b
     TranslatePipe,
     RangeSliderComponent,
     ToggleButtonComponent,
+    ButtonComponent,
+    CardComponent,
   ],
   templateUrl: './application-settings-page.component.html',
   styleUrl: './application-settings-page.component.css',
@@ -26,6 +32,11 @@ export class ApplicationSettingsPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly settingsApiService = inject(ApplicationSettingsApiService);
+
+  constructor(
+    private location: Location,
+    private router: Router,
+  ) {}
 
   readonly form = this.fb.nonNullable.group({
     daysUntilLocked: [0, [Validators.required, Validators.min(0)]],
@@ -70,6 +81,14 @@ export class ApplicationSettingsPageComponent implements OnInit {
 
   get daysUntilLockedSliderMax(): number {
     return Math.max(31, this.form.controls.daysUntilLocked.value);
+  }
+
+  goBack() {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   save(): void {

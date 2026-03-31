@@ -67,3 +67,16 @@ body {
     justify-content: flex-end;
     padding-right: 1rem;
 }
+
+.card.settings-card {
+    border: 2px solid #f9d600;
+}
+
+.buttons {
+    margin-left: auto;
+    margin-top: 2rem;
+}
+
+.buttons > * + * {
+    margin-left: 1rem;
+}

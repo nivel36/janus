@@ -1,89 +1,126 @@
+.app-shell {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    background-color: #050505;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
 .settings-page {
-  max-width: 920px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+    width: min(1080px, 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    color: #f9f9f9;
 }
 
 .settings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 1rem;
-  color: #f9d600;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    letter-spacing: 0.08em;
+    font-weight: 600;
 }
 
-.settings-card {
-  background: #0d0d0d;
-  border-radius: 12px;
-  padding: 1.25rem;
-  border: 1px solid #f9d600;
+.brand {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #f9d600;
+}
+
+.section-label {
+    font-size: 1rem;
+    color: rgba(249, 249, 249, 0.72);
+    text-transform: uppercase;
+}
+
+.settings-content {
+    width: min(1080px, 100%);
+    display: flex;
+    gap: 2.5rem;
+    color: #f9f9f9;
+}
+
+.settings-content app-card {
+    display: block;
+    flex: 1;
 }
 
 form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    flex-grow: 1;
 }
 
 label {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  color: #ffffff;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 input[type='checkbox'] {
-  accent-color: #f9d600;
+    accent-color: #f9d600;
 }
 
 .actions {
-  display: flex;
-  justify-content: flex-end;
+    display: flex;
+    justify-content: flex-end;
 }
 
 button {
-  border: 0;
-  border-radius: 8px;
-  background: #f9d600;
-  color: #111111;
-  padding: 0.6rem 1.1rem;
-  cursor: pointer;
-  font-weight: 700;
+    float: left;
+    border: 0;
+    border-radius: 8px;
+    background: #f9d600;
+    color: #111111;
+    padding: 0.6rem 1.1rem;
+    cursor: pointer;
+    font-weight: 700;
 }
 
 button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .message {
-  margin: 0;
+    margin: 0;
 }
 
 .error {
-  color: #ff8a8a;
+    color: #ff8a8a;
 }
 
 .success {
-  color: #7dff9f;
+    color: #7dff9f;
 }
 
 .read-only {
-  margin-top: 0.5rem;
-  color: #d8d8d8;
+    margin-top: 0.5rem;
+    color: #d8d8d8;
 }
 
-
 .days-until-locked-control {
-  display: grid;
-  gap: 0.75rem;
+    display: grid;
+    gap: 0.75rem;
 }
 
 .days-until-locked-input {
-  width: 8rem;
-  background: #111111;
-  color: #ffffff;
-  border: 1px solid #f9d600;
-  border-radius: 8px;
-  padding: 0.45rem 0.55rem;
+    width: 8rem;
+    background: #111111;
+    color: #ffffff;
+    border: 1px solid #f9d600;
+    border-radius: 8px;
+    padding: 0.45rem 0.55rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
 }

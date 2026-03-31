@@ -19,7 +19,6 @@ import { TimelogClockCardComponent } from '../../timelogs/components/timelog-clo
   standalone: true,
   imports: [
     AsyncPipe,
-    RouterLink,
     FormsModule,
     TranslatePipe,
     UserCardComponent,
