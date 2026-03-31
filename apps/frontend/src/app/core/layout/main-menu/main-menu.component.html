@@ -1,14 +1,29 @@
 @if (currentUser$ | async; as user) {
-    <nav class="main-menu">
-        <div class="left">
-            <!-- navegación general -->
+    <nav class="main-menu" aria-label="Menú principal">
+        <div class="main-menu__identity">
+            <span class="main-menu__user-name">{{ user.fullName }}</span>
         </div>
 
-        <div class="right">
-            <span class="user-name">{{ user.fullName }}</span>
+        <div class="main-menu__actions">
+            <button
+                type="button"
+                class="main-menu__icon-button"
+                aria-label="Configuración"
+                title="Configuración"
+                (click)="goToSettings()"
+            >
+                <span aria-hidden="true">⚙</span>
+            </button>
 
-            <button (click)="goToSettings()">Configuración</button>
-            <button (click)="logout()">Salir</button>
+            <button
+                type="button"
+                class="main-menu__icon-button"
+                aria-label="Salir"
+                title="Salir"
+                (click)="logout()"
+            >
+                <span aria-hidden="true">⏻</span>
+            </button>
         </div>
     </nav>
 }
