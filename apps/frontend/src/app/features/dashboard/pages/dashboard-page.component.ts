@@ -6,7 +6,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { CurrentUserFacade } from '../../../core/auth/current-user.facade';
-import { PageTemplateComponent } from '../../../shared/layout/page-template/page-template.component';
+import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { TimelogClockCardComponent } from '../../timelogs/components/timelog-clock-card/timelog-clock-card.component';
 import { TimelogTableComponent } from '../../timelogs/components/timelog-table/timelog-table.component';
 import { UserCardComponent } from '../../users/components/user-card/user-card.component';

@@ -2,60 +2,94 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.9rem 1.1rem;
-    border: 2px solid #f9d600;
-    border-radius: 0.9rem;
-    background: linear-gradient(180deg, #151515 0%, #090909 100%);
+    align-items: stretch;
+    padding: 0;
+    border-radius: 20px;
+    background: #131313;
     color: #f9d600;
     box-sizing: border-box;
+    overflow: hidden;
 }
+
+/* IZQUIERDA */
 
 .main-menu__identity {
     min-width: 0;
+    display: flex;
+    align-items: stretch;
 }
 
 .main-menu__user-name {
-    display: block;
+    padding: 1rem 1.5rem 1rem 2rem;
+    display: flex;
+    align-items: center;
     font-size: 1rem;
     font-weight: 700;
+    background-color: #fece0b;
+    color: #131313;
     letter-spacing: 0.04em;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
 
+/* DERECHA */
+
 .main-menu__actions {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    align-items: stretch;
+    flex-shrink: 0;
 }
 
+/* BOTONES */
+
 .main-menu__icon-button {
-    width: 3.1rem;
-    height: 3.1rem;
+    min-width: 3.8rem;
+    height: auto;
+    padding: 0 1.1rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid #f9d600;
-    border-radius: 0.7rem;
+    border: 0;
     background-color: #050505;
     color: #f9d600;
-    font-size: 1.85rem;
+    font-size: 2.3rem;
     line-height: 1;
     cursor: pointer;
-    transition: transform 120ms ease, background-color 120ms ease, color 120ms ease;
+    transition:
+        background-color 120ms ease,
+        color 120ms ease;
+}
+
+.main-menu__icon-button + .main-menu__icon-button {
+    border-left: 1px solid rgba(249, 214, 0, 0.22);
+}
+
+.main-menu__icon-button--settings {
+    background-color: #050505;
+    color: #f9d600;
+}
+
+.main-menu__icon-button--logout {
+    background-color: #fece0b;
+    color: #131313;
 }
 
 .main-menu__icon-button:hover,
 .main-menu__icon-button:focus-visible {
-    background-color: #f9d600;
+    background-color: #fece0b;
     color: #050505;
-    transform: translateY(-1px);
 }
+
+.main-menu__icon-button--logout:hover,
+.main-menu__icon-button--logout:focus-visible {
+    background-color: #050505;
+    color: #fece0b;
+}
+
+/* Accesibilidad */
 
 .main-menu__icon-button:focus-visible {
     outline: 2px solid #ffffff;
-    outline-offset: 2px;
+    outline-offset: -2px;
 }

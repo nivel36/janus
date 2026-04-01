@@ -6,7 +6,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { CurrentUserFacade } from '../../../core/auth/current-user.facade';
-import { PageTemplateComponent } from '../../../shared/layout/page-template/page-template.component';
+import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
