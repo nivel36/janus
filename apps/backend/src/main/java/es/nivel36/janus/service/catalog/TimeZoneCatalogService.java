@@ -69,14 +69,15 @@ public class TimeZoneCatalogService {
 
 	private TimeZoneCatalogItem map(final String zoneId, final ZonedDateTime referenceDateTime) {
 		final ZoneId parsedZoneId = ZoneId.of(zoneId);
-		final String utc = formatUtcOffset(referenceDateTime.withZoneSameInstant(parsedZoneId).getOffset().getTotalSeconds());
+		final int offsetSeconds = referenceDateTime.withZoneSameInstant(parsedZoneId).getOffset().getTotalSeconds();
+		final String utc = formatUtcOffset(offsetSeconds);
 		final int splitIndex = zoneId.indexOf('/');
 		final String level1 = splitIndex >= 0 ? zoneId.substring(0, splitIndex) : zoneId;
 		// Keep everything after the first slash as the second level, including
 		// additional nested segments such as "Argentina/Buenos_Aires".
 		final String level2 = splitIndex >= 0 ? zoneId.substring(splitIndex + 1) : "";
 		final String literal = zoneId + " (" + utc + ")";
-		return new TimeZoneCatalogItem(zoneId, literal, level1, level2, utc);
+		return new TimeZoneCatalogItem(zoneId, literal, level1, level2, utc, offsetSeconds);
 	}
 
 	private String formatUtcOffset(final int totalSeconds) {
@@ -94,7 +95,7 @@ public class TimeZoneCatalogService {
 		return switch (sortBy) {
 		case LEVEL1 -> Comparator.comparing(TimeZoneCatalogItem::level1)
 				.thenComparing(TimeZoneCatalogItem::zoneId);
-		case UTC -> Comparator.comparing(TimeZoneCatalogItem::utc)
+		case UTC -> Comparator.comparingInt(TimeZoneCatalogItem::offsetSeconds)
 				.thenComparing(TimeZoneCatalogItem::zoneId);
 		};
 	}

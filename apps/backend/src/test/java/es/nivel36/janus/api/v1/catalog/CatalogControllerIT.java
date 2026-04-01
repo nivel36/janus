@@ -70,7 +70,7 @@ class CatalogControllerIT {
 		this.mvc.perform(get(BASE).queryParam("sortBy", "UTC").queryParam("page", "0").queryParam("size", "20")
 				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$.content[0].utc").isNotEmpty());
+				.andExpect(jsonPath("$.content[0].utc").value(Matchers.startsWith("UTC-")));
 	}
 
 	@Test
