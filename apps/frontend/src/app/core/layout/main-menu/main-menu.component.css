@@ -93,3 +93,8 @@
     outline: 2px solid #ffffff;
     outline-offset: -2px;
 }
+
+.main-menu__icon-button--user-preferences {
+    background-color: #050505;
+    color: #f9d600;
+}

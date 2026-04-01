@@ -2,7 +2,8 @@
   "navigation": {
     "janus": "Janus",
     "dashboard": "Panel de control",
-    "applicationSettings": "Configuración"
+    "applicationSettings": "Configuración",
+    "userPreferences": "Preferencias de usuario"
   },
   "actions": {
     "save": "Guarda",
@@ -61,6 +62,23 @@
     "errors": {
       "load": "No se pudo cargar la configuración.",
       "update": "No se pudo actualizar la configuración."
+    }
+  },
+  "userPreferences": {
+    "title": "Preferencias de usuario",
+    "fields": {
+      "locale": "Idioma",
+      "timeFormat": "Formato de hora",
+      "defaultTimezone": "Zona horaria predeterminada",
+      "defaultTimezoneHint": "Busca tu zona horaria. Por ejemplo, Europe/Madrid."
+    },
+    "timeFormat": {
+      "H24": "24 horas",
+      "H12": "12 horas"
+    },
+    "errors": {
+      "load": "No se pudieron cargar las preferencias de usuario.",
+      "update": "No se pudieron actualizar las preferencias de usuario."
     }
   }
 }

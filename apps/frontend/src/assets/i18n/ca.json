@@ -2,7 +2,8 @@
   "navigation": {
     "janus": "Janus",
     "dashboard": "Panell de control",
-    "applicationSettings": "Configuració"
+    "applicationSettings": "Configuració",
+    "userPreferences": "Preferències d'usuari"
   },
   "actions": {
     "save": "Desa",
@@ -61,6 +62,23 @@
     "errors": {
       "load": "No s'ha pogut carregar la configuració.",
       "update": "No s'ha pogut actualitzar la configuració."
+    }
+  },
+  "userPreferences": {
+    "title": "Preferències d'usuari",
+    "fields": {
+      "locale": "Idioma",
+      "timeFormat": "Format d'hora",
+      "defaultTimezone": "Zona horària predeterminada",
+      "defaultTimezoneHint": "Busca la teva zona horària. Per exemple, Europe/Madrid."
+    },
+    "timeFormat": {
+      "H24": "24 hores",
+      "H12": "12 hores"
+    },
+    "errors": {
+      "load": "No s'han pogut carregar les preferències d'usuari.",
+      "update": "No s'han pogut actualitzar les preferències d'usuari."
     }
   }
 }

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { CurrentUserFacade } from '../../auth/current-user.facade';
 import { AuthService } from '../../auth/auth.service';
@@ -8,7 +9,7 @@ import { AuthService } from '../../auth/auth.service';
 @Component({
   selector: 'app-main-menu',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './main-menu.component.html',
   styleUrls: ['./main-menu.component.css'],
 })
@@ -26,7 +27,11 @@ export class MainMenuComponent {
     this.router.navigate(['/login']);
   }
 
-  goToSettings(): void {
+  goToUserPreferences(): void {
+    this.router.navigate(['/user-preferences']);
+  }
+
+  goToApplicationSettings(): void {
     this.router.navigate(['/application-settings']);
   }
 }

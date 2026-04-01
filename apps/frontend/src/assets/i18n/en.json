@@ -2,7 +2,8 @@
   "navigation": {
     "janus": "Janus",
     "dashboard": "Dashboard",
-    "applicationSettings": "Application settings"
+    "applicationSettings": "Application settings",
+    "userPreferences": "User preferences"
   },
   "actions": {
     "save": "Save",
@@ -61,6 +62,23 @@
     "errors": {
       "load": "Unable to load application settings.",
       "update": "Unable to update application settings."
+    }
+  },
+  "userPreferences": {
+    "title": "User preferences",
+    "fields": {
+      "locale": "Language",
+      "timeFormat": "Time format",
+      "defaultTimezone": "Default timezone",
+      "defaultTimezoneHint": "Find your timezone. For example, Europe/Madrid."
+    },
+    "timeFormat": {
+      "H24": "24-hour",
+      "H12": "12-hour"
+    },
+    "errors": {
+      "load": "Unable to load user preferences.",
+      "update": "Unable to update user preferences."
     }
   }
 }
