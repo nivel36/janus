@@ -23,7 +23,8 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
  * @param daysUntilLocked                  number of days a time log remains editable
  * @param employeeWorkplaceCreationAllowed whether employees can create personal worksites
  * @param worksiteChangeDuringShiftAllowed whether changing worksite during a shift is allowed
+ * @param defaultTimezone                  IANA time zone identifier used as default
  */
 public record ApplicationSettingsResponse(int daysUntilLocked, boolean employeeWorkplaceCreationAllowed,
-		boolean worksiteChangeDuringShiftAllowed) {
+		boolean worksiteChangeDuringShiftAllowed, String defaultTimezone) {
 }

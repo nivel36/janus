@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.ZoneId;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,7 @@ class ApplicationSettingsServiceTest {
 	@Test
 	void testGetDaysUntilLockedReturnsPersistedValue() {
 		when(this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID))
-				.thenReturn(Optional.of(new ApplicationSettings(7, false, false)));
+				.thenReturn(Optional.of(new ApplicationSettings(7, false, false, ZoneId.of("Europe/Madrid"))));
 
 		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
 

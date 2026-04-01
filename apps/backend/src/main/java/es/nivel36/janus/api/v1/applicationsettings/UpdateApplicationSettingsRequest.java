@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.applicationsettings;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
 /**
@@ -23,8 +24,10 @@ import jakarta.validation.constraints.PositiveOrZero;
  * @param daysUntilLocked                  number of days a time log remains editable
  * @param employeeWorkplaceCreationAllowed whether employees can create personal worksites
  * @param worksiteChangeDuringShiftAllowed whether changing worksite during a shift is allowed
+ * @param defaultTimezone                  IANA time zone identifier used as default
  */
 public record UpdateApplicationSettingsRequest(
 		@PositiveOrZero(message = "daysUntilLocked must be greater than or equal to 0") int daysUntilLocked,
-		boolean employeeWorkplaceCreationAllowed, boolean worksiteChangeDuringShiftAllowed) {
+		boolean employeeWorkplaceCreationAllowed, boolean worksiteChangeDuringShiftAllowed,
+		@NotBlank(message = "defaultTimezone is required") String defaultTimezone) {
 }

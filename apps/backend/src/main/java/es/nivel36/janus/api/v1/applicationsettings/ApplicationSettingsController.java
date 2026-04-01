@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.applicationsettings;
 
+import java.time.ZoneId;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -61,13 +62,15 @@ public class ApplicationSettingsController {
 			@Valid @RequestBody final UpdateApplicationSettingsRequest request) {
 		logger.debug("Update application settings ACTION performed");
 		final ApplicationSettings updatedSettings = this.applicationSettingsService.update(request.daysUntilLocked(),
-				request.employeeWorkplaceCreationAllowed(), request.worksiteChangeDuringShiftAllowed());
+				request.employeeWorkplaceCreationAllowed(), request.worksiteChangeDuringShiftAllowed(),
+				ZoneId.of(request.defaultTimezone()));
 		return ResponseEntity.ok(this.toResponse(updatedSettings));
 	}
 
 	private ApplicationSettingsResponse toResponse(final ApplicationSettings applicationSettings) {
 		return new ApplicationSettingsResponse(applicationSettings.getDaysUntilLocked(),
 				applicationSettings.isEmployeeWorkplaceCreationAllowed(),
-				applicationSettings.isWorksiteChangeDuringShiftAllowed());
+				applicationSettings.isWorksiteChangeDuringShiftAllowed(),
+				applicationSettings.getDefaultTimezone().getId());
 	}
 }
