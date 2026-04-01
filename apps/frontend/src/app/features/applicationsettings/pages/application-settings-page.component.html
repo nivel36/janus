@@ -45,6 +45,7 @@
                         [formControl]="timezoneControl"
                         [searchMethod]="searchMethod"
                         [displayWith]="timezoneDisplayWith"
+                        [emptyHint]="'applicationSettings.fields.defaultTimezoneHint' | translate"
                         (selectedChange)="onTimezoneSelected($event)"
                     />
                 </div>
