@@ -71,7 +71,7 @@ public class CatalogController {
 	}
 
 	private TimeZoneCatalogItemResponse map(final TimeZoneCatalogItem timeZoneCatalogItem) {
-		return new TimeZoneCatalogItemResponse(timeZoneCatalogItem.literal(), timeZoneCatalogItem.level1(),
-				timeZoneCatalogItem.level2(), timeZoneCatalogItem.utc());
+		return new TimeZoneCatalogItemResponse(timeZoneCatalogItem.zoneId(), timeZoneCatalogItem.literal(),
+				timeZoneCatalogItem.level1(), timeZoneCatalogItem.level2(), timeZoneCatalogItem.utc());
 	}
 }

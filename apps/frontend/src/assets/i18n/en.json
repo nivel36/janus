@@ -49,7 +49,9 @@
     "fields": {
       "daysUntilLocked": "Days until time logs are locked",
       "employeeWorkplaceCreationAllowed": "Allow employees to create worksites",
-      "worksiteChangeDuringShiftAllowed": "Allow worksite change during shift"
+      "worksiteChangeDuringShiftAllowed": "Allow worksite change during shift",
+      "defaultTimezone": "Default timezone",
+      "defaultTimezonePlaceholder": "Search timezone..."
     },
     "messages": {
       "loading": "Loading application settings...",

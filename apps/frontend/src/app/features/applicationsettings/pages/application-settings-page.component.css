@@ -38,3 +38,13 @@ label {
     margin-top: 0.5rem;
     color: #d8d8d8;
 }
+
+.timezone-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.timezone-control label {
+    cursor: default;
+}

@@ -18,11 +18,12 @@ package es.nivel36.janus.api.v1.catalog;
 /**
  * Response payload for a single time zone catalog item.
  *
+ * @param zoneId  full Java zone id
  * @param literal full display value, for example {@code Europe/Madrid (UTC+2)}
  * @param level1  first segment of the zone id (before the first slash)
  * @param level2  remainder of the zone id after the first slash
  * @param utc     UTC offset string used in the literal
  */
-public record TimeZoneCatalogItemResponse(String literal, String level1, String level2, String utc) {
+public record TimeZoneCatalogItemResponse(String zoneId, String literal, String level1, String level2, String utc) {
 
 }

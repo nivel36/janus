@@ -49,7 +49,9 @@
     "fields": {
       "daysUntilLocked": "Dies fins al bloqueig dels fixatges",
       "employeeWorkplaceCreationAllowed": "Permetre que empleats creïn centres de treball",
-      "worksiteChangeDuringShiftAllowed": "Permetre canvi de centre durant el torn"
+      "worksiteChangeDuringShiftAllowed": "Permetre canvi de centre durant el torn",
+      "defaultTimezone": "Zona horària per defecte",
+      "defaultTimezonePlaceholder": "Cerca zona horària..."
     },
     "messages": {
       "loading": "S'està carregant la configuració...",

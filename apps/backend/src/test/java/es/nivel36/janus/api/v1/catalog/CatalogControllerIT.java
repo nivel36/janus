@@ -50,6 +50,7 @@ class CatalogControllerIT {
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
+				.andExpect(jsonPath("$.content[0].zoneId").value("Europe/Madrid")) //
 				.andExpect(jsonPath("$.content[0].literal").value(Matchers.containsString("Europe/Madrid"))) //
 				.andExpect(jsonPath("$.content[0].level1").value("Europe")) //
 				.andExpect(jsonPath("$.content[0].level2").value("Madrid")) //

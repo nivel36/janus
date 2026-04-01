@@ -49,7 +49,9 @@
     "fields": {
       "daysUntilLocked": "Días hasta el bloqueo de los fichajes",
       "employeeWorkplaceCreationAllowed": "Permitir que empleados creen centros de trabajo",
-      "worksiteChangeDuringShiftAllowed": "Permitir cambiar de centro durante el turno"
+      "worksiteChangeDuringShiftAllowed": "Permitir cambiar de centro durante el turno",
+      "defaultTimezone": "Zona horaria por defecto",
+      "defaultTimezonePlaceholder": "Buscar zona horaria..."
     },
     "messages": {
       "loading": "Cargando configuración...",

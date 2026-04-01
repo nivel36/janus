@@ -34,6 +34,29 @@
                     }}
                 </label>
 
+                <div class="timezone-control">
+                    <label for="default-timezone">
+                        {{ 'applicationSettings.fields.defaultTimezone' | translate }}
+                    </label>
+                    @if (isAdmin) {
+                        <app-autocomplete-textbox
+                            id="default-timezone"
+                            [searchMethod]="searchTimeZones"
+                            [displayWith]="formatTimeZoneOption"
+                            [minChars]="1"
+                            [debounceMs]="250"
+                            [placeholder]="
+                                form.controls.defaultTimezone.value ||
+                                ('applicationSettings.fields.defaultTimezonePlaceholder'
+                                    | translate)
+                            "
+                            (selectedChange)="onDefaultTimezoneChange($event)"
+                        />
+                    } @else {
+                        <span>{{ form.controls.defaultTimezone.value }}</span>
+                    }
+                </div>
+
                 <p class="message error" *ngIf="errorMessage">
                     {{ errorMessage | translate }}
                 </p>
