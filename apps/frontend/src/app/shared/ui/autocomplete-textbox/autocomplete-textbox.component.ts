@@ -79,6 +79,10 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   }
 
   onSelect(option: T): void {
+    if (this.disabled) {
+      return;
+    }
+
     this.selectedValue = option;
     this.textControl.setValue(this.displayWith(option), { emitEvent: false });
     this.results = [];
@@ -102,6 +106,7 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
 
   writeValue(value: T | null): void {
     this.selectedValue = value;
+    this.results = [];
 
     if (value === null) {
       this.textControl.setValue('', { emitEvent: false });

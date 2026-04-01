@@ -93,6 +93,38 @@ describe('AutocompleteTextboxComponent', () => {
     expect(fixture.debugElement.query(By.css('.clear-button'))).not.toBeNull();
   }));
 
+
+  it('should not allow selecting results when disabled', fakeAsync(() => {
+    component.textControl.setValue('madr');
+    tick(300);
+    fixture.detectChanges();
+
+    component.setDisabledState(true);
+    fixture.detectChanges();
+
+    const firstResultButton: HTMLButtonElement = fixture.debugElement.query(By.css('.results li button')).nativeElement;
+    firstResultButton.click();
+    fixture.detectChanges();
+
+    expect(component.selectedValue).toBeNull();
+    expect(component.textControl.value).toBe('madr');
+  }));
+
+  it('should clear visible results when writeValue(null) is called', fakeAsync(() => {
+    component.textControl.setValue('madr');
+    tick(300);
+    fixture.detectChanges();
+
+    expect(component.results.length).toBeGreaterThan(0);
+
+    component.writeValue(null);
+    fixture.detectChanges();
+
+    expect(component.results).toEqual([]);
+    expect(component.textControl.value).toBe('');
+    expect(fixture.debugElement.query(By.css('.results'))).toBeNull();
+  }));
+
   it('should clear selection, hide clear button and make input editable again', () => {
     component.writeValue('valor fijo');
     fixture.detectChanges();
