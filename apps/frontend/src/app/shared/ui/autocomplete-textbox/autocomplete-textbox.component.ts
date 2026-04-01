@@ -12,6 +12,10 @@ import {
   forwardRef,
   inject,
 } from '@angular/core';
+
+import { OverlayModule } from '@angular/cdk/overlay';
+import { ConnectedPosition } from '@angular/cdk/overlay';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ControlValueAccessor,
@@ -19,6 +23,7 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from '@angular/forms';
+
 import {
   Observable,
   catchError,
@@ -35,7 +40,7 @@ import {
 @Component({
   selector: 'app-autocomplete-textbox',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, OverlayModule],
   templateUrl: './autocomplete-textbox.component.html',
   styleUrl: './autocomplete-textbox.component.css',
   providers: [
@@ -65,6 +70,23 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   selectedValue: T | null = null;
   isLoading = false;
   disabled = false;
+
+  protected readonly overlayPositions: ConnectedPosition[] = [
+    {
+      originX: 'start',
+      originY: 'bottom',
+      overlayX: 'start',
+      overlayY: 'top',
+      offsetY: 4,
+    },
+    {
+      originX: 'start',
+      originY: 'top',
+      overlayX: 'start',
+      overlayY: 'bottom',
+      offsetY: -4,
+    },
+  ];
 
   private readonly destroyRef = inject(DestroyRef);
 

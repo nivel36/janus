@@ -30,7 +30,9 @@ export function resolveInitialLanguage(
 }
 
 const initialLanguage = resolveInitialLanguage(
-  typeof navigator === 'undefined' ? undefined : [navigator.language, ...(navigator.languages ?? [])],
+  typeof navigator === 'undefined'
+    ? undefined
+    : [navigator.language, ...(navigator.languages ?? [])],
 );
 
 export const appConfig: ApplicationConfig = {

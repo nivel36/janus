@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 
@@ -11,25 +12,42 @@ describe('AutocompleteTextboxComponent', () => {
   let fixture: ComponentFixture<AutocompleteTextboxComponent<string>>;
   let component: AutocompleteTextboxComponent<string>;
   let searchMethodSpy: jasmine.Spy<(query: string) => ReturnType<typeof of>>;
+  let overlayContainer: OverlayContainer;
+  let overlayContainerElement: HTMLElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AutocompleteTextboxComponent],
     }).compileComponents();
 
+    overlayContainer = TestBed.inject(OverlayContainer);
+    overlayContainerElement = overlayContainer.getContainerElement();
+
     fixture = TestBed.createComponent(AutocompleteTextboxComponent<string>);
     component = fixture.componentInstance;
-    searchMethodSpy = jasmine.createSpy('searchMethod').and.callFake((query: string) =>
-      of([`${query}-1`, `${query}-2`]),
-    );
+
+    searchMethodSpy = jasmine
+      .createSpy('searchMethod')
+      .and.callFake((query: string) => of([`${query}-1`, `${query}-2`]));
+
     component.searchMethod = searchMethodSpy;
     component.debounceMs = 300;
 
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    overlayContainer.ngOnDestroy();
+  });
+
   function getInput(): HTMLInputElement {
     return fixture.debugElement.query(By.css('input')).nativeElement;
+  }
+
+  function getOverlayResultButtons(): HTMLButtonElement[] {
+    return Array.from(
+      overlayContainerElement.querySelectorAll('.results li button'),
+    ) as HTMLButtonElement[];
   }
 
   it('should call search method after debounce when text has more than 3 chars', fakeAsync(() => {
@@ -45,8 +63,8 @@ describe('AutocompleteTextboxComponent', () => {
 
     expect(searchMethodSpy).toHaveBeenCalledOnceWith('madr');
     expect(component.results).toEqual(['madr-1', 'madr-2']);
+    expect(getOverlayResultButtons().length).toBe(2);
   }));
-
 
   it('should cancel queued search when user backspaces to 3 chars before debounce', fakeAsync(() => {
     const input = getInput();
@@ -64,6 +82,7 @@ describe('AutocompleteTextboxComponent', () => {
 
     expect(searchMethodSpy).not.toHaveBeenCalled();
     expect(component.results).toEqual([]);
+    expect(getOverlayResultButtons().length).toBe(0);
   }));
 
   it('should not call search method when text has 3 chars or fewer', fakeAsync(() => {
@@ -76,6 +95,7 @@ describe('AutocompleteTextboxComponent', () => {
 
     expect(searchMethodSpy).not.toHaveBeenCalled();
     expect(component.results).toEqual([]);
+    expect(getOverlayResultButtons().length).toBe(0);
   }));
 
   it('should lock input and show clear button after selecting a result', fakeAsync(() => {
@@ -83,8 +103,10 @@ describe('AutocompleteTextboxComponent', () => {
     tick(300);
     fixture.detectChanges();
 
-    const firstResultButton: HTMLButtonElement = fixture.debugElement.query(By.css('.results li button')).nativeElement;
-    firstResultButton.click();
+    const firstResultButton = getOverlayResultButtons()[0];
+    expect(firstResultButton).toBeTruthy();
+
+    firstResultButton.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
     fixture.detectChanges();
 
     const input = getInput();
@@ -92,7 +114,6 @@ describe('AutocompleteTextboxComponent', () => {
     expect(input.readOnly).toBeTrue();
     expect(fixture.debugElement.query(By.css('.clear-button'))).not.toBeNull();
   }));
-
 
   it('should not allow selecting results when disabled', fakeAsync(() => {
     component.textControl.setValue('madr');
@@ -102,8 +123,10 @@ describe('AutocompleteTextboxComponent', () => {
     component.setDisabledState(true);
     fixture.detectChanges();
 
-    const firstResultButton: HTMLButtonElement = fixture.debugElement.query(By.css('.results li button')).nativeElement;
-    firstResultButton.click();
+    const firstResultButton = getOverlayResultButtons()[0];
+    expect(firstResultButton).toBeTruthy();
+
+    firstResultButton.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
     fixture.detectChanges();
 
     expect(component.selectedValue).toBeNull();
@@ -116,20 +139,23 @@ describe('AutocompleteTextboxComponent', () => {
     fixture.detectChanges();
 
     expect(component.results.length).toBeGreaterThan(0);
+    expect(getOverlayResultButtons().length).toBeGreaterThan(0);
 
     component.writeValue(null);
     fixture.detectChanges();
 
     expect(component.results).toEqual([]);
     expect(component.textControl.value).toBe('');
-    expect(fixture.debugElement.query(By.css('.results'))).toBeNull();
+    expect(overlayContainerElement.querySelector('.results')).toBeNull();
   }));
 
   it('should clear selection, hide clear button and make input editable again', () => {
     component.writeValue('valor fijo');
     fixture.detectChanges();
 
-    const clearButton: HTMLButtonElement = fixture.debugElement.query(By.css('.clear-button')).nativeElement;
+    const clearButton: HTMLButtonElement = fixture.debugElement.query(
+      By.css('.clear-button'),
+    ).nativeElement;
     clearButton.click();
     fixture.detectChanges();
 

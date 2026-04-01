@@ -1,7 +1,4 @@
-<app-page-template
-    appNameKey="navigation.janus"
-    pageNameKey="navigation.applicationSettings"
->
+<app-page-template appNameKey="navigation.janus" pageNameKey="navigation.applicationSettings">
     <section page-body class="settings-content">
         <app-card styleClass="settings-card">
             <form [formGroup]="form" (ngSubmit)="save()">
@@ -15,24 +12,29 @@
                     />
                 </div>
 
-                <label>
-                    <app-toggle-button
-                        formControlName="employeeWorkplaceCreationAllowed"
-                    ></app-toggle-button>
-                    {{
-                        'applicationSettings.fields.employeeWorkplaceCreationAllowed'
-                            | translate
-                    }}
-                </label>
+                <div class="employeeWorkplaceCreationAllowed-control">
+                    <label>
+                        <app-toggle-button
+                            formControlName="employeeWorkplaceCreationAllowed"
+                        ></app-toggle-button>
+                        {{
+                            'applicationSettings.fields.employeeWorkplaceCreationAllowed'
+                                | translate
+                        }}
+                    </label>
+                </div>
 
-                <label>
-                    <app-toggle-button
-                        formControlName="worksiteChangeDuringShiftAllowed"
-                    ></app-toggle-button>
-                    {{
-                        'applicationSettings.fields.worksiteChangeDuringShiftAllowed' | translate
-                    }}
-                </label>
+                <div class="worksiteChangeDuringShiftAllowed-control">
+                    <label>
+                        <app-toggle-button
+                            formControlName="worksiteChangeDuringShiftAllowed"
+                        ></app-toggle-button>
+                        {{
+                            'applicationSettings.fields.worksiteChangeDuringShiftAllowed'
+                                | translate
+                        }}
+                    </label>
+                </div>
 
                 <div class="timezone-control">
                     <label for="default-timezone">

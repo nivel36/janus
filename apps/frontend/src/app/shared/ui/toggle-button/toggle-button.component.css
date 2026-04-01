@@ -36,14 +36,13 @@
     border-radius: 50%;
     background-color: #f9d600;
     position: absolute;
-    top: 0.23rem;
-    left: 0.23rem;
+    left: 0.5rem;
     box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.35);
     transition: transform 0.2s ease;
 }
 
 .toggle-button--checked {
-    background: linear-gradient(180deg, #ffe44d 0%, #f9d600 100%);
+    background: #f9d600;
     color: #0a0a0a;
 }
 

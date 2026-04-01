@@ -1,5 +1,5 @@
 <div class="autocomplete">
-    <div class="input-wrapper">
+    <div class="input-wrapper" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
         <input
             type="text"
             [placeholder]="placeholder"
@@ -22,15 +22,22 @@
         }
     </div>
 
-    @if (!hasSelection && results.length > 0) {
+    <ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="trigger"
+        [cdkConnectedOverlayOpen]="!hasSelection && results.length > 0"
+        [cdkConnectedOverlayPositions]="overlayPositions"
+        [cdkConnectedOverlayHasBackdrop]="false"
+        [cdkConnectedOverlayPush]="true"
+    >
         <ul class="results" role="listbox">
             @for (result of results; track $index) {
                 <li>
-                    <button type="button" (click)="onSelect(result)">
+                    <button type="button" (mousedown)="onSelect(result)">
                         {{ displayWith(result) }}
                     </button>
                 </li>
             }
         </ul>
-    }
+    </ng-template>
 </div>
