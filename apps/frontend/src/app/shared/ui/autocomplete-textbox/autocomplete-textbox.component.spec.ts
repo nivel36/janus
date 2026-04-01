@@ -50,9 +50,9 @@ describe('AutocompleteTextboxComponent', () => {
     ) as HTMLButtonElement[];
   }
 
-  it('should call search method after debounce when text has more than 3 chars', fakeAsync(() => {
+  it('should call search method after debounce when text has at least 3 chars', fakeAsync(() => {
     const input = getInput();
-    input.value = 'madr';
+    input.value = 'mad';
     input.dispatchEvent(new Event('input'));
 
     tick(299);
@@ -61,12 +61,12 @@ describe('AutocompleteTextboxComponent', () => {
     tick(1);
     fixture.detectChanges();
 
-    expect(searchMethodSpy).toHaveBeenCalledOnceWith('madr');
-    expect(component.results).toEqual(['madr-1', 'madr-2']);
+    expect(searchMethodSpy).toHaveBeenCalledOnceWith('mad');
+    expect(component.results).toEqual(['mad-1', 'mad-2']);
     expect(getOverlayResultButtons().length).toBe(2);
   }));
 
-  it('should cancel queued search when user backspaces to 3 chars before debounce', fakeAsync(() => {
+  it('should cancel queued search when user backspaces to fewer than 3 chars before debounce', fakeAsync(() => {
     const input = getInput();
 
     input.value = 'madr';
@@ -74,7 +74,7 @@ describe('AutocompleteTextboxComponent', () => {
 
     tick(150);
 
-    input.value = 'mad';
+    input.value = 'ma';
     input.dispatchEvent(new Event('input'));
 
     tick(300);
@@ -85,9 +85,9 @@ describe('AutocompleteTextboxComponent', () => {
     expect(getOverlayResultButtons().length).toBe(0);
   }));
 
-  it('should not call search method when text has 3 chars or fewer', fakeAsync(() => {
+  it('should not call search method when text has fewer than 3 chars', fakeAsync(() => {
     const input = getInput();
-    input.value = 'mad';
+    input.value = 'ma';
     input.dispatchEvent(new Event('input'));
 
     tick(400);
