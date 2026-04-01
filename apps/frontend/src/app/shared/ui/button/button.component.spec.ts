@@ -24,21 +24,56 @@ describe('ButtonComponent', () => {
 
   it('should render the default variant with the default type', () => {
     const buttonEl: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+
+    expect(buttonEl).toBeTruthy();
     expect(buttonEl.type).toBe('button');
     expect(buttonEl.classList).toContain('button--default');
   });
 
-  it('should apply the requested variant and show icons in the right position', () => {
-    component.variant = 'error';
+  it('should apply the requested variant and show the icon on the right', () => {
+    component.variant = 'secondary';
     component.icon = '⚠';
     component.iconPosition = 'right';
     fixture.detectChanges();
 
     const buttonEl: HTMLButtonElement = fixture.nativeElement.querySelector('button');
-    expect(buttonEl.classList).toContain('button--error');
+    expect(buttonEl.classList).toContain('button--secondary');
 
     const icons = buttonEl.querySelectorAll('.button-icon');
     expect(icons.length).toBe(1);
     expect(icons[0].textContent?.trim()).toBe('⚠');
+
+    const children = Array.from(buttonEl.children);
+    expect(children[0].classList).toContain('button-label');
+    expect(children[1].classList).toContain('button-icon');
+  });
+
+  it('should show the icon on the left when requested', () => {
+    component.icon = '✓';
+    component.iconPosition = 'left';
+    fixture.detectChanges();
+
+    const buttonEl: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    const children = Array.from(buttonEl.children);
+
+    expect(children[0].classList).toContain('button-icon');
+    expect(children[1].classList).toContain('button-label');
+  });
+
+  it('should disable the button when disabled is true', () => {
+    component.disabled = true;
+    fixture.detectChanges();
+
+    const buttonEl: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(buttonEl.disabled).toBeTrue();
+  });
+
+  it('should emit clicked when the button is pressed', () => {
+    spyOn(component.clicked, 'emit');
+
+    const buttonEl: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    buttonEl.click();
+
+    expect(component.clicked.emit).toHaveBeenCalled();
   });
 });
