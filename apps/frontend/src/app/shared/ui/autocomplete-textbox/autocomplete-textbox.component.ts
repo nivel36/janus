@@ -2,9 +2,35 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { Observable, catchError, debounceTime, distinctUntilChanged, filter, finalize, from, of, switchMap, tap } from 'rxjs';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  forwardRef,
+  inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  ControlValueAccessor,
+  FormControl,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import {
+  Observable,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  from,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 
 @Component({
   selector: 'app-autocomplete-textbox',
@@ -29,16 +55,18 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
 
   @Input() placeholder = '';
   @Input() debounceMs = 350;
+  @Input() minChars = 3;
 
   @Output() selectedChange = new EventEmitter<T | null>();
 
-  readonly minChars = 3;
-  textControl = new FormControl('', { nonNullable: true });
+  readonly textControl = new FormControl('', { nonNullable: true });
 
   results: T[] = [];
   selectedValue: T | null = null;
   isLoading = false;
   disabled = false;
+
+  private readonly destroyRef = inject(DestroyRef);
 
   private onChange: (value: T | null) => void = () => {};
   private onTouched: () => void = () => {};
@@ -48,14 +76,15 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
       .pipe(
         distinctUntilChanged(),
         tap((value) => {
-          if (value.trim().length <= this.minChars || this.hasSelection) {
+          if (value.trim().length < this.minChars || this.hasSelection) {
             this.results = [];
           }
         }),
         debounceTime(this.debounceMs),
-        filter((value) => value.trim().length > this.minChars && !this.hasSelection),
+        filter((value) => value.trim().length >= this.minChars && !this.hasSelection),
         switchMap((query) => {
           this.isLoading = true;
+
           return from(this.searchMethod(query.trim())).pipe(
             catchError(() => of([] as T[])),
             finalize(() => {
@@ -63,14 +92,10 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
             }),
           );
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe({
-        next: (results) => {
-          this.results = results;
-        },
-        error: () => {
-          this.results = [];
-        },
+      .subscribe((results) => {
+        this.results = results;
       });
   }
 
@@ -133,5 +158,9 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
     }
 
     this.textControl.enable({ emitEvent: false });
+  }
+
+  handleBlur(): void {
+    this.onTouched();
   }
 }

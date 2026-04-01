@@ -1,35 +1,36 @@
 <div class="autocomplete">
-  <div class="input-wrapper">
-    <input
-      type="text"
-      [placeholder]="placeholder"
-      [formControl]="textControl"
-      [readonly]="hasSelection"
-      [attr.aria-readonly]="hasSelection"
-    />
+    <div class="input-wrapper">
+        <input
+            type="text"
+            [placeholder]="placeholder"
+            [formControl]="textControl"
+            [readonly]="hasSelection"
+            [attr.aria-readonly]="hasSelection"
+            (blur)="handleBlur()"
+        />
 
-    @if (hasSelection) {
-      <button
-        type="button"
-        class="clear-button"
-        aria-label="Limpiar selección"
-        [disabled]="disabled"
-        (click)="clearSelection()"
-      >
-        ✕
-      </button>
+        @if (hasSelection) {
+            <button
+                type="button"
+                class="clear-button"
+                aria-label="Limpiar selección"
+                [disabled]="disabled"
+                (click)="clearSelection()"
+            >
+                ✕
+            </button>
+        }
+    </div>
+
+    @if (!hasSelection && results.length > 0) {
+        <ul class="results" role="listbox">
+            @for (result of results; track $index) {
+                <li>
+                    <button type="button" (click)="onSelect(result)">
+                        {{ displayWith(result) }}
+                    </button>
+                </li>
+            }
+        </ul>
     }
-  </div>
-
-  @if (!hasSelection && results.length > 0) {
-    <ul class="results" role="listbox">
-      @for (result of results; track $index) {
-        <li>
-          <button type="button" (click)="onSelect(result)">
-            {{ displayWith(result) }}
-          </button>
-        </li>
-      }
-    </ul>
-  }
 </div>
