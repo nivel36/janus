@@ -50,7 +50,8 @@
       "daysUntilLocked": "Days until time logs are locked",
       "employeeWorkplaceCreationAllowed": "Allow employees to create worksites",
       "worksiteChangeDuringShiftAllowed": "Allow worksite change during shift",
-      "defaultTimezone": "Default timezone"
+      "defaultTimezone": "Default timezone",
+      "defaultTimezoneHint": "Find your timezone. For example, Europe/Madrid."
     },
     "messages": {
       "loading": "Loading application settings...",

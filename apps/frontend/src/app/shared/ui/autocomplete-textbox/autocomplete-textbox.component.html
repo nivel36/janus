@@ -2,7 +2,7 @@
     <div class="input-wrapper" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
         <input
             type="text"
-            [placeholder]="placeholder"
+            [placeholder]="hasSelection ? '' : (emptyHint || placeholder)"
             [formControl]="textControl"
             [readonly]="hasSelection"
             [attr.aria-readonly]="hasSelection"

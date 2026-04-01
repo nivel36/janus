@@ -165,4 +165,12 @@ describe('AutocompleteTextboxComponent', () => {
     expect(input.value).toBe('');
     expect(fixture.debugElement.query(By.css('.clear-button'))).toBeNull();
   });
+
+  it('should show empty hint when no value is selected', () => {
+    component.emptyHint = 'Search timezone';
+    fixture.detectChanges();
+
+    const input = getInput();
+    expect(input.placeholder).toBe('Search timezone');
+  });
 });

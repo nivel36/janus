@@ -59,6 +59,7 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   displayWith: (option: T) => string = (option: T) => String(option);
 
   @Input() placeholder = '';
+  @Input() emptyHint = '';
   @Input() debounceMs = 350;
   @Input() minChars = 3;
 

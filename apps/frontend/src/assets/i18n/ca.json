@@ -50,7 +50,8 @@
       "daysUntilLocked": "Dies fins al bloqueig dels fixatges",
       "employeeWorkplaceCreationAllowed": "Permetre que empleats creïn centres de treball",
       "worksiteChangeDuringShiftAllowed": "Permetre canvi de centre durant el torn",
-      "defaultTimezone": "Zona horària predeterminada"
+      "defaultTimezone": "Zona horària predeterminada",
+      "defaultTimezoneHint": "Busca la teva zona horària. Per exemple, Europe/Madrid."
     },
     "messages": {
       "loading": "S'està carregant la configuració...",
