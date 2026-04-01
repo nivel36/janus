@@ -12,6 +12,17 @@ export const appRoutes: Routes = [
       import('./core/error-pages/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
   },
   {
+    path: 'user-preferences',
+    canActivate: [authGuard],
+    data: {
+      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
+    },
+    loadComponent: () =>
+      import('./features/preferences/pages/user-preferences-page.component').then(
+        (m) => m.UserPreferencesPageComponent,
+      ),
+  },
+  {
     path: 'application-settings',
     canActivate: [authGuard],
     data: {
