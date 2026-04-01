@@ -52,8 +52,8 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
             this.results = [];
           }
         }),
-        filter((value) => value.trim().length > this.minChars && !this.hasSelection),
         debounceTime(this.debounceMs),
+        filter((value) => value.trim().length > this.minChars && !this.hasSelection),
         switchMap((query) => {
           this.isLoading = true;
           return from(this.searchMethod(query.trim())).pipe(

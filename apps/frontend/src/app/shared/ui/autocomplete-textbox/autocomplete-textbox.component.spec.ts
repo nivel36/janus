@@ -47,6 +47,25 @@ describe('AutocompleteTextboxComponent', () => {
     expect(component.results).toEqual(['madr-1', 'madr-2']);
   }));
 
+
+  it('should cancel queued search when user backspaces to 3 chars before debounce', fakeAsync(() => {
+    const input = getInput();
+
+    input.value = 'madr';
+    input.dispatchEvent(new Event('input'));
+
+    tick(150);
+
+    input.value = 'mad';
+    input.dispatchEvent(new Event('input'));
+
+    tick(300);
+    fixture.detectChanges();
+
+    expect(searchMethodSpy).not.toHaveBeenCalled();
+    expect(component.results).toEqual([]);
+  }));
+
   it('should not call search method when text has 3 chars or fewer', fakeAsync(() => {
     const input = getInput();
     input.value = 'mad';
