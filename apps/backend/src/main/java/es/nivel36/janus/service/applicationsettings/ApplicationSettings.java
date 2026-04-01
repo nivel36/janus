@@ -16,12 +16,16 @@
 package es.nivel36.janus.service.applicationsettings;
 
 import java.io.Serializable;
+import java.time.ZoneId;
 import java.util.Objects;
 
+import es.nivel36.janus.service.ZoneIdConverter;
 import es.nivel36.janus.service.timelog.TimeLog;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 /**
@@ -83,6 +87,14 @@ public class ApplicationSettings implements Serializable {
 	private boolean worksiteChangeDuringShiftAllowed;
 
 	/**
+	 * Default time zone used by the application when a specific value is not
+	 * provided.
+	 */
+	@NotNull
+	@Convert(converter = ZoneIdConverter.class)
+	private ZoneId defaultTimezone = ZoneId.of("Europe/Madrid");
+
+	/**
 	 * Protected no-argument constructor required by persistence frameworks.
 	 *
 	 * <p>
@@ -104,13 +116,15 @@ public class ApplicationSettings implements Serializable {
 	 * @param worksiteChangeDuringShiftAllowed whether employees are allowed to
 	 *                                         change their worksite during an
 	 *                                         active shift.
+	 * @param defaultTimezone                  default application time zone.
 	 * @throws IllegalArgumentException if {@code daysUntilLocked} is negative
 	 */
 	public ApplicationSettings(final int daysUntilLocked, final boolean employeeWorkplaceCreationAllowed,
-			final boolean worksiteChangeDuringShiftAllowed) {
+			final boolean worksiteChangeDuringShiftAllowed, final ZoneId defaultTimezone) {
 		this.setDaysUntilLocked(daysUntilLocked);
 		this.employeeWorkplaceCreationAllowed = employeeWorkplaceCreationAllowed;
 		this.worksiteChangeDuringShiftAllowed = worksiteChangeDuringShiftAllowed;
+		this.setDefaultTimezone(defaultTimezone);
 	}
 
 	/**
@@ -153,6 +167,10 @@ public class ApplicationSettings implements Serializable {
 	 */
 	public boolean isWorksiteChangeDuringShiftAllowed() {
 		return this.worksiteChangeDuringShiftAllowed;
+	}
+
+	public ZoneId getDefaultTimezone() {
+		return this.defaultTimezone;
 	}
 
 	/**
@@ -205,6 +223,10 @@ public class ApplicationSettings implements Serializable {
 	 */
 	public void setWorksiteChangeDuringShiftAllowed(final boolean worksiteChangeDuringShiftAllowed) {
 		this.worksiteChangeDuringShiftAllowed = worksiteChangeDuringShiftAllowed;
+	}
+
+	public void setDefaultTimezone(final ZoneId defaultTimezone) {
+		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone cannot be null");
 	}
 
 	@Override

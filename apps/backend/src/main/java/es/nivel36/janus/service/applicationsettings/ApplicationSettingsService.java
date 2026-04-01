@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.service.applicationsettings;
 
+import java.time.ZoneId;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -61,18 +62,20 @@ public class ApplicationSettingsService {
 	 *                                         create workplaces.
 	 * @param worksiteChangeDuringShiftAllowed whether worksite changes are allowed
 	 *                                         during a shift.
+	 * @param defaultTimezone                  default application time zone.
 	 * @return the updated {@link ApplicationSettings} instance.
 	 * @throws IllegalStateException if the global application settings entry does
 	 *                               not exist.
 	 */
 	@Transactional
 	public ApplicationSettings update(final int daysUntilLocked, final boolean employeeWorkplaceCreationAllowed,
-			final boolean worksiteChangeDuringShiftAllowed) {
+			final boolean worksiteChangeDuringShiftAllowed, final ZoneId defaultTimezone) {
 		logger.debug("Updating application settings");
 		final ApplicationSettings applicationSettings = this.findById();
 		applicationSettings.setDaysUntilLocked(daysUntilLocked);
 		applicationSettings.setEmployeeWorkplaceCreationAllowed(employeeWorkplaceCreationAllowed);
 		applicationSettings.setWorksiteChangeDuringShiftAllowed(worksiteChangeDuringShiftAllowed);
+		applicationSettings.setDefaultTimezone(defaultTimezone);
 		return applicationSettings;
 	}
 
@@ -130,5 +133,10 @@ public class ApplicationSettingsService {
 	@Transactional(readOnly = true)
 	public boolean isWorksiteChangeDuringShiftAllowed() {
 		return this.findById().isWorksiteChangeDuringShiftAllowed();
+	}
+
+	@Transactional(readOnly = true)
+	public ZoneId getDefaultTimezone() {
+		return this.findById().getDefaultTimezone();
 	}
 }
