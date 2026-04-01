@@ -135,6 +135,11 @@ public class ApplicationSettingsService {
 		return this.findById().isWorksiteChangeDuringShiftAllowed();
 	}
 
+	/**
+	 * Returns the default time zone used by the application
+	 *
+	 * @return ZoneId with the default time zone
+	 */
 	@Transactional(readOnly = true)
 	public ZoneId getDefaultTimezone() {
 		return this.findById().getDefaultTimezone();

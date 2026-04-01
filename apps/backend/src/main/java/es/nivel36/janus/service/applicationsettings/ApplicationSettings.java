@@ -19,9 +19,7 @@ import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.Objects;
 
-import es.nivel36.janus.service.ZoneIdConverter;
 import es.nivel36.janus.service.timelog.TimeLog;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -91,7 +89,6 @@ public class ApplicationSettings implements Serializable {
 	 * provided.
 	 */
 	@NotNull
-	@Convert(converter = ZoneIdConverter.class)
 	private ZoneId defaultTimezone = ZoneId.of("Europe/Madrid");
 
 	/**
@@ -117,7 +114,9 @@ public class ApplicationSettings implements Serializable {
 	 *                                         change their worksite during an
 	 *                                         active shift.
 	 * @param defaultTimezone                  default application time zone.
+	 * 
 	 * @throws IllegalArgumentException if {@code daysUntilLocked} is negative
+	 * @throws NullPointerException if defaultTimezone is {@code null}
 	 */
 	public ApplicationSettings(final int daysUntilLocked, final boolean employeeWorkplaceCreationAllowed,
 			final boolean worksiteChangeDuringShiftAllowed, final ZoneId defaultTimezone) {
@@ -169,6 +168,11 @@ public class ApplicationSettings implements Serializable {
 		return this.worksiteChangeDuringShiftAllowed;
 	}
 
+	/**
+	 * Returns the default time zone used by the application
+	 *
+	 * @return ZoneId with the default time zone
+	 */
 	public ZoneId getDefaultTimezone() {
 		return this.defaultTimezone;
 	}
@@ -225,6 +229,13 @@ public class ApplicationSettings implements Serializable {
 		this.worksiteChangeDuringShiftAllowed = worksiteChangeDuringShiftAllowed;
 	}
 
+	/**
+	 * Sets the default time zone used by the application
+	 * 
+	 * @param defaultTimezone default application time zone.
+	 * 
+	 * @throws NullPointerException if defaultTimezone is {@code null}
+	 */
 	public void setDefaultTimezone(final ZoneId defaultTimezone) {
 		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone cannot be null");
 	}
