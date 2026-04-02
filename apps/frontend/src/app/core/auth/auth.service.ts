@@ -2,17 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { keycloak } from './keycloak';
-
-interface AppUserResponse {
-  username: string;
-  locale: string;
-  timeFormat: string;
-  defaultTimezone: string;
-}
 
 interface KeycloakClaims {
   sub?: string;
@@ -50,14 +41,12 @@ interface LoginRedirectOptions {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly appUserBaseUrl = `${environment.apiBaseUrl}/appusers`;
   private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(
     Boolean(keycloak?.authenticated),
   );
   private readonly usernameSubject = new BehaviorSubject<string | null>(
     this.getUsernameFromClaims(),
   );
-  private readonly appUserSubject = new BehaviorSubject<AppUserResponse | null>(null);
   private readonly claimsSubject = new BehaviorSubject<KeycloakClaims | null>(this.getClaims());
   private readonly permissionsSubject = new BehaviorSubject<PermissionState>({
     realmRoles: [],
@@ -66,11 +55,10 @@ export class AuthService {
 
   readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   readonly username$ = this.usernameSubject.asObservable();
-  readonly appUser$ = this.appUserSubject.asObservable();
   readonly claims$ = this.claimsSubject.asObservable();
   readonly permissions$ = this.permissionsSubject.asObservable();
 
-  constructor(private readonly http: HttpClient) {
+  constructor() {
     this.bindKeycloakEvents();
     this.syncAuthState();
   }
@@ -150,7 +138,6 @@ export class AuthService {
 
     if (!isAuthenticated) {
       this.usernameSubject.next(null);
-      this.appUserSubject.next(null);
       return;
     }
 
@@ -158,11 +145,8 @@ export class AuthService {
     this.usernameSubject.next(username);
 
     if (!username) {
-      this.appUserSubject.next(null);
       return;
     }
-
-    this.fetchAppUser(username);
   }
 
   private getUsernameFromClaims(): string | null {
@@ -182,12 +166,4 @@ export class AuthService {
     return { realmRoles, clientRoles };
   }
 
-  private fetchAppUser(username: string): void {
-    this.http
-      .get<AppUserResponse>(`${this.appUserBaseUrl}/${encodeURIComponent(username)}`)
-      .subscribe({
-        next: (appUser) => this.appUserSubject.next(appUser),
-        error: () => this.appUserSubject.next(null),
-      });
-  }
 }

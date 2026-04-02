@@ -1,8 +1,9 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { UserProfileService } from './core/user-profile/user-profile.service';
 
 @Component({
   selector: 'app-root',
@@ -11,4 +12,8 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent {}
+export class AppComponent {
+  constructor() {
+    inject(UserProfileService);
+  }
+}
