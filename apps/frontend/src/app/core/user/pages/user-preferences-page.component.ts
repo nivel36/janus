@@ -1,20 +1,21 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CommonModule, Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Observable, of, finalize, take } from 'rxjs';
+import { Observable, finalize, of, take } from 'rxjs';
 
+import { supportedLanguages } from '../../../app.config';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
+import { UserPreferences } from '../models/user-preferences';
 import { CurrentUserFacade } from '../services/current-user.facade';
 import { TimeFormat } from '../services/user-profile-api.service';
-import { UserPreferences } from '../models/user-preferences';
 
 type TimezoneOption = {
   zoneId: string;
@@ -26,23 +27,22 @@ type TimezoneOption = {
  * of the currently authenticated user.
  *
  * Responsibilities:
- * - Load current user preferences into the reactive form
- * - Allow the user to edit those preferences
- * - Submit the updated preferences through CurrentUserFacade
- * - Provide UI helpers for timezone selection
+ * - Load current persisted preferences
+ * - Expose a reactive form for editing those preferences
+ * - Provide timezone search and display helpers to the autocomplete component
+ * - Persist changes through CurrentUserFacade
  *
  * This component does NOT:
- * - Resolve the current username
  * - Access backend APIs directly
- * - Manage authenticated user state
+ * - Manage authentication state
+ * - Resolve user identity by itself
  *
- * Those responsibilities belong to CurrentUserFacade.
+ * Those responsibilities belong to CurrentUserFacade and lower layers.
  */
 @Component({
   selector: 'app-user-preferences-page',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,
@@ -61,24 +61,26 @@ export class UserPreferencesPageComponent implements OnInit {
 
   /**
    * Main form containing editable user preferences.
-   */
-  readonly form = this.fb.nonNullable.group({
-    locale: ['es-ES', [Validators.required, Validators.pattern(/^[a-z]{2,3}-[A-Z]{2}$/)]],
-    timeFormat: ['H24' as TimeFormat, Validators.required],
-    defaultTimezone: ['', Validators.required],
-  });
-
-  /**
-   * Auxiliary control used by the timezone autocomplete component.
    *
-   * The selected option is mapped into form.controls.defaultTimezone.
+   * The timezone control stores the IANA timezone identifier as a string,
+   * or null when no valid selection exists.
    */
-  readonly timezoneControl = this.fb.control<TimezoneOption | null>(null);
+  readonly form = this.fb.group({
+    locale: this.fb.nonNullable.control('es', {
+      validators: [Validators.required],
+    }),
+    timeFormat: this.fb.nonNullable.control('H24' as TimeFormat, {
+      validators: [Validators.required],
+    }),
+    defaultTimezone: this.fb.control<string | null>(null, {
+      validators: [Validators.required],
+    }),
+  });
 
   /**
    * Available locale options presented in the UI.
    */
-  readonly localeOptions = ['es-ES', 'en-US', 'ca-ES'];
+  readonly localeOptions = supportedLanguages;
 
   /**
    * Available time format options presented in the UI.
@@ -113,7 +115,8 @@ export class UserPreferencesPageComponent implements OnInit {
    * Loads the preferences of the current authenticated user and
    * populates the form.
    *
-   * If the preferences cannot be loaded, an error message key is set.
+   * If no preferences are available or loading fails, an error
+   * translation key is exposed to the template.
    */
   loadPreferences(): void {
     this.loading = true;
@@ -145,8 +148,11 @@ export class UserPreferencesPageComponent implements OnInit {
    * Persists the current form values as preferences for the
    * authenticated user.
    *
-   * If the operation succeeds, the page navigates back.
-   * If it fails, an error message key is set.
+   * When the form is invalid, all controls are marked as touched
+   * so validation feedback becomes visible.
+   *
+   * On successful save, the form is synchronized with the values
+   * returned by the backend and the page navigates back.
    */
   save(): void {
     if (this.saving || this.form.invalid) {
@@ -154,10 +160,20 @@ export class UserPreferencesPageComponent implements OnInit {
       return;
     }
 
+    const rawValue = this.form.getRawValue();
+
+    /**
+     * The form is validated before this point, so defaultTimezone is expected
+     * to contain a non-null IANA timezone identifier.
+     */
+    const payload: UserPreferences = {
+      locale: rawValue.locale,
+      timeFormat: rawValue.timeFormat,
+      defaultTimezone: rawValue.defaultTimezone!,
+    };
+
     this.saving = true;
     this.errorMessage = '';
-
-    const payload: UserPreferences = this.form.getRawValue();
 
     this.currentUserFacade
       .updatePreferences(payload)
@@ -191,19 +207,33 @@ export class UserPreferencesPageComponent implements OnInit {
   }
 
   /**
-   * Updates the form timezone value when the autocomplete component
-   * emits a selected option.
-   *
-   * @param option Selected timezone option, or null when cleared
-   */
-  onTimezoneSelected(option: TimezoneOption | null): void {
-    this.form.controls.defaultTimezone.setValue(option?.zoneId ?? '');
-  }
-
-  /**
    * Display function used by the autocomplete component.
+   *
+   * @param option Timezone option to render
+   * @returns Human-readable label shown in the input and result list
    */
   readonly timezoneDisplayWith = (option: TimezoneOption): string => option.literal;
+
+  /**
+   * Value mapper used by the autocomplete component.
+   *
+   * It converts the selected option into the string value stored in
+   * the reactive form.
+   *
+   * @param option Selected timezone option
+   * @returns IANA timezone identifier
+   */
+  readonly timezoneValueWith = (option: TimezoneOption): string => option.zoneId;
+
+  /**
+   * Resolver used by the autocomplete component when Angular writes
+   * an existing form value back into the control.
+   *
+   * @param zoneId Stored IANA timezone identifier
+   * @returns Matching timezone option or null when not found
+   */
+  readonly resolveTimezoneByValue = (zoneId: string): TimezoneOption | null =>
+    this.findTimezoneOption(zoneId);
 
   /**
    * Search function used by the autocomplete component.
@@ -230,20 +260,26 @@ export class UserPreferencesPageComponent implements OnInit {
   };
 
   /**
-   * Applies loaded preferences to the form and synchronizes the
-   * auxiliary timezone autocomplete control.
+   * Applies loaded or updated preferences to the form and resets
+   * form interaction state.
    *
    * @param preferences Preferences to display
    */
   private applyPreferences(preferences: UserPreferences): void {
-    this.form.reset(preferences);
-    this.timezoneControl.setValue(this.findTimezoneOption(preferences.defaultTimezone), {
-      emitEvent: false,
+    this.form.reset({
+      locale: preferences.locale,
+      timeFormat: preferences.timeFormat,
+      defaultTimezone: preferences.defaultTimezone,
     });
+
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
   }
 
   /**
    * Builds the full timezone catalog used by the autocomplete control.
+   *
+   * @returns List of timezone options with display literals
    */
   private createTimezoneCatalog(): TimezoneOption[] {
     return Intl.supportedValuesOf('timeZone').map((zoneId) => ({

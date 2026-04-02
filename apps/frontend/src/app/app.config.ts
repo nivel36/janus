@@ -14,7 +14,7 @@ import { authErrorInterceptor } from './core/auth/auth-error.interceptor';
 import { provideRouter } from '@angular/router';
 import { appRoutes } from './app.routes';
 
-const supportedLanguages = ['en', 'es', 'ca'] as const;
+export const supportedLanguages = ['en', 'es', 'ca'] as const;
 
 export function resolveInitialLanguage(
   browserLanguages: readonly string[] | undefined,

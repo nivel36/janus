@@ -5,6 +5,11 @@
     "applicationSettings": "Application settings",
     "userPreferences": "User preferences"
   },
+  "locale": {
+    "ca": "Catalan",
+    "es": "Spanish",
+    "en": "English"
+  },
   "actions": {
     "save": "Save",
     "cancel": "Cancel"

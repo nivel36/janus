@@ -3,45 +3,66 @@
         <app-card styleClass="preferences-card">
             <form [formGroup]="form" (ngSubmit)="save()">
                 <div class="field-control">
-                    <label for="preferences-locale">{{ 'userPreferences.fields.locale' | translate }}</label>
+                    <label for="preferences-locale">
+                        {{ 'userPreferences.fields.locale' | translate }}
+                    </label>
                     <select id="preferences-locale" formControlName="locale">
                         @for (locale of localeOptions; track locale) {
-                            <option [value]="locale">{{ locale }}</option>
+                            <option [value]="locale">
+                                {{ 'locale.' + locale | translate }}
+                            </option>
                         }
                     </select>
                 </div>
 
                 <div class="field-control">
-                    <label for="preferences-time-format">{{ 'userPreferences.fields.timeFormat' | translate }}</label>
+                    <label for="preferences-time-format">
+                        {{ 'userPreferences.fields.timeFormat' | translate }}
+                    </label>
                     <select id="preferences-time-format" formControlName="timeFormat">
                         @for (timeFormat of timeFormatOptions; track timeFormat) {
                             <option [value]="timeFormat">
-                                {{ ('userPreferences.timeFormat.' + timeFormat) | translate }}
+                                {{ 'userPreferences.timeFormat.' + timeFormat | translate }}
                             </option>
                         }
                     </select>
                 </div>
 
                 <div class="field-control timezone-control">
-                    <label for="preferences-timezone">{{ 'userPreferences.fields.defaultTimezone' | translate }}</label>
+                    <label for="preferences-timezone">
+                        {{ 'userPreferences.fields.defaultTimezone' | translate }}
+                    </label>
+
                     <app-autocomplete-textbox
                         id="preferences-timezone"
-                        [formControl]="timezoneControl"
+                        formControlName="defaultTimezone"
                         [searchMethod]="searchMethod"
                         [displayWith]="timezoneDisplayWith"
+                        [valueWith]="timezoneValueWith"
+                        [resolveByValue]="resolveTimezoneByValue"
                         [emptyHint]="'userPreferences.fields.defaultTimezoneHint' | translate"
-                        (selectedChange)="onTimezoneSelected($event)"
                     />
+
+                    @if (
+                        form.controls.defaultTimezone.touched &&
+                        form.controls.defaultTimezone.invalid
+                    ) {
+                        <p class="message error">
+                            {{ 'userPreferences.errors.invalidTimezone' | translate }}
+                        </p>
+                    }
                 </div>
 
-                <p class="message error" *ngIf="errorMessage">{{ errorMessage | translate }}</p>
+                @if (errorMessage) {
+                    <p class="message error">{{ errorMessage | translate }}</p>
+                }
 
                 <div class="buttons">
                     <app-button type="button" variant="secondary" (clicked)="goBack()">
                         {{ 'actions.cancel' | translate }}
                     </app-button>
 
-                    <app-button type="submit" [disabled]="form.invalid || saving" variant="main">
+                    <app-button type="submit" variant="main">
                         {{ 'actions.save' | translate }}
                     </app-button>
                 </div>
