@@ -165,5 +165,4 @@ export class AuthService {
 
     return { realmRoles, clientRoles };
   }
-
 }

@@ -7,13 +7,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { CardComponent } from '../../../../shared/ui/card/card.component';
 
 @Component({
-  selector: 'app-user-card',
+  selector: 'app-employee-card',
   standalone: true,
   imports: [CardComponent, TranslatePipe],
-  templateUrl: './user-card.component.html',
-  styleUrl: './user-card.component.css',
+  templateUrl: './employee-card.component.html',
+  styleUrl: './employee-card.component.css',
 })
-export class UserCardComponent {
+export class EmployeeCardComponent {
   @Input() fullName: string | null = null;
   @Input() location = 'Barcelona Headquarters';
   @Input() todaysHour = '9:00 - 17:30';

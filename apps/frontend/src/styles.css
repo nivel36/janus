@@ -13,16 +13,16 @@ body {
     background-color: #000000;
 }
 
-.user-card .user-card-header-content {
+.employee-card .employee-card-header-content {
     text-align: left;
 }
 
-.user-card .avatar {
+.employee-card .avatar {
     width: 4rem;
     vertical-align: middle;
 }
 
-.user-card .user-card-title {
+.employee-card .employee-card-title {
     font-size: 2rem;
     color: #131313;
     vertical-align: middle;
@@ -30,7 +30,7 @@ body {
     margin-left: 1rem;
 }
 
-.user-card h3 {
+.employee-card h3 {
     font-size: 1rem;
     margin: 0;
     text-transform: uppercase;
@@ -38,14 +38,14 @@ body {
     color: #f9d600;
 }
 
-.user-card p {
+.employee-card p {
     font-size: 1rem;
     margin: 0;
     letter-spacing: 0.12em;
     color: #ffffff;
 }
 
-.user-card .data {
+.employee-card .data {
     margin: 0 0 1rem 0;
 }
 
