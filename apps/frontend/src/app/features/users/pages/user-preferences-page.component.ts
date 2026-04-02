@@ -10,10 +10,10 @@ import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-te
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import {
-  AppPreferences,
-  PreferencesService,
+  UserPreferences,
   TimeFormat,
-} from '../services/user-preferences.service';
+  UserProfileService,
+} from '../../../core/user-profile/user-profile.service';
 
 type TimezoneOption = {
   zoneId: string;
@@ -37,7 +37,7 @@ type TimezoneOption = {
 })
 export class UserPreferencesPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly preferencesService = inject(PreferencesService);
+  private readonly preferencesService = inject(UserProfileService);
   private readonly location = inject(Location);
   private readonly router = inject(Router);
 
@@ -64,7 +64,7 @@ export class UserPreferencesPageComponent implements OnInit {
     this.errorMessage = '';
 
     this.preferencesService
-      .load(true)
+      .loadPreferences(true)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (preferences) => {
@@ -87,10 +87,10 @@ export class UserPreferencesPageComponent implements OnInit {
     this.saving = true;
     this.errorMessage = '';
 
-    const payload: AppPreferences = this.form.getRawValue();
+    const payload: UserPreferences = this.form.getRawValue();
 
     this.preferencesService
-      .update(payload)
+      .updatePreferences(payload)
       .pipe(finalize(() => (this.saving = false)))
       .subscribe({
         next: () => this.goBack(),
