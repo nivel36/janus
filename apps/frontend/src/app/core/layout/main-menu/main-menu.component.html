@@ -1,7 +1,15 @@
 @if (currentUser$ | async; as user) {
     <nav class="main-menu" aria-label="Menú principal">
         <div class="main-menu__identity">
-            <span class="main-menu__user-name">{{ user.fullName }}</span>
+            <button
+                type="button"
+                class="main-menu__user-name"
+                [attr.aria-label]="'{{ user.fullName }}'"
+                [attr.title]="'{{ user.fullName }}'"
+                (click)="goToUserPreferences()"
+            >
+                <span aria-hidden="true">{{ user.fullName }}</span>
+            </button>
         </div>
 
         <div class="main-menu__actions">
@@ -13,16 +21,6 @@
                 (click)="goToApplicationSettings()"
             >
                 <span aria-hidden="true">⚙</span>
-            </button>
-
-            <button
-                type="button"
-                class="main-menu__icon-button main-menu__icon-button--user-preferences"
-                [attr.aria-label]="'navigation.userPreferences' | translate"
-                [attr.title]="'navigation.userPreferences' | translate"
-                (click)="goToUserPreferences()"
-            >
-                <span aria-hidden="true">👤</span>
             </button>
 
             <button

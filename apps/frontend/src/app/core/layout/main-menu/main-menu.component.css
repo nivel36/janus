@@ -11,8 +11,6 @@
     overflow: hidden;
 }
 
-/* IZQUIERDA */
-
 .main-menu__identity {
     min-width: 0;
     display: flex;
@@ -28,20 +26,27 @@
     background-color: #fece0b;
     color: #131313;
     letter-spacing: 0.04em;
-    text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    border: 0px;
+    border-right: 1px solid rgba(249, 214, 0, 0.22);
+    cursor: pointer;
+    transition:
+        background-color 120ms ease,
+        color 120ms ease;
 }
 
-/* DERECHA */
+.main-menu__user-name:hover,
+.main-menu__user-name:focus-visible {
+    background-color: #050505;
+    color: #fece0b;
+}
 
 .main-menu__actions {
     display: flex;
     align-items: stretch;
     flex-shrink: 0;
 }
-
-/* BOTONES */
 
 .main-menu__icon-button {
     min-width: 3.8rem;
