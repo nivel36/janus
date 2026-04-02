@@ -4,7 +4,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, finalize, map, shareReplay, tap, filter, switchMap } from 'rxjs/operators';
+import { catchError, finalize, map, shareReplay, tap, switchMap } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/auth.service';
@@ -34,16 +34,21 @@ export class UserProfileService {
   constructor() {
     this.authService.isAuthenticated$
       .pipe(
-        filter(Boolean),
-        switchMap(() => this.loadPreferences(false)),
-      )
-      .subscribe({
-        error: () => {},
-      });
+        switchMap((authenticated) => {
+          if (!authenticated) {
+            this.clear();
+            return of(null);
+          }
 
-    this.authService.isAuthenticated$
-      .pipe(filter((authenticated) => !authenticated))
-      .subscribe(() => this.clear());
+          return this.loadPreferences(false).pipe(
+            catchError(() => {
+              this.clear();
+              return of(null);
+            }),
+          );
+        }),
+      )
+      .subscribe();
   }
 
   loadPreferences(force = false): Observable<UserPreferences> {
@@ -56,22 +61,37 @@ export class UserProfileService {
     }
 
     const username = this.resolveUsername();
-    this.inflight = this.http
+    const request$ = this.http
       .get<AppUserProfile>(`${this.baseUrl}/${encodeURIComponent(username)}`)
       .pipe(
-        tap((response) => this.profile.set(response)),
+        tap((response) => {
+          if (this.isActiveUser(username)) {
+            this.profile.set(response);
+          }
+        }),
         map((response) => this.toPreferences(response)),
-        tap((preferences) => this.preferences.set(preferences)),
+        tap((preferences) => {
+          if (this.isActiveUser(username)) {
+            this.preferences.set(preferences);
+          }
+        }),
         catchError((err) => {
-          this.profile.set(null);
-          this.preferences.set(null);
+          if (this.isActiveUser(username)) {
+            this.profile.set(null);
+            this.preferences.set(null);
+          }
           return throwError(() => err);
         }),
-        finalize(() => (this.inflight = undefined)),
-        shareReplay({ bufferSize: 1, refCount: false }),
+        finalize(() => {
+          if (this.inflight === request$) {
+            this.inflight = undefined;
+          }
+        }),
+        shareReplay({ bufferSize: 1, refCount: true }),
       );
 
-    return this.inflight;
+    this.inflight = request$;
+    return request$;
   }
 
   updatePreferences(payload: UserPreferences): Observable<UserPreferences> {
@@ -109,5 +129,11 @@ export class UserProfileService {
       timeFormat: response.timeFormat,
       defaultTimezone: response.defaultTimezone,
     };
+  }
+
+  private isActiveUser(username: string): boolean {
+    const claims = this.authService.getClaims();
+    const activeUsername = claims?.email ?? claims?.preferred_username;
+    return Boolean(activeUsername) && activeUsername === username;
   }
 }
