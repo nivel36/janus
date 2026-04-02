@@ -6,8 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 
-import { environment } from '../../../environments/environment';
-import { AuthService } from '../../core/auth/auth.service';
+import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/auth/auth.service';
 
 export type TimeFormat = 'H12' | 'H24';
 

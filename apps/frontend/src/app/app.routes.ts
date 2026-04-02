@@ -18,7 +18,7 @@ export const appRoutes: Routes = [
       realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
     },
     loadComponent: () =>
-      import('./features/preferences/pages/user-preferences-page.component').then(
+      import('./features/users/pages/user-preferences-page.component').then(
         (m) => m.UserPreferencesPageComponent,
       ),
   },

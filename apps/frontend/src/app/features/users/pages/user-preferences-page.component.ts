@@ -9,7 +9,11 @@ import { PageTemplateComponent } from '../../../core/layout/page-template/page-t
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
-import { AppPreferences, PreferencesService, TimeFormat } from '../preferences.service';
+import {
+  AppPreferences,
+  PreferencesService,
+  TimeFormat,
+} from '../services/user-preferences.service';
 
 type TimezoneOption = {
   zoneId: string;
@@ -142,8 +146,7 @@ export class UserPreferencesPageComponent implements OnInit {
       timeZoneName: 'shortOffset',
     })
       .formatToParts(new Date())
-      .find((part) => part.type === 'timeZoneName')
-      ?.value;
+      .find((part) => part.type === 'timeZoneName')?.value;
 
     return utcOffsetPart?.replace('GMT', 'UTC') ?? 'UTC';
   }

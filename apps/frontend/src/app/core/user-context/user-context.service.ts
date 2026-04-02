@@ -4,7 +4,7 @@
 import { Injectable } from '@angular/core';
 import { combineLatest, filter, switchMap } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { PreferencesService } from '../../features/preferences/preferences.service';
+import { PreferencesService } from '../../features/users/services/user-preferences.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserContextService {
