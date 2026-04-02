@@ -16,17 +16,32 @@ import { appRoutes } from './app.routes';
 
 export const supportedLanguages = ['en', 'es', 'ca'] as const;
 
+export function resolveSupportedLanguage(
+  locale: string | undefined | null,
+  fallbackLanguage: (typeof supportedLanguages)[number] = 'en',
+): (typeof supportedLanguages)[number] {
+  const normalizedLanguage = locale?.toLowerCase().split('-')[0];
+
+  if (normalizedLanguage && supportedLanguages.includes(normalizedLanguage as (typeof supportedLanguages)[number])) {
+    return normalizedLanguage as (typeof supportedLanguages)[number];
+  }
+
+  return fallbackLanguage;
+}
+
 export function resolveInitialLanguage(
   browserLanguages: readonly string[] | undefined,
   fallbackLanguage: (typeof supportedLanguages)[number] = 'en',
 ): (typeof supportedLanguages)[number] {
-  const normalizedLanguages = (browserLanguages ?? [])
-    .map((language) => language.toLowerCase().split('-')[0])
-    .filter((language): language is (typeof supportedLanguages)[number] =>
-      supportedLanguages.includes(language as (typeof supportedLanguages)[number]),
-    );
+  for (const browserLanguage of browserLanguages ?? []) {
+    const resolvedLanguage = resolveSupportedLanguage(browserLanguage, fallbackLanguage);
 
-  return normalizedLanguages[0] ?? fallbackLanguage;
+    if (resolvedLanguage !== fallbackLanguage || browserLanguage?.toLowerCase().startsWith(fallbackLanguage)) {
+      return resolvedLanguage;
+    }
+  }
+
+  return fallbackLanguage;
 }
 
 const initialLanguage = resolveInitialLanguage(
