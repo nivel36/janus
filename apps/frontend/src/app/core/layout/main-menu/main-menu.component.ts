@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { CurrentUserFacade } from '../../auth/current-user.facade';
+import { CurrentUserFacade } from '../../user/services/current-user.facade';
 import { AuthService } from '../../auth/auth.service';
 
 @Component({

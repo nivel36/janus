@@ -23,7 +23,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 
-import { CurrentUserFacade } from '../../../../core/auth/current-user.facade';
+import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../../shared/ui/card/card.component';
 import { ClockComponent } from '../../../../shared/ui/clock/clock.component';

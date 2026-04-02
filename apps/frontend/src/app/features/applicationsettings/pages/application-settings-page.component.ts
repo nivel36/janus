@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, of, finalize } from 'rxjs';
 
-import { CurrentUserFacade } from '../../../core/auth/current-user.facade';
+import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
@@ -175,8 +175,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
       timeZoneName: 'shortOffset',
     })
       .formatToParts(new Date())
-      .find((part) => part.type === 'timeZoneName')
-      ?.value;
+      .find((part) => part.type === 'timeZoneName')?.value;
 
     return utcOffsetPart?.replace('GMT', 'UTC') ?? 'UTC';
   }
