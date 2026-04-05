@@ -10,7 +10,11 @@
     overflow: hidden;
 }
 
-input {
+.input-wrapper:focus-within {
+    box-shadow: 0 0 0 2px rgba(249, 214, 0, 0.3);
+}
+
+.input-wrapper input {
     flex: 1;
     min-width: 0;
     border: none;
@@ -21,7 +25,7 @@ input {
     font-size: 0.95rem;
 }
 
-input[readonly] {
+.input-wrapper input[readonly] {
     cursor: default;
 }
 
@@ -57,6 +61,7 @@ input[readonly] {
 }
 
 .results {
+    min-width: 100%;
     width: max-content;
     max-width: min(30rem, calc(100vw - 2rem));
     margin: 0;
