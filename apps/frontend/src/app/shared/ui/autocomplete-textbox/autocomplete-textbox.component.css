@@ -48,6 +48,14 @@ input[readonly] {
     opacity: 0.7;
 }
 
+.results-panel {
+    min-width: 100%;
+}
+
+.results-status {
+    padding: 0.75rem 1rem;
+}
+
 .results {
     width: max-content;
     max-width: min(30rem, calc(100vw - 2rem));
@@ -74,6 +82,9 @@ input[readonly] {
     cursor: pointer;
 }
 
-.results li button:hover {
-    background-color: #212121;
+.results li button:hover,
+.results li button.active,
+.results li button:focus-visible {
+    background-color: #a0830e;
+    outline: none;
 }

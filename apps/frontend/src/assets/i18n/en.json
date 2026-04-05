@@ -14,6 +14,10 @@
     "save": "Save",
     "cancel": "Cancel"
   },
+  "search": {
+    "loading": "Loading...",
+    "noResultsFound": "No results found"
+  },
   "timelog": {
     "activeWorkday": "Active Workday",
     "workdayNotStarted": "Workday not started",

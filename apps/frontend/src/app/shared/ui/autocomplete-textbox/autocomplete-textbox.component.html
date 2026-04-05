@@ -6,7 +6,15 @@
             [formControl]="textControl"
             [readonly]="hasSelection"
             [attr.aria-readonly]="hasSelection"
+            [attr.aria-expanded]="isOverlayOpen"
+            [attr.aria-controls]="isOverlayOpen ? 'autocomplete-results' : null"
+            [attr.aria-activedescendant]="
+                isOverlayOpen && activeIndex >= 0 ? getOptionId(activeIndex) : null
+            "
+            aria-autocomplete="list"
+            aria-haspopup="listbox"
             (blur)="handleBlur()"
+            (keydown)="onInputKeydown($event)"
         />
 
         @if (hasSelection) {
@@ -25,19 +33,40 @@
     <ng-template
         cdkConnectedOverlay
         [cdkConnectedOverlayOrigin]="trigger"
-        [cdkConnectedOverlayOpen]="!hasSelection && results.length > 0"
+        [cdkConnectedOverlayOpen]="isOverlayOpen"
         [cdkConnectedOverlayPositions]="overlayPositions"
         [cdkConnectedOverlayHasBackdrop]="false"
         [cdkConnectedOverlayPush]="true"
+        (overlayOutsideClick)="onOutsideClick()"
     >
-        <ul class="results" role="listbox">
-            @for (result of results; track $index) {
-                <li>
-                    <button type="button" (mousedown)="onSelect(result)">
-                        {{ displayWith(result) }}
-                    </button>
-                </li>
+        <div class="results-panel">
+            @if (isLoading) {
+                <div class="results-status" aria-live="polite">
+                    {{ 'search.loading' | translate }}
+                </div>
+            } @else if (results.length > 0) {
+                <ul class="results" id="autocomplete-results" role="listbox">
+                    @for (result of results; track trackByValue(result); let i = $index) {
+                        <li>
+                            <button
+                                #resultButton
+                                type="button"
+                                role="option"
+                                [id]="getOptionId(i)"
+                                [attr.aria-selected]="isActive(i)"
+                                [class.active]="isActive(i)"
+                                (click)="onSelect(result)"
+                            >
+                                {{ displayWith(result) }}
+                            </button>
+                        </li>
+                    }
+                </ul>
+            } @else {
+                <div class="results-status" aria-live="polite">
+                    {{ 'search.noResultsFound' | translate }}
+                </div>
             }
-        </ul>
+        </div>
     </ng-template>
 </div>

@@ -42,11 +42,12 @@
                     </label>
                     <app-autocomplete-textbox
                         id="default-timezone"
-                        [formControl]="timezoneControl"
+                        formControlName="defaultTimezone"
                         [searchMethod]="searchMethod"
                         [displayWith]="timezoneDisplayWith"
+                        [valueWith]="timezoneValueWith"
+                        [resolveByValue]="resolveTimezoneByValue"
                         [emptyHint]="'applicationSettings.fields.defaultTimezoneHint' | translate"
-                        (selectedChange)="onTimezoneSelected($event)"
                     />
                 </div>
 

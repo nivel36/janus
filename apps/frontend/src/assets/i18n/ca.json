@@ -14,6 +14,10 @@
     "save": "Desa",
     "cancel": "Cancel·la"
   },
+  "search": {
+    "loading": "Carregant...",
+    "noResultsFound": "No s'han trobat resultats"
+  },
   "timelog": {
     "activeWorkday": "Jornada en curs",
     "workdayNotStarted": "Jornada no iniciada",

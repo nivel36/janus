@@ -44,17 +44,37 @@ export class ApplicationSettingsPageComponent implements OnInit {
   private readonly location = inject(Location);
   private readonly router = inject(Router);
 
+  /**
+   * Main form containing editable application settings.
+   *
+   * The timezone control stores the IANA timezone identifier as a string,
+   * or null when no valid selection exists.
+   */
   readonly form = this.fb.nonNullable.group({
     daysUntilLocked: [0, [Validators.required, Validators.min(0)]],
     employeeWorkplaceCreationAllowed: [false],
     worksiteChangeDuringShiftAllowed: [false],
-    defaultTimezone: ['', Validators.required],
+    defaultTimezone: ['Europe/Madrid', Validators.required],
   });
-  readonly timezoneControl = this.fb.control<TimezoneOption | null>(null);
+
+  /**
+   * Full timezone catalog used by the autocomplete search.
+   */
   readonly timezoneCatalog = this.createTimezoneCatalog();
 
+  /**
+   * Indicates whether the initial preference load is in progress.
+   */
   loading = true;
+
+  /**
+   * Indicates whether a save operation is in progress.
+   */
   saving = false;
+
+  /**
+   * Translation key of the current error message, if any.
+   */
   errorMessage = '';
 
   get isAdmin(): boolean {
@@ -69,6 +89,12 @@ export class ApplicationSettingsPageComponent implements OnInit {
     this.loadSettings();
   }
 
+  /**
+   * Loads the settings of the current application and populates the form.
+   *
+   * If no preferences are available or loading fails, an error
+   * translation key is exposed to the template.
+   */
   loadSettings(): void {
     this.loading = true;
     this.errorMessage = '';
@@ -82,23 +108,38 @@ export class ApplicationSettingsPageComponent implements OnInit {
       )
       .subscribe({
         next: (settings) => {
-          this.form.reset(settings);
-          this.timezoneControl.setValue(this.findTimezoneOption(settings.defaultTimezone), {
-            emitEvent: false,
-          });
+          if (!settings) {
+            this.errorMessage = 'applicationSettings.errors.load';
+            return;
+          }
+
+          this.applyApplicationSettings(settings);
 
           if (!this.isAdmin) {
             this.form.disable();
-            this.timezoneControl.disable();
           } else {
             this.form.enable();
-            this.timezoneControl.enable();
           }
         },
         error: () => {
           this.errorMessage = 'applicationSettings.errors.load';
         },
       });
+  }
+
+  /**
+   * Applies loaded or updated ApplicationSettings to the form and resets
+   * form interaction state.
+   *
+   * @param preferences applicationSettings to display
+   */
+  private applyApplicationSettings(applicationSettings: ApplicationSettings): void {
+    this.form.reset({
+      daysUntilLocked: applicationSettings.daysUntilLocked,
+      employeeWorkplaceCreationAllowed: applicationSettings.employeeWorkplaceCreationAllowed,
+      worksiteChangeDuringShiftAllowed: applicationSettings.worksiteChangeDuringShiftAllowed,
+      defaultTimezone: applicationSettings.defaultTimezone,
+    });
   }
 
   goBack(): void {
@@ -112,13 +153,14 @@ export class ApplicationSettingsPageComponent implements OnInit {
 
   save(): void {
     if (!this.isAdmin || this.saving || this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
+    const payload: ApplicationSettings = this.form.getRawValue();
+
     this.saving = true;
     this.errorMessage = '';
-
-    const payload: ApplicationSettings = this.form.getRawValue();
 
     this.settingsApiService
       .update(payload)
@@ -138,7 +180,13 @@ export class ApplicationSettingsPageComponent implements OnInit {
       });
   }
 
-  searchMethod = (query: string): Observable<TimezoneOption[]> => {
+  /**
+   * Search function used by the autocomplete component.
+   *
+   * @param query Raw user query
+   * @returns Matching timezone options
+   */
+  readonly searchMethod = (query: string): Observable<TimezoneOption[]> => {
     const normalizedQuery = query.trim().toLowerCase();
 
     if (!normalizedQuery) {
@@ -156,12 +204,40 @@ export class ApplicationSettingsPageComponent implements OnInit {
     );
   };
 
-  onTimezoneSelected(option: TimezoneOption | null): void {
-    this.form.controls.defaultTimezone.setValue(option?.zoneId ?? '');
-  }
+  /**
+   * Display function used by the autocomplete component.
+   *
+   * @param option Timezone option to render
+   * @returns Human-readable label shown in the input and result list
+   */
+  readonly timezoneDisplayWith = (option: TimezoneOption): string => option.literal;
 
-  timezoneDisplayWith = (option: TimezoneOption): string => option.literal;
+  /**
+   * Value mapper used by the autocomplete component.
+   *
+   * It converts the selected option into the string value stored in
+   * the reactive form.
+   *
+   * @param option Selected timezone option
+   * @returns IANA timezone identifier
+   */
+  readonly timezoneValueWith = (option: TimezoneOption): string => option.zoneId;
 
+  /**
+   * Resolver used by the autocomplete component when Angular writes
+   * an existing form value back into the control.
+   *
+   * @param zoneId Stored IANA timezone identifier
+   * @returns Matching timezone option or null when not found
+   */
+  readonly resolveTimezoneByValue = (zoneId: string): TimezoneOption | null =>
+    this.findTimezoneOption(zoneId);
+
+  /**
+   * Builds the full timezone catalog used by the autocomplete control.
+   *
+   * @returns List of timezone options with display literals
+   */
   private createTimezoneCatalog(): TimezoneOption[] {
     return Intl.supportedValuesOf('timeZone').map((zoneId) => ({
       zoneId,
@@ -169,6 +245,12 @@ export class ApplicationSettingsPageComponent implements OnInit {
     }));
   }
 
+  /**
+   * Computes a human-readable UTC offset label for a timezone.
+   *
+   * @param zoneId IANA timezone identifier
+   * @returns UTC offset literal
+   */
   private getUtcOffsetLiteral(zoneId: string): string {
     const utcOffsetPart = new Intl.DateTimeFormat('en-US', {
       timeZone: zoneId,
@@ -180,6 +262,12 @@ export class ApplicationSettingsPageComponent implements OnInit {
     return utcOffsetPart?.replace('GMT', 'UTC') ?? 'UTC';
   }
 
+  /**
+   * Finds the timezone option corresponding to a stored timezone id.
+   *
+   * @param zoneId IANA timezone identifier
+   * @returns Matching option or null
+   */
   private findTimezoneOption(zoneId: string): TimezoneOption | null {
     return this.timezoneCatalog.find((option) => option.zoneId === zoneId) ?? null;
   }
