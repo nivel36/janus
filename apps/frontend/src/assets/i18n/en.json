@@ -12,11 +12,14 @@
   },
   "actions": {
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "cleanSelection": "Clean selection"
   },
   "search": {
-    "loading": "Loading...",
-    "noResultsFound": "No results found"
+    "loadingResults": "Loading results",
+    "noResultsFound": "No results found",
+    "resultsAvailable_one": "One result avaliable",
+    "resultsAvailable_other": "{{count}} results avaliable"
   },
   "timelog": {
     "activeWorkday": "Active Workday",

@@ -1,16 +1,22 @@
 <div class="autocomplete">
     <div class="input-wrapper" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
         <input
+            [id]="inputId"
             type="text"
+            role="combobox"
             [placeholder]="hasSelection ? '' : emptyHint || placeholder"
             [formControl]="textControl"
             [readonly]="hasSelection"
-            [attr.aria-readonly]="hasSelection"
-            [attr.aria-expanded]="isOverlayOpen"
-            [attr.aria-controls]="isOverlayOpen ? 'autocomplete-results' : null"
+            [attr.aria-label]="ariaLabelledBy ? null : ariaLabel || null"
+            [attr.aria-labelledby]="ariaLabelledBy || null"
+            [attr.aria-readonly]="hasSelection ? 'true' : null"
+            [attr.aria-disabled]="disabled ? 'true' : null"
+            [attr.aria-expanded]="isOverlayOpen ? 'true' : 'false'"
+            [attr.aria-controls]="isOverlayOpen && results.length > 0 ? resultsListId : null"
             [attr.aria-activedescendant]="
                 isOverlayOpen && activeIndex >= 0 ? getOptionId(activeIndex) : null
             "
+            [attr.aria-busy]="isLoading ? 'true' : 'false'"
             aria-autocomplete="list"
             aria-haspopup="listbox"
             (blur)="handleBlur()"
@@ -21,13 +27,17 @@
             <button
                 type="button"
                 class="clear-button"
-                aria-label="Clear selection"
+                [attr.aria-label]="clearButtonAriaLabel || ('actions.clearSelection' | translate)"
                 [disabled]="disabled"
                 (click)="clearSelection()"
             >
                 ✕
             </button>
         }
+    </div>
+
+    <div class="sr-only" [id]="statusMessageId" role="status" aria-live="polite" aria-atomic="true">
+        {{ liveRegionMessage }}
     </div>
 
     <ng-template
@@ -41,29 +51,27 @@
     >
         <div class="results-panel">
             @if (isLoading) {
-                <div class="results-status" aria-live="polite">
+                <div class="results-status">
                     {{ 'search.loading' | translate }}
                 </div>
             } @else if (results.length > 0) {
-                <ul class="results" id="autocomplete-results" role="listbox">
+                <ul class="results" [id]="resultsListId" role="listbox">
                     @for (result of results; track trackByValue(result); let i = $index) {
-                        <li>
-                            <button
-                                #resultButton
-                                type="button"
-                                role="option"
-                                [id]="getOptionId(i)"
-                                [attr.aria-selected]="isActive(i)"
-                                [class.active]="isActive(i)"
-                                (click)="onSelect(result)"
-                            >
-                                {{ displayWith(result) }}
-                            </button>
+                        <li
+                            #resultOption
+                            role="option"
+                            [id]="getOptionId(i)"
+                            [attr.aria-selected]="isActive(i) ? 'true' : 'false'"
+                            [class.active]="isActive(i)"
+                            (mousedown)="onOptionMouseDown($event)"
+                            (click)="onSelect(result)"
+                        >
+                            {{ displayWith(result) }}
                         </li>
                     }
                 </ul>
             } @else {
-                <div class="results-status" aria-live="polite">
+                <div class="results-status">
                     {{ 'search.noResultsFound' | translate }}
                 </div>
             }

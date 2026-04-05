@@ -75,21 +75,32 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-.results li button {
+.results li {
     display: block;
     width: 100%;
     text-align: left;
     white-space: nowrap;
-    border: none;
     background: transparent;
     color: #f9f9f9;
     padding: 0.5rem 0.75rem;
     cursor: pointer;
 }
 
-.results li button:hover,
-.results li button.active,
-.results li button:focus-visible {
+.results li:hover,
+.results li.active {
     background-color: #a0830e;
     outline: none;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
 }

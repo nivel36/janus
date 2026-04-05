@@ -12,11 +12,15 @@
   },
   "actions": {
     "save": "Guarda",
-    "cancel": "Cancela"
+    "cancel": "Cancela",
+    "cleanSelection": "Limpia la selección"
   },
+
   "search": {
-    "loading": "Cargando...",
-    "noResultsFound": "No se han encontrado resultados"
+    "loadingResults": "Cargando resultados",
+    "noResultsFound": "No se han encontrado resultados",
+    "resultsAvailable_one": "1 resultado disponible",
+    "resultsAvailable_other": "{{count}} resultados disponibles"
   },
   "timelog": {
     "activeWorkday": "Jornada en curso",

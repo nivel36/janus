@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { CommonModule } from '@angular/common';
+
 import {
   Component,
   DestroyRef,
@@ -37,7 +38,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 /**
  * Standalone autocomplete textbox component that integrates with Angular reactive forms
@@ -195,6 +196,27 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   @Input() minChars = 3;
 
   /**
+   * Accessible name used when the component is not associated with an external label.
+   *
+   * Provide either this input or {@link ariaLabelledBy}. An autocomplete without an
+   * accessible name does not comply with ARIA expectations for form controls.
+   */
+  @Input() ariaLabel = '';
+
+  /**
+   * Id of an external element that provides the accessible name for the input.
+   *
+   * This is typically the id of a visible `<label>` or another element containing
+   * the control label text.
+   */
+  @Input() ariaLabelledBy = '';
+
+  /**
+   * Accessible label announced for the button that clears the current selection.
+   */
+  @Input() clearButtonAriaLabel = '';
+
+  /**
    * Auxiliary event emitted when the selected option changes.
    *
    * This event is intended for consumers that need access to the full selected object,
@@ -232,8 +254,8 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
    * The non-null assertion (`!`) is used because Angular initializes the query
    * after view creation, ensuring it is available during runtime.
    */
-  @ViewChildren('resultButton')
-  private resultButtons!: QueryList<ElementRef<HTMLButtonElement>>;
+  @ViewChildren('resultOption')
+  private resultOptions!: QueryList<ElementRef<HTMLElement>>;
 
   /**
    * Internal text control bound to the visible input element.
@@ -244,7 +266,10 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   readonly textControl = new FormControl('', { nonNullable: true });
 
   /**
-   * Current search results displayed in the autocomplete dropdown.
+   * Current option set returned by the latest successful search.
+   *
+   * These items are rendered in the autocomplete dropdown and are also used
+   * as the source for keyboard navigation and selection.
    */
   results: T[] = [];
 
@@ -322,6 +347,27 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
    * `${optionIdPrefix}-${index}`
    */
   protected readonly optionIdPrefix = `autocomplete-option-${this.instanceId}`;
+
+  /**
+   * DOM id assigned to the input element of this component instance.
+   */
+  protected readonly inputId = `autocomplete-input-${this.instanceId}`;
+
+  /**
+   * DOM id assigned to the persistent live region used to announce loading and result state.
+   */
+  protected readonly statusMessageId = `autocomplete-status-${this.instanceId}`;
+
+  /**
+   * DOM id assigned to the listbox element that contains the rendered autocomplete results.
+   *
+   * This identifier is unique per component instance and is referenced from the input
+   * through accessibility attributes such as `aria-controls`.
+   *
+   * Using an instance-specific id avoids collisions when multiple autocomplete components
+   * are rendered on the same page.
+   */
+  protected readonly resultsListId = `autocomplete-results-${this.instanceId}`;
 
   /**
    * Preferred positions used by the CDK connected overlay that renders the result list.
@@ -513,6 +559,24 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
       });
   }
 
+  /**
+   * Normalizes a synchronous or asynchronous value source into an {@link Observable}.
+   *
+   * This utility allows the component to treat all supported return types uniformly,
+   * regardless of whether a value was produced:
+   *
+   * - synchronously
+   * - through a {@link Promise}
+   * - through an {@link Observable}
+   *
+   * If the provided value is already an observable, it is returned unchanged.
+   * Otherwise, the value is wrapped into a resolved promise and then converted
+   * into an observable sequence.
+   *
+   * @typeParam V Type of the produced value
+   * @param value Source value to normalize
+   * @returns Observable emitting the provided value
+   */
   private toObservable<V>(value: Observable<V> | Promise<V> | V): Observable<V> {
     if (isObservable(value)) {
       return value;
@@ -721,14 +785,27 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
     this.scrollActiveOptionIntoView();
   }
 
+  /**
+   * Scrolls the currently active option into view inside the rendered result list.
+   *
+   * This method is used after keyboard navigation changes {@link activeIndex},
+   * ensuring that the highlighted option remains visible to the user even when
+   * the list overflows and becomes scrollable.
+   *
+   * If there is no active option, or if the corresponding DOM element cannot be
+   * resolved from {@link resultOptions}, the method does nothing.
+   *
+   * Scrolling uses `block: 'nearest'` so that only the minimum necessary movement
+   * is performed, avoiding abrupt jumps in the list.
+   */
   private scrollActiveOptionIntoView(): void {
     if (this.activeIndex < 0) {
       return;
     }
 
-    const button = this.resultButtons.get(this.activeIndex)?.nativeElement;
+    const option = this.resultOptions.get(this.activeIndex)?.nativeElement;
 
-    button?.scrollIntoView({
+    option?.scrollIntoView({
       block: 'nearest',
     });
   }
@@ -766,6 +843,42 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   }
 
   /**
+   * Message exposed through a persistent live region so assistive technologies
+   * can announce relevant autocomplete state changes.
+   *
+   * The message is intentionally short and reflects only transient status:
+   *
+   * - loading state
+   * - no results
+   * - number of available results
+   *
+   * When there is nothing relevant to announce, an empty string is returned.
+   */
+  private readonly translateService = inject(TranslateService);
+
+  get liveRegionMessage(): string {
+    if (!this.isOverlayOpen) {
+      return '';
+    }
+
+    if (this.isLoading) {
+      return this.translateService.instant('autocomplete.loadingResults');
+    }
+
+    if (this.results.length === 0) {
+      return this.translateService.instant('autocomplete.noResultsFound');
+    }
+
+    if (this.results.length === 1) {
+      return this.translateService.instant('autocomplete.oneResultAvailable');
+    }
+
+    return this.translateService.instant('autocomplete.manyResultsAvailable', {
+      count: this.results.length,
+    });
+  }
+
+  /**
    * Closes the autocomplete overlay when the user clicks outside the overlay panel.
    *
    * The current input text is preserved. Only the overlay state is dismissed.
@@ -776,5 +889,22 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
     }
 
     this.closeOverlay();
+  }
+
+  /**
+   * Prevents the input from losing focus before the click selection is processed.
+   *
+   * In this component the input keeps the active focus and exposes the current
+   * option through `aria-activedescendant`. If a pointer press on an option
+   * moves focus away from the input too early, the blur handler may run before
+   * the selection click is completed.
+   *
+   * Preventing the default action on `mousedown` preserves the focus on the input
+   * while still allowing the subsequent `click` event to select the option.
+   *
+   * @param event Mouse down event raised on an option element
+   */
+  onOptionMouseDown(event: MouseEvent): void {
+    event.preventDefault();
   }
 }
