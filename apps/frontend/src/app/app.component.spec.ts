@@ -19,7 +19,7 @@ describe('AppComponent', () => {
         },
         {
           provide: TranslateService,
-          useValue: { currentLang: 'en', use: jasmine.createSpy('use') },
+          useValue: { currentLang: 'en-EN', use: jasmine.createSpy('use') },
         },
       ],
     }).compileComponents();
@@ -43,7 +43,7 @@ describe('AppComponent', () => {
         },
         {
           provide: TranslateService,
-          useValue: { currentLang: 'en', use: useSpy },
+          useValue: { currentLang: 'en-EN', use: useSpy },
         },
       ],
     }).compileComponents();
@@ -51,6 +51,6 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
-    expect(useSpy).toHaveBeenCalledWith('ca');
+    expect(useSpy).toHaveBeenCalledWith('ca-ES');
   });
 });
