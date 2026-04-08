@@ -263,5 +263,15 @@ describe('CardComponent', () => {
       expect(cardElement.getAttribute('aria-label')).toBe('Timesheet summary');
       expect(cardElement.hasAttribute('aria-labelledby')).toBeFalse();
     });
+
+    it('should not expose landmark role when card has no accessible name', () => {
+      fixture.detectChanges();
+
+      const cardElement = fixture.nativeElement.querySelector('section.card');
+
+      expect(cardElement.hasAttribute('role')).toBeFalse();
+      expect(cardElement.hasAttribute('aria-labelledby')).toBeFalse();
+      expect(cardElement.hasAttribute('aria-label')).toBeFalse();
+    });
   });
 });

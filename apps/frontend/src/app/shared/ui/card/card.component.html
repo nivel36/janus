@@ -1,6 +1,6 @@
 <section
 	class="card {{ styleClass }}"
-	role="region"
+	[attr.role]="title || ariaLabel ? 'region' : null"
 	[attr.aria-labelledby]="title ? titleId : null"
 	[attr.aria-label]="title ? null : ariaLabel"
 >
