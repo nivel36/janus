@@ -71,7 +71,8 @@
     },
     "errors": {
       "load": "No s'ha pogut carregar la configuració.",
-      "update": "No s'ha pogut actualitzar la configuració."
+      "update": "No s'ha pogut actualitzar la configuració.",
+      "invalidTimezone": "La zona horaria no és vàlida."
     }
   },
   "userPreferences": {
@@ -88,7 +89,8 @@
     },
     "errors": {
       "load": "No s'han pogut carregar les preferències d'usuari.",
-      "update": "No s'han pogut actualitzar les preferències d'usuari."
+      "update": "No s'han pogut actualitzar les preferències d'usuari.",
+      "invalidTimezone": "La zona horaria no és vàlida."
     }
   }
 }

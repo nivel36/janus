@@ -49,11 +49,20 @@
                         [resolveByValue]="resolveTimezoneByValue"
                         [emptyHint]="'applicationSettings.fields.defaultTimezoneHint' | translate"
                     />
+
+                    @if (
+                        form.controls.defaultTimezone.touched &&
+                        form.controls.defaultTimezone.invalid
+                    ) {
+                        <p class="message error">
+                            {{ 'applicationSettings.errors.invalidTimezone' | translate }}
+                        </p>
+                    }
                 </div>
 
-                <p class="message error" *ngIf="errorMessage">
-                    {{ errorMessage | translate }}
-                </p>
+                @if (errorMessage) {
+                    <p class="message error">{{ errorMessage | translate }}</p>
+                }
 
                 <div class="buttons">
                     <app-button type="button" variant="secondary" (clicked)="goBack()">

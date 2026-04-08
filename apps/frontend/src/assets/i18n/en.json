@@ -71,7 +71,8 @@
     },
     "errors": {
       "load": "Unable to load application settings.",
-      "update": "Unable to update application settings."
+      "update": "Unable to update application settings.",
+      "invalidTimezone": "Invalid timezone."
     }
   },
   "userPreferences": {
@@ -88,7 +89,8 @@
     },
     "errors": {
       "load": "Unable to load user preferences.",
-      "update": "Unable to update user preferences."
+      "update": "Unable to update user preferences.",
+      "invalidTimezone": "Invalid timezone."
     }
   }
 }
