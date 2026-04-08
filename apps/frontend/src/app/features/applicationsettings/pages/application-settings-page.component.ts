@@ -6,7 +6,12 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, of, finalize } from 'rxjs';
 
 import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
+import { TimezoneOption } from '../../../shared/models/timezone-option.model';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
+import {
+  createTimezoneCatalog,
+  resolveTimezoneByZoneId,
+} from '../../../shared/utils/timezone-catalog.util';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
@@ -14,11 +19,6 @@ import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slid
 import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-button.component';
 import { ApplicationSettings } from '../models/application-settings';
 import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
-
-type TimezoneOption = {
-  zoneId: string;
-  literal: string;
-};
 
 @Component({
   selector: 'app-application-settings-page',
@@ -60,7 +60,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
   /**
    * Full timezone catalog used by the autocomplete search.
    */
-  readonly timezoneCatalog = this.createTimezoneCatalog();
+  readonly timezoneCatalog = createTimezoneCatalog();
 
   /**
    * Indicates whether the initial preference load is in progress.
@@ -231,44 +231,5 @@ export class ApplicationSettingsPageComponent implements OnInit {
    * @returns Matching timezone option or null when not found
    */
   readonly resolveTimezoneByValue = (zoneId: string): TimezoneOption | null =>
-    this.findTimezoneOption(zoneId);
-
-  /**
-   * Builds the full timezone catalog used by the autocomplete control.
-   *
-   * @returns List of timezone options with display literals
-   */
-  private createTimezoneCatalog(): TimezoneOption[] {
-    return Intl.supportedValuesOf('timeZone').map((zoneId) => ({
-      zoneId,
-      literal: `${zoneId} (${this.getUtcOffsetLiteral(zoneId)})`,
-    }));
-  }
-
-  /**
-   * Computes a human-readable UTC offset label for a timezone.
-   *
-   * @param zoneId IANA timezone identifier
-   * @returns UTC offset literal
-   */
-  private getUtcOffsetLiteral(zoneId: string): string {
-    const utcOffsetPart = new Intl.DateTimeFormat('en-US', {
-      timeZone: zoneId,
-      timeZoneName: 'shortOffset',
-    })
-      .formatToParts(new Date())
-      .find((part) => part.type === 'timeZoneName')?.value;
-
-    return utcOffsetPart?.replace('GMT', 'UTC') ?? 'UTC';
-  }
-
-  /**
-   * Finds the timezone option corresponding to a stored timezone id.
-   *
-   * @param zoneId IANA timezone identifier
-   * @returns Matching option or null
-   */
-  private findTimezoneOption(zoneId: string): TimezoneOption | null {
-    return this.timezoneCatalog.find((option) => option.zoneId === zoneId) ?? null;
-  }
+    resolveTimezoneByZoneId(this.timezoneCatalog, zoneId);
 }
