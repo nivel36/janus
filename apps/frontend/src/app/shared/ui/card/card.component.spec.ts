@@ -15,6 +15,7 @@ import { CardComponent } from './card.component';
   template: `
     <app-card
       [title]="title"
+      [ariaLabel]="ariaLabel"
       [styleClass]="styleClass"
       [titleClass]="titleClass"
       [headerClass]="headerClass"
@@ -34,6 +35,7 @@ import { CardComponent } from './card.component';
 })
 class TestHostComponent {
   title: string | null = null;
+  ariaLabel: string | null = null;
   styleClass = '';
   titleClass = '';
   headerClass = '';
@@ -46,6 +48,7 @@ class TestHostComponent {
   template: `
     <app-card
       [title]="title"
+      [ariaLabel]="ariaLabel"
       [styleClass]="styleClass"
       [titleClass]="titleClass"
       [headerClass]="headerClass"
@@ -57,6 +60,7 @@ class TestHostComponent {
 })
 class TestHostWithoutTemplatesComponent {
   title: string | null = null;
+  ariaLabel: string | null = null;
   styleClass = '';
   titleClass = '';
   headerClass = '';
@@ -169,6 +173,18 @@ describe('CardComponent', () => {
       expect(headerElement).toBeTruthy();
     });
 
+    it('should expose an aria-labelledby relationship when title exists', () => {
+      hostComponent.title = 'Accessible title';
+      fixture.detectChanges();
+
+      const cardElement = fixture.nativeElement.querySelector('section.card');
+      const titleElement = fixture.nativeElement.querySelector('.card-title');
+
+      expect(cardElement.getAttribute('role')).toBe('region');
+      expect(cardElement.getAttribute('aria-labelledby')).toBe(titleElement.id);
+      expect(cardElement.hasAttribute('aria-label')).toBeFalse();
+    });
+
     it('should render the footer element when a footer template exists', () => {
       fixture.detectChanges();
 
@@ -235,6 +251,17 @@ describe('CardComponent', () => {
 
       expect(bodyContent).toBeTruthy();
       expect(bodyContent.textContent.trim()).toBe('Projected body only');
+    });
+
+    it('should use aria-label when there is no title', () => {
+      hostComponent.ariaLabel = 'Timesheet summary';
+      fixture.detectChanges();
+
+      const cardElement = fixture.nativeElement.querySelector('section.card');
+
+      expect(cardElement.getAttribute('role')).toBe('region');
+      expect(cardElement.getAttribute('aria-label')).toBe('Timesheet summary');
+      expect(cardElement.hasAttribute('aria-labelledby')).toBeFalse();
     });
   });
 });
