@@ -20,13 +20,22 @@ export function resolveSupportedLanguage(
   locale: string | undefined | null,
   fallbackLanguage: (typeof supportedLanguages)[number] = 'es-ES',
 ): (typeof supportedLanguages)[number] {
-  const normalizedLanguage = locale?.toLowerCase().split('-')[0];
+  const normalizedLocale = locale?.toLowerCase();
+  const exactMatch = supportedLanguages.find(
+    (supportedLanguage) => supportedLanguage.toLowerCase() === normalizedLocale,
+  );
 
-  if (
-    normalizedLanguage &&
-    supportedLanguages.includes(normalizedLanguage as (typeof supportedLanguages)[number])
-  ) {
-    return normalizedLanguage as (typeof supportedLanguages)[number];
+  if (exactMatch) {
+    return exactMatch;
+  }
+
+  const languageOnly = normalizedLocale?.split('-')[0];
+  const languagePrefixMatch = supportedLanguages.find((supportedLanguage) =>
+    supportedLanguage.toLowerCase().startsWith(`${languageOnly}-`),
+  );
+
+  if (languagePrefixMatch) {
+    return languagePrefixMatch;
   }
 
   return fallbackLanguage;
@@ -64,7 +73,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes),
     provideTranslateService({
       lang: initialLanguage,
-      fallbackLang: 'en',
+      fallbackLang: 'en-EN',
       loader: provideTranslateHttpLoader({
         prefix: 'assets/i18n/',
         suffix: '.json',
