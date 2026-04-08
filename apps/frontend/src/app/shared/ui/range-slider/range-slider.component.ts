@@ -15,12 +15,15 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
 })
 export class RangeSliderComponent implements ControlValueAccessor {
+  private static nextId = 0;
+
   @Input() label = '';
   @Input() unit = '';
   @Input() min = 0;
   @Input() max = 100;
   @Input() step = 1;
 
+  readonly sliderId = `range-slider-${RangeSliderComponent.nextId++}`;
   value = 0;
   disabled = false;
 
@@ -61,5 +64,9 @@ export class RangeSliderComponent implements ControlValueAccessor {
     }
 
     return ((this.value - this.min) / range) * 100;
+  }
+
+  get valueText(): string {
+    return this.unit ? `${this.value} ${this.unit}` : `${this.value}`;
   }
 }
