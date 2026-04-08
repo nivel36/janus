@@ -11,7 +11,10 @@ import { ToggleButtonComponent } from './toggle-button.component';
 @Component({
   template: `
     <form [formGroup]="form">
-      <app-toggle-button formControlName="flag"></app-toggle-button>
+      <label>
+        Notifications
+        <app-toggle-button formControlName="flag"></app-toggle-button>
+      </label>
     </form>
   `,
   standalone: true,
@@ -52,6 +55,11 @@ describe('ToggleButtonComponent (ControlValueAccessor)', () => {
 
     const button = getButton();
     expect(button.getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('should not override the visible label with aria-label', () => {
+    const button = getButton();
+    expect(button.getAttribute('aria-label')).toBeNull();
   });
 
   it('should update the FormControl when clicked', () => {
