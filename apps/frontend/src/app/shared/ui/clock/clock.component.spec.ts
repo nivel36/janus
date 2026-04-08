@@ -86,4 +86,23 @@ describe('ClockComponent', () => {
     component.ngOnDestroy();
     expect(clearSpy).toHaveBeenCalled();
   }));
+
+  it('should expose semantic and ARIA attributes for assistive technologies', fakeAsync(() => {
+    spyOn(Date.prototype, 'toLocaleTimeString').and.returnValue('10:15:30');
+    component.ariaLabel = 'Live clock';
+    fixture.detectChanges();
+    tick(0);
+    fixture.detectChanges();
+
+    const timeEl = fixture.nativeElement.querySelector('time.clock-time') as HTMLElement | null;
+
+    expect(timeEl).not.toBeNull();
+    expect(timeEl?.getAttribute('role')).toBe('timer');
+    expect(timeEl?.getAttribute('aria-live')).toBe('off');
+    expect(timeEl?.getAttribute('aria-atomic')).toBe('true');
+    expect(timeEl?.getAttribute('aria-label')).toBe('Live clock');
+    expect(timeEl?.getAttribute('datetime')).toMatch(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+    );
+  }));
 });
