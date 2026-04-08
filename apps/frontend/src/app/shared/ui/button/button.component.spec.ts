@@ -68,6 +68,22 @@ describe('ButtonComponent', () => {
     expect(buttonEl.disabled).toBeTrue();
   });
 
+  it('should expose aria-label when provided', () => {
+    component.ariaLabel = 'Open menu';
+    fixture.detectChanges();
+
+    const buttonEl: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(buttonEl.getAttribute('aria-label')).toBe('Open menu');
+  });
+
+  it('should not render aria-label when not provided', () => {
+    component.ariaLabel = null;
+    fixture.detectChanges();
+
+    const buttonEl: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(buttonEl.hasAttribute('aria-label')).toBeFalse();
+  });
+
   it('should emit clicked when the button is pressed', () => {
     spyOn(component.clicked, 'emit');
 
