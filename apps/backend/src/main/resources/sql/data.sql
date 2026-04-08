@@ -12,7 +12,7 @@
 -- limitations under the License.
 INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid');
 
-INSERT INTO app_user (username, locale, time_format, default_timezone) VALUES ('aferrer@nivel36.es', 'es', 'H24', 'Europe/Madrid');
+INSERT INTO app_user (username, locale, time_format, default_timezone) VALUES ('aferrer@nivel36.es', 'es-ES', 'H24', 'Europe/Madrid');
 
 INSERT INTO schedule (code, name) VALUES ('STD-WH-AUG-VAR', 'Standard Work Hours with August Variation');
 

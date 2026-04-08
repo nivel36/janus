@@ -6,9 +6,9 @@
     "userPreferences": "Preferències d'usuari"
   },
   "locale": {
-    "ca": "Català",
-    "es": "Castellà",
-    "en": "Anglés"
+    "ca-ES": "Català",
+    "es-ES": "Castellà",
+    "en-EN": "Anglés"
   },
   "actions": {
     "save": "Desa",

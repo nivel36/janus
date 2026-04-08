@@ -6,9 +6,9 @@
     "userPreferences": "User preferences"
   },
   "locale": {
-    "ca": "Catalan",
-    "es": "Spanish",
-    "en": "English"
+    "ca-ES": "Catalan",
+    "es-ES": "Spanish",
+    "en-EN": "English"
   },
   "actions": {
     "save": "Save",

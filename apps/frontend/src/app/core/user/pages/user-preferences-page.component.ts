@@ -66,7 +66,7 @@ export class UserPreferencesPageComponent implements OnInit {
    * or null when no valid selection exists.
    */
   readonly form = this.fb.group({
-    locale: this.fb.nonNullable.control('es', {
+    locale: this.fb.nonNullable.control('es-ES', {
       validators: [Validators.required],
     }),
     timeFormat: this.fb.nonNullable.control('H24' as TimeFormat, {

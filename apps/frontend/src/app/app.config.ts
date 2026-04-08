@@ -14,15 +14,18 @@ import { authErrorInterceptor } from './core/auth/auth-error.interceptor';
 import { provideRouter } from '@angular/router';
 import { appRoutes } from './app.routes';
 
-export const supportedLanguages = ['en', 'es', 'ca'] as const;
+export const supportedLanguages = ['en-EN', 'es-ES', 'ca-ES'] as const;
 
 export function resolveSupportedLanguage(
   locale: string | undefined | null,
-  fallbackLanguage: (typeof supportedLanguages)[number] = 'en',
+  fallbackLanguage: (typeof supportedLanguages)[number] = 'es-ES',
 ): (typeof supportedLanguages)[number] {
   const normalizedLanguage = locale?.toLowerCase().split('-')[0];
 
-  if (normalizedLanguage && supportedLanguages.includes(normalizedLanguage as (typeof supportedLanguages)[number])) {
+  if (
+    normalizedLanguage &&
+    supportedLanguages.includes(normalizedLanguage as (typeof supportedLanguages)[number])
+  ) {
     return normalizedLanguage as (typeof supportedLanguages)[number];
   }
 
@@ -31,12 +34,15 @@ export function resolveSupportedLanguage(
 
 export function resolveInitialLanguage(
   browserLanguages: readonly string[] | undefined,
-  fallbackLanguage: (typeof supportedLanguages)[number] = 'en',
+  fallbackLanguage: (typeof supportedLanguages)[number] = 'en-EN',
 ): (typeof supportedLanguages)[number] {
   for (const browserLanguage of browserLanguages ?? []) {
     const resolvedLanguage = resolveSupportedLanguage(browserLanguage, fallbackLanguage);
 
-    if (resolvedLanguage !== fallbackLanguage || browserLanguage?.toLowerCase().startsWith(fallbackLanguage)) {
+    if (
+      resolvedLanguage !== fallbackLanguage ||
+      browserLanguage?.toLowerCase().startsWith(fallbackLanguage)
+    ) {
       return resolvedLanguage;
     }
   }
