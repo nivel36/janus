@@ -15,11 +15,9 @@
     "cancel": "Cancel",
     "cleanSelection": "Clean selection"
   },
-  "search": {
-    "loadingResults": "Loading results",
-    "noResultsFound": "No results found",
-    "resultsAvailable_one": "One result avaliable",
-    "resultsAvailable_other": "{{count}} results avaliable"
+  "autocomplete": {
+    "resultsClosed": "Suggestions closed",
+    "missingAccessibleNameWarning": "AutocompleteTextboxComponent ha de rebre ariaLabel o ariaLabelledBy per tenir un nom accessible."
   },
   "timelog": {
     "activeWorkday": "Active Workday",

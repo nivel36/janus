@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { CommonModule } from '@angular/common';
-
 import {
+  AfterViewInit,
   Component,
   DestroyRef,
   ElementRef,
@@ -12,9 +12,11 @@ import {
   OnInit,
   Output,
   QueryList,
+  ViewChild,
   ViewChildren,
   forwardRef,
   inject,
+  isDevMode,
 } from '@angular/core';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -26,39 +28,85 @@ import {
 } from '@angular/forms';
 import {
   Observable,
+  Subject,
   catchError,
   debounceTime,
+  defer,
   distinctUntilChanged,
-  filter,
   finalize,
   from,
   isObservable,
   map,
   of,
   switchMap,
+  take,
+  takeUntil,
   tap,
 } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 /**
- * Standalone autocomplete textbox component that integrates with Angular reactive forms
+ * Visual state of the autocomplete panel.
+ *
+ * @typeParam T Type of the item displayed in the results list
+ */
+type PanelModel<T> =
+  | { kind: 'closed' }
+  | { kind: 'loading'; query: string }
+  | { kind: 'results'; query: string; items: T[] }
+  | { kind: 'empty'; query: string };
+
+/**
+ * Internal result of resolving an external value written by Angular Forms.
+ *
+ * @typeParam T Type of the resolved option
+ */
+type ResolvedWriteValue<T> = {
+  /**
+   * Original value received from the parent form.
+   *
+   * When the full option cannot be resolved, this value is used
+   * as fallback text shown in the input.
+   */
+  originalValue: string;
+
+  /**
+   * Domain option resolved from the external value.
+   *
+   * Will be {@code null} if the value could not be resolved or if the external
+   * value represents an empty state.
+   */
+  resolvedOption: T | null;
+};
+
+/**
+ * Standalone autocomplete component integrated with Angular Reactive Forms
  * through the {@link ControlValueAccessor} contract.
  *
- * This component is designed as a selection control, not as a free-text input.
- * The text field is used only to search for candidate options, while the value
- * propagated to the parent form is the value derived from the selected option.
+ * This component behaves as a selection control rather than a free text field.
+ * The user types only to search for candidates, while the value propagated to
+ * the parent form always corresponds to the selected option or {@code null}.
  *
- * The component therefore manages two related but distinct pieces of state:
+ * The component maintains two related but distinct states:
  *
- * - the current text typed by the user, stored in {@link textControl}
- * - the currently selected domain object, stored in {@link selectedValue}
+ * - the visible text in the input, managed by {@link textControl}
+ * - the currently selected object, stored in {@link selectedValue}
  *
- * A parent form never receives arbitrary text typed by the user. It only receives:
+ * The parent form never receives arbitrary text entered by the user.
+ * It only receives:
  *
- * - the string produced by {@link valueWith} when an option is selected
- * - {@code null} when the selection is cleared or invalidated
+ * - the value produced by {@link valueWith} when selecting an option
+ * - {@code null} when the current selection is invalidated or cleared
  *
- * @typeParam T Type of the domain object represented by each autocomplete option
+ * Main capabilities:
+ *
+ * - asynchronous search via {@link searchMethod}
+ * - reconstruction of a selection from an external value using {@link resolveByValue}
+ * - keyboard navigation over the results list
+ * - ARIA combobox and listbox semantics
+ * - auxiliary {@link selectedChange} event with the full selected object
+ *
+ * @typeParam T Type of the domain object represented by each option
  */
 @Component({
   selector: 'app-autocomplete-textbox',
@@ -74,140 +122,107 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
     },
   ],
 })
-export class AutocompleteTextboxComponent<T = unknown> implements OnInit, ControlValueAccessor {
+export class AutocompleteTextboxComponent<T = unknown>
+  implements OnInit, AfterViewInit, ControlValueAccessor
+{
   /**
-   * Search function used to retrieve autocomplete candidates for the current query.
-   *
-   * The function receives the already-trimmed user input and may return either
-   * an {@link Observable} or a {@link Promise}.
-   *
-   * This input is required because the component cannot perform any search without it.
+   * Reference to the DOM element used as origin for the connected overlay.
    */
-  @Input({ required: true })
-  searchMethod!: (query: string) => Observable<T[]> | Promise<T[]>;
+  @ViewChild('inputWrapper', { static: true })
+  private inputWrapper!: ElementRef<HTMLElement>;
 
   /**
-   * Maps an option into the label displayed in the text input and in the dropdown list.
+   * Current width, in pixels, applied to the overlay so it matches the input container.
+   */
+  overlayWidth = 0;
+
+  /**
+   * Search function used to retrieve autocomplete candidates.
    *
-   * The default implementation converts the option to string using {@link String}.
+   * It can return:
+   *
+   * - a synchronous value
+   * - a promise
+   * - an Observable
+   *
+   * If it returns an Observable, it may emit multiple result lists for the same
+   * query. The component remains subscribed until:
+   *
+   * - the user types a new query
+   * - the search is invalidated
+   * - the component is destroyed
+   */
+  @Input({ required: true })
+  searchMethod!: (query: string) => Observable<T[]> | Promise<T[]> | T[];
+
+  /**
+   * Function that converts an option into the visible label shown both in the
+   * input and in the results list.
+   *
+   * The default implementation uses {@link String}.
    */
   @Input()
   displayWith: (option: T) => string = (option: T) => String(option);
 
   /**
-   * Maps a selected option into the string value propagated to the parent form control.
+   * Function that converts a selected option into the string value propagated
+   * to the parent form.
    *
-   * This is the actual persisted form value exposed through the
-   * {@link ControlValueAccessor} interface.
-   *
-   * The default implementation converts the option to string using {@link String}.
+   * The default implementation uses {@link String}.
    */
   @Input()
   valueWith: (option: T) => string = (option: T) => String(option);
 
   /**
-   * Resolves an external form value back into its corresponding option instance.
+   * Function that resolves an external form value to its domain object.
    *
-   * Angular calls {@link writeValue} when the parent form writes a value into this
-   * component. This resolver allows the component to reconstruct the selected option
-   * and the text shown to the user from that stored form value.
-   *
-   * The resolver may return synchronously or asynchronously:
-   *
-   * - {@link T} or {@code null}
-   * - {@link Promise} of {@link T} or {@code null}
-   * - {@link Observable} of {@link T} or {@code null}
-   *
-   * If resolution fails or returns {@code null}, the raw incoming value is displayed
-   * in the input as a fallback, but no selected option is kept internally.
+   * If it returns an Observable, it must emit at most one meaningful value and
+   * complete. This contract represents a one-shot state reconstruction operation,
+   * not a continuous update stream.
    */
   @Input()
   resolveByValue: (value: string) => Observable<T | null> | Promise<T | null> | T | null = () =>
     null;
 
   /**
-   * Maps an option into a stable identifier used by Angular to track items
-   * in the rendered result list.
+   * Function that generates a stable key so Angular can correctly reuse DOM
+   * nodes in the results list.
    *
-   * This function is used by the template `@for` directive to determine the
-   * identity of each element across change detection cycles. A correct tracking
-   * key allows Angular to efficiently update the DOM by reusing existing nodes
-   * instead of recreating them.
-   *
-   * The returned value must satisfy the following properties:
-   *
-   * - **Uniqueness within the current result set**: two different options must
-   *   not produce the same tracking value
-   * - **Stability across renders**: the same option must always produce the same
-   *   value while it represents the same logical entity
-   * - **Primitive type**: typically a `string` or `number`
-   *
-   * By default, this function delegates to {@link valueWith}, assuming it
-   * represents a unique identifier for the option. This keeps consistency
-   * between the value stored in the form and the identity used for rendering.
-   *
-   * Overriding this input may be necessary when:
-   *
-   * - the value returned by {@link valueWith} is not unique within the result list
-   * - the rendering identity differs from the persisted form value
-   *
-   * Using a non-unique or unstable tracking value may lead to subtle UI issues,
-   * such as:
-   *
-   * - incorrect reuse of DOM elements
-   * - visual glitches when updating the list
-   * - event handlers bound to the wrong item
-   *
-   * @defaultValue (option: T) => this.valueWith(option)
-   *
-   * @example
-   * // Track by unique identifier
-   * trackByValue = (user) => user.id;
-   *
-   * @example
-   * // Track by composite key
-   * trackByValue = (item) => `${item.type}-${item.id}`;
+   * By default, it delegates to {@link valueWith}, assuming the persisted value
+   * also uniquely identifies each option.
    */
   @Input()
   trackByValue: (option: T) => string | number = (option: T) => this.valueWith(option);
 
   /**
-   * Placeholder shown when the input is empty and {@link emptyHint} is not provided.
+   * Placeholder shown when the field is empty and {@link emptyHint} is not defined.
    */
   @Input() placeholder = '';
 
   /**
-   * Alternative hint shown when there is no current selection.
+   * Alternative text shown when there is no current selection.
    *
-   * When non-empty, this value takes precedence over {@link placeholder}.
+   * If not empty, it takes precedence over {@link placeholder}.
    */
   @Input() emptyHint = '';
 
   /**
-   * Debounce time, in milliseconds, applied before triggering a search request.
-   *
-   * This helps reduce unnecessary backend calls while the user is typing.
+   * Debounce time, in milliseconds, before executing a search.
    */
   @Input() debounceMs = 350;
 
   /**
-   * Minimum number of non-whitespace characters required before a search is executed.
+   * Minimum number of non-empty characters required to trigger a search.
    */
   @Input() minChars = 3;
 
   /**
    * Accessible name used when the component is not associated with an external label.
-   *
-   * Provide either this input or {@link ariaLabelledBy}. An autocomplete without an
-   * accessible name does not comply with ARIA expectations for form controls.
    */
   @Input() ariaLabel = '';
 
   /**
-   * Id of an external element that provides the accessible name for the input.
-   *
-   * This is typically the id of a visible `<label>` or another element containing
-   * the control label text.
+   * Identifier of the external element that provides the accessible name of the input.
    */
   @Input() ariaLabelledBy = '';
 
@@ -217,61 +232,39 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   @Input() clearButtonAriaLabel = '';
 
   /**
-   * Auxiliary event emitted when the selected option changes.
-   *
-   * This event is intended for consumers that need access to the full selected object,
-   * not just the string value propagated to the parent form.
-   *
-   * Emitted values:
-   *
-   * - the selected option when an option is chosen
-   * - {@code null} when the selection is cleared or invalidated
+   * Auxiliary event emitted whenever the selected option changes.
    */
   @Output() selectedChange = new EventEmitter<T | null>();
 
   /**
-   * References to the DOM elements representing each result option button.
-   *
-   * This query collects all elements marked with the template reference
-   * variable `#resultButton` inside the result list, preserving their order
-   * as rendered in the view.
-   *
-   * The resulting {@link QueryList} is automatically kept in sync with the DOM:
-   *
-   * - when the result list changes, the collection is updated
-   * - elements are added, removed, or reordered accordingly
-   *
-   * This allows the component to interact directly with the rendered options,
-   * enabling behaviors that depend on their physical presence in the DOM,
-   * such as:
-   *
-   * - programmatic scrolling of the active option into view
-   * - measuring element dimensions or positions if needed
-   *
-   * Each entry in the collection is wrapped in an {@link ElementRef} pointing
-   * to the underlying {@link HTMLButtonElement}.
-   *
-   * The non-null assertion (`!`) is used because Angular initializes the query
-   * after view creation, ensuring it is available during runtime.
+   * References to the DOM elements representing the rendered options.
    */
   @ViewChildren('resultOption')
   private resultOptions!: QueryList<ElementRef<HTMLElement>>;
 
   /**
-   * Internal text control bound to the visible input element.
-   *
-   * This control represents the current search text shown in the UI.
-   * It does not represent the parent form value.
+   * Internal stream used to serialize external writes received through {@link writeValue}.
    */
-  readonly textControl = new FormControl('', { nonNullable: true });
+  private readonly writeValueRequests$ = new Subject<string | null>();
 
   /**
-   * Current option set returned by the latest successful search.
+   * Stream used to invalidate ongoing asynchronous searches when component state
+   * changes and their results are no longer relevant.
    *
-   * These items are rendered in the autocomplete dropdown and are also used
-   * as the source for keyboard navigation and selection.
+   * Examples:
+   *
+   * - the user selects an option while a search is still pending
+   * - the parent form invokes {@link writeValue}
+   * - the control is cleared or disabled
    */
-  results: T[] = [];
+  private readonly cancelSearchRequests$ = new Subject<void>();
+
+  /**
+   * Reactive control bound to the visible input.
+   *
+   * This control manages only the text shown to the user.
+   */
+  readonly textControl = new FormControl('', { nonNullable: true });
 
   /**
    * Currently selected option, or {@code null} when no valid selection exists.
@@ -279,101 +272,57 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   selectedValue: T | null = null;
 
   /**
-   * Indicates whether an asynchronous operation is currently in progress.
-   *
-   * This flag is used both while searching for options and while resolving an incoming
-   * form value back into its corresponding option.
-   */
-  isLoading = false;
-
-  /**
-   * Indicates whether the component is disabled through Angular forms.
-   *
-   * When disabled, the internal text control is disabled as well and selection actions
-   * are ignored.
+   * Whether the component is disabled.
    */
   disabled = false;
 
   /**
-   * Index of the option currently highlighted for keyboard navigation.
-   *
-   * A value of {@code -1} means that no option is currently active.
+   * Index of the currently active option for keyboard navigation.
    */
   activeIndex = -1;
 
   /**
-   * Indicates whether the overlay has been explicitly closed by the user.
-   *
-   * When this flag is set, the overlay remains closed until the input changes again
-   * and a new search cycle starts.
+   * Current visual state of the floating panel.
    */
-  private overlayDismissed = false;
+  panel: PanelModel<T> = { kind: 'closed' };
 
   /**
-   * Internal counter used to generate unique identifiers for each component instance.
-   *
-   * This static value is incremented every time a new instance of the component is created.
-   * It ensures that each instance can derive a distinct identifier, avoiding collisions
-   * when multiple autocomplete components are present in the same document.
+   * Global counter used to generate unique identifiers for each component instance.
    */
   private static nextInstanceId = 0;
 
   /**
-   * Unique identifier assigned to this specific component instance.
-   *
-   * The value is derived from {@link nextInstanceId} and remains stable for the lifetime
-   * of the component. It is primarily used to build DOM ids that must be unique across
-   * the entire page.
+   * Unique identifier of this component instance.
    */
   private readonly instanceId = AutocompleteTextboxComponent.nextInstanceId++;
 
   /**
-   * Base identifier used to generate stable and globally unique DOM ids for the listbox options.
-   *
-   * This prefix incorporates the instance-specific identifier to prevent collisions between
-   * multiple autocomplete components rendered simultaneously.
-   *
-   * The generated ids are referenced by accessibility attributes such as
-   * `aria-activedescendant`, allowing assistive technologies to correctly associate
-   * the active option with the input element.
-   *
-   * Example generated ids:
-   *
-   * - autocomplete-option-0-0
-   * - autocomplete-option-0-1
-   * - autocomplete-option-1-0
-   *
-   * Format:
-   * `${optionIdPrefix}-${index}`
+   * Base prefix used to build stable DOM identifiers for rendered options.
    */
   protected readonly optionIdPrefix = `autocomplete-option-${this.instanceId}`;
 
   /**
-   * DOM id assigned to the input element of this component instance.
+   * DOM identifier of the main input element.
    */
   protected readonly inputId = `autocomplete-input-${this.instanceId}`;
 
   /**
-   * DOM id assigned to the persistent live region used to announce loading and result state.
+   * DOM identifier of the ARIA region used to announce transient status messages.
    */
   protected readonly statusMessageId = `autocomplete-status-${this.instanceId}`;
 
   /**
-   * DOM id assigned to the listbox element that contains the rendered autocomplete results.
-   *
-   * This identifier is unique per component instance and is referenced from the input
-   * through accessibility attributes such as `aria-controls`.
-   *
-   * Using an instance-specific id avoids collisions when multiple autocomplete components
-   * are rendered on the same page.
+   * DOM identifier of the visual popup container.
+   */
+  protected readonly resultsContainerId = `autocomplete-popup-${this.instanceId}`;
+
+  /**
+   * DOM identifier of the listbox element containing the results.
    */
   protected readonly resultsListId = `autocomplete-results-${this.instanceId}`;
 
   /**
-   * Preferred positions used by the CDK connected overlay that renders the result list.
-   *
-   * The overlay first attempts to open below the input. If there is not enough space,
-   * it may open above it.
+   * Preferred positions for the CDK connected overlay.
    */
   protected readonly overlayPositions: ConnectedPosition[] = [
     {
@@ -393,189 +342,246 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   ];
 
   /**
+   * Number of currently active external value resolutions.
+   *
+   * A counter is used instead of a boolean to avoid race conditions when a
+   * previous resolution is cancelled by {@code switchMap} while a new one is
+   * already in progress.
+   */
+  private resolvingValueCount = 0;
+
+  /**
+   * Sequential counter used to distinguish transient live-region announcements.
+   *
+   * This prevents an old timer from clearing a newer message with identical text.
+   */
+  private liveMessageSequence = 0;
+
+  /**
+   * Last transient message explicitly announced through the live region.
+   */
+  private transientLiveMessage = '';
+
+  /**
+   * Translation service used to build localized messages.
+   */
+  private readonly translateService = inject(TranslateService);
+
+  /**
    * Reference used to automatically dispose subscriptions when the component is destroyed.
    */
   private readonly destroyRef = inject(DestroyRef);
 
   /**
-   * Callback registered by Angular forms to receive value changes from this component.
-   *
-   * The propagated value is the string produced by {@link valueWith}, or {@code null}
-   * when there is no valid selection.
+   * Callback registered by Angular Forms to propagate value changes.
    */
   private onChange: (value: string | null) => void = () => {};
 
   /**
-   * Callback registered by Angular forms to mark this control as touched.
+   * Callback registered by Angular Forms to mark the control as touched.
    */
   private onTouched: () => void = () => {};
 
   /**
-   * Initializes the reactive search pipeline bound to the input text control.
-   *
-   * The pipeline performs the following steps:
-   *
-   * - trims the incoming text
-   * - ignores repeated values
-   * - invalidates the current selection when the typed text no longer matches it
-   * - waits for the configured debounce period
-   * - runs a search only when the input is eligible
-   * - cancels previous searches when a new query arrives
-   * - safely handles errors by exposing an empty result list
+   * Creates the component and registers cleanup logic for global listeners.
+   */
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', this.handleWindowResize);
+      }
+    });
+  }
+
+  /**
+   * Initializes the internal reactive pipelines of the component.
    */
   ngOnInit(): void {
+    this.validateInputs();
+    this.warnIfAccessibleNameIsMissing();
+    this.initializeSearchPipeline();
+    this.initializeWriteValuePipeline();
+  }
+
+  /**
+   * Validates required inputs and their basic invariants.
+   *
+   * This is defensive validation intended to avoid ambiguous runtime states
+   * when the component is used incorrectly.
+   */
+  private validateInputs(): void {
+    if (typeof this.searchMethod !== 'function') {
+      throw new Error('AutocompleteTextboxComponent: searchMethod is required.');
+    }
+
+    if (this.minChars < 0) {
+      throw new Error('AutocompleteTextboxComponent: minChars cannot be negative.');
+    }
+
+    if (this.debounceMs < 0) {
+      throw new Error('AutocompleteTextboxComponent: debounceMs cannot be negative.');
+    }
+  }
+
+  /**
+   * Emits a development-only warning when the component has no accessible name.
+   */
+  private warnIfAccessibleNameIsMissing(): void {
+    if (!isDevMode()) {
+      return;
+    }
+
+    if (!this.ariaLabel.trim() && !this.ariaLabelledBy.trim()) {
+      console.warn(this.translateService.instant('autocomplete.missingAccessibleNameWarning'));
+    }
+  }
+
+  /**
+   * Initializes the reactive pipeline that reacts to user-entered text and
+   * triggers asynchronous searches.
+   *
+   * The active search is explicitly invalidated when the component enters a new
+   * state incompatible with those results:
+   *
+   * - option selection
+   * - control clearing
+   * - external write through {@link writeValue}
+   * - component disabling
+   */
+  private initializeSearchPipeline(): void {
     this.textControl.valueChanges
       .pipe(
+        /**
+         * The visible text is normalized by trimming leading and trailing whitespace.
+         */
         map((value) => value.trim()),
-        distinctUntilChanged(),
-        tap((value) => this.handleTextChange(value)),
-        debounceTime(this.debounceMs),
-        filter((value) => this.canSearch(value)),
-        switchMap((query) => {
-          this.isLoading = true;
 
-          return from(this.searchMethod(query)).pipe(
-            catchError(() => of([] as T[])),
-            finalize(() => {
-              this.isLoading = false;
-            }),
+        /**
+         * Consecutive identical emissions are ignored after normalization.
+         */
+        distinctUntilChanged(),
+
+        /**
+         * Selection and panel state are updated before debounce is applied.
+         */
+        tap((value) => this.handleTextChange(value)),
+
+        /**
+         * Debounce avoids launching a search on every keystroke.
+         */
+        debounceTime(this.debounceMs),
+
+        /**
+         * Only the latest search is allowed to remain active. In addition, a search
+         * may be invalidated externally through {@link cancelSearchRequests$}.
+         */
+        switchMap((query) => {
+          if (!this.canSearch(query)) {
+            return of<PanelModel<T>>({ kind: 'closed' });
+          }
+
+          /**
+           * Loading state is exposed immediately before the search starts.
+           */
+          this.panel = { kind: 'loading', query };
+
+          return defer(() => this.toObservable(this.searchMethod(query))).pipe(
+            /**
+             * If component state changes before the response arrives, the search is
+             * no longer relevant and must be ignored entirely.
+             */
+            takeUntil(this.cancelSearchRequests$),
+            map((items) => this.toPanelModel(query, items)),
+            catchError(() => of<PanelModel<T>>({ kind: 'empty', query })),
           );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((results) => {
-        this.results = results;
-        this.activeIndex = results.length > 0 ? 0 : -1;
+      .subscribe((panel) => {
+        if (panel.kind === 'closed') {
+          this.closePanelSilently();
+          return;
+        }
+
+        /**
+         * Additional defensive guard: even if a response arrives late for any reason,
+         * it must not reopen the panel if the component no longer allows searching.
+         */
+        if (!this.canSearch(panel.query)) {
+          return;
+        }
+
+        /**
+         * Each new result block resets active keyboard navigation.
+         */
+        this.activeIndex = -1;
+        this.panel = panel;
       });
   }
 
   /**
-   * Indicates whether the component currently holds a valid selected option.
+   * Handles changes to the text entered by the user.
    *
-   * @returns {@code true} when {@link selectedValue} is not {@code null}; {@code false} otherwise
+   * This method:
+   *
+   * - invalidates the current selection when the text no longer matches its label
+   * - closes the panel when the text no longer allows searching
+   *
+   * @param trimmedValue Current text, already trimmed
    */
-  get hasSelection(): boolean {
-    return this.selectedValue !== null;
+  private handleTextChange(trimmedValue: string): void {
+    const selectedLabel = this.selectedValue ? this.displayWith(this.selectedValue).trim() : '';
+
+    /**
+     * If the user edits the text so it no longer matches the current selection,
+     * the selection becomes invalid and must be propagated as null.
+     */
+    if (this.selectedValue && trimmedValue !== selectedLabel) {
+      this.clearSelectionState();
+    }
+
+    /**
+     * When the text no longer satisfies minimum conditions, the panel must close.
+     */
+    if (!this.canSearch(trimmedValue)) {
+      this.closePanelSilently();
+    }
   }
 
   /**
-   * Selects one option from the current result list.
+   * Clears internal selection state and propagates the change to external consumers.
    *
-   * Once an option is selected, the component:
-   *
-   * - stores the selected domain object internally
-   * - clears the dropdown results
-   * - updates the visible text with {@link displayWith}
-   * - emits {@link selectedChange}
-   * - propagates the transformed form value through {@link onChange}
-   * - marks the control as touched
-   *
-   * If the component is disabled, the method does nothing.
-   *
-   * @param option Option selected by the user
+   * @param markAsTouched Whether the control must also be marked as touched
    */
-  onSelect(option: T): void {
-    if (this.disabled) {
-      return;
-    }
-
-    this.overlayDismissed = false;
-    this.activeIndex = -1;
-    this.selectedValue = option;
-    this.results = [];
-    this.textControl.setValue(this.displayWith(option), { emitEvent: false });
-    this.selectedChange.emit(option);
-    this.onChange(this.valueWith(option));
-    this.onTouched();
-  }
-
-  /**
-   * Clears the current selection and propagates a {@code null} value to the parent form.
-   *
-   * The visible input text is reset to an empty string and the dropdown results are removed.
-   *
-   * If the component is disabled, the method does nothing.
-   */
-  clearSelection(): void {
-    if (this.disabled) {
-      return;
-    }
-
-    this.overlayDismissed = false;
-    this.activeIndex = -1;
+  private clearSelectionState(markAsTouched = false): void {
     this.selectedValue = null;
-    this.results = [];
-    this.textControl.setValue('', { emitEvent: false });
     this.selectedChange.emit(null);
     this.onChange(null);
-    this.onTouched();
-  }
 
-  /**
-   * Writes an external form value into this component.
-   *
-   * Angular forms call this method whenever the parent model pushes a new value into
-   * the control. The component then tries to resolve that value back into its full
-   * domain object using {@link resolveByValue}.
-   *
-   * Behavior:
-   *
-   * - when the incoming value is {@code null}, {@code undefined}, or an empty string,
-   *   the component is reset to the empty state
-   * - otherwise the component attempts to resolve the stored value into an option
-   * - if resolution succeeds, the selected option is restored and its display label
-   *   is shown in the text box
-   * - if resolution fails or returns {@code null}, the raw incoming value is shown
-   *   in the text box as a fallback, while no selected option is kept
-   *
-   * @param value External form value written by Angular forms
-   */
-  writeValue(value: string | null): void {
-    this.overlayDismissed = false;
-    this.activeIndex = -1;
-    this.results = [];
-
-    if (!value) {
-      this.selectedValue = null;
-      this.textControl.setValue('', { emitEvent: false });
-      return;
+    if (markAsTouched) {
+      this.onTouched();
     }
-
-    this.isLoading = true;
-
-    this.toObservable(this.resolveByValue(value))
-      .pipe(
-        catchError(() => of(null)),
-        finalize(() => {
-          this.isLoading = false;
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((resolvedOption) => {
-        this.selectedValue = resolvedOption;
-        this.textControl.setValue(resolvedOption ? this.displayWith(resolvedOption) : value, {
-          emitEvent: false,
-        });
-      });
   }
 
   /**
-   * Normalizes a synchronous or asynchronous value source into an {@link Observable}.
+   * Determines whether the current text allows launching a search.
    *
-   * This utility allows the component to treat all supported return types uniformly,
-   * regardless of whether a value was produced:
+   * The component behaves as a selection control: while a selection exists,
+   * the input is effectively read-only and must not start new searches.
    *
-   * - synchronously
-   * - through a {@link Promise}
-   * - through an {@link Observable}
+   * @param trimmedValue Already normalized text
+   * @returns {@code true} if a search should be performed
+   */
+  private canSearch(trimmedValue: string): boolean {
+    return trimmedValue.length >= this.minChars && !this.hasSelection && !this.disabled;
+  }
+
+  /**
+   * Normalizes a synchronous or asynchronous source into an {@link Observable}.
    *
-   * If the provided value is already an observable, it is returned unchanged.
-   * Otherwise, the value is wrapped into a resolved promise and then converted
-   * into an observable sequence.
-   *
-   * @typeParam V Type of the produced value
-   * @param value Source value to normalize
-   * @returns Observable emitting the provided value
+   * @typeParam V Type of the emitted value
+   * @param value Source to normalize
+   * @returns Equivalent Observable
    */
   private toObservable<V>(value: Observable<V> | Promise<V> | V): Observable<V> {
     if (isObservable(value)) {
@@ -586,134 +592,164 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   }
 
   /**
-   * Registers the callback used by Angular forms to receive value updates from this control.
+   * Converts a retrieved item list into its visual panel representation.
    *
-   * @param fn Callback invoked whenever the component propagates a new form value
+   * @param query Query associated with the results
+   * @param items Items returned by the search
+   * @returns Corresponding visual state
    */
-  registerOnChange(fn: (value: string | null) => void): void {
-    this.onChange = fn;
+  private toPanelModel(query: string, items: T[]): PanelModel<T> {
+    return items.length > 0 ? { kind: 'results', query, items } : { kind: 'empty', query };
   }
 
   /**
-   * Registers the callback used by Angular forms to mark this control as touched.
-   *
-   * @param fn Callback invoked when the control should be marked as touched
+   * Closes the panel without emitting accessibility announcements.
    */
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
+  private closePanelSilently(): void {
+    this.panel = { kind: 'closed' };
+    this.activeIndex = -1;
   }
 
   /**
-   * Updates the disabled state of this component from Angular forms.
-   *
-   * The internal text control is kept in sync with the externally supplied disabled state.
-   *
-   * @param isDisabled {@code true} to disable the component; {@code false} to enable it
+   * Initializes the reactive pipeline responsible for processing external values
+   * written by Angular Forms via {@link writeValue}.
    */
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+  private initializeWriteValuePipeline(): void {
+    this.writeValueRequests$
+      .pipe(
+        /**
+         * Before processing a new external write, visual state and current selection
+         * are reset.
+         */
+        tap(() => {
+          this.resetBeforeExternalWrite();
+        }),
 
-    if (isDisabled) {
-      this.textControl.disable({ emitEvent: false });
-    } else {
-      this.textControl.enable({ emitEvent: false });
+        /**
+         * Only the latest external write remains relevant.
+         */
+        switchMap((value) => {
+          /**
+           * {@code null} is treated as absence of external value: no selection and no text.
+           */
+          if (value === null || value === '') {
+            return of<ResolvedWriteValue<T>>({
+              originalValue: '',
+              resolvedOption: null,
+            });
+          }
+
+          this.resolvingValueCount++;
+
+          return defer(() => this.toObservable(this.resolveByValue(value))).pipe(
+            take(1),
+            map(
+              (resolvedOption): ResolvedWriteValue<T> => ({
+                originalValue: value,
+                resolvedOption,
+              }),
+            ),
+            catchError(() =>
+              of<ResolvedWriteValue<T>>({
+                originalValue: value,
+                resolvedOption: null,
+              }),
+            ),
+            finalize(() => {
+              this.resolvingValueCount--;
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(({ originalValue, resolvedOption }) => {
+        /**
+         * Internal state is updated with the best information available.
+         *
+         * - if an option was resolved, its visible label is shown
+         * - otherwise, the original value is shown as fallback text
+         */
+        this.selectedValue = resolvedOption;
+        this.setTextProgrammatically(
+          resolvedOption ? this.displayWith(resolvedOption) : originalValue,
+        );
+      });
+  }
+
+  /**
+   * Resets component state before applying a new external write coming from
+   * Angular Forms.
+   *
+   * This reset:
+   *
+   * - invalidates pending searches
+   * - closes the panel
+   * - removes the current selection
+   * - clears the visible text
+   *
+   * No events are propagated to the parent form because this is incoming
+   * synchronization, not a user action.
+   */
+  private resetBeforeExternalWrite(): void {
+    this.cancelPendingSearches();
+    this.closePanelSilently();
+    this.selectedValue = null;
+    this.setTextProgrammatically('');
+  }
+
+  /**
+   * Invalidates any asynchronous search currently in progress.
+   *
+   * Used when a possible future response must no longer modify the panel.
+   */
+  private cancelPendingSearches(): void {
+    this.cancelSearchRequests$.next();
+  }
+
+  /**
+   * Updates the visible input text without emitting reactive change events.
+   *
+   * This allows programmatic writes to be reflected without triggering the user
+   * input pipeline.
+   *
+   * @param value Text to be displayed
+   */
+  private setTextProgrammatically(value: string): void {
+    this.textControl.setValue(value, { emitEvent: false });
+  }
+
+  /**
+   * Finalizes view-dependent initialization once child references are available.
+   *
+   * This currently synchronizes the overlay width with the host input container
+   * and registers a global resize listener to keep that width updated.
+   */
+  ngAfterViewInit(): void {
+    this.updateOverlayWidth();
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', this.handleWindowResize, { passive: true });
     }
   }
 
   /**
-   * Marks the component as touched when the input loses focus.
+   * Recomputes the width of the connected overlay so it matches the input wrapper.
    */
-  handleBlur(): void {
-    this.onTouched();
+  private updateOverlayWidth(): void {
+    this.overlayWidth = this.inputWrapper?.nativeElement.getBoundingClientRect().width ?? 0;
   }
 
   /**
-   * Handles text changes coming from the input control after trimming.
-   *
-   * This method is responsible for preserving the invariant that the parent form only
-   * contains a valid selected value, never arbitrary search text.
-   *
-   * If the user edits the text so that it no longer matches the currently selected
-   * option label, the existing selection is invalidated and the parent form receives
-   * {@code null}.
-   *
-   * The method also clears the current result list when:
-   *
-   * - the text is shorter than {@link minChars}
-   * - a valid selection already exists
-   *
-   * @param trimmedValue Current trimmed text from the input control
+   * Window resize handler used to keep the overlay width aligned with the input.
    */
-  private handleTextChange(trimmedValue: string): void {
-    this.overlayDismissed = false;
-    const selectedLabel = this.selectedValue ? this.displayWith(this.selectedValue).trim() : '';
-
-    if (this.selectedValue && trimmedValue !== selectedLabel) {
-      this.selectedValue = null;
-      this.selectedChange.emit(null);
-      this.onChange(null);
-    }
-
-    if (trimmedValue.length < this.minChars || this.hasSelection) {
-      this.results = [];
-      this.activeIndex = -1;
-    }
-  }
+  private readonly handleWindowResize = (): void => {
+    this.updateOverlayWidth();
+  };
 
   /**
-   * Determines whether a search should be executed for the current text.
+   * Handles keyboard interaction originating from the main input.
    *
-   * A search is allowed only when all of the following conditions are met:
-   *
-   * - the trimmed text length is at least {@link minChars}
-   * - there is no active selection
-   * - the component is not disabled
-   *
-   * @param trimmedValue Current trimmed text from the input control
-   * @returns {@code true} when a search should be performed; {@code false} otherwise
-   */
-  private canSearch(trimmedValue: string): boolean {
-    return trimmedValue.length >= this.minChars && !this.hasSelection && !this.disabled;
-  }
-
-  /**
-   * Indicates whether the current input is long enough to display autocomplete feedback.
-   *
-   * @returns {@code true} when the trimmed input length is at least {@link minChars}
-   */
-  get hasSearchableText(): boolean {
-    return this.textControl.value.trim().length >= this.minChars;
-  }
-
-  /**
-   * Indicates whether the autocomplete overlay should be visible.
-   *
-   * The overlay is shown only when:
-   *
-   * - there is no current selection
-   * - the input contains enough text to search
-   * - the overlay has not been explicitly dismissed
-   *
-   * This allows the overlay to show loading feedback, results, or an empty-state
-   * message while still letting the user close it with the Escape key.
-   *
-   * @returns {@code true} when the overlay should be displayed; {@code false} otherwise
-   */
-  get isOverlayOpen(): boolean {
-    return !this.hasSelection && this.hasSearchableText && !this.overlayDismissed;
-  }
-
-  /**
-   * Handles keyboard interaction from the text input.
-   *
-   * Supported keys:
-   *
-   * - ArrowDown: moves the active option down
-   * - ArrowUp: moves the active option up
-   * - Enter: selects the active option
-   * - Escape: closes the overlay result state
-   *
-   * @param event Keyboard event raised by the input element
+   * @param event Keyboard event
    */
   onInputKeydown(event: KeyboardEvent): void {
     if (this.disabled) {
@@ -722,55 +758,41 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
 
     switch (event.key) {
       case 'ArrowDown':
-        if (!this.isOverlayOpen || this.results.length === 0) {
-          return;
-        }
-
-        event.preventDefault();
-        this.moveActiveIndex(1);
-        break;
-
       case 'ArrowUp':
-        if (!this.isOverlayOpen || this.results.length === 0) {
+        if (!this.hasResults) {
           return;
         }
 
         event.preventDefault();
-        this.moveActiveIndex(-1);
-        break;
+        this.moveActiveIndex(event.key === 'ArrowDown' ? 1 : -1);
+        return;
 
       case 'Enter':
-        if (!this.isOverlayOpen || this.results.length === 0 || this.activeIndex < 0) {
-          return;
+        if (this.hasResults && this.activeIndex >= 0 && this.activeIndex < this.results.length) {
+          event.preventDefault();
+          this.onSelect(this.results[this.activeIndex]);
         }
-
-        event.preventDefault();
-        this.onSelect(this.results[this.activeIndex]);
-        break;
+        return;
 
       case 'Escape':
-        if (!this.isOverlayOpen) {
-          return;
+        if (this.isOverlayOpen) {
+          event.preventDefault();
+          this.closeOverlay();
         }
-
-        event.preventDefault();
-        this.closeOverlay();
-        break;
+        return;
 
       default:
-        break;
+        return;
     }
   }
 
   /**
-   * Moves the active option index by the provided offset.
+   * Moves the active index through the current results list.
    *
-   * Navigation wraps around the result list boundaries.
-   *
-   * @param step Offset to apply. Usually {@code 1} or {@code -1}
+   * @param step Offset to apply to the current index
    */
   private moveActiveIndex(step: number): void {
-    if (this.results.length === 0) {
+    if (!this.hasResults) {
       this.activeIndex = -1;
       return;
     }
@@ -786,17 +808,7 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   }
 
   /**
-   * Scrolls the currently active option into view inside the rendered result list.
-   *
-   * This method is used after keyboard navigation changes {@link activeIndex},
-   * ensuring that the highlighted option remains visible to the user even when
-   * the list overflows and becomes scrollable.
-   *
-   * If there is no active option, or if the corresponding DOM element cannot be
-   * resolved from {@link resultOptions}, the method does nothing.
-   *
-   * Scrolling uses `block: 'nearest'` so that only the minimum necessary movement
-   * is performed, avoiding abrupt jumps in the list.
+   * Scrolls the list to ensure the active option remains visible.
    */
   private scrollActiveOptionIntoView(): void {
     if (this.activeIndex < 0) {
@@ -811,77 +823,7 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   }
 
   /**
-   * Closes the autocomplete overlay state without clearing the current input text.
-   *
-   * This is used, for example, when the user presses the Escape key.
-   */
-  private closeOverlay(): void {
-    this.results = [];
-    this.overlayDismissed = true;
-    this.activeIndex = -1;
-    this.isLoading = false;
-  }
-
-  /**
-   * Returns whether the option at the provided index is currently active.
-   *
-   * @param index Zero-based result index
-   * @returns {@code true} when the option is active; {@code false} otherwise
-   */
-  isActive(index: number): boolean {
-    return this.activeIndex === index;
-  }
-
-  /**
-   * Returns the DOM id used for the option at the provided index.
-   *
-   * @param index Zero-based result index
-   * @returns Stable DOM id for the option
-   */
-  getOptionId(index: number): string {
-    return `${this.optionIdPrefix}-${index}`;
-  }
-
-  /**
-   * Message exposed through a persistent live region so assistive technologies
-   * can announce relevant autocomplete state changes.
-   *
-   * The message is intentionally short and reflects only transient status:
-   *
-   * - loading state
-   * - no results
-   * - number of available results
-   *
-   * When there is nothing relevant to announce, an empty string is returned.
-   */
-  private readonly translateService = inject(TranslateService);
-
-  get liveRegionMessage(): string {
-    if (!this.isOverlayOpen) {
-      return '';
-    }
-
-    if (this.isLoading) {
-      return this.translateService.instant('autocomplete.loadingResults');
-    }
-
-    if (this.results.length === 0) {
-      return this.translateService.instant('autocomplete.noResultsFound');
-    }
-
-    if (this.results.length === 1) {
-      return this.translateService.instant('autocomplete.oneResultAvailable');
-    }
-
-    return this.translateService.instant('autocomplete.manyResultsAvailable', {
-      count: this.results.length,
-    });
-  }
-
-  /**
-   * Closes the autocomplete overlay when the user clicks outside the overlay panel.
-   *
-   * The current input text is preserved. Only the overlay state is dismissed.
+   * Closes the overlay when the user clicks outside the panel.
    */
   onOutsideClick(): void {
     if (!this.isOverlayOpen) {
@@ -892,19 +834,270 @@ export class AutocompleteTextboxComponent<T = unknown> implements OnInit, Contro
   }
 
   /**
-   * Prevents the input from losing focus before the click selection is processed.
-   *
-   * In this component the input keeps the active focus and exposes the current
-   * option through `aria-activedescendant`. If a pointer press on an option
-   * moves focus away from the input too early, the blur handler may run before
-   * the selection click is completed.
-   *
-   * Preventing the default action on `mousedown` preserves the focus on the input
-   * while still allowing the subsequent `click` event to select the option.
-   *
-   * @param event Mouse down event raised on an option element
+   * Closes the overlay and announces the closure through the live region.
    */
-  onOptionMouseDown(event: MouseEvent): void {
+  private closeOverlay(): void {
+    /**
+     * Closing the overlay invalidates any pending search so an old response
+     * cannot reopen results the user has just dismissed.
+     */
+    this.cancelPendingSearches();
+    this.closePanelSilently();
+    this.announceTransientMessage(this.translateService.instant('autocomplete.resultsClosed'));
+  }
+
+  /**
+   * Announces a transient message in the live region.
+   *
+   * A sequential identifier is used to ensure stale timers cannot clear a newer message.
+   *
+   * @param message Message to announce
+   */
+  private announceTransientMessage(message: string): void {
+    const sequence = ++this.liveMessageSequence;
+    this.transientLiveMessage = '';
+
+    queueMicrotask(() => {
+      /**
+       * If a newer message was generated during the microtask, this one is no longer valid.
+       */
+      if (this.liveMessageSequence !== sequence) {
+        return;
+      }
+
+      this.transientLiveMessage = message;
+
+      setTimeout(() => {
+        /**
+         * Only the timer associated with the most recent message may clear it.
+         */
+        if (this.liveMessageSequence === sequence) {
+          this.transientLiveMessage = '';
+        }
+      }, 300);
+    });
+  }
+
+  /**
+   * Prevents the input from losing focus before a pointer-based selection is processed.
+   *
+   * {@link PointerEvent} is used instead of {@link MouseEvent} to better cover
+   * modern devices and input modes.
+   *
+   * @param event Pointerdown event fired on an option
+   */
+  onOptionPointerDown(event: PointerEvent): void {
     event.preventDefault();
+  }
+
+  /**
+   * Selects an option from the current list and propagates the corresponding value
+   * to the parent form.
+   *
+   * @param option Option selected by the user
+   */
+  onSelect(option: T): void {
+    if (this.disabled) {
+      return;
+    }
+
+    /**
+     * Any pending search response must no longer affect the panel, because the
+     * current selection becomes the single source of truth.
+     */
+    this.cancelPendingSearches();
+
+    this.selectedValue = option;
+    this.closePanelSilently();
+    this.setTextProgrammatically(this.displayWith(option));
+    this.selectedChange.emit(option);
+    this.onChange(this.valueWith(option));
+    this.onTouched();
+  }
+
+  /**
+   * Clears the current selection, erases the visible text, and propagates {@code null}
+   * to the parent form.
+   */
+  clearSelection(): void {
+    if (this.disabled) {
+      return;
+    }
+
+    /**
+     * A pending search could return stale results and reopen the panel after the
+     * control has been cleared. It is invalidated first.
+     */
+    this.cancelPendingSearches();
+
+    this.clearSelectionState(true);
+    this.closePanelSilently();
+    this.setTextProgrammatically('');
+  }
+
+  /**
+   * Receives an external value from Angular Forms and queues it for processing.
+   *
+   * @param value External value written by the parent form
+   */
+  writeValue(value: string | null): void {
+    this.writeValueRequests$.next(value);
+  }
+
+  /**
+   * Marks the control as touched when it loses focus and closes the overlay.
+   */
+  handleBlur(): void {
+    this.onTouched();
+    this.closeOverlay();
+  }
+
+  /**
+   * Registers the callback used by Angular Forms to receive propagated value changes.
+   *
+   * @param fn Propagation callback function
+   */
+  registerOnChange(fn: (value: string | null) => void): void {
+    this.onChange = fn;
+  }
+
+  /**
+   * Registers the callback used by Angular Forms to mark the control as touched.
+   *
+   * @param fn Touched callback function
+   */
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  /**
+   * Updates the disabled state of the component from Angular Forms.
+   *
+   * @param isDisabled {@code true} to disable; {@code false} to enable
+   */
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+
+    if (isDisabled) {
+      /**
+       * Once disabled, no pending search must be allowed to modify the panel.
+       */
+      this.cancelPendingSearches();
+      this.textControl.disable({ emitEvent: false });
+      this.closePanelSilently();
+      return;
+    }
+
+    this.textControl.enable({ emitEvent: false });
+  }
+
+  /**
+   * Indicates whether the option at the given index is the current active option.
+   *
+   * @param index Option index
+   * @returns {@code true} if the option is active
+   */
+  isActive(index: number): boolean {
+    return this.activeIndex === index;
+  }
+
+  /**
+   * Returns the DOM identifier of the option at the given index.
+   *
+   * @param index Option index
+   * @returns Stable identifier for that option
+   */
+  getOptionId(index: number): string {
+    return `${this.optionIdPrefix}-${index}`;
+  }
+
+  /**
+   * Current message exposed by the persistent live region.
+   */
+  get liveRegionMessage(): string {
+    if (this.transientLiveMessage) {
+      return this.transientLiveMessage;
+    }
+
+    if (!this.isOverlayOpen) {
+      return '';
+    }
+
+    if (this.isLoading) {
+      return this.translateService.instant('autocomplete.loadingResults');
+    }
+
+    if (this.panel.kind === 'empty') {
+      return this.translateService.instant('autocomplete.noResultsFound');
+    }
+
+    if (this.panel.kind !== 'results') {
+      return '';
+    }
+
+    if (this.panel.items.length === 1) {
+      return this.translateService.instant('autocomplete.oneResultAvailable');
+    }
+
+    return this.translateService.instant('autocomplete.manyResultsAvailable', {
+      count: this.panel.items.length,
+    });
+  }
+
+  /**
+   * Indicates whether a valid selection exists.
+   */
+  get hasSelection(): boolean {
+    return this.selectedValue !== null;
+  }
+
+  /**
+   * Indicates whether the autocomplete overlay should be shown.
+   *
+   * While a selection exists, the input behaves as effectively read-only and the
+   * panel must not open.
+   *
+   * @returns {@code true} when the panel should be visible
+   */
+  get isOverlayOpen(): boolean {
+    return this.panel.kind !== 'closed' && !this.disabled && !this.hasSelection;
+  }
+
+  /**
+   * Indicates whether the current panel contains navigable results.
+   */
+  get hasResults(): boolean {
+    return this.panel.kind === 'results' && this.panel.items.length > 0;
+  }
+
+  /**
+   * Returns the current set of rendered results.
+   *
+   * @returns Current result list
+   */
+  get results(): T[] {
+    return this.panel.kind === 'results' ? this.panel.items : [];
+  }
+
+  /**
+   * Indicates whether the component is performing asynchronous work.
+   *
+   * This includes:
+   *
+   * - active searches
+   * - external value resolutions written by Angular Forms
+   *
+   * @returns {@code true} if work is pending
+   */
+  get isLoading(): boolean {
+    return this.panel.kind === 'loading' || this.resolvingValueCount > 0;
+  }
+
+  /**
+   * Indicates whether the current text contains enough characters to allow
+   * search-related feedback.
+   */
+  get hasSearchableText(): boolean {
+    return this.textControl.value.trim().length >= this.minChars;
   }
 }

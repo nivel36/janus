@@ -15,12 +15,9 @@
     "cancel": "Cancela",
     "cleanSelection": "Limpia la selección"
   },
-
-  "search": {
-    "loadingResults": "Cargando resultados",
-    "noResultsFound": "No se han encontrado resultados",
-    "resultsAvailable_one": "1 resultado disponible",
-    "resultsAvailable_other": "{{count}} resultados disponibles"
+  "autocomplete": {
+    "resultsClosed": "Sugerencias cerradas",
+    "missingAccessibleNameWarning": "AutocompleteTextboxComponent debe recibir ariaLabel o ariaLabelledBy para tener un nombre accesible."
   },
   "timelog": {
     "activeWorkday": "Jornada en curso",

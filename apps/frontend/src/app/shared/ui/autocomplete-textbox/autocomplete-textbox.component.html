@@ -1,9 +1,13 @@
-<div class="autocomplete">
-    <div class="input-wrapper" cdkOverlayOrigin #trigger="cdkOverlayOrigin">
+<div class="autocomplete" [class.disabled]="disabled">
+    <div class="input-wrapper" #inputWrapper cdkOverlayOrigin #trigger="cdkOverlayOrigin">
         <input
             [id]="inputId"
             type="text"
             role="combobox"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
             [placeholder]="hasSelection ? '' : emptyHint || placeholder"
             [formControl]="textControl"
             [readonly]="hasSelection"
@@ -12,13 +16,15 @@
             [attr.aria-readonly]="hasSelection ? 'true' : null"
             [attr.aria-disabled]="disabled ? 'true' : null"
             [attr.aria-expanded]="isOverlayOpen ? 'true' : 'false'"
-            [attr.aria-controls]="isOverlayOpen && results.length > 0 ? resultsListId : null"
+            [attr.aria-haspopup]="'listbox'"
+            [attr.aria-controls]="isOverlayOpen ? resultsListId : null"
             [attr.aria-activedescendant]="
-                isOverlayOpen && activeIndex >= 0 ? getOptionId(activeIndex) : null
+                isOverlayOpen && activeIndex >= 0 && results.length > 0
+                    ? getOptionId(activeIndex)
+                    : null
             "
             [attr.aria-busy]="isLoading ? 'true' : 'false'"
-            aria-autocomplete="list"
-            aria-haspopup="listbox"
+            [attr.aria-autocomplete]="hasSelection ? null : 'list'"
             (blur)="handleBlur()"
             (keydown)="onInputKeydown($event)"
         />
@@ -49,32 +55,32 @@
         [cdkConnectedOverlayPush]="true"
         (overlayOutsideClick)="onOutsideClick()"
     >
-        <div class="results-panel">
-            @if (isLoading) {
-                <div class="results-status">
-                    {{ 'search.loading' | translate }}
-                </div>
-            } @else if (results.length > 0) {
-                <ul class="results" [id]="resultsListId" role="listbox">
-                    @for (result of results; track trackByValue(result); let i = $index) {
+        <div class="results-panel" [style.min-width.px]="overlayWidth">
+            <ul class="results" [id]="resultsListId" role="listbox">
+                @if (panel.kind === 'results') {
+                    @for (result of panel.items; track trackByValue(result); let i = $index) {
                         <li
                             #resultOption
                             role="option"
                             [id]="getOptionId(i)"
-                            [attr.aria-selected]="isActive(i) ? 'true' : 'false'"
                             [class.active]="isActive(i)"
-                            (mousedown)="onOptionMouseDown($event)"
+                            [attr.aria-selected]="isActive(i) ? 'true' : 'false'"
+                            (pointerdown)="onOptionPointerDown($event)"
                             (click)="onSelect(result)"
                         >
                             {{ displayWith(result) }}
                         </li>
                     }
-                </ul>
-            } @else {
-                <div class="results-status">
-                    {{ 'search.noResultsFound' | translate }}
-                </div>
-            }
+                } @else if (panel.kind === 'loading') {
+                    <li role="presentation" class="results-message">
+                        {{ 'autocomplete.loadingResults' | translate }}
+                    </li>
+                } @else if (panel.kind === 'empty') {
+                    <li role="presentation" class="results-message">
+                        {{ 'autocomplete.noResultsFound' | translate }}
+                    </li>
+                }
+            </ul>
         </div>
     </ng-template>
 </div>
