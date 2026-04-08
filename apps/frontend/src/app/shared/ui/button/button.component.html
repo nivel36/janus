@@ -1,6 +1,7 @@
 <button
     [class]="'app-button ' + variantClass + ' ' + styleClass"
     [attr.type]="type"
+    [attr.aria-label]="ariaLabel"
     [disabled]="disabled"
     (click)="clicked.emit($event)"
 >
