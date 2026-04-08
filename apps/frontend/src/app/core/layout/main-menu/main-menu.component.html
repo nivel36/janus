@@ -4,8 +4,8 @@
             <button
                 type="button"
                 class="main-menu__user-name"
-                [attr.aria-label]="'{{ user.fullName }}'"
-                [attr.title]="'{{ user.fullName }}'"
+                [attr.aria-label]="user.fullName"
+                [attr.title]="user.fullName"
                 (click)="goToUserPreferences()"
             >
                 <span aria-hidden="true">{{ user.fullName }}</span>
