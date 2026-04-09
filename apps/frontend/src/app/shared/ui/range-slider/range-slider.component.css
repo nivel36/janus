@@ -74,3 +74,14 @@
     opacity: 0.7;
     cursor: not-allowed;
 }
+
+.range-slider:hover .range-slider__input,
+.range-slider:focus-visible .range-slider__input,
+.range-slider:hover .range-slider__input::-moz-range-thumb,
+.range-slider:hover .range-slider__input::-webkit-slider-thumb,
+.range-slider:focus-visible .range-slider__input::-moz-range-thumb,
+.range-slider:focus-visible .range-slider__input::-webkit-slider-thumb,
+.range-slider:hover .range-slider__value,
+.range-slider:focus-visible .range-slider__value {
+    box-shadow: 0 0 0 2px rgba(249, 214, 0, 0.3);
+}
