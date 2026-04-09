@@ -144,12 +144,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
     });
   }
 
-  goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-      return;
-    }
-
+  cancel(): void {
     this.router.navigate(['/']);
   }
 
@@ -174,7 +169,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
       .subscribe({
         next: (updatedSettings) => {
           this.form.reset(updatedSettings);
-          this.goBack();
+          this.cancel();
         },
         error: () => {
           this.errorMessage = 'applicationSettings.errors.update';

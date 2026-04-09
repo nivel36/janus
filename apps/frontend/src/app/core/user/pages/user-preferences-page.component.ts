@@ -195,7 +195,7 @@ export class UserPreferencesPageComponent implements OnInit {
       .subscribe({
         next: (updatedPreferences) => {
           this.applyPreferences(updatedPreferences);
-          this.goBack();
+          this.cancel();
         },
         error: () => {
           this.errorMessage = 'userPreferences.errors.update';
@@ -204,15 +204,9 @@ export class UserPreferencesPageComponent implements OnInit {
   }
 
   /**
-   * Navigates back to the previous page when possible.
-   * Falls back to the application root if no browser history is available.
+   * Navigates back to root .
    */
-  goBack(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-      return;
-    }
-
+  cancel(): void {
     this.router.navigate(['/']);
   }
 
