@@ -48,7 +48,7 @@ export class SelectComponent<TValue extends string = string> implements ControlV
   /**
    * Identifier forwarded to the native control.
    */
-  @Input() id = '';
+  @Input() inputId = '';
 
   /**
    * Accessible name used when no external label exists.

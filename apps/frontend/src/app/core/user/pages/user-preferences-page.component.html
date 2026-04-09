@@ -6,7 +6,11 @@
           <label for="preferences-locale">
             {{ 'userPreferences.fields.locale' | translate }}
           </label>
-          <app-select id="preferences-locale" formControlName="locale" [options]="localeOptions" />
+          <app-select
+            inputId="preferences-locale"
+            formControlName="locale"
+            [options]="localeOptions"
+          />
         </div>
 
         <div class="field-control">
@@ -14,7 +18,7 @@
             {{ 'userPreferences.fields.timeFormat' | translate }}
           </label>
           <app-select
-            id="preferences-time-format"
+            inputId="preferences-time-format"
             formControlName="timeFormat"
             [options]="timeFormatOptions"
           />
