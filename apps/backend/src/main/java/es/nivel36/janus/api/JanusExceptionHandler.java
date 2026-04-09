@@ -35,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -228,6 +229,17 @@ public class JanusExceptionHandler {
 		pd.setDetail(ex.getMessage());
 		this.addCommonProps(pd, request);
 		logger.warn("WorksiteAccessDeniedException error {}", pd);
+		return pd;
+	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	ProblemDetail handleAccessDenied(final AccessDeniedException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+		pd.setType(TYPE_ACCESS_DENIED);
+		pd.setTitle("Access denied");
+		pd.setDetail(ex.getMessage());
+		this.addCommonProps(pd, request);
+		logger.warn("AccessDeniedException error {}", pd);
 		return pd;
 	}
 

@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInEvent;
@@ -52,6 +54,7 @@ public class ClockOutWithoutClockInEventController {
 
 	private final ClockOutWithoutClockInEventService clockOutWithoutClockInEventService;
 	private final EmployeeService employeeService;
+	private final ApplicationSettingsService applicationSettingsService;
 	private final WorksiteService worksiteService;
 	private final Mapper<ClockOutWithoutClockInEvent, ClockOutWithoutClockInEventResponse> clockOutWithoutClockInEventResponseMapper;
 
@@ -65,6 +68,9 @@ public class ClockOutWithoutClockInEventController {
 	 * @param employeeService                     service used to resolve
 	 *                                            {@link Employee} entities; must
 	 *                                            not be {@code null}
+	 * @param applicationSettingsService          service used to read global
+	 *                                            application settings; must not be
+	 *                                            {@code null}
 	 * @param worksiteService                     service used to resolve
 	 *                                            {@link Worksite} entities; must
 	 *                                            not be {@code null}
@@ -76,11 +82,14 @@ public class ClockOutWithoutClockInEventController {
 	 */
 	public ClockOutWithoutClockInEventController(
 			final ClockOutWithoutClockInEventService clockOutWithoutClockInEventService,
-			final EmployeeService employeeService, final WorksiteService worksiteService,
+			final EmployeeService employeeService, final ApplicationSettingsService applicationSettingsService,
+			final WorksiteService worksiteService,
 			final Mapper<ClockOutWithoutClockInEvent, ClockOutWithoutClockInEventResponse> clockOutWithoutClockInEventResponseMapper) {
 		this.clockOutWithoutClockInEventService = Objects.requireNonNull(clockOutWithoutClockInEventService,
 				"clockOutWithoutClockInEventService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
+				"applicationSettingsService can't be null");
 		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
 		this.clockOutWithoutClockInEventResponseMapper = Objects.requireNonNull(
 				clockOutWithoutClockInEventResponseMapper, "clockOutWithoutClockInEventResponseMapper can't be null");
@@ -121,6 +130,7 @@ public class ClockOutWithoutClockInEventController {
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 
+		this.assertManualTimeEntryAllowed();
 		final ClockOutWithoutClockInEvent resolvedClockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.resolve(clockOutWithoutClockInEvent, request.entryTime(), this.toOptionalReason(request.reason()));
 		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper
@@ -202,6 +212,12 @@ public class ClockOutWithoutClockInEventController {
 		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper
 				.map(clockOutWithoutClockInEvent);
 		return ResponseEntity.ok(response);
+	}
+
+	private void assertManualTimeEntryAllowed() {
+		if (!this.applicationSettingsService.findApplicationSettings().isEmployeeManualTimelogEntryAllowed()) {
+			throw new AccessDeniedException("Manual timelog entry is disabled for employees");
+		}
 	}
 
 	private Worksite findRecordedWorksite(final String worksiteCode) {

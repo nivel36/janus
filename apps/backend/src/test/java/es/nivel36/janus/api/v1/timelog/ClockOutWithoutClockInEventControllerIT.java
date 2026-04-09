@@ -61,7 +61,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
@@ -83,7 +83,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
@@ -110,7 +110,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 	@Test
 	@Sql(statements = { //
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
@@ -130,5 +130,26 @@ class ClockOutWithoutClockInEventControllerIT {
 				.andExpect(jsonPath("$.resolved").value(false)) //
 				.andExpect(jsonPath("$.invalidated").value(true)) //
 				.andExpect(jsonPath("$.reason").value("Handled manually after transfer"));
+	}
+
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',2)",
+			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
+	void testResolveClockOutWithoutClockInEventShouldReturnForbiddenWhenManualEntryDisabled() throws Exception {
+		final String exit = "2025-08-04T16:00:00Z";
+		final String entry = "2025-08-04T09:00:00Z";
+		final String body = """
+				  {"entryTime":"%s","reason":"Worked from home before the transfer"}
+				""".formatted(entry);
+
+		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", exit) //
+				.param("worksiteCode", "HOME-AF") //
+				.contentType(APPLICATION_JSON).content(body).with(jwt())) //
+				.andExpect(status().isForbidden());
 	}
 }

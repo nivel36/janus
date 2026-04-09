@@ -62,6 +62,9 @@ public class ApplicationSettingsService {
 	 *                                         create workplaces.
 	 * @param worksiteChangeDuringShiftAllowed whether worksite changes are allowed
 	 *                                         during a shift.
+	 * @param employeeManualTimelogEntryAllowed whether employees are allowed to
+	 *                                          set custom entry/exit instants in
+	 *                                          timelog operations.
 	 * @param defaultTimezone                  default application time zone.
 	 * @return the updated {@link ApplicationSettings} instance.
 	 * @throws IllegalStateException if the global application settings entry does
@@ -69,12 +72,14 @@ public class ApplicationSettingsService {
 	 */
 	@Transactional
 	public ApplicationSettings update(final int daysUntilLocked, final boolean employeeWorkplaceCreationAllowed,
-			final boolean worksiteChangeDuringShiftAllowed, final ZoneId defaultTimezone) {
+			final boolean worksiteChangeDuringShiftAllowed, final boolean employeeManualTimelogEntryAllowed,
+			final ZoneId defaultTimezone) {
 		logger.debug("Updating application settings");
 		final ApplicationSettings applicationSettings = this.findById();
 		applicationSettings.setDaysUntilLocked(daysUntilLocked);
 		applicationSettings.setEmployeeWorkplaceCreationAllowed(employeeWorkplaceCreationAllowed);
 		applicationSettings.setWorksiteChangeDuringShiftAllowed(worksiteChangeDuringShiftAllowed);
+		applicationSettings.setEmployeeManualTimelogEntryAllowed(employeeManualTimelogEntryAllowed);
 		applicationSettings.setDefaultTimezone(defaultTimezone);
 		return applicationSettings;
 	}
@@ -133,6 +138,20 @@ public class ApplicationSettingsService {
 	@Transactional(readOnly = true)
 	public boolean isWorksiteChangeDuringShiftAllowed() {
 		return this.findById().isWorksiteChangeDuringShiftAllowed();
+	}
+
+	/**
+	 * Indicates whether employees are allowed to create manual timelog entries with
+	 * explicit timestamps.
+	 *
+	 * @return {@code true} if manual timelog entry is allowed; {@code false}
+	 *         otherwise.
+	 * @throws IllegalStateException if the global application settings entry does
+	 *                               not exist.
+	 */
+	@Transactional(readOnly = true)
+	public boolean isEmployeeManualTimelogEntryAllowed() {
+		return this.findById().isEmployeeManualTimelogEntryAllowed();
 	}
 
 	/**

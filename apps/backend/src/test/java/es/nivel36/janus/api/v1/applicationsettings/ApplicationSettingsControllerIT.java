@@ -46,7 +46,7 @@ class ApplicationSettingsControllerIT {
 	private @Autowired MockMvc mvc;
 
 	@Test
-	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (1, 7, true, false, 'Europe/Madrid')")
+	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
 	void testFindShouldReturnCurrentSettingsForEmployeeRole() throws Exception {
 		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isOk())
@@ -54,14 +54,15 @@ class ApplicationSettingsControllerIT {
 				.andExpect(jsonPath("$.daysUntilLocked").isNumber())
 				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").isBoolean())
 				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").isBoolean())
+				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").isBoolean())
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
 	}
 
 	@Test
-	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (1, 7, true, false, 'Europe/Madrid')")
+	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
 	void testUpdateShouldReturnForbiddenForNonAdmin() throws Exception {
 		final String body = """
-				{"daysUntilLocked":5,"employeeWorkplaceCreationAllowed":true,"worksiteChangeDuringShiftAllowed":false,"defaultTimezone":"Europe/Madrid"}
+				{"daysUntilLocked":5,"employeeWorkplaceCreationAllowed":true,"worksiteChangeDuringShiftAllowed":false,"employeeManualTimelogEntryAllowed":false,"defaultTimezone":"Europe/Madrid"}
 				""";
 
 		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
@@ -69,10 +70,10 @@ class ApplicationSettingsControllerIT {
 	}
 
 	@Test
-	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (1, 7, true, false, 'Europe/Madrid')")
+	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
 	void testUpdateShouldReturnUpdatedSettingsForAdmin() throws Exception {
 		final String body = """
-				{"daysUntilLocked":3,"employeeWorkplaceCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"defaultTimezone":"UTC"}
+				{"daysUntilLocked":3,"employeeWorkplaceCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimelogEntryAllowed":true,"defaultTimezone":"UTC"}
 				""";
 
 		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
@@ -81,6 +82,7 @@ class ApplicationSettingsControllerIT {
 				.andExpect(jsonPath("$.daysUntilLocked").value(3))
 				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").value(false))
 				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").value(true))
+				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").value(true))
 				.andExpect(jsonPath("$.defaultTimezone").value("UTC"));
 	}
 }

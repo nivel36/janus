@@ -54,6 +54,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
     daysUntilLocked: [0, [Validators.required, Validators.min(0)]],
     employeeWorkplaceCreationAllowed: [false],
     worksiteChangeDuringShiftAllowed: [false],
+    employeeManualTimelogEntryAllowed: [false],
     defaultTimezone: ['Europe/Madrid', Validators.required],
   });
 
@@ -138,6 +139,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
       daysUntilLocked: applicationSettings.daysUntilLocked,
       employeeWorkplaceCreationAllowed: applicationSettings.employeeWorkplaceCreationAllowed,
       worksiteChangeDuringShiftAllowed: applicationSettings.worksiteChangeDuringShiftAllowed,
+      employeeManualTimelogEntryAllowed: applicationSettings.employeeManualTimelogEntryAllowed,
       defaultTimezone: applicationSettings.defaultTimezone,
     });
   }

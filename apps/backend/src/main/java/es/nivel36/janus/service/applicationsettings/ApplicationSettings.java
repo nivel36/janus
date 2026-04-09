@@ -85,6 +85,17 @@ public class ApplicationSettings implements Serializable {
 	private boolean worksiteChangeDuringShiftAllowed;
 
 	/**
+	 * Indicates whether employees are allowed to register time logs with manually
+	 * specified timestamps (entry/exit time).
+	 * <p>
+	 * When {@code true}, employees can provide {@code entryTime} / {@code exitTime}
+	 * values and create complete time logs manually. When {@code false}, they can
+	 * only clock in/out using the current instant.
+	 * </p>
+	 */
+	private boolean employeeManualTimelogEntryAllowed;
+
+	/**
 	 * Default time zone used by the application when a specific value is not
 	 * provided.
 	 */
@@ -113,16 +124,21 @@ public class ApplicationSettings implements Serializable {
 	 * @param worksiteChangeDuringShiftAllowed whether employees are allowed to
 	 *                                         change their worksite during an
 	 *                                         active shift.
+	 * @param employeeManualTimelogEntryAllowed whether employees are allowed to
+	 *                                         create manual timelog entries with
+	 *                                         explicit timestamps.
 	 * @param defaultTimezone                  default application time zone.
 	 * 
 	 * @throws IllegalArgumentException if {@code daysUntilLocked} is negative
 	 * @throws NullPointerException if defaultTimezone is {@code null}
 	 */
 	public ApplicationSettings(final int daysUntilLocked, final boolean employeeWorkplaceCreationAllowed,
-			final boolean worksiteChangeDuringShiftAllowed, final ZoneId defaultTimezone) {
+			final boolean worksiteChangeDuringShiftAllowed, final boolean employeeManualTimelogEntryAllowed,
+			final ZoneId defaultTimezone) {
 		this.setDaysUntilLocked(daysUntilLocked);
 		this.employeeWorkplaceCreationAllowed = employeeWorkplaceCreationAllowed;
 		this.worksiteChangeDuringShiftAllowed = worksiteChangeDuringShiftAllowed;
+		this.employeeManualTimelogEntryAllowed = employeeManualTimelogEntryAllowed;
 		this.setDefaultTimezone(defaultTimezone);
 	}
 
@@ -166,6 +182,17 @@ public class ApplicationSettings implements Serializable {
 	 */
 	public boolean isWorksiteChangeDuringShiftAllowed() {
 		return this.worksiteChangeDuringShiftAllowed;
+	}
+
+	/**
+	 * Indicates whether employees are allowed to provide custom timestamps when
+	 * creating or updating time logs.
+	 *
+	 * @return {@code true} if manual timelog entry is allowed; {@code false}
+	 *         otherwise
+	 */
+	public boolean isEmployeeManualTimelogEntryAllowed() {
+		return this.employeeManualTimelogEntryAllowed;
 	}
 
 	/**
@@ -227,6 +254,17 @@ public class ApplicationSettings implements Serializable {
 	 */
 	public void setWorksiteChangeDuringShiftAllowed(final boolean worksiteChangeDuringShiftAllowed) {
 		this.worksiteChangeDuringShiftAllowed = worksiteChangeDuringShiftAllowed;
+	}
+
+	/**
+	 * Sets whether employees can provide manual entry/exit timestamps.
+	 *
+	 * @param employeeManualTimelogEntryAllowed {@code true} to allow manual
+	 *                                           timestamps; {@code false}
+	 *                                           otherwise
+	 */
+	public void setEmployeeManualTimelogEntryAllowed(final boolean employeeManualTimelogEntryAllowed) {
+		this.employeeManualTimelogEntryAllowed = employeeManualTimelogEntryAllowed;
 	}
 
 	/**

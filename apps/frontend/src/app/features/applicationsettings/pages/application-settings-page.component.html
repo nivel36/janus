@@ -36,6 +36,18 @@
                     </label>
                 </div>
 
+                <div class="employeeManualTimelogEntryAllowed-control">
+                    <label>
+                        <app-toggle-button
+                            formControlName="employeeManualTimelogEntryAllowed"
+                        ></app-toggle-button>
+                        {{
+                            'applicationSettings.fields.employeeManualTimelogEntryAllowed'
+                                | translate
+                        }}
+                    </label>
+                </div>
+
                 <div class="timezone-control">
                     <label for="default-timezone">
                         {{ 'applicationSettings.fields.defaultTimezone' | translate }}
