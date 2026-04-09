@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
+import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
@@ -68,6 +69,7 @@ public class TimeLogController {
 
 	private final TimeLogService timeLogService;
 	private final EmployeeService employeeService;
+	private final ApplicationSettingsService applicationSettingsService;
 	private final WorksiteService worksiteService;
 	private final Clock clock;
 	private final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper;
@@ -88,10 +90,13 @@ public class TimeLogController {
 	 *                              be {@code null}.
 	 */
 	public TimeLogController(final TimeLogService timeLogService, final EmployeeService employeeService,
+			final ApplicationSettingsService applicationSettingsService,
 			final WorksiteService worksiteService, final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper,
 			final Clock clock) {
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
+				"applicationSettingsService can't be null");
 		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
 		this.timeLogResponseMapper = Objects.requireNonNull(timeLogResponseMapper,
 				"timeLogResponseMapper can't be null");
@@ -139,6 +144,7 @@ public class TimeLogController {
 		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
 		final TimeLog clockIn;
 		if (entryTime != null) {
+			this.assertManualTimeEntryAllowed();
 			clockIn = this.timeLogService.clockIn(employee, worksite, entryTime);
 		} else {
 			clockIn = this.timeLogService.clockIn(employee, worksite, this.clock.instant());
@@ -192,6 +198,7 @@ public class TimeLogController {
 		final Worksite worksite = this.findWorksiteForClockOut(employee, worksiteCode);
 		final TimeLog clockOut;
 		if (exitTime != null) {
+			this.assertManualTimeEntryAllowed();
 			clockOut = this.timeLogService.clockOut(employee, worksite, exitTime);
 		} else {
 			clockOut = this.timeLogService.clockOut(employee, worksite, this.clock.instant());
@@ -237,6 +244,7 @@ public class TimeLogController {
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
+		this.assertManualTimeEntryAllowed();
 		final Instant entryTime = timeLog.entryTime();
 		final Instant exitTime = timeLog.exitTime();
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
@@ -320,6 +328,12 @@ public class TimeLogController {
 			}
 		}
 		return worksite;
+	}
+
+	private void assertManualTimeEntryAllowed() {
+		if (!this.applicationSettingsService.isEmployeeManualTimelogEntryAllowed()) {
+			throw new AccessDeniedException("Manual timelog entry is disabled by application settings");
+		}
 	}
 
 	/**

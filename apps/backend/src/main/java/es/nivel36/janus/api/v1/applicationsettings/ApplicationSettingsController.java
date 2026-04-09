@@ -63,6 +63,7 @@ public class ApplicationSettingsController {
 		logger.debug("Update application settings ACTION performed");
 		final ApplicationSettings updatedSettings = this.applicationSettingsService.update(request.daysUntilLocked(),
 				request.employeeWorkplaceCreationAllowed(), request.worksiteChangeDuringShiftAllowed(),
+				request.employeeManualTimelogEntryAllowed(),
 				ZoneId.of(request.defaultTimezone()));
 		return ResponseEntity.ok(this.toResponse(updatedSettings));
 	}
@@ -71,6 +72,7 @@ public class ApplicationSettingsController {
 		return new ApplicationSettingsResponse(applicationSettings.getDaysUntilLocked(),
 				applicationSettings.isEmployeeWorkplaceCreationAllowed(),
 				applicationSettings.isWorksiteChangeDuringShiftAllowed(),
+				applicationSettings.isEmployeeManualTimelogEntryAllowed(),
 				applicationSettings.getDefaultTimezone().getId());
 	}
 }

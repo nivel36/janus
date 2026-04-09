@@ -65,6 +65,7 @@
       "daysUntilLocked": "Days until time logs are locked",
       "employeeWorkplaceCreationAllowed": "Allow employees to create worksites",
       "worksiteChangeDuringShiftAllowed": "Allow worksite change during shift",
+      "employeeManualTimelogEntryAllowed": "Allow employees to enter manual times",
       "defaultTimezone": "Default timezone",
       "defaultTimezoneHint": "Find your timezone. For example, Europe/Madrid."
     },

@@ -65,6 +65,7 @@
       "daysUntilLocked": "Días hasta el bloqueo de los fichajes",
       "employeeWorkplaceCreationAllowed": "Permitir que empleados creen centros de trabajo",
       "worksiteChangeDuringShiftAllowed": "Permitir cambiar de centro durante el turno",
+      "employeeManualTimelogEntryAllowed": "Permitir que empleados introduzcan horas manualmente",
       "defaultTimezone": "Zona horaria predeterminada",
       "defaultTimezoneHint": "Busca tu zona horaria. Por ejemplo, Europe/Madrid."
     },

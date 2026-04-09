@@ -42,7 +42,7 @@ class ApplicationSettingsServiceTest {
 	@Test
 	void testGetDaysUntilLockedReturnsPersistedValue() {
 		when(this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID))
-				.thenReturn(Optional.of(new ApplicationSettings(7, false, false, ZoneId.of("Europe/Madrid"))));
+				.thenReturn(Optional.of(new ApplicationSettings(7, false, false, false, ZoneId.of("Europe/Madrid"))));
 
 		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
 
