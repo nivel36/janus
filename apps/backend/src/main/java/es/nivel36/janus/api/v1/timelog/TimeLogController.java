@@ -234,6 +234,8 @@ public class TimeLogController {
 			final @Valid @RequestBody CreateTimeLogRequest timeLog, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Create time log ACTION performed");
 
+		this.assertManualTimeEntryAllowed();
+		
 		final String authenticatedEmail = jwt.getClaimAsString("email");
 		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
 				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
@@ -244,7 +246,6 @@ public class TimeLogController {
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
-		this.assertManualTimeEntryAllowed();
 		final Instant entryTime = timeLog.entryTime();
 		final Instant exitTime = timeLog.exitTime();
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
