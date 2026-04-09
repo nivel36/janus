@@ -1,45 +1,37 @@
 .preferences-content {
-    width: min(1080px, 100%);
-    display: flex;
-    gap: 2.5rem;
-    color: #f9f9f9;
+  width: min(1080px, 100%);
+  display: flex;
+  gap: 2.5rem;
+  color: #f9f9f9;
 }
 
 .preferences-content app-card {
-    display: block;
-    flex: 1;
+  display: block;
+  flex: 1;
 }
 
 form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex-grow: 1;
 }
 
 .field-control {
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
 }
 
 label {
-    color: #ffffff;
-    font-weight: 700;
-}
-
-select {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.6rem;
-    padding: 0.65rem 0.75rem;
-    background: rgba(0, 0, 0, 0.2);
-    color: #ffffff;
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .message {
-    margin: 0;
+  margin: 0;
 }
 
 .error {
-    color: #ff8a8a;
+  color: #ff8a8a;
 }
