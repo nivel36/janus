@@ -16,6 +16,10 @@
     "cleanSelection": "Neteja la sel·lecció"
   },
   "autocomplete": {
+    "noResultsFound": "No s'ha trobat cap resultat",
+    "loadingResults": "Carregant resultats",
+    "oneResultAvailable": "Un resultat disponible",
+    "manyResultsAvailable": "{{count}} resultats disponibles",
     "resultsClosed": "Suggeriments tancats",
     "missingAccessibleNameWarning": "AutocompleteTextboxComponent ha de rebre ariaLabel o ariaLabelledBy per tenir un nom accessible."
   },

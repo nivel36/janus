@@ -80,3 +80,26 @@ body {
 .buttons > * + * {
     margin-left: 1rem;
 }
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex-grow: 1;
+}
+
+label {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+select {
+    display: flex;
+    width: 100%;
+    border: 1px solid #fece0b;
+    border-radius: 0.5rem;
+    background: #050505;
+    padding: 0.625rem 0.75rem;
+    color: #f9f9f9;
+    font-size: 0.95rem;
+}
