@@ -1,0 +1,16 @@
+<div class="select" [class.disabled]="disabled">
+  <select
+    [id]="inputId || null"
+    [value]="value ?? ''"
+    [disabled]="disabled"
+    [attr.aria-label]="ariaLabel || null"
+    (change)="onSelectionChange($event)"
+    (blur)="markTouched()"
+  >
+    @for (option of options; track option.value) {
+      <option [value]="option.value">{{ option.labelKey | translate }}</option>
+    }
+  </select>
+
+  <span class="arrow" aria-hidden="true">▾</span>
+</div>

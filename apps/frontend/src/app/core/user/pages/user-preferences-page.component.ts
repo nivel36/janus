@@ -16,6 +16,7 @@ import {
   resolveTimezoneByZoneId,
 } from '../../../shared/utils/timezone-catalog.util';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { UserPreferences } from '../models/user-preferences';
@@ -48,6 +49,7 @@ import { TimeFormat } from '../services/user-profile-api.service';
     AutocompleteTextboxComponent,
     ButtonComponent,
     CardComponent,
+    SelectComponent,
     PageTemplateComponent,
   ],
   templateUrl: './user-preferences-page.component.html',
@@ -80,12 +82,20 @@ export class UserPreferencesPageComponent implements OnInit {
   /**
    * Available locale options presented in the UI.
    */
-  readonly localeOptions = supportedLanguages;
+  readonly localeOptions: SelectOption[] = supportedLanguages.map((locale) => ({
+    value: locale,
+    labelKey: `locale.${locale}`,
+  }));
 
   /**
    * Available time format options presented in the UI.
    */
-  readonly timeFormatOptions: TimeFormat[] = ['H24', 'H12'];
+  readonly timeFormatOptions: SelectOption<TimeFormat>[] = (['H24', 'H12'] as TimeFormat[]).map(
+    (timeFormat) => ({
+      value: timeFormat,
+      labelKey: `userPreferences.timeFormat.${timeFormat}`,
+    }),
+  );
 
   /**
    * Full timezone catalog used by the autocomplete search.
@@ -275,5 +285,4 @@ export class UserPreferencesPageComponent implements OnInit {
     this.form.markAsPristine();
     this.form.markAsUntouched();
   }
-
 }
