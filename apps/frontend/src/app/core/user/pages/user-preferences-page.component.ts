@@ -1,14 +1,13 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Location } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, finalize, of, take } from 'rxjs';
 
-import { supportedLanguages } from '../../../app.config';
+import { supportedLanguages } from '../../i18n/language.util';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { TimezoneOption } from '../../../shared/models/timezone-option.model';
 import {
@@ -58,7 +57,6 @@ import { TimeFormat } from '../services/user-profile-api.service';
 export class UserPreferencesPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly currentUserFacade = inject(CurrentUserFacade);
-  private readonly location = inject(Location);
   private readonly router = inject(Router);
 
   /**

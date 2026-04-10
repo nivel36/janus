@@ -78,9 +78,9 @@ export class SelectComponent<TValue extends string = string> implements ControlV
   }
 
   onSelectionChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value as TValue;
-    this.value = value;
-    this.onChange(value);
+    const value = (event.target as HTMLSelectElement).value;
+    this.value = (value || null) as TValue | null;
+    this.onChange(this.value);
   }
 
   markTouched(): void {

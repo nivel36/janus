@@ -3,8 +3,16 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { combineLatest, Observable, of } from 'rxjs';
-import { map, distinctUntilChanged, shareReplay, switchMap, catchError } from 'rxjs/operators';
+import { combineLatest, Observable, of, ReplaySubject } from 'rxjs';
+import {
+  map,
+  distinctUntilChanged,
+  shareReplay,
+  switchMap,
+  catchError,
+  startWith,
+  tap,
+} from 'rxjs/operators';
 
 import { AuthService } from '../../auth/auth.service';
 import { UserProfileApiService } from './user-profile-api.service';
@@ -36,6 +44,15 @@ import { UserPreferences } from '../models/user-preferences';
 export class CurrentUserFacade {
   private readonly authService = inject(AuthService);
   private readonly userProfileApi = inject(UserProfileApiService);
+
+  /**
+   * Trigger used to force a reload of the current user preferences.
+   *
+   * A value is emitted:
+   * - After application start (via startWith)
+   * - After a successful preference update
+   */
+  private readonly preferencesReload$ = new ReplaySubject<void>(1);
 
   /**
    * Utility to check if a given role exists in the permissions payload.
@@ -88,6 +105,7 @@ export class CurrentUserFacade {
    * Preferences are loaded reactively when:
    * - The authentication state changes
    * - The username changes
+   * - A manual reload is requested after a successful save
    *
    * If the user is not authenticated or no username is available,
    * null is emitted.
@@ -95,7 +113,11 @@ export class CurrentUserFacade {
    * Errors during loading are swallowed and mapped to null to avoid
    * breaking the user stream.
    */
-  readonly preferences$ = combineLatest([this.isAuthenticated$, this.username$]).pipe(
+  readonly preferences$ = combineLatest([
+    this.isAuthenticated$,
+    this.username$,
+    this.preferencesReload$.pipe(startWith(void 0)),
+  ]).pipe(
     switchMap(([isAuthenticated, username]) => {
       if (!isAuthenticated || !username) {
         return of(null);
@@ -168,14 +190,20 @@ export class CurrentUserFacade {
   /**
    * Updates preferences for the current authenticated user.
    *
-   * The username is resolved from the authentication claims.
+   * After a successful update, a reload event is emitted so every consumer
+   * of `preferences$` and `currentUser$` receives the persisted values.
    *
    * @param payload - New preferences to persist
    * @returns Observable emitting updated preferences
    */
   updatePreferences(payload: UserPreferences): Observable<UserPreferences> {
     const username = this.resolveUsername();
-    return this.userProfileApi.updatePreferences(username, payload);
+
+    return this.userProfileApi.updatePreferences(username, payload).pipe(
+      tap(() => {
+        this.preferencesReload$.next();
+      }),
+    );
   }
 
   /**
