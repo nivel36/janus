@@ -61,6 +61,10 @@ type TimelogClockCardViewModel = {
   clockActionTitleKey: string;
   clockActionLabelKey: string;
   oppositeClockActionLabelKey: string;
+
+  // NUEVO
+  locale?: string;
+  use12Hour: boolean;
 };
 
 /**
@@ -94,6 +98,11 @@ export class TimelogClockCardComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly defaultWorksiteCode = 'BCN-HQ';
+
+  readonly userPreferences$ = this.currentUser.currentUser$.pipe(
+    map((user) => user.preferences),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   /**
    * Email of the employee for whom the card is displayed.
@@ -246,9 +255,16 @@ export class TimelogClockCardComponent {
     this.hasClockInOutPermission$,
     this.isClockActionLoading$,
     this.clockActionFeedbackKey$,
+    this.userPreferences$,
   ]).pipe(
     map(
-      ([latestTimeLog, hasClockInOutPermission, isClockActionLoading, clockActionFeedbackKey]) => {
+      ([
+        latestTimeLog,
+        hasClockInOutPermission,
+        isClockActionLoading,
+        clockActionFeedbackKey,
+        preferences,
+      ]) => {
         const hasOpenTimeLog = this.isOpenTimeLog(latestTimeLog);
 
         return {
@@ -260,6 +276,10 @@ export class TimelogClockCardComponent {
             : 'timelog.workdayNotStarted',
           clockActionLabelKey: hasOpenTimeLog ? 'timelog.clockout' : 'timelog.clockin',
           oppositeClockActionLabelKey: hasOpenTimeLog ? 'timelog.clockin' : 'timelog.clockout',
+
+          // NUEVO
+          locale: preferences?.locale,
+          use12Hour: preferences?.timeFormat === 'H12',
         };
       },
     ),

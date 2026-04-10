@@ -1,20 +1,20 @@
-<section class="timelog">
-    <h2 class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
+<section class="timelog" aria-labelledby="timelog-title">
+    <h2 id="timelog-title" class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
 
-    @if (hasError()) {
-        <div class="timelog-message error">
+    @if (timelogsResource.error() !== undefined) {
+        <div class="timelog-message error" role="alert">
             {{ 'timelog.loadError' | translate }}
         </div>
     }
 
-    @if (isLoading()) {
-        <div class="timelog-message">
+    @if (timelogsResource.isLoading()) {
+        <div class="timelog-message" aria-live="polite">
             {{ 'timelog.loading' | translate }}
         </div>
     }
 
-    @if (!isLoading() && timelogs().length > 0) {
-        <table class="timelog-table">
+    @if (!timelogsResource.isLoading() && timelogs().length > 0) {
+        <table class="timelog-table" aria-labelledby="timelog-title">
             <thead>
                 <tr>
                     <th scope="col">{{ 'timelog.date' | translate }}</th>
@@ -24,13 +24,29 @@
                 </tr>
             </thead>
             <tbody>
-                @for (timelog of timelogs(); track trackByTimelog($index, timelog)) {
+                @for (
+                    timelog of timelogs();
+                    track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')
+                ) {
                     <tr>
-                        <td>{{ timelog.entryTime | date: 'MM/dd/yyyy' }}</td>
-                        <td>{{ timelog.entryTime | date: 'hh:mm a' }}</td>
+                        <td>
+                            {{
+                                timelog.entryTime
+                                    | date: 'shortDate' : userTimezone() : userLocale()
+                            }}
+                        </td>
+                        <td>
+                            {{
+                                timelog.entryTime
+                                    | date: timeFormat() : userTimezone() : userLocale()
+                            }}
+                        </td>
                         <td>
                             @if (timelog.exitTime) {
-                                {{ timelog.exitTime | date: 'hh:mm a' }}
+                                {{
+                                    timelog.exitTime
+                                        | date: timeFormat() : userTimezone() : userLocale()
+                                }}
                             } @else {
                                 —
                             }
@@ -43,7 +59,7 @@
     }
 
     @if (isEmpty()) {
-        <div class="timelog-message">
+        <div class="timelog-message" aria-live="polite">
             {{ 'timelog.empty' | translate }}
         </div>
     }

@@ -5,7 +5,12 @@
         [title]="vm.clockActionTitleKey | translate"
     >
         <ng-template #cardHeader>
-            <app-clock styleClass="card-hour-container" timeClass="card-hour"></app-clock>
+            <app-clock
+                styleClass="card-hour-container"
+                timeClass="card-hour"
+                [locale]="vm.locale"
+                [use12Hour]="vm.use12Hour"
+            ></app-clock>
 
             @if (vm.hasClockInOutPermission) {
                 <app-button [disabled]="vm.isClockActionLoading" (clicked)="onClockAction()">
