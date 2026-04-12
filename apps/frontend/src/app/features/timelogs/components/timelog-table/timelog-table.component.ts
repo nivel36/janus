@@ -9,6 +9,7 @@ import {
   inject,
   input,
   resource,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
@@ -19,6 +20,7 @@ import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
 import { TimeLog } from '../../models/timelog';
 import { TimeLogService } from '../../services/timelog-api.service';
 import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
+import { Page } from '../../../../shared/models/page.model';
 
 /**
  * Displays the time logs of a specific employee in a table.
@@ -39,6 +41,7 @@ import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimelogTableComponent {
+  private static readonly DEFAULT_PAGE_SIZE = 5;
   /**
    * Service used to retrieve time log data from the backend API.
    */
@@ -65,6 +68,8 @@ export class TimelogTableComponent {
    * </p>
    */
   readonly refreshToken = input(0);
+  readonly pageSize = input(TimelogTableComponent.DEFAULT_PAGE_SIZE);
+  protected readonly currentPage = signal(0);
 
   /**
    * Signal containing the current authenticated user state.
@@ -136,22 +141,52 @@ export class TimelogTableComponent {
    * </p>
    */
   protected readonly timelogsResource = resource<
-    TimeLog[],
-    { employeeEmail: string; refreshToken: number }
+    Page<TimeLog>,
+    { employeeEmail: string; refreshToken: number; page: number; size: number }
   >({
     params: () => ({
       employeeEmail: this.employeeEmail(),
       refreshToken: this.refreshToken(),
+      page: this.currentPage(),
+      size: this.pageSize(),
     }),
     loader: ({ params }) =>
-      firstValueFrom(this.timeLogService.searchByEmployee(params.employeeEmail)),
-    defaultValue: [],
+      firstValueFrom(
+        this.timeLogService.searchByEmployee(params.employeeEmail, params.page, params.size),
+      ),
+    defaultValue: {
+      content: [],
+      number: 0,
+      size: this.pageSize(),
+      totalElements: 0,
+      totalPages: 0,
+    },
   });
 
   /**
    * Computed signal containing the loaded list of time logs.
    */
-  protected readonly timelogs = computed(() => this.timelogsResource.value());
+  protected readonly timelogs = computed(() => this.timelogsResource.value().content ?? []);
+  protected readonly paginationRangeText = computed(() => {
+    const page = this.timelogsResource.value();
+    if (page.totalElements === 0 || page.content.length === 0) {
+      return '0-0';
+    }
+    const start = page.number * page.size + 1;
+    const end = start + page.content.length - 1;
+    return `${start}-${end}`;
+  });
+  protected readonly totalElements = computed(() => this.timelogsResource.value().totalElements ?? 0);
+  protected readonly canGoToPreviousPage = computed(
+    () => !this.timelogsResource.isLoading() && this.currentPage() > 0,
+  );
+  protected readonly canGoToNextPage = computed(() => {
+    if (this.timelogsResource.isLoading()) {
+      return false;
+    }
+    const page = this.timelogsResource.value();
+    return page.number + 1 < page.totalPages;
+  });
 
   /**
    * Indicates whether the component is in the empty state.
@@ -165,6 +200,20 @@ export class TimelogTableComponent {
     () =>
       !this.timelogsResource.isLoading() &&
       this.timelogsResource.error() === undefined &&
-      this.timelogs().length === 0,
+      this.totalElements() === 0,
   );
+
+  protected goToPreviousPage(): void {
+    if (!this.canGoToPreviousPage()) {
+      return;
+    }
+    this.currentPage.update((page) => Math.max(0, page - 1));
+  }
+
+  protected goToNextPage(): void {
+    if (!this.canGoToNextPage()) {
+      return;
+    }
+    this.currentPage.update((page) => page + 1);
+  }
 }

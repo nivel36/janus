@@ -35,7 +35,12 @@
     "loadError": "Ara mateix no es poden carregar els fitxatges.",
     "timelogs": "Fixatges",
     "clockActionPermissionDenied": "No tens permisos per fitxar.",
-    "clockActionNetworkError": "No s'ha pogut registrar el fitxatge en aquest moment. Torna-ho a provar."
+    "clockActionNetworkError": "No s'ha pogut registrar el fitxatge en aquest moment. Torna-ho a provar.",
+    "pagination": {
+      "of": "de",
+      "previous": "Pàgina anterior",
+      "next": "Pàgina següent"
+    }
   },
   "employee": {
     "employee": "Empleat",
