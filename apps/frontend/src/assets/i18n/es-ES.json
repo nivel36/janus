@@ -35,12 +35,7 @@
     "loadError": "No se pueden cargar los fichajes en este momento.",
     "timelogs": "Fichajes",
     "clockActionPermissionDenied": "No tienes permisos para fichar.",
-    "clockActionNetworkError": "No se pudo registrar el fichaje en este momento. Inténtalo de nuevo.",
-    "pagination": {
-      "of": "de",
-      "previous": "Página anterior",
-      "next": "Página siguiente"
-    }
+    "clockActionNetworkError": "No se pudo registrar el fichaje en este momento. Inténtalo de nuevo."
   },
   "employee": {
     "employee": "Empleado",
