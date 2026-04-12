@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { TimeLog } from '../models/timelog';
 import { environment } from '../../../../environments/environment';
+import { Page } from '../../../shared/models/page.model';
 
 @Injectable({ providedIn: 'root' })
 export class TimeLogService {
@@ -13,18 +14,15 @@ export class TimeLogService {
   /**
    * The `page` parameter follows Spring Data pagination (0-based index).
    */
-  searchByEmployee(email: string, page?: number, size?: number): Observable<TimeLog[]> {
+  searchByEmployee(email: string, page = 0, size = 5): Observable<Page<TimeLog>> {
     let params = new HttpParams().set('sort', 'entryTime,desc');
-    if (page != null) {
-      params = params.set('page', String(page));
-    }
-    if (size != null) {
-      params = params.set('size', String(size));
-    }
+    params = params.set('page', String(page));
+    params = params.set('size', String(size));
 
-    return this.http
-      .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
-      .pipe(map((r) => r.content ?? []));
+    return this.http.get<Page<TimeLog>>(
+      `${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`,
+      { params },
+    );
   }
 
   searchLatestByEmployee(email: string): Observable<TimeLog | undefined> {

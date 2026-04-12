@@ -35,7 +35,12 @@
     "loadError": "Unable to load time logs at this time.",
     "timelogs": "Time logs",
     "clockActionPermissionDenied": "You do not have permission to clock in or out.",
-    "clockActionNetworkError": "Unable to register your time action right now. Please try again."
+    "clockActionNetworkError": "Unable to register your time action right now. Please try again.",
+    "pagination": {
+      "of": "of",
+      "previous": "Previous page",
+      "next": "Next page"
+    }
   },
   "employee": {
     "employee": "Employee",

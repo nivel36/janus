@@ -56,6 +56,31 @@
                 }
             </tbody>
         </table>
+
+        <nav class="timelog-pagination" aria-label="Pagination">
+            <button
+                type="button"
+                class="pagination-button"
+                (click)="goToPreviousPage()"
+                [disabled]="!canGoToPreviousPage()"
+                [attr.aria-label]="'timelog.pagination.previous' | translate"
+            >
+                &lt;
+            </button>
+            <span class="pagination-summary">
+                {{ paginationRangeText() }} {{ 'timelog.pagination.of' | translate }}
+                {{ totalElements() }}
+            </span>
+            <button
+                type="button"
+                class="pagination-button"
+                (click)="goToNextPage()"
+                [disabled]="!canGoToNextPage()"
+                [attr.aria-label]="'timelog.pagination.next' | translate"
+            >
+                &gt;
+            </button>
+        </nav>
     }
 
     @if (isEmpty()) {
