@@ -1,0 +1,44 @@
+<section class="worksite" aria-labelledby="worksite-title">
+    <header class="worksite-header">
+        <h2 id="worksite-title" class="worksite-title">{{ 'worksite.worksites' | translate }}</h2>
+    </header>
+
+    @if (worksitesResource.error() !== undefined) {
+        <div class="worksite-message error" role="alert">
+            {{ 'worksite.loadError' | translate }}
+        </div>
+    }
+
+    @if (worksitesResource.isLoading()) {
+        <div class="worksite-message" aria-live="polite">
+            {{ 'worksite.loading' | translate }}
+        </div>
+    }
+
+    @if (!worksitesResource.isLoading() && worksites().length > 0) {
+        <table class="worksite-table" aria-labelledby="worksite-title">
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'worksite.code' | translate }}</th>
+                    <th scope="col">{{ 'worksite.name' | translate }}</th>
+                    <th scope="col">{{ 'worksite.scope' | translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (worksite of worksites(); track worksite.code) {
+                    <tr>
+                        <td>{{ worksite.code }}</td>
+                        <td>{{ worksite.name }}</td>
+                        <td>{{ worksite.scope }}</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (isEmpty()) {
+        <div class="worksite-message" aria-live="polite">
+            {{ 'worksite.empty' | translate }}
+        </div>
+    }
+</section>

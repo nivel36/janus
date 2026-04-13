@@ -104,5 +104,14 @@
       "update": "No se pudieron actualizar las preferencias de usuario.",
       "invalidTimezone": "La zona horaria no es válida."
     }
+  },
+  "worksite": {
+    "worksites": "Puestos de trabajo",
+    "code": "Código",
+    "name": "Nombre",
+    "scope": "Ámbito",
+    "loading": "Cargando puestos de trabajo...",
+    "empty": "Todavía no hay puestos de trabajo disponibles.",
+    "loadError": "No se pueden cargar los puestos de trabajo en este momento."
   }
 }
