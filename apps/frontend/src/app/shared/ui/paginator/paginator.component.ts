@@ -38,17 +38,22 @@ export class PaginatorComponent {
   /**
    * Text displayed between range and total count.
    */
-  readonly betweenLabel = input('de');
+  readonly betweenLabel = input('of');
 
   /**
    * Accessible label for the previous-page button.
    */
-  readonly previousLabel = input('Página anterior');
+  readonly previousLabel = input('Previous page');
 
   /**
    * Accessible label for the next-page button.
    */
-  readonly nextLabel = input('Página siguiente');
+  readonly nextLabel = input('Next page');
+
+  /**
+   * Accessible group label for the paginator region.
+   */
+  readonly ariaLabel = input('Pagination');
 
   /**
    * Emits the next page (1-based) when navigation is requested.

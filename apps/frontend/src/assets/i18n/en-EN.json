@@ -34,6 +34,12 @@
     "empty": "No time logs available yet.",
     "loadError": "Unable to load time logs at this time.",
     "timelogs": "Time logs",
+    "paginator": {
+      "of": "of",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "ariaLabel": "Pagination"
+    },
     "clockActionPermissionDenied": "You do not have permission to clock in or out.",
     "clockActionNetworkError": "Unable to register your time action right now. Please try again."
   },

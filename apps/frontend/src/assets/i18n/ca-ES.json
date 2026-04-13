@@ -34,6 +34,12 @@
     "empty": "Encara no hi ha fitxatges disponibles.",
     "loadError": "Ara mateix no es poden carregar els fitxatges.",
     "timelogs": "Fixatges",
+    "paginator": {
+      "of": "de",
+      "previousPage": "Pàgina anterior",
+      "nextPage": "Pàgina següent",
+      "ariaLabel": "Paginació"
+    },
     "clockActionPermissionDenied": "No tens permisos per fitxar.",
     "clockActionNetworkError": "No s'ha pogut registrar el fitxatge en aquest moment. Torna-ho a provar."
   },

@@ -6,9 +6,10 @@
                 [totalItems]="totalItems()"
                 [pageSize]="pageSize"
                 [currentPage]="currentPage()"
-                betweenLabel="de"
-                previousLabel="Página anterior"
-                nextLabel="Página siguiente"
+                [betweenLabel]="'timelog.paginator.of' | translate"
+                [previousLabel]="'timelog.paginator.previousPage' | translate"
+                [nextLabel]="'timelog.paginator.nextPage' | translate"
+                [ariaLabel]="'timelog.paginator.ariaLabel' | translate"
                 (pageChange)="onPageChange($event)"
             />
         }
