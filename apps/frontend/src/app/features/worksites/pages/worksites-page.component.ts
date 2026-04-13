@@ -10,7 +10,7 @@ import { SearchBarComponent } from '../../../shared/ui/search-bar/search-bar.com
 @Component({
   selector: 'app-worksites-page',
   standalone: true,
-  imports: [CommonModule, PageTemplateComponent, WorksiteTableComponent, SearchBarComponent],
+  imports: [PageTemplateComponent, WorksiteTableComponent, SearchBarComponent],
   templateUrl: './worksites-page.component.html',
   styleUrl: './worksites-page.component.css',
 })

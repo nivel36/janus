@@ -111,7 +111,7 @@ type ResolvedWriteValue<T> = {
 @Component({
   selector: 'app-autocomplete-textbox',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, OverlayModule, TranslatePipe],
+  imports: [ReactiveFormsModule, OverlayModule, TranslatePipe],
   templateUrl: './autocomplete-textbox.component.html',
   styleUrls: ['./autocomplete-textbox.component.css'],
   providers: [

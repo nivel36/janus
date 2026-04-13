@@ -1,4 +1,4 @@
-import { CommonModule, Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -24,7 +24,6 @@ import { ApplicationSettingsApiService } from '../services/application-settings-
   selector: 'app-application-settings-page',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,
@@ -32,8 +31,8 @@ import { ApplicationSettingsApiService } from '../services/application-settings-
     ToggleButtonComponent,
     ButtonComponent,
     CardComponent,
-    PageTemplateComponent,
-  ],
+    PageTemplateComponent
+],
   templateUrl: './application-settings-page.component.html',
   styleUrl: './application-settings-page.component.css',
 })

@@ -22,7 +22,7 @@ type IconPosition = 'left' | 'right';
 @Component({
   selector: 'app-button',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './button.component.html',
   styleUrl: './button.component.css',
 })

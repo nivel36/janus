@@ -8,7 +8,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 @Component({
   selector: 'app-toggle-button',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './toggle-button.component.html',
   styleUrl: './toggle-button.component.css',
   providers: [

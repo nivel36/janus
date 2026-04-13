@@ -28,7 +28,7 @@ export interface SelectOption<TValue extends string = string> {
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [TranslatePipe],
   templateUrl: './select.component.html',
   styleUrl: './select.component.css',
   providers: [
