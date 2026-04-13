@@ -112,6 +112,12 @@
     "scope": "Ámbito",
     "loading": "Cargando puestos de trabajo...",
     "empty": "Todavía no hay puestos de trabajo disponibles.",
-    "loadError": "No se pueden cargar los puestos de trabajo en este momento."
+    "loadError": "No se pueden cargar los puestos de trabajo en este momento.",
+    "paginator": {
+      "of": "de",
+      "previousPage": "Página anterior",
+      "nextPage": "Página siguiente",
+      "ariaLabel": "Paginación"
+    }
   }
 }

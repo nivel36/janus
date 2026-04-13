@@ -112,6 +112,12 @@
     "scope": "Scope",
     "loading": "Loading worksites...",
     "empty": "No worksites available yet.",
-    "loadError": "Unable to load worksites at this time."
+    "loadError": "Unable to load worksites at this time.",
+    "paginator": {
+      "of": "of",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "ariaLabel": "Pagination"
+    }
   }
 }
