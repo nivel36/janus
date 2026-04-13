@@ -118,6 +118,7 @@
     "scope": "Scope",
     "loading": "Loading worksites...",
     "empty": "No worksites available yet.",
+    "searchEmpty": "No worksites match your search.",
     "loadError": "Unable to load worksites at this time.",
     "paginator": {
       "of": "of",

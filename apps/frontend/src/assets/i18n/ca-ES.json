@@ -118,6 +118,7 @@
     "scope": "Àmbit",
     "loading": "S'estan carregant els llocs de treball...",
     "empty": "Encara no hi ha llocs de treball disponibles.",
+    "searchEmpty": "No hi ha llocs de treball que coincideixin amb la cerca.",
     "loadError": "Ara mateix no es poden carregar els llocs de treball.",
     "paginator": {
       "of": "de",

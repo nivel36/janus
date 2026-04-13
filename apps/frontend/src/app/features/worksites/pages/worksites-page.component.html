@@ -1,7 +1,7 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.worksites">
     <section page-body class="worksites-content">
-        <app-search-bar />
-        <app-worksite-table />
+        <app-search-bar (queryChange)="onQueryChange($event)" />
+        <app-worksite-table [query]="searchQuery()" />
     </section>
 
     <div page-footer></div>

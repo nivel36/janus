@@ -118,6 +118,7 @@
     "scope": "Ámbito",
     "loading": "Cargando puestos de trabajo...",
     "empty": "Todavía no hay puestos de trabajo disponibles.",
+    "searchEmpty": "No hay puestos de trabajo que coincidan con la búsqueda.",
     "loadError": "No se pueden cargar los puestos de trabajo en este momento.",
     "paginator": {
       "of": "de",
