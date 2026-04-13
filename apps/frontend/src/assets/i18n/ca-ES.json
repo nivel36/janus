@@ -104,5 +104,14 @@
       "update": "No s'han pogut actualitzar les preferències d'usuari.",
       "invalidTimezone": "La zona horaria no és vàlida."
     }
+  },
+  "worksite": {
+    "worksites": "Llocs de treball",
+    "code": "Codi",
+    "name": "Nom",
+    "scope": "Àmbit",
+    "loading": "S'estan carregant els llocs de treball...",
+    "empty": "Encara no hi ha llocs de treball disponibles.",
+    "loadError": "Ara mateix no es poden carregar els llocs de treball."
   }
 }
