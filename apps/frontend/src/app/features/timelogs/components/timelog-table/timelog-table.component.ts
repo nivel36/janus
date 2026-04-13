@@ -6,8 +6,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
+  signal,
   resource,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -19,6 +21,7 @@ import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
 import { TimeLog } from '../../models/timelog';
 import { TimeLogService } from '../../services/timelog-api.service';
 import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
+import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 
 /**
  * Displays the time logs of a specific employee in a table.
@@ -33,12 +36,17 @@ import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
 @Component({
   selector: 'app-timelog-table',
   standalone: true,
-  imports: [TranslatePipe, DatePipe, DurationPipe],
+  imports: [TranslatePipe, DatePipe, DurationPipe, PaginatorComponent],
   templateUrl: './timelog-table.component.html',
   styleUrl: './timelog-table.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimelogTableComponent {
+  /**
+   * Number of rows displayed per page.
+   */
+  private static readonly PAGE_SIZE = 10;
+
   /**
    * Service used to retrieve time log data from the backend API.
    */
@@ -154,6 +162,36 @@ export class TimelogTableComponent {
   protected readonly timelogs = computed(() => this.timelogsResource.value());
 
   /**
+   * Current visible page in the table (1-based).
+   */
+  protected readonly currentPage = signal(1);
+
+  /**
+   * Total number of rows available in the full result.
+   */
+  protected readonly totalItems = computed(() => this.timelogs().length);
+
+  /**
+   * Subset of logs displayed in the currently selected page.
+   */
+  protected readonly pagedTimelogs = computed(() => {
+    const startIndex = (this.currentPage() - 1) * TimelogTableComponent.PAGE_SIZE;
+    const endIndex = startIndex + TimelogTableComponent.PAGE_SIZE;
+    return this.timelogs().slice(startIndex, endIndex);
+  });
+
+  /**
+   * Keeps the current page valid when the dataset changes.
+   */
+  private readonly pageSyncEffect = effect(() => {
+    const totalItems = this.totalItems();
+    const maxPage = Math.max(1, Math.ceil(totalItems / TimelogTableComponent.PAGE_SIZE));
+    if (this.currentPage() > maxPage) {
+      this.currentPage.set(maxPage);
+    }
+  });
+
+  /**
    * Indicates whether the component is in the empty state.
    *
    * <p>
@@ -167,4 +205,20 @@ export class TimelogTableComponent {
       this.timelogsResource.error() === undefined &&
       this.timelogs().length === 0,
   );
+
+  /**
+   * Handles page changes emitted by the paginator component.
+   *
+   * @param page New page number (1-based).
+   */
+  protected onPageChange(page: number): void {
+    this.currentPage.set(page);
+  }
+
+  /**
+   * Exposes the page size constant to the template.
+   */
+  protected get pageSize(): number {
+    return TimelogTableComponent.PAGE_SIZE;
+  }
 }

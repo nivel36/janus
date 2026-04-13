@@ -1,0 +1,25 @@
+<div class="paginator" role="group" aria-label="Paginación">
+    <button
+        type="button"
+        class="paginator-button"
+        [disabled]="!hasPreviousPage()"
+        [attr.aria-label]="previousLabel()"
+        (click)="goToPreviousPage()"
+    >
+        &lt;
+    </button>
+
+    <span class="paginator-text">
+        {{ startItem() }}-{{ endItem() }} {{ betweenLabel() }} {{ totalItems() }}
+    </span>
+
+    <button
+        type="button"
+        class="paginator-button"
+        [disabled]="!hasNextPage()"
+        [attr.aria-label]="nextLabel()"
+        (click)="goToNextPage()"
+    >
+        &gt;
+    </button>
+</div>
