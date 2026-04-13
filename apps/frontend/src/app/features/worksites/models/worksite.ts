@@ -1,4 +1,4 @@
-export type WorksiteScope = 'GLOBAL' | 'PERSONAL';
+export type WorksiteScope = 'GLOBAL' | 'PERSONAL' | 'ASSIGNED';
 
 export interface Worksite {
   code: string;
