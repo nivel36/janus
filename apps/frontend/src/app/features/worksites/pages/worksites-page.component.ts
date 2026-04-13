@@ -1,3 +1,6 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';

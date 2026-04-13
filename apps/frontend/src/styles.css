@@ -72,6 +72,10 @@ body {
     border: 2px solid #f9d600;
 }
 
+.card.worksites-card {
+    border: 2px solid #f9d600;
+}
+
 .buttons {
     margin-left: auto;
     margin-top: 2rem;
