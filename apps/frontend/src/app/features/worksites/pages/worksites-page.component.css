@@ -1,0 +1,12 @@
+.worksites-content {
+    width: min(1080px, 100%);
+    display: flex;
+    gap: 2.5rem;
+    color: #f9f9f9;
+}
+
+.worksites-content app-card {
+    display: block;
+    flex: 1;
+    min-height: 22rem;
+}

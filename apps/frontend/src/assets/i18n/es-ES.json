@@ -3,7 +3,8 @@
     "janus": "Janus",
     "dashboard": "Panel de control",
     "applicationSettings": "Configuración",
-    "userPreferences": "Preferencias de usuario"
+    "userPreferences": "Preferencias de usuario",
+    "worksites": "Puestos de trabajo"
   },
   "locale": {
     "ca-ES": "Catalán",

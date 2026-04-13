@@ -15,6 +15,16 @@
         <div class="main-menu__actions">
             <button
                 type="button"
+                class="main-menu__icon-button"
+                [attr.aria-label]="'navigation.worksites' | translate"
+                [attr.title]="'navigation.worksites' | translate"
+                (click)="goToWorksites()"
+            >
+                <span aria-hidden="true">🏢</span>
+            </button>
+
+            <button
+                type="button"
                 class="main-menu__icon-button main-menu__icon-button--settings"
                 [attr.aria-label]="'navigation.applicationSettings' | translate"
                 [attr.title]="'navigation.applicationSettings' | translate"

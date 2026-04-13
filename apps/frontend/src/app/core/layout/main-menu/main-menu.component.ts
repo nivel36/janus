@@ -34,4 +34,9 @@ export class MainMenuComponent {
   goToApplicationSettings(): void {
     this.router.navigate(['/application-settings']);
   }
+
+  goToWorksites(): void {
+    this.router.navigate(['/worksites']);
+  }
 }
+
