@@ -1,0 +1,20 @@
+<form class="search-bar" role="search" (submit)="$event.preventDefault(); submitCurrentQuery()">
+    <label class="sr-only" [for]="inputId">{{ 'searchBar.inputLabel' | translate }}</label>
+    <input
+        [id]="inputId"
+        type="search"
+        [formControl]="queryControl"
+        [attr.placeholder]="'searchBar.placeholder' | translate"
+        [attr.aria-label]="'searchBar.inputLabel' | translate"
+        [attr.aria-describedby]="helpTextId"
+    />
+
+    <span class="sr-only" [id]="helpTextId">{{ 'searchBar.helpText' | translate }}</span>
+
+    <button type="submit" class="search-icon" [attr.aria-label]="'searchBar.buttonAriaLabel' | translate">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+        </svg>
+    </button>
+</form>

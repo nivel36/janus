@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   inject,
+  input,
   resource,
   signal,
 } from '@angular/core';
@@ -27,6 +28,8 @@ export class WorksiteTableComponent {
 
   private readonly worksiteApiService = inject(WorksiteApiService);
 
+  readonly query = input('');
+
   protected readonly currentPage = signal(1);
 
   protected readonly worksitesResource = resource<Worksite[], void>({
@@ -36,13 +39,35 @@ export class WorksiteTableComponent {
 
   protected readonly worksites = computed(() => this.worksitesResource.value());
 
-  protected readonly totalItems = computed(() => this.worksites().length);
+  protected readonly normalizedQuery = computed(() => this.query().trim().toLowerCase());
+
+  protected readonly filteredWorksites = computed(() => {
+    const normalizedQuery = this.normalizedQuery();
+
+    if (normalizedQuery === '') {
+      return this.worksites();
+    }
+
+    return this.worksites().filter((worksite) => {
+      const code = worksite.code.toLowerCase();
+      const name = worksite.name.toLowerCase();
+      const scope = worksite.scope.toLowerCase();
+
+      return (
+        code.includes(normalizedQuery) ||
+        name.includes(normalizedQuery) ||
+        scope.includes(normalizedQuery)
+      );
+    });
+  });
+
+  protected readonly totalItems = computed(() => this.filteredWorksites().length);
 
   protected readonly pagedWorksites = computed(() => {
     const start = (this.currentPage() - 1) * WorksiteTableComponent.PAGE_SIZE;
     const end = start + WorksiteTableComponent.PAGE_SIZE;
 
-    return this.worksites().slice(start, end);
+    return this.filteredWorksites().slice(start, end);
   });
 
   private readonly pageSyncEffect = effect(() => {
@@ -61,8 +86,10 @@ export class WorksiteTableComponent {
     () =>
       !this.worksitesResource.isLoading() &&
       this.worksitesResource.error() === undefined &&
-      this.worksites().length === 0,
+      this.filteredWorksites().length === 0,
   );
+
+  protected readonly hasActiveQuery = computed(() => this.normalizedQuery() !== '');
 
   protected onPageChange(page: number): void {
     this.currentPage.set(page);

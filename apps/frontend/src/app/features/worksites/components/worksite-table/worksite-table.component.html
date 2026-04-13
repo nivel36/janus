@@ -27,7 +27,7 @@
         </div>
     }
 
-    @if (!worksitesResource.isLoading() && worksites().length > 0) {
+    @if (!worksitesResource.isLoading() && filteredWorksites().length > 0) {
         <table class="worksite-table" aria-labelledby="worksite-title">
             <thead>
                 <tr>
@@ -50,7 +50,7 @@
 
     @if (isEmpty()) {
         <div class="worksite-message" aria-live="polite">
-            {{ 'worksite.empty' | translate }}
+            {{ (hasActiveQuery() ? 'worksite.searchEmpty' : 'worksite.empty') | translate }}
         </div>
     }
 </section>

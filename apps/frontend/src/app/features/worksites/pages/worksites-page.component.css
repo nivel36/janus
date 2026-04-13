@@ -1,8 +1,14 @@
 .worksites-content {
     width: min(1080px, 100%);
     display: flex;
-    gap: 2.5rem;
+    flex-direction: column;
+    gap: 1rem;
     color: #f9f9f9;
+}
+
+.worksites-content app-search-bar {
+    display: block;
+    width: min(420px, 100%);
 }
 
 .worksites-content app-worksite-table {
