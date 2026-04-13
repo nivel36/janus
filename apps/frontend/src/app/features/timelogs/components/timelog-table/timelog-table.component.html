@@ -1,5 +1,19 @@
 <section class="timelog" aria-labelledby="timelog-title">
-    <h2 id="timelog-title" class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
+    <header class="timelog-header">
+        <h2 id="timelog-title" class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
+        @if (totalItems() > 0) {
+            <app-paginator
+                [totalItems]="totalItems()"
+                [pageSize]="pageSize"
+                [currentPage]="currentPage()"
+                [betweenLabel]="'timelog.paginator.of' | translate"
+                [previousLabel]="'timelog.paginator.previousPage' | translate"
+                [nextLabel]="'timelog.paginator.nextPage' | translate"
+                [ariaLabel]="'timelog.paginator.ariaLabel' | translate"
+                (pageChange)="onPageChange($event)"
+            />
+        }
+    </header>
 
     @if (timelogsResource.error() !== undefined) {
         <div class="timelog-message error" role="alert">
@@ -24,10 +38,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (
-                    timelog of timelogs();
-                    track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')
-                ) {
+                @for (timelog of pagedTimelogs(); track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')) {
                     <tr>
                         <td>
                             {{

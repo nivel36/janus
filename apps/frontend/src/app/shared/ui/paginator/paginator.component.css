@@ -1,0 +1,39 @@
+:host {
+    display: inline-flex;
+}
+
+.paginator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #f9f9f9;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.paginator-button {
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 0.95rem;
+    line-height: 1;
+    font-weight: 700;
+    padding: 0.1rem 0.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.paginator-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.paginator-button:not(:disabled):hover,
+.paginator-button:not(:disabled):focus-visible {
+    background: rgba(249, 214, 0, 0.2);
+    color: #f9d600;
+}

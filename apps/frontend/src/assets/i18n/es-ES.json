@@ -34,6 +34,12 @@
     "empty": "Todavía no hay fichajes disponibles.",
     "loadError": "No se pueden cargar los fichajes en este momento.",
     "timelogs": "Fichajes",
+    "paginator": {
+      "of": "de",
+      "previousPage": "Página anterior",
+      "nextPage": "Página siguiente",
+      "ariaLabel": "Paginación"
+    },
     "clockActionPermissionDenied": "No tienes permisos para fichar.",
     "clockActionNetworkError": "No se pudo registrar el fichaje en este momento. Inténtalo de nuevo."
   },
