@@ -6,6 +6,7 @@
     border-radius: 0.5rem;
     background: #050505;
     overflow: hidden;
+    flex-direction: row;
 }
 
 .search-bar:focus-within {
