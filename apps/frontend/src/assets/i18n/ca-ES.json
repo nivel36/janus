@@ -112,6 +112,12 @@
     "scope": "Àmbit",
     "loading": "S'estan carregant els llocs de treball...",
     "empty": "Encara no hi ha llocs de treball disponibles.",
-    "loadError": "Ara mateix no es poden carregar els llocs de treball."
+    "loadError": "Ara mateix no es poden carregar els llocs de treball.",
+    "paginator": {
+      "of": "de",
+      "previousPage": "Pàgina anterior",
+      "nextPage": "Pàgina següent",
+      "ariaLabel": "Paginació"
+    }
   }
 }

@@ -1,6 +1,18 @@
 <section class="worksite" aria-labelledby="worksite-title">
     <header class="worksite-header">
         <h2 id="worksite-title" class="worksite-title">{{ 'worksite.worksites' | translate }}</h2>
+        @if (totalItems() > 0) {
+            <app-paginator
+                [totalItems]="totalItems()"
+                [pageSize]="pageSize"
+                [currentPage]="currentPage()"
+                [betweenLabel]="'worksite.paginator.of' | translate"
+                [previousLabel]="'worksite.paginator.previousPage' | translate"
+                [nextLabel]="'worksite.paginator.nextPage' | translate"
+                [ariaLabel]="'worksite.paginator.ariaLabel' | translate"
+                (pageChange)="onPageChange($event)"
+            />
+        }
     </header>
 
     @if (worksitesResource.error() !== undefined) {
@@ -25,7 +37,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (worksite of worksites(); track worksite.code) {
+                @for (worksite of pagedWorksites(); track worksite.code) {
                     <tr>
                         <td>{{ worksite.code }}</td>
                         <td>{{ worksite.name }}</td>
