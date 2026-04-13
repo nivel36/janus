@@ -16,6 +16,12 @@
     "cancel": "Cancel",
     "cleanSelection": "Clean selection"
   },
+  "searchBar": {
+    "placeholder": "Search worksites...",
+    "inputLabel": "Search",
+    "buttonAriaLabel": "Run search",
+    "helpText": "Type to filter the worksites list"
+  },
   "autocomplete": {
     "noResultsFound": "No results found",
     "loadingResults": "Loading results",

@@ -16,6 +16,12 @@
     "cancel": "Cancela",
     "cleanSelection": "Limpia la selección"
   },
+  "searchBar": {
+    "placeholder": "Buscar puestos de trabajo...",
+    "inputLabel": "Buscar",
+    "buttonAriaLabel": "Ejecutar búsqueda",
+    "helpText": "Escribe para filtrar la lista de puestos de trabajo"
+  },
   "autocomplete": {
     "noResultsFound": "No se ha encontrado ningún resultado",
     "loadingResults": "Cargando resultados",
