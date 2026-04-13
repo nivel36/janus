@@ -4,6 +4,14 @@ import { map, Observable } from 'rxjs';
 import { TimeLog } from '../models/timelog';
 import { environment } from '../../../../environments/environment';
 
+export interface TimeLogPage {
+  items: TimeLog[];
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TimeLogService {
   private readonly baseUrl = `${environment.apiBaseUrl}/employees`;
@@ -13,25 +21,27 @@ export class TimeLogService {
   /**
    * The `page` parameter follows Spring Data pagination (0-based index).
    */
-  searchByEmployee(email: string, page?: number, size?: number): Observable<TimeLog[]> {
-    let params = new HttpParams().set('sort', 'entryTime,desc');
-    if (page != null) {
-      params = params.set('page', String(page));
-    }
-    if (size != null) {
-      params = params.set('size', String(size));
-    }
+  searchByEmployee(email: string, page = 0, size = 10): Observable<TimeLogPage> {
+    const params = new HttpParams()
+      .set('sort', 'entryTime,desc')
+      .set('page', String(page))
+      .set('size', String(size));
 
     return this.http
-      .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
-      .pipe(map((r) => r.content ?? []));
+      .get<any>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
+      .pipe(
+        map((r) => ({
+          items: r.content ?? [],
+          totalItems: r.page?.totalElements ?? 0,
+          page: r.page?.number ?? page,
+          pageSize: r.page?.size ?? size,
+          totalPages: r.page?.totalPages ?? 0,
+        })),
+      );
   }
 
   searchLatestByEmployee(email: string): Observable<TimeLog | undefined> {
-    const params = new HttpParams()
-      .set('page', '0')
-      .set('size', '1')
-      .set('sort', 'entryTime,desc');
+    const params = new HttpParams().set('page', '0').set('size', '1').set('sort', 'entryTime,desc');
 
     return this.http
       .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })

@@ -8,8 +8,8 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
  *
  * <p>
  * The paginator displays a compact summary in the form:
- * {@code < 1-10 de 123 >}
- * and emits page changes so parent components can decide how to load/slice data.
+ * {@code < 1-10 of 123 >}
+ * and emits page changes so parent components can decide how to load or slice data.
  * </p>
  */
 @Component({
@@ -61,10 +61,22 @@ export class PaginatorComponent {
   readonly pageChange = output<number>();
 
   /**
+   * Safe page size (always at least 1).
+   */
+  protected readonly safePageSize = computed(() => Math.max(1, this.pageSize()));
+
+  /**
    * Total number of available pages.
    */
   protected readonly totalPages = computed(() =>
-    Math.max(1, Math.ceil(this.totalItems() / this.pageSize())),
+    Math.max(1, Math.ceil(this.totalItems() / this.safePageSize())),
+  );
+
+  /**
+   * Safe current page (clamped between 1 and totalPages).
+   */
+  protected readonly safeCurrentPage = computed(() =>
+    Math.min(Math.max(1, this.currentPage()), this.totalPages()),
   );
 
   /**
@@ -75,25 +87,25 @@ export class PaginatorComponent {
       return 0;
     }
 
-    return (this.currentPage() - 1) * this.pageSize() + 1;
+    return (this.safeCurrentPage() - 1) * this.safePageSize() + 1;
   });
 
   /**
    * Last visible item index in the current page (1-based).
    */
   protected readonly endItem = computed(() =>
-    Math.min(this.currentPage() * this.pageSize(), this.totalItems()),
+    Math.min(this.safeCurrentPage() * this.safePageSize(), this.totalItems()),
   );
 
   /**
    * Whether there is a previous page available.
    */
-  protected readonly hasPreviousPage = computed(() => this.currentPage() > 1);
+  protected readonly hasPreviousPage = computed(() => this.safeCurrentPage() > 1);
 
   /**
    * Whether there is a next page available.
    */
-  protected readonly hasNextPage = computed(() => this.currentPage() < this.totalPages());
+  protected readonly hasNextPage = computed(() => this.safeCurrentPage() < this.totalPages());
 
   /**
    * Requests navigation to the previous page if available.
@@ -103,7 +115,7 @@ export class PaginatorComponent {
       return;
     }
 
-    this.pageChange.emit(this.currentPage() - 1);
+    this.pageChange.emit(this.safeCurrentPage() - 1);
   }
 
   /**
@@ -114,6 +126,6 @@ export class PaginatorComponent {
       return;
     }
 
-    this.pageChange.emit(this.currentPage() + 1);
+    this.pageChange.emit(this.safeCurrentPage() + 1);
   }
 }
