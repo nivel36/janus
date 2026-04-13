@@ -53,7 +53,7 @@ export class PaginatorComponent {
   /**
    * Accessible group label for the paginator region.
    */
-  readonly ariaLabel = input('Pagination');
+  readonly ariaLabel = input.required<string>();
 
   /**
    * Emits the next page (1-based) when navigation is requested.
