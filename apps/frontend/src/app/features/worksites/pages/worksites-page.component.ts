@@ -4,12 +4,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
-import { CardComponent } from '../../../shared/ui/card/card.component';
+import { WorksiteTableComponent } from '../components/worksite-table/worksite-table.component';
 
 @Component({
   selector: 'app-worksites-page',
   standalone: true,
-  imports: [CommonModule, CardComponent, PageTemplateComponent],
+  imports: [CommonModule, PageTemplateComponent, WorksiteTableComponent],
   templateUrl: './worksites-page.component.html',
   styleUrl: './worksites-page.component.css',
 })
