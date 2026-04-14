@@ -31,17 +31,19 @@
 .search-icon {
     border: none;
     border-left: 1px solid #2f2f2f;
-    background: transparent;
-    color: #f9f9f9;
+    background: #fece0b;
+    color: #050505;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0 0.9rem;
     cursor: pointer;
+    font-weight: 700;
 }
 
 .search-icon:hover,
 .search-icon:focus-visible {
+    background: #050505;
     color: #fece0b;
 }
 

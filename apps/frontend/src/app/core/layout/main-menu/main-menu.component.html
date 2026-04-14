@@ -20,7 +20,7 @@
                 [attr.title]="'navigation.worksites' | translate"
                 (click)="goToWorksites()"
             >
-                <span aria-hidden="true">⚒</span>
+                <span aria-hidden="true"><fa-icon [icon]="faIndustry"></fa-icon></span>
             </button>
 
             <button
@@ -30,7 +30,7 @@
                 [attr.title]="'navigation.applicationSettings' | translate"
                 (click)="goToApplicationSettings()"
             >
-                <span aria-hidden="true">⚙</span>
+                <span aria-hidden="true"><fa-icon [icon]="faGear"></fa-icon></span>
             </button>
 
             <button
@@ -40,7 +40,7 @@
                 title="Salir"
                 (click)="logout()"
             >
-                <span aria-hidden="true">⏻</span>
+                <span aria-hidden="true"><fa-icon [icon]="faPowerOff"></fa-icon></span>
             </button>
         </div>
     </nav>
