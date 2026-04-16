@@ -58,7 +58,7 @@ export class PaginatorComponent {
   /**
    * Emits the next page (1-based) when navigation is requested.
    */
-  readonly pageChange = output<number>();
+  readonly pageRequested = output<number>();
 
   /**
    * Safe page size (always at least 1).
@@ -115,7 +115,7 @@ export class PaginatorComponent {
       return;
     }
 
-    this.pageChange.emit(this.safeCurrentPage() - 1);
+    this.pageRequested.emit(this.safeCurrentPage() - 1);
   }
 
   /**
@@ -126,6 +126,6 @@ export class PaginatorComponent {
       return;
     }
 
-    this.pageChange.emit(this.safeCurrentPage() + 1);
+    this.pageRequested.emit(this.safeCurrentPage() + 1);
   }
 }

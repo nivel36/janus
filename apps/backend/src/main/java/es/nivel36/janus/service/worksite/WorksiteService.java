@@ -18,10 +18,11 @@ package es.nivel36.janus.service.worksite;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,13 +69,17 @@ public class WorksiteService {
 	 * @return a list containing every existing {@link Worksite}; never {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public List<Worksite> findAllWorksites() {
+	public Page<Worksite> searchWorksites(final String query, final Pageable pageable) {
 		logger.debug("Retrieving all worksites");
+		final Page<Worksite> worksites;
+		if (query == null || query.isBlank()) {
+			worksites = this.worksiteRepository.findAll(pageable);
+		} else {
+			worksites = this.worksiteRepository.search(query, pageable);
+		}
 
-		final Iterable<Worksite> worksites = this.worksiteRepository.findAll();
-		final List<Worksite> worksitesList = StreamSupport.stream(worksites.spliterator(), false).toList();
-		logger.trace("Found {} worksites", worksitesList.size());
-		return worksitesList;
+		logger.trace("Found {} worksites", worksites.getTotalElements());
+		return worksites;
 	}
 
 	/**

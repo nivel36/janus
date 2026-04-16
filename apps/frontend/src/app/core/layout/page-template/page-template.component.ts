@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input, Input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
 
@@ -12,6 +12,7 @@ import { MainMenuComponent } from '../../../core/layout/main-menu/main-menu.comp
   styleUrl: './page-template.component.css',
 })
 export class PageTemplateComponent {
-  @Input({ required: true }) appNameKey = '';
-  @Input({ required: true }) pageNameKey = '';
+  readonly appNameKey = input.required<string>();
+
+  readonly pageNameKey = input.required<string>();
 }

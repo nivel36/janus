@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { resolveInitialLanguage, resolveSupportedLanguage } from './app.config';
+import { resolveInitialLanguage, resolveSupportedLanguage } from './core/i18n/language.util';
 
 describe('resolveInitialLanguage', () => {
   it('returns ca when browser language is Catalan', () => {
@@ -16,7 +16,6 @@ describe('resolveInitialLanguage', () => {
     expect(resolveInitialLanguage(['fr-FR', 'de-DE'])).toBe('en-EN');
   });
 });
-
 
 describe('resolveSupportedLanguage', () => {
   it('normalizes locale tags to a supported language', () => {

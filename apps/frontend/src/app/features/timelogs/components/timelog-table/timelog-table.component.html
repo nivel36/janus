@@ -10,7 +10,7 @@
                 [previousLabel]="'timelog.paginator.previousPage' | translate"
                 [nextLabel]="'timelog.paginator.nextPage' | translate"
                 [ariaLabel]="'timelog.paginator.ariaLabel' | translate"
-                (pageChange)="onPageChange($event)"
+                (pageRequested)="onPageChange($event)"
             />
         }
     </header>
@@ -38,7 +38,10 @@
                 </tr>
             </thead>
             <tbody>
-                @for (timelog of pagedTimelogs(); track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')) {
+                @for (
+                    timelog of pagedTimelogs();
+                    track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')
+                ) {
                     <tr>
                         <td>
                             {{

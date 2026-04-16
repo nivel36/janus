@@ -1,13 +1,13 @@
 <div class="select" [class.disabled]="disabled">
     <select
-        [id]="inputId || null"
         [disabled]="disabled"
-        [attr.aria-label]="ariaLabel || null"
+        [attr.aria-label]="ariaLabel()"
+        [value]="value ?? ''"
         (change)="onSelectionChange($event)"
         (blur)="markTouched()"
     >
-        @for (option of options; track option.value) {
-            <option [value]="option.value" [selected]="option.value === value">
+        @for (option of options(); track option.value) {
+            <option [value]="option.value">
                 {{ option.labelKey | translate }}
             </option>
         }

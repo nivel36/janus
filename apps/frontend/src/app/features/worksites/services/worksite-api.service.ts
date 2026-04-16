@@ -1,12 +1,20 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { CreateWorksitePayload, UpdateWorksitePayload, Worksite } from '../models/worksite';
+
+export interface WorksitePage {
+  items: Worksite[];
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
 
 /**
  * Provides CRUD operations for worksite resources using the backend REST API.
@@ -25,8 +33,26 @@ export class WorksiteApiService {
    *
    * @returns Observable emitting the complete list of worksites.
    */
-  findAll(): Observable<Worksite[]> {
-    return this.http.get<Worksite[]>(this.baseUrl);
+  findAll(page = 0, size = 10, query = ''): Observable<WorksitePage> {
+    let params = new HttpParams()
+      .set('sort', 'code,desc')
+      .set('page', String(page))
+      .set('size', String(size));
+
+    const normalizedQuery = query.trim();
+    if (normalizedQuery !== '') {
+      params = params.set('query', normalizedQuery);
+    }
+
+    return this.http.get<any>(this.baseUrl, { params }).pipe(
+      map((r) => ({
+        items: r.content ?? [],
+        totalItems: r.page?.totalElements ?? 0,
+        page: r.page?.number ?? page,
+        pageSize: r.page?.size ?? size,
+        totalPages: r.page?.totalPages ?? 0,
+      })),
+    );
   }
 
   /**

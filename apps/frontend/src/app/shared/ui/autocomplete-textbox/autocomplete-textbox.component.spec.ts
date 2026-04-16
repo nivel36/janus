@@ -1,15 +1,20 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { OverlayContainer } from '@angular/cdk/overlay';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Observable, of } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { Observable, of, Subject } from 'rxjs';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AutocompleteTextboxComponent } from './autocomplete-textbox.component';
 
 class MockTranslateService {
+  readonly onLangChange = new Subject<any>();
+  readonly onTranslationChange = new Subject<any>();
+  readonly onDefaultLangChange = new Subject<any>();
+
   instant(key: string, params?: Record<string, unknown>): string {
     if (key === 'autocomplete.manyResultsAvailable' && params?.['count'] !== undefined) {
       return `autocomplete.manyResultsAvailable:${params['count']}`;
@@ -17,16 +22,39 @@ class MockTranslateService {
 
     return key;
   }
+
+  get(key: string | string[], params?: Record<string, unknown>) {
+    if (Array.isArray(key)) {
+      const result: Record<string, string> = {};
+      for (const k of key) {
+        result[k] = this.instant(k, params);
+      }
+      return of(result);
+    }
+
+    return of(this.instant(key, params));
+  }
+
+  stream(key: string | string[], params?: Record<string, unknown>) {
+    return this.get(key, params);
+  }
 }
 
 describe('AutocompleteTextboxComponent', () => {
   let fixture: ComponentFixture<AutocompleteTextboxComponent<string>>;
   let component: AutocompleteTextboxComponent<string>;
-  let searchMethodSpy: jasmine.Spy<(query: string) => Observable<string[]>>;
+  let searchMethodSpy: ReturnType<typeof vi.fn<(query: string) => Observable<string[]>>>;
   let overlayContainer: OverlayContainer;
   let overlayContainerElement: HTMLElement;
 
   beforeEach(async () => {
+    vi.useFakeTimers();
+
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: vi.fn(),
+    });
+
     await TestBed.configureTestingModule({
       imports: [AutocompleteTextboxComponent],
       providers: [
@@ -43,19 +71,21 @@ describe('AutocompleteTextboxComponent', () => {
     fixture = TestBed.createComponent(AutocompleteTextboxComponent<string>);
     component = fixture.componentInstance;
 
-    searchMethodSpy = jasmine
-      .createSpy('searchMethod')
-      .and.callFake((query: string) => of([`${query}-1`, `${query}-2`]));
+    searchMethodSpy = vi.fn<(query: string) => Observable<string[]>>((query: string) =>
+      of([`${query}-1`, `${query}-2`]),
+    );
 
-    component.searchMethod = searchMethodSpy;
-    component.debounceMs = 300;
-    component.minChars = 3;
+    fixture.componentRef.setInput('searchMethod', searchMethodSpy);
+    fixture.componentRef.setInput('debounceMs', 300);
+    fixture.componentRef.setInput('minChars', 3);
+    fixture.componentRef.setInput('ariaLabel', 'Autocomplete');
 
     fixture.detectChanges();
   });
 
   afterEach(() => {
     overlayContainer.ngOnDestroy();
+    vi.useRealTimers();
   });
 
   function getInput(): HTMLInputElement {
@@ -88,72 +118,73 @@ describe('AutocompleteTextboxComponent', () => {
     fixture.detectChanges();
   }
 
-  it('should call search method after debounce when text has at least minChars characters', fakeAsync(() => {
+  it('should call search method after debounce when text has at least minChars characters', async () => {
     setInputValue('mad');
 
-    tick(299);
+    await vi.advanceTimersByTimeAsync(299);
     expect(searchMethodSpy).not.toHaveBeenCalled();
 
-    tick(1);
+    await vi.advanceTimersByTimeAsync(1);
     fixture.detectChanges();
 
-    expect(searchMethodSpy).toHaveBeenCalledOnceWith('mad');
+    expect(searchMethodSpy).toHaveBeenCalledTimes(1);
+    expect(searchMethodSpy).toHaveBeenCalledWith('mad');
     expect(component.results).toEqual(['mad-1', 'mad-2']);
     expect(getOverlayOptions().length).toBe(2);
     expect(component.panel.kind).toBe('results');
-  }));
+  });
 
-  it('should cancel queued search when user backspaces to fewer than minChars before debounce', fakeAsync(() => {
+  it('should cancel queued search when user backspaces to fewer than minChars before debounce', async () => {
     setInputValue('madr');
 
-    tick(150);
+    await vi.advanceTimersByTimeAsync(150);
 
     setInputValue('ma');
 
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
     expect(searchMethodSpy).not.toHaveBeenCalled();
     expect(component.results).toEqual([]);
     expect(getOverlayOptions().length).toBe(0);
-    expect(component.isOverlayOpen).toBeFalse();
-  }));
+    expect(component.isOverlayOpen).toBe(false);
+  });
 
-  it('should not call search method when text has fewer than minChars characters', fakeAsync(() => {
+  it('should not call search method when text has fewer than minChars characters', async () => {
     setInputValue('ma');
 
-    tick(400);
+    await vi.advanceTimersByTimeAsync(400);
     fixture.detectChanges();
 
     expect(searchMethodSpy).not.toHaveBeenCalled();
     expect(component.results).toEqual([]);
     expect(getOverlayOptions().length).toBe(0);
-    expect(component.isOverlayOpen).toBeFalse();
-  }));
+    expect(component.isOverlayOpen).toBe(false);
+  });
 
-  it('should show results in the overlay after a successful search', fakeAsync(() => {
+  it('should show results in the overlay after a successful search', async () => {
     setInputValue('madr');
 
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
     const options = getOverlayOptions();
 
-    expect(component.isOverlayOpen).toBeTrue();
+    expect(component.isOverlayOpen).toBe(true);
     expect(options.length).toBe(2);
     expect(options[0].textContent?.trim()).toBe('madr-1');
     expect(options[1].textContent?.trim()).toBe('madr-2');
-  }));
+  });
 
-  it('should lock input, emit selection and show clear button after selecting a result', fakeAsync(() => {
-    const onChangeSpy = jasmine.createSpy('onChange');
-    const selectedChangeSpy = jasmine.createSpy('selectedChange');
+  it('should lock input, emit selection and show clear button after selecting a result', async () => {
+    const onChangeSpy = vi.fn();
+    const selectedChangeSpy = vi.fn();
 
     component.registerOnChange(onChangeSpy);
     component.selectedChange.subscribe(selectedChangeSpy);
 
     setInputValue('madr');
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
     selectOverlayOption(0);
@@ -161,13 +192,15 @@ describe('AutocompleteTextboxComponent', () => {
     const input = getInput();
 
     expect(component.selectedValue).toBe('madr-1');
-    expect(input.readOnly).toBeTrue();
+    expect(input.readOnly).toBe(true);
     expect(input.value).toBe('madr-1');
-    expect(component.isOverlayOpen).toBeFalse();
+    expect(component.isOverlayOpen).toBe(false);
     expect(fixture.debugElement.query(By.css('.clear-button'))).not.toBeNull();
-    expect(onChangeSpy).toHaveBeenCalledOnceWith('madr-1');
-    expect(selectedChangeSpy).toHaveBeenCalledOnceWith('madr-1');
-  }));
+    expect(onChangeSpy).toHaveBeenCalledTimes(1);
+    expect(onChangeSpy).toHaveBeenCalledWith('madr-1');
+    expect(selectedChangeSpy).toHaveBeenCalledTimes(1);
+    expect(selectedChangeSpy).toHaveBeenCalledWith('madr-1');
+  });
 
   it('should not select an option when component is disabled', () => {
     component.setDisabledState(true);
@@ -177,82 +210,83 @@ describe('AutocompleteTextboxComponent', () => {
 
     expect(component.selectedValue).toBeNull();
     expect(component.textControl.value).toBe('');
-    expect(component.isOverlayOpen).toBeFalse();
+    expect(component.isOverlayOpen).toBe(false);
   });
 
-  it('should close overlay and disable input control when disabled', fakeAsync(() => {
+  it('should close overlay and disable input control when disabled', async () => {
     setInputValue('madr');
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
-    expect(component.isOverlayOpen).toBeTrue();
+    expect(component.isOverlayOpen).toBe(true);
     expect(getOverlayOptions().length).toBe(2);
 
     component.setDisabledState(true);
     fixture.detectChanges();
 
-    expect(component.disabled).toBeTrue();
-    expect(component.textControl.disabled).toBeTrue();
-    expect(component.isOverlayOpen).toBeFalse();
+    expect(component.disabled).toBe(true);
+    expect(component.textControl.disabled).toBe(true);
+    expect(component.isOverlayOpen).toBe(false);
     expect(getOverlayOptions().length).toBe(0);
-  }));
+  });
 
-  it('should clear visible results when writeValue(null) is called', fakeAsync(() => {
+  it('should clear visible results when writeValue(null) is called', async () => {
     setInputValue('madr');
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
     expect(component.results.length).toBeGreaterThan(0);
     expect(getOverlayOptions().length).toBeGreaterThan(0);
 
     component.writeValue(null);
+    await Promise.resolve();
     fixture.detectChanges();
 
     expect(component.results).toEqual([]);
     expect(component.textControl.value).toBe('');
     expect(component.selectedValue).toBeNull();
-    expect(component.isOverlayOpen).toBeFalse();
+    expect(component.isOverlayOpen).toBe(false);
     expect(overlayContainerElement.querySelector('.results')).toBeNull();
-  }));
+  });
 
-  it('should resolve external value into a selected option when writeValue is used', fakeAsync(() => {
-    component.resolveByValue = (value: string) => value;
+  it('should resolve external value into a selected option when writeValue is used', async () => {
+    fixture.componentRef.setInput('resolveByValue', (value: string) => value);
     fixture.detectChanges();
 
     component.writeValue('valor fijo');
-    tick();
+    await Promise.resolve();
     fixture.detectChanges();
 
     const input = getInput();
 
     expect(component.selectedValue).toBe('valor fijo');
     expect(input.value).toBe('valor fijo');
-    expect(input.readOnly).toBeTrue();
+    expect(input.readOnly).toBe(true);
     expect(fixture.debugElement.query(By.css('.clear-button'))).not.toBeNull();
-  }));
+  });
 
-  it('should keep fallback text without selection when resolveByValue returns null', fakeAsync(() => {
-    component.resolveByValue = () => null;
+  it('should keep fallback text without selection when resolveByValue returns null', async () => {
+    fixture.componentRef.setInput('resolveByValue', () => null);
     fixture.detectChanges();
 
     component.writeValue('texto externo');
-    tick();
+    await Promise.resolve();
     fixture.detectChanges();
 
     const input = getInput();
 
     expect(component.selectedValue).toBeNull();
     expect(input.value).toBe('texto externo');
-    expect(input.readOnly).toBeFalse();
+    expect(input.readOnly).toBe(false);
     expect(fixture.debugElement.query(By.css('.clear-button'))).toBeNull();
-  }));
+  });
 
-  it('should clear selection, hide clear button and make input editable again', fakeAsync(() => {
-    component.resolveByValue = (value: string) => value;
+  it('should clear selection, hide clear button and make input editable again', async () => {
+    fixture.componentRef.setInput('resolveByValue', (value: string) => value);
     fixture.detectChanges();
 
     component.writeValue('valor fijo');
-    tick();
+    await Promise.resolve();
     fixture.detectChanges();
 
     const clearButton: HTMLButtonElement = fixture.debugElement.query(
@@ -265,14 +299,14 @@ describe('AutocompleteTextboxComponent', () => {
     const input = getInput();
 
     expect(component.selectedValue).toBeNull();
-    expect(input.readOnly).toBeFalse();
+    expect(input.readOnly).toBe(false);
     expect(input.value).toBe('');
     expect(component.textControl.value).toBe('');
     expect(fixture.debugElement.query(By.css('.clear-button'))).toBeNull();
-  }));
+  });
 
   it('should show empty hint when no value is selected', () => {
-    component.emptyHint = 'Search timezone';
+    fixture.componentRef.setInput('emptyHint', 'Search timezone');
     fixture.detectChanges();
 
     const input = getInput();
@@ -280,30 +314,30 @@ describe('AutocompleteTextboxComponent', () => {
   });
 
   it('should prefer placeholder when emptyHint is empty', () => {
-    component.placeholder = 'Type here';
-    component.emptyHint = '';
+    fixture.componentRef.setInput('placeholder', 'Type here');
+    fixture.componentRef.setInput('emptyHint', '');
     fixture.detectChanges();
 
     const input = getInput();
     expect(input.placeholder).toBe('Type here');
   });
 
-  it('should render empty state message when search returns no results', fakeAsync(() => {
-    searchMethodSpy.and.returnValue(of([]));
+  it('should render empty state message when search returns no results', async () => {
+    searchMethodSpy.mockImplementation(() => of([]));
 
     setInputValue('madr');
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
     expect(component.panel.kind).toBe('empty');
     expect(component.results).toEqual([]);
     expect(getOverlayOptions().length).toBe(0);
     expect(getOverlayMessage()?.textContent?.trim()).toBe('autocomplete.noResultsFound');
-  }));
+  });
 
-  it('should move active option with keyboard navigation', fakeAsync(() => {
+  it('should move active option with keyboard navigation', async () => {
     setInputValue('madr');
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
     const input = getInput();
@@ -312,27 +346,27 @@ describe('AutocompleteTextboxComponent', () => {
     fixture.detectChanges();
 
     expect(component.activeIndex).toBe(0);
-    expect(component.isActive(0)).toBeTrue();
+    expect(component.isActive(0)).toBe(true);
 
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
     fixture.detectChanges();
 
     expect(component.activeIndex).toBe(1);
-    expect(component.isActive(1)).toBeTrue();
+    expect(component.isActive(1)).toBe(true);
 
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
     fixture.detectChanges();
 
     expect(component.activeIndex).toBe(0);
-    expect(component.isActive(0)).toBeTrue();
-  }));
+    expect(component.isActive(0)).toBe(true);
+  });
 
-  it('should select the active option when pressing Enter', fakeAsync(() => {
-    const onChangeSpy = jasmine.createSpy('onChange');
+  it('should select the active option when pressing Enter', async () => {
+    const onChangeSpy = vi.fn();
     component.registerOnChange(onChangeSpy);
 
     setInputValue('madr');
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
     const input = getInput();
@@ -345,27 +379,28 @@ describe('AutocompleteTextboxComponent', () => {
 
     expect(component.selectedValue).toBe('madr-1');
     expect(component.textControl.value).toBe('madr-1');
-    expect(onChangeSpy).toHaveBeenCalledOnceWith('madr-1');
-    expect(component.isOverlayOpen).toBeFalse();
-  }));
+    expect(onChangeSpy).toHaveBeenCalledTimes(1);
+    expect(onChangeSpy).toHaveBeenCalledWith('madr-1');
+    expect(component.isOverlayOpen).toBe(false);
+  });
 
-  it('should close overlay when pressing Escape', fakeAsync(() => {
+  it('should close overlay when pressing Escape', async () => {
     setInputValue('madr');
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
-    expect(component.isOverlayOpen).toBeTrue();
+    expect(component.isOverlayOpen).toBe(true);
 
     const input = getInput();
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     fixture.detectChanges();
 
-    expect(component.isOverlayOpen).toBeFalse();
+    expect(component.isOverlayOpen).toBe(false);
     expect(component.panel.kind).toBe('closed');
-  }));
+  });
 
   it('should mark control as touched on blur', () => {
-    const onTouchedSpy = jasmine.createSpy('onTouched');
+    const onTouchedSpy = vi.fn();
     component.registerOnTouched(onTouchedSpy);
 
     component.handleBlur();
@@ -373,8 +408,8 @@ describe('AutocompleteTextboxComponent', () => {
     expect(onTouchedSpy).toHaveBeenCalled();
   });
 
-  it('should expose loading state while search is in progress', fakeAsync(() => {
-    searchMethodSpy.and.callFake(() => {
+  it('should expose loading state while search is in progress', async () => {
+    searchMethodSpy.mockImplementation(() => {
       return new Observable<string[]>((subscriber) => {
         setTimeout(() => {
           subscriber.next(['late-1', 'late-2']);
@@ -384,20 +419,20 @@ describe('AutocompleteTextboxComponent', () => {
     });
 
     setInputValue('madr');
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
 
     expect(component.panel.kind).toBe('loading');
-    expect(component.isLoading).toBeTrue();
+    expect(component.isLoading).toBe(true);
     expect(getOverlayMessage()?.textContent?.trim()).toBe('autocomplete.loadingResults');
 
-    tick(100);
+    await vi.advanceTimersByTimeAsync(100);
     fixture.detectChanges();
 
     expect(component.panel.kind).toBe('results');
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading).toBe(false);
     expect(component.results).toEqual(['late-1', 'late-2']);
-  }));
+  });
 
   it('should return stable option ids', () => {
     expect(component.getOptionId(0)).toMatch(/^autocomplete-option-\d+-0$/);

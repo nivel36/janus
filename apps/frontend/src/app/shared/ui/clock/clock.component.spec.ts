@@ -1,7 +1,9 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { ClockComponent } from './clock.component';
 
 describe('ClockComponent', () => {
@@ -9,8 +11,10 @@ describe('ClockComponent', () => {
   let component: ClockComponent;
 
   beforeEach(async () => {
+    vi.useFakeTimers();
+
     await TestBed.configureTestingModule({
-      imports: [ClockComponent], // standalone
+      imports: [ClockComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ClockComponent);
@@ -18,80 +22,87 @@ describe('ClockComponent', () => {
   });
 
   afterEach(() => {
-    jasmine.clock().uninstall?.();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render a time string after init', fakeAsync(() => {
-    spyOn(Date.prototype, 'toLocaleTimeString').and.returnValue('10:15:30');
-    fixture.detectChanges(); // triggers ngOnInit
-    tick(); // allow first update
+  it('should render a time string after init', () => {
+    vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('10:15:30');
+
     fixture.detectChanges();
+    vi.advanceTimersByTime(0);
+    fixture.detectChanges();
+
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('.clock-time')?.textContent?.trim()).toBe('10:15:30');
-  }));
+  });
 
-  it('should prefer @Input locale over navigator.language', fakeAsync(() => {
-    const spy = spyOn(Date.prototype, 'toLocaleTimeString').and.returnValue('x');
-    component.locale = 'fr-FR';
+  it('should prefer locale input over navigator.language', () => {
+    const spy = vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('x');
+
+    fixture.componentRef.setInput('locale', 'fr-FR');
     fixture.detectChanges();
-    tick(0);
-    expect(spy).toHaveBeenCalledWith('fr-FR', jasmine.objectContaining({ hour12: false }));
-  }));
+    vi.advanceTimersByTime(0);
 
-  it('should fall back to navigator.language when locale is not provided', fakeAsync(() => {
-    // Mock navigator.language
-    const langSpy = spyOnProperty(navigator, 'language', 'get').and.returnValue('es-ES');
-    const fmtSpy = spyOn(Date.prototype, 'toLocaleTimeString').and.returnValue('x');
+    expect(spy).toHaveBeenCalledWith('fr-FR', expect.objectContaining({ hour12: false }));
+  });
+
+  it('should fall back to navigator.language when locale is not provided', () => {
+    vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES');
+    const fmtSpy = vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('x');
 
     fixture.detectChanges();
-    tick(0);
+    vi.advanceTimersByTime(0);
 
-    expect(langSpy).toHaveBeenCalled();
-    expect(fmtSpy).toHaveBeenCalledWith('es-ES', jasmine.any(Object));
-  }));
+    expect(fmtSpy).toHaveBeenCalledWith('es-ES', expect.any(Object));
+  });
 
-  it('should respect 12-hour format when use12Hour = true', fakeAsync(() => {
-    const spy = spyOn(Date.prototype, 'toLocaleTimeString').and.returnValue('x');
-    component.use12Hour = true;
+  it('should respect 12-hour format when use12Hour is true', () => {
+    const spy = vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('x');
+
+    fixture.componentRef.setInput('use12Hour', true);
     fixture.detectChanges();
-    tick(0);
-    expect(spy).toHaveBeenCalledWith(
-      jasmine.any(String),
-      jasmine.objectContaining({ hour12: true }),
-    );
-  }));
+    vi.advanceTimersByTime(0);
 
-  it('should update the time every second', fakeAsync(() => {
-    const spy = spyOn(Date.prototype, 'toLocaleTimeString').and.returnValues(
-      't0',
-      't1',
-      't2',
-      't3',
-    );
-    fixture.detectChanges(); // ngOnInit + setInterval
-    tick(0); // first call
-    tick(1000); // second
-    tick(1000); // third
-    expect(spy.calls.count()).toBe(3); // initial + 2 ticks = 3 calls
-  }));
+    expect(spy).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ hour12: true }));
+  });
 
-  it('should clear the interval on destroy', fakeAsync(() => {
-    const clearSpy = spyOn(window, 'clearInterval').and.callThrough();
+  it('should update the time every second', () => {
+    const spy = vi
+      .spyOn(Date.prototype, 'toLocaleTimeString')
+      .mockReturnValueOnce('t0')
+      .mockReturnValueOnce('t1')
+      .mockReturnValueOnce('t2')
+      .mockReturnValueOnce('t3');
+
     fixture.detectChanges();
-    tick(0);
+    vi.advanceTimersByTime(0);
+    vi.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
+
+    expect(spy).toHaveBeenCalledTimes(3);
+  });
+
+  it('should clear the interval on destroy', () => {
+    const clearSpy = vi.spyOn(window, 'clearInterval');
+
+    fixture.detectChanges();
+    vi.advanceTimersByTime(0);
     component.ngOnDestroy();
-    expect(clearSpy).toHaveBeenCalled();
-  }));
 
-  it('should expose semantic and ARIA attributes for assistive technologies', fakeAsync(() => {
-    spyOn(Date.prototype, 'toLocaleTimeString').and.returnValue('10:15:30');
-    component.ariaLabel = 'Live clock';
+    expect(clearSpy).toHaveBeenCalled();
+  });
+
+  it('should expose semantic and ARIA attributes for assistive technologies', () => {
+    vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('10:15:30');
+
+    fixture.componentRef.setInput('ariaLabel', 'Live clock');
     fixture.detectChanges();
-    tick(0);
+    vi.advanceTimersByTime(0);
     fixture.detectChanges();
 
     const timeEl = fixture.nativeElement.querySelector('time.clock-time') as HTMLElement | null;
@@ -104,5 +115,5 @@ describe('ClockComponent', () => {
     expect(timeEl?.getAttribute('datetime')).toMatch(
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
     );
-  }));
+  });
 });

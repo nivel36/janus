@@ -1,26 +1,18 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-/**
- * SPDX-License-Identifier: Apache-2.0
- */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { CardComponent } from './card.component';
 
 @Component({
   standalone: true,
   imports: [CardComponent],
   template: `
-    <app-card
-      [title]="title"
-      [ariaLabel]="ariaLabel"
-      [styleClass]="styleClass"
-      [titleClass]="titleClass"
-      [headerClass]="headerClass"
-      [footerClass]="footerClass"
-    >
+    <app-card [title]="title" [ariaLabel]="ariaLabel" [styleClass]="styleClass">
       <ng-template #cardHeader>
         <div class="projected-header">Projected header</div>
       </ng-template>
@@ -34,37 +26,24 @@ import { CardComponent } from './card.component';
   `,
 })
 class TestHostComponent {
-  title: string | null = null;
-  ariaLabel: string | null = null;
+  title?: string;
+  ariaLabel?: string;
   styleClass = '';
-  titleClass = '';
-  headerClass = '';
-  footerClass = '';
 }
 
 @Component({
   standalone: true,
   imports: [CardComponent],
   template: `
-    <app-card
-      [title]="title"
-      [ariaLabel]="ariaLabel"
-      [styleClass]="styleClass"
-      [titleClass]="titleClass"
-      [headerClass]="headerClass"
-      [footerClass]="footerClass"
-    >
+    <app-card [title]="title" [ariaLabel]="ariaLabel" [styleClass]="styleClass">
       <p class="projected-body">Projected body only</p>
     </app-card>
   `,
 })
 class TestHostWithoutTemplatesComponent {
-  title: string | null = null;
-  ariaLabel: string | null = null;
+  title?: string;
+  ariaLabel?: string;
   styleClass = '';
-  titleClass = '';
-  headerClass = '';
-  footerClass = '';
 }
 
 describe('CardComponent', () => {
@@ -127,24 +106,15 @@ describe('CardComponent', () => {
       expect(projectedFooter.textContent.trim()).toBe('Projected footer');
     });
 
-    it('should apply custom CSS classes', () => {
+    it('should apply custom CSS classes to the card root', () => {
       hostComponent.title = 'Styled card';
       hostComponent.styleClass = 'custom-card';
-      hostComponent.titleClass = 'custom-title';
-      hostComponent.headerClass = 'custom-header';
-      hostComponent.footerClass = 'custom-footer';
 
       fixture.detectChanges();
 
       const cardElement = fixture.nativeElement.querySelector('.card');
-      const titleElement = fixture.nativeElement.querySelector('.card-title');
-      const headerElement = fixture.nativeElement.querySelector('.card-header');
-      const footerElement = fixture.nativeElement.querySelector('.card-footer');
 
-      expect(cardElement.classList.contains('custom-card')).toBeTrue();
-      expect(titleElement.classList.contains('custom-title')).toBeTrue();
-      expect(headerElement.classList.contains('custom-header')).toBeTrue();
-      expect(footerElement.classList.contains('custom-footer')).toBeTrue();
+      expect(cardElement.classList.contains('custom-card')).toBe(true);
     });
 
     it('should set hasHeader to true when a header template exists', () => {
@@ -153,7 +123,7 @@ describe('CardComponent', () => {
       const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
       const cardComponent = cardDebugElement.componentInstance as CardComponent;
 
-      expect(cardComponent.hasHeader).toBeTrue();
+      expect(cardComponent.hasHeader).toBe(true);
     });
 
     it('should set hasFooter to true when a footer template exists', () => {
@@ -162,10 +132,10 @@ describe('CardComponent', () => {
       const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
       const cardComponent = cardDebugElement.componentInstance as CardComponent;
 
-      expect(cardComponent.hasFooter).toBeTrue();
+      expect(cardComponent.hasFooter).toBe(true);
     });
 
-    it('should render the header element when a header template exists even if title is null', () => {
+    it('should render the header element when a header template exists even if title is undefinied', () => {
       fixture.detectChanges();
 
       const headerElement = fixture.nativeElement.querySelector('.card-header');
@@ -182,7 +152,7 @@ describe('CardComponent', () => {
 
       expect(cardElement.getAttribute('role')).toBe('region');
       expect(cardElement.getAttribute('aria-labelledby')).toBe(titleElement.id);
-      expect(cardElement.hasAttribute('aria-label')).toBeFalse();
+      expect(cardElement.hasAttribute('aria-label')).toBe(false);
     });
 
     it('should render the footer element when a footer template exists', () => {
@@ -215,7 +185,7 @@ describe('CardComponent', () => {
       const cardComponent = cardDebugElement.componentInstance as CardComponent;
 
       expect(headerElement).toBeNull();
-      expect(cardComponent.hasHeader).toBeFalse();
+      expect(cardComponent.hasHeader).toBe(false);
     });
 
     it('should render the header when title exists even if there is no header template', () => {
@@ -230,7 +200,7 @@ describe('CardComponent', () => {
       expect(headerElement).toBeTruthy();
       expect(titleElement).toBeTruthy();
       expect(titleElement.textContent.trim()).toBe('Title only');
-      expect(cardComponent.hasHeader).toBeTrue();
+      expect(cardComponent.hasHeader).toBe(true);
     });
 
     it('should not render the footer when there is no footer template', () => {
@@ -241,7 +211,7 @@ describe('CardComponent', () => {
       const cardComponent = cardDebugElement.componentInstance as CardComponent;
 
       expect(footerElement).toBeNull();
-      expect(cardComponent.hasFooter).toBeFalse();
+      expect(cardComponent.hasFooter).toBe(false);
     });
 
     it('should keep the body content rendered when there is no header or footer', () => {
@@ -261,7 +231,7 @@ describe('CardComponent', () => {
 
       expect(cardElement.getAttribute('role')).toBe('region');
       expect(cardElement.getAttribute('aria-label')).toBe('Timesheet summary');
-      expect(cardElement.hasAttribute('aria-labelledby')).toBeFalse();
+      expect(cardElement.hasAttribute('aria-labelledby')).toBe(false);
     });
 
     it('should not expose landmark role when card has no accessible name', () => {
@@ -269,9 +239,9 @@ describe('CardComponent', () => {
 
       const cardElement = fixture.nativeElement.querySelector('section.card');
 
-      expect(cardElement.hasAttribute('role')).toBeFalse();
-      expect(cardElement.hasAttribute('aria-labelledby')).toBeFalse();
-      expect(cardElement.hasAttribute('aria-label')).toBeFalse();
+      expect(cardElement.hasAttribute('role')).toBe(false);
+      expect(cardElement.hasAttribute('aria-labelledby')).toBe(false);
+      expect(cardElement.hasAttribute('aria-label')).toBe(false);
     });
   });
 });

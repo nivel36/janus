@@ -4,10 +4,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { ForbiddenComponent } from './forbidden.component';
 
-describe('Forbidden', () => {
+describe('ForbiddenComponent', () => {
   let component: ForbiddenComponent;
   let fixture: ComponentFixture<ForbiddenComponent>;
 

@@ -20,15 +20,24 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
 })
 export class ToggleButtonComponent implements ControlValueAccessor {
-
-  /** Current toggle state bound to the host form control. */
+  /**
+   * Current toggle state bound to the host form control.
+   */
   checked = false;
-  /** Prevents user interaction when the control is disabled by the form. */
+
+  /**
+   * Prevents user interaction when the control is disabled by the form.
+   */
   disabled = false;
 
-  /** Callback invoked by Angular forms when the control value changes. */
+  /**
+   * Callback invoked by Angular forms when the control value changes.
+   */
   private onChange: (value: boolean) => void = () => {};
-  /** Callback invoked by Angular forms when the control is marked as touched. */
+
+  /**
+   * Callback invoked by Angular forms when the control is marked as touched.
+   */
   private onTouched: () => void = () => {};
 
   /**

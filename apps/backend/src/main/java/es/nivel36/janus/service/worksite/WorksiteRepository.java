@@ -17,6 +17,9 @@ package es.nivel36.janus.service.worksite;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -38,7 +41,7 @@ import es.nivel36.janus.service.employee.Employee;
  * </p>
  */
 @Repository
-interface WorksiteRepository extends CrudRepository<Worksite, Long> {
+interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 
 	/**
 	 * Retrieves all worksites visible to the specified employee.
@@ -71,4 +74,13 @@ interface WorksiteRepository extends CrudRepository<Worksite, Long> {
 			WHERE w = :worksite
 			""")
 	boolean hasEmployees(Worksite worksite);
+
+	@Query("""
+			SELECT w
+			FROM Worksite w
+			WHERE LOWER(w.name) LIKE LOWER(CONCAT('%', :query, '%'))
+			   OR LOWER(w.code) LIKE LOWER(CONCAT('%', :query, '%'))
+			""")
+	Page<Worksite> search(String query, Pageable pageable);
+
 }

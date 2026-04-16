@@ -7,15 +7,14 @@ import {
   inject,
   input,
   signal,
-  resource,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
 import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
-import { TimeLog } from '../../models/timelog';
+
 import { TimeLogService, TimeLogPage } from '../../services/timelog-api.service';
 import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
@@ -67,7 +66,7 @@ export class TimelogTableComponent {
    */
   protected readonly currentPage = signal(1);
 
-  protected readonly timelogsResource = resource<
+  protected readonly timelogsResource = rxResource<
     TimeLogPage,
     { employeeEmail: string; refreshToken: number; page: number }
   >({
@@ -76,13 +75,11 @@ export class TimelogTableComponent {
       refreshToken: this.refreshToken(),
       page: this.currentPage(),
     }),
-    loader: ({ params }) =>
-      firstValueFrom(
-        this.timeLogService.searchByEmployee(
-          params.employeeEmail,
-          params.page - 1,
-          TimelogTableComponent.PAGE_SIZE,
-        ),
+    stream: ({ params }) =>
+      this.timeLogService.searchByEmployee(
+        params.employeeEmail,
+        params.page - 1,
+        TimelogTableComponent.PAGE_SIZE,
       ),
     defaultValue: {
       items: [],

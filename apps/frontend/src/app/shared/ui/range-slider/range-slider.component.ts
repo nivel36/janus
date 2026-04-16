@@ -1,6 +1,17 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, computed, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { createUuid } from '../../utils/uuid.utils';
 
+/**
+ * Range slider form control compatible with Angular Forms.
+ *
+ * <p>This component exposes its configuration through signal-based inputs and
+ * implements {@link ControlValueAccessor} so it can be bound to reactive or
+ * template-driven forms.</p>
+ *
+ * <p>The slider id can be provided externally. When no id is supplied, the
+ * component generates a stable UUID-based id for accessibility bindings.</p>
+ */
 @Component({
   selector: 'app-range-slider',
   standalone: true,
@@ -16,32 +27,63 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class RangeSliderComponent implements ControlValueAccessor {
   /**
-   * Incremental counter used to generate unique ids per component instance,
-   * preserving the accessible `label` to `input` association.
+   * Visible label displayed above the slider.
    */
-  private static nextId = 0;
+  readonly label = input<string>();
 
-  /** Visible label displayed above the slider. */
-  @Input() label = '';
-  /** Optional suffix used to display the current value unit (for example `min`, `%`). */
-  @Input() unit = '';
-  /** Minimum value allowed by the control. */
-  @Input() min = 0;
-  /** Maximum value allowed by the control. */
-  @Input() max = 100;
-  /** Step size between valid slider values. */
-  @Input() step = 1;
+  /**
+   * Optional suffix used in the accessible value text, for example `min` or `%`.
+   */
+  readonly unit = input<string>();
 
-  /** Stable instance id used by `for`/`id` attributes. */
-  readonly sliderId = `range-slider-${RangeSliderComponent.nextId++}`;
-  /** Current numeric slider value. */
+  /**
+   * Minimum value allowed by the slider.
+   */
+  readonly min = input<number>(0);
+
+  /**
+   * Maximum value allowed by the slider.
+   */
+  readonly max = input<number>(100);
+
+  /**
+   * Step size between valid slider values.
+   */
+  readonly step = input<number>(1);
+
+  /**
+   * Optional externally assigned id for the native range input.
+   */
+  readonly inputId = input<string>();
+
+  /**
+   * Internally generated stable id used when no external id is provided.
+   */
+  private readonly generatedSliderId = `range-slider-${createUuid()}`;
+
+  /**
+   * Effective id used by both the label `for` attribute and the input `id`.
+   */
+  readonly sliderId = computed(() => this.inputId() ?? this.generatedSliderId);
+
+  /**
+   * Current numeric slider value.
+   */
   value = 0;
-  /** Disabled state propagated from Angular Forms. */
+
+  /**
+   * Disabled state propagated from Angular Forms.
+   */
   disabled = false;
 
-  /** Angular Forms callback used to propagate value changes. */
+  /**
+   * Angular Forms callback used to propagate value changes.
+   */
   private onChange: (value: number) => void = () => {};
-  /** Angular Forms callback used to mark the control as touched. */
+
+  /**
+   * Angular Forms callback used to mark the control as touched.
+   */
   private onTouched: () => void = () => {};
 
   /**
@@ -100,26 +142,26 @@ export class RangeSliderComponent implements ControlValueAccessor {
   }
 
   /**
-   * Returns the current progress percentage (0-100) used by the slider track UI.
-   * Returns `0` when the range is invalid to avoid division by zero.
+   * Returns the current progress percentage used by the slider track UI.
+   * Returns `0` when the configured range is invalid.
    *
    * @returns Progress percentage for the active slider track.
    */
   get progressPercent(): number {
-    const range = this.max - this.min;
+    const range = this.max() - this.min();
     if (range <= 0) {
       return 0;
     }
 
-    return ((this.value - this.min) / range) * 100;
+    return ((this.value - this.min()) / range) * 100;
   }
 
   /**
-   * Returns the formatted value text for display in the UI.
+   * Returns the formatted value text for accessibility purposes.
    *
    * @returns Value string including the configured unit when available.
    */
   get valueText(): string {
-    return this.unit ? `${this.value} ${this.unit}` : `${this.value}`;
+    return this.unit() ? `${this.value} ${this.unit()}` : `${this.value}`;
   }
 }

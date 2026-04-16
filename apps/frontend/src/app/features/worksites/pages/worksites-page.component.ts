@@ -1,7 +1,6 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { WorksiteTableComponent } from '../components/worksite-table/worksite-table.component';

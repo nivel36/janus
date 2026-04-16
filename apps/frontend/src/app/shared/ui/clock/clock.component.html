@@ -1,12 +1,10 @@
-<div class="clock-container {{styleClass}}">
-	<time
-		class="clock-time {{timeClass}}"
-		role="timer"
-		aria-live="off"
-		aria-atomic="true"
-		[attr.aria-label]="ariaLabel"
-		[attr.datetime]="isoDateTime"
-	>
-		{{ time }}
-	</time>
-</div>
+<time
+    class="clock-time {{ styleClass() }}"
+    role="timer"
+    aria-live="off"
+    aria-atomic="true"
+    [attr.aria-label]="ariaLabel()"
+    [attr.datetime]="isoDateTime"
+>
+    {{ time }}
+</time>

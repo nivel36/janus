@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, Input } from '@angular/core';
+import { Component, input, Input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { CardComponent } from '../../../../shared/ui/card/card.component';
@@ -14,9 +14,9 @@ import { CardComponent } from '../../../../shared/ui/card/card.component';
   styleUrl: './employee-card.component.css',
 })
 export class EmployeeCardComponent {
-  @Input() fullName: string | null = null;
-  @Input() location = 'Barcelona Headquarters';
-  @Input() todaysHour = '9:00 - 17:30';
-  @Input() avatarSrc = 'assets/images/user.png';
-  @Input() avatarAlt = 'User avatar';
+  readonly fullName = input<string | null>(null);
+  readonly location = input<string>('Barcelona Headquarters');
+  readonly todaysHour = input<string>('9:00 - 17:30');
+  readonly avatarSrc = input<string>('assets/images/user.png');
+  readonly avatarAlt = input<string>('User avatar');
 }

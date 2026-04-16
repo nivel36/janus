@@ -1,8 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 /**
  * Visual intent styles that can be applied to the button.
@@ -30,32 +29,32 @@ export class ButtonComponent {
   /**
    * Visual variant used to build the CSS modifier class.
    */
-  @Input() variant: ButtonVariant = 'default';
+  readonly variant = input<ButtonVariant>('default');
 
   /**
    * Native button type used for form interaction.
    */
-  @Input() type: ButtonType = 'button';
+  readonly type = input<ButtonType>('button');
 
   /**
    * Optional decorative icon rendered as plain text.
    */
-  @Input() icon: string | null = null;
+  readonly icon = input<string>();
 
   /**
    * Side where the decorative icon is rendered.
    */
-  @Input() iconPosition: IconPosition = 'left';
+  readonly iconPosition = input<IconPosition>('left');
 
   /**
    * Whether user interaction is disabled.
    */
-  @Input() disabled = false;
+  readonly disabled = input<boolean>(false);
 
   /**
    * Extra CSS classes appended to the root button element.
    */
-  @Input() styleClass = '';
+  readonly styleClass = input<string>('');
 
   /**
    * Accessible name for icon-only usage.
@@ -63,12 +62,12 @@ export class ButtonComponent {
    * If no projected text is provided, set this input so assistive
    * technologies can announce a meaningful label.
    */
-  @Input() ariaLabel: string | null = null;
+  readonly ariaLabel = input<string>();
 
   /**
    * Emits the native click event when the button is activated.
    */
-  @Output() clicked = new EventEmitter<MouseEvent>();
+  readonly clicked = output<MouseEvent>();
 
   /**
    * Builds the BEM modifier class for the selected variant.
@@ -76,7 +75,7 @@ export class ButtonComponent {
    * @returns CSS class suffix for the variant.
    */
   get variantClass(): string {
-    return `button--${this.variant}`;
+    return `button--${this.variant()}`;
   }
 
   /**
@@ -85,7 +84,7 @@ export class ButtonComponent {
    * @returns `true` when an icon exists and the icon position is `left`.
    */
   get hasIconOnLeft(): boolean {
-    return !!this.icon && this.iconPosition === 'left';
+    return !!this.icon() && this.iconPosition() === 'left';
   }
 
   /**
@@ -94,6 +93,18 @@ export class ButtonComponent {
    * @returns `true` when an icon exists and the icon position is `right`.
    */
   get hasIconOnRight(): boolean {
-    return !!this.icon && this.iconPosition === 'right';
+    return !!this.icon() && this.iconPosition() === 'right';
+  }
+
+  /**
+   * Builds the complete CSS class list applied to the root button element.
+   *
+   * @returns Root CSS classes as a space-separated string
+   */
+  get buttonClass(): string {
+    const extraClass = this.styleClass().trim();
+    return extraClass
+      ? `app-button ${this.variantClass} ${extraClass}`
+      : `app-button ${this.variantClass}`;
   }
 }

@@ -10,7 +10,7 @@
                 [previousLabel]="'worksite.paginator.previousPage' | translate"
                 [nextLabel]="'worksite.paginator.nextPage' | translate"
                 [ariaLabel]="'worksite.paginator.ariaLabel' | translate"
-                (pageChange)="onPageChange($event)"
+                (pageRequested)="onPageChange($event)"
             />
         }
     </header>
@@ -27,7 +27,7 @@
         </div>
     }
 
-    @if (!worksitesResource.isLoading() && filteredWorksites().length > 0) {
+    @if (!worksitesResource.isLoading() && worksites().length > 0) {
         <table class="worksite-table" aria-labelledby="worksite-title">
             <thead>
                 <tr>
@@ -50,7 +50,7 @@
 
     @if (isEmpty()) {
         <div class="worksite-message" aria-live="polite">
-            {{ (hasActiveQuery() ? 'worksite.searchEmpty' : 'worksite.empty') | translate }}
+            {{ 'worksite.empty' | translate }}
         </div>
     }
 </section>

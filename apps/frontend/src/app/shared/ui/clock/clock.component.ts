@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, input } from '@angular/core';
 
 /**
  * Displays the current local time and refreshes it every second.
@@ -21,27 +21,22 @@ export class ClockComponent implements OnInit, OnDestroy {
    * Preferred BCP 47 locale used to format the visual time string.
    * If not provided, the component falls back to `navigator.language`.
    */
-  @Input() locale?: string;
+  readonly locale = input<string>();
 
   /**
    * Whether the rendered time should use a 12-hour clock format.
    */
-  @Input() use12Hour: boolean = false;
+  readonly use12Hour = input<boolean>(false);
 
   /**
-   * Optional CSS classes added to the clock container.
+   * Optional CSS classes added to the clock.
    */
-  @Input() styleClass = '';
-
-  /**
-   * Optional CSS classes added to the rendered time element.
-   */
-  @Input() timeClass = '';
+  readonly styleClass = input<string>();
 
   /**
    * Accessible name announced for the timer element.
    */
-  @Input() ariaLabel = 'Current time';
+  readonly ariaLabel = input<string>('Current time');
 
   /**
    * Human-readable time shown in the UI (for example, `10:15:30`).
@@ -77,9 +72,13 @@ export class ClockComponent implements OnInit, OnDestroy {
    * Recomputes the formatted and machine-readable current time values.
    */
   private updateTime(): void {
-    const currentLocale = this.locale ?? navigator.language;
+    const currentLocale = this.locale() ?? navigator.language;
     const now = new Date();
-    this.time = now.toLocaleTimeString(currentLocale, { hour12: this.use12Hour });
+
+    this.time = now.toLocaleTimeString(currentLocale, {
+      hour12: this.use12Hour(),
+    });
+
     this.isoDateTime = now.toISOString();
   }
 }

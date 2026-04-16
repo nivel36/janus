@@ -1,7 +1,7 @@
 <app-card styleClass="employee-card">
     <ng-template #cardHeader>
         <div class="employee-card-header-content">
-            <img class="avatar" [src]="avatarSrc" [alt]="avatarAlt" />
+            <img class="avatar" [src]="avatarSrc()" [alt]="avatarAlt()" />
             <span class="employee-card-title">
                 {{ 'employee.employee' | translate }}
             </span>
@@ -10,16 +10,16 @@
 
     <div class="data">
         <h3>{{ 'employee.fullName' | translate }}</h3>
-        <p>{{ fullName || '—' }}</p>
+        <p>{{ fullName() || '—' }}</p>
     </div>
 
     <div class="data">
         <h3>{{ 'employee.location' | translate }}</h3>
-        <p>{{ location }}</p>
+        <p>{{ location() }}</p>
     </div>
 
     <div class="data">
         <h3>{{ 'employee.todaysHour' | translate }}</h3>
-        <p>{{ todaysHour }}</p>
+        <p>{{ todaysHour() }}</p>
     </div>
 </app-card>

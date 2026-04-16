@@ -1,12 +1,12 @@
 <button
-    [class]="'app-button ' + variantClass + ' ' + styleClass"
-    [attr.type]="type"
-    [attr.aria-label]="ariaLabel"
-    [disabled]="disabled"
+    [class]="buttonClass"
+    [type]="type()"
+    [attr.aria-label]="ariaLabel()"
+    [disabled]="disabled()"
     (click)="clicked.emit($event)"
 >
     @if (hasIconOnLeft) {
-        <span class="button-icon" aria-hidden="true">{{ icon }}</span>
+        <span class="button-icon" aria-hidden="true">{{ icon() }}</span>
     }
 
     <span class="button-label">
@@ -14,6 +14,6 @@
     </span>
 
     @if (hasIconOnRight) {
-        <span class="button-icon" aria-hidden="true">{{ icon }}</span>
+        <span class="button-icon" aria-hidden="true">{{ icon() }}</span>
     }
 </button>

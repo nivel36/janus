@@ -8,11 +8,11 @@
             autocapitalize="off"
             autocorrect="off"
             spellcheck="false"
-            [placeholder]="hasSelection ? '' : emptyHint || placeholder"
+            [placeholder]="hasSelection ? '' : emptyHint() || placeholder() || ''"
             [formControl]="textControl"
             [readonly]="hasSelection"
-            [attr.aria-label]="ariaLabelledBy ? null : ariaLabel || null"
-            [attr.aria-labelledby]="ariaLabelledBy || null"
+            [attr.aria-label]="ariaLabelledBy() ? null : ariaLabel() || null"
+            [attr.aria-labelledby]="ariaLabelledBy() || null"
             [attr.aria-readonly]="hasSelection ? 'true' : null"
             [attr.aria-disabled]="disabled ? 'true' : null"
             [attr.aria-expanded]="isOverlayOpen ? 'true' : 'false'"
@@ -33,7 +33,7 @@
             <button
                 type="button"
                 class="clear-button"
-                [attr.aria-label]="clearButtonAriaLabel || ('actions.clearSelection' | translate)"
+                [attr.aria-label]="clearButtonAriaLabel() || ('actions.clearSelection' | translate)"
                 [disabled]="disabled"
                 (click)="clearSelection()"
             >
@@ -58,7 +58,7 @@
         <div class="results-panel" [style.min-width.px]="overlayWidth">
             <ul class="results" [id]="resultsListId" role="listbox">
                 @if (panel.kind === 'results') {
-                    @for (result of panel.items; track trackByValue(result); let i = $index) {
+                    @for (result of panel.items; track trackByValue()(result); let i = $index) {
                         <li
                             #resultOption
                             role="option"
@@ -68,7 +68,7 @@
                             (pointerdown)="onOptionPointerDown($event)"
                             (click)="onSelect(result)"
                         >
-                            {{ displayWith(result) }}
+                            {{ displayWith()(result) }}
                         </li>
                     }
                 } @else if (panel.kind === 'loading') {

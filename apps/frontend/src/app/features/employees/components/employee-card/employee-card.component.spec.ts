@@ -3,10 +3,11 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { EmployeeCardComponent } from './employee-card.component';
 
-describe('EmployyeCardComponent', () => {
+describe('EmployeeCardComponent', () => {
   let component: EmployeeCardComponent;
   let fixture: ComponentFixture<EmployeeCardComponent>;
 
@@ -18,7 +19,8 @@ describe('EmployyeCardComponent', () => {
 
     fixture = TestBed.createComponent(EmployeeCardComponent);
     component = fixture.componentInstance;
-    component.fullName = 'Jane Doe';
+
+    fixture.componentRef.setInput('fullName', 'Jane Doe');
     fixture.detectChanges();
   });
 

@@ -3,8 +3,9 @@
  */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { ToggleButtonComponent } from './toggle-button.component';
 
@@ -88,7 +89,7 @@ describe('ToggleButtonComponent (ControlValueAccessor)', () => {
     fixture.detectChanges();
 
     const button = getButton();
-    expect(button.disabled).toBeTrue();
+    expect(button.disabled).toBe(true);
 
     button.click();
     fixture.detectChanges();

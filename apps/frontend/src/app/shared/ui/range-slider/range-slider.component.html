@@ -1,22 +1,21 @@
 <div class="range-slider">
     <div class="range-slider__header">
-        <label class="range-slider__label" [attr.for]="sliderId">{{ label }}</label>
-        <span class="range-slider__value"> {{ value }}{{ unit ? ' ' + unit : '' }} </span>
+        <label class="range-slider__label" [attr.for]="sliderId()">{{ label() }}</label>
     </div>
 
     <div class="range-slider__track-wrapper">
         <input
-            [id]="sliderId"
+            [id]="sliderId()"
             type="range"
             class="range-slider__input"
-            [min]="min"
-            [max]="max"
-            [step]="step"
+            [min]="min()"
+            [max]="max()"
+            [step]="step()"
             [value]="value"
             [disabled]="disabled"
-            [attr.aria-label]="label || null"
-            [attr.aria-valuemin]="min"
-            [attr.aria-valuemax]="max"
+            [attr.aria-label]="label() || null"
+            [attr.aria-valuemin]="min()"
+            [attr.aria-valuemax]="max()"
             [attr.aria-valuenow]="value"
             [attr.aria-valuetext]="valueText"
             [style.--progress]="progressPercent + '%'"

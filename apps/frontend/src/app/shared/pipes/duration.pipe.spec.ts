@@ -1,3 +1,8 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { DurationPipe } from './duration.pipe';
 import { Duration } from '../../features/timelogs/models/duration';
 
@@ -105,4 +110,3 @@ describe('DurationPipe', () => {
     expect(pipe.transform(durationB)).toBe('4h 20m');
   });
 });
-

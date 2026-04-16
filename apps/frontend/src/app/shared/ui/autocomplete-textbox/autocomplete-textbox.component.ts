@@ -7,16 +7,16 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  EventEmitter,
-  Input,
   OnInit,
-  Output,
+  output,
   QueryList,
   ViewChild,
   ViewChildren,
   forwardRef,
   inject,
   isDevMode,
+  input,
+  computed,
 } from '@angular/core';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -44,6 +44,7 @@ import {
   tap,
 } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { SearchMethod } from '../../types/search.types';
 
 /**
  * Visual state of the autocomplete panel.
@@ -111,7 +112,7 @@ type ResolvedWriteValue<T> = {
 @Component({
   selector: 'app-autocomplete-textbox',
   standalone: true,
-  imports: [ReactiveFormsModule, OverlayModule, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, OverlayModule, TranslatePipe],
   templateUrl: './autocomplete-textbox.component.html',
   styleUrls: ['./autocomplete-textbox.component.css'],
   providers: [
@@ -138,22 +139,8 @@ export class AutocompleteTextboxComponent<T = unknown>
 
   /**
    * Search function used to retrieve autocomplete candidates.
-   *
-   * It can return:
-   *
-   * - a synchronous value
-   * - a promise
-   * - an Observable
-   *
-   * If it returns an Observable, it may emit multiple result lists for the same
-   * query. The component remains subscribed until:
-   *
-   * - the user types a new query
-   * - the search is invalidated
-   * - the component is destroyed
    */
-  @Input({ required: true })
-  searchMethod!: (query: string) => Observable<T[]> | Promise<T[]> | T[];
+  readonly searchMethod = input.required<SearchMethod<T>>();
 
   /**
    * Function that converts an option into the visible label shown both in the
@@ -161,8 +148,7 @@ export class AutocompleteTextboxComponent<T = unknown>
    *
    * The default implementation uses {@link String}.
    */
-  @Input()
-  displayWith: (option: T) => string = (option: T) => String(option);
+  readonly displayWith = input<(option: T) => string>((option: T) => String(option));
 
   /**
    * Function that converts a selected option into the string value propagated
@@ -170,8 +156,7 @@ export class AutocompleteTextboxComponent<T = unknown>
    *
    * The default implementation uses {@link String}.
    */
-  @Input()
-  valueWith: (option: T) => string = (option: T) => String(option);
+  readonly valueWith = input<(option: T) => string>((option: T) => String(option));
 
   /**
    * Function that resolves an external form value to its domain object.
@@ -180,9 +165,9 @@ export class AutocompleteTextboxComponent<T = unknown>
    * complete. This contract represents a one-shot state reconstruction operation,
    * not a continuous update stream.
    */
-  @Input()
-  resolveByValue: (value: string) => Observable<T | null> | Promise<T | null> | T | null = () =>
-    null;
+  readonly resolveByValue = input<
+    (value: string) => Observable<T | null> | Promise<T | null> | T | null
+  >(() => null);
 
   /**
    * Function that generates a stable key so Angular can correctly reuse DOM
@@ -191,50 +176,59 @@ export class AutocompleteTextboxComponent<T = unknown>
    * By default, it delegates to {@link valueWith}, assuming the persisted value
    * also uniquely identifies each option.
    */
-  @Input()
-  trackByValue: (option: T) => string | number = (option: T) => this.valueWith(option);
+  readonly trackByValueInput = input<(option: T) => string | number>();
+
+  /**
+   * Effective tracking function used by the template.
+   *
+   * If no explicit tracking function is provided, it falls back to
+   * {@link valueWith}.
+   */
+  readonly trackByValue = computed<(option: T) => string | number>(
+    () => this.trackByValueInput() ?? this.valueWith(),
+  );
 
   /**
    * Placeholder shown when the field is empty and {@link emptyHint} is not defined.
    */
-  @Input() placeholder = '';
+  readonly placeholder = input<string>();
 
   /**
    * Alternative text shown when there is no current selection.
    *
    * If not empty, it takes precedence over {@link placeholder}.
    */
-  @Input() emptyHint = '';
+  readonly emptyHint = input<string>();
 
   /**
    * Debounce time, in milliseconds, before executing a search.
    */
-  @Input() debounceMs = 350;
+  readonly debounceMs = input(350);
 
   /**
    * Minimum number of non-empty characters required to trigger a search.
    */
-  @Input() minChars = 3;
+  readonly minChars = input(3);
 
   /**
    * Accessible name used when the component is not associated with an external label.
    */
-  @Input() ariaLabel = '';
+  readonly ariaLabel = input<string>();
 
   /**
    * Identifier of the external element that provides the accessible name of the input.
    */
-  @Input() ariaLabelledBy = '';
+  readonly ariaLabelledBy = input<string>();
 
   /**
    * Accessible label announced for the button that clears the current selection.
    */
-  @Input() clearButtonAriaLabel = '';
+  readonly clearButtonAriaLabel = input<string>();
 
   /**
    * Auxiliary event emitted whenever the selected option changes.
    */
-  @Output() selectedChange = new EventEmitter<T | null>();
+  readonly selectedChange = output<T | null>();
 
   /**
    * References to the DOM elements representing the rendered options.
@@ -410,15 +404,11 @@ export class AutocompleteTextboxComponent<T = unknown>
    * when the component is used incorrectly.
    */
   private validateInputs(): void {
-    if (typeof this.searchMethod !== 'function') {
-      throw new Error('AutocompleteTextboxComponent: searchMethod is required.');
-    }
-
-    if (this.minChars < 0) {
+    if (this.minChars() < 0) {
       throw new Error('AutocompleteTextboxComponent: minChars cannot be negative.');
     }
 
-    if (this.debounceMs < 0) {
+    if (this.debounceMs() < 0) {
       throw new Error('AutocompleteTextboxComponent: debounceMs cannot be negative.');
     }
   }
@@ -431,7 +421,7 @@ export class AutocompleteTextboxComponent<T = unknown>
       return;
     }
 
-    if (!this.ariaLabel.trim() && !this.ariaLabelledBy.trim()) {
+    if (!this.ariaLabel()?.trim() && !this.ariaLabelledBy()?.trim()) {
       console.warn(this.translateService.instant('autocomplete.missingAccessibleNameWarning'));
     }
   }
@@ -469,7 +459,7 @@ export class AutocompleteTextboxComponent<T = unknown>
         /**
          * Debounce avoids launching a search on every keystroke.
          */
-        debounceTime(this.debounceMs),
+        debounceTime(this.debounceMs()),
 
         /**
          * Only the latest search is allowed to remain active. In addition, a search
@@ -485,7 +475,7 @@ export class AutocompleteTextboxComponent<T = unknown>
            */
           this.panel = { kind: 'loading', query };
 
-          return defer(() => this.toObservable(this.searchMethod(query))).pipe(
+          return defer(() => this.toObservable(this.searchMethod()(query))).pipe(
             /**
              * If component state changes before the response arrives, the search is
              * no longer relevant and must be ignored entirely.
@@ -530,7 +520,7 @@ export class AutocompleteTextboxComponent<T = unknown>
    * @param trimmedValue Current text, already trimmed
    */
   private handleTextChange(trimmedValue: string): void {
-    const selectedLabel = this.selectedValue ? this.displayWith(this.selectedValue).trim() : '';
+    const selectedLabel = this.selectedValue ? this.displayWith()(this.selectedValue).trim() : '';
 
     /**
      * If the user edits the text so it no longer matches the current selection,
@@ -573,7 +563,7 @@ export class AutocompleteTextboxComponent<T = unknown>
    * @returns {@code true} if a search should be performed
    */
   private canSearch(trimmedValue: string): boolean {
-    return trimmedValue.length >= this.minChars && !this.hasSelection && !this.disabled;
+    return trimmedValue.length >= this.minChars() && !this.hasSelection && !this.disabled;
   }
 
   /**
@@ -588,7 +578,11 @@ export class AutocompleteTextboxComponent<T = unknown>
       return value;
     }
 
-    return from(Promise.resolve(value));
+    if (value instanceof Promise) {
+      return from(value);
+    }
+
+    return of(value);
   }
 
   /**
@@ -641,7 +635,7 @@ export class AutocompleteTextboxComponent<T = unknown>
 
           this.resolvingValueCount++;
 
-          return defer(() => this.toObservable(this.resolveByValue(value))).pipe(
+          return defer(() => this.toObservable(this.resolveByValue()(value))).pipe(
             take(1),
             map(
               (resolvedOption): ResolvedWriteValue<T> => ({
@@ -671,7 +665,7 @@ export class AutocompleteTextboxComponent<T = unknown>
          */
         this.selectedValue = resolvedOption;
         this.setTextProgrammatically(
-          resolvedOption ? this.displayWith(resolvedOption) : originalValue,
+          resolvedOption ? this.displayWith()(resolvedOption) : originalValue,
         );
       });
   }
@@ -909,9 +903,9 @@ export class AutocompleteTextboxComponent<T = unknown>
 
     this.selectedValue = option;
     this.closePanelSilently();
-    this.setTextProgrammatically(this.displayWith(option));
+    this.setTextProgrammatically(this.displayWith()(option));
     this.selectedChange.emit(option);
-    this.onChange(this.valueWith(option));
+    this.onChange(this.valueWith()(option));
     this.onTouched();
   }
 
@@ -1098,6 +1092,6 @@ export class AutocompleteTextboxComponent<T = unknown>
    * search-related feedback.
    */
   get hasSearchableText(): boolean {
-    return this.textControl.value.trim().length >= this.minChars;
+    return this.textControl.value.trim().length >= this.minChars();
   }
 }

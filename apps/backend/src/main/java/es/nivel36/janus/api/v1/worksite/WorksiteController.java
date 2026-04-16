@@ -16,11 +16,12 @@
 package es.nivel36.janus.api.v1.worksite;
 
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
@@ -88,12 +90,13 @@ public class WorksiteController {
 	 */
 	@GetMapping
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
-	public ResponseEntity<List<WorksiteResponse>> findAllWorksites() {
-		logger.debug("List worksites ACTION performed");
+	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(final @RequestParam(required = false) String query,
+			final Pageable pageable) {
+		logger.debug("Search worksites ACTION performed");
 
-		final List<Worksite> worksites = this.worksiteService.findAllWorksites();
-		final List<WorksiteResponse> responses = worksites.stream().map(this.worksiteResponseMapper::map).toList();
-		return ResponseEntity.ok(responses);
+		final Page<WorksiteResponse> worksites = this.worksiteService.searchWorksites(query, pageable)
+				.map(this.worksiteResponseMapper::map);
+		return ResponseEntity.ok(worksites);
 	}
 
 	/**
@@ -198,7 +201,8 @@ public class WorksiteController {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
 			}
 
-			if (!request.ownerEmployeeEmail().equals(authenticatedEmail) || !this.employeeService.isAssignedToWorksite(worksiteCode, authenticatedEmail)) {
+			if (!request.ownerEmployeeEmail().equals(authenticatedEmail)
+					|| !this.employeeService.isAssignedToWorksite(worksiteCode, authenticatedEmail)) {
 				throw new AccessDeniedException("Employees can only update their personal worksites");
 			}
 

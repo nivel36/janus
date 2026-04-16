@@ -5,14 +5,12 @@ import {
   effect,
   inject,
   input,
-  resource,
   signal,
 } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { WorksiteApiService } from '../../services/worksite-api.service';
-import { Worksite } from '../../models/worksite';
+import { WorksiteApiService, WorksitePage } from '../../services/worksite-api.service';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 
 @Component({
@@ -29,45 +27,45 @@ export class WorksiteTableComponent {
   private readonly worksiteApiService = inject(WorksiteApiService);
 
   readonly query = input('');
+  readonly refreshToken = input(0);
 
   protected readonly currentPage = signal(1);
 
-  protected readonly worksitesResource = resource<Worksite[], void>({
-    loader: () => firstValueFrom(this.worksiteApiService.findAll()),
-    defaultValue: [],
+  protected readonly normalizedQuery = computed(() => this.query().trim());
+
+  protected readonly worksitesResource = rxResource<
+    WorksitePage,
+    { refreshToken: number; page: number; query: string }
+  >({
+    params: () => ({
+      refreshToken: this.refreshToken(),
+      page: this.currentPage(),
+      query: this.normalizedQuery(),
+    }),
+    stream: ({ params }) =>
+      this.worksiteApiService.findAll(
+        params.page - 1,
+        WorksiteTableComponent.PAGE_SIZE,
+        params.query,
+      ),
+    defaultValue: {
+      items: [],
+      totalItems: 0,
+      page: 0,
+      pageSize: WorksiteTableComponent.PAGE_SIZE,
+      totalPages: 0,
+    },
   });
 
-  protected readonly worksites = computed(() => this.worksitesResource.value());
+  protected readonly worksites = computed(() => this.worksitesResource.value().items);
 
-  protected readonly normalizedQuery = computed(() => this.query().trim().toLowerCase());
+  protected readonly totalItems = computed(() => this.worksitesResource.value().totalItems);
 
-  protected readonly filteredWorksites = computed(() => {
-    const normalizedQuery = this.normalizedQuery();
+  protected readonly pagedWorksites = computed(() => this.worksites());
 
-    if (normalizedQuery === '') {
-      return this.worksites();
-    }
-
-    return this.worksites().filter((worksite) => {
-      const code = worksite.code.toLowerCase();
-      const name = worksite.name.toLowerCase();
-      const scope = worksite.scope.toLowerCase();
-
-      return (
-        code.includes(normalizedQuery) ||
-        name.includes(normalizedQuery) ||
-        scope.includes(normalizedQuery)
-      );
-    });
-  });
-
-  protected readonly totalItems = computed(() => this.filteredWorksites().length);
-
-  protected readonly pagedWorksites = computed(() => {
-    const start = (this.currentPage() - 1) * WorksiteTableComponent.PAGE_SIZE;
-    const end = start + WorksiteTableComponent.PAGE_SIZE;
-
-    return this.filteredWorksites().slice(start, end);
+  private readonly resetPageOnQueryChangeEffect = effect(() => {
+    this.normalizedQuery();
+    this.currentPage.set(1);
   });
 
   private readonly pageSyncEffect = effect(() => {
@@ -86,10 +84,8 @@ export class WorksiteTableComponent {
     () =>
       !this.worksitesResource.isLoading() &&
       this.worksitesResource.error() === undefined &&
-      this.filteredWorksites().length === 0,
+      this.totalItems() === 0,
   );
-
-  protected readonly hasActiveQuery = computed(() => this.normalizedQuery() !== '');
 
   protected onPageChange(page: number): void {
     this.currentPage.set(page);

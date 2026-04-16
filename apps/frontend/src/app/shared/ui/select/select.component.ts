@@ -1,36 +1,41 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CommonModule } from '@angular/common';
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
 /**
- * Option item rendered in the select dropdown.
+ * Represents a single option rendered by the select component.
+ *
+ * @typeParam TValue - String-based value type propagated by Angular Forms.
  */
 export interface SelectOption<TValue extends string = string> {
   /**
-   * Persisted value propagated through Angular Forms.
+   * Value assigned to the native option element and propagated to the form model.
    */
   value: TValue;
 
   /**
-   * Translation key rendered as label.
+   * Translation key used to render the visible option label.
    */
   labelKey: string;
 }
 
 /**
- * Styled select component that keeps a consistent visual appearance
- * with the shared autocomplete component.
+ * Native select wrapper with application-specific styling and Angular Forms support.
+ *
+ * <p>This component implements {@link ControlValueAccessor} so it can be bound
+ * through reactive forms or template-driven forms.</p>
+ *
+ * @typeParam TValue - String-based value type handled by the component.
  */
 @Component({
   selector: 'app-select',
   standalone: true,
   imports: [TranslatePipe],
   templateUrl: './select.component.html',
-  styleUrl: './select.component.css',
+  styleUrls: ['./select.component.css'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -41,48 +46,87 @@ export interface SelectOption<TValue extends string = string> {
 })
 export class SelectComponent<TValue extends string = string> implements ControlValueAccessor {
   /**
-   * Options displayed in the native select element.
+   * List of options rendered in the native select element.
    */
-  @Input({ required: true }) options: readonly SelectOption<TValue>[] = [];
+  readonly options = input.required<readonly SelectOption<TValue>[]>();
 
   /**
-   * Identifier forwarded to the native control.
+   * Optional accessible label used when no visible external label is present.
    */
-  @Input() inputId = '';
+  readonly ariaLabel = input<string>();
 
   /**
-   * Accessible name used when no external label exists.
+   * Currently selected value.
    */
-  @Input() ariaLabel = '';
-
   value: TValue | null = null;
+
+  /**
+   * Whether the control is disabled.
+   */
   disabled = false;
 
+  /**
+   * Callback registered by Angular Forms to propagate value changes.
+   */
   private onChange: (value: TValue | null) => void = () => {};
+
+  /**
+   * Callback registered by Angular Forms to mark the control as touched.
+   */
   private onTouched: () => void = () => {};
 
+  /**
+   * Writes an external form value into the component.
+   *
+   * @param value - Value provided by Angular Forms.
+   */
   writeValue(value: TValue | null): void {
     this.value = value;
   }
 
+  /**
+   * Registers the callback invoked when the component value changes.
+   *
+   * @param fn - Change callback provided by Angular Forms.
+   */
   registerOnChange(fn: (value: TValue | null) => void): void {
     this.onChange = fn;
   }
 
+  /**
+   * Registers the callback invoked when the component is touched.
+   *
+   * @param fn - Touched callback provided by Angular Forms.
+   */
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
+  /**
+   * Updates the disabled state of the component.
+   *
+   * @param isDisabled - {@code true} to disable the component; {@code false} otherwise.
+   */
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
   }
 
+  /**
+   * Handles selection changes coming from the native select element.
+   *
+   * @param event - DOM change event emitted by the select element.
+   */
   onSelectionChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-    this.value = (value || null) as TValue | null;
+    const select = event.target as HTMLSelectElement;
+    const selectedValue = select.value;
+
+    this.value = (selectedValue || null) as TValue | null;
     this.onChange(this.value);
   }
 
+  /**
+   * Marks the component as touched.
+   */
   markTouched(): void {
     this.onTouched();
   }

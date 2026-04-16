@@ -49,12 +49,10 @@ body {
     margin: 0 0 1rem 0;
 }
 
-.clock-in-card .clock-container.card-hour-container .card-hour {
+.clock-in-card .clock-time.card-hour {
     font-size: 3rem;
-}
-
-.clock-in-card .clock-container.card-hour-container {
     margin-bottom: 1rem;
+    font-weight: 700;
 }
 
 .card.clock-in-card .card-body {
