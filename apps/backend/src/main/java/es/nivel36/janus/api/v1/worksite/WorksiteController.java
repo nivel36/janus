@@ -90,7 +90,8 @@ public class WorksiteController {
 	 */
 	@GetMapping
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
-	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(final @RequestParam(required = false) String query,
+	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(
+			final @RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "query must contain only letters, digits, underscores or hyphens (max 50)") String query,
 			final Pageable pageable) {
 		logger.debug("Search worksites ACTION performed");
 
