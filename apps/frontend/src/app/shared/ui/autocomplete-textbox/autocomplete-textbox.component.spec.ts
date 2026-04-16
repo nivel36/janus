@@ -14,6 +14,15 @@ class MockTranslateService {
   readonly onLangChange = new Subject<any>();
   readonly onTranslationChange = new Subject<any>();
   readonly onDefaultLangChange = new Subject<any>();
+  readonly onFallbackLangChange = new Subject<any>();
+
+  getCurrentLang(): string {
+    return 'es-ES';
+  }
+
+  getFallbackLang(): string {
+    return 'en-EN';
+  }
 
   instant(key: string, params?: Record<string, unknown>): string {
     if (key === 'autocomplete.manyResultsAvailable' && params?.['count'] !== undefined) {
