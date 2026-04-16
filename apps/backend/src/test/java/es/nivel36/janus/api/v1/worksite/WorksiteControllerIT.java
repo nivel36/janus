@@ -55,8 +55,8 @@ class WorksiteControllerIT {
 		this.mvc.perform(get(BASE).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-				.andExpect(jsonPath("$[?(@.code=='BCN-HQ')]").exists())
-				.andExpect(jsonPath("$[?(@.code=='BCN-HQ' && @.scope=='GLOBAL')]").exists());
+				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ')]").exists())
+				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ' && @.scope=='GLOBAL')]").exists());
 	}
 
 	@Test
@@ -118,7 +118,7 @@ class WorksiteControllerIT {
 		this.mvc.perform(get(BASE).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$[?(@.code=='%s')]".formatted(code)).exists());
+				.andExpect(jsonPath("$.content[?(@.code=='%s')]".formatted(code)).exists());
 	}
 
 	@Test
@@ -179,6 +179,6 @@ class WorksiteControllerIT {
 
 		this.mvc.perform(get(BASE).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$[?(@.code=='BCN-HQ')]").doesNotExist());
+				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ')]").doesNotExist());
 	}
 }
