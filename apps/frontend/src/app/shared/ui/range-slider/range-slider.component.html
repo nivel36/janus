@@ -1,6 +1,7 @@
 <div class="range-slider">
     <div class="range-slider__header">
         <label class="range-slider__label" [attr.for]="sliderId()">{{ label() }}</label>
+        <span class="range-slider__value">{{ value }}{{ unit() ? ' ' + unit() : '' }}</span>
     </div>
 
     <div class="range-slider__track-wrapper">
