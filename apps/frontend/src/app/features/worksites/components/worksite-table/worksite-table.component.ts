@@ -12,11 +12,12 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { WorksiteApiService, WorksitePage } from '../../services/worksite-api.service';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
+import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
 
 @Component({
   selector: 'app-worksite-table',
   standalone: true,
-  imports: [TranslatePipe, PaginatorComponent],
+  imports: [TranslatePipe, PaginatorComponent, ChipComponent],
   templateUrl: './worksite-table.component.html',
   styleUrl: './worksite-table.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

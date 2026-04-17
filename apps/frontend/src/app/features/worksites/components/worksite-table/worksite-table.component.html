@@ -41,7 +41,9 @@
                     <tr>
                         <td>{{ worksite.code }}</td>
                         <td>{{ worksite.name }}</td>
-                        <td>{{ worksite.scope }}</td>
+                        <td>
+                            <app-chip [label]="worksite.scope" type="default"></app-chip>
+                        </td>
                     </tr>
                 }
             </tbody>
