@@ -1,0 +1,33 @@
+:host {
+    display: inline-block;
+}
+
+.app-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.chip--default {
+    background-color: #f9d600;
+    color: #040404;
+}
+
+.chip--primary {
+    background-color: #7f06a5;
+}
+
+.chip--secondary {
+    background-color: #1431a9;
+}
+
+.chip--tertiary {
+    background-color: #615300;
+}
