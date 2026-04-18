@@ -17,7 +17,6 @@ package es.nivel36.janus.api.v1.worksite;
 
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteScope;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -30,8 +29,6 @@ import jakarta.validation.constraints.Pattern;
  * @param timeZone           the new {@link java.time.ZoneId} identifier of the
  *                           worksite; must contain between 1 and 80 characters
  * @param scope              the new visibility scope of the worksite
- * @param ownerEmployeeEmail optional owner employee identifier; mandatory only
- *                           for personal worksites
  */
 public record UpdateWorksiteRequest( //
 		@NotBlank(message = "name must not be blank") //
@@ -47,16 +44,6 @@ public record UpdateWorksiteRequest( //
 		String timeZone, //
 
 		@NotNull(message = "scope must not be null") //
-		WorksiteScope scope, //
+		WorksiteScope scope) {
 
-		@Pattern( //
-				regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-				message = "must be a valid and safe email address (max 254)" //
-		) //
-		String ownerEmployeeEmail) {
-
-	@AssertTrue(message = "ownerEmployeeEmail must not be null when scope is PERSONAL")
-	public boolean isOwnerEmailValidForScope() {
-		return this.scope != WorksiteScope.PERSONAL || this.ownerEmployeeEmail != null;
-	}
 }

@@ -69,8 +69,7 @@ class WorksiteControllerIT {
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.code").value("BCN-HQ"))
 				.andExpect(jsonPath("$.name").value("Barcelona Headquarters"))
-				.andExpect(jsonPath("$.timeZone").value("UTC+02:00")).andExpect(jsonPath("$.scope").value("GLOBAL"))
-				.andExpect(jsonPath("$.ownerEmployeeEmail").isEmpty());
+				.andExpect(jsonPath("$.timeZone").value("UTC+02:00")).andExpect(jsonPath("$.scope").value("GLOBAL"));
 	}
 
 	@Test
@@ -112,8 +111,7 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.code").value(code)) //
 				.andExpect(jsonPath("$.name").value("Madrid Hub")) //
 				.andExpect(jsonPath("$.timeZone").value("Europe/Madrid")) //
-				.andExpect(jsonPath("$.scope").value("GLOBAL")) //
-				.andExpect(jsonPath("$.ownerEmployeeEmail").isEmpty());
+				.andExpect(jsonPath("$.scope").value("GLOBAL"));
 
 		this.mvc.perform(get(BASE).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
@@ -128,13 +126,14 @@ class WorksiteControllerIT {
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void testCreatePersonalShouldReturn201AndBody() throws Exception {
 		final String body = """
-				  {"code":"ABEL-HOME","name":"Home Office","timeZone":"Europe/Madrid","scope":"PERSONAL","ownerEmployeeEmail":"aferrer@nivel36.es"}
+				  {"code":"ABEL-HOME","name":"Home Office","timeZone":"Europe/Madrid","scope":"PERSONAL"}
 				""";
 
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isCreated())
-				.andExpect(jsonPath("$.code").value("ABEL-HOME")).andExpect(jsonPath("$.scope").value("PERSONAL"))
-				.andExpect(jsonPath("$.ownerEmployeeEmail").value("aferrer@nivel36.es"));
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.andExpect(status().isCreated()) //
+				.andExpect(jsonPath("$.code").value("ABEL-HOME")) //
+				.andExpect(jsonPath("$.scope").value("PERSONAL")); //
 	}
 
 	@Test
@@ -157,16 +156,15 @@ class WorksiteControllerIT {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','ASSIGNED')" })
 	void testUpdateToPersonalShouldReturn200AndUpdatedBody() throws Exception {
 		final String body = """
-				  {"name":"Barcelona Home","timeZone":"UTC+1","scope":"PERSONAL","ownerEmployeeEmail":"aferrer@nivel36.es"}
+				  {"name":"Barcelona Home","timeZone":"UTC+1","scope":"GLOBAL"}
 				""";
 
 		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.scope").value("PERSONAL"))
-				.andExpect(jsonPath("$.ownerEmployeeEmail").value("aferrer@nivel36.es"));
+				.andExpect(jsonPath("$.scope").value("GLOBAL"));
 	}
 
 	@Test

@@ -49,7 +49,7 @@ class WorksiteServiceTest {
 		final Schedule schedule = new Schedule("STD-WH", "Standard Work Hours");
 		final Employee employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", schedule);
 		final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
-				WorksiteScope.ASSIGNED, null);
+				WorksiteScope.ASSIGNED);
 		when(this.employeeService.isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ")).thenReturn(true);
 
 		assertDoesNotThrow(() -> this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite));
@@ -61,7 +61,7 @@ class WorksiteServiceTest {
 		final Schedule schedule = new Schedule("STD-WH", "Standard Work Hours");
 		final Employee employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", schedule);
 		final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
-				WorksiteScope.ASSIGNED, null);
+				WorksiteScope.ASSIGNED);
 		when(this.employeeService.isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ")).thenReturn(false);
 
 		assertThrows(WorksiteAccessDeniedException.class,

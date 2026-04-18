@@ -87,26 +87,6 @@ class TimeLogControllerIT {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',1)"//
-	})
-	void testClockInShouldAllowOwnPersonalWorksite() throws Exception {
-		final String entry = "2025-08-04T09:30:00Z";
-
-		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
-				.param("worksiteCode", "HOME-AF") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isCreated()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.entryTime").value(entry)) //
-				.andExpect(jsonPath("$.worksiteCode").value("HOME-AF"));
-	}
-
-	@Test
-	@Sql(statements = { //
-			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-PROJ','Barcelona Project Site','UTC+2','ASSIGNED')",
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)"//
 	})
@@ -142,28 +122,6 @@ class TimeLogControllerIT {
 				.andExpect(jsonPath("$.title").value("Worksite access denied")) //
 				.andExpect(jsonPath("$.detail").value(
 						"Employee aferrer@nivel36.es cannot use assigned worksite BCN-PROJ because it is not assigned"));
-	}
-
-	@Test
-	@Sql(statements = { //
-			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
-			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-ADA','Home Office Ada','UTC+2','PERSONAL',2)"//
-	})
-	void testClockInShouldRejectForeignPersonalWorksite() throws Exception {
-		final String entry = "2025-08-04T09:30:00Z";
-
-		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
-				.param("worksiteCode", "HOME-ADA") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isForbidden()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
-				.andExpect(jsonPath("$.title").value("Worksite access denied")) //
-				.andExpect(jsonPath("$.detail").value(
-						"Employee aferrer@nivel36.es cannot use personal worksite HOME-ADA because it belongs to another employee"));
 	}
 
 	@Test
@@ -276,29 +234,6 @@ class TimeLogControllerIT {
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
 				.andExpect(jsonPath("$.exitTime").value(exit)) //
 				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
-	}
-
-	@Test
-	@Sql(statements = { //
-			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
-			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',2)",
-			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES (1,1,'2025-08-04T07:30:00Z'::timestamp)" })
-	void testClockOutShouldAllowClosingOpenTimeLogAfterPersonalWorksiteTransfer() throws Exception {
-		final String entry = "2025-08-04T07:30:00Z";
-		final String exit = "2025-08-04T16:00:00Z";
-
-		this.mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
-				.param("worksiteCode", "HOME-AF") //
-				.param("exitTime", exit).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.entryTime").value(entry)) //
-				.andExpect(jsonPath("$.exitTime").value(exit)) //
-				.andExpect(jsonPath("$.worksiteCode").value("HOME-AF"));
 	}
 
 	@Test

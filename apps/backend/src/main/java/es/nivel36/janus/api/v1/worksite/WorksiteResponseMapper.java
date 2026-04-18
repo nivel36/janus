@@ -20,7 +20,6 @@ import java.time.ZoneId;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteScope;
 
@@ -40,8 +39,7 @@ public class WorksiteResponseMapper implements Mapper<Worksite, WorksiteResponse
 		final String name = worksite.getName();
 		final ZoneId timeZone = worksite.getTimeZone();
 		final WorksiteScope scope = worksite.getScope();
-		final Employee ownerEmployee = worksite.getOwnerEmployee();
-		final String ownerEmployeeEmail = ownerEmployee == null ? null : ownerEmployee.getEmail();
-		return new WorksiteResponse(code, name, timeZone.getId(), scope, ownerEmployeeEmail);
+
+		return new WorksiteResponse(code, name, timeZone.getId(), scope);
 	}
 }

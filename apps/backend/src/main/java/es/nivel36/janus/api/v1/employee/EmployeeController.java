@@ -39,9 +39,6 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
-import es.nivel36.janus.service.worksite.Worksite;
-import es.nivel36.janus.service.worksite.WorksiteScope;
-import es.nivel36.janus.service.worksite.WorksiteService;
 import es.nivel36.janus.util.KeycloakJwtRolesConverter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -57,7 +54,6 @@ public class EmployeeController {
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
 	private final EmployeeService employeeService;
-	private final WorksiteService worksiteService;
 	private final ScheduleService scheduleService;
 	private final Mapper<Employee, EmployeeResponse> employeeResponseMapper;
 
@@ -66,18 +62,15 @@ public class EmployeeController {
 	 *
 	 * @param employeeService        service handling {@link Employee} domain
 	 *                               operations; must not be {@code null}
-	 * @param worksiteService        service managing {@link Worksite} associations;
-	 *                               must not be {@code null}
 	 * @param scheduleService        service retrieving {@link Schedule}
 	 *                               information; must not be {@code null}
 	 * @param employeeResponseMapper mapper converting {@link Employee} entities to
 	 *                               {@link EmployeeResponse} DTOs; must not be
 	 *                               {@code null}
 	 */
-	public EmployeeController(final EmployeeService employeeService, final WorksiteService worksiteService,
+	public EmployeeController(final EmployeeService employeeService, 
 			final ScheduleService scheduleService, final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
-		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.employeeResponseMapper = Objects.requireNonNull(employeeResponseMapper,
 				"employeeResponseMapper can't be null");
@@ -164,71 +157,6 @@ public class EmployeeController {
 		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, request.name(),
 				request.surname(), schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
-		return ResponseEntity.ok(response);
-	}
-
-	/**
-	 * Adds a {@link Worksite} to an {@link Employee}.
-	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
-	 * @param worksiteCode  the worksite business code; must not be {@code null}
-	 * @return the updated {@link EmployeeResponse}
-	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
-	@PostMapping("/{employeeEmail}/worksites/{worksiteCode}")
-	public ResponseEntity<EmployeeResponse> addWorksiteToEmployee( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, final @PathVariable("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
-			) //
-			String worksiteCode, final @AuthenticationPrincipal Jwt jwt) {
-		logger.debug("Add worksite to employee ACTION performed");
-
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		if (worksite.getScope() != WorksiteScope.ASSIGNED) {
-			this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
-		}
-		this.employeeService.addWorksiteToEmployee(worksite, employee);
-
-		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
-		return ResponseEntity.ok(response);
-	}
-
-	/**
-	 * Removes a {@link Worksite} from an {@link Employee}.
-	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
-	 * @param worksiteCode  the worksite business code; must not be {@code null}
-	 * @return the updated {@link EmployeeResponse}
-	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
-	@DeleteMapping("/{employeeEmail}/worksites/{worksiteCode}")
-	public ResponseEntity<EmployeeResponse> removeWorksiteFromEmployee( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, final @PathVariable("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
-			) //
-			String worksiteCode) {
-		logger.debug("Remove worksite from employee ACTION performed");
-
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		this.employeeService.removeWorksiteFromEmployee(worksite, employee);
-
-		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
 		return ResponseEntity.ok(response);
 	}
 

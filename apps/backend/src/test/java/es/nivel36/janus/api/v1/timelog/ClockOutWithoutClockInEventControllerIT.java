@@ -65,7 +65,7 @@ class ClockOutWithoutClockInEventControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
-			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',2)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
 	void testFindClockOutWithoutClockInEventShouldAllowTransferredPersonalWorksite() throws Exception {
 		final String exit = "2025-08-04T16:00:00Z";
@@ -87,7 +87,7 @@ class ClockOutWithoutClockInEventControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
-			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',2)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
 	void testResolveClockOutWithoutClockInEventShouldAllowTransferredPersonalWorksite() throws Exception {
 		final String exit = "2025-08-04T16:00:00Z";
@@ -114,7 +114,7 @@ class ClockOutWithoutClockInEventControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
-			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',2)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
 	void testInvalidateClockOutWithoutClockInEventShouldAllowTransferredPersonalWorksite() throws Exception {
 		final String exit = "2025-08-04T16:00:00Z";
@@ -138,7 +138,7 @@ class ClockOutWithoutClockInEventControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
-			"INSERT INTO worksite(id,code,name,time_zone,scope,owner_employee_id) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','PERSONAL',2)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
 	void testResolveClockOutWithoutClockInEventShouldReturnForbiddenWhenManualEntryDisabled() throws Exception {
 		final String exit = "2025-08-04T16:00:00Z";

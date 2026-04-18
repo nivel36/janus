@@ -37,9 +37,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -149,20 +147,6 @@ public class Worksite implements Serializable {
 	private WorksiteScope scope;
 
 	/**
-	 * Owner employee of a personal worksite.
-	 *
-	 * <p>
-	 * This association is optional for {@link WorksiteScope#GLOBAL} and
-	 * {@link WorksiteScope#ASSIGNED} worksites. For {@link WorksiteScope#PERSONAL}
-	 * worksites, it is mandatory and identifies the single employee that owns the
-	 * worksite.
-	 * </p>
-	 */
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "owner_employee_id")
-	private Employee ownerEmployee;
-
-	/**
 	 * Logical deletion flag.
 	 *
 	 * <p>
@@ -223,7 +207,7 @@ public class Worksite implements Serializable {
 	 * @throws IllegalArgumentException if {@code code} or {@code name} is blank
 	 */
 	public Worksite(final String code, final String name, final ZoneId timeZone) {
-		this(code, name, timeZone, WorksiteScope.GLOBAL, null);
+		this(code, name, timeZone, WorksiteScope.GLOBAL);
 	}
 
 	/**
@@ -246,12 +230,11 @@ public class Worksite implements Serializable {
 	 * @throws IllegalArgumentException if {@code code} or {@code name} is blank, or
 	 *                                  if a global worksite receives an owner
 	 */
-	public Worksite(final String code, final String name, final ZoneId timeZone, final WorksiteScope scope,
-			final Employee ownerEmployee) {
+	public Worksite(final String code, final String name, final ZoneId timeZone, final WorksiteScope scope) {
 		this.code = Strings.requireNonBlank(code, "code can't be null or blank");
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 		this.timeZone = Objects.requireNonNull(timeZone, "timeZone can't be null");
-		this.applyScope(scope, ownerEmployee);
+		this.scope = Objects.requireNonNull(scope, "scope can't be null");
 	}
 
 	public Long getId() {
@@ -314,41 +297,23 @@ public class Worksite implements Serializable {
 	}
 
 	/**
-	 * Returns the owner employee when the worksite is personal.
+	 * Updates the scope classification of the worksite. The scope can only
+	 * increase.
 	 *
-	 * @return the owner employee, or {@code null} for global/assigned worksites
+	 * @param scope the new scope; must not be {@code null}
+	 *
+	 * @throws NullPointerException     if {@code scope} is {@code null}
+	 * @throws IllegalArgumentException if the is decreased
 	 */
-	public Employee getOwnerEmployee() {
-		return this.ownerEmployee;
-	}
-
-	/**
-	 * Updates the scope classification of the worksite while enforcing the
-	 * consistency contract between {@code scope} and {@code ownerEmployee}.
-	 *
-	 * @param scope         the new scope; must not be {@code null}
-	 * @param ownerEmployee the new owner employee; required for personal worksites
-	 *                      and forbidden for global/assigned ones
-	 *
-	 * @throws NullPointerException     if {@code scope} is {@code null}, or if a
-	 *                                  personal worksite is updated without owner
-	 * @throws IllegalArgumentException if a global/assigned worksite is updated
-	 *                                  with an owner
-	 */
-	public void updateScope(final WorksiteScope scope, final Employee ownerEmployee) {
-		this.applyScope(scope, ownerEmployee);
-	}
-
-	private void applyScope(final WorksiteScope scope, final Employee ownerEmployee) {
-		this.scope = Objects.requireNonNull(scope, "scope can't be null");
-		if (scope != WorksiteScope.PERSONAL) {
-			if (ownerEmployee != null) {
-				throw new IllegalArgumentException("global or assigned worksites can't have an owner employee");
-			}
-			this.ownerEmployee = null;
+	public void updateScope(final WorksiteScope scope) {
+		Objects.requireNonNull(scope, "scope can't be null");
+		if (this.scope == scope) {
 			return;
 		}
-		this.ownerEmployee = Objects.requireNonNull(ownerEmployee, "personal worksites require an owner employee");
+		if (this.scope == WorksiteScope.GLOBAL || scope == WorksiteScope.PERSONAL) {
+			throw new IllegalArgumentException("Invalid scope transition from " + this.scope + " to " + scope);
+		}
+		this.scope = scope;
 	}
 
 	public boolean isDeleted() {
@@ -431,6 +396,32 @@ public class Worksite implements Serializable {
 	 */
 	void setTimeLogs(final Set<TimeLog> timeLogs) {
 		this.timeLogs = Objects.requireNonNull(timeLogs, "timeLogs can't be null");
+	}
+	
+	/**
+	 * Assigns an employee to the worksite.
+	 *
+	 * @param employee the {@link Employee} to assign; must not be {@code null}
+	 * @return {@code true} if the employee was not already assigned
+	 *
+	 * @throws NullPointerException if employee is {@code null}
+	 */
+	public boolean assignEmployee(final Employee employee) {
+		Objects.requireNonNull(employee, "employee can't be null");
+		return this.employees.add(employee);
+	}
+
+	/**
+	 * Removes an employee from the worksite.
+	 *
+	 * @param employee the {@link Employee} to remove; must not be {@code null}
+	 * @return {@code true} if the employee is removed
+	 *
+	 * @throws NullPointerException if employee is {@code null}
+	 */
+	public boolean removeEmployee(final Employee employee) {
+		Objects.requireNonNull(employee, "employee can't be null");
+		return this.employees.remove(employee);
 	}
 
 	@Override

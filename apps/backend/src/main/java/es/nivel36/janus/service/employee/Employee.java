@@ -319,32 +319,6 @@ public class Employee implements Serializable {
 		this.timeLogs = Objects.requireNonNull(timeLogs, "timeLogs can't be null");
 	}
 
-	/**
-	 * Assigns this employee to the given worksite.
-	 *
-	 * @param worksite the {@link Worksite} to assign; must not be {@code null}
-	 * @return {@code true} if the worksite was not already assigned
-	 *
-	 * @throws NullPointerException if worksite is {@code null}
-	 */
-	public boolean assignToWorksite(final Worksite worksite) {
-		Objects.requireNonNull(worksite, "worksite can't be null");
-		return this.worksites.add(worksite);
-	}
-
-	/**
-	 * Removes this employee from the given worksite.
-	 *
-	 * @param worksite the {@link Worksite} to remove; must not be {@code null}
-	 * @return {@code true} if the worksite was previously assigned
-	 *
-	 * @throws NullPointerException if worksite is {@code null}
-	 */
-	public boolean removeFromWorksite(final Worksite worksite) {
-		Objects.requireNonNull(worksite, "worksite can't be null");
-		return this.worksites.remove(worksite);
-	}
-
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {

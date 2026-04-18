@@ -214,54 +214,6 @@ public class EmployeeService {
 	}
 
 	/**
-	 * Associates the given {@link Worksite} with the specified {@link Employee}.
-	 *
-	 * <p>
-	 * This operation is idempotent: if the association already exists, no changes
-	 * are applied.
-	 * </p>
-	 *
-	 * @param worksite the worksite to associate. Can't be {@code null}.
-	 * @param employee the employee to associate. Can't be {@code null}.
-	 *
-	 * @throws NullPointerException if any parameter is {@code null}
-	 */
-	@Transactional
-	public void addWorksiteToEmployee(final Worksite worksite, final Employee employee) {
-		Objects.requireNonNull(worksite, "worksite can't be null");
-		Objects.requireNonNull(employee, "employee can't be null");
-
-		logger.debug("Adding worksite {} to employee {}", worksite, employee);
-
-		final boolean added = employee.assignToWorksite(worksite);
-		if (added) {
-			this.employeeRepository.save(employee);
-		}
-	}
-
-	/**
-	 * Removes the association between the given {@link Worksite} and
-	 * {@link Employee}.
-	 *
-	 * @param worksite the worksite to remove. Can't be {@code null}.
-	 * @param employee the employee. Can't be {@code null}.
-	 *
-	 * @throws NullPointerException if any parameter is {@code null}
-	 */
-	@Transactional
-	public void removeWorksiteFromEmployee(final Worksite worksite, final Employee employee) {
-		Objects.requireNonNull(worksite, "worksite can't be null");
-		Objects.requireNonNull(employee, "employee can't be null");
-
-		logger.debug("Removing worksite {} from employee {}", worksite, employee);
-
-		final boolean removed = employee.removeFromWorksite(worksite);
-		if (removed) {
-			this.employeeRepository.save(employee);
-		}
-	}
-
-	/**
 	 * Deletes the given {@link Employee}.
 	 *
 	 * <p>

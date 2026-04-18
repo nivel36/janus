@@ -55,12 +55,10 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 * @return the worksites visible to the employee
 	 */
 	@Query("""
-			SELECT DISTINCT w
+			SELECT w
 			FROM Worksite w
-			LEFT JOIN w.employees e
 			WHERE w.scope = es.nivel36.janus.service.worksite.WorksiteScope.GLOBAL
-			OR w.ownerEmployee = :employee
-			OR e = :employee
+			   OR :employee MEMBER OF w.employees
 			""")
 	List<Worksite> findVisibleByEmployee(Employee employee);
 
