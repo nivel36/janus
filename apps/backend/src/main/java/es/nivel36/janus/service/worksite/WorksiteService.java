@@ -195,7 +195,7 @@ public class WorksiteService {
 		if (worksite.getScope() == WorksiteScope.GLOBAL) {
 			return;
 		}
-		if (worksite.getScope() == WorksiteScope.ASSIGNED || worksite.getScope() == WorksiteScope.PERSONAL) {
+		if (worksite.getScope() == WorksiteScope.ASSIGNED) {
 			final boolean assigned = this.employeeService.isAssignedToWorksite(employee.getEmail(), worksite.getCode());
 			if (assigned) {
 				return;

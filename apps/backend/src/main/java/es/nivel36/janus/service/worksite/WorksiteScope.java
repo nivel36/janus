@@ -31,11 +31,6 @@ public enum WorksiteScope {
 	GLOBAL,
 
 	/**
-	 * Worksite owned by a single employee.
-	 */
-	PERSONAL,
-
-	/**
 	 * Worksite available only to employees explicitly assigned through the
 	 * employee-worksite relation.
 	 */

@@ -310,7 +310,7 @@ public class Worksite implements Serializable {
 		if (this.scope == scope) {
 			return;
 		}
-		if (this.scope == WorksiteScope.GLOBAL || scope == WorksiteScope.PERSONAL) {
+		if (this.scope == WorksiteScope.GLOBAL || scope == WorksiteScope.ASSIGNED) {
 			throw new IllegalArgumentException("Invalid scope transition from " + this.scope + " to " + scope);
 		}
 		this.scope = scope;

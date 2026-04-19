@@ -119,22 +119,6 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.content[?(@.code=='%s')]".formatted(code)).exists());
 	}
 
-	@Test
-	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)" })
-	void testCreatePersonalShouldReturn201AndBody() throws Exception {
-		final String body = """
-				  {"code":"ABEL-HOME","name":"Home Office","timeZone":"Europe/Madrid","scope":"PERSONAL"}
-				""";
-
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isCreated()) //
-				.andExpect(jsonPath("$.code").value("ABEL-HOME")) //
-				.andExpect(jsonPath("$.scope").value("PERSONAL")); //
-	}
 
 	@Test
 	@Sql(statements = {

@@ -51,7 +51,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
 /**
- * REST controller responsible for exposing worksite CRUD operations.
+ * REST controller responsible for exposing worksite operations.
  */
 @RestController
 @RequestMapping("/api/v1/worksites")
@@ -76,12 +76,14 @@ public class WorksiteController {
 	public WorksiteController(final WorksiteService worksiteService,
 			final ApplicationSettingsService applicationSettingsService, final EmployeeService employeeService,
 			final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
-		this.worksiteService = Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
-				"applicationSettingsService can't be null");
-		this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService can't be null");
-		this.worksiteResponseMapper = Objects.requireNonNull(worksiteResponseMapper,
-				"WorksiteResponseMapper can't be null");
+		this.worksiteService = //
+				Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
+		this.applicationSettingsService = //
+				Objects.requireNonNull(applicationSettingsService, "applicationSettingsService can't be null");
+		this.employeeService = //
+				Objects.requireNonNull(employeeService, "EmployeeService can't be null");
+		this.worksiteResponseMapper = //
+				Objects.requireNonNull(worksiteResponseMapper, "WorksiteResponseMapper can't be null");
 	}
 
 	/**
@@ -141,12 +143,11 @@ public class WorksiteController {
 				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole) {
-			if (request.scope() != WorksiteScope.PERSONAL) {
-				throw new AccessDeniedException("Employees can only create personal worksites");
-			}
-
 			if (!this.applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
+			}
+			if (request.scope() != WorksiteScope.ASSIGNED) {
+				throw new AccessDeniedException("Employees can only create assigned worksites");
 			}
 		}
 
@@ -181,8 +182,8 @@ public class WorksiteController {
 				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
 
 		if (employeeRole) {
-			if (request.scope() != WorksiteScope.PERSONAL) {
-				throw new AccessDeniedException("Employees can only update personal worksites");
+			if (request.scope() != WorksiteScope.ASSIGNED) {
+				throw new AccessDeniedException("Employees can only update assigned worksites");
 			}
 
 			if (!this.applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
@@ -229,11 +230,10 @@ public class WorksiteController {
 	 */
 	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
 	@PutMapping("/{worksiteCode}/employees/{employeeEmail}")
-	public ResponseEntity<Void> addWorksiteToEmployee(
+	public ResponseEntity<Void> assignEmployeeToWorksite(
 			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			final @PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
 			final @AuthenticationPrincipal Jwt jwt) {
-
 		logger.debug("Add worksite to employee ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -256,7 +256,7 @@ public class WorksiteController {
 	 */
 	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
 	@DeleteMapping("/{worksiteCode}/employees/{employeeEmail}")
-	public ResponseEntity<EmployeeResponse> removeWorksiteFromEmployee( //
+	public ResponseEntity<EmployeeResponse> removeEmployeeFromWorksite( //
 			final @PathVariable("worksiteCode") //
 			@Pattern( //
 					regexp = "[A-Za-z0-9_-]{1,50}", //
@@ -273,7 +273,7 @@ public class WorksiteController {
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		this.worksiteService.removeEmployeeFromWorksite(worksite, employee);
-		
+
 		return ResponseEntity.noContent().build();
 	}
 }
