@@ -91,17 +91,17 @@ public class WorksiteService {
 	 * employees and personal worksites are visible to their owner.
 	 * </p>
 	 *
-	 * @param employee the employee whose visible worksites should be retrieved;
-	 *                 must not be {@code null}
+	 * @param employeeEmail email of the employee whose visible worksites should be
+	 *                      retrieved; must not be {@code null}
 	 * @return a list of worksites visible to the given employee; never {@code null}
 	 * @throws NullPointerException if {@code employee} is {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public List<Worksite> findWorksitesByEmployee(final Employee employee) {
-		Objects.requireNonNull(employee, "employee can't be null");
-		logger.debug("Finding worksites visible by employee {}", employee);
+	public List<Worksite> findWorksitesByEmployee(final String employeeEmail) {
+		Objects.requireNonNull(employeeEmail, "employeeEmail");
+		logger.debug("Finding worksites visible by employee {}", employeeEmail);
 
-		final List<Worksite> worksites = this.worksiteRepository.findVisibleByEmployee(employee);
+		final List<Worksite> worksites = this.worksiteRepository.findVisibleByEmployeeEmail(employeeEmail);
 		logger.trace("Found {} worksites", worksites.size());
 		return worksites;
 	}
@@ -180,30 +180,30 @@ public class WorksiteService {
 	 * their owner employee.
 	 * </p>
 	 *
-	 * @param employee the employee attempting to use the worksite; must not be
-	 *                 {@code null}
-	 * @param worksite the target worksite; must not be {@code null}
+	 * @param employeeEmail email of the employee attempting to use the worksite;
+	 *                      must not be {@code null}
+	 * @param worksite      the target worksite; must not be {@code null}
 	 * @throws NullPointerException          if {@code employee} or {@code worksite}
 	 *                                       is {@code null}
 	 * @throws WorksiteAccessDeniedException if the employee is not allowed to use
 	 *                                       the worksite
 	 */
-	public void assertEmployeeCanUseWorksite(final Employee employee, final Worksite worksite) {
-		Objects.requireNonNull(employee, "employee can't be null");
+	public void assertEmployeeCanUseWorksite(final String employeeEmail, final Worksite worksite) {
+		Objects.requireNonNull(employeeEmail, "employeeEmail can't be null");
 		Objects.requireNonNull(worksite, "worksite can't be null");
 
 		if (worksite.getScope() == WorksiteScope.GLOBAL) {
 			return;
 		}
 		if (worksite.getScope() == WorksiteScope.ASSIGNED) {
-			final boolean assigned = this.employeeService.isAssignedToWorksite(employee.getEmail(), worksite.getCode());
+			final boolean assigned = this.employeeService.isAssignedToWorksite(employeeEmail, worksite.getCode());
 			if (assigned) {
 				return;
 			}
-			logger.warn("Employee {} is not assigned to worksite {}", employee.getEmail(), worksite.getCode());
+			logger.warn("Employee {} is not assigned to worksite {}", employeeEmail, worksite.getCode());
 			throw new WorksiteAccessDeniedException(
-					"Employee %s cannot use assigned worksite %s because it is not assigned"
-							.formatted(employee.getEmail(), worksite.getCode()));
+					"Employee %s cannot use assigned worksite %s because it is not assigned".formatted(employeeEmail,
+							worksite.getCode()));
 		}
 	}
 
@@ -260,7 +260,7 @@ public class WorksiteService {
 		Objects.requireNonNull(worksite, "worksite can't be null");
 		logger.debug("Deleting worksite {}", worksite);
 
-		final boolean inUse = this.worksiteRepository.hasEmployees(worksite);
+		final boolean inUse = this.worksiteRepository.hasEmployees(worksite.getCode());
 		if (inUse) {
 			throw new IllegalStateException(
 					"The worksite " + worksite + " can't be deleted because it has assigned employees");

@@ -52,7 +52,7 @@ class WorksiteServiceTest {
 				WorksiteScope.ASSIGNED);
 		when(this.employeeService.isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ")).thenReturn(true);
 
-		assertDoesNotThrow(() -> this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite));
+		assertDoesNotThrow(() -> this.worksiteService.assertEmployeeCanUseWorksite(employee.getEmail(), worksite));
 		verify(this.employeeService).isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ");
 	}
 
@@ -65,7 +65,7 @@ class WorksiteServiceTest {
 		when(this.employeeService.isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ")).thenReturn(false);
 
 		assertThrows(WorksiteAccessDeniedException.class,
-				() -> this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite));
+				() -> this.worksiteService.assertEmployeeCanUseWorksite(employee.getEmail(), worksite));
 		verify(this.employeeService).isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ");
 	}
 }

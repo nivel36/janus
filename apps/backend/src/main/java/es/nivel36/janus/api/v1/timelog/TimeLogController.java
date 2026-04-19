@@ -141,7 +141,7 @@ public class TimeLogController {
 		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
+		final Worksite worksite = this.findWorksiteForNewRecord(employeeEmail, worksiteCode);
 		final TimeLog clockIn;
 		if (entryTime != null) {
 			this.assertManualTimeEntryAllowed();
@@ -195,7 +195,7 @@ public class TimeLogController {
 		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findWorksiteForClockOut(employee, worksiteCode);
+		final Worksite worksite = this.findWorksiteForClockOut(employeeEmail, worksiteCode);
 		final TimeLog clockOut;
 		if (exitTime != null) {
 			this.assertManualTimeEntryAllowed();
@@ -245,7 +245,7 @@ public class TimeLogController {
 		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
+		final Worksite worksite = this.findWorksiteForNewRecord(employeeEmail, worksiteCode);
 		final Instant entryTime = timeLog.entryTime();
 		final Instant exitTime = timeLog.exitTime();
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
@@ -299,32 +299,31 @@ public class TimeLogController {
 			throw new AccessDeniedException("Employees can only search their own time log records");
 		}
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Page<TimeLog> timeLogs;
 		if (fromInstant == null) {
-			timeLogs = this.timeLogService.searchTimeLogsByEmployee(employee, pageable);
+			timeLogs = this.timeLogService.searchTimeLogsByEmployee(employeeEmail, pageable);
 		} else {
-			timeLogs = this.timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, fromInstant, toInstant,
+			timeLogs = this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(employeeEmail, fromInstant, toInstant,
 					pageable);
 		}
 		final Page<TimeLogResponse> timeLogResponse = timeLogs.map(this.timeLogResponseMapper::map);
 		return ResponseEntity.ok(timeLogResponse);
 	}
 
-	private Worksite findWorksiteForNewRecord(final Employee employee, final String worksiteCode) {
+	private Worksite findWorksiteForNewRecord(final String employeeEmail, final String worksiteCode) {
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
+		this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite);
 		return worksite;
 	}
 
-	private Worksite findWorksiteForClockOut(final Employee employee, final String worksiteCode) {
+	private Worksite findWorksiteForClockOut(final String employeeEmail, final String worksiteCode) {
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		try {
-			this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
+			this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite);
 		} catch (final WorksiteAccessDeniedException ex) {
 			// The worksite may have changed between clock-in and clock-out, so we allow the
 			// clock-out.
-			if (!this.timeLogService.hasOpenTimeLog(employee)) {
+			if (!this.timeLogService.hasOpenTimeLog(employeeEmail)) {
 				throw ex;
 			}
 		}
@@ -364,8 +363,7 @@ public class TimeLogController {
 			throw new AccessDeniedException("Employees can only search their own time log records");
 		}
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
+		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employeeEmail, entryTime);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
 		return ResponseEntity.ok(timeLogResponse);
 	}
@@ -391,8 +389,7 @@ public class TimeLogController {
 			final @PathVariable("entryTime") Instant entryTime) {
 		logger.debug("Delete time log ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
+		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employeeEmail, entryTime);
 		this.timeLogService.deleteTimeLog(timeLog);
 		return ResponseEntity.noContent().build();
 	}

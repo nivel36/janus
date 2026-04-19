@@ -24,7 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import es.nivel36.janus.service.employee.Employee;
@@ -47,26 +46,26 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * The {@code end} parameter is exclusive; records with
 	 * {@code entryTime &lt; end} are included.
 	 *
-	 * @param employee    the employee whose time logs are to be retrieved; must not
-	 *                    be {@code null}
-	 * @param worksite    the work site where the time log was recorded; must not be
-	 *                    {@code null}
-	 * @param fromInstant the inclusive lower bound of the time range; must not be
-	 *                    {@code null}
-	 * @param toInstant   the exclusive upper bound of the time range; must not be
-	 *                    {@code null}
-	 * @param page        pagination parameters including offset, size, and sort
-	 *                    order; must not be {@code null}
+	 * @param employeeEmail the email of the employee whose time logs are to be
+	 *                      retrieved; must not be {@code null}
+	 * @param worksiteCode  the code of the work site where the time log was
+	 *                      recorded; must not be {@code null}
+	 * @param fromInstant   the inclusive lower bound of the time range; must not be
+	 *                      {@code null}
+	 * @param toInstant     the exclusive upper bound of the time range; must not be
+	 *                      {@code null}
+	 * @param page          pagination parameters including offset, size, and sort
+	 *                      order; must not be {@code null}
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
 	@Query("""
 			SELECT t FROM TimeLog t
-			WHERE t.employee = :employee
-			AND t.worksite = :worksite
+			WHERE t.employee.email = :employeeEmail
+			AND t.worksite.code = :worksiteCode
 			AND t.entryTime >= :start AND t.entryTime < :end
 			""")
-	Page<TimeLog> searchByEmployeeAndWorksiteAndEntryTimeInRange(Employee employee, Worksite worksite, Instant start,
-			Instant end, Pageable page);
+	Page<TimeLog> searchByEmployeeAndWorksiteAndEntryTimeInRange(String employeeEmail, String worksiteCode,
+			Instant start, Instant end, Pageable page);
 
 	/**
 	 * Retrieves time logs for an {@link Employee} {@link TimeLog} records for the
@@ -77,24 +76,24 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * The {@code end} parameter is exclusive; records with
 	 * {@code entryTime &lt; end} are included.
 	 *
-	 * @param employee    the employee whose time logs are to be retrieved
-	 *                    (required)
-	 * @param fromInstant the inclusive lower bound of the time range; must not be
-	 *                    {@code null}
-	 * @param toInstant   the exclusive upper bound of the time range; must not be
-	 *                    {@code null}
-	 * @param page        pagination parameters including offset, size, and sort
-	 *                    order; must not be {@code null}
+	 * @param employeeEmail the email of the employee whose time logs are to be
+	 *                      retrieved (required)
+	 * @param fromInstant   the inclusive lower bound of the time range; must not be
+	 *                      {@code null}
+	 * @param toInstant     the exclusive upper bound of the time range; must not be
+	 *                      {@code null}
+	 * @param page          pagination parameters including offset, size, and sort
+	 *                      order; must not be {@code null}
 	 * @return a {@link Page} of {@link TimeLog} entries in the range for the given
 	 *         employee
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
 	@Query("""
 			SELECT t FROM TimeLog t
-			WHERE t.employee = :employee
+			WHERE t.employee.email = :employeeEmail
 			AND t.entryTime >= :start AND t.entryTime < :end
 			""")
-	Page<TimeLog> searchByEmployeeAndEntryTimeInRange(Employee employee, Instant start, Instant end, Pageable page);
+	Page<TimeLog> searchByEmployeeAndEntryTimeInRange(String employeeEmail, Instant start, Instant end, Pageable page);
 
 	/**
 	 * Finds the most recent {@link TimeLog} for the specified employee that has not
@@ -105,7 +104,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * @return the most recent open time log, or {@code null} if none exist
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
-	TimeLog findTopByEmployeeAndExitTimeIsNullOrderByEntryTimeDesc(Employee employee);
+	TimeLog findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(String employeeEmail);
 
 	/**
 	 * Retrieves all {@link TimeLog} records for a given employee, with pagination.
@@ -114,40 +113,43 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * method to efficiently browse an employee’s full history of recorded time
 	 * logs.
 	 *
-	 * @param employee the employee whose time logs are to be retrieved
-	 * @param page     pagination parameters including offset, size, and sort order
+	 * @param employeeEmail the email of the employee whose time logs are to be
+	 *                      retrieved
+	 * @param page          pagination parameters including offset, size, and sort
+	 *                      order
 	 * @return a {@link Page} of time logs belonging to the specified employee
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
 	@Query("""
 			SELECT t
 			FROM TimeLog t
-			WHERE t.employee = :employee
+			WHERE t.employee.email = :employeeEmail
 			""")
-	Page<TimeLog> searchTimeLogsByEmployee(@Param("employee") Employee employee, Pageable page);
+	Page<TimeLog> searchTimeLogsByEmployee(String employeeEmail, Pageable page);
 
 	/**
 	 * Retrieves a single {@link TimeLog} for the specified employee that exactly
 	 * matches the provided {@code entryTime}.
 	 *
-	 * @param employee  the employee whose time log is to be retrieved
-	 * @param entryTime the exact entry timestamp of the record
+	 * @param employeeEmail the email of the employee whose time log is to be
+	 *                      retrieved
+	 * @param entryTime     the exact entry timestamp of the record
 	 * @return an {@link Optional} containing the matching time log, or empty if not
 	 *         found
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
-	TimeLog findByEmployeeAndEntryTime(Employee employee, Instant entryTime);
+	TimeLog findByEmployeeEmailAndEntryTime(String employeeEmail, Instant entryTime);
 
 	/**
 	 * Checks whether a {@link TimeLog} exists for the specified employee and exact
 	 * {@code entryTime}.
 	 *
-	 * @param employee  the employee to check for
-	 * @param entryTime the exact entry timestamp to check
+	 * @param employeeEmail the email of the employee to check for
+	 * @param entryTime     the exact entry timestamp to check
 	 * @return {@code true} if a record exists for the given employee and entry
 	 *         time; {@code false} otherwise
 	 */
-	boolean existsByEmployeeAndEntryTimeAndDeletedFalse(Employee employee, Instant entryTime);
+	boolean existsByEmployeeEmailAndEntryTimeAndDeletedFalse(String employeeEmail, Instant entryTime);
 
 	/**
 	 * Returns the list of {@link TimeLog} records for the given employee that are
@@ -172,8 +174,9 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 * </ul>
 	 * </p>
 	 *
-	 * @param from     lower bound (inclusive) for {@code entryTime}
-	 * @param employee the employee whose orphan time logs will be returned
+	 * @param from          lower bound (inclusive) for {@code entryTime}
+	 * @param employeeEmail the email of the employee whose orphan time logs will be
+	 *                      returned
 	 * @return a list of orphan {@link TimeLog} entities (with {@link Employee} and
 	 *         {@link Worksite} initialized) since {@code from}, ordered most recent
 	 *         first
@@ -186,9 +189,9 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 			WHERE t.deleted = false
 			AND t.entryTime >= :from
 			AND t.exitTime IS NOT NULL
-			AND e = :employee
+			AND e.email = :employeeEmail
 			AND t.workShift IS NULL
 			ORDER BY t.entryTime DESC
 			""")
-	List<TimeLog> findOrphanTimeLogsSince(@Param("from") Instant from, @Param("employee") Employee employee);
+	List<TimeLog> findOrphanTimeLogsSince(Instant from, String employeeEmail);
 }

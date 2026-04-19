@@ -51,16 +51,18 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 * the existing association can keep any secondary purpose it may still have.
 	 * </p>
 	 *
-	 * @param employee the employee whose visible worksites are to be retrieved
+	 * @param employeeEmail email of the employee whose visible worksites are to be
+	 *                      retrieved
 	 * @return the worksites visible to the employee
 	 */
 	@Query("""
-			SELECT w
-			FROM Worksite w
-			WHERE w.scope = es.nivel36.janus.service.worksite.WorksiteScope.GLOBAL
-			   OR :employee MEMBER OF w.employees
+			    SELECT DISTINCT w
+			    FROM Worksite w
+			    LEFT JOIN w.employees e
+			    WHERE w.scope = es.nivel36.janus.service.worksite.WorksiteScope.GLOBAL
+			       OR e.email = :employeeEmail
 			""")
-	List<Worksite> findVisibleByEmployee(Employee employee);
+	List<Worksite> findVisibleByEmployeeEmail(String employeeEmail);
 
 	Worksite findByCode(String code);
 
@@ -69,9 +71,9 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	@Query("""
 			SELECT (SIZE(w.employees) > 0)
 			FROM Worksite w
-			WHERE w = :worksite
+			WHERE w.code = :worksiteCode
 			""")
-	boolean hasEmployees(Worksite worksite);
+	boolean hasEmployees(String worksiteCode);
 
 	@Query("""
 			SELECT w

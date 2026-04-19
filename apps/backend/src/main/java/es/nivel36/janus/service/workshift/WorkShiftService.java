@@ -141,7 +141,7 @@ public class WorkShiftService {
 		final LocalDate lockDate = date.plusDays(daysUntilLocked);
 		if (!lockDate.isAfter(today)) {
 			logger.trace("Lock date has passed. Searching the workshift in the data base");
-			final WorkShift workShift = this.workshiftRepository.findByEmployeeAndDate(employee, date);
+			final WorkShift workShift = this.workshiftRepository.findByEmployeeEmailAndDate(employee.getEmail(), date);
 			if (workShift != null) {
 				return workShift;
 			} else {
@@ -164,6 +164,6 @@ public class WorkShiftService {
 		final Instant to = startOfDay.plus(2, ChronoUnit.DAYS); // We add two days to ensure that we cover the 24-hour
 																// shifts of certain professions.
 		final Pageable unpaged = Pageable.unpaged();
-		return this.timeLogService.searchTimeLogsByEmployeeAndEntryTimeInRange(employee, from, to, unpaged);
+		return this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(employee.getEmail(), from, to, unpaged);
 	}
 }

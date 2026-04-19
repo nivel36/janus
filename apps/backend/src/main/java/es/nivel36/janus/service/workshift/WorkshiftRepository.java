@@ -22,8 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-import es.nivel36.janus.service.employee.Employee;
-
 /**
  * Repository contract for persisting and querying {@link WorkShift} aggregates.
  */
@@ -33,19 +31,20 @@ public interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 	 * Retrieves the {@link WorkShift} for a specific employee and date if it has
 	 * already been materialized.
 	 *
-	 * @param employee the employee owning the work shift; must not be {@code null}
-	 * @param date     the local date of the shift; must not be {@code null}
+	 * @param employeeEmail email of the employee owning the work shift; must not be
+	 *                      {@code null}
+	 * @param date          the local date of the shift; must not be {@code null}
 	 * @return the persisted {@link WorkShift} instance, or {@code null} if none
 	 *         exists
 	 */
-	WorkShift findByEmployeeAndDate(Employee employee, LocalDate date);
+	WorkShift findByEmployeeEmailAndDate(String employeeEmail, LocalDate date);
 
 	/**
 	 * Finds the {@link WorkShift} entries for an employee whose {@code date} falls
 	 * within the provided half-open range {@code [fromInclusive, toExclusive)}.
 	 *
-	 * @param employee      the employee whose shifts are requested; must not be
-	 *                      {@code null}
+	 * @param employeeEmail email of the employee whose shifts are requested; must
+	 *                      not be {@code null}
 	 * @param fromInclusive the inclusive lower bound of the date range; must not be
 	 *                      {@code null}
 	 * @param toExclusive   the exclusive upper bound of the date range; must not be
@@ -56,10 +55,10 @@ public interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 	@Query("""
 			SELECT w
 			FROM WorkShift w
-			WHERE w.employee = :employee
+			WHERE w.employee.email = :employeeEmail
 			AND w.date >= :fromInclusive
 			AND w.date < :toExclusive
 			""")
-	Page<WorkShift> findByEmployeeAndRange(Employee employee, LocalDate fromInclusive, LocalDate toExclusive,
+	Page<WorkShift> findByEmployeeEmailAndRange(String employeeEmail, LocalDate fromInclusive, LocalDate toExclusive,
 			Pageable pageable);
 }

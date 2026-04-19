@@ -130,7 +130,7 @@ public class WorkShiftPrecomputeJob {
 		final Employee employee = this.employeeService.findEmployeeById(employeeId);
 		log.trace("Processing employee {}", employee);
 
-		final TimeLogs orphanLogs = this.timeLogService.findOrphanTimeLogs(target, employee);
+		final TimeLogs orphanLogs = this.timeLogService.findOrphanTimeLogs(target, employee.getEmail());
 		if (orphanLogs.isEmpty()) {
 			log.warn("No orphan time logs for employee {} at targetAnchor {}", employee, target);
 			return;

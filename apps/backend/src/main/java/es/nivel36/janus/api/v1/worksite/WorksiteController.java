@@ -240,7 +240,7 @@ public class WorksiteController {
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 
 		if (worksite.getScope() != WorksiteScope.ASSIGNED) {
-			this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
+			this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite);
 		}
 
 		this.worksiteService.addEmployeeToWorksite(worksite, employee);
