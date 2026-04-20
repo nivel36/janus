@@ -1,5 +1,7 @@
 <div class="select" [class.disabled]="disabled">
     <select
+        #nativeSelect
+        [id]="inputId()"
         [disabled]="disabled"
         [attr.aria-label]="ariaLabel()"
         [value]="value ?? ''"

@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, finalize, of, take } from 'rxjs';
 
-import { supportedLanguages } from '../../i18n/language.util';
+import { resolveSupportedLanguage, supportedLanguages } from '../../i18n/language.util';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { TimezoneOption } from '../../../shared/models/timezone-option.model';
 import {
@@ -268,8 +268,10 @@ export class UserPreferencesPageComponent implements OnInit {
    * @param preferences Preferences to display
    */
   private applyPreferences(preferences: UserPreferences): void {
+    const resolvedLocale = resolveSupportedLanguage(preferences.locale);
+
     this.form.reset({
-      locale: preferences.locale,
+      locale: resolvedLocale,
       timeFormat: preferences.timeFormat,
       defaultTimezone: preferences.defaultTimezone,
     });
