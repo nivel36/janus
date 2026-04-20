@@ -17,7 +17,7 @@ export type SupportedLanguage = (typeof supportedLanguages)[number];
 /**
  * Default language used when no supported locale can be resolved.
  */
-export const FALLBACK_LANGUAGE: SupportedLanguage = 'en-EN';
+export const FALLBACK_LANGUAGE: SupportedLanguage = 'es-ES';
 
 /**
  * Resolves a locale to one of the supported languages.
