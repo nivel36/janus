@@ -7,7 +7,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "ng lint"
   },
   "prettier": {
     "printWidth": 100,
@@ -44,11 +45,15 @@
     "@angular/build": "^21.2.7",
     "@angular/cli": "^21.2.7",
     "@angular/compiler-cli": "^21.2.8",
+    "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
     "@types/luxon": "^3.7.1",
+    "angular-eslint": "21.3.1",
     "baseline-browser-mapping": "^2.10.0",
+    "eslint": "^10.0.3",
     "jsdom": "^29.0.2",
     "typescript": "~5.9.3",
+    "typescript-eslint": "8.56.1",
     "vitest": "^4.1.4"
   }
 }
