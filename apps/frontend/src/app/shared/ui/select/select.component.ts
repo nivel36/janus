@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, forwardRef, input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, effect, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -44,7 +44,9 @@ export interface SelectOption<TValue extends string = string> {
     },
   ],
 })
-export class SelectComponent<TValue extends string = string> implements ControlValueAccessor {
+export class SelectComponent<TValue extends string = string>
+  implements ControlValueAccessor, AfterViewInit
+{
   /**
    * List of options rendered in the native select element.
    */
@@ -54,6 +56,16 @@ export class SelectComponent<TValue extends string = string> implements ControlV
    * Optional accessible label used when no visible external label is present.
    */
   readonly ariaLabel = input<string>();
+
+  /**
+   * Optional id forwarded to the native select element.
+   */
+  readonly inputId = input<string>();
+
+  /**
+   * Reference to the underlying native select element.
+   */
+  @ViewChild('nativeSelect') private nativeSelect?: ElementRef<HTMLSelectElement>;
 
   /**
    * Currently selected value.
@@ -75,6 +87,17 @@ export class SelectComponent<TValue extends string = string> implements ControlV
    */
   private onTouched: () => void = () => {};
 
+  constructor() {
+    effect(() => {
+      this.options();
+      this.syncNativeSelection();
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.syncNativeSelection();
+  }
+
   /**
    * Writes an external form value into the component.
    *
@@ -82,6 +105,7 @@ export class SelectComponent<TValue extends string = string> implements ControlV
    */
   writeValue(value: TValue | null): void {
     this.value = value;
+    this.syncNativeSelection();
   }
 
   /**
@@ -129,5 +153,16 @@ export class SelectComponent<TValue extends string = string> implements ControlV
    */
   markTouched(): void {
     this.onTouched();
+  }
+
+  /**
+   * Synchronizes the native select value with the internal model value.
+   */
+  private syncNativeSelection(): void {
+    if (!this.nativeSelect) {
+      return;
+    }
+
+    this.nativeSelect.nativeElement.value = this.value ?? '';
   }
 }
