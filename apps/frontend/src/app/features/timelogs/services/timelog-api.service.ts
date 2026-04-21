@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { TimeLog } from '../models/timelog';
 import { environment } from '../../../../environments/environment';
+import { Page } from '../../../shared/models/page.model';
 
 export interface TimeLogPage {
   items: TimeLog[];
@@ -14,9 +15,8 @@ export interface TimeLogPage {
 
 @Injectable({ providedIn: 'root' })
 export class TimeLogService {
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/employees`;
-
-  constructor(private readonly http: HttpClient) {}
 
   /**
    * The `page` parameter follows Spring Data pagination (0-based index).
@@ -28,14 +28,14 @@ export class TimeLogService {
       .set('size', String(size));
 
     return this.http
-      .get<any>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
+      .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
       .pipe(
         map((r) => ({
-          items: r.content ?? [],
-          totalItems: r.page?.totalElements ?? 0,
-          page: r.page?.number ?? page,
-          pageSize: r.page?.size ?? size,
-          totalPages: r.page?.totalPages ?? 0,
+          items: r.content,
+          totalItems: r.page.totalElements,
+          page: r.page.number,
+          pageSize: r.page.size,
+          totalPages: r.page.totalPages,
         })),
       );
   }
@@ -45,7 +45,7 @@ export class TimeLogService {
 
     return this.http
       .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
-      .pipe(map((r) => r.content?.[0]));
+      .pipe(map((r) => r.content[0]));
   }
 
   clockIn(email: string, worksiteCode: string): Observable<TimeLog> {

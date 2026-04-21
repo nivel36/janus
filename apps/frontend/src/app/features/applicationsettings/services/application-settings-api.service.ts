@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -6,9 +6,9 @@ import { ApplicationSettings } from '../models/application-settings';
 
 @Injectable({ providedIn: 'root' })
 export class ApplicationSettingsApiService {
-  private readonly baseUrl = `${environment.apiBaseUrl}/applicationsettings`;
+  private readonly http = inject(HttpClient);
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly baseUrl = `${environment.apiBaseUrl}/applicationsettings`;
 
   find(): Observable<ApplicationSettings> {
     return this.http.get<ApplicationSettings>(this.baseUrl);

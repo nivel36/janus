@@ -2,37 +2,9 @@ import { Component, DestroyRef, OnInit, inject, input, output } from '@angular/c
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import {
-  Observable,
-  Subject,
-  catchError,
-  debounceTime,
-  defer,
-  distinctUntilChanged,
-  from,
-  isObservable,
-  map,
-  merge,
-  of,
-  switchMap,
-  takeUntil,
-  tap,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import { SearchMethod } from '../../types/search.types';
-
-/**
- * Visual state of the search bar.
- *
- * @typeParam T Type of the result items returned by the search function
- */
-type SearchBarState<T> =
-  | { kind: 'idle' }
-  | { kind: 'loading'; query: string }
-  | { kind: 'results'; query: string; items: T[] }
-  | { kind: 'empty'; query: string }
-  | { kind: 'error'; query: string };
 
 /**
  * Standalone search bar component that owns the asynchronous search pipeline.
@@ -59,7 +31,7 @@ type SearchBarState<T> =
   templateUrl: './search-bar.component.html',
   styleUrl: './search-bar.component.css',
 })
-export class SearchBarComponent<T = unknown> implements OnInit {
+export class SearchBarComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   /**
    * Debounce time, in milliseconds, applied to user typing.

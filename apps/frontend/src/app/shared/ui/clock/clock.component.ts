@@ -41,12 +41,12 @@ export class ClockComponent implements OnInit, OnDestroy {
   /**
    * Human-readable time shown in the UI (for example, `10:15:30`).
    */
-  time: string = '';
+  time = '';
 
   /**
    * ISO-8601 datetime value bound to the `<time datetime>` attribute.
    */
-  isoDateTime: string = '';
+  isoDateTime = '';
 
   /**
    * Internal interval handle used to stop periodic updates on destroy.

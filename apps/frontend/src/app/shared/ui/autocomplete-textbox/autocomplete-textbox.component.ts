@@ -62,7 +62,7 @@ type PanelModel<T> =
  *
  * @typeParam T Type of the resolved option
  */
-type ResolvedWriteValue<T> = {
+interface ResolvedWriteValue<T> {
   /**
    * Original value received from the parent form.
    *
@@ -78,7 +78,7 @@ type ResolvedWriteValue<T> = {
    * value represents an empty state.
    */
   resolvedOption: T | null;
-};
+}
 
 /**
  * Standalone autocomplete component integrated with Angular Reactive Forms

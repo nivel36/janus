@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-interface Page<T> {
+export interface Page<T> {
   content: T[];
   page: {
     size: number;

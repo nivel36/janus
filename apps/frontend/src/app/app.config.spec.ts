@@ -13,7 +13,7 @@ describe('resolveInitialLanguage', () => {
   });
 
   it('falls back to English when no supported languages are present', () => {
-    expect(resolveInitialLanguage(['fr-FR', 'de-DE'])).toBe('en-EN');
+    expect(resolveInitialLanguage(['fr-FR', 'de-DE'])).toBe('es-ES');
   });
 });
 

@@ -55,13 +55,6 @@ export class CurrentUserFacade {
   private readonly preferencesReload$ = new ReplaySubject<void>(1);
 
   /**
-   * Utility to check if a given role exists in the permissions payload.
-   */
-  private hasRole(permissions: any, role: string): boolean {
-    return Array.isArray(permissions?.realmRoles) && permissions.realmRoles.includes(role);
-  }
-
-  /**
    * Emits whether the user is authenticated.
    */
   readonly isAuthenticated$ = this.authService.isAuthenticated$;
@@ -132,7 +125,7 @@ export class CurrentUserFacade {
    * Emits whether the current user has the ADMIN role.
    */
   readonly isAdmin$ = this.permissions$.pipe(
-    map((p) => this.hasRole(p, 'JANUS_ADMIN')),
+    map((p) => p.realmRoles.includes('JANUS_ADMIN')),
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -141,7 +134,7 @@ export class CurrentUserFacade {
    * Emits whether the current user has the USER role.
    */
   readonly isUser$ = this.permissions$.pipe(
-    map((p) => this.hasRole(p, 'JANUS_USER')),
+    map((p) => p.realmRoles.includes('JANUS_USER')),
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -150,7 +143,7 @@ export class CurrentUserFacade {
    * Emits whether the current user has the EMPLOYEE role.
    */
   readonly isEmployee$ = this.permissions$.pipe(
-    map((p) => this.hasRole(p, 'JANUS_EMPLOYEE')),
+    map((p) => p.realmRoles.includes('JANUS_EMPLOYEE')),
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );

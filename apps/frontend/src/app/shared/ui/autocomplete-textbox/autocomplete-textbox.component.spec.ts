@@ -11,10 +11,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AutocompleteTextboxComponent } from './autocomplete-textbox.component';
 
 class MockTranslateService {
-  readonly onLangChange = new Subject<any>();
-  readonly onTranslationChange = new Subject<any>();
-  readonly onDefaultLangChange = new Subject<any>();
-  readonly onFallbackLangChange = new Subject<any>();
+  readonly onLangChange = new Subject<string>();
+  readonly onTranslationChange = new Subject<string>();
+  readonly onDefaultLangChange = new Subject<string>();
+  readonly onFallbackLangChange = new Subject<string>();
 
   getCurrentLang(): string {
     return 'es-ES';

@@ -1,7 +1,6 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CommonModule } from '@angular/common';
 import { Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 

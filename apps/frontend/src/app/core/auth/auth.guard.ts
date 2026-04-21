@@ -7,13 +7,19 @@ import { map, take } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
+interface ClientRole {
+  clientId: string;
+  role: string;
+}
+
 interface RouteRoleData {
   realmRole?: string | string[];
-  clientRole?: { clientId: string; role: string } | Array<{ clientId: string; role: string }>;
+  clientRole?: ClientRole | ClientRole[];
 }
 
 function asArray<T>(v: T | T[] | null | undefined): T[] {
-  return v == null ? [] : Array.isArray(v) ? v : [v];
+  if (v == null) return [];
+  return Array.isArray(v) ? v : [v];
 }
 
 export const authGuard: CanActivateFn = (route, state) => {

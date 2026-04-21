@@ -54,7 +54,7 @@ type ClockActionState =
 /**
  * View model consumed by the template.
  */
-type TimelogClockCardViewModel = {
+interface TimelogClockCardViewModel {
   hasClockInOutPermission: boolean;
   isClockActionLoading: boolean;
   clockActionFeedbackKey?: string;
@@ -65,15 +65,15 @@ type TimelogClockCardViewModel = {
   // NUEVO
   locale?: string;
   use12Hour: boolean;
-};
+}
 
 /**
  * Resolved data required to execute a clock action.
  */
-type ResolvedClockAction = {
+interface ResolvedClockAction {
   shouldClockOut: boolean;
   worksiteCode: string;
-};
+}
 
 /**
  * Self-contained card responsible for displaying and executing the clock in / clock out action.

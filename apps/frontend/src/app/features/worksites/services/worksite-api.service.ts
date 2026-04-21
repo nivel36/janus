@@ -2,11 +2,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { CreateWorksitePayload, UpdateWorksitePayload, Worksite } from '../models/worksite';
+import { Page } from '../../../shared/models/page.model';
 
 export interface WorksitePage {
   items: Worksite[];
@@ -25,8 +26,7 @@ export interface WorksitePage {
 @Injectable({ providedIn: 'root' })
 export class WorksiteApiService {
   private readonly baseUrl = `${environment.apiBaseUrl}/worksites`;
-
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   /**
    * Retrieves all worksites visible to the authenticated user.
@@ -44,7 +44,7 @@ export class WorksiteApiService {
       params = params.set('query', normalizedQuery);
     }
 
-    return this.http.get<any>(this.baseUrl, { params }).pipe(
+    return this.http.get<Page<Worksite>>(this.baseUrl, { params }).pipe(
       map((r) => ({
         items: r.content ?? [],
         totalItems: r.page?.totalElements ?? 0,

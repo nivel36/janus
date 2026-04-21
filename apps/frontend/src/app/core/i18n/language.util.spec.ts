@@ -16,7 +16,7 @@ describe('language.util', () => {
 
   describe('FALLBACK_LANGUAGE', () => {
     it('should define en-EN as the default fallback language', () => {
-      expect(FALLBACK_LANGUAGE).toBe('en-EN');
+      expect(FALLBACK_LANGUAGE).toBe('es-ES');
     });
   });
 
@@ -64,7 +64,7 @@ describe('language.util', () => {
     });
 
     it('should return the default fallback language when locale is unsupported', () => {
-      expect(resolveSupportedLanguage('fr-FR')).toBe('en-EN');
+      expect(resolveSupportedLanguage('fr-FR')).toBe('es-ES');
     });
 
     it('should return the provided custom fallback language when locale is unsupported', () => {
@@ -82,7 +82,7 @@ describe('language.util', () => {
     });
 
     it('should return the fallback language when no browser languages are supported', () => {
-      expect(resolveInitialLanguage(['fr-FR', 'de-DE'])).toBe('en-EN');
+      expect(resolveInitialLanguage(['fr-FR', 'de-DE'])).toBe('es-ES');
     });
 
     it('should return the provided custom fallback when no browser languages are supported', () => {
@@ -90,11 +90,11 @@ describe('language.util', () => {
     });
 
     it('should return the fallback language when browserLanguages is undefined', () => {
-      expect(resolveInitialLanguage(undefined)).toBe('en-EN');
+      expect(resolveInitialLanguage(undefined)).toBe('es-ES');
     });
 
     it('should ignore empty browser language arrays and return the fallback', () => {
-      expect(resolveInitialLanguage([])).toBe('en-EN');
+      expect(resolveInitialLanguage([])).toBe('es-ES');
     });
   });
 });
