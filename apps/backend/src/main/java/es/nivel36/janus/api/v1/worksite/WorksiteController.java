@@ -95,10 +95,26 @@ public class WorksiteController {
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(
 			final @RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "query must contain only letters, digits, underscores or hyphens (max 50)") String query,
-			final Pageable pageable) {
+			final @RequestParam(required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
+			final Pageable pageable, final @AuthenticationPrincipal Jwt jwt) {
 		logger.debug("Search worksites ACTION performed");
+		final String authenticatedEmail = jwt.getClaimAsString("email");
+		final var roles = KeycloakJwtRolesConverter.extract(jwt);
+		final boolean adminOrUserRole = roles.stream().anyMatch(authority -> {
+			final String role = authority.getAuthority();
+			return "ROLE_JANUS_ADMIN".equals(role) || "ROLE_JANUS_USER".equals(role);
+		});
+		final String effectiveEmployeeEmail;
+		if (adminOrUserRole) {
+			effectiveEmployeeEmail = employeeEmail;
+		} else {
+			if (employeeEmail != null && !employeeEmail.equalsIgnoreCase(authenticatedEmail)) {
+				throw new AccessDeniedException("Employees can only search worksites for themselves");
+			}
+			effectiveEmployeeEmail = authenticatedEmail;
+		}
 
-		final Page<WorksiteResponse> worksites = this.worksiteService.searchWorksites(query, pageable)
+		final Page<WorksiteResponse> worksites = this.worksiteService.searchWorksites(query, effectiveEmployeeEmail, pageable)
 				.map(this.worksiteResponseMapper::map);
 		return ResponseEntity.ok(worksites);
 	}

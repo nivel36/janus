@@ -15,8 +15,6 @@
  */
 package es.nivel36.janus.service.worksite;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,8 +29,9 @@ import es.nivel36.janus.service.employee.Employee;
  *
  * <p>
  * Provides access methods to query {@link Worksite} data, including custom
- * queries for retrieving worksites visible to a given {@link Employee} and
- * checking whether a worksite still has explicit employee assignments.
+ * queries for searching worksites (with optional visibility filtering by
+ * employee) and checking whether a worksite still has explicit employee
+ * assignments.
  * </p>
  *
  * <p>
@@ -42,27 +41,6 @@ import es.nivel36.janus.service.employee.Employee;
  */
 @Repository
 interface WorksiteRepository extends JpaRepository<Worksite, Long> {
-
-	/**
-	 * Retrieves all worksites visible to the specified employee.
-	 * <p>
-	 * Global worksites are visible to everyone. Personal worksites are visible to
-	 * their owner. The legacy employee-worksite assignment is still considered so
-	 * the existing association can keep any secondary purpose it may still have.
-	 * </p>
-	 *
-	 * @param employeeEmail email of the employee whose visible worksites are to be
-	 *                      retrieved
-	 * @return the worksites visible to the employee
-	 */
-	@Query("""
-			    SELECT DISTINCT w
-			    FROM Worksite w
-			    LEFT JOIN w.employees e
-			    WHERE w.scope = es.nivel36.janus.service.worksite.WorksiteScope.GLOBAL
-			       OR e.email = :employeeEmail
-			""")
-	List<Worksite> findVisibleByEmployeeEmail(String employeeEmail);
 
 	Worksite findByCode(String code);
 
@@ -76,11 +54,18 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	boolean hasEmployees(String worksiteCode);
 
 	@Query("""
-			SELECT w
+			SELECT DISTINCT w
 			FROM Worksite w
-			WHERE LOWER(w.name) LIKE LOWER(CONCAT('%', :query, '%'))
-			   OR LOWER(w.code) LIKE LOWER(CONCAT('%', :query, '%'))
+			WHERE (LOWER(w.name) LIKE LOWER(CONCAT('%', :query, '%'))
+			   OR LOWER(w.code) LIKE LOWER(CONCAT('%', :query, '%')))
+			  AND (:employeeEmail IS NULL
+			   OR w.scope = es.nivel36.janus.service.worksite.WorksiteScope.GLOBAL
+			   OR EXISTS (
+					SELECT 1
+					FROM w.employees e
+					WHERE e.email = :employeeEmail
+			   ))
 			""")
-	Page<Worksite> search(String query, Pageable pageable);
+	Page<Worksite> search(String query, String employeeEmail, Pageable pageable);
 
 }
