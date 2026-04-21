@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -96,22 +97,26 @@ public class WorksiteController {
 	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(
 			final @RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "query must contain only letters, digits, underscores or hyphens (max 50)") String query,
 			final @RequestParam(required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
-			final Pageable pageable, final @AuthenticationPrincipal Jwt jwt) {
+			final Pageable pageable, final @AuthenticationPrincipal Jwt jwt, final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
 		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final var roles = KeycloakJwtRolesConverter.extract(jwt);
-		final boolean adminOrUserRole = roles.stream().anyMatch(authority -> {
+		final boolean adminOrUserRole = authentication.getAuthorities().stream().anyMatch(authority -> {
 			final String role = authority.getAuthority();
 			return "ROLE_JANUS_ADMIN".equals(role) || "ROLE_JANUS_USER".equals(role);
 		});
+		final boolean employeeOnlyRole = authentication.getAuthorities().stream()
+				.anyMatch(authority -> "ROLE_JANUS_EMPLOYEE".equals(authority.getAuthority())) && !adminOrUserRole;
 		final String effectiveEmployeeEmail;
-		if (adminOrUserRole) {
-			effectiveEmployeeEmail = employeeEmail;
-		} else {
+		if (employeeOnlyRole) {
+			if (authenticatedEmail == null || authenticatedEmail.isBlank()) {
+				throw new AccessDeniedException("Employee email claim is required");
+			}
 			if (employeeEmail != null && !employeeEmail.equalsIgnoreCase(authenticatedEmail)) {
 				throw new AccessDeniedException("Employees can only search worksites for themselves");
 			}
 			effectiveEmployeeEmail = authenticatedEmail;
+		} else {
+			effectiveEmployeeEmail = employeeEmail;
 		}
 
 		final Page<WorksiteResponse> worksites = this.worksiteService.searchWorksites(query, effectiveEmployeeEmail, pageable)

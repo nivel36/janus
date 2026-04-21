@@ -26,6 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -68,6 +71,7 @@ class WorksiteControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testListAsEmployeeShouldRejectSearchingOtherEmployee() throws Exception {
 		this.mvc.perform(get(BASE).param("employeeEmail", "bperson@nivel36.es").with(jwt()//
+				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isForbidden());
@@ -84,12 +88,24 @@ class WorksiteControllerIT {
 			"INSERT INTO employee_worksite(employee_id, worksite_id) SELECT 2, w.id FROM worksite w WHERE w.code='ASG-BERTA'" })
 	void testListAsEmployeeShouldBeForcedToOwnEmailWhenNoFilterProvided() throws Exception {
 		this.mvc.perform(get(BASE).with(jwt()//
+				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.content[?(@.code=='GLOBAL-1')]").exists())
 				.andExpect(jsonPath("$.content[?(@.code=='ASG-BERTA')]").doesNotExist());
+	}
+
+	@Test
+	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('GLOBAL-1','Global Worksite','UTC+2','GLOBAL')" })
+	void testListAsEmployeeShouldRejectWhenJwtEmailClaimMissing() throws Exception {
+		this.mvc.perform(get(BASE).with(jwt()//
+				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
