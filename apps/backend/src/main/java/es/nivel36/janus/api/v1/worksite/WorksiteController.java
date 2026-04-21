@@ -27,8 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,7 +45,7 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteScope;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import es.nivel36.janus.util.KeycloakJwtRolesConverter;
+import es.nivel36.janus.util.Roles;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -97,19 +95,17 @@ public class WorksiteController {
 	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(
 			final @RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "query must contain only letters, digits, underscores or hyphens (max 50)") String query,
 			final @RequestParam(required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
-			final Pageable pageable, final @AuthenticationPrincipal Jwt jwt, final Authentication authentication) {
+			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean adminOrUserRole = authentication.getAuthorities().stream().anyMatch(authority -> {
-			final String role = authority.getAuthority();
-			return "ROLE_JANUS_ADMIN".equals(role) || "ROLE_JANUS_USER".equals(role);
-		});
-		final boolean employeeOnlyRole = authentication.getAuthorities().stream()
-				.anyMatch(authority -> "ROLE_JANUS_EMPLOYEE".equals(authority.getAuthority())) && !adminOrUserRole;
+		final String authenticatedEmail = authentication.getName();
+		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
 		final String effectiveEmployeeEmail;
-		if (employeeOnlyRole) {
+		if (hasOnlyEmployeeRole) {
 			if (authenticatedEmail == null || authenticatedEmail.isBlank()) {
 				throw new AccessDeniedException("Employee email claim is required");
+			}
+			if (employeeEmail == null) {
+				throw new AccessDeniedException("Employees can only search worksites for themselves");
 			}
 			if (employeeEmail != null && !employeeEmail.equalsIgnoreCase(authenticatedEmail)) {
 				throw new AccessDeniedException("Employees can only search worksites for themselves");
@@ -119,8 +115,8 @@ public class WorksiteController {
 			effectiveEmployeeEmail = employeeEmail;
 		}
 
-		final Page<WorksiteResponse> worksites = this.worksiteService.searchWorksites(query, effectiveEmployeeEmail, pageable)
-				.map(this.worksiteResponseMapper::map);
+		final Page<WorksiteResponse> worksites = this.worksiteService
+				.searchWorksites(query, effectiveEmployeeEmail, pageable).map(this.worksiteResponseMapper::map);
 		return ResponseEntity.ok(worksites);
 	}
 
@@ -157,13 +153,12 @@ public class WorksiteController {
 	@PostMapping
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	public ResponseEntity<WorksiteResponse> createWorksite(@Valid @RequestBody final CreateWorksiteRequest request,
-			final @AuthenticationPrincipal Jwt jwt) {
+			final Authentication authentication) {
 		logger.debug("Create worksite ACTION performed");
 
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
+		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
 
-		if (employeeRole) {
+		if (hasOnlyEmployeeRole) {
 			if (!this.applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
 			}
@@ -195,14 +190,13 @@ public class WorksiteController {
 	@PutMapping("/{worksiteCode}")
 	public ResponseEntity<WorksiteResponse> updateWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
-			@Valid @RequestBody final UpdateWorksiteRequest request, final @AuthenticationPrincipal Jwt jwt) {
+			@Valid @RequestBody final UpdateWorksiteRequest request, //
+			final Authentication authentication) {
 		logger.debug("Update worksite ACTION performed");
 
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
-
-		if (employeeRole) {
+		final String authenticatedEmail = authentication.getName();
+		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		if (hasOnlyEmployeeRole) {
 			if (request.scope() != WorksiteScope.ASSIGNED) {
 				throw new AccessDeniedException("Employees can only update assigned worksites");
 			}
@@ -253,8 +247,7 @@ public class WorksiteController {
 	@PutMapping("/{worksiteCode}/employees/{employeeEmail}")
 	public ResponseEntity<Void> assignEmployeeToWorksite(
 			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			final @PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
-			final @AuthenticationPrincipal Jwt jwt) {
+			final @PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail) {
 		logger.debug("Add worksite to employee ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);

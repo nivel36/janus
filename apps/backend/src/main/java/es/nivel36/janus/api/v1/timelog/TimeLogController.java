@@ -29,8 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,16 +40,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
-import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import es.nivel36.janus.util.KeycloakJwtRolesConverter;
+import es.nivel36.janus.util.Roles;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -89,10 +88,14 @@ public class TimeLogController {
 	 * @param clock                 clock used to retrieve the current time. Can't
 	 *                              be {@code null}.
 	 */
-	public TimeLogController(final TimeLogService timeLogService, final EmployeeService employeeService,
-			final ApplicationSettingsService applicationSettingsService,
-			final WorksiteService worksiteService, final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper,
-			final Clock clock) {
+	public TimeLogController( //
+			final TimeLogService timeLogService, //
+			final EmployeeService employeeService, //
+			final ApplicationSettingsService applicationSettingsService, //
+			final WorksiteService worksiteService, //
+			final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper, //
+			final Clock clock //
+	) {
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
@@ -129,12 +132,12 @@ public class TimeLogController {
 			@Pattern( //
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, final @AuthenticationPrincipal Jwt jwt) {
+			String worksiteCode, //
+			final Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
 
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only create their own clock-in records");
@@ -183,12 +186,12 @@ public class TimeLogController {
 			@Pattern( //
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, final @AuthenticationPrincipal Jwt jwt) throws ClockOutWithoutClockInException {
+			String worksiteCode, //
+			final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only create their own clock-out records");
@@ -231,14 +234,14 @@ public class TimeLogController {
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
 			String worksiteCode, //
-			final @Valid @RequestBody CreateTimeLogRequest timeLog, final @AuthenticationPrincipal Jwt jwt) {
+			final @Valid @RequestBody CreateTimeLogRequest timeLog, // 
+			final Authentication authentication) {
 		logger.debug("Create time log ACTION performed");
 
 		this.assertManualTimeEntryAllowed();
 		
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
+		final String authenticatedEmail = authentication.getName();
+		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
 		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only create their own clock-in/clock-out records");
@@ -281,8 +284,8 @@ public class TimeLogController {
 			String employeeEmail, //
 			final @RequestParam(value = "fromInstant", required = false) Instant fromInstant, //
 			final @RequestParam(value = "toInstant", required = false) Instant toInstant, //
-			final @PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable,
-			final @AuthenticationPrincipal Jwt jwt) {
+			final @PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable, //
+			final Authentication authentication) {
 		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
 		}
@@ -291,11 +294,9 @@ public class TimeLogController {
 		}
 		logger.debug("Search time logs by employee ACTION performed");
 
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
-
-		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		final String authenticatedEmail = authentication.getName();
+		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only search their own time log records");
 		}
 
@@ -303,8 +304,8 @@ public class TimeLogController {
 		if (fromInstant == null) {
 			timeLogs = this.timeLogService.searchTimeLogsByEmployee(employeeEmail, pageable);
 		} else {
-			timeLogs = this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(employeeEmail, fromInstant, toInstant,
-					pageable);
+			timeLogs = this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(employeeEmail, fromInstant,
+					toInstant, pageable);
 		}
 		final Page<TimeLogResponse> timeLogResponse = timeLogs.map(this.timeLogResponseMapper::map);
 		return ResponseEntity.ok(timeLogResponse);
@@ -352,14 +353,13 @@ public class TimeLogController {
 					message = "must be a valid and safe email address (max 254)" //
 			) //
 			String employeeEmail, //
-			final @PathVariable("entryTime") Instant entryTime, final @AuthenticationPrincipal Jwt jwt) {
+			final @PathVariable("entryTime") Instant entryTime, //
+			final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
-
-		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		final String authenticatedEmail = authentication.getName();
+		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only search their own time log records");
 		}
 

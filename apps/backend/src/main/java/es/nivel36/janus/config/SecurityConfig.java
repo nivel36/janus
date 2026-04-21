@@ -176,6 +176,7 @@ public class SecurityConfig {
 		authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> Stream
 				.concat(scopesConverter.convert(jwt).stream(), KeycloakJwtRolesConverter.extract(jwt).stream())
 				.distinct().toList());
+		authenticationConverter.setPrincipalClaimName("preferred_username");
 		return authenticationConverter;
 	}
 }

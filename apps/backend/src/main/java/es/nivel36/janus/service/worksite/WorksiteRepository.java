@@ -22,8 +22,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import es.nivel36.janus.service.employee.Employee;
-
 /**
  * Repository interface for managing {@link Worksite} entities.
  *

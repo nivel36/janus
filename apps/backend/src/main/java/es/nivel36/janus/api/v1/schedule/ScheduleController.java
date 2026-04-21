@@ -24,8 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +39,7 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
 import es.nivel36.janus.service.schedule.ScheduleService;
-import es.nivel36.janus.util.KeycloakJwtRolesConverter;
+import es.nivel36.janus.util.Roles;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -98,14 +97,13 @@ public class ScheduleController {
 			regexp = "[A-Za-z0-9_-]{1,50}", //
 			message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
 	) //
-	String scheduleCode, final @AuthenticationPrincipal Jwt jwt) {
+	String scheduleCode,//
+	final Authentication authentication) {
 		logger.debug("Find schedule ACTION performed");
 
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
-
-		if (employeeRole && !this.employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
+		final String authenticatedEmail = authentication.getName();
+		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		if (hasOnlyEmployeeRole && !this.employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
 			throw new AccessDeniedException("Employees can only search his own schedule");
 		}
 

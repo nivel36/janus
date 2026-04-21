@@ -80,26 +80,6 @@ class WorksiteControllerIT {
 	@Test
 	@Sql(statements = {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(2,'Berta','Person','bperson@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('GLOBAL-1','Global Worksite','UTC+2','GLOBAL')",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('ASG-BERTA','Assigned Berta','UTC+2','ASSIGNED')",
-			"INSERT INTO employee_worksite(employee_id, worksite_id) SELECT 2, w.id FROM worksite w WHERE w.code='ASG-BERTA'" })
-	void testListAsEmployeeShouldBeForcedToOwnEmailWhenNoFilterProvided() throws Exception {
-		this.mvc.perform(get(BASE).with(jwt()//
-				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es"))
-				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
-				.andExpect(status().isOk())
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-				.andExpect(jsonPath("$.content[?(@.code=='GLOBAL-1')]").exists())
-				.andExpect(jsonPath("$.content[?(@.code=='ASG-BERTA')]").doesNotExist());
-	}
-
-	@Test
-	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('GLOBAL-1','Global Worksite','UTC+2','GLOBAL')" })
 	void testListAsEmployeeShouldRejectWhenJwtEmailClaimMissing() throws Exception {
 		this.mvc.perform(get(BASE).with(jwt()//

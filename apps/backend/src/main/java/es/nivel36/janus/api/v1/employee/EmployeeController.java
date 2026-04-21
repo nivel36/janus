@@ -23,8 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,7 +38,7 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
-import es.nivel36.janus.util.KeycloakJwtRolesConverter;
+import es.nivel36.janus.util.Roles;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -91,16 +90,16 @@ public class EmployeeController {
 					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
 					message = "must be a valid and safe email address (max 254)" //
 			) //
-			String employeeEmail, final @AuthenticationPrincipal Jwt jwt) {
+			String employeeEmail, // 
+			final Authentication authentication) {
 		logger.debug("Find employee by email ACTION performed");
 
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
-
-		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		final String authenticatedEmail = authentication.getName();
+		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(employeeEmail)) {
 			throw new AccessDeniedException("Employees can only search his own user");
 		}
+		
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
 		return ResponseEntity.ok(response);
@@ -143,16 +142,16 @@ public class EmployeeController {
 					message = "must be a valid and safe email address (max 254)" //
 			) //
 			String employeeEmail, //
-			@Valid @RequestBody final UpdateEmployeeRequest request, final @AuthenticationPrincipal Jwt jwt) {
+			@Valid @RequestBody final UpdateEmployeeRequest request, //
+			final Authentication authentication) {
 		logger.debug("Update employee ACTION performed");
 
-		final String authenticatedEmail = jwt.getClaimAsString("email");
-		final boolean employeeRole = KeycloakJwtRolesConverter.extract(jwt).stream()
-				.anyMatch(a -> "ROLE_JANUS_EMPLOYEE".equals(a.getAuthority()));
-
-		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
-			throw new AccessDeniedException("Employees can only search his own employee");
+		final String authenticatedEmail = authentication.getName();
+		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(employeeEmail)) {
+			throw new AccessDeniedException("Employees can only update his own employee");
 		}
+		
 		final Schedule schedule = this.scheduleService.findScheduleByCode(request.scheduleCode());
 		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, request.name(),
 				request.surname(), schedule);
