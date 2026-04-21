@@ -16,7 +16,6 @@
 package es.nivel36.janus.service.worksite;
 
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -69,40 +68,18 @@ public class WorksiteService {
 	 * @return a list containing every existing {@link Worksite}; never {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public Page<Worksite> searchWorksites(final String query, final Pageable pageable) {
+	public Page<Worksite> searchWorksites(final String query, final String employeeEmail, final Pageable pageable) {
 		logger.debug("Retrieving all worksites");
+		final String sanitizedQuery = query == null ? "" : query.strip();
+		final String sanitizedEmployeeEmail = employeeEmail == null || employeeEmail.isBlank() ? null : employeeEmail.strip();
 		final Page<Worksite> worksites;
-		if (query == null || query.isBlank()) {
+		if (sanitizedQuery.isEmpty() && sanitizedEmployeeEmail == null) {
 			worksites = this.worksiteRepository.findAll(pageable);
 		} else {
-			worksites = this.worksiteRepository.search(query, pageable);
+			worksites = this.worksiteRepository.search(sanitizedQuery, sanitizedEmployeeEmail, pageable);
 		}
 
 		logger.trace("Found {} worksites", worksites.getTotalElements());
-		return worksites;
-	}
-
-	/**
-	 * Retrieves all worksites visible to the specified employee.
-	 *
-	 * <p>
-	 * Visibility is primarily driven by {@link WorksiteScope}: global worksites are
-	 * visible to everyone, assigned worksites are visible to explicitly assigned
-	 * employees and personal worksites are visible to their owner.
-	 * </p>
-	 *
-	 * @param employeeEmail email of the employee whose visible worksites should be
-	 *                      retrieved; must not be {@code null}
-	 * @return a list of worksites visible to the given employee; never {@code null}
-	 * @throws NullPointerException if {@code employee} is {@code null}
-	 */
-	@Transactional(readOnly = true)
-	public List<Worksite> findWorksitesByEmployee(final String employeeEmail) {
-		Objects.requireNonNull(employeeEmail, "employeeEmail");
-		logger.debug("Finding worksites visible by employee {}", employeeEmail);
-
-		final List<Worksite> worksites = this.worksiteRepository.findVisibleByEmployeeEmail(employeeEmail);
-		logger.trace("Found {} worksites", worksites.size());
 		return worksites;
 	}
 
