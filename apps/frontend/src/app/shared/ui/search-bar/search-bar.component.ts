@@ -1,28 +1,16 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { Component, DestroyRef, OnInit, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 /**
- * Standalone search bar component that owns the asynchronous search pipeline.
- *
- * Unlike a passive input that only emits raw text, this component centralizes
- * search execution so that stale requests are automatically invalidated when
- * the user changes the text or explicitly submits a new query.
- *
- * Main capabilities:
- *
- * - trims input before searching
- * - debounces typing
- * - ignores consecutive identical queries
- * - invalidates obsolete searches through {@link switchMap}
- * - exposes loading and result state
- * - supports both debounced search and explicit submit
- *
- * @typeParam T Type of the search result items
+ * Standalone search bar component.
  */
 @Component({
   selector: 'app-search-bar',
@@ -33,6 +21,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 })
 export class SearchBarComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+
   /**
    * Debounce time, in milliseconds, applied to user typing.
    */
@@ -45,8 +34,6 @@ export class SearchBarComponent implements OnInit {
 
   /**
    * Emits the effective query that has started processing.
-   *
-   * This is emitted only when the component actually starts a search.
    */
   readonly queryChange = output<string>();
 
@@ -70,11 +57,29 @@ export class SearchBarComponent implements OnInit {
    */
   protected readonly queryControl = new FormControl('', { nonNullable: true });
 
-  /**
-   * Initializes the internal reactive search pipeline.
-   */
   ngOnInit(): void {
     this.validateInputs();
+
+    this.queryControl.valueChanges
+      .pipe(
+        map((value) => value.trim()),
+        debounceTime(this.debounceMs()),
+        distinctUntilChanged(),
+        filter((query) => query.length === 0 || query.length >= this.minChars()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((query) => this.queryChange.emit(query));
+  }
+
+  /**
+   * Emits the current query when the user explicitly submits it.
+   */
+  protected submitCurrentQuery(): void {
+    const query = this.queryControl.value.trim();
+
+    if (query.length === 0 || query.length >= this.minChars()) {
+      this.queryChange.emit(query);
+    }
   }
 
   /**
@@ -88,20 +93,5 @@ export class SearchBarComponent implements OnInit {
     if (this.minChars() < 0) {
       throw new Error('SearchBarComponent: minChars cannot be negative.');
     }
-  }
-
-  constructor() {
-    this.queryControl.valueChanges
-      .pipe(
-        map((value) => value.trim()),
-        debounceTime(this.debounceMs()),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((query) => this.queryChange.emit(query));
-  }
-
-  protected submitCurrentQuery(): void {
-    this.queryChange.emit(this.queryControl.value.trim());
   }
 }

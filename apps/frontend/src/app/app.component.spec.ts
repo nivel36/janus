@@ -21,8 +21,8 @@ describe('AppComponent', () => {
         {
           provide: TranslateService,
           useValue: {
-            currentLang: 'en-EN',
-            getCurrentLang: () => 'en-EN',
+            currentLang: 'es-ES',
+            getCurrentLang: () => 'es-ES',
             use: vi.fn(),
           },
         },
@@ -54,8 +54,8 @@ describe('AppComponent', () => {
         {
           provide: TranslateService,
           useValue: {
-            currentLang: 'en-EN',
-            getCurrentLang: () => 'en-EN',
+            currentLang: 'es-ES',
+            getCurrentLang: () => 'es-ES',
             use: useSpy,
           },
         },

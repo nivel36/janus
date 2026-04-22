@@ -5,49 +5,11 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AutocompleteTextboxComponent } from './autocomplete-textbox.component';
-
-class MockTranslateService {
-  readonly onLangChange = new Subject<string>();
-  readonly onTranslationChange = new Subject<string>();
-  readonly onDefaultLangChange = new Subject<string>();
-  readonly onFallbackLangChange = new Subject<string>();
-
-  getCurrentLang(): string {
-    return 'es-ES';
-  }
-
-  getFallbackLang(): string {
-    return 'en-EN';
-  }
-
-  instant(key: string, params?: Record<string, unknown>): string {
-    if (key === 'autocomplete.manyResultsAvailable' && params?.['count'] !== undefined) {
-      return `autocomplete.manyResultsAvailable:${params['count']}`;
-    }
-
-    return key;
-  }
-
-  get(key: string | string[], params?: Record<string, unknown>) {
-    if (Array.isArray(key)) {
-      const result: Record<string, string> = {};
-      for (const k of key) {
-        result[k] = this.instant(k, params);
-      }
-      return of(result);
-    }
-
-    return of(this.instant(key, params));
-  }
-
-  stream(key: string | string[], params?: Record<string, unknown>) {
-    return this.get(key, params);
-  }
-}
+import { MockTranslateService } from '../../../../testing/mock-translate.service';
 
 describe('AutocompleteTextboxComponent', () => {
   let fixture: ComponentFixture<AutocompleteTextboxComponent<string>>;
@@ -66,12 +28,7 @@ describe('AutocompleteTextboxComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [AutocompleteTextboxComponent],
-      providers: [
-        {
-          provide: TranslateService,
-          useClass: MockTranslateService,
-        },
-      ],
+      providers: [{ provide: TranslateService, useClass: MockTranslateService }],
     }).compileComponents();
 
     overlayContainer = TestBed.inject(OverlayContainer);
@@ -93,7 +50,8 @@ describe('AutocompleteTextboxComponent', () => {
   });
 
   afterEach(() => {
-    overlayContainer.ngOnDestroy();
+    overlayContainerElement.innerHTML = '';
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 
