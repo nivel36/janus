@@ -1,14 +1,12 @@
 <section
-    [id]="resolvedId()"
     class="card {{ styleClass() }}"
-    [attr.role]="title() || ariaLabel() ? 'region' : null"
-    [attr.aria-labelledby]="title() ? titleId() : null"
+    [attr.aria-labelledby]="title() ? titleElementId : null"
     [attr.aria-label]="title() ? null : ariaLabel()"
 >
     @if (hasHeader) {
         <header class="card-header">
             @if (title()) {
-                <h2 [id]="titleId()" class="card-title">{{ title() }}</h2>
+                <h2 [id]="titleElementId" class="card-title">{{ title() }}</h2>
             }
             @if (headerTpl) {
                 <ng-container [ngTemplateOutlet]="headerTpl"></ng-container>

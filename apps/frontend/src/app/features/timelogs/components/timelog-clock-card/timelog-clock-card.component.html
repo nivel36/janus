@@ -1,9 +1,5 @@
 @if (vm$ | async; as vm) {
-    <app-card
-        styleClass="clock-in-card"
-        footerClass="clock-card-footer"
-        [title]="vm.clockActionTitleKey | translate"
-    >
+    <app-card styleClass="clock-in-card" [title]="vm.clockActionTitleKey | translate">
         <ng-template #cardHeader>
             <app-clock
                 styleClass="card-hour"

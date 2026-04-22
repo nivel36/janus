@@ -13,76 +13,6 @@ body {
     background-color: #000000;
 }
 
-.employee-card .employee-card-header-content {
-    text-align: left;
-}
-
-.employee-card .avatar {
-    width: 4rem;
-    vertical-align: middle;
-}
-
-.employee-card .employee-card-title {
-    font-size: 2rem;
-    color: #131313;
-    vertical-align: middle;
-    font-weight: 700;
-    margin-left: 1rem;
-}
-
-.employee-card h3 {
-    font-size: 1rem;
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: #f9d600;
-}
-
-.employee-card p {
-    font-size: 1rem;
-    margin: 0;
-    letter-spacing: 0.12em;
-    color: #ffffff;
-}
-
-.employee-card .data {
-    margin: 0 0 1rem 0;
-}
-
-.clock-in-card .clock-time.card-hour {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
-}
-
-.card.clock-in-card .card-body {
-    display: none;
-}
-
-.clock-card-footer {
-    background-color: #fece0b;
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 1rem;
-}
-
-.card.settings-card {
-    border: 2px solid #f9d600;
-}
-
-.card.worksites-card {
-    border: 2px solid #f9d600;
-}
-
-.buttons {
-    margin-left: auto;
-    margin-top: 2rem;
-}
-
-.buttons > * + * {
-    margin-left: 1rem;
-}
-
 form {
     display: flex;
     flex-direction: column;
@@ -104,4 +34,78 @@ select {
     padding: 0.625rem 0.75rem;
     color: #f9f9f9;
     font-size: 0.95rem;
+}
+
+.card.employee-card .employee-card-header-content {
+    text-align: left;
+}
+
+.card.employee-card .avatar {
+    width: 4rem;
+    vertical-align: middle;
+}
+
+.card.employee-card .employee-card-title {
+    font-size: 2rem;
+    color: #131313;
+    vertical-align: middle;
+    font-weight: 700;
+    margin-left: 1rem;
+}
+
+.card.employee-card h3 {
+    font-size: 1rem;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #f9d600;
+}
+
+.card.employee-card p {
+    font-size: 1rem;
+    margin: 0;
+    letter-spacing: 0.12em;
+    color: #ffffff;
+}
+
+.card.employee-card .data {
+    margin: 0 0 1rem 0;
+}
+
+.card.clock-in-card .clock-time.card-hour {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.card.clock-in-card .card-header {
+    text-align: center;
+}
+
+.card.clock-in-card .card-body {
+    display: none;
+}
+
+.card.clock-in-card .card-footer {
+    background-color: #fece0b;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 1rem;
+}
+
+.card.settings-card {
+    border: 2px solid #f9d600;
+}
+
+.card.worksites-card {
+    border: 2px solid #f9d600;
+}
+
+.buttons {
+    margin-left: auto;
+    margin-top: 2rem;
+}
+
+.buttons > * + * {
+    margin-left: 1rem;
 }

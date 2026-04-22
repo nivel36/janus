@@ -150,7 +150,6 @@ describe('CardComponent', () => {
       const cardElement = fixture.nativeElement.querySelector('section.card');
       const titleElement = fixture.nativeElement.querySelector('.card-title');
 
-      expect(cardElement.getAttribute('role')).toBe('region');
       expect(cardElement.getAttribute('aria-labelledby')).toBe(titleElement.id);
       expect(cardElement.hasAttribute('aria-label')).toBe(false);
     });
@@ -229,7 +228,6 @@ describe('CardComponent', () => {
 
       const cardElement = fixture.nativeElement.querySelector('section.card');
 
-      expect(cardElement.getAttribute('role')).toBe('region');
       expect(cardElement.getAttribute('aria-label')).toBe('Timesheet summary');
       expect(cardElement.hasAttribute('aria-labelledby')).toBe(false);
     });

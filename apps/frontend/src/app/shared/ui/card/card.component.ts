@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, ContentChild, TemplateRef, computed, input } from '@angular/core';
+import { Component, ContentChild, TemplateRef, input } from '@angular/core';
 import { createUuid } from '../../utils/uuid.utils';
 
 /**
@@ -25,20 +25,7 @@ import { createUuid } from '../../utils/uuid.utils';
   styleUrls: ['./card.component.css'],
 })
 export class CardComponent {
-  /**
-   * Fallback identifier generated once per component instance.
-   *
-   * <p>This value is used only when the consumer does not provide an explicit
-   * {@code id} input.</p>
-   */
-  private readonly generatedId = `card-${createUuid()}`;
-
-  /**
-   * Optional id for the outer card section.
-   *
-   * <p>When omitted, the component generates a stable fallback id.</p>
-   */
-  readonly id = input<string>();
+  readonly titleElementId = `card-${createUuid()}-title`;
 
   /**
    * Plain text title rendered in the card header.
@@ -72,22 +59,6 @@ export class CardComponent {
    */
   @ContentChild('cardFooter', { read: TemplateRef })
   footerTpl?: TemplateRef<unknown>;
-
-  /**
-   * Resolved id for the outer card section.
-   *
-   * <p>This is the explicit input id when provided; otherwise it is the
-   * generated fallback id.</p>
-   */
-  readonly resolvedId = computed(() => this.id() ?? this.generatedId);
-
-  /**
-   * Stable id used by {@code aria-labelledby} when a title exists.
-   *
-   * <p>The value is derived from the resolved card id to keep header and region
-   * relationships deterministic.</p>
-   */
-  readonly titleId = computed(() => `${this.resolvedId()}-title`);
 
   /**
    * Indicates whether the card header should be rendered.
