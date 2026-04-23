@@ -3,31 +3,36 @@
 }
 
 .app-chip {
+    --bg: #f9d600;
+    --fg: #131313;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     padding: 0.4rem 0.75rem;
     border-radius: 0.35rem;
+
+    background-color: var(--bg);
+    color: var(--fg);
+
     font-size: 0.8rem;
     font-weight: 600;
     line-height: 1;
     text-transform: uppercase;
-    color: #ffffff;
-}
-
-.chip--default {
-    background-color: #f9d600;
-    color: #040404;
 }
 
 .chip--primary {
-    background-color: #7f06a5;
+    --bg: #7f06a5;
+    --fg: #ffffff;
 }
 
 .chip--secondary {
-    background-color: #1431a9;
+    --bg: #1431a9;
+    --fg: #ffffff;
 }
 
 .chip--tertiary {
-    background-color: #615300;
+    --bg: #615300;
+    --fg: #ffffff;
 }

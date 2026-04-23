@@ -1,24 +1,37 @@
 .card {
+    --header-bg: #fece0b;
+    --header-fg: #131313;
+    --body-bg: #131313;
+    --body-fg: #f9f9f9;
+
     height: 100%;
-    border-radius: 1.5rem;
     overflow: hidden;
+    border-radius: 1.5rem;
+}
+
+.card-header,
+.card-footer {
+    padding: 1rem 1.5rem;
 }
 
 .card-header {
-    padding: 1rem 1.5rem 1rem 1.5rem;
-    background-color: #fece0b;
-    color: #131313;
-    text-align: left;
+    background-color: var(--header-bg);
+    color: var(--header-fg);
 }
 
 .card-title {
     margin: 0 0 0.5rem;
     font-size: 2.2rem;
+    line-height: 1.1;
+}
+
+.card-body,
+.card-footer {
+    background-color: var(--body-bg);
+    color: var(--body-fg);
 }
 
 .card-body {
     padding: 2rem;
     font-size: 0.95rem;
-    color: #ffffff;
-    background: #131313;
 }

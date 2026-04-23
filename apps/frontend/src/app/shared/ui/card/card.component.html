@@ -1,5 +1,5 @@
 <section
-    class="card {{ styleClass() }}"
+    [class]="'card ' + styleClass()"
     [attr.aria-labelledby]="title() ? titleElementId : null"
     [attr.aria-label]="title() ? null : ariaLabel()"
 >
