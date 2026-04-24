@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "janus.postgresKeycloakServiceName" . }}
+  namespace: {{ include "janus.namespace" . }}
+  labels:
+    {{- include "janus.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres-keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "janus.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: postgres-keycloak
+  template:
+    metadata:
+      labels:
+        {{- include "janus.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: postgres-keycloak
+    spec:
+      containers:
+        - name: postgres-keycloak
+          image: "{{ .Values.postgresKeycloak.image.repository }}:{{ .Values.postgresKeycloak.image.tag }}"
+          imagePullPolicy: {{ .Values.postgresKeycloak.image.pullPolicy }}
+          env:
+            - name: POSTGRES_DB
+              value: keycloak
+            - name: POSTGRES_USER
+              value: keycloak
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "janus.fullname" . }}-secrets
+                  key: KEYCLOAK_DB_PASSWORD
+          ports:
+            - containerPort: {{ .Values.postgresKeycloak.service.port }}
+              name: postgres
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U keycloak -d keycloak"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U keycloak -d keycloak"]
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          {{- if .Values.postgresKeycloak.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "janus.postgresKeycloakServiceName" . }}-pvc
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "janus.postgresKeycloakServiceName" . }}
+  namespace: {{ include "janus.namespace" . }}
+  labels:
+    {{- include "janus.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres-keycloak
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "janus.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres-keycloak
+  ports:
+    - name: postgres
+      port: {{ .Values.postgresKeycloak.service.port }}
+      targetPort: postgres
+{{- if .Values.postgresKeycloak.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "janus.postgresKeycloakServiceName" . }}-pvc
+  namespace: {{ include "janus.namespace" . }}
+  labels:
+    {{- include "janus.labels" . | nindent 4 }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: {{ .Values.postgresKeycloak.persistence.size }}
+  {{- if .Values.postgresKeycloak.persistence.storageClass }}
+  storageClassName: {{ .Values.postgresKeycloak.persistence.storageClass }}
+  {{- end }}
+{{- end }}

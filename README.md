@@ -137,6 +137,18 @@ The Angular dev server runs on:
 
 - Frontend: `http://localhost:4200`
 
+### Option 3: Kubernetes with Helm
+
+For a single Kubernetes deployment of the full platform (nginx, backend, keycloak, postgres, and grafana), use:
+
+```bash
+helm upgrade --install janus ./deploy/helm/janus -n janus --create-namespace
+```
+
+Chart location:
+
+- `deploy/helm/janus`
+
 ## Authentication model
 
 Authentication is **Keycloak-only**:
@@ -155,7 +167,7 @@ If the realm changes, update these files together:
 - `deploy/docker/compose.yml`
 - `apps/frontend/src/environments/environment.ts`
 - `apps/frontend/src/environments/environment.prod.ts`
-- `deploy/docker/keycloak/realm-export.json`
+- `deploy/helm/janus/files/realm-export.json`
 
 ## Environment variables used in Docker
 
