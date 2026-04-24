@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "janus.backendServiceName" . }}
+  namespace: {{ include "janus.namespace" . }}
+  labels:
+    {{- include "janus.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "janus.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        {{- include "janus.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: backend
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Values.backend.env.springProfilesActive | quote }}
+            - name: JANUS_DATASOURCE_URL
+              value: jdbc:postgresql://{{ include "janus.postgresServiceName" . }}:{{ .Values.postgres.service.port }}/app
+            - name: JANUS_DATASOURCE_USERNAME
+              value: app
+            - name: JANUS_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "janus.fullname" . }}-secrets
+                  key: APP_DB_PASSWORD
+            - name: JWT_ISSUER_URL
+              value: {{ .Values.backend.env.jwtIssuerUrl | quote }}
+            - name: SPRING_JWT_ISSUER_URI
+              value: {{ .Values.backend.env.springJwtIssuerUri | quote }}
+            - name: JANUS_CORS_ALLOWED_ORIGINS
+              value: {{ .Values.backend.env.corsAllowedOrigins | quote }}
+          ports:
+            - containerPort: {{ .Values.backend.service.port }}
+              name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "janus.backendServiceName" . }}
+  namespace: {{ include "janus.namespace" . }}
+  labels:
+    {{- include "janus.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "janus.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+  ports:
+    - name: http
+      port: {{ .Values.backend.service.port }}
+      targetPort: http

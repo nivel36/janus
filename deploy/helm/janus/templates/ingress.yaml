@@ -1,0 +1,36 @@
+{{- if .Values.nginx.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "janus.fullname" . }}
+  namespace: {{ include "janus.namespace" . }}
+  labels:
+    {{- include "janus.labels" . | nindent 4 }}
+  {{- with .Values.nginx.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.nginx.ingress.className }}
+  ingressClassName: {{ .Values.nginx.ingress.className }}
+  {{- end }}
+  rules:
+    {{- range .Values.nginx.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "janus.fullname" $ }}-nginx
+                port:
+                  number: {{ $.Values.nginx.service.port }}
+          {{- end }}
+    {{- end }}
+  {{- with .Values.nginx.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

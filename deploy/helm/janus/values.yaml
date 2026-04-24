@@ -1,0 +1,91 @@
+nameOverride: ""
+fullnameOverride: ""
+
+namespaceOverride: ""
+
+imagePullSecrets: []
+
+global:
+  appDbPassword: "change-me-app-db"
+  keycloakDbPassword: "change-me-keycloak-db"
+  keycloakAdminUser: "admin"
+  keycloakAdminPassword: "change-me-admin"
+
+nginx:
+  image:
+    repository: janus/nginx
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: janus.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+
+backend:
+  replicaCount: 1
+  image:
+    repository: janus/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    port: 8080
+  env:
+    springProfilesActive: prod
+    jwtIssuerUrl: "http://janus.local/auth/realms/janus-realm"
+    springJwtIssuerUri: "http://janus.local/auth/realms/janus-realm"
+    corsAllowedOrigins: "http://janus.local"
+
+postgres:
+  image:
+    repository: postgres
+    tag: "16"
+    pullPolicy: IfNotPresent
+  service:
+    port: 5432
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
+
+postgresKeycloak:
+  image:
+    repository: postgres
+    tag: "16"
+    pullPolicy: IfNotPresent
+  service:
+    port: 5432
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
+
+keycloak:
+  replicaCount: 1
+  image:
+    repository: quay.io/keycloak/keycloak
+    tag: "26.5"
+    pullPolicy: IfNotPresent
+  service:
+    port: 8080
+  hostname: "http://janus.local/auth"
+
+grafana:
+  image:
+    repository: grafana/grafana
+    tag: "12.4.1"
+    pullPolicy: IfNotPresent
+  service:
+    port: 3000
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""

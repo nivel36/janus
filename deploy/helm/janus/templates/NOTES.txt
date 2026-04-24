@@ -1,0 +1,12 @@
+1) Install the chart:
+   helm upgrade --install {{ .Release.Name }} ./deploy/helm/janus -n {{ include "janus.namespace" . }} --create-namespace
+
+2) Get the access URL:
+{{- if eq .Values.nginx.service.type "LoadBalancer" }}
+   kubectl get svc {{ include "janus.fullname" . }}-nginx -n {{ include "janus.namespace" . }} -w
+{{- else if eq .Values.nginx.service.type "ClusterIP" }}
+   kubectl port-forward svc/{{ include "janus.fullname" . }}-nginx 8080:{{ .Values.nginx.service.port }} -n {{ include "janus.namespace" . }}
+   Open http://127.0.0.1:8080
+{{- else }}
+   kubectl get svc {{ include "janus.fullname" . }}-nginx -n {{ include "janus.namespace" . }}
+{{- end }}
