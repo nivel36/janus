@@ -1,61 +1,106 @@
 :host {
     display: inline-flex;
+
+    --bg: #131313;
+    --fg: #f9d600;
+    --checked-bg: #f9d600;
+    --checked-fg: #0a0a0a;
+
+    --knob-bg: #f9d600;
+    --checked-knob-bg: #111111;
+
+    --width: 6rem;
+    --height: 2.33rem;
+    --padding: 0.5rem;
+    --knob-size: 1.87rem;
+
+    --icon-offset: 1.23rem;
+    --knob-offset: calc(var(--width) - var(--knob-size) - (var(--padding) * 2));
+
+    --radius: 999px;
+    --focus-ring: 0 0 0 2px rgba(249, 214, 0, 0.3);
+    --knob-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.35);
 }
 
 .toggle-button {
-    width: 6rem;
-    height: 2.33rem;
-    border: 0;
-    border-radius: 999px;
     position: relative;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
+    width: var(--width);
+    height: var(--height);
+    border: 0;
+    border-radius: var(--radius);
+
+    background: #2b2a33;
+    color: var(--fg);
+
     cursor: pointer;
+
     transition:
         background-color 0.2s ease,
+        color 0.2s ease,
         box-shadow 0.2s ease;
 }
 
 .toggle-button:hover,
 .toggle-button:focus-visible {
-    box-shadow: 0 0 0 2px rgba(249, 214, 0, 0.3);
+    box-shadow: var(--focus-ring);
+}
+
+.toggle-button:focus-visible {
+    outline: none;
 }
 
 .toggle-button__icon {
     font-size: 2rem;
     font-weight: 700;
     line-height: 1;
-    transform: translateX(1.23rem);
+
+    transform: translateX(var(--icon-offset));
+
     transition: transform 0.2s ease;
 }
 
 .toggle-button__knob {
-    width: 1.87rem;
-    height: 1.87rem;
-    border-radius: 50%;
-    background-color: #f9d600;
     position: absolute;
-    left: 0.5rem;
-    box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.35);
-    transition: transform 0.2s ease;
+    left: var(--padding);
+
+    width: var(--knob-size);
+    height: var(--knob-size);
+    border-radius: 50%;
+
+    background: var(--knob-bg);
+    box-shadow: var(--knob-shadow);
+
+    transition:
+        transform 0.2s ease,
+        background-color 0.2s ease;
 }
 
 .toggle-button--checked {
-    background: #f9d600;
-    color: #0a0a0a;
+    background: var(--checked-bg);
+    color: var(--checked-fg);
 }
 
 .toggle-button--checked .toggle-button__icon {
-    transform: translateX(-1.23rem);
+    transform: translateX(calc(var(--icon-offset) * -1));
 }
 
 .toggle-button--checked .toggle-button__knob {
-    transform: translateX(3.33rem);
-    background-color: #111111;
+    transform: translateX(var(--knob-offset));
+    background: var(--checked-knob-bg);
 }
 
-.toggle-button--disabled {
+.toggle-button--disabled,
+.toggle-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.toggle-button--disabled:hover,
+.toggle-button:disabled:hover {
+    box-shadow: none;
 }

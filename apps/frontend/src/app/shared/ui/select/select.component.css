@@ -1,43 +1,67 @@
+:host {
+    display: block;
+
+    --bg: #050505;
+    --fg: #f9f9f9;
+    --accent: #fece0b;
+
+    --radius: 0.5rem;
+    --focus-ring: 0 0 0 2px rgba(249, 214, 0, 0.3);
+}
+
 .select {
     position: relative;
+
     width: 100%;
-    border: 1px solid #fece0b;
-    border-radius: 0.5rem;
-    background: #050505;
     overflow: hidden;
+
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+
+    background: var(--bg);
+
+    transition: box-shadow 0.2s ease;
 }
 
 .select:focus-within {
-    box-shadow: 0 0 0 2px rgba(249, 214, 0, 0.3);
+    box-shadow: var(--focus-ring);
 }
 
 .select.disabled {
     opacity: 0.72;
 }
 
+select {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 0.625rem 2rem 0.625rem 0.75rem;
+    border: 0;
+    outline: 0;
+
+    appearance: none;
+
+    background: transparent;
+    color: var(--fg);
+
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
 select:disabled {
     cursor: not-allowed;
 }
 
-select {
-    box-sizing: border-box;
-    width: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: #f9f9f9;
-    padding: 0.625rem 2rem 0.625rem 0.75rem;
-    font-size: 0.95rem;
-    appearance: none;
-    cursor: pointer;
-}
-
 .arrow {
     position: absolute;
-    right: 0.75rem;
     top: 50%;
+    right: 0.75rem;
+
     transform: translateY(-50%);
-    color: #fece0b;
-    pointer-events: none;
+
+    color: var(--accent);
     font-size: 1.5rem;
+    line-height: 1;
+
+    pointer-events: none;
 }

@@ -1,55 +1,106 @@
+:host {
+    display: block;
+
+    --bg: #050505;
+    --fg: #f9f9f9;
+    --muted-fg: #b3b3b3;
+    --accent: #fece0b;
+    --border-muted: #2f2f2f;
+
+    --radius: 0.5rem;
+    --focus-ring: 0 0 0 2px rgba(249, 214, 0, 0.3);
+}
+
 .search-bar {
-    width: 100%;
     display: flex;
-    align-items: stretch;
-    border: 1px solid #fece0b;
-    border-radius: 0.5rem;
-    background: #050505;
-    overflow: hidden;
     flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+
+    width: 100%;
+    overflow: hidden;
+
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+
+    background: var(--bg);
+
+    transition: box-shadow 0.2s ease;
 }
 
 .search-bar:focus-within {
-    box-shadow: 0 0 0 2px rgba(249, 214, 0, 0.3);
+    box-shadow: var(--focus-ring);
 }
 
 .search-bar input {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
-    border: none;
-    outline: none;
-    background: #050505;
-    color: #f9f9f9;
+
     padding: 0.625rem 0.75rem;
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+    color: var(--fg);
+
     font-size: 0.95rem;
 }
 
 .search-bar input::placeholder {
-    color: #b3b3b3;
+    color: var(--muted-fg);
 }
 
 .search-icon {
-    border: none;
-    border-left: 1px solid #2f2f2f;
-    background: #fece0b;
-    color: #050505;
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 3rem;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     padding: 0 0.9rem;
-    cursor: default;
+    border: 0;
+    border-left: 1px solid var(--border-muted);
+
+    background: var(--accent);
+    color: var(--bg);
+
     font-weight: 700;
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.search-icon:hover,
+.search-icon:focus-visible {
+    background: #131313;
+    color: var(--accent);
+}
+
+.search-icon:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+.search-icon fa-icon {
+    display: inline-flex;
+    line-height: 1;
 }
 
 .sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
-    padding: 0;
     margin: -1px;
+    padding: 0;
     overflow: hidden;
+
     clip: rect(0 0 0 0);
     clip-path: inset(50%);
+
     border: 0;
     white-space: nowrap;
 }
