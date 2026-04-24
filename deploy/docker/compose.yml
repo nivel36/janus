@@ -58,7 +58,7 @@ services:
       KC_HOSTNAME: "http://localhost:4200/auth"
       KC_HOSTNAME_STRICT: "false"
     volumes:
-      - ../keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+      - ../helm/janus/files/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     depends_on:
       postgres_keycloak:
         condition: service_healthy

@@ -1,1 +1,42 @@
-../../../keycloak/realm-export.json
+{
+  "realm": "janus-realm",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      { "name": "JANUS_USER" },
+      { "name": "JANUS_EMPLOYEE" },
+      { "name": "JANUS_ADMIN" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "janus-spa",
+      "enabled": true,
+      "publicClient": true,
+      "bearerOnly": false,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "consentRequired": false,
+      "fullScopeAllowed": true,
+      "redirectUris": ["http://localhost/*", "http://localhost:4200/*"],
+      "webOrigins": ["http://localhost", "http://localhost:4200"]
+    }
+  ],
+  "users": [
+    {
+      "username": "aferrer@nivel36.es",
+      "email": "aferrer@nivel36.es",
+      "firstName": "Abel",
+      "lastName": "Ferrer",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "Janus2026!", "temporary": false }
+      ],
+      "realmRoles": ["JANUS_EMPLOYEE", "JANUS_USER", "JANUS_ADMIN"]
+    }
+  ]
+}

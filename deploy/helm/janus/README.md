@@ -54,4 +54,4 @@ helm upgrade --install janus ./deploy/helm/janus -n janus --create-namespace -f 
 ```
 
 
-Realm source of truth: `deploy/keycloak/realm-export.json` (the chart file in `files/` points to this location).
+Realm source of truth: `deploy/helm/janus/files/realm-export.json`.

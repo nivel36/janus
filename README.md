@@ -167,7 +167,7 @@ If the realm changes, update these files together:
 - `deploy/docker/compose.yml`
 - `apps/frontend/src/environments/environment.ts`
 - `apps/frontend/src/environments/environment.prod.ts`
-- `deploy/keycloak/realm-export.json`
+- `deploy/helm/janus/files/realm-export.json`
 
 ## Environment variables used in Docker
 
