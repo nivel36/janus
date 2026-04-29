@@ -3,14 +3,14 @@ import { MonoTypeOperatorFunction, Observable, throwError, timer } from 'rxjs';
 import { mergeMap, retryWhen } from 'rxjs/operators';
 
 /**
- * Retries transient HTTP failures while the caller keeps the subscription alive.
+ * Retries transient HTTP failures with capped attempts so errors still surface.
  *
  * Intended for read operations in active screens (e.g. polling-like UX without
  * keeping an explicit interval in the component).
  */
 export function retryTransientHttpErrors<T>(
   retryDelayMs = 5_000,
-  maxRetries = Number.POSITIVE_INFINITY,
+  maxRetries = 5,
 ): MonoTypeOperatorFunction<T> {
   return (source: Observable<T>) =>
     source.pipe(
