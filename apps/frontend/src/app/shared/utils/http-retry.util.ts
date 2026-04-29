@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { MonoTypeOperatorFunction, Observable, throwError, timer } from 'rxjs';
-import { mergeMap, retryWhen } from 'rxjs/operators';
+import { retry } from 'rxjs/operators';
 
 /**
  * Retries transient HTTP failures with capped attempts so errors still surface.
@@ -9,34 +9,34 @@ import { mergeMap, retryWhen } from 'rxjs/operators';
  * keeping an explicit interval in the component).
  */
 export function retryTransientHttpErrors<T>(
-  retryDelayMs = 5_000,
-  maxRetries = 5,
+  retryDelayMs = 1_000,
+  maxRetries = 10,
 ): MonoTypeOperatorFunction<T> {
   return (source: Observable<T>) =>
     source.pipe(
-      retryWhen((errors) =>
-        errors.pipe(
-          mergeMap((error: unknown, attemptIndex) => {
-            const attempt = attemptIndex + 1;
-            const isRetryable = isRetryableHttpError(error);
+      retry({
+        count: maxRetries,
+        delay: (error: unknown, retryCount: number) => {
+          if (!isRetryableHttpError(error)) {
+            return throwError(() => error);
+          }
 
-            if (!isRetryable || attempt > maxRetries) {
-              return throwError(() => error);
-            }
-
-            return timer(computeBackoffWithJitter(retryDelayMs, attempt));
-          }),
-        ),
-      ),
+          return timer(computeBackoffWithJitter(retryDelayMs, retryCount));
+        },
+      }),
     );
 }
 
 function isRetryableHttpError(error: unknown): boolean {
-  if (!(error instanceof HttpErrorResponse)) {
-    return false;
-  }
-
-  return error.status === 0 || error.status === 502 || error.status === 503 || error.status === 504;
+  return (
+    error instanceof HttpErrorResponse &&
+    (error.status === 0 ||
+      error.status === 408 ||
+      error.status === 500 ||
+      error.status === 502 ||
+      error.status === 503 ||
+      error.status === 504)
+  );
 }
 
 function computeBackoffWithJitter(baseDelayMs: number, attempt: number): number {

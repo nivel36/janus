@@ -13,6 +13,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { WorksiteApiService, WorksitePage } from '../../services/worksite-api.service';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
+import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
 @Component({
   selector: 'app-worksite-table',
@@ -44,11 +45,9 @@ export class WorksiteTableComponent {
       query: this.normalizedQuery(),
     }),
     stream: ({ params }) =>
-      this.worksiteApiService.findAll(
-        params.page - 1,
-        WorksiteTableComponent.PAGE_SIZE,
-        params.query,
-      ),
+      this.worksiteApiService
+        .findAll(params.page - 1, WorksiteTableComponent.PAGE_SIZE, params.query)
+        .pipe(retryTransientHttpErrors()),
     defaultValue: {
       items: [],
       totalItems: 0,

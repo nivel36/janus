@@ -62,8 +62,6 @@ interface TimelogClockCardViewModel {
   clockActionTitleKey: string;
   clockActionLabelKey: string;
   oppositeClockActionLabelKey: string;
-
-  // NUEVO
   locale?: string;
   use12Hour: boolean;
 }
@@ -320,7 +318,7 @@ export class TimelogClockCardComponent {
   private searchLatestTimeLog(employeeEmail: string): Observable<TimeLog | undefined> {
     return this.timeLogService
       .searchLatestByEmployee(employeeEmail)
-      .pipe(retryTransientHttpErrors(5_000))
+      .pipe(retryTransientHttpErrors())
       .pipe(catchError(() => of(undefined)));
   }
 

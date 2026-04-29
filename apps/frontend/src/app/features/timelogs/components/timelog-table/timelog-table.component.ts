@@ -77,11 +77,9 @@ export class TimelogTableComponent {
       page: this.currentPage(),
     }),
     stream: ({ params }) =>
-      this.timeLogService.searchByEmployee(
-        params.employeeEmail,
-        params.page - 1,
-        TimelogTableComponent.PAGE_SIZE,
-      ).pipe(retryTransientHttpErrors(5_000)),
+      this.timeLogService
+        .searchByEmployee(params.employeeEmail, params.page - 1, TimelogTableComponent.PAGE_SIZE)
+        .pipe(retryTransientHttpErrors()),
     defaultValue: {
       items: [],
       totalItems: 0,
