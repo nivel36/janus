@@ -31,21 +31,35 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 
 /**
- * Service class for managing {@link Worksite} entities.
+ * Service class responsible for managing {@link Worksite} entities.
  *
  * <p>
- * In addition to basic CRUD operations, this service centralizes the business
- * rules introduced by {@link WorksiteScope}: global worksites are visible to
- * every employee, assigned worksites are limited to explicitly assigned
- * employees, and personal worksites require a valid owner employee.
- * </p>
+ * This service provides CRUD operations and enforces business rules related to
+ * {@link WorksiteScope}. Depending on the scope, access and visibility rules
+ * vary:
+ * <ul>
+ * <li>{@code GLOBAL}: accessible by all employees</li>
+ * <li>{@code ASSIGNED}: accessible only by explicitly assigned employees</li>
+ * <li>{@code PERSONAL}: restricted to its owner</li>
+ * </ul>
+ *
+ * <p>
+ * It also coordinates with {@link WorksiteRepository} for persistence and
+ * {@link EmployeeService} for employee-related validations.
  */
 @Service
 public class WorksiteService {
 
 	private static final Logger logger = LoggerFactory.getLogger(WorksiteService.class);
 
+	/**
+	 * Repository used to perform persistence operations on {@link Worksite}.
+	 */
 	private final WorksiteRepository worksiteRepository;
+
+	/**
+	 * Service used to manage and validate {@link Employee} associations.
+	 */
 	private final EmployeeService employeeService;
 
 	/**
@@ -53,8 +67,8 @@ public class WorksiteService {
 	 *
 	 * @param worksiteRepository the repository used to access worksite data; must
 	 *                           not be {@code null}
-	 * @param employeeService    the employee service to asign a worksite to the
-	 *                           employee
+	 * @param employeeService    the employee service used for employee-related
+	 *                           operations; must not be {@code null}
 	 * @throws NullPointerException if any argument is {@code null}
 	 */
 	public WorksiteService(final WorksiteRepository worksiteRepository, final EmployeeService employeeService) {
@@ -63,15 +77,27 @@ public class WorksiteService {
 	}
 
 	/**
-	 * Retrieves all {@link Worksite} entities stored in the system.
+	 * Searches {@link Worksite} entities using an optional query and employee
+	 * filter.
 	 *
-	 * @return a list containing every existing {@link Worksite}; never {@code null}
+	 * <p>
+	 * If both parameters are empty, all worksites are returned. Otherwise, a
+	 * filtered search is performed.
+	 *
+	 * @param query         a text query to filter worksites; may be {@code null} or
+	 *                      blank
+	 * @param employeeEmail the employee email used to filter assigned worksites;
+	 *                      may be {@code null}
+	 * @param pageable      pagination information; must not be {@code null}
+	 * @return a {@link Page} of matching {@link Worksite} instances; never
+	 *         {@code null}
 	 */
 	@Transactional(readOnly = true)
 	public Page<Worksite> searchWorksites(final String query, final String employeeEmail, final Pageable pageable) {
 		logger.debug("Retrieving all worksites");
 		final String sanitizedQuery = query == null ? "" : query.strip();
-		final String sanitizedEmployeeEmail = employeeEmail == null || employeeEmail.isBlank() ? null : employeeEmail.strip();
+		final String sanitizedEmployeeEmail = employeeEmail == null || employeeEmail.isBlank() ? null
+				: employeeEmail.strip();
 		final Page<Worksite> worksites;
 		if (sanitizedQuery.isEmpty() && sanitizedEmployeeEmail == null) {
 			worksites = this.worksiteRepository.findAll(pageable);
@@ -84,22 +110,18 @@ public class WorksiteService {
 	}
 
 	/**
-	 * Creates a new {@link Worksite} with the provided classification data.
+	 * Creates a new {@link Worksite}.
 	 *
-	 * @param code     the unique code identifying the worksite; must not be
-	 *                 {@code null} and not be used by another worksite
-	 * @param name     the human readable name of the worksite; must not be
+	 * @param code     the unique worksite identifier; must not be {@code null} and
+	 *                 must be unique
+	 * @param name     the human-readable name; must not be {@code null}
+	 * @param timeZone the {@link ZoneId} of the worksite; must not be {@code null}
+	 * @param scope    the {@link WorksiteScope} defining visibility; must not be
 	 *                 {@code null}
-	 * @param timeZone the {@link ZoneId} associated with the worksite; must not be
-	 *                 {@code null}
-	 * @param scope    the scope assigned to the worksite; must not be {@code null}
 	 * @return the persisted {@link Worksite}
-	 * @throws NullPointerException           if any mandatory argument is
-	 *                                        {@code null}
-	 * @throws ResourceAlreadyExistsException if a worksite with the given code
+	 * @throws NullPointerException           if any parameter is {@code null}
+	 * @throws ResourceAlreadyExistsException if a worksite with the same code
 	 *                                        already exists
-	 * @throws ResourceNotFoundException      if a personal worksite references a
-	 *                                        non-existing owner employee
 	 */
 	@Transactional
 	public Worksite createWorksite(final String code, final String name, final ZoneId timeZone,
@@ -123,13 +145,12 @@ public class WorksiteService {
 	}
 
 	/**
-	 * Retrieves a {@link Worksite} by its code, throwing an exception if it does
-	 * not exist.
+	 * Retrieves a {@link Worksite} by its unique code.
 	 *
-	 * @param code the unique worksite code; must not be {@code null}
-	 * @return the {@link Worksite} with the given code
+	 * @param code the worksite code; must not be {@code null}
+	 * @return the matching {@link Worksite}
 	 * @throws NullPointerException      if {@code code} is {@code null}
-	 * @throws ResourceNotFoundException if the worksite does not exist
+	 * @throws ResourceNotFoundException if no worksite exists with the given code
 	 */
 	@Transactional(readOnly = true)
 	public Worksite findWorksiteByCode(final String code) {
@@ -149,21 +170,19 @@ public class WorksiteService {
 	}
 
 	/**
-	 * Verifies that the given employee is allowed to use the specified worksite.
+	 * Verifies whether an employee can use a given {@link Worksite}.
 	 *
 	 * <p>
-	 * Global worksites can be used by any employee. Assigned worksites can only be
-	 * used by explicitly assigned employees. Personal worksites can only be used by
-	 * their owner employee.
-	 * </p>
+	 * Rules:
+	 * <ul>
+	 * <li>{@code GLOBAL}: always allowed</li>
+	 * <li>{@code ASSIGNED}: allowed only if explicitly assigned</li>
+	 * </ul>
 	 *
-	 * @param employeeEmail email of the employee attempting to use the worksite;
-	 *                      must not be {@code null}
+	 * @param employeeEmail the employee email; must not be {@code null}
 	 * @param worksite      the target worksite; must not be {@code null}
-	 * @throws NullPointerException          if {@code employee} or {@code worksite}
-	 *                                       is {@code null}
-	 * @throws WorksiteAccessDeniedException if the employee is not allowed to use
-	 *                                       the worksite
+	 * @throws NullPointerException          if any parameter is {@code null}
+	 * @throws WorksiteAccessDeniedException if access is not permitted
 	 */
 	public void assertEmployeeCanUseWorksite(final String employeeEmail, final Worksite worksite) {
 		Objects.requireNonNull(employeeEmail, "employeeEmail can't be null");
@@ -185,22 +204,15 @@ public class WorksiteService {
 	}
 
 	/**
-	 * Updates an existing {@link Worksite} with the provided classification data.
+	 * Updates an existing {@link Worksite}.
 	 *
-	 * @param code          the code identifying the worksite to update; must not be
-	 *                      {@code null}
-	 * @param newName       the new name to assign; must not be {@code null}
-	 * @param newTimeZone   the new {@link ZoneId} to assign; must not be
-	 *                      {@code null}
-	 * @param newScope      the new worksite scope; must not be {@code null}
-	 * @param ownerEmployee the owner employee for personal worksites; must be
-	 *                      {@code null} for global/assigned worksites
+	 * @param code        the identifier of the worksite; must not be {@code null}
+	 * @param newName     the new name; must not be {@code null}
+	 * @param newTimeZone the new {@link ZoneId}; must not be {@code null}
+	 * @param newScope    the new {@link WorksiteScope}; must not be {@code null}
 	 * @return the updated {@link Worksite}
-	 * @throws NullPointerException      if any mandatory argument is {@code null}
-	 * @throws IllegalArgumentException  if the combination of {@code newScope} and
-	 *                                   {@code ownerEmployeeId} is inconsistent
-	 * @throws ResourceNotFoundException if the worksite or the requested owner
-	 *                                   employee cannot be found
+	 * @throws NullPointerException      if any parameter is {@code null}
+	 * @throws ResourceNotFoundException if the worksite does not exist
 	 */
 	@Transactional
 	public Worksite updateWorksite(final String code, final String newName, final ZoneId newTimeZone,
@@ -222,15 +234,11 @@ public class WorksiteService {
 	}
 
 	/**
-	 * Deletes an existing {@link Worksite}.
-	 *
-	 * <p>
-	 * Before deletion, it is verified that the worksite has no explicitly assigned
-	 * employees in the legacy association.
-	 * </p>
+	 * Deletes a {@link Worksite} if it is not currently associated with employees.
 	 *
 	 * @param worksite the worksite to delete; must not be {@code null}
-	 * @throws NullPointerException if {@code worksite} is {@code null}
+	 * @throws NullPointerException  if {@code worksite} is {@code null}
+	 * @throws IllegalStateException if the worksite still has assigned employees
 	 */
 	@Transactional
 	public void deleteWorksite(final Worksite worksite) {
@@ -248,18 +256,14 @@ public class WorksiteService {
 	}
 
 	/**
-	 * Associates the given {@link Worksite} with the specified {@link Employee}.
+	 * Associates an {@link Employee} with a {@link Worksite}.
 	 *
 	 * <p>
-	 * This operation is idempotent: if the association already exists, no changes
-	 * are applied.
-	 * </p>
+	 * This operation is idempotent.
 	 *
-	 * @param worksite the worksite to associate. Can't be {@code null}.
-	 * @param employee the employee to associate. Can't be {@code null}.
-	 * 
-	 * @return {@code true} if the employee has been added. {@code false} otherwise
-	 *
+	 * @param worksite the worksite; must not be {@code null}
+	 * @param employee the employee; must not be {@code null}
+	 * @return {@code true} if the association was created, {@code false} otherwise
 	 * @throws NullPointerException if any parameter is {@code null}
 	 */
 	@Transactional
@@ -277,14 +281,11 @@ public class WorksiteService {
 	}
 
 	/**
-	 * Removes the association between the given {@link Worksite} and
-	 * {@link Employee}.
+	 * Removes the association between an {@link Employee} and a {@link Worksite}.
 	 *
-	 * @param worksite the worksite . Can't be {@code null}.
-	 * @param employee the employee to remove. Can't be {@code null}.
-	 *
-	 * @return {@code true} if the employee has been removed. {@code false}
-	 *         otherwise
+	 * @param worksite the worksite; must not be {@code null}
+	 * @param employee the employee; must not be {@code null}
+	 * @return {@code true} if the association was removed, {@code false} otherwise
 	 * @throws NullPointerException if any parameter is {@code null}
 	 */
 	@Transactional
