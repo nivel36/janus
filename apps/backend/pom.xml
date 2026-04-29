@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.3</version>
+		<version>4.0.6</version>
 		<relativePath />
 	</parent>
 	<groupId>es.nivel36</groupId>
@@ -18,7 +18,7 @@
 	<description>Timetable management application.</description>
 	<properties>
 		<java.version>25</java.version>
-		<springdoc-openapi.version>3.0.1</springdoc-openapi.version>
+		<springdoc-openapi.version>3.0.3</springdoc-openapi.version>
 		<jacoco.version>0.8.14</jacoco.version>
 	</properties>
 	<dependencies>
