@@ -55,9 +55,8 @@ import jakarta.validation.constraints.NotNull;
  *
  * <p>
  * A worksite can be {@link WorksiteScope#GLOBAL global}, which makes it visible
- * to every employee, {@link WorksiteScope#ASSIGNED assigned}, which requires an
- * explicit employee assignment, or {@link WorksiteScope#PERSONAL personal}, in
- * which case it must belong to exactly one owner employee.
+ * to every employee or {@link WorksiteScope#ASSIGNED assigned}, which requires an
+ * explicit employee assignment.
  * </p>
  *
  * <p>
@@ -136,9 +135,7 @@ public class Worksite implements Serializable {
 	 *
 	 * <p>
 	 * {@link WorksiteScope#GLOBAL Global} and {@link WorksiteScope#ASSIGNED
-	 * Assigned} worksites must not define an owner. {@link WorksiteScope#PERSONAL
-	 * Personal} worksites belong to exactly one employee and therefore require
-	 * {@link #ownerEmployee} to be populated.
+	 * Assigned}
 	 * </p>
 	 */
 	@NotNull
@@ -158,14 +155,11 @@ public class Worksite implements Serializable {
 	private boolean deleted = false;
 
 	/**
-	 * Employees explicitly associated with this worksite through the legacy
-	 * employee-worksite link table.
+	 * Employees explicitly associated with this worksite through employee-worksite link table.
 	 *
 	 * <p>
 	 * This is the inverse side of the many-to-many relationship defined in
-	 * {@link Employee}. The collection is still kept because that association may
-	 * continue to serve secondary purposes, even though visibility is now primarily
-	 * determined by {@link #scope} and {@link #ownerEmployee}.
+	 * {@link Employee}.
 	 * </p>
 	 */
 	@ManyToMany(mappedBy = "worksites")
@@ -236,7 +230,13 @@ public class Worksite implements Serializable {
 		this.timeZone = Objects.requireNonNull(timeZone, "timeZone can't be null");
 		this.scope = Objects.requireNonNull(scope, "scope can't be null");
 	}
-
+	
+	/**
+	 * Returns the unique identifier of this worksite.
+	 *
+	 * @return the identifier, or {@code null} if the entity has not been persisted
+	 *         yet
+	 */
 	public Long getId() {
 		return this.id;
 	}
@@ -256,14 +256,31 @@ public class Worksite implements Serializable {
 		this.id = id;
 	}
 
+	/**
+	 * Returns the human-readable name of the worksite.
+	 *
+	 * @return the name of the worksite
+	 */
 	public String getName() {
 		return this.name;
 	}
 
+	/**
+	 * Updates the human-readable name of the worksite.
+	 *
+	 * @param name the new name of the worksite; must not be blank or {@code null}
+	 * @throws NullPointerException     if {@code name} is {@code null}
+	 * @throws IllegalArgumentException if {@code name} is blank
+	 */
 	public void setName(final String name) {
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 	}
 
+	/**
+	 * Returns the unique business code of the worksite.
+	 *
+	 * @return the natural identifier of the worksite
+	 */
 	public String getCode() {
 		return this.code;
 	}
