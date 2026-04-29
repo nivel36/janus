@@ -18,6 +18,7 @@ import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
 import { TimeLogService, TimeLogPage } from '../../services/timelog-api.service';
 import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
+import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
 @Component({
   selector: 'app-timelog-table',
@@ -80,7 +81,7 @@ export class TimelogTableComponent {
         params.employeeEmail,
         params.page - 1,
         TimelogTableComponent.PAGE_SIZE,
-      ),
+      ).pipe(retryTransientHttpErrors(5_000)),
     defaultValue: {
       items: [],
       totalItems: 0,

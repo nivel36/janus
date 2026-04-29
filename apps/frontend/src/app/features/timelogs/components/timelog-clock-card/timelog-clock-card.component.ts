@@ -29,6 +29,7 @@ import { CardComponent } from '../../../../shared/ui/card/card.component';
 import { ClockComponent } from '../../../../shared/ui/clock/clock.component';
 import { TimeLog } from '../../models/timelog';
 import { TimeLogService } from '../../services/timelog-api.service';
+import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
 /**
  * Requested clock action mode.
@@ -319,6 +320,7 @@ export class TimelogClockCardComponent {
   private searchLatestTimeLog(employeeEmail: string): Observable<TimeLog | undefined> {
     return this.timeLogService
       .searchLatestByEmployee(employeeEmail)
+      .pipe(retryTransientHttpErrors(5_000))
       .pipe(catchError(() => of(undefined)));
   }
 
