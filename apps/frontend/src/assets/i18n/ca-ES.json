@@ -4,7 +4,8 @@
     "dashboard": "Panell de control",
     "applicationSettings": "Configuració",
     "userPreferences": "Preferències d'usuari",
-    "worksites": "Llocs de treball"
+    "worksites": "Llocs de treball",
+    "schedules": "Horaris"
   },
   "locale": {
     "ca-ES": "Català",
@@ -120,6 +121,20 @@
     "empty": "Encara no hi ha llocs de treball disponibles.",
     "searchEmpty": "No hi ha llocs de treball que coincideixin amb la cerca.",
     "loadError": "Ara mateix no es poden carregar els llocs de treball.",
+    "paginator": {
+      "of": "de",
+      "previousPage": "Pàgina anterior",
+      "nextPage": "Pàgina següent",
+      "ariaLabel": "Paginació"
+    }
+  },
+  "schedule": {
+    "schedules": "Horaris",
+    "code": "Codi",
+    "name": "Nom",
+    "loading": "S'estan carregant els horaris...",
+    "empty": "Encara no hi ha horaris disponibles.",
+    "loadError": "Ara mateix no es poden carregar els horaris.",
     "paginator": {
       "of": "de",
       "previousPage": "Pàgina anterior",

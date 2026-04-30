@@ -1,0 +1,48 @@
+<section class="schedule" aria-labelledby="schedule-title">
+  <header class="schedule-header">
+    <h2 id="schedule-title" class="schedule-title">{{ 'schedule.schedules' | translate }}</h2>
+    @if (totalItems() > 0) {
+      <app-paginator
+        [totalItems]="totalItems()"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage()"
+        [betweenLabel]="'schedule.paginator.of' | translate"
+        [previousLabel]="'schedule.paginator.previousPage' | translate"
+        [nextLabel]="'schedule.paginator.nextPage' | translate"
+        [ariaLabel]="'schedule.paginator.ariaLabel' | translate"
+        (pageRequested)="onPageChange($event)"
+      />
+    }
+  </header>
+
+  @if (schedulesResource.error() !== undefined) {
+    <div class="schedule-message error" role="alert">{{ 'schedule.loadError' | translate }}</div>
+  }
+
+  @if (schedulesResource.isLoading()) {
+    <div class="schedule-message" aria-live="polite">{{ 'schedule.loading' | translate }}</div>
+  }
+
+  @if (!schedulesResource.isLoading() && schedules().length > 0) {
+    <table class="schedule-table" aria-labelledby="schedule-title">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'schedule.code' | translate }}</th>
+          <th scope="col">{{ 'schedule.name' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (schedule of schedules(); track schedule.code) {
+          <tr>
+            <td>{{ schedule.code }}</td>
+            <td>{{ schedule.name }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (isEmpty()) {
+    <div class="schedule-message" aria-live="polite">{{ 'schedule.empty' | translate }}</div>
+  }
+</section>

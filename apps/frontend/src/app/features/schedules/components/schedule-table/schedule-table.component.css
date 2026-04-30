@@ -1,0 +1,75 @@
+.schedule {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.schedule-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.schedule-title {
+	font-size: 1.25rem;
+	margin: 0;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: #f9d600;
+}
+
+.schedule-table {
+	width: 100%;
+	border-collapse: collapse;
+	background-color: #0f0f0f;
+	border-radius: 16px;
+	overflow: hidden;
+	box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2);
+}
+
+.schedule-table th, .schedule-table td {
+	padding: 1rem 1.5rem;
+	text-align: left;
+}
+
+.schedule-table thead {
+	background-color: rgba(249, 214, 0, 0.12);
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	font-size: 0.85rem;
+}
+
+.schedule-table tbody tr:nth-child(odd) {
+	background-color: rgba(255, 255, 255, 0.02);
+}
+
+.schedule-table tbody tr:nth-child(even) {
+	background-color: rgba(255, 255, 255, 0.08);
+}
+
+.schedule-table tbody tr:hover {
+	background-color: rgba(249, 214, 0, 0.18);
+}
+
+.schedule-message {
+	padding: 1rem 1.5rem;
+	border-radius: 16px;
+	background-color: rgba(255, 255, 255, 0.06);
+	color: #f9f9f9;
+}
+
+.schedule-message.error {
+	background-color: rgba(255, 87, 87, 0.12);
+}
+
+@media ( max-width : 640px) {
+	.schedule-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.schedule-table th, .schedule-table td {
+		padding: 0.75rem 1rem;
+	}
+}
