@@ -35,6 +35,17 @@ export const appRoutes: Routes = [
   },
 
   {
+    path: 'schedules',
+    canActivate: [authGuard],
+    data: {
+      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
+    },
+    loadComponent: () =>
+      import('./features/schedules/pages/schedules-page.component').then(
+        (m) => m.SchedulesPageComponent,
+      ),
+  },
+  {
     path: 'worksites',
     canActivate: [authGuard],
     data: {

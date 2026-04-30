@@ -25,6 +25,16 @@
 
             <button
                 type="button"
+                class="main-menu__icon-button"
+                [attr.aria-label]="'navigation.schedules' | translate"
+                [attr.title]="'navigation.schedules' | translate"
+                (click)="goToSchedules()"
+            >
+                <span aria-hidden="true"><fa-icon [icon]="faCalendarDays"></fa-icon></span>
+            </button>
+
+            <button
+                type="button"
                 class="main-menu__icon-button main-menu__icon-button--settings"
                 [attr.aria-label]="'navigation.applicationSettings' | translate"
                 [attr.title]="'navigation.applicationSettings' | translate"

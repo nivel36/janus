@@ -5,6 +5,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPowerOff } from '@fortawesome/free-solid-svg-icons';
 import { faGear } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { faIndustry } from '@fortawesome/free-solid-svg-icons';
 
 import { CurrentUserFacade } from '../../user/services/current-user.facade';
@@ -28,6 +29,7 @@ export class MainMenuComponent {
 
   readonly faPowerOff = faPowerOff;
   readonly faGear = faGear;
+  readonly faCalendarDays = faCalendarDays;
   readonly faIndustry = faIndustry;
 
   logout(): void {
@@ -41,6 +43,10 @@ export class MainMenuComponent {
 
   goToApplicationSettings(): void {
     this.router.navigate(['/application-settings']);
+  }
+
+  goToSchedules(): void {
+    this.router.navigate(['/schedules']);
   }
 
   goToWorksites(): void {

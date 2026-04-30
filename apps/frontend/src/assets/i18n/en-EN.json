@@ -4,7 +4,8 @@
     "dashboard": "Dashboard",
     "applicationSettings": "Application settings",
     "userPreferences": "User preferences",
-    "worksites": "Worksites"
+    "worksites": "Worksites",
+    "schedules": "Schedules"
   },
   "locale": {
     "ca-ES": "Catalan",
@@ -120,6 +121,20 @@
     "empty": "No worksites available yet.",
     "searchEmpty": "No worksites match your search.",
     "loadError": "Unable to load worksites at this time.",
+    "paginator": {
+      "of": "of",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "ariaLabel": "Pagination"
+    }
+  },
+  "schedule": {
+    "schedules": "Schedules",
+    "code": "Code",
+    "name": "Name",
+    "loading": "Loading schedules...",
+    "empty": "No schedules available yet.",
+    "loadError": "Unable to load schedules at this time.",
     "paginator": {
       "of": "of",
       "previousPage": "Previous page",
