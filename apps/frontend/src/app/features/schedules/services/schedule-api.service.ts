@@ -1,3 +1,6 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
@@ -19,8 +22,16 @@ export class ScheduleApiService {
   private readonly baseUrl = `${environment.apiBaseUrl}/schedules`;
   private readonly http = inject(HttpClient);
 
-  findAll(page = 0, size = 10): Observable<SchedulePage> {
-    const params = new HttpParams().set('sort', 'code,desc').set('page', String(page)).set('size', String(size));
+  search(page = 0, size = 10, query = ''): Observable<SchedulePage> {
+    let params = new HttpParams()
+      .set('sort', 'code,desc')
+      .set('page', String(page))
+      .set('size', String(size));
+
+    const normalizedQuery = query.trim();
+    if (normalizedQuery !== '') {
+      params = params.set('query', normalizedQuery);
+    }
 
     return this.http.get<Page<Schedule>>(this.baseUrl, { params }).pipe(
       map((r) => ({

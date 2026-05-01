@@ -1,10 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 
+import { ScheduleApiService, SchedulePage } from '../../services/schedule-api.service';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
-import { ScheduleApiService, SchedulePage } from '../../services/schedule-api.service';
 
 @Component({
   selector: 'app-schedule-table',
@@ -19,13 +30,25 @@ export class ScheduleTableComponent {
 
   private readonly scheduleApiService = inject(ScheduleApiService);
 
+  readonly query = input('');
+  readonly refreshToken = input(0);
+
   protected readonly currentPage = signal(1);
 
-  protected readonly schedulesResource = rxResource<SchedulePage, { page: number }>({
-    params: () => ({ page: this.currentPage() }),
+  protected readonly normalizedQuery = computed(() => this.query().trim());
+
+  protected readonly schedulesResource = rxResource<
+    SchedulePage,
+    { refreshToken: number; page: number; query: string }
+  >({
+    params: () => ({
+      refreshToken: this.refreshToken(),
+      page: this.currentPage(),
+      query: this.normalizedQuery(),
+    }),
     stream: ({ params }) =>
       this.scheduleApiService
-        .findAll(params.page - 1, ScheduleTableComponent.PAGE_SIZE)
+        .search(params.page - 1, ScheduleTableComponent.PAGE_SIZE, params.query)
         .pipe(retryTransientHttpErrors()),
     defaultValue: {
       items: [],
@@ -37,7 +60,27 @@ export class ScheduleTableComponent {
   });
 
   protected readonly schedules = computed(() => this.schedulesResource.value().items);
+
   protected readonly totalItems = computed(() => this.schedulesResource.value().totalItems);
+
+  protected readonly pagedSchedules = computed(() => this.schedules());
+
+  private readonly resetPageOnQueryChangeEffect = effect(() => {
+    this.normalizedQuery();
+    this.currentPage.set(1);
+  });
+
+  private readonly pageSyncEffect = effect(() => {
+    if (this.schedulesResource.isLoading()) {
+      return;
+    }
+
+    const maxPage = Math.max(1, Math.ceil(this.totalItems() / ScheduleTableComponent.PAGE_SIZE));
+
+    if (this.currentPage() > maxPage) {
+      this.currentPage.set(maxPage);
+    }
+  });
 
   protected readonly isEmpty = computed(
     () =>

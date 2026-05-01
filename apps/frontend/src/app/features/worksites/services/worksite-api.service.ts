@@ -33,7 +33,7 @@ export class WorksiteApiService {
    *
    * @returns Observable emitting the complete list of worksites.
    */
-  findAll(page = 0, size = 10, query = ''): Observable<WorksitePage> {
+  search(page = 0, size = 10, query = ''): Observable<WorksitePage> {
     let params = new HttpParams()
       .set('sort', 'code,desc')
       .set('page', String(page))

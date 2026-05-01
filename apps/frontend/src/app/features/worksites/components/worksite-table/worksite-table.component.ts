@@ -1,3 +1,6 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -46,7 +49,7 @@ export class WorksiteTableComponent {
     }),
     stream: ({ params }) =>
       this.worksiteApiService
-        .findAll(params.page - 1, WorksiteTableComponent.PAGE_SIZE, params.query)
+        .search(params.page - 1, WorksiteTableComponent.PAGE_SIZE, params.query)
         .pipe(retryTransientHttpErrors()),
     defaultValue: {
       items: [],

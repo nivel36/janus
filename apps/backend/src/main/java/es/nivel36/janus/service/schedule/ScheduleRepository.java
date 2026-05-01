@@ -150,8 +150,8 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("""
             SELECT DISTINCT s
             FROM Schedule s
-            JOIN s.rules r
-            JOIN r.dayOfWeekRanges d
+            JOIN FETCH s.rules r
+            JOIN FETCH r.dayOfWeekRanges d
             WHERE (LOWER(s.name) LIKE LOWER(CONCAT('%', :query, '%'))
                 OR LOWER(s.code) LIKE LOWER(CONCAT('%', :query, '%')))
               AND (:employeeEmail IS NULL
