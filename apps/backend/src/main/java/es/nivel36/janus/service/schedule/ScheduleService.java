@@ -25,6 +25,8 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -192,7 +194,7 @@ public class ScheduleService {
 		Objects.requireNonNull(schedule, "Schedule can't be null");
 		logger.debug("Deleting Schedule {}", schedule);
 
-		final boolean inUse = this.scheduleRepository.hasEmployees(schedule);
+		final boolean inUse = this.scheduleRepository.hasEmployees(schedule.getCode());
 		if (inUse) {
 			throw new IllegalStateException(
 					"The schedule " + schedule + " can't be deleted because it has assigned employees");
@@ -225,17 +227,6 @@ public class ScheduleService {
 	}
 
 	/**
-	 * Retrieves all persisted {@link Schedule} instances.
-	 *
-	 * @return a list containing all schedules
-	 */
-	@Transactional(readOnly = true)
-	public List<Schedule> findAllSchedules() {
-		logger.debug("Listing all schedules");
-		return this.scheduleRepository.findAll();
-	}
-
-	/**
 	 * Finds the {@link TimeRange} applicable to an {@link Employee} on a given
 	 * {@link LocalDate}.
 	 *
@@ -244,21 +235,54 @@ public class ScheduleService {
 	 * an empty {@link Optional} is returned.
 	 * </p>
 	 *
-	 * @param employee employee whose working time is requested; can't be
-	 *                 {@code null}
-	 * @param date     date to evaluate; can't be {@code null}
+	 * @param employeeEmail employee's email whose working time is requested; can't
+	 *                      be {@code null}
+	 * @param date          date to evaluate; can't be {@code null}
 	 * @return an {@link Optional} containing the applicable {@link TimeRange}, or
 	 *         an empty {@code Optional} if none applies
 	 * @throws NullPointerException if {@code employee} or {@code date} is
 	 *                              {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public Optional<TimeRange> findTimeRangeForEmployeeByDate(final Employee employee, final LocalDate date) {
-		Objects.requireNonNull(employee, "Employee can't be null");
+	public Optional<TimeRange> findTimeRangeForEmployeeByDate(final String employeeEmail, final LocalDate date) {
+		Objects.requireNonNull(employeeEmail, "employeeEmail can't be null");
 		Objects.requireNonNull(date, "Date can't be null");
-		logger.debug("Finding time range for employee {} by date {}", employee, date);
+		logger.debug("Finding time range for employee {} by date {}", employeeEmail, date);
 
 		final DayOfWeek dayOfWeek = date.getDayOfWeek();
-		return this.scheduleRepository.findTimeRangeForDate(employee, date, dayOfWeek);
+		return this.scheduleRepository.findTimeRangeForDate(employeeEmail, date, dayOfWeek);
+	}
+	
+	/**
+	 * Searches {@link Schedule} entities using an optional query and employee
+	 * filter.
+	 *
+	 * <p>
+	 * If both parameters are empty, all schedules are returned. Otherwise, a
+	 * filtered search is performed.
+	 *
+	 * @param query         a text query to filter schedules; may be {@code null} or
+	 *                      blank
+	 * @param employeeEmail the employee email used to filter assigned schedules;
+	 *                      may be {@code null}
+	 * @param pageable      pagination information; must not be {@code null}
+	 * @return a {@link Page} of matching {@link Schedule} instances; never
+	 *         {@code null}
+	 */
+	@Transactional(readOnly = true)
+	public Page<Schedule> searchSchedules(final String query, final String employeeEmail, final Pageable pageable) {
+		final String sanitizedQuery = query == null ? "" : query.strip();
+		final String sanitizedEmployeeEmail = employeeEmail == null || employeeEmail.isBlank() ? null
+				: employeeEmail.strip();
+		logger.debug("Searching schedules by query {} and employee email {}", sanitizedQuery, employeeEmail);
+		final Page<Schedule> schedules;
+		if (sanitizedQuery.isEmpty() && sanitizedEmployeeEmail == null) {
+			schedules = this.scheduleRepository.findAll(pageable);
+		} else {
+			schedules = this.scheduleRepository.search(sanitizedQuery, sanitizedEmployeeEmail, pageable);
+		}
+
+		logger.trace("Found {} worksites", schedules.getTotalElements());
+		return schedules;
 	}
 }

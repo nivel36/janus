@@ -116,7 +116,7 @@ class ScheduleControllerIT {
 	}
 
 	@Test
-	void testGetSchedulesShouldReturn200AndBody() throws Exception {
+	void testSearchSchedulesShouldReturn200AndBody() throws Exception {
 		final String body = """
 				{
 				  "code": "STD-WH",
@@ -143,11 +143,14 @@ class ScheduleControllerIT {
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(BASE).with(jwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$[0].code").value("STD-WH"));
+		this.mvc.perform(get(BASE).with(jwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk())
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.page.totalElements").value(1))
+				.andExpect(jsonPath("$.page.size").value(20))
+				.andExpect(jsonPath("$.page.number").value(0))
+				.andExpect(jsonPath("$.content[0].code").value("STD-WH"));
 	}
 
 	@Test
@@ -185,7 +188,7 @@ class ScheduleControllerIT {
 				.andExpect(jsonPath("$.name").value("Standard Work Hours")) //
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].dayOfWeek").value("MONDAY"));
 	}
-
+	
 	@Test
 	void testUpdateScheduleShouldReturn200AndBody() throws Exception {
 		final String createBody = """

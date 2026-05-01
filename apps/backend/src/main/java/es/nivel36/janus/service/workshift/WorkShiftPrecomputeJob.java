@@ -157,7 +157,7 @@ public class WorkShiftPrecomputeJob {
 				dayStart, dayEndExclusive);
 
 		final TimeLogs bucket = this.collectBucket(first, worksite, dayStart, dayEndExclusive, queue);
-		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, day);
+		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee.getEmail(), day);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();
 		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, zone, this.policy);

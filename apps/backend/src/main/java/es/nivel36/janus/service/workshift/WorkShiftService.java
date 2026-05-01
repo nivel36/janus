@@ -151,7 +151,8 @@ public class WorkShiftService {
 		logger.trace("Building the work shift");
 		final Page<TimeLog> logsPage = this.findTimeLogs(employee, date, timeZone);
 		final TimeLogs orderedLogs = new TimeLogs(logsPage.getContent());
-		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, date);
+		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee.getEmail(),
+				date);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();
 		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, timeZone, this.policy);
@@ -164,6 +165,7 @@ public class WorkShiftService {
 		final Instant to = startOfDay.plus(2, ChronoUnit.DAYS); // We add two days to ensure that we cover the 24-hour
 																// shifts of certain professions.
 		final Pageable unpaged = Pageable.unpaged();
-		return this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(employee.getEmail(), from, to, unpaged);
+		return this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(employee.getEmail(), from, to,
+				unpaged);
 	}
 }

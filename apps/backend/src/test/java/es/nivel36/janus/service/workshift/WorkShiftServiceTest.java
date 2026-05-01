@@ -342,7 +342,7 @@ class WorkShiftServiceTest {
 
 		when(this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(this.employee.getEmail(), fromInstant, toInstant,
 				page)).thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
-		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))
+		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee.getEmail(), date))
 				.thenReturn(Optional.of(timeRange));
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
 
@@ -374,7 +374,7 @@ class WorkShiftServiceTest {
 
 		when(this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(this.employee.getEmail(), fromInstant, toInstant,
 				page)).thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
-		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date)).thenReturn(Optional.empty());
+		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee.getEmail(), date)).thenReturn(Optional.empty());
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
 
 		// Act
