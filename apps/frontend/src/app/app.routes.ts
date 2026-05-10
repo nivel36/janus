@@ -46,6 +46,17 @@ export const appRoutes: Routes = [
       ),
   },
   {
+    path: 'worksites/new',
+    canActivate: [authGuard],
+    data: {
+      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
+    },
+    loadComponent: () =>
+      import('./features/worksites/pages/worksite-create-page.component').then(
+        (m) => m.WorksiteCreatePageComponent,
+      ),
+  },
+  {
     path: 'worksites',
     canActivate: [authGuard],
     data: {

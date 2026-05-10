@@ -15,7 +15,8 @@
   "actions": {
     "save": "Desa",
     "cancel": "Cancel·la",
-    "cleanSelection": "Neteja la sel·lecció"
+    "cleanSelection": "Neteja la sel·lecció",
+    "new": "Nou"
   },
   "searchBar": {
     "placeholder": "Cerca llocs de treball...",
@@ -114,13 +115,28 @@
   },
   "worksite": {
     "worksites": "Llocs de treball",
+    "new": "Nou lloc de treball",
     "code": "Codi",
     "name": "Nom",
     "scope": "Àmbit",
+    "timeZone": "Zona horària",
     "loading": "S'estan carregant els llocs de treball...",
     "empty": "Encara no hi ha llocs de treball disponibles.",
     "searchEmpty": "No hi ha llocs de treball que coincideixin amb la cerca.",
     "loadError": "Ara mateix no es poden carregar els llocs de treball.",
+    "fields": {
+      "timeZoneHint": "Busca la zona horària. Per exemple, Europe/Madrid."
+    },
+    "scopes": {
+      "GLOBAL": "Global",
+      "ASSIGNED": "Assignat"
+    },
+    "errors": {
+      "create": "No s'ha pogut crear el lloc de treball.",
+      "invalidCode": "El codi ha de tenir fins a 50 caràcters i usar només lletres, números, guions o guions baixos.",
+      "invalidName": "El nom ha de tenir fins a 250 caràcters i usar lletres, números, espais i puntuació bàsica.",
+      "invalidTimezone": "La zona horaria no és vàlida."
+    },
     "paginator": {
       "of": "de",
       "previousPage": "Pàgina anterior",

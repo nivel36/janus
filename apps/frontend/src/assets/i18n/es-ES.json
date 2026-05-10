@@ -15,7 +15,8 @@
   "actions": {
     "save": "Guarda",
     "cancel": "Cancela",
-    "cleanSelection": "Limpia la selección"
+    "cleanSelection": "Limpia la selección",
+    "new": "Nuevo"
   },
   "searchBar": {
     "placeholder": "Buscar puestos de trabajo...",
@@ -114,13 +115,28 @@
   },
   "worksite": {
     "worksites": "Puestos de trabajo",
+    "new": "Nuevo puesto de trabajo",
     "code": "Código",
     "name": "Nombre",
     "scope": "Ámbito",
+    "timeZone": "Zona horaria",
     "loading": "Cargando puestos de trabajo...",
     "empty": "Todavía no hay puestos de trabajo disponibles.",
     "searchEmpty": "No hay puestos de trabajo que coincidan con la búsqueda.",
     "loadError": "No se pueden cargar los puestos de trabajo en este momento.",
+    "fields": {
+      "timeZoneHint": "Busca la zona horaria. Por ejemplo, Europe/Madrid."
+    },
+    "scopes": {
+      "GLOBAL": "Global",
+      "ASSIGNED": "Asignado"
+    },
+    "errors": {
+      "create": "No se pudo crear el puesto de trabajo.",
+      "invalidCode": "El código debe tener hasta 50 caracteres y usar solo letras, números, guiones o guiones bajos.",
+      "invalidName": "El nombre debe tener hasta 250 caracteres y usar letras, números, espacios y puntuación básica.",
+      "invalidTimezone": "La zona horaria no es válida."
+    },
     "paginator": {
       "of": "de",
       "previousPage": "Página anterior",

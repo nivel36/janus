@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-export type WorksiteScope = 'GLOBAL' | 'PERSONAL' | 'ASSIGNED';
+export type WorksiteScope = 'GLOBAL' | 'ASSIGNED';
 
 export interface Worksite {
   code: string;
@@ -16,7 +16,6 @@ export interface CreateWorksitePayload {
   name: string;
   timeZone: string;
   scope: WorksiteScope;
-  ownerEmployeeEmail: string | null;
 }
 
 export interface UpdateWorksitePayload {

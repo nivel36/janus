@@ -15,7 +15,8 @@
   "actions": {
     "save": "Save",
     "cancel": "Cancel",
-    "cleanSelection": "Clean selection"
+    "cleanSelection": "Clean selection",
+    "new": "New"
   },
   "searchBar": {
     "placeholder": "Search worksites...",
@@ -114,13 +115,28 @@
   },
   "worksite": {
     "worksites": "Worksites",
+    "new": "New worksite",
     "code": "Code",
     "name": "Name",
     "scope": "Scope",
+    "timeZone": "Timezone",
     "loading": "Loading worksites...",
     "empty": "No worksites available yet.",
     "searchEmpty": "No worksites match your search.",
     "loadError": "Unable to load worksites at this time.",
+    "fields": {
+      "timeZoneHint": "Find the timezone. For example, Europe/Madrid."
+    },
+    "scopes": {
+      "GLOBAL": "Global",
+      "ASSIGNED": "Assigned"
+    },
+    "errors": {
+      "create": "Unable to create the worksite.",
+      "invalidCode": "Code must be up to 50 characters and use only letters, numbers, hyphens or underscores.",
+      "invalidName": "Name must be up to 250 characters and use letters, numbers, spaces and basic punctuation.",
+      "invalidTimezone": "Invalid timezone."
+    },
     "paginator": {
       "of": "of",
       "previousPage": "Previous page",

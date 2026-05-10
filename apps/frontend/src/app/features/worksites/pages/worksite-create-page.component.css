@@ -1,0 +1,52 @@
+.worksite-create-content {
+  width: min(1080px, 100%);
+  display: flex;
+  color: #f9f9f9;
+}
+
+.worksite-create-content app-card {
+  display: block;
+  flex: 1;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex-grow: 1;
+}
+
+.field-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+label {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #fece0b;
+  border-radius: 0.5rem;
+  background: #050505;
+  padding: 0.625rem 0.75rem;
+  color: #f9f9f9;
+  font-size: 0.95rem;
+}
+
+input:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(249, 214, 0, 0.3);
+}
+
+.message {
+  margin: 0;
+}
+
+.error {
+  color: #ff8a8a;
+}

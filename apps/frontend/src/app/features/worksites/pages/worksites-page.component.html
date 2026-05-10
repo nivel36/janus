@@ -1,8 +1,13 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.worksites">
-    <section page-body class="worksites-content">
-        <app-search-bar (queryChange)="onQueryChange($event)" />
-        <app-worksite-table [query]="searchQuery()" />
-    </section>
+  <section page-body class="worksites-content">
+    <div class="worksites-toolbar">
+      <app-search-bar (queryChange)="onQueryChange($event)" />
+      <app-button variant="main" (clicked)="createWorksite()">
+        {{ 'actions.new' | translate }}
+      </app-button>
+    </div>
+    <app-worksite-table [query]="searchQuery()" />
+  </section>
 
-    <div page-footer></div>
+  <div page-footer></div>
 </app-page-template>

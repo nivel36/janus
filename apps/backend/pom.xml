@@ -17,7 +17,7 @@
 	<name>janus</name>
 	<description>Timetable management application.</description>
 	<properties>
-		<java.version>25</java.version>
+		<java.version>26</java.version>
 		<springdoc-openapi.version>3.0.3</springdoc-openapi.version>
 		<jacoco.version>0.8.14</jacoco.version>
 	</properties>
