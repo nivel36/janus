@@ -133,6 +133,7 @@
     },
     "errors": {
       "create": "No se pudo crear el puesto de trabajo.",
+      "duplicatedCode": "El código está repetido.",
       "invalidCode": "El código debe tener hasta 50 caracteres y usar solo letras, números, guiones o guiones bajos.",
       "invalidName": "El nombre debe tener hasta 250 caracteres y usar letras, números, espacios y puntuación básica.",
       "invalidTimezone": "La zona horaria no es válida."

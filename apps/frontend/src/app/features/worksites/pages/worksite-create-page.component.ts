@@ -19,6 +19,7 @@ import { CardComponent } from '../../../shared/ui/card/card.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
 import { WorksiteScope } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
+import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.validator';
 
 @Component({
   selector: 'app-worksite-create-page',
@@ -39,6 +40,7 @@ export class WorksiteCreatePageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly worksiteApiService = inject(WorksiteApiService);
+  private readonly uniqueWorksiteCodeValidator = inject(UniqueWorksiteCodeValidator);
 
   readonly form = this.fb.group({
     code: this.fb.nonNullable.control('', {
@@ -47,7 +49,10 @@ export class WorksiteCreatePageComponent {
         Validators.maxLength(50),
         Validators.pattern(/^[A-Za-z0-9_-]+$/),
       ],
+      asyncValidators: [this.uniqueWorksiteCodeValidator.validate],
+      updateOn: 'blur',
     }),
+
     name: this.fb.nonNullable.control('', {
       validators: [
         Validators.required,
@@ -55,9 +60,11 @@ export class WorksiteCreatePageComponent {
         Validators.pattern(/^[\p{L}0-9 _'.,-]+$/u),
       ],
     }),
+
     timeZone: this.fb.control<string | null>('Europe/Madrid', {
       validators: [Validators.required],
     }),
+
     scope: this.fb.nonNullable.control<WorksiteScope>('GLOBAL', {
       validators: [Validators.required],
     }),
@@ -77,7 +84,7 @@ export class WorksiteCreatePageComponent {
   errorMessage = '';
 
   save(): void {
-    if (this.saving || this.form.invalid) {
+    if (this.saving || this.form.pending || this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -89,8 +96,8 @@ export class WorksiteCreatePageComponent {
 
     this.worksiteApiService
       .create({
-        code: rawValue.code,
-        name: rawValue.name,
+        code: rawValue.code.trim(),
+        name: rawValue.name.trim(),
         timeZone: rawValue.timeZone!,
         scope: rawValue.scope,
       })

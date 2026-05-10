@@ -133,6 +133,7 @@
     },
     "errors": {
       "create": "Unable to create the worksite.",
+      "duplicatedCode": "Code is already in use.",
       "invalidCode": "Code must be up to 50 characters and use only letters, numbers, hyphens or underscores.",
       "invalidName": "Name must be up to 250 characters and use letters, numbers, spaces and basic punctuation.",
       "invalidTimezone": "Invalid timezone."
