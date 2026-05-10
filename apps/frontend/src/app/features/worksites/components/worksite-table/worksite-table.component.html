@@ -42,7 +42,10 @@
                         <td>{{ worksite.code }}</td>
                         <td>{{ worksite.name }}</td>
                         <td>
-                            <app-chip [label]="('worksite.scopes.' + worksite.scope | translate)" type="default"></app-chip>
+                            <app-chip
+                                [label]="('worksite.scopes.' + worksite.scope | translate)"
+                                [type]="worksite.scope === 'ASSIGNED' ? 'primary' : 'default'"
+                            ></app-chip>
                         </td>
                     </tr>
                 }
