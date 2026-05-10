@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
@@ -23,7 +23,7 @@ import { ButtonComponent } from '../../../shared/ui/button/button.component';
   styleUrl: './worksites-page.component.css',
 })
 export class WorksitesPageComponent {
-  constructor(private readonly router: Router) {}
+  private readonly router = inject(Router);
 
   protected readonly searchQuery = signal('');
 
