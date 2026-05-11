@@ -171,7 +171,8 @@ public class WorksiteController {
 		final String name = request.name();
 		final ZoneId zoneId = ZoneId.of(request.timeZone());
 		final WorksiteScope scope = request.scope();
-		final Worksite worksite = this.worksiteService.createWorksite(code, name, zoneId, scope);
+		final Worksite worksite = this.worksiteService.createWorksite(code, name, zoneId, scope, request.description(),
+				request.address());
 
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -212,7 +213,8 @@ public class WorksiteController {
 		final String name = request.name();
 		final ZoneId zoneId = ZoneId.of(request.timeZone());
 		final WorksiteScope scope = request.scope();
-		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, name, zoneId, scope);
+		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, name, zoneId, scope,
+				request.description(), request.address());
 
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
 		return ResponseEntity.ok(response);

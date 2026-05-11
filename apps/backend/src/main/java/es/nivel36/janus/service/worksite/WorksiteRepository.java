@@ -84,7 +84,7 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
     boolean hasEmployees(String worksiteCode);
 
     /**
-     * Searches for {@link Worksite} entities whose name or code matches
+     * Searches for {@link Worksite} entities whose name, code, description or address matches
      * the given query string, with optional filtering based on employee visibility.
      *
      * <p>
@@ -101,7 +101,7 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
      * </ul>
      * </p>
      *
-     * @param query the search text to match against worksite name or code.
+     * @param query the search text to match against worksite name, code, description or address.
      *              Can't be {@code null}.
      * @param employeeEmail the email of the employee used to filter visible worksites.
      *                      Can be {@code null}.
@@ -113,7 +113,9 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
             SELECT DISTINCT w
             FROM Worksite w
             WHERE (LOWER(w.name) LIKE LOWER(CONCAT('%', :query, '%'))
-               OR LOWER(w.code) LIKE LOWER(CONCAT('%', :query, '%')))
+               OR LOWER(w.code) LIKE LOWER(CONCAT('%', :query, '%'))
+               OR LOWER(COALESCE(w.description, '')) LIKE LOWER(CONCAT('%', :query, '%'))
+               OR LOWER(COALESCE(w.address, '')) LIKE LOWER(CONCAT('%', :query, '%')))
               AND (:employeeEmail IS NULL
                OR w.scope = es.nivel36.janus.service.worksite.WorksiteScope.GLOBAL
                OR EXISTS (
