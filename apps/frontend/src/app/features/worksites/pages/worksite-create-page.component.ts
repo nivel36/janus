@@ -61,6 +61,12 @@ export class WorksiteCreatePageComponent {
     scope: this.fb.nonNullable.control<WorksiteScope>('GLOBAL', {
       validators: [Validators.required],
     }),
+    description: this.fb.control<string | null>(null, {
+      validators: [Validators.maxLength(500)],
+    }),
+    address: this.fb.control<string | null>(null, {
+      validators: [Validators.maxLength(500)],
+    }),
   });
 
   readonly scopeOptions: SelectOption<WorksiteScope>[] = (
@@ -93,6 +99,8 @@ export class WorksiteCreatePageComponent {
         name: rawValue.name,
         timeZone: rawValue.timeZone!,
         scope: rawValue.scope,
+        description: rawValue.description?.trim() || null,
+        address: rawValue.address?.trim() || null,
       })
       .pipe(
         finalize(() => {

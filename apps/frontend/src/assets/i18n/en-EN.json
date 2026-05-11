@@ -118,6 +118,8 @@
     "new": "New worksite",
     "code": "Code",
     "name": "Name",
+    "description": "Description",
+    "address": "Address",
     "scope": "Scope",
     "timeZone": "Timezone",
     "loading": "Loading worksites...",

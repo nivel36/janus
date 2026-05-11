@@ -26,6 +26,9 @@ import es.nivel36.janus.service.worksite.WorksiteScope;
  * @param timeZone the {@link java.time.ZoneId} identifier assigned to the
  *                 worksite
  * @param scope    the visibility scope of the worksite
+ * @param description optional worksite description
+ * @param address optional worksite address
  */
-public record WorksiteResponse(String code, String name, String timeZone, WorksiteScope scope) {
+public record WorksiteResponse(String code, String name, String timeZone, WorksiteScope scope, String description,
+		String address) {
 }

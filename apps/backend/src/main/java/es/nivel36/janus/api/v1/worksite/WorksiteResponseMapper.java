@@ -39,7 +39,9 @@ public class WorksiteResponseMapper implements Mapper<Worksite, WorksiteResponse
 		final String name = worksite.getName();
 		final ZoneId timeZone = worksite.getTimeZone();
 		final WorksiteScope scope = worksite.getScope();
+		final String description = worksite.getDescription();
+		final String address = worksite.getAddress();
 
-		return new WorksiteResponse(code, name, timeZone.getId(), scope);
+		return new WorksiteResponse(code, name, timeZone.getId(), scope, description, address);
 	}
 }

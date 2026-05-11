@@ -118,6 +118,8 @@
     "new": "Nou lloc de treball",
     "code": "Codi",
     "name": "Nom",
+    "description": "Descripció",
+    "address": "Adreça",
     "scope": "Àmbit",
     "timeZone": "Zona horària",
     "loading": "S'estan carregant els llocs de treball...",

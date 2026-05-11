@@ -118,6 +118,8 @@
     "new": "Nuevo puesto de trabajo",
     "code": "Código",
     "name": "Nombre",
+    "description": "Descripción",
+    "address": "Dirección",
     "scope": "Ámbito",
     "timeZone": "Zona horaria",
     "loading": "Cargando puestos de trabajo...",

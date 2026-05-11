@@ -26,6 +26,21 @@
         </div>
 
         <div class="field-control">
+          <label for="worksite-description">{{ 'worksite.description' | translate }}</label>
+          <input
+            id="worksite-description"
+            type="text"
+            formControlName="description"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="field-control">
+          <label for="worksite-address">{{ 'worksite.address' | translate }}</label>
+          <input id="worksite-address" type="text" formControlName="address" autocomplete="off" />
+        </div>
+
+        <div class="field-control">
           <label for="worksite-timezone">{{ 'worksite.timeZone' | translate }}</label>
           <app-autocomplete-textbox
             id="worksite-timezone"
