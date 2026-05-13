@@ -11,9 +11,11 @@ import {
   signal,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { WorksiteApiService, WorksitePage } from '../../services/worksite-api.service';
+import { Worksite } from '../../models/worksite';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
 import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
@@ -30,6 +32,7 @@ export class WorksiteTableComponent {
   private static readonly PAGE_SIZE = 5;
 
   private readonly worksiteApiService = inject(WorksiteApiService);
+  private readonly router = inject(Router);
 
   readonly query = input('');
   readonly refreshToken = input(0);
@@ -92,6 +95,10 @@ export class WorksiteTableComponent {
 
   protected onPageChange(page: number): void {
     this.currentPage.set(page);
+  }
+
+  protected openWorksite(worksite: Worksite): void {
+    this.router.navigate(['/worksites', worksite.code]);
   }
 
   protected get pageSize(): number {

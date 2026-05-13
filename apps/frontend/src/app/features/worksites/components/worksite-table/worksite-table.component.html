@@ -38,7 +38,15 @@
             </thead>
             <tbody>
                 @for (worksite of pagedWorksites(); track worksite.code) {
-                    <tr>
+                    <tr
+                        class="worksite-row"
+                        role="button"
+                        tabindex="0"
+                        [attr.aria-label]="'worksite.openDetail' | translate: { name: worksite.name }"
+                        (click)="openWorksite(worksite)"
+                        (keydown.enter)="openWorksite(worksite)"
+                        (keydown.space)="$event.preventDefault(); openWorksite(worksite)"
+                    >
                         <td>{{ worksite.code }}</td>
                         <td>{{ worksite.name }}</td>
                         <td>

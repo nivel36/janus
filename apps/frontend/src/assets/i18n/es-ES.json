@@ -16,7 +16,8 @@
     "save": "Guarda",
     "cancel": "Cancela",
     "cleanSelection": "Limpia la selección",
-    "new": "Nuevo"
+    "new": "Nuevo",
+    "back": "Volver"
   },
   "searchBar": {
     "placeholder": "Buscar puestos de trabajo...",
@@ -116,14 +117,20 @@
   "worksite": {
     "worksites": "Puestos de trabajo",
     "new": "Nuevo puesto de trabajo",
+    "detail": "Detalle del puesto de trabajo",
     "code": "Código",
     "name": "Nombre",
     "scope": "Ámbito",
     "timeZone": "Zona horaria",
+    "ownerEmployeeEmail": "Empleado propietario",
+    "noOwner": "Sin propietario",
     "loading": "Cargando puestos de trabajo...",
+    "detailLoading": "Cargando puesto de trabajo...",
     "empty": "Todavía no hay puestos de trabajo disponibles.",
     "searchEmpty": "No hay puestos de trabajo que coincidan con la búsqueda.",
     "loadError": "No se pueden cargar los puestos de trabajo en este momento.",
+    "detailLoadError": "No se puede cargar el puesto de trabajo en este momento.",
+    "openDetail": "Abrir detalle de {{name}}",
     "fields": {
       "timeZoneHint": "Busca la zona horaria. Por ejemplo, Europe/Madrid."
     },

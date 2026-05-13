@@ -52,6 +52,16 @@
 	background-color: rgba(249, 214, 0, 0.18);
 }
 
+.worksite-row {
+	cursor: pointer;
+}
+
+.worksite-row:focus-visible {
+	outline: 2px solid #f9d600;
+	outline-offset: -2px;
+	background-color: rgba(249, 214, 0, 0.18);
+}
+
 .worksite-message {
 	padding: 1rem 1.5rem;
 	border-radius: 16px;

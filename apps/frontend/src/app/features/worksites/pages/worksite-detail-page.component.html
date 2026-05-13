@@ -1,0 +1,59 @@
+<app-page-template appNameKey="navigation.janus" pageNameKey="worksite.detail">
+    <section page-body class="worksite-detail-content">
+        <div class="worksite-detail-toolbar">
+            <app-button variant="secondary" (clicked)="goBack()">
+                {{ 'actions.back' | translate }}
+            </app-button>
+        </div>
+
+        @if (worksiteResource.error() !== undefined) {
+            <div class="worksite-detail-message error" role="alert">
+                {{ 'worksite.detailLoadError' | translate }}
+            </div>
+        }
+
+        @if (worksiteResource.isLoading()) {
+            <div class="worksite-detail-message" aria-live="polite">
+                {{ 'worksite.detailLoading' | translate }}
+            </div>
+        }
+
+        @if (!worksiteResource.isLoading() && worksite(); as worksite) {
+            <app-card [title]="worksite.name" styleClass="worksite-detail-card">
+                <dl class="worksite-detail-list">
+                    <div class="worksite-detail-item">
+                        <dt>{{ 'worksite.code' | translate }}</dt>
+                        <dd>{{ worksite.code }}</dd>
+                    </div>
+
+                    <div class="worksite-detail-item">
+                        <dt>{{ 'worksite.name' | translate }}</dt>
+                        <dd>{{ worksite.name }}</dd>
+                    </div>
+
+                    <div class="worksite-detail-item">
+                        <dt>{{ 'worksite.scope' | translate }}</dt>
+                        <dd>
+                            <app-chip
+                                [label]="('worksite.scopes.' + worksite.scope | translate)"
+                                [type]="worksite.scope === 'ASSIGNED' ? 'primary' : 'default'"
+                            ></app-chip>
+                        </dd>
+                    </div>
+
+                    <div class="worksite-detail-item">
+                        <dt>{{ 'worksite.timeZone' | translate }}</dt>
+                        <dd>{{ worksite.timeZone }}</dd>
+                    </div>
+
+                    <div class="worksite-detail-item">
+                        <dt>{{ 'worksite.ownerEmployeeEmail' | translate }}</dt>
+                        <dd>{{ worksite.ownerEmployeeEmail ?? ('worksite.noOwner' | translate) }}</dd>
+                    </div>
+                </dl>
+            </app-card>
+        }
+    </section>
+
+    <div page-footer></div>
+</app-page-template>

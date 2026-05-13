@@ -16,7 +16,8 @@
     "save": "Desa",
     "cancel": "Cancel·la",
     "cleanSelection": "Neteja la sel·lecció",
-    "new": "Nou"
+    "new": "Nou",
+    "back": "Torna"
   },
   "searchBar": {
     "placeholder": "Cerca llocs de treball...",
@@ -116,14 +117,20 @@
   "worksite": {
     "worksites": "Llocs de treball",
     "new": "Nou lloc de treball",
+    "detail": "Detall del lloc de treball",
     "code": "Codi",
     "name": "Nom",
     "scope": "Àmbit",
     "timeZone": "Zona horària",
+    "ownerEmployeeEmail": "Empleat propietari",
+    "noOwner": "Sense propietari",
     "loading": "S'estan carregant els llocs de treball...",
+    "detailLoading": "S'està carregant el lloc de treball...",
     "empty": "Encara no hi ha llocs de treball disponibles.",
     "searchEmpty": "No hi ha llocs de treball que coincideixin amb la cerca.",
     "loadError": "Ara mateix no es poden carregar els llocs de treball.",
+    "detailLoadError": "Ara mateix no es pot carregar el lloc de treball.",
+    "openDetail": "Obre el detall de {{name}}",
     "fields": {
       "timeZoneHint": "Busca la zona horària. Per exemple, Europe/Madrid."
     },

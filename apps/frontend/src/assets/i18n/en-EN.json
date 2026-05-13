@@ -16,7 +16,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "cleanSelection": "Clean selection",
-    "new": "New"
+    "new": "New",
+    "back": "Back"
   },
   "searchBar": {
     "placeholder": "Search worksites...",
@@ -116,14 +117,20 @@
   "worksite": {
     "worksites": "Worksites",
     "new": "New worksite",
+    "detail": "Worksite detail",
     "code": "Code",
     "name": "Name",
     "scope": "Scope",
     "timeZone": "Timezone",
+    "ownerEmployeeEmail": "Owner employee",
+    "noOwner": "No owner",
     "loading": "Loading worksites...",
+    "detailLoading": "Loading worksite...",
     "empty": "No worksites available yet.",
     "searchEmpty": "No worksites match your search.",
     "loadError": "Unable to load worksites at this time.",
+    "detailLoadError": "Unable to load the worksite at this time.",
+    "openDetail": "Open {{name}} detail",
     "fields": {
       "timeZoneHint": "Find the timezone. For example, Europe/Madrid."
     },
