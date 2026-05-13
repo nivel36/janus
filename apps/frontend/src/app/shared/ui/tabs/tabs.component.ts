@@ -3,6 +3,7 @@
  */
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, contentChildren, signal } from '@angular/core';
+import { createUuid } from '../../utils/uuid.utils';
 import { TabItemDirective } from './tab-item.directive';
 
 /**
@@ -23,6 +24,8 @@ export class TabsComponent {
 
   readonly activeIndex = signal(0);
 
+  private readonly instanceId = `tabs-${createUuid()}`;
+
   private readonly loadedIndices = signal<Set<number>>(new Set([0]));
 
   selectTab(index: number): void {
@@ -36,5 +39,13 @@ export class TabsComponent {
 
   isLoaded(index: number): boolean {
     return this.loadedIndices().has(index);
+  }
+
+  triggerId(index: number): string {
+    return `${this.instanceId}-trigger-${index}`;
+  }
+
+  panelId(index: number): string {
+    return `${this.instanceId}-panel-${index}`;
   }
 }

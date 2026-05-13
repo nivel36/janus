@@ -4,8 +4,8 @@
             type="button"
             class="tabs-trigger"
             role="tab"
-            [id]="'tab-trigger-' + index"
-            [attr.aria-controls]="'tab-panel-' + index"
+            [id]="triggerId(index)"
+            [attr.aria-controls]="panelId(index)"
             [attr.aria-selected]="activeIndex() === index"
             [class.tabs-trigger-active]="activeIndex() === index"
             (click)="selectTab(index)"
@@ -20,8 +20,8 @@
         <section
             class="tabs-panel"
             role="tabpanel"
-            [id]="'tab-panel-' + index"
-            [attr.aria-labelledby]="'tab-trigger-' + index"
+            [id]="panelId(index)"
+            [attr.aria-labelledby]="triggerId(index)"
         >
             <ng-container [ngTemplateOutlet]="tabItem.template"></ng-container>
         </section>

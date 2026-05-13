@@ -4,7 +4,7 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { describe, expect, it, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { TabItemDirective } from './tab-item.directive';
 import { TabsComponent } from './tabs.component';
@@ -13,19 +13,29 @@ import { TabsComponent } from './tabs.component';
   standalone: true,
   imports: [TabsComponent, TabItemDirective],
   template: `
-    <app-tabs>
-      <ng-template appTabItem="Resumen">
-        <p id="summary-content">Contenido resumen</p>
-      </ng-template>
+    <section id="tabs-a">
+      <app-tabs>
+        <ng-template appTabItem="Resumen">
+          <p class="summary-content">Contenido resumen</p>
+        </ng-template>
 
-      <ng-template appTabItem="Detalles">
-        <p id="details-content">Contenido detalles</p>
-      </ng-template>
+        <ng-template appTabItem="Detalles">
+          <p class="details-content">Contenido detalles</p>
+        </ng-template>
+      </app-tabs>
+    </section>
 
-      <ng-template appTabItem="Histórico">
-        <p id="history-content">Contenido histórico</p>
-      </ng-template>
-    </app-tabs>
+    <section id="tabs-b">
+      <app-tabs>
+        <ng-template appTabItem="Uno">
+          <p class="one-content">Contenido uno</p>
+        </ng-template>
+
+        <ng-template appTabItem="Dos">
+          <p class="two-content">Contenido dos</p>
+        </ng-template>
+      </app-tabs>
+    </section>
   `,
 })
 class TestHostComponent {}
@@ -34,43 +44,6 @@ describe('TabsComponent', () => {
   let fixture: ComponentFixture<TestHostComponent>;
 
   beforeEach(async () => {
-    TestBed.overrideComponent(TabsComponent, {
-      set: {
-        template: `
-          <div class="tabs" role="tablist" aria-label="Tabs navigation">
-              @for (tabItem of tabItems(); track $index; let index = $index) {
-                  <button
-                      type="button"
-                      class="tabs-trigger"
-                      role="tab"
-                      [id]="'tab-trigger-' + index"
-                      [attr.aria-controls]="'tab-panel-' + index"
-                      [attr.aria-selected]="activeIndex() === index"
-                      [class.tabs-trigger-active]="activeIndex() === index"
-                      (click)="selectTab(index)"
-                  >
-                      {{ tabItem.label() }}
-                  </button>
-              }
-          </div>
-
-          @for (tabItem of tabItems(); track $index; let index = $index) {
-              @if (isLoaded(index) && activeIndex() === index) {
-                  <section
-                      class="tabs-panel"
-                      role="tabpanel"
-                      [id]="'tab-panel-' + index"
-                      [attr.aria-labelledby]="'tab-trigger-' + index"
-                  >
-                      <ng-container [ngTemplateOutlet]="tabItem.template"></ng-container>
-                  </section>
-              }
-          }
-        `,
-        styles: [''],
-      },
-    });
-
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
     }).compileComponents();
@@ -80,30 +53,48 @@ describe('TabsComponent', () => {
   });
 
   it('should create', () => {
-    const tabsDebugEl = fixture.debugElement.query(By.directive(TabsComponent));
-    expect(tabsDebugEl).toBeTruthy();
+    const tabsDebugEls = fixture.debugElement.queryAll(By.directive(TabsComponent));
+    expect(tabsDebugEls.length).toBe(2);
   });
 
   it('should render only the first tab panel on initial load', () => {
-    expect(fixture.nativeElement.querySelector('#summary-content')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('#details-content')).toBeNull();
-    expect(fixture.nativeElement.querySelector('#history-content')).toBeNull();
+    const firstTabs = fixture.nativeElement.querySelector('#tabs-a');
+
+    expect(firstTabs.querySelector('.summary-content')).toBeTruthy();
+    expect(firstTabs.querySelector('.details-content')).toBeNull();
   });
 
   it('should lazy-load a panel only when its tab is clicked', () => {
-    const tabButtons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll('button[role="tab"]');
+    const firstTabs = fixture.nativeElement.querySelector('#tabs-a');
+    const tabButtons: NodeListOf<HTMLButtonElement> = firstTabs.querySelectorAll('button[role="tab"]');
 
     tabButtons[1].click();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('#summary-content')).toBeNull();
-    expect(fixture.nativeElement.querySelector('#details-content')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('#history-content')).toBeNull();
+    expect(firstTabs.querySelector('.summary-content')).toBeNull();
+    expect(firstTabs.querySelector('.details-content')).toBeTruthy();
+  });
 
-    tabButtons[2].click();
-    fixture.detectChanges();
+  it('should generate unique ids across different app-tabs instances', () => {
+    const tabElements: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('[role="tab"]');
+    const panelElements: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('[role="tabpanel"]');
 
-    expect(fixture.nativeElement.querySelector('#details-content')).toBeNull();
-    expect(fixture.nativeElement.querySelector('#history-content')).toBeTruthy();
+    const tabIds = Array.from(tabElements, (tab) => tab.id);
+    const panelIds = Array.from(panelElements, (panel) => panel.id);
+
+    expect(new Set(tabIds).size).toBe(tabIds.length);
+    expect(new Set(panelIds).size).toBe(panelIds.length);
+
+    tabElements.forEach((tab) => {
+      const controlledPanelId = tab.getAttribute('aria-controls');
+      expect(controlledPanelId).toBeTruthy();
+      expect(fixture.nativeElement.querySelector(`#${controlledPanelId}`)).toBeTruthy();
+    });
+
+    panelElements.forEach((panel) => {
+      const labelledById = panel.getAttribute('aria-labelledby');
+      expect(labelledById).toBeTruthy();
+      expect(fixture.nativeElement.querySelector(`#${labelledById}`)).toBeTruthy();
+    });
   });
 });
