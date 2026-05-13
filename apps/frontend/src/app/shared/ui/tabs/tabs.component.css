@@ -1,0 +1,25 @@
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid #d6d6d6;
+    margin-bottom: 1rem;
+}
+
+.tabs-trigger {
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    padding: 0.5rem 0.25rem;
+    cursor: pointer;
+    color: #4a4a4a;
+    font-weight: 600;
+}
+
+.tabs-trigger-active {
+    border-bottom-color: #2563eb;
+    color: #111827;
+}
+
+.tabs-panel {
+    min-height: 4rem;
+}
