@@ -46,3 +46,13 @@ input { width: 100%; box-sizing: border-box; border: 1px solid rgba(255,255,255,
   .content-grid { grid-template-columns: 1fr; }
   .field-row { grid-template-columns: 1fr; }
 }
+
+
+.message {
+  margin: 0.45rem 0 0;
+  font-size: 0.85rem;
+}
+
+.error {
+  color: #ff8a8a;
+}

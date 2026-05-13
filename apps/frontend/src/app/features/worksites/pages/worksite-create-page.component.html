@@ -16,27 +16,62 @@
           <app-card styleClass="panel-card">
             <h4>INFORMACIÓN GENERAL</h4>
             <form [formGroup]="form" (ngSubmit)="save()">
-              <div class="field-row"><label for="worksite-code">CÓDIGO</label><input id="worksite-code" type="text" formControlName="code" /></div>
-              <div class="field-row"><label for="worksite-name">NOMBRE</label><input id="worksite-name" type="text" formControlName="name" /></div>
+              <div class="field-row">
+                <label for="worksite-code">CÓDIGO</label>
+                <div>
+                  <input id="worksite-code" type="text" formControlName="code" />
+                  @if (form.controls.code.touched && form.controls.code.invalid) {
+                    <p class="message error">{{ 'worksite.errors.invalidCode' | translate }}</p>
+                  }
+                </div>
+              </div>
+
+              <div class="field-row">
+                <label for="worksite-name">NOMBRE</label>
+                <div>
+                  <input id="worksite-name" type="text" formControlName="name" />
+                  @if (form.controls.name.touched && form.controls.name.invalid) {
+                    <p class="message error">{{ 'worksite.errors.invalidName' | translate }}</p>
+                  }
+                </div>
+              </div>
+
               <div class="field-row">
                 <label for="worksite-scope">ÁMBITO</label>
                 <app-select inputId="worksite-scope" formControlName="scope" [options]="scopeOptions" />
               </div>
+
               <div class="field-row">
                 <label for="worksite-timezone">ZONA HORARIA</label>
-                <app-autocomplete-textbox
-                  id="worksite-timezone"
-                  formControlName="timeZone"
-                  [searchMethod]="searchMethod"
-                  [displayWith]="timezoneDisplayWith"
-                  [valueWith]="timezoneValueWith"
-                  [resolveByValue]="resolveTimezoneByValue"
-                />
+                <div>
+                  <app-autocomplete-textbox
+                    id="worksite-timezone"
+                    formControlName="timeZone"
+                    [searchMethod]="searchMethod"
+                    [displayWith]="timezoneDisplayWith"
+                    [valueWith]="timezoneValueWith"
+                    [resolveByValue]="resolveTimezoneByValue"
+                  />
+
+                  @if (form.controls.timeZone.touched && form.controls.timeZone.invalid) {
+                    <p class="message error">{{ 'worksite.errors.invalidTimezone' | translate }}</p>
+                  }
+                </div>
               </div>
-              <div class="field-row"><label for="worksite-address">DIRECCIÓN</label><input id="worksite-address" type="text" formControlName="address" /></div>
+
               <div class="field-row">
-                <label for="worksite-description">DESCRIPCIÓN</label><input id="worksite-description" type="text" formControlName="description" />
+                <label for="worksite-address">DIRECCIÓN</label>
+                <input id="worksite-address" type="text" formControlName="address" />
               </div>
+
+              <div class="field-row">
+                <label for="worksite-description">DESCRIPCIÓN</label>
+                <input id="worksite-description" type="text" formControlName="description" />
+              </div>
+
+              @if (errorMessage) {
+                <p class="message error">{{ errorMessage | translate }}</p>
+              }
 
               <div class="buttons">
                 <app-button type="button" variant="secondary" (clicked)="cancel()">CANCELA</app-button>
