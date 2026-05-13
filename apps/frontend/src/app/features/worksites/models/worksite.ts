@@ -8,6 +8,8 @@ export interface Worksite {
   name: string;
   timeZone: string;
   scope: WorksiteScope;
+  description: string | null;
+  address: string | null;
   ownerEmployeeEmail: string | null;
 }
 
@@ -16,11 +18,15 @@ export interface CreateWorksitePayload {
   name: string;
   timeZone: string;
   scope: WorksiteScope;
+  description: string | null;
+  address: string | null;
 }
 
 export interface UpdateWorksitePayload {
   name: string;
   timeZone: string;
   scope: WorksiteScope;
+  description: string | null;
+  address: string | null;
   ownerEmployeeEmail: string | null;
 }

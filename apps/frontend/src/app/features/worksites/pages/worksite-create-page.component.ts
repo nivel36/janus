@@ -17,6 +17,8 @@ import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-te
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
+import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
+import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
 import { WorksiteScope } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
 import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.validator';
@@ -31,6 +33,8 @@ import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.
     ButtonComponent,
     CardComponent,
     SelectComponent,
+    TabsComponent,
+    TabItemDirective,
     PageTemplateComponent,
   ],
   templateUrl: './worksite-create-page.component.html',
@@ -68,6 +72,12 @@ export class WorksiteCreatePageComponent {
     scope: this.fb.nonNullable.control<WorksiteScope>('GLOBAL', {
       validators: [Validators.required],
     }),
+    description: this.fb.control<string | null>(null, {
+      validators: [Validators.maxLength(500)],
+    }),
+    address: this.fb.control<string | null>(null, {
+      validators: [Validators.maxLength(500)],
+    }),
   });
 
   readonly scopeOptions: SelectOption<WorksiteScope>[] = (
@@ -100,6 +110,8 @@ export class WorksiteCreatePageComponent {
         name: rawValue.name.trim(),
         timeZone: rawValue.timeZone!,
         scope: rawValue.scope,
+        description: rawValue.description?.trim() || null,
+        address: rawValue.address?.trim() || null,
       })
       .pipe(
         finalize(() => {

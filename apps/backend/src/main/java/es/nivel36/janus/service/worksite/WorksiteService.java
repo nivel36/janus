@@ -125,7 +125,7 @@ public class WorksiteService {
 	 */
 	@Transactional
 	public Worksite createWorksite(final String code, final String name, final ZoneId timeZone,
-			final WorksiteScope scope) {
+			final WorksiteScope scope, final String description, final String address) {
 		Objects.requireNonNull(code, "code can't be null");
 		Objects.requireNonNull(name, "name can't be null");
 		Objects.requireNonNull(timeZone, "timeZone can't be null");
@@ -139,6 +139,8 @@ public class WorksiteService {
 		}
 
 		final Worksite worksite = new Worksite(code, name, timeZone, scope);
+		worksite.setDescription(description);
+		worksite.setAddress(address);
 		final Worksite savedWorksite = this.worksiteRepository.save(worksite);
 		logger.trace("Worksite {} created successfully", code);
 		return savedWorksite;
@@ -216,7 +218,7 @@ public class WorksiteService {
 	 */
 	@Transactional
 	public Worksite updateWorksite(final String code, final String newName, final ZoneId newTimeZone,
-			final WorksiteScope newScope) {
+			final WorksiteScope newScope, final String newDescription, final String newAddress) {
 		Objects.requireNonNull(code, "code can't be null");
 		Objects.requireNonNull(newName, "newName can't be null");
 		Objects.requireNonNull(newTimeZone, "newTimeZone can't be null");
@@ -227,6 +229,8 @@ public class WorksiteService {
 		worksite.setName(newName);
 		worksite.setTimeZone(newTimeZone);
 		worksite.updateScope(newScope);
+		worksite.setDescription(newDescription);
+		worksite.setAddress(newAddress);
 
 		final Worksite updatedWorksite = this.worksiteRepository.save(worksite);
 		logger.trace("Worksite {} updated successfully", code);

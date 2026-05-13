@@ -120,6 +120,8 @@
     "detail": "Detalle del puesto de trabajo",
     "code": "Código",
     "name": "Nombre",
+    "description": "Descripción",
+    "address": "Dirección",
     "scope": "Ámbito",
     "timeZone": "Zona horaria",
     "ownerEmployeeEmail": "Empleado propietario",

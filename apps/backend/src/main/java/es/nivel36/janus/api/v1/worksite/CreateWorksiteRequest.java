@@ -52,6 +52,10 @@ String code, //
 		String timeZone, //
 
 		@NotNull(message = "scope must not be null") //
-		WorksiteScope scope) {
+		WorksiteScope scope, //
+
+		String description, //
+
+		String address) {
 
 }

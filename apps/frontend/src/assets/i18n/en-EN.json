@@ -120,6 +120,8 @@
     "detail": "Worksite detail",
     "code": "Code",
     "name": "Name",
+    "description": "Description",
+    "address": "Address",
     "scope": "Scope",
     "timeZone": "Timezone",
     "ownerEmployeeEmail": "Owner employee",

@@ -130,6 +130,10 @@ public class Worksite implements Serializable {
 	@NotNull
 	private ZoneId timeZone;
 
+	private String description;
+
+	private String address;
+
 	/**
 	 * Visibility scope of the worksite.
 	 *
@@ -302,6 +306,22 @@ public class Worksite implements Serializable {
 	 */
 	public void setTimeZone(final ZoneId timeZone) {
 		this.timeZone = Objects.requireNonNull(timeZone, "timeZone can't be null");
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(final String description) {
+		this.description = description;
+	}
+
+	public String getAddress() {
+		return this.address;
+	}
+
+	public void setAddress(final String address) {
+		this.address = address;
 	}
 
 	/**
