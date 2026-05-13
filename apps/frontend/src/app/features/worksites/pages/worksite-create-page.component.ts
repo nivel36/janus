@@ -17,8 +17,6 @@ import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-te
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
-import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
-import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
 import { WorksiteScope } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
 import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.validator';
@@ -33,8 +31,6 @@ import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.
     ButtonComponent,
     CardComponent,
     SelectComponent,
-    TabsComponent,
-    TabItemDirective,
     PageTemplateComponent,
   ],
   templateUrl: './worksite-create-page.component.html',

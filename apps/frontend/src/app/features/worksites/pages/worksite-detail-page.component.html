@@ -1,57 +1,135 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="worksite.detail">
     <section page-body class="worksite-detail-content">
-        <div class="worksite-detail-toolbar">
-            <app-button variant="secondary" (clicked)="goBack()">
-                {{ 'actions.back' | translate }}
-            </app-button>
-        </div>
-
         @if (worksiteResource.error() !== undefined) {
             <div class="worksite-detail-message error" role="alert">
                 {{ 'worksite.detailLoadError' | translate }}
             </div>
-        }
-
-        @if (worksiteResource.isLoading()) {
+        } @else if (worksiteResource.isLoading()) {
             <div class="worksite-detail-message" aria-live="polite">
                 {{ 'worksite.detailLoading' | translate }}
             </div>
-        }
+        } @else if (worksite(); as worksite) {
+            <app-tabs>
+                <ng-template appTabItem="GENERAL">
+                    <article class="worksite-hero">
+                        <div class="worksite-hero__identity">
+                            <div class="worksite-hero__icon" aria-hidden="true">
+                                <fa-icon [icon]="faBuilding"></fa-icon>
+                            </div>
 
-        @if (!worksiteResource.isLoading() && worksite(); as worksite) {
-            <app-card [title]="worksite.name" styleClass="worksite-detail-card">
-                <dl class="worksite-detail-list">
-                    <div class="worksite-detail-item">
-                        <dt>{{ 'worksite.code' | translate }}</dt>
-                        <dd>{{ worksite.code }}</dd>
+                            <div class="worksite-hero__copy">
+                                <h2>{{ worksite.name }}</h2>
+                                <p>
+                                    <span>{{ worksite.code }}</span>
+                                    <span class="scope-pill">
+                                        {{ 'worksite.scopes.' + worksite.scope | translate }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <span class="status-pill">
+                            <span aria-hidden="true"></span>
+                            ACTIVO
+                        </span>
+                    </article>
+
+                    <div class="worksite-detail-grid">
+                        <app-card styleClass="worksite-panel">
+                            <h3>INFORMACIÓN GENERAL</h3>
+
+                            <dl class="detail-list">
+                                <div class="detail-row">
+                                    <dt>{{ 'worksite.code' | translate }}</dt>
+                                    <dd>{{ worksite.code }}</dd>
+                                </div>
+
+                                <div class="detail-row">
+                                    <dt>{{ 'worksite.name' | translate }}</dt>
+                                    <dd>{{ worksite.name }}</dd>
+                                </div>
+
+                                <div class="detail-row">
+                                    <dt>{{ 'worksite.scope' | translate }}</dt>
+                                    <dd>
+                                        <span class="scope-pill">
+                                            {{ 'worksite.scopes.' + worksite.scope | translate }}
+                                        </span>
+                                    </dd>
+                                </div>
+
+                                <div class="detail-row">
+                                    <dt>{{ 'worksite.timeZone' | translate }}</dt>
+                                    <dd>{{ worksite.timeZone }}</dd>
+                                </div>
+
+                                <div class="detail-row">
+                                    <dt>DIRECCIÓN</dt>
+                                    <dd>{{ worksite.address || '-' }}</dd>
+                                </div>
+
+                                <div class="detail-row">
+                                    <dt>DESCRIPCIÓN</dt>
+                                    <dd>{{ worksite.description || '-' }}</dd>
+                                </div>
+                            </dl>
+                        </app-card>
+
+                        <app-card styleClass="worksite-panel">
+                            <h3>RESUMEN</h3>
+
+                            <div class="summary-grid">
+                                <article class="summary-card">
+                                    <span class="summary-icon" aria-hidden="true">
+                                        <fa-icon [icon]="faUsers"></fa-icon>
+                                    </span>
+                                    <span class="summary-label">EMPLEADOS</span>
+                                    <strong>24</strong>
+                                </article>
+
+                                <article class="summary-card">
+                                    <span class="summary-icon" aria-hidden="true">
+                                        <fa-icon [icon]="faClock"></fa-icon>
+                                    </span>
+                                    <span class="summary-label">TURNOS ACTIVOS</span>
+                                    <strong>3</strong>
+                                </article>
+
+                                <article class="summary-card">
+                                    <span class="summary-icon" aria-hidden="true">
+                                        <fa-icon [icon]="faCalendarDays"></fa-icon>
+                                    </span>
+                                    <span class="summary-label">FICHAJES HOY</span>
+                                    <strong>19</strong>
+                                </article>
+
+                                <article class="summary-card">
+                                    <span class="summary-icon" aria-hidden="true">
+                                        <fa-icon [icon]="faExclamationTriangle"></fa-icon>
+                                    </span>
+                                    <span class="summary-label">INCIDENCIAS</span>
+                                    <strong>0</strong>
+                                </article>
+                            </div>
+                        </app-card>
                     </div>
 
-                    <div class="worksite-detail-item">
-                        <dt>{{ 'worksite.name' | translate }}</dt>
-                        <dd>{{ worksite.name }}</dd>
+                    <div class="worksite-actions">
+                        <app-button type="button" variant="secondary" (clicked)="goBack()">
+                            CANCELA
+                        </app-button>
+                        <app-button type="button" variant="main">EDITA</app-button>
                     </div>
+                </ng-template>
 
-                    <div class="worksite-detail-item">
-                        <dt>{{ 'worksite.scope' | translate }}</dt>
-                        <dd>
-                            <app-chip
-                                [label]="('worksite.scopes.' + worksite.scope | translate)"
-                                [type]="worksite.scope === 'ASSIGNED' ? 'primary' : 'default'"
-                            ></app-chip>
-                        </dd>
-                    </div>
+                <ng-template appTabItem="EMPLEADOS">
+                    <app-card styleClass="worksite-panel empty-panel"></app-card>
+                </ng-template>
 
-                    <div class="worksite-detail-item">
-                        <dt>{{ 'worksite.timeZone' | translate }}</dt>
-                        <dd>{{ worksite.timeZone }}</dd>
-                    </div>
-
-                    <div class="worksite-detail-item">
-                        <dt>{{ 'worksite.ownerEmployeeEmail' | translate }}</dt>
-                        <dd>{{ worksite.ownerEmployeeEmail ?? ('worksite.noOwner' | translate) }}</dd>
-                    </div>
-                </dl>
-            </app-card>
+                <ng-template appTabItem="HORARIOS">
+                    <app-card styleClass="worksite-panel empty-panel"></app-card>
+                </ng-template>
+            </app-tabs>
         }
     </section>
 

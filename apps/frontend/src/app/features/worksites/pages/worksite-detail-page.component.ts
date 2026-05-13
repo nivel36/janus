@@ -10,15 +10,32 @@ import { map } from 'rxjs';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
-import { ChipComponent } from '../../../shared/ui/chip/chip.component';
 import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
 import { Worksite } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+  faBuilding,
+  faCalendarDays,
+  faClock,
+  faExclamationTriangle,
+  faUsers,
+} from '@fortawesome/free-solid-svg-icons';
+import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
+import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
 
 @Component({
   selector: 'app-worksite-detail-page',
   standalone: true,
-  imports: [ButtonComponent, CardComponent, ChipComponent, PageTemplateComponent, TranslatePipe],
+  imports: [
+    ButtonComponent,
+    CardComponent,
+    FontAwesomeModule,
+    PageTemplateComponent,
+    TranslatePipe,
+    TabsComponent,
+    TabItemDirective,
+  ],
   templateUrl: './worksite-detail-page.component.html',
   styleUrl: './worksite-detail-page.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +57,12 @@ export class WorksiteDetailPageComponent {
   });
 
   protected readonly worksite = computed(() => this.worksiteResource.value());
+
+  protected readonly faBuilding = faBuilding;
+  protected readonly faCalendarDays = faCalendarDays;
+  protected readonly faClock = faClock;
+  protected readonly faExclamationTriangle = faExclamationTriangle;
+  protected readonly faUsers = faUsers;
 
   protected goBack(): void {
     this.router.navigate(['/worksites']);
