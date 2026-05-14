@@ -95,6 +95,8 @@ describe('WorksiteCreatePageComponent', () => {
       name: 'Madrid Hub',
       timeZone: 'Europe/Madrid',
       scope: 'GLOBAL',
+      description: null,
+      address: null,
     });
 
     component.save();

@@ -88,6 +88,9 @@ describe('TabsComponent', () => {
     tabElements.forEach((tab) => {
       const controlledPanelId = tab.getAttribute('aria-controls');
       expect(controlledPanelId).toBeTruthy();
+      tab.click();
+      fixture.detectChanges();
+
       expect(fixture.nativeElement.querySelector(`#${controlledPanelId}`)).toBeTruthy();
     });
 
