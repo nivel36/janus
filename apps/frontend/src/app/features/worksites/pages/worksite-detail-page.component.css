@@ -46,6 +46,10 @@
     background: #151515;
 }
 
+.worksite-panel-title {
+    text-transform: uppercase;
+}
+
 .worksite-detail-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

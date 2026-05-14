@@ -10,12 +10,14 @@
             </div>
         } @else if (worksite(); as worksite) {
             <app-tabs>
-                <ng-template appTabItem="GENERAL">
+                <ng-template [appTabItem]="'worksite.tabs.general' | translate">
                     <app-worksite-hero [worksite]="worksite"></app-worksite-hero>
 
                     <div class="worksite-detail-grid">
                         <app-card styleClass="worksite-panel">
-                            <h3>INFORMACIÓN GENERAL</h3>
+                            <h3 class="worksite-panel-title">
+                                {{ 'worksite.sections.generalInformation' | translate }}
+                            </h3>
 
                             <dl class="detail-list">
                                 <div class="detail-row">
@@ -45,38 +47,44 @@
                                 </div>
 
                                 <div class="detail-row">
-                                    <dt>DIRECCIÓN</dt>
+                                    <dt>{{ 'worksite.address' | translate }}</dt>
                                     <dd>{{ worksite.address || '-' }}</dd>
                                 </div>
 
                                 <div class="detail-row">
-                                    <dt>DESCRIPCIÓN</dt>
+                                    <dt>{{ 'worksite.description' | translate }}</dt>
                                     <dd>{{ worksite.description || '-' }}</dd>
                                 </div>
                             </dl>
                         </app-card>
 
                         <app-card styleClass="worksite-panel">
-                            <h3>RESUMEN</h3>
+                            <h3 class="worksite-panel-title">
+                                {{ 'worksite.sections.summary' | translate }}
+                            </h3>
 
                             <div class="summary-grid">
-                                <app-summary-card [icon]="faUsers" label="EMPLEADOS" [value]="24" />
+                                <app-summary-card
+                                    [icon]="faUsers"
+                                    [label]="'worksite.summary.employees' | translate"
+                                    [value]="24"
+                                />
 
                                 <app-summary-card
                                     [icon]="faClock"
-                                    label="TURNOS ACTIVOS"
+                                    [label]="'worksite.summary.activeShifts' | translate"
                                     [value]="3"
                                 />
 
                                 <app-summary-card
                                     [icon]="faCalendarDays"
-                                    label="FICHAJES HOY"
+                                    [label]="'worksite.summary.todayTimelogs' | translate"
                                     [value]="19"
                                 />
 
                                 <app-summary-card
                                     [icon]="faExclamationTriangle"
-                                    label="INCIDENCIAS"
+                                    [label]="'worksite.summary.incidents' | translate"
                                     [value]="0"
                                 />
                             </div>
@@ -85,17 +93,19 @@
 
                     <div class="worksite-actions">
                         <app-button type="button" variant="secondary" (clicked)="goBack()">
-                            CANCELA
+                            {{ 'actions.cancel' | translate }}
                         </app-button>
-                        <app-button type="button" variant="main">EDITA</app-button>
+                        <app-button type="button" variant="main">
+                            {{ 'actions.edit' | translate }}
+                        </app-button>
                     </div>
                 </ng-template>
 
-                <ng-template appTabItem="EMPLEADOS">
+                <ng-template [appTabItem]="'worksite.tabs.employees' | translate">
                     <app-card styleClass="worksite-panel empty-panel"></app-card>
                 </ng-template>
 
-                <ng-template appTabItem="HORARIOS">
+                <ng-template [appTabItem]="'worksite.tabs.schedules' | translate">
                     <app-card styleClass="worksite-panel empty-panel"></app-card>
                 </ng-template>
             </app-tabs>

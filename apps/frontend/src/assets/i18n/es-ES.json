@@ -14,6 +14,7 @@
   },
   "actions": {
     "save": "Guarda",
+    "edit": "Edita",
     "cancel": "Cancela",
     "cleanSelection": "Limpia la selección",
     "new": "Nuevo",
@@ -133,6 +134,21 @@
     "loadError": "No se pueden cargar los puestos de trabajo en este momento.",
     "detailLoadError": "No se puede cargar el puesto de trabajo en este momento.",
     "openDetail": "Abrir detalle de {{name}}",
+    "tabs": {
+      "general": "General",
+      "employees": "Empleados",
+      "schedules": "Horarios"
+    },
+    "sections": {
+      "generalInformation": "Información general",
+      "summary": "Resumen"
+    },
+    "summary": {
+      "employees": "Empleados",
+      "activeShifts": "Turnos activos",
+      "todayTimelogs": "Fichajes hoy",
+      "incidents": "Incidencias"
+    },
     "fields": {
       "timeZoneHint": "Busca la zona horaria. Por ejemplo, Europe/Madrid."
     },

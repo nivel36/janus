@@ -14,6 +14,7 @@
   },
   "actions": {
     "save": "Save",
+    "edit": "Edit",
     "cancel": "Cancel",
     "cleanSelection": "Clean selection",
     "new": "New",
@@ -133,6 +134,21 @@
     "loadError": "Unable to load worksites at this time.",
     "detailLoadError": "Unable to load the worksite at this time.",
     "openDetail": "Open {{name}} detail",
+    "tabs": {
+      "general": "General",
+      "employees": "Employees",
+      "schedules": "Schedules"
+    },
+    "sections": {
+      "generalInformation": "General information",
+      "summary": "Summary"
+    },
+    "summary": {
+      "employees": "Employees",
+      "activeShifts": "Active shifts",
+      "todayTimelogs": "Time logs today",
+      "incidents": "Incidents"
+    },
     "fields": {
       "timeZoneHint": "Find the timezone. For example, Europe/Madrid."
     },

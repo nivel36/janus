@@ -14,6 +14,7 @@
   },
   "actions": {
     "save": "Desa",
+    "edit": "Edita",
     "cancel": "Cancel·la",
     "cleanSelection": "Neteja la sel·lecció",
     "new": "Nou",
@@ -133,6 +134,21 @@
     "loadError": "Ara mateix no es poden carregar els llocs de treball.",
     "detailLoadError": "Ara mateix no es pot carregar el lloc de treball.",
     "openDetail": "Obre el detall de {{name}}",
+    "tabs": {
+      "general": "General",
+      "employees": "Empleats",
+      "schedules": "Horaris"
+    },
+    "sections": {
+      "generalInformation": "Informació general",
+      "summary": "Resum"
+    },
+    "summary": {
+      "employees": "Empleats",
+      "activeShifts": "Torns actius",
+      "todayTimelogs": "Fitxatges avui",
+      "incidents": "Incidències"
+    },
     "fields": {
       "timeZoneHint": "Busca la zona horària. Per exemple, Europe/Madrid."
     },
