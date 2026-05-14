@@ -26,11 +26,14 @@ import es.nivel36.janus.service.schedule.Schedule;
 /**
  * API response representing a {@link Schedule} aggregate and its rules.
  *
- * @param code  unique business identifier of the schedule
- * @param name  human readable name describing the schedule
- * @param rules rules associated with the schedule
+ * @param code           unique business identifier of the schedule
+ * @param name           human readable name describing the schedule
+ * @param entryTolerance allowed tolerance for entry times
+ * @param exitTolerance  allowed tolerance for exit times
+ * @param rules          rules associated with the schedule
  */
-public record ScheduleResponse(String code, String name, List<ScheduleRuleResponse> rules) {
+public record ScheduleResponse(String code, String name, Duration entryTolerance, Duration exitTolerance,
+		List<ScheduleRuleResponse> rules) {
 
 	/**
 	 * Response fragment describing a single rule inside a schedule.

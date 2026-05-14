@@ -42,7 +42,8 @@ public class ScheduleResponseMapper implements Mapper<Schedule, ScheduleResponse
 			return null;
 		}
 		final List<ScheduleRuleResponse> rules = this.mapRules(schedule.getRules());
-		return new ScheduleResponse(schedule.getCode(), schedule.getName(), rules);
+		return new ScheduleResponse(schedule.getCode(), schedule.getName(), schedule.getEntryTolerance(),
+				schedule.getExitTolerance(), rules);
 	}
 
 	private List<ScheduleRuleResponse> mapRules(final Set<ScheduleRule> rules) {

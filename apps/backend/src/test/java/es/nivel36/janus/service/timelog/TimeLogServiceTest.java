@@ -23,14 +23,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
+import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.schedule.Schedule;
+import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.service.worksite.WorksiteService;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,287 +47,493 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
-import es.nivel36.janus.service.employee.Employee;
-import es.nivel36.janus.service.schedule.Schedule;
-import es.nivel36.janus.service.worksite.Worksite;
-import es.nivel36.janus.service.worksite.WorksiteService;
-
 class TimeLogServiceTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(TimeLogServiceTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+        TimeLogServiceTest.class
+    );
 
-	private @Mock TimeLogRepository timeLogRepository;
-	private @Mock ApplicationSettingsService applicationSettingsService;
-	private @Mock WorksiteService worksiteService;
-	private @Mock Clock clock;
-	private @Mock ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository;
-	private @InjectMocks TimeLogService timeLogService;
-	private Employee employee;
-	private Worksite worksite;
+    private @Mock TimeLogRepository timeLogRepository;
+    private @Mock ApplicationSettingsService applicationSettingsService;
+    private @Mock WorksiteService worksiteService;
+    private @Mock Clock clock;
+    private @Mock ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository;
+    private @InjectMocks TimeLogService timeLogService;
+    private Employee employee;
+    private Worksite worksite;
 
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.openMocks(this);
-		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", new Schedule("CODE", "Name"));
-		final ZoneId utcZone = ZoneId.of("UTC");
-		this.worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
-		this.worksite.assignEmployee(employee);
-		when(this.clock.getZone()).thenReturn(utcZone);
-		when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv -> inv.getArgument(0));
-	}
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        this.employee = new Employee(
+            "Abel",
+            "Ferrer",
+            "aferrer@nivel36.es",
+            new Schedule(
+                "CODE",
+                "Name",
+                Duration.ofMinutes(5),
+                Duration.ofMinutes(5)
+            )
+        );
+        final ZoneId utcZone = ZoneId.of("UTC");
+        this.worksite = new Worksite(
+            "BCN-HQ",
+            "Barcelona Headquarters",
+            utcZone
+        );
+        this.worksite.assignEmployee(employee);
+        when(this.clock.getZone()).thenReturn(utcZone);
+        when(this.timeLogRepository.save(any(TimeLog.class))).thenAnswer(inv ->
+            inv.getArgument(0)
+        );
+    }
 
-	private Instant now() {
-		return this.clock.instant().truncatedTo(ChronoUnit.SECONDS);
-	}
+    private Instant now() {
+        return this.clock.instant().truncatedTo(ChronoUnit.SECONDS);
+    }
 
-	@Test
-	void testClockInSuccess() {
-		logger.info("Test clock in success");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
-		final Instant entry = this.now();
+    @Test
+    void testClockInSuccess() {
+        logger.info("Test clock in success");
+        // Arrange
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            29,
+            12,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
+        final Instant entry = this.now();
 
-		// Act
-		final TimeLog timeLog = this.timeLogService.clockIn(this.employee, this.worksite, entry);
+        // Act
+        final TimeLog timeLog = this.timeLogService.clockIn(
+            this.employee,
+            this.worksite,
+            entry
+        );
 
-		// Assert
-		assertNotNull(timeLog);
-		assertEquals(this.employee, timeLog.getEmployee());
-		assertEquals(entry, timeLog.getEntryTime());
-		verify(this.timeLogRepository, times(1)).save(timeLog);
-	}
+        // Assert
+        assertNotNull(timeLog);
+        assertEquals(this.employee, timeLog.getEmployee());
+        assertEquals(entry, timeLog.getEntryTime());
+        verify(this.timeLogRepository, times(1)).save(timeLog);
+    }
 
-	@Test
-	void testClockInWithNullEmployee() {
-		logger.info("Test clock in with null employee");
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
+    @Test
+    void testClockInWithNullEmployee() {
+        logger.info("Test clock in with null employee");
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            29,
+            12,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
 
-		final Instant now = this.now();
-		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.clockIn(null, this.worksite, now);
-		});
-	}
+        final Instant now = this.now();
+        assertThrows(NullPointerException.class, () -> {
+            this.timeLogService.clockIn(null, this.worksite, now);
+        });
+    }
 
-	@Test
-	void testClockInWithNullEntryTime() {
-		logger.info("Test clock in with null entry time");
-		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.clockIn(this.employee, this.worksite, null);
-		});
-	}
+    @Test
+    void testClockInWithNullEntryTime() {
+        logger.info("Test clock in with null entry time");
+        assertThrows(NullPointerException.class, () -> {
+            this.timeLogService.clockIn(this.employee, this.worksite, null);
+        });
+    }
 
-	@Test
-	void testClockOutSuccess() throws ClockOutWithoutClockInException {
-		logger.info("Test clock out success");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
-		final Instant eightHoursBefore = fixedNow.minus(8, ChronoUnit.HOURS);
+    @Test
+    void testClockOutSuccess() throws ClockOutWithoutClockInException {
+        logger.info("Test clock out success");
+        // Arrange
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            29,
+            20,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
+        final Instant eightHoursBefore = fixedNow.minus(8, ChronoUnit.HOURS);
 
-		final TimeLog existingTimeLog = new TimeLog(this.employee, this.worksite, eightHoursBefore);
-		when(this.timeLogRepository.findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getEmail()))
-				.thenReturn(existingTimeLog);
+        final TimeLog existingTimeLog = new TimeLog(
+            this.employee,
+            this.worksite,
+            eightHoursBefore
+        );
+        when(
+            this.timeLogRepository.findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(
+                this.employee.getEmail()
+            )
+        ).thenReturn(existingTimeLog);
 
-		// Act
-		final TimeLog result = this.timeLogService.clockOut(this.employee, this.worksite, this.now());
+        // Act
+        final TimeLog result = this.timeLogService.clockOut(
+            this.employee,
+            this.worksite,
+            this.now()
+        );
 
-		// Assert
-		assertNotNull(result);
-		assertEquals(this.now(), result.getExitTime());
-	}
+        // Assert
+        assertNotNull(result);
+        assertEquals(this.now(), result.getExitTime());
+    }
 
-	@Test
-	void testClockOutThrowsWhenNoPreviousLog() {
-		logger.info("Test clock out with no previous log");
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
-		when(this.timeLogRepository.findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getEmail()))
-				.thenReturn(null);
-		final Instant now = this.now();
-		assertThrows(ClockOutWithoutClockInException.class, () -> {
-			this.timeLogService.clockOut(this.employee, this.worksite, now);
-		});
-	}
+    @Test
+    void testClockOutThrowsWhenNoPreviousLog() {
+        logger.info("Test clock out with no previous log");
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            29,
+            20,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
+        when(
+            this.timeLogRepository.findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(
+                this.employee.getEmail()
+            )
+        ).thenReturn(null);
+        final Instant now = this.now();
+        assertThrows(ClockOutWithoutClockInException.class, () -> {
+            this.timeLogService.clockOut(this.employee, this.worksite, now);
+        });
+    }
 
-	@Test
-	void testCreateTimeLogSuccessWithinEditingWindow() {
-		logger.info("Test create timelog within ending window");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+    @Test
+    void testCreateTimeLogSuccessWithinEditingWindow() {
+        logger.info("Test create timelog within ending window");
+        // Arrange
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            30,
+            10,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
 
-		final Instant entry = fixedNow.minus(1, ChronoUnit.DAYS); // dentro de ventana (3 días)
-		final Instant exit = fixedNow.minus(2, ChronoUnit.HOURS); // dentro de ventana (3 días)
+        final Instant entry = fixedNow.minus(1, ChronoUnit.DAYS); // dentro de ventana (3 días)
+        final Instant exit = fixedNow.minus(2, ChronoUnit.HOURS); // dentro de ventana (3 días)
 
-		// Act
-		final TimeLog saved = this.timeLogService.createTimeLog(this.employee, this.worksite, entry, exit);
+        // Act
+        final TimeLog saved = this.timeLogService.createTimeLog(
+            this.employee,
+            this.worksite,
+            entry,
+            exit
+        );
 
-		// Assert
-		assertNotNull(saved);
-		assertEquals(this.employee, saved.getEmployee());
-		assertEquals(this.worksite, saved.getWorksite());
-		assertEquals(entry, saved.getEntryTime());
-		assertEquals(exit, saved.getExitTime());
-		verify(this.timeLogRepository, times(1)).save(any(TimeLog.class));
-	}
+        // Assert
+        assertNotNull(saved);
+        assertEquals(this.employee, saved.getEmployee());
+        assertEquals(this.worksite, saved.getWorksite());
+        assertEquals(entry, saved.getEntryTime());
+        assertEquals(exit, saved.getExitTime());
+        verify(this.timeLogRepository, times(1)).save(any(TimeLog.class));
+    }
 
-	@Test
-	void testCreateTimeLogThrowsWhenRequestIsNull() {
-		logger.info("Test create timelog throws when request is null");
-		assertThrows(NullPointerException.class,
-				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, null, null));
-	}
+    @Test
+    void testCreateTimeLogThrowsWhenRequestIsNull() {
+        logger.info("Test create timelog throws when request is null");
+        assertThrows(NullPointerException.class, () ->
+            this.timeLogService.createTimeLog(
+                this.employee,
+                this.worksite,
+                null,
+                null
+            )
+        );
+    }
 
-	@Test
-	void testCreateTimeLogThrowsWhenEntryIsNull() {
-		logger.info("Test create timelog throws when entry is null");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+    @Test
+    void testCreateTimeLogThrowsWhenEntryIsNull() {
+        logger.info("Test create timelog throws when entry is null");
+        // Arrange
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            30,
+            10,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
 
-		// Act & Assert
-		final Instant oneHourBefore = fixedNow.minus(1, ChronoUnit.HOURS);
-		assertThrows(NullPointerException.class,
-				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, null, oneHourBefore));
-		verify(this.timeLogRepository, times(0)).save(any());
-	}
+        // Act & Assert
+        final Instant oneHourBefore = fixedNow.minus(1, ChronoUnit.HOURS);
+        assertThrows(NullPointerException.class, () ->
+            this.timeLogService.createTimeLog(
+                this.employee,
+                this.worksite,
+                null,
+                oneHourBefore
+            )
+        );
+        verify(this.timeLogRepository, times(0)).save(any());
+    }
 
-	@Test
-	void testCreateTimeLogThrowsWhenExitIsNull() {
-		logger.info("Test create timelog throws when exit is null");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+    @Test
+    void testCreateTimeLogThrowsWhenExitIsNull() {
+        logger.info("Test create timelog throws when exit is null");
+        // Arrange
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            30,
+            10,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
 
-		// Act & Assert
-		final Instant oneHourBefore = fixedNow.minus(1, ChronoUnit.HOURS);
-		assertThrows(NullPointerException.class,
-				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, oneHourBefore, null));
-		verify(this.timeLogRepository, times(0)).save(any());
-	}
+        // Act & Assert
+        final Instant oneHourBefore = fixedNow.minus(1, ChronoUnit.HOURS);
+        assertThrows(NullPointerException.class, () ->
+            this.timeLogService.createTimeLog(
+                this.employee,
+                this.worksite,
+                oneHourBefore,
+                null
+            )
+        );
+        verify(this.timeLogRepository, times(0)).save(any());
+    }
 
-	@ParameterizedTest(name = "{index} => {0}")
-	@MethodSource("provideInvalidEntryExitPairs")
-	void testCreateTimeLogInvalidEntryExitShouldThrow(final String description, final Instant entry, final Instant exit) {
+    @ParameterizedTest(name = "{index} => {0}")
+    @MethodSource("provideInvalidEntryExitPairs")
+    void testCreateTimeLogInvalidEntryExitShouldThrow(
+        final String description,
+        final Instant entry,
+        final Instant exit
+    ) {
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            30,
+            10,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
 
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+        assertThrows(TimeLogModificationNotAllowedException.class, () ->
+            this.timeLogService.createTimeLog(
+                this.employee,
+                this.worksite,
+                entry,
+                exit
+            )
+        );
 
-		assertThrows(TimeLogModificationNotAllowedException.class,
-				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, entry, exit));
+        verify(this.timeLogRepository, times(0)).save(any());
+    }
 
-		verify(this.timeLogRepository, times(0)).save(any());
-	}
+    private static Stream<Arguments> provideInvalidEntryExitPairs() {
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            30,
+            10,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
 
-	private static Stream<Arguments> provideInvalidEntryExitPairs() {
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+        return Stream.of(
+            // Case 1: entry outside editing window
+            Arguments.of(
+                "Entry outside editing window", //
+                fixedNow.minus(4, ChronoUnit.DAYS), // outside window
+                fixedNow.minus(1, ChronoUnit.DAYS) // inside window
+            ),
+            // Case 2: exit outside editing window
+            Arguments.of(
+                "Exit outside editing window", //
+                fixedNow.minus(1, ChronoUnit.DAYS), // inside window
+                fixedNow.minus(4, ChronoUnit.DAYS) // outside window
+            ),
+            // Case 3: entry exactly at lock boundary (blocks)
+            Arguments.of(
+                "Entry exactly at lock boundary", //
+                fixedNow.minus(3, ChronoUnit.DAYS), // boundary: entry + 3d == now
+                fixedNow.minus(2, ChronoUnit.DAYS) //
+            ),
+            // Case 4: exit exactly at lock boundary (blocks)
+            Arguments.of(
+                "Exit exactly at lock boundary", //
+                fixedNow.minus(2, ChronoUnit.DAYS), //
+                fixedNow.minus(3, ChronoUnit.DAYS) // boundary: exit + 3d == now
+            )
+        );
+    }
 
-		return Stream.of(
-				// Case 1: entry outside editing window
-				Arguments.of("Entry outside editing window", //
-						fixedNow.minus(4, ChronoUnit.DAYS), // outside window
-						fixedNow.minus(1, ChronoUnit.DAYS) // inside window
-				),
+    @Test
+    void testCreateTimeLogChronologyEntryAfterExitThrows() {
+        logger.info("Test create timelog chronology entry after exit throws");
+        // Arrange
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            30,
+            10,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
 
-				// Case 2: exit outside editing window
-				Arguments.of("Exit outside editing window", //
-						fixedNow.minus(1, ChronoUnit.DAYS), // inside window
-						fixedNow.minus(4, ChronoUnit.DAYS) // outside window
-				),
+        final Instant entry = fixedNow.minus(1, ChronoUnit.HOURS); // posterior a exit
+        final Instant exit = fixedNow.minus(2, ChronoUnit.HOURS);
 
-				// Case 3: entry exactly at lock boundary (blocks)
-				Arguments.of("Entry exactly at lock boundary", //
-						fixedNow.minus(3, ChronoUnit.DAYS), // boundary: entry + 3d == now
-						fixedNow.minus(2, ChronoUnit.DAYS) //
-				),
+        // Act & Assert
+        assertThrows(TimeLogChronologyException.class, () ->
+            this.timeLogService.createTimeLog(
+                this.employee,
+                this.worksite,
+                entry,
+                exit
+            )
+        );
+        verify(this.timeLogRepository, times(0)).save(any());
+    }
 
-				// Case 4: exit exactly at lock boundary (blocks)
-				Arguments.of("Exit exactly at lock boundary", //
-						fixedNow.minus(2, ChronoUnit.DAYS), //
-						fixedNow.minus(3, ChronoUnit.DAYS) // boundary: exit + 3d == now
-				));
-	}
+    @Test
+    void testDeleteTimeLogSuccessWithinEditingWindow() {
+        logger.info("Test delete time log succes within editing window");
+        // Arrange
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            29,
+            12,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
 
-	@Test
-	void testCreateTimeLogChronologyEntryAfterExitThrows() {
-		logger.info("Test create timelog chronology entry after exit throws");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+        final Instant entryTime = fixedNow.minus(2, ChronoUnit.DAYS);
+        final TimeLog timeLog = new TimeLog(
+            this.employee,
+            this.worksite,
+            entryTime
+        );
 
-		final Instant entry = fixedNow.minus(1, ChronoUnit.HOURS); // posterior a exit
-		final Instant exit = fixedNow.minus(2, ChronoUnit.HOURS);
+        // Act
+        this.timeLogService.deleteTimeLog(timeLog);
 
-		// Act & Assert
-		assertThrows(TimeLogChronologyException.class,
-				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, entry, exit));
-		verify(this.timeLogRepository, times(0)).save(any());
-	}
+        // Assert
+        verify(this.timeLogRepository, times(1)).delete(timeLog);
+    }
 
-	@Test
-	void testDeleteTimeLogSuccessWithinEditingWindow() {
-		logger.info("Test delete time log succes within editing window");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+    @Test
+    void testDeleteTimeLogThrowsWhenNull() {
+        logger.info("Test delete time log throws when null");
+        assertThrows(NullPointerException.class, () ->
+            this.timeLogService.deleteTimeLog(null)
+        );
+    }
 
-		final Instant entryTime = fixedNow.minus(2, ChronoUnit.DAYS);
-		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
+    @Test
+    void testDeleteTimeLogThrowsWhenOutsideEditingWindow() {
+        logger.info("Test delete time log throws when outside editing window");
+        // Arrange
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            29,
+            12,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
 
-		// Act
-		this.timeLogService.deleteTimeLog(timeLog);
+        final Instant entryTime = fixedNow
+            .minus(4, ChronoUnit.DAYS)
+            .atZone(ZoneOffset.UTC)
+            .toInstant();
+        final TimeLog timeLog = new TimeLog(
+            this.employee,
+            this.worksite,
+            entryTime
+        );
 
-		// Assert
-		verify(this.timeLogRepository, times(1)).delete(timeLog);
-	}
+        // Act & Assert
+        assertThrows(TimeLogModificationNotAllowedException.class, () ->
+            this.timeLogService.deleteTimeLog(timeLog)
+        );
+        verify(this.timeLogRepository, times(0)).delete(timeLog);
+    }
 
-	@Test
-	void testDeleteTimeLogThrowsWhenNull() {
-		logger.info("Test delete time log throws when null");
-		assertThrows(NullPointerException.class, () -> this.timeLogService.deleteTimeLog(null));
-	}
+    @Test
+    void testDeleteTimeLogBoundaryAtLockInstantShouldThrow() {
+        logger.info(
+            "Test delete time log boundary at lock instant should throw"
+        );
+        // Arrange
+        final Instant fixedNow = LocalDateTime.of(
+            2025,
+            8,
+            29,
+            12,
+            0,
+            0
+        ).toInstant(ZoneOffset.UTC);
+        when(this.clock.instant()).thenReturn(fixedNow);
+        when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(
+            3
+        );
 
-	@Test
-	void testDeleteTimeLogThrowsWhenOutsideEditingWindow() {
-		logger.info("Test delete time log throws when outside editing window");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+        final Instant entryTime = fixedNow.minus(3, ChronoUnit.DAYS);
+        final TimeLog timeLog = new TimeLog(
+            this.employee,
+            this.worksite,
+            entryTime
+        );
 
-		final Instant entryTime = fixedNow.minus(4, ChronoUnit.DAYS).atZone(ZoneOffset.UTC).toInstant();
-		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
-
-		// Act & Assert
-		assertThrows(TimeLogModificationNotAllowedException.class, () -> this.timeLogService.deleteTimeLog(timeLog));
-		verify(this.timeLogRepository, times(0)).delete(timeLog);
-	}
-
-	@Test
-	void testDeleteTimeLogBoundaryAtLockInstantShouldThrow() {
-		logger.info("Test delete time log boundary at lock instant should throw");
-		// Arrange
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
-
-		final Instant entryTime = fixedNow.minus(3, ChronoUnit.DAYS);
-		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
-
-		// Act & Assert
-		assertThrows(TimeLogModificationNotAllowedException.class, () -> this.timeLogService.deleteTimeLog(timeLog));
-		verify(this.timeLogRepository, times(0)).delete(timeLog);
-	}
+        // Act & Assert
+        assertThrows(TimeLogModificationNotAllowedException.class, () ->
+            this.timeLogService.deleteTimeLog(timeLog)
+        );
+        verify(this.timeLogRepository, times(0)).delete(timeLog);
+    }
 }

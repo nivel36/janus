@@ -189,7 +189,7 @@ public class ScheduleController {
 	public ResponseEntity<ScheduleResponse> createSchedule(@Valid @RequestBody final CreateScheduleRequest request) {
 		logger.debug("Create schedule ACTION performed");
 		final Schedule createdSchedule = this.scheduleService.createSchedule(request.code(), request.name(),
-				this.map(request.rules()));
+				request.entryTolerance(), request.exitTolerance(), this.map(request.rules()));
 		final ScheduleResponse response = this.scheduleResponseMapper.map(createdSchedule);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -221,7 +221,7 @@ public class ScheduleController {
 		logger.debug("Update schedule ACTION performed");
 
 		final Schedule updatedSchedule = this.scheduleService.updateSchedule(scheduleCode, request.name(),
-				this.map(request.rules()));
+				request.entryTolerance(), request.exitTolerance(), this.map(request.rules()));
 		final ScheduleResponse response = this.scheduleResponseMapper.map(updatedSchedule);
 		return ResponseEntity.ok(response);
 	}

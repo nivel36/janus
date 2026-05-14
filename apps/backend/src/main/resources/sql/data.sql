@@ -14,7 +14,7 @@ INSERT INTO application_settings (days_until_locked, employee_workplace_creation
 
 INSERT INTO app_user (username, locale, time_format, default_timezone) VALUES ('aferrer@nivel36.es', 'es-ES', 'H24', 'Europe/Madrid');
 
-INSERT INTO schedule (code, name) VALUES ('STD-WH-AUG-VAR', 'Standard Work Hours with August Variation');
+INSERT INTO schedule (code, name, entry_tolerance, exit_tolerance) VALUES ('STD-WH-AUG-VAR', 'Standard Work Hours with August Variation', 3600, 3600);
 
 INSERT INTO schedule_rule (schedule_id, start_date, end_date, name) VALUES (1, '2024-01-01', '2024-07-31', 'Regular Work Hours');
 INSERT INTO schedule_rule (schedule_id, start_date, end_date, name) VALUES (1, '2024-08-01', '2024-08-31', 'August Work Hours');

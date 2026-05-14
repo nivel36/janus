@@ -54,6 +54,8 @@ class ScheduleControllerIT {
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
 				  "rules": [
 				    {
 				      "name": "Weekday Rule",
@@ -77,6 +79,8 @@ class ScheduleControllerIT {
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.code").value("STD-WH")) //
+				.andExpect(jsonPath("$.entryTolerance").value("PT1H")) //
+				.andExpect(jsonPath("$.exitTolerance").value("PT1H")) //
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].effectiveWorkHours").value("PT8H")) //
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].timeRange.startTime").value("09:00:00"));
 	}
@@ -87,6 +91,8 @@ class ScheduleControllerIT {
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
 				  "rules": [
 				    {
 				      "name": "Weekday Rule",
@@ -121,6 +127,8 @@ class ScheduleControllerIT {
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
 				  "rules": [
 				    {
 				      "name": "Weekday Rule",
@@ -159,6 +167,8 @@ class ScheduleControllerIT {
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
 				  "rules": [
 				    {
 				      "name": "Weekday Rule",
@@ -195,6 +205,8 @@ class ScheduleControllerIT {
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
 				  "rules": [
 				    {
 				      "name": "Weekday Rule",
@@ -220,6 +232,8 @@ class ScheduleControllerIT {
 		final String updateBody = """
 				{
 				  "name": "Updated Work Hours",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
 				  "rules": [
 				    {
 				      "name": "Weekend Rule",
@@ -252,6 +266,8 @@ class ScheduleControllerIT {
 				{
 				  "code": "STD-WH",
 				  "name": "Standard Work Hours",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
 				  "rules": [
 				    {
 				      "name": "Weekday Rule",

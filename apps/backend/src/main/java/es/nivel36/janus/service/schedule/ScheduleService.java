@@ -82,8 +82,12 @@ public class ScheduleService {
 	 *
 	 * @param code  unique schedule code; can't be {@code null} or blank
 	 * @param name  human-readable schedule name; can't be {@code null} or blank
-	 * @param rules rule definitions associated with the schedule; can't be
-	 *              {@code null}
+	 * @param entryTolerance allowed tolerance for entry times; can't be
+	 *                       {@code null}
+	 * @param exitTolerance  allowed tolerance for exit times; can't be
+	 *                       {@code null}
+	 * @param rules          rule definitions associated with the schedule; can't be
+	 *                       {@code null}
 	 * @return the persisted {@link Schedule}
 	 * @throws NullPointerException           if {@code rules} is {@code null}
 	 * @throws IllegalArgumentException       if {@code code} or {@code name} is
@@ -92,14 +96,17 @@ public class ScheduleService {
 	 *                                        already exists
 	 */
 	@Transactional
-	public Schedule createSchedule(final String code, final String name, final List<ScheduleRuleDefinition> rules) {
+	public Schedule createSchedule(final String code, final String name, final Duration entryTolerance,
+			final Duration exitTolerance, final List<ScheduleRuleDefinition> rules) {
 		Strings.requireNonBlank(code, "code can't be null or blank");
 		Strings.requireNonBlank(name, "name can't be null or blank");
+		Objects.requireNonNull(entryTolerance, "entryTolerance can't be null");
+		Objects.requireNonNull(exitTolerance, "exitTolerance can't be null");
 		Objects.requireNonNull(rules, "rules can't be null");
 		logger.debug("Creating schedule {}", code);
 		this.assertScheduleCodeIsUnique(code);
 
-		final Schedule schedule = this.buildSchedule(code, name, rules);
+		final Schedule schedule = this.buildSchedule(code, name, entryTolerance, exitTolerance, rules);
 		final Schedule savedSchedule = this.scheduleRepository.save(schedule);
 		logger.trace("Schedule {} created successfully", code);
 		return savedSchedule;
@@ -112,8 +119,9 @@ public class ScheduleService {
 		}
 	}
 
-	private Schedule buildSchedule(final String code, final String name, final List<ScheduleRuleDefinition> rules) {
-		final Schedule schedule = new Schedule(code, name);
+	private Schedule buildSchedule(final String code, final String name, final Duration entryTolerance,
+			final Duration exitTolerance, final List<ScheduleRuleDefinition> rules) {
+		final Schedule schedule = new Schedule(code, name, entryTolerance, exitTolerance);
 		for (final ScheduleRuleDefinition ruleDefinition : rules) {
 			final ScheduleRule rule = this.buildRule(schedule, ruleDefinition);
 			schedule.addRule(rule);
@@ -154,21 +162,30 @@ public class ScheduleService {
 	 *
 	 * @param code  code of the schedule to update; can't be {@code null} or blank
 	 * @param name  new schedule name; can't be {@code null} or blank
-	 * @param rules new rule definitions; can't be {@code null}
+	 * @param entryTolerance allowed tolerance for entry times; can't be
+	 *                       {@code null}
+	 * @param exitTolerance  allowed tolerance for exit times; can't be
+	 *                       {@code null}
+	 * @param rules          new rule definitions; can't be {@code null}
 	 * @return the updated {@link Schedule}
 	 * @throws NullPointerException      if {@code rules} is {@code null}
 	 * @throws IllegalArgumentException  if {@code code} or {@code name} is blank
 	 * @throws ResourceNotFoundException if the schedule does not exist
 	 */
 	@Transactional
-	public Schedule updateSchedule(final String code, final String name, final List<ScheduleRuleDefinition> rules) {
+	public Schedule updateSchedule(final String code, final String name, final Duration entryTolerance,
+			final Duration exitTolerance, final List<ScheduleRuleDefinition> rules) {
 		Strings.requireNonBlank(code, "code can't be null or blank");
 		Strings.requireNonBlank(name, "name can't be null or blank");
+		Objects.requireNonNull(entryTolerance, "entryTolerance can't be null");
+		Objects.requireNonNull(exitTolerance, "exitTolerance can't be null");
 		Objects.requireNonNull(rules, "rules can't be null");
 		logger.debug("Updating schedule {}", code);
 
 		final Schedule persisted = this.findSchedule(code);
 		persisted.setName(name);
+		persisted.setEntryTolerance(entryTolerance);
+		persisted.setExitTolerance(exitTolerance);
 		persisted.clearRules();
 
 		for (final ScheduleRuleDefinition ruleDefinition : rules) {

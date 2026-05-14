@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
+import java.time.Duration;
 import java.util.List;
 
 import es.nivel36.janus.service.schedule.Schedule;
@@ -28,8 +29,12 @@ import jakarta.validation.constraints.Pattern;
  *
  * @param name  new human readable name describing the schedule; must contain
  *              between 1 and 250 allowed characters
- * @param rules collection of rule definitions that replace the previous ones;
- *              must not be {@code null}
+ * @param entryTolerance allowed tolerance for entry times; must not be
+ *                       {@code null}
+ * @param exitTolerance  allowed tolerance for exit times; must not be
+ *                       {@code null}
+ * @param rules          collection of rule definitions that replace the previous
+ *                       ones; must not be {@code null}
  */
 public record UpdateScheduleRequest( //
 		@NotBlank(message = "name must not be blank") //
@@ -38,6 +43,12 @@ public record UpdateScheduleRequest( //
 				message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)" //
 		) //
 		String name, //
+
+		@NotNull(message = "entryTolerance must not be null") //
+		Duration entryTolerance, //
+
+		@NotNull(message = "exitTolerance must not be null") //
+		Duration exitTolerance, //
 
 		@NotNull(message = "rules must not be null") //
 		List<@Valid ScheduleRuleRequest> rules //
