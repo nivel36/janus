@@ -20,6 +20,7 @@
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
+    cursor: pointer;
 }
 
 .tabs-trigger:last-child {
@@ -29,6 +30,7 @@
 .tabs-trigger-active {
     background: #fece0b;
     color: #070707;
+    cursor: default;
 }
 
 .tabs-panel {
