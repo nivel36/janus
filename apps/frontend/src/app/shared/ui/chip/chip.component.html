@@ -1,1 +1,9 @@
-<span [class]="chipClass">{{ label() }}</span>
+<span [class]="chipClass">
+    @if (hasIcon) {
+        <span class="chip__icon" aria-hidden="true">
+            <fa-icon [icon]="icon()"></fa-icon>
+        </span>
+    }
+
+    <span class="chip__label">{{ label() }}</span>
+</span>

@@ -37,7 +37,7 @@ select {
 }
 
 h3 {
-    margin: 0 0 1rem 0;
+    margin: 0 0 1.5rem 0;
     color: #fece0b;
 }
 
@@ -98,11 +98,9 @@ h3 {
     padding-right: 1rem;
 }
 
-.card.settings-card {
-    border: 2px solid #f9d600;
-}
-
-.card.worksites-card {
+.card.settings-card,
+.card.worksites-card,
+.card.preferences-card {
     border: 2px solid #f9d600;
 }
 

@@ -5,21 +5,56 @@
 .app-chip {
     --bg: #f9d600;
     --fg: #131313;
+    --chip-padding-block: 0.4rem;
+    --chip-padding-inline: 0.75rem;
+    --chip-font-size: 0.8rem;
+    --chip-icon-size: 0.8rem;
+    --chip-gap: 0.35rem;
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: var(--chip-gap);
 
-    padding: 0.4rem 0.75rem;
+    padding: var(--chip-padding-block) var(--chip-padding-inline);
     border-radius: 0.35rem;
 
     background-color: var(--bg);
     color: var(--fg);
 
-    font-size: 0.8rem;
+    font-size: var(--chip-font-size);
     font-weight: 600;
     line-height: 1;
     text-transform: uppercase;
+}
+
+.chip__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: var(--chip-icon-size);
+    line-height: 1;
+}
+
+.chip__label {
+    line-height: 1;
+}
+
+.chip--size-small {
+    --chip-padding-block: 0.25rem;
+    --chip-padding-inline: 0.5rem;
+    --chip-font-size: 0.7rem;
+    --chip-icon-size: 0.7rem;
+    --chip-gap: 0.25rem;
+}
+
+.chip--size-big {
+    --chip-padding-block: 0.55rem;
+    --chip-padding-inline: 1rem;
+    --chip-font-size: 0.95rem;
+    --chip-icon-size: 0.95rem;
+    --chip-gap: 0.45rem;
 }
 
 .chip--primary {
@@ -35,4 +70,9 @@
 .chip--tertiary {
     --bg: #615300;
     --fg: #ffffff;
+}
+
+.chip--green {
+    --bg: rgba(104, 135, 72, 0.16);
+    --fg: #3baa37;
 }

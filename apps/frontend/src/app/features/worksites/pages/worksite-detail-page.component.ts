@@ -13,6 +13,7 @@ import {
   faClock,
   faExclamationTriangle,
   faUsers,
+  faCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
@@ -67,6 +68,7 @@ export class WorksiteDetailPageComponent {
   protected readonly faClock = faClock;
   protected readonly faExclamationTriangle = faExclamationTriangle;
   protected readonly faUsers = faUsers;
+  protected readonly faCircle = faCircle;
 
   protected goBack(): void {
     this.router.navigate(['/worksites']);

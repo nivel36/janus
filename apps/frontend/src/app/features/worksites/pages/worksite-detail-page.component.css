@@ -88,57 +88,10 @@
     font-size: 1.15rem;
 }
 
-.scope-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2rem;
-    padding: 0.25rem 0.9rem;
-    border-radius: 7px;
-    background: #fece0b;
-    color: #080808;
-    font-size: 0.8rem;
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.status-pill {
-    min-width: 8.6rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.65rem;
-    padding: 0.65rem 1.35rem;
-    border-radius: 999px;
-    background: rgba(104, 135, 72, 0.16);
-    color: #88f09a;
-    font-weight: 900;
-}
-
-.status-pill span {
-    width: 0.65rem;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: #42c853;
-}
-
 .worksite-detail-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 1.55rem;
-}
-
-:host ::ng-deep .worksite-panel .card-body {
-    min-height: 24.5rem;
-    padding: 2rem 1.9rem;
-}
-
-.worksite-panel h3 {
-    margin: 0 0 1.9rem;
-    color: #fece0b;
-    font-weight: 900;
-    letter-spacing: 0.16em;
 }
 
 .detail-list {
