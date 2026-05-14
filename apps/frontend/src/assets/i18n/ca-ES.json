@@ -118,6 +118,7 @@
   "worksite": {
     "worksites": "Llocs de treball",
     "new": "Nou lloc de treball",
+    "edit": "Edita el lloc de treball",
     "detail": "Detall del lloc de treball",
     "code": "Codi",
     "name": "Nom",
@@ -162,6 +163,7 @@
     },
     "errors": {
       "create": "No s'ha pogut crear el lloc de treball.",
+      "update": "No s'ha pogut actualitzar el lloc de treball.",
       "duplicatedCode": "El codi està repetit.",
       "invalidCode": "El codi ha de tenir fins a 50 caràcters i usar només lletres, números, guions o guions baixos.",
       "invalidName": "El nom ha de tenir fins a 250 caràcters i usar lletres, números, espais i puntuació bàsica.",

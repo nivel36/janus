@@ -69,4 +69,8 @@ export class WorksiteDetailPageComponent {
   protected goBack(): void {
     this.router.navigate(['/worksites']);
   }
+
+  protected editWorksite(worksite: Worksite): void {
+    this.router.navigate(['/worksites', worksite.code, 'edit']);
+  }
 }

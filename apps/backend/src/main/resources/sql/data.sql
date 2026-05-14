@@ -38,7 +38,7 @@ INSERT INTO day_of_week_time_range (schedule_rule_id, start_time, end_time, day_
 
 INSERT INTO employee (name, surname, email, schedule_id) VALUES ('Abel', 'Ferrer Jiménez', 'aferrer@nivel36.es', 1);
 
-INSERT INTO worksite (name, code, description, address, time_zone, scope) VALUES ('Barcelona Headquarters', 'BCN-HQ', 'Sede principal de Barcelona', 'Carrer de la Marina, Barcelona', 'UTC+1', 'GLOBAL');
+INSERT INTO worksite (name, code, description, address, time_zone, scope) VALUES ('Barcelona Headquarters', 'BCN-HQ', 'Sede principal de Barcelona', 'Carrer de la Marina, Barcelona', 'Europe/Madrid', 'GLOBAL');
 
 INSERT INTO employee_worksite (employee_id, worksite_id) VALUES (1,1);
 

@@ -118,6 +118,7 @@
   "worksite": {
     "worksites": "Puestos de trabajo",
     "new": "Nuevo puesto de trabajo",
+    "edit": "Editar puesto de trabajo",
     "detail": "Detalle del puesto de trabajo",
     "code": "Código",
     "name": "Nombre",
@@ -162,6 +163,7 @@
     },
     "errors": {
       "create": "No se pudo crear el puesto de trabajo.",
+      "update": "No se pudo actualizar el puesto de trabajo.",
       "duplicatedCode": "El código está repetido.",
       "invalidCode": "El código debe tener hasta 50 caracteres y usar solo letras, números, guiones o guiones bajos.",
       "invalidName": "El nombre debe tener hasta 250 caracteres y usar letras, números, espacios y puntuación básica.",

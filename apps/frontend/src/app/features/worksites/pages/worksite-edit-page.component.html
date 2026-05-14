@@ -1,0 +1,119 @@
+<app-page-template appNameKey="navigation.janus" pageNameKey="worksite.edit">
+    <section page-body class="worksite-create-content">
+        <app-card styleClass="worksites-card">
+            @if (loading) {
+                <p class="message">{{ 'worksite.detailLoading' | translate }}</p>
+            } @else {
+                <form [formGroup]="form" (ngSubmit)="save()">
+                    <div class="field-control">
+                        <label for="worksite-code">{{ 'worksite.code' | translate }}</label>
+                        <input
+                            id="worksite-code"
+                            type="text"
+                            formControlName="code"
+                            autocomplete="off"
+                        />
+                    </div>
+
+                    <div class="field-control">
+                        <label for="worksite-name">{{ 'worksite.name' | translate }}</label>
+                        <input
+                            id="worksite-name"
+                            type="text"
+                            formControlName="name"
+                            autocomplete="off"
+                        />
+
+                        @if (form.controls.name.touched && form.controls.name.invalid) {
+                            <p class="message error">
+                                {{ 'worksite.errors.invalidName' | translate }}
+                            </p>
+                        }
+                    </div>
+
+                    <div class="field-control">
+                        <label for="worksite-scope">{{ 'worksite.scope' | translate }}</label>
+                        <app-select
+                            inputId="worksite-scope"
+                            formControlName="scope"
+                            [options]="scopeOptions"
+                        />
+                    </div>
+
+                    <div class="field-control">
+                        <label for="worksite-timezone">{{ 'worksite.timeZone' | translate }}</label>
+                        <app-autocomplete-textbox
+                            id="worksite-timezone"
+                            formControlName="timeZone"
+                            [searchMethod]="searchMethod"
+                            [displayWith]="timezoneDisplayWith"
+                            [valueWith]="timezoneValueWith"
+                            [resolveByValue]="resolveTimezoneByValue"
+                            [emptyHint]="'worksite.fields.timeZoneHint' | translate"
+                        />
+
+                        @if (form.controls.timeZone.touched && form.controls.timeZone.invalid) {
+                            <p class="message error">
+                                {{ 'worksite.errors.invalidTimezone' | translate }}
+                            </p>
+                        }
+                    </div>
+
+                    <div class="field-control">
+                        <label for="worksite-address">{{ 'worksite.address' | translate }}</label>
+                        <input
+                            id="worksite-address"
+                            type="text"
+                            formControlName="address"
+                            autocomplete="street-address"
+                        />
+
+                        @if (form.controls.address.touched && form.controls.address.invalid) {
+                            <p class="message error">
+                                {{ 'worksite.errors.invalidAddress' | translate }}
+                            </p>
+                        }
+                    </div>
+
+                    <div class="field-control">
+                        <label for="worksite-description">{{
+                            'worksite.description' | translate
+                        }}</label>
+                        <input
+                            id="worksite-description"
+                            type="text"
+                            formControlName="description"
+                            autocomplete="off"
+                        />
+
+                        @if (form.controls.description.touched && form.controls.description.invalid) {
+                            <p class="message error">
+                                {{ 'worksite.errors.invalidDescription' | translate }}
+                            </p>
+                        }
+                    </div>
+
+                    @if (errorMessage) {
+                        <p class="message error">{{ errorMessage | translate }}</p>
+                    }
+
+                    <div class="buttons">
+                        <app-button type="button" variant="secondary" (clicked)="cancel()">
+                            {{ 'actions.cancel' | translate }}
+                        </app-button>
+
+                        <app-button
+                            type="submit"
+                            variant="main"
+                            [disabled]="form.invalid || saving"
+                        >
+                            {{ 'actions.save' | translate }}
+                        </app-button>
+                    </div>
+                </form>
+            }
+        </app-card>
+    </section>
+
+    <div page-footer></div>
+</app-page-template>

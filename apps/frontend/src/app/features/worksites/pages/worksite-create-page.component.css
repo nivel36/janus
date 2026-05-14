@@ -51,6 +51,13 @@ textarea:focus-visible {
     box-shadow: 0 0 0 2px rgba(249, 214, 0, 0.3);
 }
 
+input:disabled {
+    border-color: #676767;
+    background: #191919;
+    color: #c9c9c9;
+    cursor: not-allowed;
+}
+
 .message {
     margin: 0;
 }
