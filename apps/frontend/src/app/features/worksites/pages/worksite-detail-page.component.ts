@@ -24,6 +24,7 @@ import { WorksiteApiService } from '../services/worksite-api.service';
 import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
 import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
 import { SummaryCardComponent } from '../../../shared/ui/summary-card/summary-card.component';
+import { ChipComponent } from '../../../shared/ui/chip/chip.component';
 
 @Component({
   selector: 'app-worksite-detail-page',
@@ -37,6 +38,7 @@ import { SummaryCardComponent } from '../../../shared/ui/summary-card/summary-ca
     TabsComponent,
     TabItemDirective,
     SummaryCardComponent,
+    ChipComponent,
   ],
   templateUrl: './worksite-detail-page.component.html',
   styleUrl: './worksite-detail-page.component.css',

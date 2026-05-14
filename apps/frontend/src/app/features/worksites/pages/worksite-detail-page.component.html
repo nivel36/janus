@@ -21,9 +21,9 @@
                                 <h2>{{ worksite.name }}</h2>
                                 <p>
                                     <span>{{ worksite.code }}</span>
-                                    <span class="scope-pill">
-                                        {{ 'worksite.scopes.' + worksite.scope | translate }}
-                                    </span>
+                                    <app-chip
+                                        [label]="'worksite.scopes.' + worksite.scope | translate"
+                                    ></app-chip>
                                 </p>
                             </div>
                         </div>
@@ -52,9 +52,11 @@
                                 <div class="detail-row">
                                     <dt>{{ 'worksite.scope' | translate }}</dt>
                                     <dd>
-                                        <span class="scope-pill">
-                                            {{ 'worksite.scopes.' + worksite.scope | translate }}
-                                        </span>
+                                        <app-chip
+                                            [label]="
+                                                'worksite.scopes.' + worksite.scope | translate
+                                            "
+                                        ></app-chip>
                                     </dd>
                                 </div>
 
@@ -81,7 +83,11 @@
                             <div class="summary-grid">
                                 <app-summary-card [icon]="faUsers" label="EMPLEADOS" [value]="24" />
 
-                                <app-summary-card [icon]="faClock" label="TURNOS ACTIVOS" [value]="3" />
+                                <app-summary-card
+                                    [icon]="faClock"
+                                    label="TURNOS ACTIVOS"
+                                    [value]="3"
+                                />
 
                                 <app-summary-card
                                     [icon]="faCalendarDays"

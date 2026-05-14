@@ -36,6 +36,11 @@ select {
     font-size: 0.95rem;
 }
 
+h3 {
+    margin: 0 0 1rem 0;
+    color: #fece0b;
+}
+
 .card.employee-card .employee-card-header-content {
     text-align: left;
 }
