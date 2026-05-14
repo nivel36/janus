@@ -15,9 +15,9 @@
 
     <app-chip
         class="worksite-hero__status"
-        type="green"
+        [type]="worksite().active ? 'green' : 'red'"
         [icon]="faCircle"
         size="big"
-        label="ACTIVO"
+        [label]="(worksite().active ? 'worksite.status.active' : 'worksite.status.inactive') | translate"
     ></app-chip>
 </article>

@@ -140,6 +140,10 @@
       "GLOBAL": "Global",
       "ASSIGNED": "Assignat"
     },
+    "status": {
+      "active": "Actiu",
+      "inactive": "Inactiu"
+    },
     "errors": {
       "create": "No s'ha pogut crear el lloc de treball.",
       "duplicatedCode": "El codi està repetit.",

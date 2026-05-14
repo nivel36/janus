@@ -47,6 +47,7 @@ describe('WorksiteCreatePageComponent', () => {
         timeZone: 'Europe/Madrid',
         scope: 'GLOBAL',
         ownerEmployeeEmail: null,
+        active: true,
       }),
     );
 

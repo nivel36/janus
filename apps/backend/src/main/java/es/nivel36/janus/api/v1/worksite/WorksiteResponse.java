@@ -28,7 +28,8 @@ import es.nivel36.janus.service.worksite.WorksiteScope;
  * @param scope    the visibility scope of the worksite
  * @param description optional worksite description
  * @param address optional worksite address
+ * @param active {@code true} when the worksite is not logically deleted
  */
 public record WorksiteResponse(String code, String name, String timeZone, WorksiteScope scope, String description,
-		String address) {
+		String address, boolean active) {
 }

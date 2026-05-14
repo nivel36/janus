@@ -8,7 +8,7 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 /**
  * Visual variants supported by the chip component.
  */
-type ChipType = 'default' | 'primary' | 'secondary' | 'tertiary' | 'green';
+type ChipType = 'default' | 'primary' | 'secondary' | 'tertiary' | 'green' | 'red';
 
 /**
  * Size variants supported by the chip component.

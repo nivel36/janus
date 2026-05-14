@@ -140,6 +140,10 @@
       "GLOBAL": "Global",
       "ASSIGNED": "Asignado"
     },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
     "errors": {
       "create": "No se pudo crear el puesto de trabajo.",
       "duplicatedCode": "El código está repetido.",

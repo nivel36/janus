@@ -6,8 +6,24 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { CreateWorksitePayload, UpdateWorksitePayload, Worksite } from '../models/worksite';
+import {
+  CreateWorksitePayload,
+  UpdateWorksitePayload,
+  Worksite,
+  WorksiteScope,
+} from '../models/worksite';
 import { Page } from '../../../shared/models/page.model';
+
+interface WorksiteResponse {
+  code: string;
+  name: string;
+  timeZone: string;
+  scope: WorksiteScope;
+  description: string | null;
+  address: string | null;
+  ownerEmployeeEmail?: string | null;
+  active: boolean;
+}
 
 export interface WorksitePage {
   items: Worksite[];
@@ -44,9 +60,9 @@ export class WorksiteApiService {
       params = params.set('query', normalizedQuery);
     }
 
-    return this.http.get<Page<Worksite>>(this.baseUrl, { params }).pipe(
+    return this.http.get<Page<WorksiteResponse>>(this.baseUrl, { params }).pipe(
       map((r) => ({
-        items: r.content ?? [],
+        items: (r.content ?? []).map((worksite) => this.mapWorksite(worksite)),
         totalItems: r.page?.totalElements ?? 0,
         page: r.page?.number ?? page,
         pageSize: r.page?.size ?? size,
@@ -62,7 +78,9 @@ export class WorksiteApiService {
    * @returns Observable emitting the requested worksite.
    */
   findByCode(worksiteCode: string): Observable<Worksite> {
-    return this.http.get<Worksite>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`);
+    return this.http
+      .get<WorksiteResponse>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`)
+      .pipe(map((worksite) => this.mapWorksite(worksite)));
   }
 
   /**
@@ -72,7 +90,9 @@ export class WorksiteApiService {
    * @returns Observable emitting the created worksite.
    */
   create(payload: CreateWorksitePayload): Observable<Worksite> {
-    return this.http.post<Worksite>(this.baseUrl, payload);
+    return this.http
+      .post<WorksiteResponse>(this.baseUrl, payload)
+      .pipe(map((worksite) => this.mapWorksite(worksite)));
   }
 
   /**
@@ -83,7 +103,9 @@ export class WorksiteApiService {
    * @returns Observable emitting the updated worksite.
    */
   update(worksiteCode: string, payload: UpdateWorksitePayload): Observable<Worksite> {
-    return this.http.put<Worksite>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`, payload);
+    return this.http
+      .put<WorksiteResponse>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`, payload)
+      .pipe(map((worksite) => this.mapWorksite(worksite)));
   }
 
   /**
@@ -94,5 +116,18 @@ export class WorksiteApiService {
    */
   delete(worksiteCode: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`);
+  }
+
+  private mapWorksite(response: WorksiteResponse): Worksite {
+    return {
+      code: response.code,
+      name: response.name,
+      timeZone: response.timeZone,
+      scope: response.scope,
+      description: response.description,
+      address: response.address,
+      ownerEmployeeEmail: response.ownerEmployeeEmail ?? null,
+      active: response.active,
+    };
   }
 }

@@ -59,7 +59,8 @@ class WorksiteControllerIT {
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ')]").exists())
-				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ' && @.scope=='GLOBAL')]").exists());
+				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ' && @.scope=='GLOBAL')]").exists())
+				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ' && @.active==true)]").exists());
 	}
 
 	@Test
@@ -98,7 +99,8 @@ class WorksiteControllerIT {
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.code").value("BCN-HQ"))
 				.andExpect(jsonPath("$.name").value("Barcelona Headquarters"))
-				.andExpect(jsonPath("$.timeZone").value("UTC+02:00")).andExpect(jsonPath("$.scope").value("GLOBAL"));
+				.andExpect(jsonPath("$.timeZone").value("UTC+02:00")).andExpect(jsonPath("$.scope").value("GLOBAL"))
+				.andExpect(jsonPath("$.active").value(true));
 	}
 
 	@Test

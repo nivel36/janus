@@ -11,6 +11,7 @@ export interface Worksite {
   description: string | null;
   address: string | null;
   ownerEmployeeEmail: string | null;
+  active: boolean;
 }
 
 export interface CreateWorksitePayload {

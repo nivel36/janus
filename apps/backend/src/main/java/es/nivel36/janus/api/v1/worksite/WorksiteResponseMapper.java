@@ -41,7 +41,8 @@ public class WorksiteResponseMapper implements Mapper<Worksite, WorksiteResponse
 		final WorksiteScope scope = worksite.getScope();
 		final String description = worksite.getDescription();
 		final String address = worksite.getAddress();
+		final boolean active = !worksite.isDeleted();
 
-		return new WorksiteResponse(code, name, timeZone.getId(), scope, description, address);
+		return new WorksiteResponse(code, name, timeZone.getId(), scope, description, address, active);
 	}
 }

@@ -140,6 +140,10 @@
       "GLOBAL": "Global",
       "ASSIGNED": "Assigned"
     },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
     "errors": {
       "create": "Unable to create the worksite.",
       "duplicatedCode": "Code is already in use.",
