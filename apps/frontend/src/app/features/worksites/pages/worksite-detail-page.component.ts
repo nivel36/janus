@@ -6,13 +6,6 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { map } from 'rxjs';
-
-import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
-import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { CardComponent } from '../../../shared/ui/card/card.component';
-import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
-import { Worksite } from '../models/worksite';
-import { WorksiteApiService } from '../services/worksite-api.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faBuilding,
@@ -21,6 +14,13 @@ import {
   faExclamationTriangle,
   faUsers,
 } from '@fortawesome/free-solid-svg-icons';
+
+import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
+import { ButtonComponent } from '../../../shared/ui/button/button.component';
+import { CardComponent } from '../../../shared/ui/card/card.component';
+import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
+import { Worksite } from '../models/worksite';
+import { WorksiteApiService } from '../services/worksite-api.service';
 import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
 import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
 
