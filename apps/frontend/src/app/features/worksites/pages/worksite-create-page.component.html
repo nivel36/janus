@@ -76,6 +76,40 @@
                     }
                 </div>
 
+                <div class="field-control">
+                    <label for="worksite-address">{{ 'worksite.address' | translate }}</label>
+                    <input
+                        id="worksite-address"
+                        type="text"
+                        formControlName="address"
+                        autocomplete="street-address"
+                    />
+
+                    @if (form.controls.address.touched && form.controls.address.invalid) {
+                        <p class="message error">
+                            {{ 'worksite.errors.invalidAddress' | translate }}
+                        </p>
+                    }
+                </div>
+
+                <div class="field-control">
+                    <label for="worksite-description">{{
+                        'worksite.description' | translate
+                    }}</label>
+                    <input
+                        id="worksite-description"
+                        type="text"
+                        formControlName="description"
+                        autocomplete="off"
+                    />
+
+                    @if (form.controls.description.touched && form.controls.description.invalid) {
+                        <p class="message error">
+                            {{ 'worksite.errors.invalidDescription' | translate }}
+                        </p>
+                    }
+                </div>
+
                 @if (errorMessage) {
                     <p class="message error">{{ errorMessage | translate }}</p>
                 }

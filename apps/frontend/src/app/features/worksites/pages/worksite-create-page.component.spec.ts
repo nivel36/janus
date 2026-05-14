@@ -105,4 +105,44 @@ describe('WorksiteCreatePageComponent', () => {
     expect(component.form.pending).toBe(true);
     expect(worksiteApiService.create).not.toHaveBeenCalled();
   });
+
+  it('saves optional address and description fields', async () => {
+    worksiteApiService.findByCode.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 404 })),
+    );
+    worksiteApiService.create.mockReturnValue(
+      of({
+        code: 'MAD-HUB',
+        name: 'Madrid Hub',
+        timeZone: 'Europe/Madrid',
+        scope: 'GLOBAL',
+        description: 'Main office',
+        address: 'Calle Mayor 1',
+        ownerEmployeeEmail: null,
+        active: true,
+      }),
+    );
+
+    component.form.setValue({
+      code: 'MAD-HUB',
+      name: 'Madrid Hub',
+      timeZone: 'Europe/Madrid',
+      scope: 'GLOBAL',
+      description: ' Main office ',
+      address: ' Calle Mayor 1 ',
+    });
+
+    await fixture.whenStable();
+
+    component.save();
+
+    expect(worksiteApiService.create).toHaveBeenCalledWith({
+      code: 'MAD-HUB',
+      name: 'Madrid Hub',
+      timeZone: 'Europe/Madrid',
+      scope: 'GLOBAL',
+      description: 'Main office',
+      address: 'Calle Mayor 1',
+    });
+  });
 });

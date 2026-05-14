@@ -165,6 +165,8 @@
       "duplicatedCode": "Code is already in use.",
       "invalidCode": "Code must be up to 50 characters and use only letters, numbers, hyphens or underscores.",
       "invalidName": "Name must be up to 250 characters and use letters, numbers, spaces and basic punctuation.",
+      "invalidAddress": "Address must be up to 500 characters.",
+      "invalidDescription": "Description must be up to 500 characters.",
       "invalidTimezone": "Invalid timezone."
     },
     "paginator": {

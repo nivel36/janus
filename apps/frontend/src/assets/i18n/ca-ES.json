@@ -165,6 +165,8 @@
       "duplicatedCode": "El codi està repetit.",
       "invalidCode": "El codi ha de tenir fins a 50 caràcters i usar només lletres, números, guions o guions baixos.",
       "invalidName": "El nom ha de tenir fins a 250 caràcters i usar lletres, números, espais i puntuació bàsica.",
+      "invalidAddress": "L'adreça ha de tenir fins a 500 caràcters.",
+      "invalidDescription": "La descripció ha de tenir fins a 500 caràcters.",
       "invalidTimezone": "La zona horaria no és vàlida."
     },
     "paginator": {
