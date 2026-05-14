@@ -79,37 +79,21 @@
                             <h3>RESUMEN</h3>
 
                             <div class="summary-grid">
-                                <article class="summary-card">
-                                    <span class="summary-icon" aria-hidden="true">
-                                        <fa-icon [icon]="faUsers"></fa-icon>
-                                    </span>
-                                    <span class="summary-label">EMPLEADOS</span>
-                                    <strong>24</strong>
-                                </article>
+                                <app-summary-card [icon]="faUsers" label="EMPLEADOS" [value]="24" />
 
-                                <article class="summary-card">
-                                    <span class="summary-icon" aria-hidden="true">
-                                        <fa-icon [icon]="faClock"></fa-icon>
-                                    </span>
-                                    <span class="summary-label">TURNOS ACTIVOS</span>
-                                    <strong>3</strong>
-                                </article>
+                                <app-summary-card [icon]="faClock" label="TURNOS ACTIVOS" [value]="3" />
 
-                                <article class="summary-card">
-                                    <span class="summary-icon" aria-hidden="true">
-                                        <fa-icon [icon]="faCalendarDays"></fa-icon>
-                                    </span>
-                                    <span class="summary-label">FICHAJES HOY</span>
-                                    <strong>19</strong>
-                                </article>
+                                <app-summary-card
+                                    [icon]="faCalendarDays"
+                                    label="FICHAJES HOY"
+                                    [value]="19"
+                                />
 
-                                <article class="summary-card">
-                                    <span class="summary-icon" aria-hidden="true">
-                                        <fa-icon [icon]="faExclamationTriangle"></fa-icon>
-                                    </span>
-                                    <span class="summary-label">INCIDENCIAS</span>
-                                    <strong>0</strong>
-                                </article>
+                                <app-summary-card
+                                    [icon]="faExclamationTriangle"
+                                    label="INCIDENCIAS"
+                                    [value]="0"
+                                />
                             </div>
                         </app-card>
                     </div>

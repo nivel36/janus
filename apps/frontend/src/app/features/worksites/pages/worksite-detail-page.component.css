@@ -182,40 +182,6 @@
     gap: 1rem;
 }
 
-.summary-card {
-    min-height: 10.6rem;
-    display: flex;
-    flex-direction: column;
-    padding: 1.25rem 1.45rem;
-    border-radius: 22px;
-    background: rgba(255, 255, 255, 0.06);
-}
-
-.summary-icon {
-    width: 3.7rem;
-    aspect-ratio: 1;
-    display: grid;
-    place-items: center;
-    margin-bottom: 1.3rem;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    color: #fece0b;
-    font-size: 1.75rem;
-}
-
-.summary-label {
-    color: rgba(249, 249, 249, 0.72);
-    font-weight: 900;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-}
-
-.summary-card strong {
-    margin-top: 1rem;
-    color: #ffffff;
-    font-size: 2.6rem;
-}
-
 .worksite-actions {
     display: flex;
     justify-content: flex-end;

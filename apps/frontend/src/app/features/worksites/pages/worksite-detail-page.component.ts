@@ -23,6 +23,7 @@ import { Worksite } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
 import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
 import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
+import { SummaryCardComponent } from '../../../shared/ui/summary-card/summary-card.component';
 
 @Component({
   selector: 'app-worksite-detail-page',
@@ -35,6 +36,7 @@ import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
     TranslatePipe,
     TabsComponent,
     TabItemDirective,
+    SummaryCardComponent,
   ],
   templateUrl: './worksite-detail-page.component.html',
   styleUrl: './worksite-detail-page.component.css',
