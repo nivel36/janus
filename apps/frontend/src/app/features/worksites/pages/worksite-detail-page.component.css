@@ -5,47 +5,6 @@
     color: #f9f9f9;
 }
 
-:host ::ng-deep app-tabs .tabs {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0;
-    margin: 0 0 1.6rem;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 8px;
-    background: #171717;
-}
-
-:host ::ng-deep app-tabs .tabs-trigger {
-    min-height: 3.25rem;
-    padding: 0.85rem 1rem;
-    border: 0;
-    border-right: 1px solid #050505;
-    background: transparent;
-    color: rgba(249, 249, 249, 0.86);
-    font-size: 0.95rem;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
-:host ::ng-deep app-tabs .tabs-trigger:last-child {
-    border-right: 0;
-}
-
-:host ::ng-deep app-tabs .tabs-trigger-active {
-    background: #fece0b;
-    color: #070707;
-}
-
-:host ::ng-deep app-tabs .tabs-panel {
-    min-height: 0;
-}
-
-:host ::ng-deep .worksite-panel .card-body {
-    background: #151515;
-}
-
 .worksite-panel-title {
     text-transform: uppercase;
 }
@@ -125,15 +84,6 @@
 }
 
 @media (max-width: 640px) {
-    :host ::ng-deep app-tabs .tabs {
-        grid-template-columns: 1fr;
-    }
-
-    :host ::ng-deep app-tabs .tabs-trigger {
-        border-right: 0;
-        border-bottom: 1px solid #050505;
-    }
-
     .worksite-actions {
         flex-direction: column;
     }
