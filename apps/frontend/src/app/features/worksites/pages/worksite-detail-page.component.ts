@@ -6,14 +6,11 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { map } from 'rxjs';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
-  faBuilding,
   faCalendarDays,
   faClock,
   faExclamationTriangle,
   faUsers,
-  faCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
@@ -26,6 +23,7 @@ import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
 import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
 import { SummaryCardComponent } from '../../../shared/ui/summary-card/summary-card.component';
 import { ChipComponent } from '../../../shared/ui/chip/chip.component';
+import { WorksiteHeroComponent } from '../components/worksite-hero/worksite-hero.component';
 
 @Component({
   selector: 'app-worksite-detail-page',
@@ -33,13 +31,13 @@ import { ChipComponent } from '../../../shared/ui/chip/chip.component';
   imports: [
     ButtonComponent,
     CardComponent,
-    FontAwesomeModule,
     PageTemplateComponent,
     TranslatePipe,
     TabsComponent,
     TabItemDirective,
     SummaryCardComponent,
     ChipComponent,
+    WorksiteHeroComponent,
   ],
   templateUrl: './worksite-detail-page.component.html',
   styleUrl: './worksite-detail-page.component.css',
@@ -63,12 +61,10 @@ export class WorksiteDetailPageComponent {
 
   protected readonly worksite = computed(() => this.worksiteResource.value());
 
-  protected readonly faBuilding = faBuilding;
   protected readonly faCalendarDays = faCalendarDays;
   protected readonly faClock = faClock;
   protected readonly faExclamationTriangle = faExclamationTriangle;
   protected readonly faUsers = faUsers;
-  protected readonly faCircle = faCircle;
 
   protected goBack(): void {
     this.router.navigate(['/worksites']);

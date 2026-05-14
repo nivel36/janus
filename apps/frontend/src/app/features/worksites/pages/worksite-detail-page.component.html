@@ -11,30 +11,7 @@
         } @else if (worksite(); as worksite) {
             <app-tabs>
                 <ng-template appTabItem="GENERAL">
-                    <article class="worksite-hero">
-                        <div class="worksite-hero__identity">
-                            <div class="worksite-hero__icon" aria-hidden="true">
-                                <fa-icon [icon]="faBuilding"></fa-icon>
-                            </div>
-
-                            <div class="worksite-hero__copy">
-                                <h2>{{ worksite.name }}</h2>
-                                <p>
-                                    <span>{{ worksite.code }}</span>
-                                    <app-chip
-                                        [label]="'worksite.scopes.' + worksite.scope | translate"
-                                    ></app-chip>
-                                </p>
-                            </div>
-                        </div>
-
-                        <app-chip
-                            type="green"
-                            [icon]="faCircle"
-                            size="big"
-                            label="ACTIVO"
-                        ></app-chip>
-                    </article>
+                    <app-worksite-hero [worksite]="worksite"></app-worksite-hero>
 
                     <div class="worksite-detail-grid">
                         <app-card styleClass="worksite-panel">

@@ -42,50 +42,8 @@
     min-height: 0;
 }
 
-.worksite-hero,
 :host ::ng-deep .worksite-panel .card-body {
     background: #151515;
-}
-
-.worksite-hero {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    margin-bottom: 1.7rem;
-    padding: 1.55rem 3.2rem 1.55rem 1.85rem;
-    border-radius: 22px;
-}
-
-.worksite-hero__identity {
-    display: flex;
-    align-items: center;
-    gap: 1.7rem;
-}
-
-.worksite-hero__icon {
-    width: 5.9rem;
-    aspect-ratio: 1;
-    display: grid;
-    place-items: center;
-    border: 4px solid rgba(255, 255, 255, 0.12);
-    border-radius: 24px;
-    color: #fece0b;
-    font-size: 2.6rem;
-}
-
-.worksite-hero__copy h2 {
-    margin: 0 0 1rem;
-    font-size: 2rem;
-    line-height: 1.05;
-}
-
-.worksite-hero__copy p {
-    display: flex;
-    align-items: center;
-    gap: 1.1rem;
-    margin: 0;
-    font-size: 1.15rem;
 }
 
 .worksite-detail-grid {
@@ -160,11 +118,6 @@
     .worksite-detail-grid {
         grid-template-columns: 1fr;
     }
-
-    .worksite-hero {
-        align-items: flex-start;
-        padding-right: 1.85rem;
-    }
 }
 
 @media (max-width: 640px) {
@@ -177,18 +130,10 @@
         border-bottom: 1px solid #050505;
     }
 
-    .worksite-hero,
-    .worksite-hero__identity,
     .worksite-actions {
         flex-direction: column;
     }
 
-    .worksite-hero__icon {
-        width: 4.8rem;
-        font-size: 2rem;
-    }
-
-    .status-pill,
     .worksite-actions app-button {
         width: 100%;
     }
