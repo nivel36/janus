@@ -1,6 +1,10 @@
 {
   "realm": "Nivel36",
   "enabled": true,
+  "loginTheme": "janus",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["es", "ca", "en"],
+  "defaultLocale": "es",
   "roles": {
     "realm": [
       { "name": "JANUS_USER" },

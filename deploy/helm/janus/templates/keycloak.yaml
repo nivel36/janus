@@ -62,10 +62,28 @@ spec:
             - name: realm
               mountPath: /opt/keycloak/data/import/realm-export.json
               subPath: realm-export.json
+            - name: theme
+              mountPath: /opt/keycloak/themes/janus/login
       volumes:
         - name: realm
           configMap:
             name: {{ include "janus.fullname" . }}-keycloak-realm
+        - name: theme
+          configMap:
+            name: {{ include "janus.fullname" . }}-keycloak-theme
+            items:
+              - key: theme.properties
+                path: theme.properties
+              - key: login.ftl
+                path: login.ftl
+              - key: login.css
+                path: resources/css/login.css
+              - key: messages_es.properties
+                path: messages/messages_es.properties
+              - key: messages_ca.properties
+                path: messages/messages_ca.properties
+              - key: messages_en.properties
+                path: messages/messages_en.properties
 ---
 apiVersion: v1
 kind: Service

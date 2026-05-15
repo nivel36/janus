@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "janus.fullname" . }}-keycloak-theme
+  namespace: {{ include "janus.namespace" . }}
+  labels:
+    {{- include "janus.labels" . | nindent 4 }}
+data:
+  theme.properties: |-
+{{ .Files.Get "files/keycloak-theme/janus/login/theme.properties" | indent 4 }}
+  login.ftl: |-
+{{ .Files.Get "files/keycloak-theme/janus/login/login.ftl" | indent 4 }}
+  login.css: |-
+{{ .Files.Get "files/keycloak-theme/janus/login/resources/css/login.css" | indent 4 }}
+  messages_es.properties: |-
+{{ .Files.Get "files/keycloak-theme/janus/login/messages/messages_es.properties" | indent 4 }}
+  messages_ca.properties: |-
+{{ .Files.Get "files/keycloak-theme/janus/login/messages/messages_ca.properties" | indent 4 }}
+  messages_en.properties: |-
+{{ .Files.Get "files/keycloak-theme/janus/login/messages/messages_en.properties" | indent 4 }}
