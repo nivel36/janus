@@ -7,7 +7,7 @@ Janus is a time-tracking platform built as a monorepo with a **Spring Boot** bac
 The repository is organized into these main parts:
 
 - `apps/backend`: Spring Boot 4 backend with REST API, PostgreSQL persistence, JWT validation, and business logic.
-- `apps/frontend`: Angular 20 application base where the user-facing app is being developed.
+- `apps/frontend`: Angular 21 application base where the user-facing app is being developed.
 - `deploy/docker`: Docker/Compose files for production-like and development infrastructure.
 - `deploy/nginx`: Nginx configuration used in the containerized production-like setup.
 
@@ -19,7 +19,7 @@ The frontend should be understood as the **Angular application layer under const
 
 At this stage, `apps/frontend` provides the base needed to keep building the app:
 
-- Angular 20 project structure.
+- Angular 21 project structure.
 - Build and development scripts.
 - Integration points for Keycloak authentication.
 - Internationalization resources (`en`, `es`, `ca`).
@@ -38,8 +38,8 @@ The backend currently exposes endpoints for:
 
 ## Technology stack
 
-- **Backend**: Java 25, Spring Boot 4, Spring Security, Spring Data JPA, Springdoc/OpenAPI.
-- **Frontend**: Angular 20, ngx-translate, Luxon, keycloak-js.
+- **Backend**: Java 26, Spring Boot 4, Spring Security, Spring Data JPA, Springdoc/OpenAPI.
+- **Frontend**: Angular 21, ngx-translate, Luxon, keycloak-js.
 - **Auth**: Keycloak 26.
 - **Database**: PostgreSQL 16.
 - **Observability**: Grafana 12 in the Docker deployment.
@@ -51,7 +51,7 @@ Depending on how you want to run the project, you will need:
 
 ### Local development
 
-- **Java 25**
+- **Java 26**
 - **Node.js 22** and **npm**
 - **Docker/Compose** or **Podman Compose** for the supporting infrastructure
 
