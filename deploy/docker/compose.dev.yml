@@ -36,7 +36,14 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
     container_name: janus-keycloak-dev
-    command: ["start-dev", "--import-realm"]
+    command:
+      [
+        "start-dev",
+        "--import-realm",
+        "--spi-theme--cache-themes=false",
+        "--spi-theme--cache-templates=false",
+        "--spi-theme--static-max-age=-1",
+      ]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
