@@ -2,9 +2,11 @@
   <section page-body class="worksites-content">
     <div class="worksites-toolbar">
       <app-search-bar (queryChange)="onQueryChange($event)" />
-      <app-button variant="main" (clicked)="createWorksite()">
-        {{ 'actions.new' | translate }}
-      </app-button>
+      @if (isAdmin | async) {
+        <app-button variant="main" (clicked)="createWorksite()">
+          {{ 'actions.new' | translate }}
+        </app-button>
+      }
     </div>
     <app-worksite-table [query]="searchQuery()" />
   </section>

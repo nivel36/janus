@@ -24,6 +24,7 @@ import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
 import { SummaryCardComponent } from '../../../shared/ui/summary-card/summary-card.component';
 import { ChipComponent } from '../../../shared/ui/chip/chip.component';
 import { WorksiteHeroComponent } from '../components/worksite-hero/worksite-hero.component';
+import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
 
 @Component({
   selector: 'app-worksite-detail-page',
@@ -47,6 +48,7 @@ export class WorksiteDetailPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly worksiteApiService = inject(WorksiteApiService);
+  private readonly currentUser = inject(CurrentUserFacade);
 
   protected readonly worksiteCode = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('code') ?? '')),
@@ -60,6 +62,7 @@ export class WorksiteDetailPageComponent {
   });
 
   protected readonly worksite = computed(() => this.worksiteResource.value());
+  protected readonly isAdmin = this.currentUser.isAdmin$;
 
   protected readonly faCalendarDays = faCalendarDays;
   protected readonly faClock = faClock;

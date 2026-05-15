@@ -95,9 +95,15 @@
                         <app-button type="button" variant="secondary" (clicked)="goBack()">
                             {{ 'actions.cancel' | translate }}
                         </app-button>
-                        <app-button type="button" variant="main" (clicked)="editWorksite(worksite)">
-                            {{ 'actions.edit' | translate }}
-                        </app-button>
+                        @if (isAdmin | async) {
+                            <app-button
+                                type="button"
+                                variant="main"
+                                (clicked)="editWorksite(worksite)"
+                            >
+                                {{ 'actions.edit' | translate }}
+                            </app-button>
+                        }
                     </div>
                 </ng-template>
 

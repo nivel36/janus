@@ -33,15 +33,17 @@
                 <span aria-hidden="true"><fa-icon [icon]="faCalendarDays"></fa-icon></span>
             </button>
 
-            <button
-                type="button"
-                class="main-menu__icon-button main-menu__icon-button--settings"
-                [attr.aria-label]="'navigation.applicationSettings' | translate"
-                [attr.title]="'navigation.applicationSettings' | translate"
-                (click)="goToApplicationSettings()"
-            >
-                <span aria-hidden="true"><fa-icon [icon]="faGear"></fa-icon></span>
-            </button>
+            @if (user.isAdmin) {
+                <button
+                    type="button"
+                    class="main-menu__icon-button main-menu__icon-button--settings"
+                    [attr.aria-label]="'navigation.applicationSettings' | translate"
+                    [attr.title]="'navigation.applicationSettings' | translate"
+                    (click)="goToApplicationSettings()"
+                >
+                    <span aria-hidden="true"><fa-icon [icon]="faGear"></fa-icon></span>
+                </button>
+            }
 
             <button
                 type="button"
