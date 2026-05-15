@@ -40,8 +40,8 @@ backend:
     port: 8080
   env:
     springProfilesActive: prod
-    jwtIssuerUrl: "http://janus.local/auth/realms/janus-realm"
-    springJwtIssuerUri: "http://janus.local/auth/realms/janus-realm"
+    jwtIssuerUrl: "http://janus.local/auth/realms/Nivel36"
+    springJwtIssuerUri: "http://janus.local/auth/realms/Nivel36"
     corsAllowedOrigins: "http://janus.local"
 
 postgres:

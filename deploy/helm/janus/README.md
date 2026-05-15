@@ -29,8 +29,8 @@ global:
 
 backend:
   env:
-    jwtIssuerUrl: "https://your-domain/auth/realms/janus-realm"
-    springJwtIssuerUri: "https://your-domain/auth/realms/janus-realm"
+    jwtIssuerUrl: "https://your-domain/auth/realms/Nivel36"
+    springJwtIssuerUri: "https://your-domain/auth/realms/Nivel36"
     corsAllowedOrigins: "https://your-domain"
 
 keycloak:

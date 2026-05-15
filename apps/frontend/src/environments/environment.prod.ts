@@ -6,7 +6,7 @@ export const environment = {
   apiBaseUrl: '/api/v1',
   keycloak: {
     url: '/auth',
-    realm: 'janus-realm',
+    realm: 'Nivel36',
     clientId: 'janus-spa',
   },
 };

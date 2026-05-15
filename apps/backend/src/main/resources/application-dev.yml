@@ -27,7 +27,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER_URL:http://localhost:8081/auth/realms/janus-realm}
+          issuer-uri: ${JWT_ISSUER_URL:http://localhost:8081/auth/realms/Nivel36}
 
   sql:
     init:

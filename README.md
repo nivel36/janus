@@ -160,7 +160,7 @@ Authentication is **Keycloak-only**:
 
 ## Realm configuration
 
-Use **`janus-realm`** as the single source of truth across all components.
+Use **`Nivel36`** as the single source of truth across all components.
 
 If the realm changes, update these files together:
 
