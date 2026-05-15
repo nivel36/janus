@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -34,6 +35,7 @@ import { CurrentUserFacade } from '../../../core/user/services/current-user.faca
     CardComponent,
     PageTemplateComponent,
     TranslatePipe,
+    AsyncPipe,
     TabsComponent,
     TabItemDirective,
     SummaryCardComponent,

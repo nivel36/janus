@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { AsyncPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -19,6 +20,7 @@ import { CurrentUserFacade } from '../../../core/user/services/current-user.faca
     SearchBarComponent,
     ButtonComponent,
     TranslatePipe,
+    AsyncPipe,
   ],
   templateUrl: './worksites-page.component.html',
   styleUrl: './worksites-page.component.css',
