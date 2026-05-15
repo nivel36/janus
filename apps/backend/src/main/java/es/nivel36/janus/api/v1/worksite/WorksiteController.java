@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.worksite;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Objects;
 
@@ -135,6 +136,27 @@ public class WorksiteController {
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
 		return ResponseEntity.ok(response);
+	}
+
+
+	@GetMapping("/{worksiteCode}/stats")
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	public ResponseEntity<WorksiteStatsResponse> stats(
+			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
+			@RequestParam("start") final Instant start,
+			@RequestParam("end") final Instant end) {
+		if (end.isBefore(start)) {
+			throw new IllegalArgumentException("end must be greater than or equal to start");
+		}
+		this.worksiteService.findWorksiteByCode(worksiteCode);
+		final long employeesWhoClockedIn = this.employeeService.countDistinctEmployeesWithTimeLogsInRange(worksiteCode,
+				start, end);
+		final long erroneousTimeLogs = this.employeeService.countOpenTimeLogsInRange(worksiteCode, start, end);
+		final long totalTimeLogs = this.employeeService.countTimeLogsInRange(worksiteCode, start, end);
+		final long employeesAllowedToClockIn = this.employeeService.countEmployeesAssignedToWorksite(worksiteCode);
+		final long distinctSchedules = this.employeeService.countDistinctSchedulesInRange(worksiteCode, start, end);
+		return ResponseEntity.ok(new WorksiteStatsResponse(worksiteCode, start, end, employeesWhoClockedIn,
+				erroneousTimeLogs, totalTimeLogs, employeesAllowedToClockIn, distinctSchedules));
 	}
 
 	/**

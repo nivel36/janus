@@ -34,6 +34,51 @@ import es.nivel36.janus.service.workshift.WorkShift;
 @Repository
 interface EmployeeRepository extends CrudRepository<Employee, Long> {
 
+	@Query("""
+			SELECT COUNT(DISTINCT e.id)
+			FROM Employee e
+			JOIN e.worksites w
+			WHERE w.code = :worksiteCode
+			""")
+	long countByWorksiteCode(String worksiteCode);
+
+	@Query("""
+			SELECT COUNT(DISTINCT t.employee.id)
+			FROM TimeLog t
+			WHERE t.worksite.code = :worksiteCode
+			AND t.entryTime >= :startInclusive
+			AND t.entryTime <= :endInclusive
+			""")
+	long countDistinctEmployeesWithTimeLogsInRange(String worksiteCode, Instant startInclusive, Instant endInclusive);
+
+	@Query("""
+			SELECT COUNT(t.id)
+			FROM TimeLog t
+			WHERE t.worksite.code = :worksiteCode
+			AND t.entryTime >= :startInclusive
+			AND t.entryTime <= :endInclusive
+			""")
+	long countTimeLogsInRange(String worksiteCode, Instant startInclusive, Instant endInclusive);
+
+	@Query("""
+			SELECT COUNT(t.id)
+			FROM TimeLog t
+			WHERE t.worksite.code = :worksiteCode
+			AND t.entryTime >= :startInclusive
+			AND t.entryTime <= :endInclusive
+			AND t.exitTime IS NULL
+			""")
+	long countOpenTimeLogsInRange(String worksiteCode, Instant startInclusive, Instant endInclusive);
+
+	@Query("""
+			SELECT COUNT(DISTINCT t.employee.schedule.id)
+			FROM TimeLog t
+			WHERE t.worksite.code = :worksiteCode
+			AND t.entryTime >= :startInclusive
+			AND t.entryTime <= :endInclusive
+			""")
+	long countDistinctSchedulesInRange(String worksiteCode, Instant startInclusive, Instant endInclusive);
+
 	/**
 	 * Checks whether a {@link Employee} exists for the specified email.
 	 *
