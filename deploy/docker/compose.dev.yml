@@ -59,7 +59,7 @@ services:
       - "8081:8080"
     volumes:
       - ../helm/janus/files/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
-      - ../keycloak/themes/janus:/opt/keycloak/themes/janus:ro
+      - ../helm/janus/files/keycloak-theme/janus:/opt/keycloak/themes/janus:ro
     depends_on:
       postgres_keycloak:
         condition: service_healthy
