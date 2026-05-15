@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,6 +25,7 @@ import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
 import { SummaryCardComponent } from '../../../shared/ui/summary-card/summary-card.component';
 import { ChipComponent } from '../../../shared/ui/chip/chip.component';
 import { WorksiteHeroComponent } from '../components/worksite-hero/worksite-hero.component';
+import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
 
 @Component({
   selector: 'app-worksite-detail-page',
@@ -33,6 +35,7 @@ import { WorksiteHeroComponent } from '../components/worksite-hero/worksite-hero
     CardComponent,
     PageTemplateComponent,
     TranslatePipe,
+    AsyncPipe,
     TabsComponent,
     TabItemDirective,
     SummaryCardComponent,
@@ -47,6 +50,7 @@ export class WorksiteDetailPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly worksiteApiService = inject(WorksiteApiService);
+  private readonly currentUser = inject(CurrentUserFacade);
 
   protected readonly worksiteCode = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('code') ?? '')),
@@ -60,6 +64,7 @@ export class WorksiteDetailPageComponent {
   });
 
   protected readonly worksite = computed(() => this.worksiteResource.value());
+  protected readonly isAdmin = this.currentUser.isAdmin$;
 
   protected readonly faCalendarDays = faCalendarDays;
   protected readonly faClock = faClock;
