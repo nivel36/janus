@@ -144,10 +144,23 @@ public class WorksiteController {
 	public ResponseEntity<WorksiteStatsResponse> stats(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
 			@RequestParam("start") final Instant start,
-			@RequestParam("end") final Instant end) {
+			@RequestParam("end") final Instant end,
+			final Authentication authentication) {
 		if (end.isBefore(start)) {
 			throw new IllegalArgumentException("end must be greater than or equal to start");
 		}
+
+		final String authenticatedEmail = authentication.getName();
+		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		if (hasOnlyEmployeeRole) {
+			if (authenticatedEmail == null || authenticatedEmail.isBlank()) {
+				throw new AccessDeniedException("Employee email claim is required");
+			}
+			if (!this.employeeService.isAssignedToWorksite(authenticatedEmail, worksiteCode)) {
+				throw new AccessDeniedException("Employees can only view stats for their assigned worksites");
+			}
+		}
+
 		this.worksiteService.findWorksiteByCode(worksiteCode);
 		final long employeesWhoClockedIn = this.employeeService.countDistinctEmployeesWithTimeLogsInRange(worksiteCode,
 				start, end);
