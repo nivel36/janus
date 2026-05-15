@@ -310,4 +310,47 @@ public class EmployeeService {
 		logger.debug("Checking if the employee {} is assigned to schedule {}", employeeEmail, worksiteCode);
 		return this.employeeRepository.existsByEmailAndWorksites_Code(employeeEmail, worksiteCode);
 	}
+
+	@Transactional(readOnly = true)
+	public long countEmployeesAssignedToWorksite(final String worksiteCode) {
+		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
+		return this.employeeRepository.countByWorksiteCode(worksiteCode);
+	}
+
+	@Transactional(readOnly = true)
+	public long countDistinctEmployeesWithTimeLogsInRange(final String worksiteCode, final Instant startInclusive,
+			final Instant endInclusive) {
+		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
+		Objects.requireNonNull(startInclusive, "startInclusive cannot be null.");
+		Objects.requireNonNull(endInclusive, "endInclusive cannot be null.");
+		return this.employeeRepository.countDistinctEmployeesWithTimeLogsInRange(worksiteCode, startInclusive,
+				endInclusive);
+	}
+
+	@Transactional(readOnly = true)
+	public long countTimeLogsInRange(final String worksiteCode, final Instant startInclusive,
+			final Instant endInclusive) {
+		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
+		Objects.requireNonNull(startInclusive, "startInclusive cannot be null.");
+		Objects.requireNonNull(endInclusive, "endInclusive cannot be null.");
+		return this.employeeRepository.countTimeLogsInRange(worksiteCode, startInclusive, endInclusive);
+	}
+
+	@Transactional(readOnly = true)
+	public long countOpenTimeLogsInRange(final String worksiteCode, final Instant startInclusive,
+			final Instant endInclusive) {
+		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
+		Objects.requireNonNull(startInclusive, "startInclusive cannot be null.");
+		Objects.requireNonNull(endInclusive, "endInclusive cannot be null.");
+		return this.employeeRepository.countOpenTimeLogsInRange(worksiteCode, startInclusive, endInclusive);
+	}
+
+	@Transactional(readOnly = true)
+	public long countDistinctSchedulesInRange(final String worksiteCode, final Instant startInclusive,
+			final Instant endInclusive) {
+		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
+		Objects.requireNonNull(startInclusive, "startInclusive cannot be null.");
+		Objects.requireNonNull(endInclusive, "endInclusive cannot be null.");
+		return this.employeeRepository.countDistinctSchedulesInRange(worksiteCode, startInclusive, endInclusive);
+	}
 }
