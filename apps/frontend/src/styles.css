@@ -1,5 +1,26 @@
 :root {
     color-scheme: light dark;
+
+    --color-background-primary: #000000;
+    --color-background-secondary: #050505;
+    --color-surface-primary: #131313;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #f9f9f9;
+    --color-accent-primary: #fece0b;
+    --color-accent-secondary: #f9d600;
+
+    --font-size-base: 16px;
+    --font-size-md: 1rem;
+    --font-size-lg: 2rem;
+    --font-size-xl: 3rem;
+
+    --border-radius-sm: 0.5rem;
+    --border-width-default: 1px;
+
+    --spacing-sm: 0.625rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
 }
 
 html,
