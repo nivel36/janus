@@ -13,7 +13,7 @@
   <main class="login-shell">
     <section class="login-card" aria-labelledby="login-title">
 
-      <h1 id="login-title">NIVEL 36</h1>
+      <h1 id="brand">Nivel 36</h1>
       <p class="subtitle">${msg("janusLoginSubtitle")}</p>
 
       <#if hasFieldError>
