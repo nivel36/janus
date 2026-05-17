@@ -1,32 +1,41 @@
-.aside {
-    width: min(360px, 100%);
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-}
-
 .dashboard-content {
     width: min(1080px, 100%);
-    display: flex;
-    gap: 2.5rem;
-    color: #f9f9f9;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(320px, 34%, 380px);
+    grid-template-areas:
+        'clock employee'
+        'records records';
+    gap: 2rem;
 }
 
-.content {
-    width: min(720px, 100%);
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-    color: #f9f9f9;
+.clock-card {
+    grid-area: clock;
 }
 
-.clock-action-feedback {
-    margin: 1rem 0 0;
-    padding: 0.625rem 0.875rem;
-    border-radius: 0.625rem;
-    background-color: rgba(204, 59, 59, 0.16);
-    border: 1px solid rgba(204, 59, 59, 0.48);
-    color: #ffd8d8;
-    font-size: 0.875rem;
-    font-weight: 500;
+.employee-card {
+    grid-area: employee;
+}
+
+.records-card {
+    grid-area: records;
+}
+
+@media (max-width: 900px) {
+    .dashboard-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .clock-card {
+        order: 2;
+    }
+
+    .employee-card {
+        order: 1;
+    }
+
+    .records-card {
+        order: 3;
+    }
 }
