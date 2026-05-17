@@ -431,4 +431,8 @@ input:-webkit-autofill:focus {
     .login-links .divider {
         display: none;
     }
+
+    .security-panel {
+        display: none;
+    }
 }
