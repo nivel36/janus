@@ -9,11 +9,6 @@
         "Segoe UI",
         sans-serif;
 
-    --bg: #090b0f;
-    --panel: rgba(25, 28, 34, 0.76);
-    --panel-soft: rgba(20, 23, 28, 0.64);
-    --panel-strong: rgba(30, 33, 39, 0.86);
-
     --line: rgba(255, 255, 255, 0.105);
     --line-strong: rgba(255, 255, 255, 0.13);
 
@@ -21,9 +16,6 @@
     --muted: #aaaeb8;
 
     --gold: #ffd400;
-    --gold-strong: #ffcc00;
-    --gold-soft: rgba(255, 212, 0, 0.18);
-
     --danger: #ff6b6b;
 }
 
@@ -78,45 +70,17 @@ body::after {
     background-image:
         linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
-    background-size: 42px 42px;
+    background-size: 2.65rem 2.65rem;
     mask-image: radial-gradient(circle at center, black, transparent 78%);
-}
-
-.login-header {
-    position: fixed;
-    top: 43px;
-    left: 58px;
-    right: 58px;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    pointer-events: none;
-}
-
-.brand {
-    color: var(--gold);
-    font-size: 34px;
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-}
-
-.eyebrow {
-    color: rgba(245, 246, 248, 0.62);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
 }
 
 .login-shell {
     position: relative;
     z-index: 1;
-    width: min(100%, 1040px);
+    width: min(100%, 65rem);
     min-height: 100svh;
     margin: 0 auto;
-    padding: clamp(16px, 4vw, 2rem);
+    padding: clamp(1rem, 4vw, 2rem);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -135,39 +99,18 @@ body::after {
         ),
         linear-gradient(180deg, rgba(31, 34, 41, 0.82), rgba(20, 23, 28, 0.82));
     box-shadow:
-        0 30px 90px rgba(0, 0, 0, 0.46),
+        0 1.9rem 5.65rem rgba(0, 0, 0, 0.46),
         inset 0 1px 0 rgba(255, 255, 255, 0.045);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(1.25rem);
 }
 
 .login-card {
-    width: min(100%, 704px);
+    width: min(100%, 38rem);
     margin: 0 auto;
-    padding: 38px 54px 42px;
-    border-radius: 18px;
+    padding: 2.4rem 3.4rem 2.65rem;
+    border-radius: 1.15rem;
 }
 
-.product-icon {
-    width: 98px;
-    height: 98px;
-    margin: 0 auto 27px;
-    display: grid;
-    place-items: center;
-    border: 3px solid rgba(255, 255, 255, 0.11);
-    border-radius: 28px;
-    background:
-        radial-gradient(
-            circle at 50% 22%,
-            rgba(255, 255, 255, 0.08),
-            transparent 64%
-        ),
-        rgba(255, 255, 255, 0.035);
-    box-shadow:
-        inset 0 0 24px rgba(255, 255, 255, 0.04),
-        0 10px 26px rgba(0, 0, 0, 0.28);
-}
-
-.product-icon svg,
 .security-panel svg,
 .login-links svg,
 .password-toggle svg {
@@ -175,12 +118,6 @@ body::after {
     stroke: currentColor;
     stroke-linecap: round;
     stroke-linejoin: round;
-}
-
-.product-icon svg {
-    width: 54px;
-    color: var(--gold);
-    stroke-width: 3.4;
 }
 
 h1,
@@ -191,7 +128,7 @@ p {
 
 h1 {
     text-align: center;
-    font-size: 34px;
+    font-size: 2.15rem;
     line-height: 1.16;
     font-weight: 800;
     letter-spacing: -0.025em;
@@ -200,48 +137,48 @@ h1 {
 }
 
 .subtitle {
-    margin-top: 14px;
+    margin-top: 0.9rem;
     color: var(--muted);
     text-align: center;
-    font-size: 19px;
+    font-size: 1.2rem;
     line-height: 1.4;
 }
 
 .login-alert {
-    margin-top: 28px;
-    padding: 12px 14px;
+    margin-top: 1.75rem;
+    padding: 0.75rem 0.9rem;
     border: 1px solid rgba(255, 107, 107, 0.36);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     color: #ffd6d6;
     background: rgba(255, 107, 107, 0.11);
-    font-size: 14px;
+    font-size: 0.9rem;
 }
 
 .login-form {
     display: grid;
-    gap: 24px;
-    margin-top: 36px;
+    gap: 1.5rem;
+    margin-top: 2.25rem;
 }
 
 .field {
     display: grid;
-    gap: 10px;
+    gap: 0.65rem;
     color: var(--text);
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 500;
 }
 
 input {
     width: 100%;
-    height: 61px;
+    height: 3.8rem;
     border: 1px solid var(--line-strong);
-    border-radius: 6px;
+    border-radius: 0.4rem;
     outline: none;
-    padding: 0 20px;
+    padding: 0 1.25rem;
     color: var(--text);
     background: rgba(9, 11, 15, 0.48);
     font: inherit;
-    font-size: 20px;
+    font-size: 1.25rem;
     transition:
         border-color 160ms ease,
         box-shadow 160ms ease,
@@ -257,7 +194,7 @@ input:focus {
     border-color: var(--gold);
     box-shadow:
         0 0 0 1px var(--gold),
-        0 0 25px rgba(255, 212, 0, 0.11);
+        0 0 1.55rem rgba(255, 212, 0, 0.11);
     background: rgba(10, 12, 16, 0.74);
 }
 
@@ -280,7 +217,7 @@ input:-webkit-autofill:focus {
     box-shadow:
         0 0 0 1000px rgba(10, 12, 16, 0.92) inset,
         0 0 0 1px var(--gold),
-        0 0 25px rgba(255, 212, 0, 0.11) !important;
+        0 0 1.55rem rgba(255, 212, 0, 0.11) !important;
     border-color: var(--gold);
 }
 
@@ -290,17 +227,17 @@ input:-webkit-autofill:focus {
 }
 
 .password-control input {
-    padding-right: 64px;
+    padding-right: 4rem;
 }
 
 .password-toggle {
     position: absolute;
     top: 50%;
-    right: 15px;
-    width: 40px;
-    height: 40px;
+    right: 0.95rem;
+    width: 2.5rem;
+    height: 2.5rem;
     border: 0;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     display: grid;
     place-items: center;
     color: #c9cbd2;
@@ -317,22 +254,22 @@ input:-webkit-autofill:focus {
 }
 
 .password-toggle svg {
-    width: 25px;
+    width: 1.55rem;
     stroke-width: 2.1;
 }
 
 .submit-button {
-    height: 61px;
-    margin-top: 12px;
+    height: 3.8rem;
+    margin-top: 0.75rem;
     border: 0;
-    border-radius: 6px;
+    border-radius: 0.4rem;
     color: #171400;
     background: linear-gradient(180deg, #ffe45a 0%, #ffd400 45%, #ffc800 100%);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.42),
-        0 14px 28px rgba(255, 212, 0, 0.13);
+        0 0.9rem 1.75rem rgba(255, 212, 0, 0.13);
     font: inherit;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 900;
     letter-spacing: 0.14em;
     cursor: pointer;
@@ -343,7 +280,7 @@ input:-webkit-autofill:focus {
     background: linear-gradient(180deg, #ffea72 0%, #ffd81a 45%, #ffca00 100%);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.48),
-        0 16px 32px rgba(255, 212, 0, 0.18);
+        0 1rem 2rem rgba(255, 212, 0, 0.18);
     outline: none;
 }
 
@@ -351,10 +288,10 @@ input:-webkit-autofill:focus {
     display: grid;
     grid-template-columns: 1fr auto auto auto 1fr;
     align-items: center;
-    gap: 24px;
-    margin-top: 52px;
+    gap: 1.5rem;
+    margin-top: 3.25rem;
     color: var(--gold);
-    font-size: 15px;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
@@ -363,7 +300,7 @@ input:-webkit-autofill:focus {
     min-width: 0;
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
     color: var(--gold);
     text-decoration: none;
     white-space: nowrap;
@@ -380,7 +317,7 @@ input:-webkit-autofill:focus {
 }
 
 .login-links svg {
-    width: 25px;
+    width: 1.55rem;
     flex: 0 0 auto;
     stroke-width: 2.2;
 }
@@ -392,15 +329,15 @@ input:-webkit-autofill:focus {
 
 .divider {
     width: 1px;
-    height: 25px;
+    height: 1.55rem;
     background: rgba(255, 255, 255, 0.105);
 }
 
 .security-panel {
-    width: min(100%, 916px);
+    width: min(100%, 57.25rem);
     margin: 0 auto;
-    padding: 34px 30px;
-    border-radius: 16px;
+    padding: 2.15rem 1.9rem;
+    border-radius: 1rem;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -408,9 +345,9 @@ input:-webkit-autofill:focus {
 .security-panel article {
     min-width: 0;
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
-    gap: 18px;
-    padding: 0 26px;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    gap: 1.15rem;
+    padding: 0 1.65rem;
 }
 
 .security-panel article + article {
@@ -418,45 +355,39 @@ input:-webkit-autofill:focus {
 }
 
 .security-panel svg {
-    width: 40px;
+    width: 2.5rem;
     color: var(--gold);
     stroke-width: 2;
 }
 
 .security-panel h2 {
     color: var(--text);
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 1.34;
     font-weight: 800;
 }
 
 .security-panel p {
-    margin-top: 7px;
+    margin-top: 0.45rem;
     color: var(--muted);
-    font-size: 15px;
+    font-size: 0.95rem;
     line-height: 1.7;
 }
 
-@media (max-width: 820px) {
-    .login-header {
-        position: static;
-        padding: 28px 24px 0;
-        pointer-events: auto;
-    }
-
+@media (max-width: 51rem) {
     .login-shell {
         min-height: auto;
-        padding: 48px 18px 32px;
+        padding: 3rem 1.15rem 2rem;
     }
 
     .login-card {
-        padding: 32px 24px 34px;
+        padding: 2rem 1.5rem 2.15rem;
     }
 
     .security-panel {
         grid-template-columns: 1fr;
-        gap: 24px;
-        padding: 28px;
+        gap: 1.5rem;
+        padding: 1.75rem;
     }
 
     .security-panel article {
@@ -466,57 +397,34 @@ input:-webkit-autofill:focus {
     .security-panel article + article {
         border-left: 0;
         border-top: 1px solid rgba(255, 255, 255, 0.12);
-        padding-top: 24px;
+        padding-top: 1.5rem;
     }
 }
 
-@media (max-width: 560px) {
-    .login-header {
-        align-items: flex-start;
-        gap: 16px;
-    }
-
-    .brand {
-        font-size: 28px;
-    }
-
-    .eyebrow {
-        font-size: 12px;
-    }
-
+@media (max-width: 35rem) {
     .login-shell {
         min-height: auto;
         padding: 3rem 1rem 2rem;
     }
 
-    .product-icon {
-        width: 82px;
-        height: 82px;
-        border-radius: 24px;
-    }
-
-    .product-icon svg {
-        width: 45px;
-    }
-
     h1 {
-        font-size: 27px;
+        font-size: 1.7rem;
     }
 
     .subtitle {
-        font-size: 17px;
+        font-size: 1.05rem;
     }
 
     input {
-        height: 56px;
-        font-size: 17px;
+        height: 3.5rem;
+        font-size: 1.05rem;
     }
 
     .login-links {
         grid-template-columns: 1fr;
         justify-items: center;
-        gap: 16px;
-        margin-top: 38px;
+        gap: 1rem;
+        margin-top: 2.4rem;
     }
 
     .login-links .rule,
