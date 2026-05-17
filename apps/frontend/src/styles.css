@@ -1,5 +1,13 @@
 :root {
-    color-scheme: light dark;
+    color-scheme: dark;
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        sans-serif;
 
     --color-background-primary: #000000;
     --color-background-secondary: #050505;
