@@ -58,7 +58,7 @@
     "employee": "Empleado",
     "fullName": "Nombre completo",
     "location": "Lugar",
-    "todaysHour": "Horario"
+    "todaySchedule": "Horario de hoy"
   },
   "login": {
     "title": "Iniciar sesión",

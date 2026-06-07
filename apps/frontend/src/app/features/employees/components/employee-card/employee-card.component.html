@@ -1,25 +1,28 @@
-<app-card styleClass="employee-card">
-    <ng-template #cardHeader>
-        <div class="employee-card-header-content">
-            <img class="avatar" [src]="avatarSrc()" [alt]="avatarAlt()" />
-            <span class="employee-card-title">
-                {{ 'employee.employee' | translate }}
-            </span>
-        </div>
-    </ng-template>
+<section class="card employee-card" [attr.aria-labelledby]="titleElementId">
+    <header class="card-header employee-card-header">
+        <img class="avatar" [src]="avatarSrc()" alt="" />
 
-    <div class="data">
-        <h3>{{ 'employee.fullName' | translate }}</h3>
-        <p>{{ fullName() || '—' }}</p>
-    </div>
+        <h3 class="card-title employee-card-title" [id]="titleElementId">
+            {{ 'employee.employee' | translate }}
+        </h3>
+    </header>
 
-    <div class="data">
-        <h3>{{ 'employee.location' | translate }}</h3>
-        <p>{{ location() }}</p>
-    </div>
+    <div class="card-body employee-card-body">
+        <dl class="employee-data">
+            <div class="data">
+                <dt>{{ 'employee.fullName' | translate }}</dt>
+                <dd>{{ fullName() || '—' }}</dd>
+            </div>
 
-    <div class="data">
-        <h3>{{ 'employee.todaysHour' | translate }}</h3>
-        <p>{{ todaysHour() }}</p>
+            <div class="data">
+                <dt>{{ 'employee.location' | translate }}</dt>
+                <dd>{{ location() || '—' }}</dd>
+            </div>
+
+            <div class="data">
+                <dt>{{ 'employee.todaySchedule' | translate }}</dt>
+                <dd>{{ todaysHour() || '—' }}</dd>
+            </div>
+        </dl>
     </div>
-</app-card>
+</section>

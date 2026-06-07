@@ -58,7 +58,7 @@
     "employee": "Empleat",
     "fullName": "Nom complet",
     "location": "Lloc",
-    "todaysHour": "Horari"
+    "todaySchedule": "Horari d'avui"
   },
   "login": {
     "title": "Inicia sessió",

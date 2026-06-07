@@ -14,9 +14,8 @@ import {
 } from '../../../shared/utils/timezone-catalog.util';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { CardComponent } from '../../../shared/ui/card/card.component';
 import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
-import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-button.component';
+import { ToggleButtonFieldComponent } from '../../../shared/ui/toggle-button-field/toggle-button-field.component';
 import { ApplicationSettings } from '../models/application-settings';
 import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
 import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
@@ -29,9 +28,8 @@ import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util'
     TranslatePipe,
     AutocompleteTextboxComponent,
     RangeSliderComponent,
-    ToggleButtonComponent,
+    ToggleButtonFieldComponent,
     ButtonComponent,
-    CardComponent,
     PageTemplateComponent,
   ],
   templateUrl: './application-settings-page.component.html',

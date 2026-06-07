@@ -1,11 +1,12 @@
 @if (vm$ | async; as vm) {
-    <app-card styleClass="clock-in-card" [title]="vm.clockActionTitleKey | translate">
-        <ng-template #cardHeader>
-            <app-clock
-                styleClass="card-hour"
-                [locale]="vm.locale"
-                [use12Hour]="vm.use12Hour"
-            ></app-clock>
+    <section class="card clock-in-card" [attr.aria-labelledby]="titleElementId">
+        <header class="card-header clock-in-card-header">
+            <h3 class="card-title clock-in-card-title" [id]="titleElementId">
+                {{ vm.clockActionTitleKey | translate }}
+            </h3>
+        </header>
+        <div class="card-body clock-in-card-body">
+            <app-clock [locale]="vm.locale" [use12Hour]="vm.use12Hour"></app-clock>
 
             @if (vm.hasClockInOutPermission) {
                 <app-button [disabled]="vm.isClockActionLoading" (clicked)="onClockAction()">
@@ -18,9 +19,9 @@
                     {{ feedbackKey | translate }}
                 </p>
             }
-        </ng-template>
+        </div>
 
-        <ng-template #cardFooter>
+        <footer class="card-footer clock-in-card-footer">
             @if (vm.hasClockInOutPermission) {
                 <button
                     type="button"
@@ -29,8 +30,11 @@
                     (click)="onOppositeClockAction()"
                 >
                     {{ vm.oppositeClockActionLabelKey | translate }}
+                    <span class="icon">
+                        <fa-icon [icon]="faAngleRight"></fa-icon>
+                    </span>
                 </button>
             }
-        </ng-template>
-    </app-card>
+        </footer>
+    </section>
 }

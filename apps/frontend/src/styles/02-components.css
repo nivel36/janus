@@ -1,0 +1,42 @@
+:root {
+    --card-padding-inline: var(--panel-padding-inline);
+    --card-padding-block: var(--panel-padding-block);
+    --card-gap: var(--panel-gap);
+    --card-background-color: var(--panel-background-color);
+    --card-border: var(--panel-border);
+    --card-border-radius: var(--panel-border-radius);
+    --card-box-shadow: var(--panel-shadow);
+
+    --brand-color: var(--accent-strong-color);
+    --brand-font-size: var(--text-large-size);
+
+    --avatar-background-color: var(--accent-color);
+    --avatar-foreground-color: var(--color-black);
+    --avatar-size: var(--size-900);
+
+    --button-padding-block: var(--size-200);
+    --button-padding-inline: var(--size-400);
+    --button-border-radius: var(--radius-200);
+    --button-min-width: 15rem;
+    --button-font-size: var(--text-body-size);
+    --button-height: var(--size-900);
+    --button-border: 0;
+
+    --button-primary-background-color: var(--control-accent-background-color);
+    --button-primary-hover-background-color: var(--control-accent-hover-background-color);
+    --button-primary-active-background-color: var(--control-accent-pressed-background-color);
+    --button-primary-disabled-background-color: var(--control-accent-disabled-background-color);
+    --button-primary-text-color: var(--control-accent-text-color);
+    --button-primary-box-shadow: var(--control-accent-glow);
+    --button-primary-hover-box-shadow: var(--control-accent-hover-glow);
+
+    --list-background-color: var(--panel-background-color);
+    --list-background-color-odd: var(--color-gray-850);
+    --list-element-hover-background-color: var(--color-primary-900);
+
+    --input-border: var(--stroke-100) var(--border-style) var(--color-gray-500);
+    --input-hover-border: var(--stroke-100) var(--border-style) var(--color-gray-300);
+    --input-focus-border: var(--stroke-100) var(--border-style) var(--accent-color);
+    --input-border-radius: var(--radius-100);
+    --input-background-color: var(--color-gray-900);
+}

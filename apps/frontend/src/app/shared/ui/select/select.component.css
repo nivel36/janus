@@ -1,34 +1,7 @@
-:host {
-    display: block;
-
-    --bg: #050505;
-    --fg: #f9f9f9;
-    --accent: #fece0b;
-
-    --radius: 0.5rem;
-    --focus-ring: 0 0 0 2px rgba(249, 214, 0, 0.3);
-}
-
 .select {
     position: relative;
-
     width: 100%;
     overflow: hidden;
-
-    border: 1px solid var(--accent);
-    border-radius: var(--radius);
-
-    background: var(--bg);
-
-    transition: box-shadow 0.2s ease;
-}
-
-.select:focus-within {
-    box-shadow: var(--focus-ring);
-}
-
-.select.disabled {
-    opacity: 0.72;
 }
 
 select {
@@ -42,9 +15,9 @@ select {
     appearance: none;
 
     background: transparent;
-    color: var(--fg);
+    color: var(--form-control-text-color);
 
-    font-size: 0.95rem;
+    font-size: var(--text-body-size);
     cursor: pointer;
 }
 
@@ -55,12 +28,12 @@ select:disabled {
 .arrow {
     position: absolute;
     top: 50%;
-    right: 0.75rem;
+    right: calc(var(--text-large-size) / 2);
 
     transform: translateY(-50%);
 
-    color: var(--accent);
-    font-size: 1.5rem;
+    color: var(--accent-color);
+    font-size: var(--text-large-size);
     line-height: 1;
 
     pointer-events: none;

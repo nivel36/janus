@@ -1,24 +1,36 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, forwardRef } from '@angular/core';
+import { booleanAttribute, Component, computed, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FieldComponent } from '../field/field.component';
+import { createUuid } from '../../utils/uuid.utils';
 
 @Component({
-  selector: 'app-toggle-button',
+  selector: 'app-toggle-button-field',
   standalone: true,
-  imports: [],
-  templateUrl: './toggle-button.component.html',
-  styleUrl: './toggle-button.component.css',
+  imports: [FieldComponent],
+  templateUrl: './toggle-button-field.component.html',
+  styleUrl: './toggle-button-field.component.css',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ToggleButtonComponent),
+      useExisting: forwardRef(() => ToggleButtonFieldComponent),
       multi: true,
     },
   ],
 })
-export class ToggleButtonComponent implements ControlValueAccessor {
+export class ToggleButtonFieldComponent implements ControlValueAccessor {
+  readonly label = input<string>('');
+  readonly hint = input<string>('');
+  readonly error = input<string>('');
+  readonly required = input(false, { transform: booleanAttribute });
+  readonly inputId = input<string>();
+
+  private readonly generatedInputId = `toggle-button-field-${createUuid()}`;
+
+  readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);
+
   /**
    * Current toggle state bound to the host form control.
    */

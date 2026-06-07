@@ -1,46 +1,9 @@
 .settings-content {
-    width: min(1080px, 100%);
     display: flex;
-    gap: 2.5rem;
-    color: #f9f9f9;
-}
-
-.settings-content app-card {
-    display: block;
-    flex: 1;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    flex-grow: 1;
-}
-
-label {
-    display: flex;
-    gap: 0.7rem;
-    align-items: center;
-    color: #ffffff;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.message {
-    margin: 0;
-}
-
-.error {
-    color: #ff8a8a;
-}
-
-.read-only {
-    margin-top: 0.5rem;
-    color: #d8d8d8;
 }
 
 .timezone-control {
     display: flex;
     flex-direction: column;
-    gap: 0.7rem;
+    gap: var(--label-gap);
 }

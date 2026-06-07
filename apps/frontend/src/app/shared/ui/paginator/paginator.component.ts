@@ -2,6 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * Compact, generic paginator for tabular data.
@@ -15,11 +17,14 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 @Component({
   selector: 'app-paginator',
   standalone: true,
+  imports: [FontAwesomeModule],
   templateUrl: './paginator.component.html',
   styleUrl: './paginator.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaginatorComponent {
+  readonly faAngleLeft = faAngleLeft;
+  readonly faAngleRight = faAngleRight;
   /**
    * Total amount of available items.
    */

@@ -1,0 +1,125 @@
+:root {
+    --body-background-color:
+        radial-gradient(
+            ellipse at 50% 40%,
+            rgba(72, 76, 86, 0.24) 0,
+            rgba(35, 39, 47, 0.14) 22rem,
+            transparent 41rem
+        ),
+        radial-gradient(circle at 50% 4%, rgba(255, 255, 255, 0.055), transparent 34rem),
+        linear-gradient(115deg, #07090c 0%, #15191f 48%, #080a0d 100%);
+
+    --accent-color: var(--color-primary-500);
+    --accent-soft-color: var(--color-primary-300);
+    --accent-strong-color: var(--color-primary-600);
+
+    --accent-hover-color: var(--color-primary-100);
+    --accent-active-color: var(--color-primary-700);
+    --accent-muted-color: var(--color-primary-900);
+
+    --text-primary-color: var(--color-gray-50);
+    --text-secondary-color: var(--color-gray-300);
+
+    --text-small-size: var(--font-size-200);
+    --text-body-size: var(--font-size-300);
+    --text-large-size: var(--font-size-400);
+    --text-big-size: var(--font-size-500);
+    --text-giant-size: var(--font-size-900);
+
+    --h1-font-size: var(--font-size-200);
+    --h2-font-size: var(--font-size-350);
+    --h3-font-size: var(--font-size-400);
+    --h4-font-size: var(--font-size-300);
+    --h5-font-size: var(--font-size-200);
+
+    --page-background-color: var(--color-black);
+
+    --focus-ring-color: var(--color-primary-900);
+    --focus-ring-width: var(--stroke-100);
+
+    --selection-background-color: var(--color-primary-700);
+    --selection-text-color: var(--color-white);
+
+    --border-width-thin: var(--stroke-100);
+    --border-width-medium: var(--stroke-200);
+    --border-style: solid;
+    --border-color-subtle: var(--color-gray-900);
+    --border-color: var(--color-gray-600);
+    --border-color-accent: var(--accent-strong-color);
+
+    --control-accent-background-color: linear-gradient(
+        180deg,
+        var(--color-primary-300) 0%,
+        var(--color-primary-400) 45%,
+        var(--color-primary-glow-500)
+    );
+    --control-accent-hover-background-color: linear-gradient(
+        180deg,
+        var(--color-primary-200) 0%,
+        var(--color-primary-300) 45%,
+        var(--color-primary-glow-400)
+    );
+    --control-accent-pressed-background-color: var(--accent-active-color);
+    --control-accent-disabled-background-color: var(--accent-muted-color);
+    --control-accent-text-color: var(--color-black);
+    --control-accent-glow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 0.5rem 1rem rgba(255, 212, 0, 0.13);
+    --control-accent-pressed-glow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 0.5rem 1rem rgba(255, 212, 0, 0.13);
+    --control-accent-disabled-glow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 0.5rem 1rem rgba(255, 212, 0, 0.13);
+    --control-accent-hover-glow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.48), 0 0.5rem 1rem rgba(255, 212, 0, 0.18);
+
+    --layout-page-max-width: 1280px;
+    --layout-page-padding-block: var(--size-600);
+    --layout-main-gap: var(--size-600);
+
+    --section-padding-block: var(--size-500);
+    --section-padding-inline: var(--size-500);
+    --section-gap: var(--size-500);
+
+    --section-small-padding-block: var(--size-100);
+    --section-small-padding-inline: var(--size-200);
+    --section-small-gap: var(--size-100);
+    --section-small-border-radius: var(--radius-100);
+
+    --section-medium-padding-block: var(--size-300);
+    --section-medium-padding-inline: var(--size-500);
+    --section-medium-gap: var(--size-300);
+    --section-medium-border-radius: var(--radius-200);
+
+    --panel-text-color: var(--text-primary-color);
+    --panel-padding-block: var(--section-padding-block);
+    --panel-padding-inline: var(--section-padding-inline);
+    --panel-gap: var(--section-gap);
+    --panel-background-color: var(--color-gray-800);
+    --panel-border: var(--border-width-thin) var(--border-style) var(--border-color);
+    --panel-border-radius: var(--radius-300);
+    --panel-shadow: 0 1.9rem 5.65rem rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+
+    --panel-small-padding-block: var(--section-small-padding-block);
+    --panel-small-padding-inline: var(--section-small-padding-inline);
+    --panel-small-gap: var(--section-small-gap);
+    --panel-small-border-radius: var(--section-small-border-radius);
+
+    --panel-medium-padding-block: var(--section-medium-padding-block);
+    --panel-medium-padding-inline: var(--section-medium-padding-inline);
+    --panel-medium-gap: var(--section-medium-gap);
+    --panel-medium-border-radius: var(--section-medium-border-radius);
+
+    --form-gap: var(--size-600);
+
+    --label-gap: var(--size-300);
+    --label-text-color: var(--text-primary-color);
+
+    --form-control-border: var(--border-width-thin) var(--border-style) var(--border-color-accent);
+    --form-control-border-radius: var(--radius-100);
+    --form-control-background-color: var(--color-gray-900);
+    --form-control-text-color: var(--text-primary-color);
+    --form-control-padding: var(--size-200) var(--size-300);
+    --form-control-focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+
+    --form-range-focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+    --form-range-text-color: var(--text-primary-color);
+}

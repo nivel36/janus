@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPowerOff, faGear, faCalendarDays, faBuilding } from '@fortawesome/free-solid-svg-icons';
-
+import { faCalendarDays, faBuilding } from '@fortawesome/free-regular-svg-icons';
+import { faPowerOff, faGear, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { CurrentUserFacade } from '../../user/services/current-user.facade';
 import { AuthService } from '../../auth/auth.service';
 
@@ -28,6 +28,7 @@ export class MainMenuComponent {
   readonly faGear = faGear;
   readonly faCalendarDays = faCalendarDays;
   readonly faBuilding = faBuilding;
+  readonly faUserCircle = faUserCircle;
 
   logout(): void {
     this.auth.logout();

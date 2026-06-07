@@ -17,7 +17,6 @@ import {
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { CardComponent } from '../../../shared/ui/card/card.component';
 import { UserPreferences } from '../models/user-preferences';
 import { CurrentUserFacade } from '../services/current-user.facade';
 import { TimeFormat } from '../services/user-profile-api.service';
@@ -47,7 +46,6 @@ import { TimeFormat } from '../services/user-profile-api.service';
     TranslatePipe,
     AutocompleteTextboxComponent,
     ButtonComponent,
-    CardComponent,
     SelectComponent,
     PageTemplateComponent,
   ],

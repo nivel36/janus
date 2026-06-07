@@ -1,8 +1,6 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.schedules">
-    <section page-body class="schedules-content">
+    <div pageContent class="page-content schedules-content">
         <app-search-bar (queryChange)="onQueryChange($event)" />
         <app-schedule-table [query]="searchQuery()" />
-    </section>
-
-    <div page-footer></div>
+    </div>
 </app-page-template>

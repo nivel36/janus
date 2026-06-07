@@ -58,7 +58,7 @@
     "employee": "Employee",
     "fullName": "Full Name",
     "location": "Location",
-    "todaysHour": "Today's Hour"
+    "todaySchedule": "Today's Schedule"
   },
   "login": {
     "title": "Sign in",

@@ -1,0 +1,51 @@
+.form {
+    padding-block: var(--panel-padding-block);
+    padding-inline: var(--panel-padding-inline);
+    display: flex;
+    flex-direction: column;
+    gap: var(--form-gap);
+    flex-grow: 1;
+}
+
+.label {
+    font-weight: 700;
+    display: flex;
+    gap: var(--label-gap);
+    align-items: center;
+    color: var(--label-text-color);
+    cursor: pointer;
+}
+
+.form-control {
+    border: var(--form-control-border);
+    border-radius: var(--form-control-border-radius);
+    background: var(--form-control-background-color);
+    color: var(--form-control-text-color);
+    transition: box-shadow 0.2s ease;
+}
+
+.form-control:focus-within {
+    box-shadow: var(--form-control-focus-ring);
+}
+
+.form-control.disabled {
+    opacity: 0.72;
+}
+
+.form-range {
+    box-shadow: var(--form-range-focus-ring);
+    color: var(--form-range-text-color);
+}
+
+.message {
+    margin: 0;
+}
+
+.error {
+    color: #ff8a8a;
+}
+
+.read-only {
+    margin-top: 0.5rem;
+    color: #d8d8d8;
+}

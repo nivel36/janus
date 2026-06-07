@@ -1,14 +1,3 @@
-.worksite-create-content {
-    width: min(1080px, 100%);
-    display: flex;
-    color: #f9f9f9;
-}
-
-.worksite-create-content app-card {
-    display: block;
-    flex: 1;
-}
-
 form {
     display: flex;
     flex-direction: column;

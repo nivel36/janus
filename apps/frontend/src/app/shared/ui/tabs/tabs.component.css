@@ -2,21 +2,21 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0;
-    margin: 0 0 1.6rem;
+    margin: 0 0 var(--layout-page-padding-block);
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 8px;
-    background: #171717;
+    border: var(--panel-border);
+    border-radius: var(--panel-border-radius);
+    background: var(--panel-background-color);
 }
 
 .tabs-trigger {
     min-height: 3.25rem;
     padding: 0.85rem 1rem;
     border: 0;
-    border-right: 1px solid #050505;
+    border-right: var(--panel-border);
     background: transparent;
-    color: rgba(249, 249, 249, 0.86);
-    font-size: 0.95rem;
+    color: var(--text-primary-color);
+    font-size: var(--text-small-size);
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -28,8 +28,8 @@
 }
 
 .tabs-trigger-active {
-    background: #fece0b;
-    color: #070707;
+    background: var(--control-accent-background-color);
+    color: var(--control-accent-text-color);
     cursor: default;
 }
 

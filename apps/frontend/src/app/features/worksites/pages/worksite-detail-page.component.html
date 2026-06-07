@@ -1,5 +1,5 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="worksite.detail">
-    <section page-body class="worksite-detail-content">
+    <section pageContent class="page-content worksite-detail-content">
         @if (worksiteResource.error() !== undefined) {
             <div class="worksite-detail-message error" role="alert">
                 {{ 'worksite.detailLoadError' | translate }}

@@ -5,6 +5,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, DestroyRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   Observable,
   Subject,
@@ -23,13 +24,14 @@ import {
   withLatestFrom,
 } from 'rxjs';
 
-import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
-import { CardComponent } from '../../../../shared/ui/card/card.component';
 import { ClockComponent } from '../../../../shared/ui/clock/clock.component';
+import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
+import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 import { TimeLog } from '../../models/timelog';
 import { TimeLogService } from '../../services/timelog-api.service';
-import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
+import { createUuid } from '../../../../shared/utils/uuid.utils';
+import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * Requested clock action mode.
@@ -87,7 +89,7 @@ interface ResolvedClockAction {
 @Component({
   selector: 'app-timelog-clock-card',
   standalone: true,
-  imports: [AsyncPipe, TranslatePipe, ClockComponent, CardComponent, ButtonComponent],
+  imports: [AsyncPipe, TranslatePipe, ClockComponent, ButtonComponent, FontAwesomeModule],
   templateUrl: './timelog-clock-card.component.html',
   styleUrl: './timelog-clock-card.component.css',
 })
@@ -96,7 +98,11 @@ export class TimelogClockCardComponent {
   private readonly timeLogService = inject(TimeLogService);
   private readonly destroyRef = inject(DestroyRef);
 
+  readonly faAngleRight = faAngleRight;
+
   private readonly defaultWorksiteCode = 'BCN-HQ';
+
+  readonly titleElementId = `clock-in-card-${createUuid()}-title`;
 
   readonly userPreferences$ = this.currentUser.currentUser$.pipe(
     map((user) => user.preferences),

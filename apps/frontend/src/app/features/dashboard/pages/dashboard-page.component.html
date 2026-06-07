@@ -1,25 +1,19 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.dashboard">
-    <section page-body class="dashboard-content">
+    <div pageContent class="page-content dashboard-content">
         @if (employeeEmail$ | async; as employeeEmail) {
-            <section class="clock-card">
-                <app-timelog-clock-card
-                    [employeeEmail]="employeeEmail"
-                    (clockActionDone)="onClockActionDone()"
-                />
-            </section>
+            <app-timelog-clock-card
+                id="clock"
+                [employeeEmail]="employeeEmail"
+                (clockActionDone)="onClockActionDone()"
+            />
 
-            <section class="employee-card">
-                <app-employee-card [fullName]="fullName$ | async"></app-employee-card>
-            </section>
+            <app-employee-card id="employee" [fullName]="fullName$ | async" />
 
-            <section class="records-card">
-                <app-timelog-table
-                    [employeeEmail]="employeeEmail"
-                    [refreshToken]="tableRefreshToken"
-                />
-            </section>
+            <app-timelog-table
+                id="records"
+                [employeeEmail]="employeeEmail"
+                [refreshToken]="tableRefreshToken"
+            />
         }
-    </section>
-
-    <div page-footer></div>
+    </div>
 </app-page-template>

@@ -11,7 +11,6 @@ import { PageTemplateComponent } from '../../../core/layout/page-template/page-t
 import { TimezoneOption } from '../../../shared/models/timezone-option.model';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { CardComponent } from '../../../shared/ui/card/card.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
 import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
 import {
@@ -29,7 +28,6 @@ import { WorksiteApiService } from '../services/worksite-api.service';
     TranslatePipe,
     AutocompleteTextboxComponent,
     ButtonComponent,
-    CardComponent,
     SelectComponent,
     PageTemplateComponent,
   ],

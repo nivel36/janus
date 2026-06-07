@@ -1,0 +1,35 @@
+.employee-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--section-gap);
+}
+
+.employee-card-title {
+    font-size: var(--h3-font-size);
+    color: var(--text-primary-color);
+    font-weight: 600;
+}
+
+.avatar {
+    width: var(--avatar-size);
+    vertical-align: middle;
+    background-color: var(--accent-color);
+    border-radius: 999px;
+}
+
+.data {
+    display: flex;
+    border-top: var(--surface-border);
+    padding-block: var(--section-padding-block);
+    justify-content: space-between;
+}
+
+.data:last-child {
+    padding-bottom: 0;
+}
+
+.employee-data dt {
+    color: var(--accent-color);
+    font-weight: 600;
+    text-shadow: 0 1px 0 #000;
+}

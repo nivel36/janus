@@ -1,99 +1,95 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.applicationSettings">
-    <section page-body class="settings-content">
-        <app-card styleClass="settings-card">
-            <form [formGroup]="form" (ngSubmit)="save()">
-                <div class="days-until-locked-control">
-                    <app-range-slider
-                        formControlName="daysUntilLocked"
-                        [label]="'applicationSettings.fields.daysUntilLocked' | translate"
-                        [min]="0"
-                        [max]="daysUntilLockedSliderMax"
-                        [step]="1"
-                    />
-                </div>
+    <div pageContent class="page-content settings-content">
+        <section class="card settings-card">
+            <div class="card-body settings-card-body">
+                <form class="form" [formGroup]="form" (ngSubmit)="save()">
+                    <div class="field-control days-until-locked-control">
+                        <app-range-slider
+                            formControlName="daysUntilLocked"
+                            [label]="'applicationSettings.fields.daysUntilLocked' | translate"
+                            [min]="0"
+                            [max]="daysUntilLockedSliderMax"
+                            [step]="1"
+                        />
+                    </div>
 
-                <div class="employeeWorkplaceCreationAllowed-control">
-                    <label>
-                        <app-toggle-button
+                    <div class="field-control employeeWorkplaceCreationAllowed-control">
+                        <app-toggle-button-field
                             formControlName="employeeWorkplaceCreationAllowed"
-                        ></app-toggle-button>
-                        {{
-                            'applicationSettings.fields.employeeWorkplaceCreationAllowed'
-                                | translate
-                        }}
-                    </label>
-                </div>
+                            [label]="
+                                'applicationSettings.fields.employeeWorkplaceCreationAllowed'
+                                    | translate
+                            "
+                        />
+                    </div>
 
-                <div class="worksiteChangeDuringShiftAllowed-control">
-                    <label>
-                        <app-toggle-button
+                    <div class="field-control worksiteChangeDuringShiftAllowed-control">
+                        <app-toggle-button-field
                             formControlName="worksiteChangeDuringShiftAllowed"
-                        ></app-toggle-button>
-                        {{
-                            'applicationSettings.fields.worksiteChangeDuringShiftAllowed'
-                                | translate
-                        }}
-                    </label>
-                </div>
+                            [label]="
+                                'applicationSettings.fields.worksiteChangeDuringShiftAllowed'
+                                    | translate
+                            "
+                        />
+                    </div>
 
-                <div class="employeeManualTimelogEntryAllowed-control">
-                    <label>
-                        <app-toggle-button
+                    <div class="field-control employeeManualTimelogEntryAllowed-control">
+                        <app-toggle-button-field
                             formControlName="employeeManualTimelogEntryAllowed"
-                        ></app-toggle-button>
-                        {{
-                            'applicationSettings.fields.employeeManualTimelogEntryAllowed'
-                                | translate
-                        }}
-                    </label>
-                </div>
+                            [label]="
+                                'applicationSettings.fields.employeeManualTimelogEntryAllowed'
+                                    | translate
+                            "
+                        />
+                    </div>
 
-                <div class="timezone-control">
-                    <label for="default-timezone">
-                        {{ 'applicationSettings.fields.defaultTimezone' | translate }}
-                    </label>
-                    <app-autocomplete-textbox
-                        id="default-timezone"
-                        formControlName="defaultTimezone"
-                        [searchMethod]="searchMethod"
-                        [displayWith]="timezoneDisplayWith"
-                        [valueWith]="timezoneValueWith"
-                        [resolveByValue]="resolveTimezoneByValue"
-                        [emptyHint]="'applicationSettings.fields.defaultTimezoneHint' | translate"
-                    />
+                    <div class="field-control timezone-control">
+                        <label class="label" for="default-timezone">
+                            {{ 'applicationSettings.fields.defaultTimezone' | translate }}
+                        </label>
+                        <app-autocomplete-textbox
+                            id="default-timezone"
+                            formControlName="defaultTimezone"
+                            [searchMethod]="searchMethod"
+                            [displayWith]="timezoneDisplayWith"
+                            [valueWith]="timezoneValueWith"
+                            [resolveByValue]="resolveTimezoneByValue"
+                            [emptyHint]="
+                                'applicationSettings.fields.defaultTimezoneHint' | translate
+                            "
+                        />
 
-                    @if (
-                        form.controls.defaultTimezone.touched &&
-                        form.controls.defaultTimezone.invalid
-                    ) {
-                        <p class="message error">
-                            {{ 'applicationSettings.errors.invalidTimezone' | translate }}
-                        </p>
+                        @if (
+                            form.controls.defaultTimezone.touched &&
+                            form.controls.defaultTimezone.invalid
+                        ) {
+                            <p class="message error">
+                                {{ 'applicationSettings.errors.invalidTimezone' | translate }}
+                            </p>
+                        }
+                    </div>
+
+                    @if (errorMessage) {
+                        <p class="message error">{{ errorMessage | translate }}</p>
                     }
-                </div>
 
-                @if (errorMessage) {
-                    <p class="message error">{{ errorMessage | translate }}</p>
-                }
-
-                <div class="buttons">
-                    <app-button type="button" variant="secondary" (clicked)="cancel()">
-                        {{ 'actions.cancel' | translate }}
-                    </app-button>
-
-                    @if (isAdmin) {
-                        <app-button
-                            type="submit"
-                            [disabled]="form.invalid || saving"
-                            variant="main"
-                        >
-                            {{ 'actions.save' | translate }}
+                    <div class="buttons">
+                        <app-button type="button" variant="secondary" (clicked)="cancel()">
+                            {{ 'actions.cancel' | translate }}
                         </app-button>
-                    }
-                </div>
-            </form>
-        </app-card>
-    </section>
 
-    <div page-footer></div>
+                        @if (isAdmin) {
+                            <app-button
+                                type="submit"
+                                [disabled]="form.invalid || saving"
+                                variant="main"
+                            >
+                                {{ 'actions.save' | translate }}
+                            </app-button>
+                        }
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
 </app-page-template>

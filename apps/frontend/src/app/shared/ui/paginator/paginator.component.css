@@ -1,58 +1,45 @@
-:host {
-    display: inline-flex;
-}
-
 .paginator {
-    --bg: #131313;
-    --fg: #f9f9f9;
-    --accent: #fece0b;
-    --accent-hover: #ffe546;
-    --hover-bg: #615300;
-
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-
-    min-width: 9rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 999px;
-
-    background-color: var(--bg);
-    color: var(--fg);
-
-    font-size: 0.85rem;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-
-    justify-content: center;
+    justify-content: space-between;
+    min-width: 10rem;
+    gap: var(--panel-small-gap);
+    padding-inline: var(--panel-small-padding-inline);
+    padding-block: var(--panel-small-padding-block);
+    background: var(--panel-background-color);
+    border: var(--panel-border);
+    border-radius: var(--panel-small-border-radius);
 }
 
 .paginator-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0.1rem 0.25rem;
-    border: none;
-    border-radius: 0.4rem;
-
-    background: transparent;
-    color: var(--accent);
-
-    font-size: 0.95rem;
-    font-weight: 700;
-    line-height: 1;
-
+    color: var(--accent-strong-color);
     cursor: pointer;
+    border: 0;
+    background: transparent;
 }
 
 .paginator-button:disabled {
-    opacity: 0.4;
+    color: var(--accent-muted-color);
     cursor: default;
 }
 
-.paginator-button:not(:disabled):hover,
+.paginator-button:not(:disabled):hover {
+    color: var(--accent-hover-color);
+}
+
+.paginator-button:not(:disabled):active {
+    color: var(--accent-active-color);
+}
+
 .paginator-button:not(:disabled):focus-visible {
-    background-color: var(--hover-bg);
-    color: var(--accent-hover);
+    color: var(--accent-hover-color);
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+}
+
+.paginator-text {
+    color: var(--text-secondary-color);
+    font-size: var(--text-small-font-size);
+    letter-spacing: 0.04em;
+    font-weight: 600;
 }

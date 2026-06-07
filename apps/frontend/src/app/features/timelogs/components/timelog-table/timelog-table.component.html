@@ -1,6 +1,8 @@
-<section class="timelog" aria-labelledby="timelog-title">
-    <header class="timelog-header">
-        <h2 id="timelog-title" class="timelog-title">{{ 'timelog.timelogs' | translate }}</h2>
+<section class="table-section timelog-table-section" aria-labelledby="timelog-title">
+    <header class="table-section-header timelog-table-section-header">
+        <h3 id="timelog-title" class="table-section-title timelog-title">
+            {{ 'timelog.timelogs' | translate }}
+        </h3>
         @if (totalItems() > 0) {
             <app-paginator
                 [totalItems]="totalItems()"
@@ -16,19 +18,19 @@
     </header>
 
     @if (timelogsResource.error() !== undefined) {
-        <div class="timelog-message error" role="alert">
+        <div class="table-section-message timelog-table-section-message error" role="alert">
             {{ 'timelog.loadError' | translate }}
         </div>
     }
 
     @if (timelogsResource.isLoading()) {
-        <div class="timelog-message" aria-live="polite">
+        <div class="table-section-message timelog-table-section-message" aria-live="polite">
             {{ 'timelog.loading' | translate }}
         </div>
     }
 
     @if (!timelogsResource.isLoading() && timelogs().length > 0) {
-        <table class="timelog-table" aria-labelledby="timelog-title">
+        <table class="table timelog-table" aria-labelledby="timelog-title">
             <thead>
                 <tr>
                     <th scope="col">{{ 'timelog.date' | translate }}</th>
@@ -73,7 +75,7 @@
     }
 
     @if (isEmpty()) {
-        <div class="timelog-message" aria-live="polite">
+        <div class="table-section-message timelog-table-section-message" aria-live="polite">
             {{ 'timelog.empty' | translate }}
         </div>
     }

@@ -13,11 +13,6 @@ type ButtonVariant = 'default' | 'main' | 'secondary';
  */
 type ButtonType = 'button' | 'submit' | 'reset';
 
-/**
- * Allowed positions for the optional decorative icon.
- */
-type IconPosition = 'left' | 'right';
-
 @Component({
   selector: 'app-button',
   standalone: true,
@@ -35,16 +30,6 @@ export class ButtonComponent {
    * Native button type used for form interaction.
    */
   readonly type = input<ButtonType>('button');
-
-  /**
-   * Optional decorative icon rendered as plain text.
-   */
-  readonly icon = input<string>();
-
-  /**
-   * Side where the decorative icon is rendered.
-   */
-  readonly iconPosition = input<IconPosition>('left');
 
   /**
    * Whether user interaction is disabled.
@@ -76,24 +61,6 @@ export class ButtonComponent {
    */
   get variantClass(): string {
     return `button--${this.variant()}`;
-  }
-
-  /**
-   * Indicates whether the icon must be rendered before the label.
-   *
-   * @returns `true` when an icon exists and the icon position is `left`.
-   */
-  get hasIconOnLeft(): boolean {
-    return !!this.icon() && this.iconPosition() === 'left';
-  }
-
-  /**
-   * Indicates whether the icon must be rendered after the label.
-   *
-   * @returns `true` when an icon exists and the icon position is `right`.
-   */
-  get hasIconOnRight(): boolean {
-    return !!this.icon() && this.iconPosition() === 'right';
   }
 
   /**

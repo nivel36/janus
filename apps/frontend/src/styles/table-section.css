@@ -1,0 +1,98 @@
+.table-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--section-medium-gap);
+}
+
+.table-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.table-section-title {
+    font-size: var(--h2-font-size);
+    margin: 0;
+    text-transform: uppercase;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.table-section .table {
+    width: 100%;
+    background-color: var(--panel-background-color);
+    border-radius: var(--panel-border-radius);
+    border: var(--panel-border);
+    border-collapse: separate;
+    box-shadow: var(--panel-box-shadow);
+    overflow: hidden;
+}
+
+.table-section .table thead {
+    background-color: var(--panel-background-color);
+}
+
+.table-section .table tbody tr td {
+    overflow: hidden;
+}
+
+.table-section .table tbody tr:first-child td {
+    border-top: var(--panel-border);
+}
+
+.table-section .table tbody tr:first-child td:first-child {
+    border-top-left-radius: var(--panel-border-radius);
+}
+
+.table-section .table tbody tr:first-child td:last-child {
+    border-collapse: separate;
+    border-top-right-radius: var(--panel-border-radius);
+}
+
+.table-section .table th {
+    padding-inline: var(--panel-padding-inline);
+    padding-block: var(--panel-padding-block);
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: var(--text-small-font-size);
+    font-weight: 600;
+}
+
+.table-section .table td {
+    padding-inline: var(--panel-padding-inline);
+    padding-block: var(--panel-medium-padding-block);
+    text-align: left;
+}
+
+.table-section .table tbody tr:nth-child(odd) {
+    background-color: var(--list-background-color-odd);
+}
+
+.table-section .table tbody tr:nth-child(even) {
+    background-color: var(--list-background-color);
+}
+
+.table-section .table tbody tr:hover {
+    background-color: var(--list-element-hover-background-color);
+    overflow: hidden;
+}
+
+.table-section-message {
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #f9f9f9;
+}
+
+@media (max-width: 640px) {
+    .table-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .table-section .table th,
+    .table-section .table td {
+        padding: 0.75rem 1rem;
+    }
+}

@@ -1,0 +1,91 @@
+:root {
+    --color-black: #000000;
+    --color-white: #ffffff;
+
+    --color-gray-10: #f9fafb;
+    --color-gray-50: #f3f4f6;
+    --color-gray-100: #e5e7eb;
+    --color-gray-200: #d1d5db;
+    --color-gray-300: #9ca3af;
+    --color-gray-400: #6b7280;
+    --color-gray-500: #4b5563;
+    --color-gray-600: #374151;
+    --color-gray-650: #2c333d;
+    --color-gray-700: #202733;
+    --color-gray-750: #191f2a;
+    --color-gray-800: #121722;
+    --color-gray-850: #0c1019;
+    --color-gray-900: #05070d;
+
+    --color-primary-100: #fff3a3;
+    --color-primary-200: #ffed80;
+    --color-primary-300: #ffe65c;
+    --color-primary-400: #ffe12e;
+    --color-primary-500: #fedb00;
+    --color-primary-600: #dcbb00;
+    --color-primary-700: #b99a00;
+    --color-primary-800: #8b7300;
+    --color-primary-900: #5c4b00;
+
+    --color-primary-glow-100: #fff0d1;
+    --color-primary-glow-200: #ffdf9e;
+    --color-primary-glow-300: #ffc96b;
+    --color-primary-glow-400: #ffb238;
+    --color-primary-glow-500: #f59a00;
+    --color-primary-glow-600: #cc7d00;
+    --color-primary-glow-700: #995d00;
+    --color-primary-glow-800: #663d00;
+    --color-primary-glow-900: #331f00;
+
+    --color-secondary-100: #d9a7ea;
+    --color-secondary-300: #b55bd0;
+    --color-secondary-500: #8a22b0;
+    --color-secondary-700: #5c1477;
+    --color-secondary-900: #321043;
+
+    --color-tertiary-100: #b9c7ff;
+    --color-tertiary-300: #6f8cff;
+    --color-tertiary-500: #3f63e6;
+    --color-tertiary-700: #223b9c;
+    --color-tertiary-900: #111f55;
+
+    --color-success-500: #22c55e;
+    --color-error-500: #ef4444;
+    --color-warning-500: #f59e0b;
+    --color-info-500: #38bdf8;
+
+    --size-100: 0.25rem;
+    --size-200: 0.5rem;
+    --size-300: 0.875rem;
+    --size-400: 1rem;
+    --size-500: 1.5rem;
+    --size-600: 2rem;
+    --size-700: 2.5rem;
+    --size-800: 3rem;
+    --size-900: 3.5rem;
+
+    --font-size-base: 16px;
+
+    --font-size-100: 0.5rem;
+    --font-size-200: 0.875rem;
+    --font-size-300: 1rem;
+    --font-size-350: 1.25rem;
+    --font-size-400: 1.5rem;
+    --font-size-500: 2rem;
+    --font-size-600: 2.2rem;
+    --font-size-700: 2.5rem;
+    --font-size-800: 3rem;
+    --font-size-900: 3.5rem;
+
+    --radius-100: 0.5rem;
+    --radius-200: 0.875rem;
+    --radius-300: 1rem;
+    --radius-400: 1.5rem;
+    --radius-500: 2rem;
+
+    --stroke-100: 1px;
+    --stroke-200: 2px;
+    --stroke-300: 3px;
+    --stroke-400: 4px;
+    --stroke-500: 5px;
+}

@@ -1,0 +1,29 @@
+<app-field
+    [controlId]="controlId()"
+    [label]="label()"
+    [hint]="hint()"
+    [error]="error()"
+    [required]="required()"
+    [disabled]="disabled"
+    [invalid]="!!error()"
+>
+    <button
+        [id]="controlId()"
+        type="button"
+        class="toggle-button"
+        [class.toggle-button--checked]="checked"
+        [class.toggle-button--disabled]="disabled"
+        role="switch"
+        [attr.aria-checked]="checked"
+        [attr.aria-describedby]="
+            error() ? controlId() + '-error' : hint() ? controlId() + '-hint' : null
+        "
+        [disabled]="disabled"
+        (click)="onToggle()"
+    >
+        <span class="toggle-button__icon" aria-hidden="true">
+            {{ checked ? '✓' : '✕' }}
+        </span>
+        <span class="toggle-button__knob" aria-hidden="true"></span>
+    </button>
+</app-field>

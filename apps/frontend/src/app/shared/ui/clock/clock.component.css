@@ -1,3 +1,4 @@
 .clock-time {
-    display: block;
+    font-size: var(--text-giant-size);
+    color: var(--accent-color);
 }

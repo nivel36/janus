@@ -5,15 +5,7 @@
     [disabled]="disabled()"
     (click)="clicked.emit($event)"
 >
-    @if (hasIconOnLeft) {
-        <span class="button-icon" aria-hidden="true">{{ icon() }}</span>
-    }
-
     <span class="button-label">
         <ng-content></ng-content>
     </span>
-
-    @if (hasIconOnRight) {
-        <span class="button-icon" aria-hidden="true">{{ icon() }}</span>
-    }
 </button>

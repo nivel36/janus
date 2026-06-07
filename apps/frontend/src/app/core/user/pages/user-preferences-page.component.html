@@ -1,70 +1,72 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.userPreferences">
-    <section page-body class="preferences-content">
-        <app-card styleClass="preferences-card">
-            <form [formGroup]="form" (ngSubmit)="save()">
-                <div class="field-control">
-                    <label for="preferences-locale">
-                        {{ 'userPreferences.fields.locale' | translate }}
-                    </label>
-                    <app-select
-                        inputId="preferences-locale"
-                        formControlName="locale"
-                        [options]="localeOptions"
-                    />
-                </div>
+    <div pageContent class="page-content preferences-content">
+        <section class="card preferences-card">
+            <div class="card-body preferences-card-body">
+                <form class="form" [formGroup]="form" (ngSubmit)="save()">
+                    <div class="field-control">
+                        <label for="preferences-locale">
+                            {{ 'userPreferences.fields.locale' | translate }}
+                        </label>
+                        <app-select
+                            class="form-control"
+                            inputId="preferences-locale"
+                            formControlName="locale"
+                            [options]="localeOptions"
+                        />
+                    </div>
 
-                <div class="field-control">
-                    <label for="preferences-time-format">
-                        {{ 'userPreferences.fields.timeFormat' | translate }}
-                    </label>
-                    <app-select
-                        inputId="preferences-time-format"
-                        formControlName="timeFormat"
-                        [options]="timeFormatOptions"
-                    />
-                </div>
+                    <div class="field-control">
+                        <label for="preferences-time-format">
+                            {{ 'userPreferences.fields.timeFormat' | translate }}
+                        </label>
+                        <app-select
+                            class="form-control"
+                            inputId="preferences-time-format"
+                            formControlName="timeFormat"
+                            [options]="timeFormatOptions"
+                        />
+                    </div>
 
-                <div class="field-control timezone-control">
-                    <label for="preferences-timezone">
-                        {{ 'userPreferences.fields.defaultTimezone' | translate }}
-                    </label>
+                    <div class="field-control timezone-control">
+                        <label for="preferences-timezone">
+                            {{ 'userPreferences.fields.defaultTimezone' | translate }}
+                        </label>
 
-                    <app-autocomplete-textbox
-                        id="preferences-timezone"
-                        formControlName="defaultTimezone"
-                        [searchMethod]="searchMethod"
-                        [displayWith]="timezoneDisplayWith"
-                        [valueWith]="timezoneValueWith"
-                        [resolveByValue]="resolveTimezoneByValue"
-                        [emptyHint]="'userPreferences.fields.defaultTimezoneHint' | translate"
-                    />
+                        <app-autocomplete-textbox
+                            id="preferences-timezone"
+                            formControlName="defaultTimezone"
+                            [searchMethod]="searchMethod"
+                            [displayWith]="timezoneDisplayWith"
+                            [valueWith]="timezoneValueWith"
+                            [resolveByValue]="resolveTimezoneByValue"
+                            [emptyHint]="'userPreferences.fields.defaultTimezoneHint' | translate"
+                        />
 
-                    @if (
-                        form.controls.defaultTimezone.touched &&
-                        form.controls.defaultTimezone.invalid
-                    ) {
-                        <p class="message error">
-                            {{ 'userPreferences.errors.invalidTimezone' | translate }}
-                        </p>
+                        @if (
+                            form.controls.defaultTimezone.touched &&
+                            form.controls.defaultTimezone.invalid
+                        ) {
+                            <p class="message error">
+                                {{ 'userPreferences.errors.invalidTimezone' | translate }}
+                            </p>
+                        }
+                    </div>
+
+                    @if (errorMessage) {
+                        <p class="message error">{{ errorMessage | translate }}</p>
                     }
-                </div>
 
-                @if (errorMessage) {
-                    <p class="message error">{{ errorMessage | translate }}</p>
-                }
+                    <div class="buttons">
+                        <app-button type="button" variant="secondary" (clicked)="cancel()">
+                            {{ 'actions.cancel' | translate }}
+                        </app-button>
 
-                <div class="buttons">
-                    <app-button type="button" variant="secondary" (clicked)="cancel()">
-                        {{ 'actions.cancel' | translate }}
-                    </app-button>
-
-                    <app-button type="submit" variant="main">
-                        {{ 'actions.save' | translate }}
-                    </app-button>
-                </div>
-            </form>
-        </app-card>
-    </section>
-
-    <div page-footer></div>
+                        <app-button type="submit" variant="main">
+                            {{ 'actions.save' | translate }}
+                        </app-button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
 </app-page-template>

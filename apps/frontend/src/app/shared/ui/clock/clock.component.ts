@@ -29,11 +29,6 @@ export class ClockComponent implements OnInit, OnDestroy {
   readonly use12Hour = input<boolean>(false);
 
   /**
-   * Optional CSS classes added to the clock.
-   */
-  readonly styleClass = input<string>();
-
-  /**
    * Accessible name announced for the timer element.
    */
   readonly ariaLabel = input<string>('Current time');

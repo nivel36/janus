@@ -1,6 +1,8 @@
-<section class="worksite" aria-labelledby="worksite-title">
-    <header class="worksite-header">
-        <h2 id="worksite-title" class="worksite-title">{{ 'worksite.worksites' | translate }}</h2>
+<section class="table-section worksite-table-section" aria-labelledby="worksite-title">
+    <header class="table-section-header worksite-table-section-header">
+        <h3 id="worksite-title" class="table-section-title worksite-table-section-title">
+            {{ 'worksite.worksites' | translate }}
+        </h3>
         @if (totalItems() > 0) {
             <app-paginator
                 [totalItems]="totalItems()"
@@ -16,19 +18,19 @@
     </header>
 
     @if (worksitesResource.error() !== undefined) {
-        <div class="worksite-message error" role="alert">
+        <div class="table-section-message worksite-table-section-message error" role="alert">
             {{ 'worksite.loadError' | translate }}
         </div>
     }
 
     @if (worksitesResource.isLoading()) {
-        <div class="worksite-message" aria-live="polite">
+        <div class="table-section-message worksite-table-section-message" aria-live="polite">
             {{ 'worksite.loading' | translate }}
         </div>
     }
 
     @if (!worksitesResource.isLoading() && worksites().length > 0) {
-        <table class="worksite-table" aria-labelledby="worksite-title">
+        <table class="table worksite-table" aria-labelledby="worksite-title">
             <thead>
                 <tr>
                     <th scope="col">{{ 'worksite.code' | translate }}</th>
@@ -42,7 +44,9 @@
                         class="worksite-row"
                         role="button"
                         tabindex="0"
-                        [attr.aria-label]="'worksite.openDetail' | translate: { name: worksite.name }"
+                        [attr.aria-label]="
+                            'worksite.openDetail' | translate: { name: worksite.name }
+                        "
                         (click)="openWorksite(worksite)"
                         (keydown.enter)="openWorksite(worksite)"
                         (keydown.space)="$event.preventDefault(); openWorksite(worksite)"
@@ -51,7 +55,7 @@
                         <td>{{ worksite.name }}</td>
                         <td>
                             <app-chip
-                                [label]="('worksite.scopes.' + worksite.scope | translate)"
+                                [label]="'worksite.scopes.' + worksite.scope | translate"
                                 [type]="worksite.scope === 'ASSIGNED' ? 'primary' : 'default'"
                             ></app-chip>
                         </td>
@@ -62,7 +66,7 @@
     }
 
     @if (isEmpty()) {
-        <div class="worksite-message" aria-live="polite">
+        <div class="table-section-message worksite-table-section-message" aria-live="polite">
             {{ 'worksite.empty' | translate }}
         </div>
     }

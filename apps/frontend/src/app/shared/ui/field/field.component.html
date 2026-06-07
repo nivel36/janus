@@ -1,0 +1,33 @@
+<div
+    class="app-field"
+    [class.app-field--invalid]="invalid()"
+    [class.app-field--disabled]="disabled()"
+>
+    @if (label()) {
+        <label class="app-field__label" [attr.for]="controlId()">
+            <span class="app-field__label-text">
+                {{ label() }}
+            </span>
+
+            @if (required()) {
+                <span class="app-field__required" aria-hidden="true">*</span>
+            }
+        </label>
+    }
+
+    <div class="app-field__control">
+        <ng-content></ng-content>
+    </div>
+
+    @if (hint() && !error()) {
+        <div class="app-field__hint" [id]="hintId()">
+            {{ hint() }}
+        </div>
+    }
+
+    @if (error()) {
+        <div class="app-field__error" [id]="errorId()" role="alert">
+            {{ error() }}
+        </div>
+    }
+</div>

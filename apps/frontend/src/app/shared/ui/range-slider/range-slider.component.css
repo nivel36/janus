@@ -19,7 +19,7 @@
     gap: 0.7rem;
 }
 
-.range-slider__header {
+.range-slider-header {
     display: flex;
     align-items: center;
     justify-content: space-between;

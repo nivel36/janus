@@ -6,7 +6,7 @@
         [attr.aria-label]="previousLabel()"
         (click)="goToPreviousPage()"
     >
-        &lt;
+        <fa-icon [icon]="faAngleLeft"></fa-icon>
     </button>
 
     <span class="paginator-text">
@@ -20,6 +20,6 @@
         [attr.aria-label]="nextLabel()"
         (click)="goToNextPage()"
     >
-        &gt;
+        <fa-icon [icon]="faAngleRight"></fa-icon>
     </button>
 </div>

@@ -15,8 +15,6 @@ import { ButtonComponent } from './button.component';
     <app-button
       [variant]="variant"
       [type]="type"
-      [icon]="icon"
-      [iconPosition]="iconPosition"
       [disabled]="disabled"
       [styleClass]="styleClass"
       [ariaLabel]="ariaLabel"
@@ -29,8 +27,6 @@ import { ButtonComponent } from './button.component';
 class TestHostComponent {
   variant: 'default' | 'main' | 'secondary' = 'default';
   type: 'button' | 'submit' | 'reset' = 'button';
-  icon: string | undefined = undefined;
-  iconPosition: 'left' | 'right' = 'left';
   disabled = false;
   styleClass = '';
   ariaLabel: string | undefined = undefined;
@@ -69,36 +65,6 @@ describe('ButtonComponent', () => {
     expect(buttonEl).toBeTruthy();
     expect(buttonEl.type).toBe('button');
     expect(buttonEl.classList).toContain('button--default');
-  });
-
-  it('should apply the requested variant and show the icon on the right', () => {
-    host.variant = 'secondary';
-    host.icon = '⚠';
-    host.iconPosition = 'right';
-    fixture.detectChanges();
-
-    const buttonEl = getButton();
-    expect(buttonEl.classList).toContain('button--secondary');
-
-    const icons = buttonEl.querySelectorAll('.button-icon');
-    expect(icons.length).toBe(1);
-    expect(icons[0].textContent?.trim()).toBe('⚠');
-
-    const children = Array.from(buttonEl.children);
-    expect(children[0].classList).toContain('button-label');
-    expect(children[1].classList).toContain('button-icon');
-  });
-
-  it('should show the icon on the left when requested', () => {
-    host.icon = '✓';
-    host.iconPosition = 'left';
-    fixture.detectChanges();
-
-    const buttonEl = getButton();
-    const children = Array.from(buttonEl.children);
-
-    expect(children[0].classList).toContain('button-icon');
-    expect(children[1].classList).toContain('button-label');
   });
 
   it('should disable the button when disabled is true', () => {

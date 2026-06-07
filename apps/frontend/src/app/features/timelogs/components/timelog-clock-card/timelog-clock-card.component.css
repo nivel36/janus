@@ -1,19 +1,50 @@
+.clock-in-card {
+    text-align: center;
+}
+
+.clock-in-card-body {
+    display: flex;
+    align-items: center;
+    gap: var(--card-gap);
+    flex-direction: column;
+}
+
+.clock-in-card-footer {
+    text-align: right;
+    padding-bottom: var(--section-padding-block);
+}
+
+.clock-in-card-title {
+    color: var(--text-primary-color);
+    font-size: var(--h3-font-size);
+    font-weight: 600;
+}
+
 .secondary-action {
-    color: black;
-    display: inline-block;
-    font-size: 0.85rem;
-    text-decoration: none;
+    color: var(--text-secondary-color);
+    font-size: var(--text-small-font-size);
     cursor: pointer;
-    opacity: 0.6;
-    background: none;
+    background: transparent;
     border: 0px;
 }
 
-.secondary-action:hover {
-    opacity: 1;
+.secondary-action .icon {
+    color: var(--accent-strong-color);
 }
 
-.secondary-action.disabled {
+.secondary-action:disabled {
+    cursor: default;
     pointer-events: none;
-    opacity: 0.4;
+}
+
+.secondary-action:disabled .icon {
+    color: var(--accent-muted-color);
+}
+
+.secondary-action:hover {
+    color: var(--text-primary-color);
+}
+
+.secondary-action:hover .icon {
+    color: var(--accent-hover-color);
 }
