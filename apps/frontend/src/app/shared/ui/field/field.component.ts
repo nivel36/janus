@@ -22,10 +22,30 @@ export class FieldComponent {
   readonly label = input<string>('');
   readonly hint = input<string>('');
   readonly error = input<string>('');
+  readonly styleClass = input<string>('');
 
   readonly required = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
+
+  readonly fieldClass = computed(() => {
+    const classes = ['app-field'];
+    const extraClass = this.styleClass().trim();
+
+    if (this.invalid()) {
+      classes.push('app-field--invalid');
+    }
+
+    if (this.disabled()) {
+      classes.push('app-field--disabled');
+    }
+
+    if (extraClass) {
+      classes.push(extraClass);
+    }
+
+    return classes.join(' ');
+  });
 
   readonly hintId = computed(() => `${this.controlId()}-hint`);
   readonly errorId = computed(() => `${this.controlId()}-error`);

@@ -1,7 +1,5 @@
 <div
-    class="app-field"
-    [class.app-field--invalid]="invalid()"
-    [class.app-field--disabled]="disabled()"
+    [class]="fieldClass()"
 >
     @if (label()) {
         <label class="app-field__label" [attr.for]="controlId()">
