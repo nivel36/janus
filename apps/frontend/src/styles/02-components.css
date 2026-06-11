@@ -19,6 +19,7 @@
     --button-border-radius: var(--radius-200);
     --button-min-width: 15rem;
     --button-font-size: var(--text-body-size);
+    --button-font-weight: 600;
     --button-height: var(--size-900);
     --button-border: 0;
 
