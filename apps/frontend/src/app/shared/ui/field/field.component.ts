@@ -19,7 +19,7 @@ import {
 export class FieldComponent {
   readonly controlId = input.required<string>();
 
-  readonly label = input<string>('');
+  readonly label = input.required<string>();
   readonly hint = input<string>('');
   readonly error = input<string>('');
   readonly styleClass = input<string>('');

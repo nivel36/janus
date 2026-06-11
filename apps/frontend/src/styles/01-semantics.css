@@ -35,7 +35,7 @@
     --page-background-color: var(--color-black);
 
     --focus-ring-color: var(--color-primary-900);
-    --focus-ring-width: var(--stroke-100);
+    --focus-ring-width: var(--stroke-200);
 
     --selection-background-color: var(--color-primary-700);
     --selection-text-color: var(--color-white);
@@ -112,6 +112,16 @@
 
     --label-gap: var(--size-300);
     --label-text-color: var(--text-primary-color);
+    --label-font-size: var(--text-body-size);
+    --label-font-weight: 600;
+
+    --hint-text-color: var(--text-secondary-color);
+    --hint-font-size: var(--text-small-size);
+    --hint-font-weight: 300;
+
+    --error-text-color: var(--color-error-500);
+    --error-font-size: var(--text-body-size);
+    --error-font-weight: 300;
 
     --form-control-border: var(--border-width-thin) var(--border-style) var(--border-color-accent);
     --form-control-border-radius: var(--radius-100);

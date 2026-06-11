@@ -1,20 +1,15 @@
 .app-field {
     display: flex;
     flex-direction: column;
-    gap: var(--app-field-gap, 0.35rem);
+    gap: var(--label-gap);
 }
 
 .app-field__label {
     display: inline-flex;
     align-items: baseline;
-    gap: 0.25rem;
-    font-size: var(--app-field-label-font-size, 0.875rem);
-    font-weight: var(--app-field-label-font-weight, 500);
-    color: var(--app-field-label-color, currentColor);
-}
-
-.app-field__required {
-    color: var(--app-field-required-color, #b00020);
+    font-size: var(--label-font-size);
+    font-weight: var(--label-font-weight);
+    color: var(--label-text-color);
 }
 
 .app-field__control {
@@ -23,13 +18,15 @@
 }
 
 .app-field__hint {
-    font-size: var(--app-field-hint-font-size, 0.8125rem);
-    color: var(--app-field-hint-color, color-mix(in srgb, currentColor 70%, transparent));
+    font-size: var(--hint-font-size);
+    font-weight: var(--hint-font-weight);
+    color: var(--hint-text-color);
 }
 
 .app-field__error {
-    font-size: var(--app-field-error-font-size, 0.8125rem);
-    color: var(--app-field-error-color, #b00020);
+    font-size: var(--error-font-size);
+    font-weight: var(--error-font-weight);
+    color: var(--error-text-color);
 }
 
 .app-field--disabled {

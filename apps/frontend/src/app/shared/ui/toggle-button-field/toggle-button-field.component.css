@@ -1,27 +1,3 @@
-:host {
-    display: inline-flex;
-
-    --bg: #131313;
-    --fg: #f9d600;
-    --checked-bg: #f9d600;
-    --checked-fg: #0a0a0a;
-
-    --knob-bg: #f9d600;
-    --checked-knob-bg: #111111;
-
-    --width: 6rem;
-    --height: 2.33rem;
-    --padding: 0.5rem;
-    --knob-size: 1.87rem;
-
-    --icon-offset: 1.23rem;
-    --knob-offset: calc(var(--width) - var(--knob-size) - (var(--padding) * 2));
-
-    --radius: 999px;
-    --focus-ring: 0 0 0 2px rgba(249, 214, 0, 0.3);
-    --knob-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.35);
-}
-
 .toggle-button {
     position: relative;
 
@@ -29,25 +5,25 @@
     align-items: center;
     justify-content: center;
 
-    width: var(--width);
-    height: var(--height);
-    border: 0;
-    border-radius: var(--radius);
+    width: var(--toggle-button-width);
+    height: var(--toggle-button-height);
+    border: var(--toggle-button-border);
+    border-radius: var(--toggle-button-border-radius);
 
-    background: #2b2a33;
-    color: var(--fg);
+    background: var(--toggle-button-background-color);
+    color: var(--toggle-button-text-color);
 
     cursor: pointer;
 
     transition:
-        background-color 0.2s ease,
-        color 0.2s ease,
-        box-shadow 0.2s ease;
+        background-color var(--toggle-button-transition-duration) ease,
+        color var(--toggle-button-transition-duration) ease,
+        box-shadow var(--toggle-button-transition-duration) ease;
 }
 
 .toggle-button:hover,
 .toggle-button:focus-visible {
-    box-shadow: var(--focus-ring);
+    box-shadow: var(--toggle-button-focus-ring);
 }
 
 .toggle-button:focus-visible {
@@ -55,48 +31,48 @@
 }
 
 .toggle-button__icon {
-    font-size: 2rem;
+    font-size: var(--toggle-button-icon-size);
     font-weight: 700;
     line-height: 1;
 
-    transform: translateX(var(--icon-offset));
+    transform: translateX(var(--toggle-button-icon-offset));
 
-    transition: transform 0.2s ease;
+    transition: transform var(--toggle-button-transition-duration) ease;
 }
 
 .toggle-button__knob {
     position: absolute;
-    left: var(--padding);
+    left: var(--toggle-button-padding);
 
-    width: var(--knob-size);
-    height: var(--knob-size);
+    width: var(--toggle-button-knob-size);
+    height: var(--toggle-button-knob-size);
     border-radius: 50%;
 
-    background: var(--knob-bg);
-    box-shadow: var(--knob-shadow);
+    background: var(--toggle-button-knob-background-color);
+    box-shadow: var(--toggle-button-knob-shadow);
 
     transition:
-        transform 0.2s ease,
-        background-color 0.2s ease;
+        transform var(--toggle-button-transition-duration) ease,
+        background-color var(--toggle-button-transition-duration) ease;
 }
 
 .toggle-button--checked {
-    background: var(--checked-bg);
-    color: var(--checked-fg);
+    background: var(--toggle-button-checked-background-color);
+    color: var(--toggle-button-checked-text-color);
 }
 
 .toggle-button--checked .toggle-button__icon {
-    transform: translateX(calc(var(--icon-offset) * -1));
+    transform: translateX(calc(var(--toggle-button-icon-offset) * -1));
 }
 
 .toggle-button--checked .toggle-button__knob {
-    transform: translateX(var(--knob-offset));
-    background: var(--checked-knob-bg);
+    transform: translateX(var(--toggle-button-knob-offset));
+    background: var(--toggle-button-checked-knob-background-color);
 }
 
 .toggle-button--disabled,
 .toggle-button:disabled {
-    opacity: 0.6;
+    opacity: var(--toggle-button-disabled-opacity);
     cursor: not-allowed;
 }
 

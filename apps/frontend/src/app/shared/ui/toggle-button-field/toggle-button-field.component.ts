@@ -21,7 +21,7 @@ import { createUuid } from '../../utils/uuid.utils';
   ],
 })
 export class ToggleButtonFieldComponent implements ControlValueAccessor {
-  readonly label = input<string>('');
+  readonly label = input.required<string>();
   readonly hint = input<string>('');
   readonly error = input<string>('');
   readonly required = input(false, { transform: booleanAttribute });
@@ -30,6 +30,20 @@ export class ToggleButtonFieldComponent implements ControlValueAccessor {
   private readonly generatedInputId = `toggle-button-field-${createUuid()}`;
 
   readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);
+
+  readonly describedBy = computed(() => {
+    const ids: string[] = [];
+
+    if (this.hint()) {
+      ids.push(`${this.controlId()}-hint`);
+    }
+
+    if (this.error()) {
+      ids.push(`${this.controlId()}-error`);
+    }
+
+    return ids.length ? ids.join(' ') : null;
+  });
 
   /**
    * Current toggle state bound to the host form control.
@@ -73,6 +87,13 @@ export class ToggleButtonFieldComponent implements ControlValueAccessor {
    */
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
+  }
+
+  /**
+   * Marks the control as touched when it loses focus.
+   */
+  markAsTouched(): void {
+    this.onTouched();
   }
 
   /**

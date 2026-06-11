@@ -15,12 +15,14 @@
         [class.toggle-button--checked]="checked"
         [class.toggle-button--disabled]="disabled"
         role="switch"
-        [attr.aria-checked]="checked"
-        [attr.aria-describedby]="
-            error() ? controlId() + '-error' : hint() ? controlId() + '-hint' : null
-        "
+        [attr.aria-checked]="checked ? 'true' : 'false'"
+        [attr.aria-describedby]="describedBy()"
+        [attr.aria-invalid]="error() ? 'true' : null"
+        [attr.aria-errormessage]="error() ? controlId() + '-error' : null"
+        [attr.aria-required]="required() ? 'true' : null"
         [disabled]="disabled"
         (click)="onToggle()"
+        (blur)="markAsTouched()"
     >
         <span class="toggle-button__icon" aria-hidden="true">
             {{ checked ? '✓' : '✕' }}
