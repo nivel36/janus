@@ -9,7 +9,7 @@ import { Observable, finalize, of } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { TimezoneOption } from '../../../shared/models/timezone-option.model';
-import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { AutocompleteTextboxFieldComponent } from '../../../shared/ui/autocomplete-textbox-field/autocomplete-textbox-field.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import {
   SelectFieldComponent,
@@ -29,7 +29,7 @@ import { WorksiteApiService } from '../services/worksite-api.service';
   imports: [
     ReactiveFormsModule,
     TranslatePipe,
-    AutocompleteTextboxComponent,
+    AutocompleteTextboxFieldComponent,
     ButtonComponent,
     SelectFieldComponent,
     PageTemplateComponent,

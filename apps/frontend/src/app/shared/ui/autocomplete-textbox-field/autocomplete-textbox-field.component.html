@@ -1,0 +1,30 @@
+<app-field
+  [controlId]="controlId()"
+  [label]="label()"
+  [hint]="hint()"
+  [error]="error()"
+  styleClass="autocomplete-textbox-field"
+  [required]="required()"
+  [disabled]="disabled"
+  [invalid]="!!error()"
+>
+  <app-autocomplete-textbox
+    [formControl]="valueControl"
+    [inputId]="controlId()"
+    [searchMethod]="searchMethod()"
+    [displayWith]="displayWith()"
+    [valueWith]="valueWith()"
+    [resolveByValue]="resolveByValue()"
+    [trackByValueInput]="trackByValueInput()"
+    [placeholder]="placeholder()"
+    [emptyHint]="emptyHint()"
+    [debounceMs]="debounceMs()"
+    [minChars]="minChars()"
+    [ariaLabelledBy]="controlId() + '-label'"
+    [ariaDescribedBy]="describedBy()"
+    [ariaInvalid]="!!error()"
+    [clearButtonAriaLabel]="clearButtonAriaLabel()"
+    (selectedChange)="handleSelectedChange($event)"
+    (focusout)="markTouched()"
+  />
+</app-field>

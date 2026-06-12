@@ -1,7 +1,7 @@
 <div class="autocomplete" [class.disabled]="disabled">
     <div class="input-wrapper" #inputWrapper cdkOverlayOrigin #trigger="cdkOverlayOrigin">
         <input
-            [id]="inputId"
+            [id]="controlId()"
             type="text"
             role="combobox"
             autocomplete="off"
@@ -13,6 +13,8 @@
             [readonly]="hasSelection"
             [attr.aria-label]="ariaLabelledBy() ? null : ariaLabel() || null"
             [attr.aria-labelledby]="ariaLabelledBy() || null"
+            [attr.aria-describedby]="ariaDescribedBy() || null"
+            [attr.aria-invalid]="ariaInvalid() ? 'true' : null"
             [attr.aria-readonly]="hasSelection ? 'true' : null"
             [attr.aria-disabled]="disabled ? 'true' : null"
             [attr.aria-expanded]="isOverlayOpen ? 'true' : 'false'"
@@ -62,11 +64,14 @@
                         <li
                             #resultOption
                             role="option"
+                            tabindex="-1"
                             [id]="getOptionId(i)"
                             [class.active]="isActive(i)"
                             [attr.aria-selected]="isActive(i) ? 'true' : 'false'"
                             (pointerdown)="onOptionPointerDown($event)"
                             (click)="onSelect(result)"
+                            (keydown.enter)="onSelect(result)"
+                            (keydown.space)="onSelect(result)"
                         >
                             {{ displayWith()(result) }}
                         </li>

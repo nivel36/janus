@@ -2,7 +2,7 @@
     [class]="fieldClass()"
 >
     @if (label()) {
-        <label class="app-field__label" [attr.for]="controlId()">
+        <label class="app-field__label" [id]="controlId() + '-label'" [attr.for]="controlId()">
             <span class="app-field__label-text">
                 {{ label() }}
             </span>

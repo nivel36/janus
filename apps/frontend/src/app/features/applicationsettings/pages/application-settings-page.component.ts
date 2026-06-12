@@ -12,7 +12,7 @@ import {
   createTimezoneCatalog,
   resolveTimezoneByZoneId,
 } from '../../../shared/utils/timezone-catalog.util';
-import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { AutocompleteTextboxFieldComponent } from '../../../shared/ui/autocomplete-textbox-field/autocomplete-textbox-field.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { RangeSliderFieldComponent } from '../../../shared/ui/range-slider-field/range-slider-field.component';
 import { ToggleButtonFieldComponent } from '../../../shared/ui/toggle-button-field/toggle-button-field.component';
@@ -26,7 +26,7 @@ import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util'
   imports: [
     ReactiveFormsModule,
     TranslatePipe,
-    AutocompleteTextboxComponent,
+    AutocompleteTextboxFieldComponent,
     RangeSliderFieldComponent,
     ToggleButtonFieldComponent,
     ButtonComponent,

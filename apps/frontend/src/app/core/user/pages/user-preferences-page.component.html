@@ -19,30 +19,22 @@
                         required
                     />
 
-                    <div class="field-control timezone-control">
-                        <label for="preferences-timezone">
-                            {{ 'userPreferences.fields.defaultTimezone' | translate }}
-                        </label>
-
-                        <app-autocomplete-textbox
-                            id="preferences-timezone"
-                            formControlName="defaultTimezone"
-                            [searchMethod]="searchMethod"
-                            [displayWith]="timezoneDisplayWith"
-                            [valueWith]="timezoneValueWith"
-                            [resolveByValue]="resolveTimezoneByValue"
-                            [emptyHint]="'userPreferences.fields.defaultTimezoneHint' | translate"
-                        />
-
-                        @if (
-                            form.controls.defaultTimezone.touched &&
-                            form.controls.defaultTimezone.invalid
-                        ) {
-                            <p class="message error">
-                                {{ 'userPreferences.errors.invalidTimezone' | translate }}
-                            </p>
-                        }
-                    </div>
+                    <app-autocomplete-textbox-field
+                        inputId="preferences-timezone"
+                        formControlName="defaultTimezone"
+                        [label]="'userPreferences.fields.defaultTimezone' | translate"
+                        [searchMethod]="searchMethod"
+                        [displayWith]="timezoneDisplayWith"
+                        [valueWith]="timezoneValueWith"
+                        [resolveByValue]="resolveTimezoneByValue"
+                        [emptyHint]="'userPreferences.fields.defaultTimezoneHint' | translate"
+                        [error]="
+                            form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
+                                ? ('userPreferences.errors.invalidTimezone' | translate)
+                                : ''
+                        "
+                        required
+                    />
 
                     @if (errorMessage) {
                         <p class="message error">{{ errorMessage | translate }}</p>

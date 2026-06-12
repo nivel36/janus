@@ -211,6 +211,11 @@ export class AutocompleteTextboxComponent<T = unknown>
   readonly minChars = input(3);
 
   /**
+   * Optional DOM identifier assigned to the native input.
+   */
+  readonly inputId = input<string>();
+
+  /**
    * Accessible name used when the component is not associated with an external label.
    */
   readonly ariaLabel = input<string>();
@@ -219,6 +224,16 @@ export class AutocompleteTextboxComponent<T = unknown>
    * Identifier of the external element that provides the accessible name of the input.
    */
   readonly ariaLabelledBy = input<string>();
+
+  /**
+   * Identifiers of elements that describe the input, such as hint or error text.
+   */
+  readonly ariaDescribedBy = input<string | null>();
+
+  /**
+   * Whether the native input should be exposed as invalid to assistive technology.
+   */
+  readonly ariaInvalid = input<boolean>(false);
 
   /**
    * Accessible label announced for the button that clears the current selection.
@@ -296,9 +311,14 @@ export class AutocompleteTextboxComponent<T = unknown>
   protected readonly optionIdPrefix = `autocomplete-option-${this.instanceId}`;
 
   /**
-   * DOM identifier of the main input element.
+   * Generated DOM identifier of the main input element.
    */
-  protected readonly inputId = `autocomplete-input-${this.instanceId}`;
+  private readonly generatedInputId = `autocomplete-input-${this.instanceId}`;
+
+  /**
+   * Effective DOM identifier assigned to the main input element.
+   */
+  readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);
 
   /**
    * DOM identifier of the ARIA region used to announce transient status messages.

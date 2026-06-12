@@ -59,24 +59,22 @@
                         required
                     />
 
-                    <div class="field-control">
-                        <label for="worksite-timezone">{{ 'worksite.timeZone' | translate }}</label>
-                        <app-autocomplete-textbox
-                            id="worksite-timezone"
-                            formControlName="timeZone"
-                            [searchMethod]="searchMethod"
-                            [displayWith]="timezoneDisplayWith"
-                            [valueWith]="timezoneValueWith"
-                            [resolveByValue]="resolveTimezoneByValue"
-                            [emptyHint]="'worksite.fields.timeZoneHint' | translate"
-                        />
-
-                        @if (form.controls.timeZone.touched && form.controls.timeZone.invalid) {
-                            <p class="message error">
-                                {{ 'worksite.errors.invalidTimezone' | translate }}
-                            </p>
-                        }
-                    </div>
+                    <app-autocomplete-textbox-field
+                        inputId="worksite-timezone"
+                        formControlName="timeZone"
+                        [label]="'worksite.timeZone' | translate"
+                        [searchMethod]="searchMethod"
+                        [displayWith]="timezoneDisplayWith"
+                        [valueWith]="timezoneValueWith"
+                        [resolveByValue]="resolveTimezoneByValue"
+                        [emptyHint]="'worksite.fields.timeZoneHint' | translate"
+                        [error]="
+                            form.controls.timeZone.touched && form.controls.timeZone.invalid
+                                ? ('worksite.errors.invalidTimezone' | translate)
+                                : ''
+                        "
+                        required
+                    />
 
                     <div class="field-control">
                         <label for="worksite-address">{{ 'worksite.address' | translate }}</label>
