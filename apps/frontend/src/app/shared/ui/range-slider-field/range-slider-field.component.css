@@ -1,56 +1,44 @@
-:host {
-    display: block;
-
-    --fg: #ffffff;
-    --bg: #111111;
-    --accent: #f9d600;
-    --track-bg: #ffffff;
-
-    --radius: 8px;
-    --pill-radius: 999px;
-
-    --focus-ring: 0 0 0 2px rgba(249, 214, 0, 0.3);
-    --thumb-size: 1.4rem;
-    --thumb-border: 4px solid var(--accent);
-}
-
 .range-slider {
-    display: grid;
-    gap: 0.7rem;
+    position: relative;
+    width: 100%;
 }
 
 .range-slider__value {
-    justify-self: end;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--radius);
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + var(--form-label-gap));
+    padding: var(--form-range-value-padding);
+    border-radius: var(--form-range-value-border-radius);
+    background: var(--form-range-value-background-color);
+    color: var(--form-range-value-text-color);
+    font-size: var(--form-range-value-text-size);
+    font-weight: var(--form-range-value-text-weight);
+}
 
-    background: var(--accent);
-    color: var(--bg);
-
-    font-size: 0.95rem;
-    font-weight: 800;
+.range-slider__track-wrapper {
+    width: 100%;
 }
 
 .range-slider__input {
     --progress: 0%;
     --progress-value: 0;
-    --thumb-bg: rgb(
-        calc(249 * (100 - var(--progress-value)) / 100),
-        calc(214 * (100 - var(--progress-value)) / 100),
-        0
+    --thumb-bg: color-mix(
+        in srgb,
+        var(--form-range-color) calc((100 - var(--progress-value)) * 1%),
+        var(--form-range-thumb-color)
     );
 
     width: 100%;
-    height: 0.45rem;
+    height: var(--form-range-height);
 
     appearance: none;
-    border-radius: var(--pill-radius);
+    border-radius: var(--form-range-radius);
     outline: none;
 
     background: linear-gradient(
         90deg,
-        var(--accent) var(--progress),
-        var(--track-bg) var(--progress)
+        var(--form-range-color) var(--progress),
+        var(--form-range-background) var(--progress)
     );
 
     cursor: pointer;
@@ -58,18 +46,18 @@
 
 .range-slider__input::-webkit-slider-thumb {
     appearance: none;
-    width: var(--thumb-size);
-    height: var(--thumb-size);
-    border: var(--thumb-border);
+    width: var(--form-range-thumb-size);
+    height: var(--form-range-thumb-size);
+    border: var(--form-range-thumb-border);
     border-radius: 50%;
     background: var(--thumb-bg);
     cursor: pointer;
 }
 
 .range-slider__input::-moz-range-thumb {
-    width: var(--thumb-size);
-    height: var(--thumb-size);
-    border: var(--thumb-border);
+    width: var(--form-range-thumb-size);
+    height: var(--form-range-thumb-size);
+    border: var(--form-range-thumb-border);
     border-radius: 50%;
     background: var(--thumb-bg);
     cursor: pointer;
@@ -92,15 +80,15 @@
 .range-slider:focus-within .range-slider__input,
 .range-slider:hover .range-slider__value,
 .range-slider:focus-within .range-slider__value {
-    box-shadow: var(--focus-ring);
+    box-shadow: var(--form-range-focus-ring);
 }
 
 .range-slider:hover .range-slider__input::-webkit-slider-thumb,
 .range-slider:focus-within .range-slider__input::-webkit-slider-thumb {
-    box-shadow: var(--focus-ring);
+    box-shadow: var(--form-range-focus-ring);
 }
 
 .range-slider:hover .range-slider__input::-moz-range-thumb,
 .range-slider:focus-within .range-slider__input::-moz-range-thumb {
-    box-shadow: var(--focus-ring);
+    box-shadow: var(--form-range-focus-ring);
 }

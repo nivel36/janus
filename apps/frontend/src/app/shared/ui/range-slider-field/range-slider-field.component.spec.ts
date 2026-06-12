@@ -5,20 +5,21 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { RangeSliderComponent } from './range-slider.component';
+import { RangeSliderFieldComponent } from './range-slider-field.component';
 
-describe('RangeSliderComponent', () => {
-  let fixture: ComponentFixture<RangeSliderComponent>;
-  let component: RangeSliderComponent;
+describe('RangeSliderFieldComponent', () => {
+  let fixture: ComponentFixture<RangeSliderFieldComponent>;
+  let component: RangeSliderFieldComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RangeSliderComponent],
+      imports: [RangeSliderFieldComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(RangeSliderComponent);
+    fixture = TestBed.createComponent(RangeSliderFieldComponent);
     component = fixture.componentInstance;
 
+    fixture.componentRef.setInput('label', 'Days until locked');
     fixture.componentRef.setInput('min', 0);
     fixture.componentRef.setInput('max', 100);
     fixture.componentRef.setInput('step', 5);
@@ -30,7 +31,9 @@ describe('RangeSliderComponent', () => {
     const onChangeSpy = vi.fn();
     component.registerOnChange(onChangeSpy);
 
-    const slider: HTMLInputElement = fixture.debugElement.query(By.css('input[type="range"]')).nativeElement;
+    const slider: HTMLInputElement = fixture.debugElement.query(
+      By.css('input[type="range"]'),
+    ).nativeElement;
 
     slider.value = '40';
     slider.dispatchEvent(new Event('input', { bubbles: true }));
@@ -44,7 +47,9 @@ describe('RangeSliderComponent', () => {
     const onTouchedSpy = vi.fn();
     component.registerOnTouched(onTouchedSpy);
 
-    const slider: HTMLInputElement = fixture.debugElement.query(By.css('input[type="range"]')).nativeElement;
+    const slider: HTMLInputElement = fixture.debugElement.query(
+      By.css('input[type="range"]'),
+    ).nativeElement;
 
     slider.dispatchEvent(new Event('blur', { bubbles: true }));
 
@@ -55,7 +60,9 @@ describe('RangeSliderComponent', () => {
     component.setDisabledState(true);
     fixture.detectChanges();
 
-    const slider: HTMLInputElement = fixture.debugElement.query(By.css('input[type="range"]')).nativeElement;
+    const slider: HTMLInputElement = fixture.debugElement.query(
+      By.css('input[type="range"]'),
+    ).nativeElement;
 
     expect(component.disabled).toBe(true);
     expect(slider.disabled).toBe(true);
@@ -65,11 +72,11 @@ describe('RangeSliderComponent', () => {
     fixture.componentRef.setInput('inputId', 'custom-slider-id');
     fixture.detectChanges();
 
-    expect(component.sliderId()).toBe('custom-slider-id');
+    expect(component.controlId()).toBe('custom-slider-id');
   });
 
-  it('should generate a slider id when inputId is not provided', () => {
-    expect(component.sliderId()).toMatch(/^range-slider-/);
+  it('should generate a field control id when inputId is not provided', () => {
+    expect(component.controlId()).toMatch(/^range-slider-field-/);
   });
 
   it('should expose the value text with unit when unit is configured', () => {
@@ -84,7 +91,9 @@ describe('RangeSliderComponent', () => {
     component.writeValue(30);
     fixture.detectChanges();
 
-    const value: HTMLElement = fixture.debugElement.query(By.css('.range-slider__value')).nativeElement;
+    const value: HTMLElement = fixture.debugElement.query(
+      By.css('.range-slider__value'),
+    ).nativeElement;
 
     expect(value.textContent?.trim()).toBe('30 days');
   });
@@ -95,5 +104,33 @@ describe('RangeSliderComponent', () => {
     component.writeValue(10);
 
     expect(component.progressPercent).toBe(0);
+  });
+
+  it('should associate the field label with the range input', () => {
+    const label: HTMLLabelElement = fixture.debugElement.query(By.css('label')).nativeElement;
+    const slider: HTMLInputElement = fixture.debugElement.query(
+      By.css('input[type="range"]'),
+    ).nativeElement;
+
+    expect(label.htmlFor).toBe(slider.id);
+    expect(label.textContent?.trim()).toBe('Days until locked');
+  });
+
+  it('should expose hint and error accessibility attributes', () => {
+    fixture.componentRef.setInput('hint', 'Choose a number of days');
+    fixture.detectChanges();
+
+    const slider: HTMLInputElement = fixture.debugElement.query(
+      By.css('input[type="range"]'),
+    ).nativeElement;
+
+    expect(slider.getAttribute('aria-describedby')).toBe(`${component.controlId()}-hint`);
+
+    fixture.componentRef.setInput('error', 'Invalid number of days');
+    fixture.detectChanges();
+
+    expect(slider.getAttribute('aria-describedby')).toBe(`${component.controlId()}-error`);
+    expect(slider.getAttribute('aria-invalid')).toBe('true');
+    expect(slider.getAttribute('aria-errormessage')).toBe(`${component.controlId()}-error`);
   });
 });

@@ -135,8 +135,27 @@
     --form-control-focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
 
     /* form-range        → slider */
-    --form-range-text-color: var(--text-primary-color);
+    --form-range-text-color: var(--color-gray-800);
     --form-range-focus-ring: var(--focus-ring);
+    --form-range-text-size: var(--text-body-size);
+    --form-range-text-weight: 800;
+
+    --form-range-focus-ring: var(--focus-ring);
+    --form-range-height: var(--size-200);
+    --form-range-radius: var(--size-100);
+    --form-range-background: var(--color-gray-50);
+    --form-range-color: var(--accent-color);
+
+    --form-range-value-text-color: var(--color-gray-800);
+    --form-range-value-text-size: var(--text-body-size);
+    --form-range-value-text-weight: 800;
+    --form-range-value-background-color: var(--accent-color);
+    --form-range-value-border-radius: var(--size-200);
+    --form-range-value-padding: var(--size-100) var(--size-200);
+
+    --form-range-thumb-size: var(--size-500);
+    --form-range-thumb-color: var(--color-gray-800);
+    --form-range-thumb-border: var(--stroke-400) var(--border-style) var(--accent-color);
 
     /* form-check        → checkbox/radio */
 

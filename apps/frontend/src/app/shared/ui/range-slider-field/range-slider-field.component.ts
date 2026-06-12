@@ -1,9 +1,13 @@
-import { Component, computed, forwardRef, input } from '@angular/core';
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import { booleanAttribute, Component, computed, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { createUuid } from '../../utils/uuid.utils';
+import { FieldComponent } from '../field/field.component';
 
 /**
- * Range slider form control compatible with Angular Forms.
+ * Range slider field compatible with Angular Forms.
  *
  * <p>This component exposes its configuration through signal-based inputs and
  * implements {@link ControlValueAccessor} so it can be bound to reactive or
@@ -13,19 +17,25 @@ import { createUuid } from '../../utils/uuid.utils';
  * component generates a stable UUID-based id for accessibility bindings.</p>
  */
 @Component({
-  selector: 'app-range-slider',
+  selector: 'app-range-slider-field',
   standalone: true,
-  templateUrl: './range-slider.component.html',
-  styleUrl: './range-slider.component.css',
+  imports: [FieldComponent],
+  templateUrl: './range-slider-field.component.html',
+  styleUrl: './range-slider-field.component.css',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => RangeSliderComponent),
+      useExisting: forwardRef(() => RangeSliderFieldComponent),
       multi: true,
     },
   ],
 })
-export class RangeSliderComponent implements ControlValueAccessor {
+export class RangeSliderFieldComponent implements ControlValueAccessor {
+  readonly label = input.required<string>();
+  readonly hint = input<string>('');
+  readonly error = input<string>('');
+  readonly required = input(false, { transform: booleanAttribute });
+
   /**
    * Optional suffix used in the accessible value text, for example `min` or `%`.
    */
@@ -54,12 +64,24 @@ export class RangeSliderComponent implements ControlValueAccessor {
   /**
    * Internally generated stable id used when no external id is provided.
    */
-  private readonly generatedSliderId = `range-slider-${createUuid()}`;
+  private readonly generatedInputId = `range-slider-field-${createUuid()}`;
 
   /**
    * Effective id used by the native range input.
    */
-  readonly sliderId = computed(() => this.inputId() ?? this.generatedSliderId);
+  readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);
+
+  readonly describedBy = computed(() => {
+    if (this.error()) {
+      return `${this.controlId()}-error`;
+    }
+
+    if (this.hint()) {
+      return `${this.controlId()}-hint`;
+    }
+
+    return null;
+  });
 
   /**
    * Current numeric slider value.
@@ -74,12 +96,12 @@ export class RangeSliderComponent implements ControlValueAccessor {
   /**
    * Angular Forms callback used to propagate value changes.
    */
-  private onChange: (value: number) => void = () => {};
+  private onChange: (value: number) => void = () => undefined;
 
   /**
    * Angular Forms callback used to mark the control as touched.
    */
-  private onTouched: () => void = () => {};
+  private onTouched: () => void = () => undefined;
 
   /**
    * Writes an external form value into the component state.
