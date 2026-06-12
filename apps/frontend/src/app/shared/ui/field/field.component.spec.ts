@@ -12,6 +12,7 @@ import { FieldComponent } from './field.component';
   template: `
     <app-field
       controlId="name"
+      label="Name"
       styleClass="custom-field"
     >
       <input id="name" />

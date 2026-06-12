@@ -1,0 +1,46 @@
+.select {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border: var(--form-control-border);
+    border-radius: var(--form-control-border-radius);
+    background: var(--form-control-background-color);
+    transition: box-shadow 0.2s ease;
+}
+
+.select:focus-within {
+    box-shadow: var(--form-control-focus-ring);
+}
+
+select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--form-control-padding);
+    border: 0;
+    outline: 0;
+    appearance: none;
+    background: transparent;
+    color: var(--form-control-text-color);
+    font-size: var(--form-control-text-size);
+    cursor: pointer;
+}
+
+.select:disabled {
+    cursor: not-allowed;
+    opacity: 0.72;
+}
+
+.arrow {
+    --arrow-size: calc(var(--form-control-text-size) * 1.5);
+    position: absolute;
+    top: 50%;
+    right: calc(var(--arrow-size) / 2);
+
+    transform: translateY(-50%);
+
+    color: var(--form-control-text-accent-color);
+    font-size: var(--arrow-size);
+    line-height: 1;
+
+    pointer-events: none;
+}

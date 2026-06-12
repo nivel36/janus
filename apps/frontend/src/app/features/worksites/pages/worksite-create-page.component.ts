@@ -15,7 +15,10 @@ import {
 } from '../../../shared/utils/timezone-catalog.util';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
+import {
+  SelectFieldComponent,
+  SelectOption,
+} from '../../../shared/ui/select-field/select-field.component';
 import { WorksiteScope } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
 import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.validator';
@@ -28,7 +31,7 @@ import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.
     TranslatePipe,
     AutocompleteTextboxComponent,
     ButtonComponent,
-    SelectComponent,
+    SelectFieldComponent,
     PageTemplateComponent,
   ],
   templateUrl: './worksite-create-page.component.html',

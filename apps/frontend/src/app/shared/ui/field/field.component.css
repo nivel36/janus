@@ -1,15 +1,15 @@
 .app-field {
     display: flex;
     flex-direction: column;
-    gap: var(--label-gap);
+    gap: var(--form-label-gap);
 }
 
 .app-field__label {
     display: inline-flex;
     align-items: baseline;
-    font-size: var(--label-font-size);
-    font-weight: var(--label-font-weight);
-    color: var(--label-text-color);
+    font-size: var(--form-label-font-size);
+    font-weight: var(--form-label-font-weight);
+    color: var(--form-label-text-color);
 }
 
 .app-field__control {
@@ -18,15 +18,15 @@
 }
 
 .app-field__hint {
-    font-size: var(--hint-font-size);
-    font-weight: var(--hint-font-weight);
-    color: var(--hint-text-color);
+    font-size: var(--form-hint-font-size);
+    font-weight: var(--form-hint-font-weight);
+    color: var(--form-hint-text-color);
 }
 
 .app-field__error {
-    font-size: var(--error-font-size);
-    font-weight: var(--error-font-weight);
-    color: var(--error-text-color);
+    font-size: var(--form-error-font-size);
+    font-weight: var(--form-error-font-weight);
+    color: var(--form-error-text-color);
 }
 
 .app-field--disabled {

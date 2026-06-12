@@ -32,14 +32,13 @@
                             }
                         </div>
 
-                        <div class="field-control">
-                            <label for="worksite-scope">{{ 'worksite.scope' | translate }}</label>
-                            <app-select
-                                inputId="worksite-scope"
-                                formControlName="scope"
-                                [options]="scopeOptions"
-                            />
-                        </div>
+                        <app-select-field
+                            inputId="worksite-scope"
+                            formControlName="scope"
+                            [label]="'worksite.scope' | translate"
+                            [options]="scopeOptions"
+                            required
+                        />
 
                         <div class="field-control">
                             <label for="worksite-timezone">{{

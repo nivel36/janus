@@ -1,0 +1,18 @@
+:root {
+    --button-padding-block: var(--size-200);
+    --button-padding-inline: var(--size-400);
+    --button-border-radius: var(--radius-200);
+    --button-min-width: 15rem;
+    --button-font-size: var(--text-body-size);
+    --button-font-weight: 600;
+    --button-height: var(--size-900);
+    --button-border: 0;
+
+    --button-primary-background-color: var(--control-accent-background-color);
+    --button-primary-hover-background-color: var(--control-accent-hover-background-color);
+    --button-primary-active-background-color: var(--control-accent-pressed-background-color);
+    --button-primary-disabled-background-color: var(--control-accent-disabled-background-color);
+    --button-primary-text-color: var(--control-accent-text-color);
+    --button-primary-box-shadow: var(--control-accent-glow);
+    --button-primary-hover-box-shadow: var(--control-accent-hover-glow);
+}

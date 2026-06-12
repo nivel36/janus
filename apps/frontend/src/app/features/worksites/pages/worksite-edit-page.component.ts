@@ -11,7 +11,10 @@ import { PageTemplateComponent } from '../../../core/layout/page-template/page-t
 import { TimezoneOption } from '../../../shared/models/timezone-option.model';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
+import {
+  SelectFieldComponent,
+  SelectOption,
+} from '../../../shared/ui/select-field/select-field.component';
 import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
 import {
   createTimezoneCatalog,
@@ -28,7 +31,7 @@ import { WorksiteApiService } from '../services/worksite-api.service';
     TranslatePipe,
     AutocompleteTextboxComponent,
     ButtonComponent,
-    SelectComponent,
+    SelectFieldComponent,
     PageTemplateComponent,
   ],
   templateUrl: './worksite-edit-page.component.html',

@@ -5,25 +5,25 @@
     align-items: center;
     justify-content: center;
 
-    width: var(--toggle-button-width);
-    height: var(--toggle-button-height);
-    border: var(--toggle-button-border);
-    border-radius: var(--toggle-button-border-radius);
+    width: var(--form-switch-width);
+    height: var(--form-switch-height);
+    border: var(--form-switch-border);
+    border-radius: var(--form-switch-border-radius);
 
-    background: var(--toggle-button-background-color);
-    color: var(--toggle-button-text-color);
+    background: var(--form-switch-background-color);
+    color: var(--form-switch-text-color);
 
     cursor: pointer;
 
     transition:
-        background-color var(--toggle-button-transition-duration) ease,
-        color var(--toggle-button-transition-duration) ease,
-        box-shadow var(--toggle-button-transition-duration) ease;
+        background-color var(--form-switch-transition-duration) ease,
+        color var(--form-switch-transition-duration) ease,
+        box-shadow var(--form-switch-transition-duration) ease;
 }
 
 .toggle-button:hover,
 .toggle-button:focus-visible {
-    box-shadow: var(--toggle-button-focus-ring);
+    box-shadow: var(--form-switch-focus-ring);
 }
 
 .toggle-button:focus-visible {
@@ -31,48 +31,48 @@
 }
 
 .toggle-button__icon {
-    font-size: var(--toggle-button-icon-size);
+    font-size: var(--form-switch-icon-size);
     font-weight: 700;
     line-height: 1;
 
-    transform: translateX(var(--toggle-button-icon-offset));
+    transform: translateX(var(--form-switch-icon-offset));
 
-    transition: transform var(--toggle-button-transition-duration) ease;
+    transition: transform var(--form-switch-transition-duration) ease;
 }
 
 .toggle-button__knob {
     position: absolute;
-    left: var(--toggle-button-padding);
+    left: var(--form-switch-padding);
 
-    width: var(--toggle-button-knob-size);
-    height: var(--toggle-button-knob-size);
+    width: var(--form-switch-knob-size);
+    height: var(--form-switch-knob-size);
     border-radius: 50%;
 
-    background: var(--toggle-button-knob-background-color);
-    box-shadow: var(--toggle-button-knob-shadow);
+    background: var(--form-switch-knob-background-color);
+    box-shadow: var(--form-switch-knob-shadow);
 
     transition:
-        transform var(--toggle-button-transition-duration) ease,
-        background-color var(--toggle-button-transition-duration) ease;
+        transform var(--form-switch-transition-duration) ease,
+        background-color var(--form-switch-transition-duration) ease;
 }
 
 .toggle-button--checked {
-    background: var(--toggle-button-checked-background-color);
-    color: var(--toggle-button-checked-text-color);
+    background: var(--form-switch-checked-background-color);
+    color: var(--form-switch-checked-text-color);
 }
 
 .toggle-button--checked .toggle-button__icon {
-    transform: translateX(calc(var(--toggle-button-icon-offset) * -1));
+    transform: translateX(calc(var(--form-switch-icon-offset) * -1));
 }
 
 .toggle-button--checked .toggle-button__knob {
-    transform: translateX(var(--toggle-button-knob-offset));
-    background: var(--toggle-button-checked-knob-background-color);
+    transform: translateX(var(--form-switch-knob-offset));
+    background: var(--form-switch-checked-knob-background-color);
 }
 
 .toggle-button--disabled,
 .toggle-button:disabled {
-    opacity: var(--toggle-button-disabled-opacity);
+    opacity: var(--form-switch-disabled-opacity);
     cursor: not-allowed;
 }
 

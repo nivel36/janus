@@ -1,0 +1,5 @@
+:root {
+    --list-background-color: var(--panel-background-color);
+    --list-background-color-odd: var(--color-gray-850);
+    --list-element-hover-background-color: var(--color-primary-900);
+}

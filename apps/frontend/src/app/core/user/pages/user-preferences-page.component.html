@@ -3,29 +3,21 @@
         <section class="card preferences-card">
             <div class="card-body preferences-card-body">
                 <form class="form" [formGroup]="form" (ngSubmit)="save()">
-                    <div class="field-control">
-                        <label for="preferences-locale">
-                            {{ 'userPreferences.fields.locale' | translate }}
-                        </label>
-                        <app-select
-                            class="form-control"
-                            inputId="preferences-locale"
-                            formControlName="locale"
-                            [options]="localeOptions"
-                        />
-                    </div>
+                    <app-select-field
+                        inputId="preferences-locale"
+                        formControlName="locale"
+                        [label]="'userPreferences.fields.locale' | translate"
+                        [options]="localeOptions"
+                        required
+                    />
 
-                    <div class="field-control">
-                        <label for="preferences-time-format">
-                            {{ 'userPreferences.fields.timeFormat' | translate }}
-                        </label>
-                        <app-select
-                            class="form-control"
-                            inputId="preferences-time-format"
-                            formControlName="timeFormat"
-                            [options]="timeFormatOptions"
-                        />
-                    </div>
+                    <app-select-field
+                        inputId="preferences-time-format"
+                        formControlName="timeFormat"
+                        [label]="'userPreferences.fields.timeFormat' | translate"
+                        [options]="timeFormatOptions"
+                        required
+                    />
 
                     <div class="field-control timezone-control">
                         <label for="preferences-timezone">

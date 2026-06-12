@@ -1,0 +1,4 @@
+:root {
+    --brand-color: var(--accent-strong-color);
+    --brand-font-size: var(--text-large-size);
+}

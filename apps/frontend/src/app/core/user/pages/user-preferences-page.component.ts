@@ -15,7 +15,10 @@ import {
   resolveTimezoneByZoneId,
 } from '../../../shared/utils/timezone-catalog.util';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
-import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
+import {
+  SelectFieldComponent,
+  SelectOption,
+} from '../../../shared/ui/select-field/select-field.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { UserPreferences } from '../models/user-preferences';
 import { CurrentUserFacade } from '../services/current-user.facade';
@@ -46,7 +49,7 @@ import { TimeFormat } from '../services/user-profile-api.service';
     TranslatePipe,
     AutocompleteTextboxComponent,
     ButtonComponent,
-    SelectComponent,
+    SelectFieldComponent,
     PageTemplateComponent,
   ],
   templateUrl: './user-preferences-page.component.html',
