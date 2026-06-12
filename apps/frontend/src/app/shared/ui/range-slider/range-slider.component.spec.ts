@@ -19,7 +19,6 @@ describe('RangeSliderComponent', () => {
     fixture = TestBed.createComponent(RangeSliderComponent);
     component = fixture.componentInstance;
 
-    fixture.componentRef.setInput('label', 'Volume');
     fixture.componentRef.setInput('min', 0);
     fixture.componentRef.setInput('max', 100);
     fixture.componentRef.setInput('step', 5);
@@ -78,6 +77,16 @@ describe('RangeSliderComponent', () => {
     component.writeValue(55);
 
     expect(component.valueText).toBe('55 %');
+  });
+
+  it('should display the current value and unit', () => {
+    fixture.componentRef.setInput('unit', 'days');
+    component.writeValue(30);
+    fixture.detectChanges();
+
+    const value: HTMLElement = fixture.debugElement.query(By.css('.range-slider__value')).nativeElement;
+
+    expect(value.textContent?.trim()).toBe('30 days');
   });
 
   it('should return 0 progress when max is less than or equal to min', () => {

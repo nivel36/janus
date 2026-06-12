@@ -1,8 +1,5 @@
 <div class="range-slider">
-    <div class="range-slider_header">
-        <label class="range-slider__label" [attr.for]="sliderId()">{{ label() }}</label>
-        <span class="range-slider__value">{{ value }}{{ unit() ? ' ' + unit() : '' }}</span>
-    </div>
+    <span class="range-slider__value">{{ value }}{{ unit() ? ' ' + unit() : '' }}</span>
 
     <div class="range-slider__track-wrapper">
         <input
@@ -14,7 +11,6 @@
             [step]="step()"
             [value]="value"
             [disabled]="disabled"
-            [attr.aria-label]="label() || null"
             [attr.aria-valuemin]="min()"
             [attr.aria-valuemax]="max()"
             [attr.aria-valuenow]="value"

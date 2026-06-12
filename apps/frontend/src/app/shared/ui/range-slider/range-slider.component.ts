@@ -27,11 +27,6 @@ import { createUuid } from '../../utils/uuid.utils';
 })
 export class RangeSliderComponent implements ControlValueAccessor {
   /**
-   * Visible label displayed above the slider.
-   */
-  readonly label = input<string>();
-
-  /**
    * Optional suffix used in the accessible value text, for example `min` or `%`.
    */
   readonly unit = input<string>();
@@ -62,7 +57,7 @@ export class RangeSliderComponent implements ControlValueAccessor {
   private readonly generatedSliderId = `range-slider-${createUuid()}`;
 
   /**
-   * Effective id used by both the label `for` attribute and the input `id`.
+   * Effective id used by the native range input.
    */
   readonly sliderId = computed(() => this.inputId() ?? this.generatedSliderId);
 

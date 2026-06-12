@@ -19,20 +19,8 @@
     gap: 0.7rem;
 }
 
-.range-slider-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.range-slider__label {
-    color: var(--fg);
-    font-size: 1rem;
-    font-weight: 700;
-}
-
 .range-slider__value {
+    justify-self: end;
     padding: 0.25rem 0.5rem;
     border-radius: var(--radius);
 
