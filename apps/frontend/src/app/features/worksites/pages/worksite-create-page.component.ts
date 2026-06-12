@@ -13,7 +13,7 @@ import {
   createTimezoneCatalog,
   resolveTimezoneByZoneId,
 } from '../../../shared/utils/timezone-catalog.util';
-import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { AutocompleteTextboxFieldComponent } from '../../../shared/ui/autocomplete-textbox-field/autocomplete-textbox-field.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import {
   SelectFieldComponent,
@@ -29,7 +29,7 @@ import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.
   imports: [
     ReactiveFormsModule,
     TranslatePipe,
-    AutocompleteTextboxComponent,
+    AutocompleteTextboxFieldComponent,
     ButtonComponent,
     SelectFieldComponent,
     PageTemplateComponent,
