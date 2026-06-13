@@ -37,6 +37,13 @@ export class ButtonComponent {
   readonly disabled = input<boolean>(false);
 
   /**
+   * Whether the button is rendered as an icon-only button.
+   *
+   * Icon buttons are square, centered and require an accessible label.
+   */
+  readonly icon = input<boolean>(false);
+
+  /**
    * Extra CSS classes appended to the root button element.
    */
   readonly styleClass = input<string>('');
@@ -60,18 +67,22 @@ export class ButtonComponent {
    * @returns CSS class suffix for the variant.
    */
   get variantClass(): string {
-    return `button--${this.variant()}`;
+    return `app-button--${this.variant()}`;
   }
 
   /**
    * Builds the complete CSS class list applied to the root button element.
    *
-   * @returns Root CSS classes as a space-separated string
+   * @returns Root CSS classes as a space-separated string.
    */
   get buttonClass(): string {
-    const extraClass = this.styleClass().trim();
-    return extraClass
-      ? `app-button ${this.variantClass} ${extraClass}`
-      : `app-button ${this.variantClass}`;
+    return [
+      'app-button',
+      this.variantClass,
+      this.icon() ? 'app-button--icon' : '',
+      this.styleClass().trim(),
+    ]
+      .filter(Boolean)
+      .join(' ');
   }
 }

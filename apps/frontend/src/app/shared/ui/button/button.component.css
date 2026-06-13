@@ -1,14 +1,28 @@
 .app-button {
+    box-sizing: border-box;
+
     height: var(--button-height);
-    border: var(--button-border);
     min-width: var(--button-min-width);
+    padding-block: var(--button-padding-block);
+    padding-inline: var(--button-padding-inline);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--button-gap);
+
+    border: var(--button-border);
     border-radius: var(--button-border-radius);
+
     color: var(--button-primary-text-color);
     background: var(--button-primary-background-color);
     box-shadow: var(--button-primary-box-shadow);
+
     font-size: var(--button-font-size);
     font-weight: var(--button-font-weight);
     letter-spacing: 0.14em;
+    line-height: 1;
+
     cursor: pointer;
     text-transform: uppercase;
 }
@@ -18,4 +32,40 @@
     background: var(--button-primary-hover-background-color);
     box-shadow: var(--button-primary-hover-box-shadow);
     outline: none;
+}
+
+.app-button:active {
+    background: var(--button-primary-active-background-color);
+    box-shadow: var(--button-primary-active-box-shadow);
+}
+
+.app-button:disabled {
+    color: var(--button-primary-disabled-text-color);
+    background: var(--button-primary-disabled-background-color);
+    box-shadow: var(--button-primary-disabled-box-shadow);
+    cursor: not-allowed;
+}
+
+.button-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-button--icon {
+    width: var(--button-icon-size);
+    min-width: var(--button-icon-min-width);
+    padding: var(--button-icon-padding);
+    border-radius: var(--button-icon-border-radius);
+
+    aspect-ratio: 1;
+
+    font-size: var(--button-icon-font-size);
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.app-button--icon .button-label {
+    width: 100%;
+    height: 100%;
 }
