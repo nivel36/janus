@@ -110,6 +110,7 @@
     --panel-medium-border-radius: var(--section-medium-border-radius);
 
     --form-gap: var(--size-600);
+    --form-disabled-opacity: 0.72;
 
     --form-label-gap: var(--size-300);
     --form-label-text-color: var(--text-primary-color);
@@ -170,7 +171,6 @@
     --form-switch-checked-background-color: var(--accent-color);
     --form-switch-checked-text-color: var(--color-gray-800);
     --form-switch-focus-ring: var(--focus-ring);
-    --form-switch-disabled-opacity: 0.6;
     --form-switch-transition-duration: 0.2s;
 
     --form-switch-icon-size: var(--form-switch-height);

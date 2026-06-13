@@ -27,7 +27,7 @@ select {
 
 .select:disabled {
     cursor: not-allowed;
-    opacity: 0.72;
+    opacity: var(--form-disabled-opacity);
 }
 
 .arrow {

@@ -72,8 +72,8 @@
 
 .toggle-button--disabled,
 .toggle-button:disabled {
-    opacity: var(--form-switch-disabled-opacity);
     cursor: not-allowed;
+    opacity: var(--form-disabled-opacity);
 }
 
 .toggle-button--disabled:hover,
