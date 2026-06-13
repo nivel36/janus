@@ -1,14 +1,5 @@
 :host {
     display: block;
-
-    --bg: #050505;
-    --panel-bg: #131313;
-    --fg: #f9f9f9;
-    --accent: #fece0b;
-    --accent-soft: #ffd633;
-    --accent-dark: #6f5a08;
-    --accent-active: #8a7010;
-    --radius: 0.5rem;
 }
 
 .autocomplete {
@@ -24,32 +15,30 @@
     width: 100%;
     overflow: hidden;
 
-    border: 1px solid var(--accent);
-    border-radius: var(--radius);
+    border: var(--form-control-border);
+    border-radius: var(--form-control-border-radius);
 
-    background: var(--bg);
+    background: var(--form-control-background-color);
 
-    transition:
-        box-shadow 0.2s ease,
-        border-color 0.2s ease;
+    transition: box-shadow 0.2s ease;
 }
 
 .input-wrapper:focus-within {
-    box-shadow: 0 0 0 2px rgba(249, 214, 0, 0.3);
+    box-shadow: var(--form-control-focus-ring);
 }
 
 .input-wrapper input {
     flex: 1;
     min-width: 0;
 
-    padding: 0.625rem 0.75rem;
+    padding: var(--form-control-padding);
     border: 0;
     outline: 0;
 
     background: transparent;
-    color: var(--fg);
+    color: var(--form-control-text-color);
 
-    font-size: 0.95rem;
+    font-size: var(--form-control-text-size);
 }
 
 .input-wrapper input[readonly] {
@@ -68,10 +57,10 @@
 
     padding: 0 0.66rem;
     border: 0;
-    border-left: 1px solid var(--accent);
+    border-left: var(--form-control-border);
 
-    background: var(--accent);
-    color: var(--panel-bg);
+    background: var(--form-control-text-accent-color);
+    color: var(--form-control-background-color);
 
     font-size: 1.66rem;
     line-height: 1;
@@ -84,12 +73,12 @@
 }
 
 .clear-button:hover:not(:disabled) {
-    background: var(--panel-bg);
-    color: var(--accent);
+    background: var(--form-control-background-color);
+    color: var(--form-control-text-accent-color);
 }
 
 .clear-button:focus-visible {
-    outline: 2px solid var(--panel-bg);
+    outline: 2px solid var(--form-control-background-color);
     outline-offset: -2px;
 }
 
@@ -99,13 +88,6 @@
 }
 
 .results-panel {
-    --panel-bg: #131313;
-    --fg: #f9f9f9;
-    --accent-soft: #ffd633;
-    --accent-dark: #6f5a08;
-    --accent-active: #8a7010;
-    --radius: 0.5rem;
-
     max-width: min(30rem, calc(100vw - 2rem));
 }
 
@@ -121,11 +103,11 @@
 
     list-style: none;
 
-    border: 1px solid var(--accent-soft, #ffd633);
-    border-radius: var(--radius, 0.5rem);
+    border: var(--form-control-border);
+    border-radius: var(--form-control-border-radius);
 
-    background: var(--panel-bg, #131313);
-    color: var(--fg, #f9f9f9);
+    background: var(--list-background-color);
+    color: var(--form-control-text-color);
 
     box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.35);
 }
@@ -140,11 +122,11 @@
 }
 
 .results li:hover {
-    background: var(--accent-dark, #6f5a08);
+    background: var(--list-element-hover-background-color);
 }
 
 .results li.active {
-    background: var(--accent-active, #8a7010);
+    background: var(--list-element-hover-background-color);
 }
 
 .results-message {
