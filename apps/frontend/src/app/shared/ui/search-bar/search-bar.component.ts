@@ -9,13 +9,15 @@ import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
+import { ButtonComponent } from '../button/button.component';
+
 /**
  * Standalone search bar component.
  */
 @Component({
   selector: 'app-search-bar',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, FontAwesomeModule],
+  imports: [ReactiveFormsModule, TranslatePipe, FontAwesomeModule, ButtonComponent],
   templateUrl: './search-bar.component.html',
   styleUrl: './search-bar.component.css',
 })

@@ -11,11 +11,12 @@
 
     <span class="sr-only" [id]="helpTextId">{{ 'searchBar.helpText' | translate }}</span>
 
-    <button
+    <app-button
         type="submit"
+        [icon]="true"
         class="search-icon"
-        [attr.aria-label]="'searchBar.buttonAriaLabel' | translate"
+        [ariaLabel]="'searchBar.buttonAriaLabel' | translate"
     >
         <fa-icon [icon]="faMagnifyingGlass"></fa-icon>
-    </button>
+    </app-button>
 </form>

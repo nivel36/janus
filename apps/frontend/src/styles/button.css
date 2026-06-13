@@ -10,7 +10,7 @@
     --button-height: var(--size-900);
     --button-border: 0;
 
-    --button-icon-size: var(--button-height);
+    --button-icon-size: var(--size-800);
     --button-icon-padding: 0;
     --button-icon-min-width: 0;
     --button-icon-border-radius: var(--button-border-radius);

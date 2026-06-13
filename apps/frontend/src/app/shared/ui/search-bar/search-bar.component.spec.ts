@@ -6,6 +6,7 @@ import { By } from '@angular/platform-browser';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MockTranslatePipe } from '../../../../testing/mock-translate.pipe';
+import { ButtonComponent } from '../button/button.component';
 import { SearchBarComponent } from './search-bar.component';
 
 describe('SearchBarComponent', () => {
@@ -102,6 +103,16 @@ describe('SearchBarComponent', () => {
     component = fixture.componentInstance;
 
     expect(component).toBeTruthy();
+  });
+
+  it('should render the shared button component as a submit button', async () => {
+    fixture = await createComponent();
+
+    const buttonComponentDe = fixture.debugElement.query(By.directive(ButtonComponent));
+    const submitButtonDe = fixture.debugElement.query(By.css('button[type="submit"]'));
+
+    expect(buttonComponentDe).toBeTruthy();
+    expect(submitButtonDe).toBeTruthy();
   });
 
   it('should throw when debounceMs is negative', async () => {
