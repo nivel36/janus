@@ -9,7 +9,8 @@
 }
 
 .autocomplete.disabled {
-    opacity: 0.72;
+    cursor: not-allowed;
+    opacity: var(--form-disabled-opacity);
 }
 
 .input-wrapper {
