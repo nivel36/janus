@@ -1,0 +1,81 @@
+:root {
+    --header-detail-gap: var(--panel-gap);
+    --header-detail-padding-inline: var(--panel-padding-inline);
+    --header-detail-padding-block: var(--panel-padding-block);
+    --header-detail-background-color: var(--panel-background-color);
+    --header-detail-border: var(--panel-border);
+    --header-detail-border-radius: var(--panel-border-radius);
+    --header-detail-icon-size: 6rem;
+    --header-detail-icon-border: var(--stroke-400) solid rgba(255, 255, 255, 0.12);
+    --header-detail-icon-border-radius: var(--radius-400);
+    --header-detail-icon-color: var(--accent-color);
+    --header-detail-icon-font-size: var(--font-size-700);
+    --header-detail-info-gap: var(--size-300);
+    --header-detail-info-font-size: var(--font-size-350);
+    --header-detail-compact-padding-inline-end: 1.85rem;
+}
+
+.header-detail {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--header-detail-gap);
+    padding-inline: var(--header-detail-padding-inline);
+    padding-block: var(--header-detail-padding-block);
+    border: var(--header-detail-border);
+    border-radius: var(--header-detail-border-radius);
+    background: var(--header-detail-background-color);
+}
+
+.header-detail__identity {
+    display: flex;
+    align-items: center;
+    gap: var(--header-detail-gap);
+}
+
+.header-detail__icon {
+    display: grid;
+    width: var(--header-detail-icon-size);
+    flex: 0 0 var(--header-detail-icon-size);
+    aspect-ratio: 1;
+    place-items: center;
+    border: var(--header-detail-icon-border);
+    border-radius: var(--header-detail-icon-border-radius);
+    color: var(--header-detail-icon-color);
+    font-size: var(--header-detail-icon-font-size);
+}
+
+.header-detail__title {
+    font-size: var(--h2-font-size);
+}
+
+.header-detail__info {
+    display: flex;
+    align-items: center;
+    gap: var(--header-detail-info-gap);
+    margin: 0;
+    font-size: var(--header-detail-info-font-size);
+}
+
+@media (max-width: 900px) {
+    .header-detail {
+        align-items: flex-start;
+        padding-inline-end: var(--header-detail-compact-padding-inline-end);
+    }
+}
+
+@media (max-width: 640px) {
+    .header-detail,
+    .header-detail__identity {
+        flex-direction: column;
+    }
+
+    .header-detail__icon {
+        --header-detail-icon-size: 4.8rem;
+        --header-detail-icon-font-size: var(--font-size-500);
+    }
+
+    .header-detail__status {
+        width: 100%;
+    }
+}

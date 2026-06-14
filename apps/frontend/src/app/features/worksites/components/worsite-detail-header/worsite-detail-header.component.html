@@ -1,12 +1,14 @@
-<article class="worsite-detail-header">
-    <div class="worsite-detail-header__identity">
-        <div class="worsite-detail-header__icon" aria-hidden="true">
+<article class="worksite-header-detail header-detail">
+    <div class="worksite-header-detail__identity header-detail__identity">
+        <div class="worksite-header-detail__icon header-detail__icon" aria-hidden="true">
             <fa-icon [icon]="faBuilding"></fa-icon>
         </div>
 
-        <div class="worsite-detail-header__details">
-            <h2>{{ worksite().name }}</h2>
-            <p>
+        <div>
+            <h2 class="worksite-header-detail__title header-detail__title">
+                {{ worksite().name }}
+            </h2>
+            <p class="worksite-header-detail__info header-detail__info">
                 <span>{{ worksite().code }}</span>
                 <app-chip [label]="'worksite.scopes.' + worksite().scope | translate"></app-chip>
             </p>
@@ -14,7 +16,7 @@
     </div>
 
     <app-chip
-        class="worsite-detail-header__status"
+        class="worksite-header-detail__status header-detail__status"
         [type]="worksite().active ? 'green' : 'red'"
         [icon]="faCircle"
         size="big"
