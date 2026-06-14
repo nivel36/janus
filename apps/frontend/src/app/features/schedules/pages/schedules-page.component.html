@@ -1,6 +1,13 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.schedules">
     <div pageContent class="page-content schedules-content">
-        <app-search-bar (queryChange)="onQueryChange($event)" />
+        <div class="schedules-toolbar">
+            <app-search-bar (queryChange)="onQueryChange($event)" />
+            @if (isAdmin | async) {
+                <app-button variant="main" (clicked)="createSchedule()">
+                    {{ 'actions.new' | translate }}
+                </app-button>
+            }
+        </div>
         <app-schedule-table [query]="searchQuery()" />
     </div>
 </app-page-template>
