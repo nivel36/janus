@@ -3,53 +3,40 @@
         <section class="card worksites-card">
             <div class="card-body worksites-card-body">
                 <form [formGroup]="form" (ngSubmit)="save()">
-                    <div class="field-control">
-                        <label for="worksite-code">{{ 'worksite.code' | translate }}</label>
-                        <input
-                            id="worksite-code"
-                            type="text"
-                            formControlName="code"
-                            autocomplete="off"
-                        />
+                    <app-text-field
+                        inputId="worksite-code"
+                        formControlName="code"
+                        [label]="'worksite.code' | translate"
+                        [hint]="
+                            form.controls.code.pending
+                                ? ('worksite.messages.codeChecking' | translate)
+                                : ''
+                        "
+                        [error]="
+                            form.controls.code.touched && form.controls.code.invalid
+                                ? form.controls.code.hasError('duplicatedCode')
+                                    ? ('worksite.errors.duplicatedCode' | translate)
+                                    : form.controls.code.hasError('codeLookupFailed')
+                                      ? ('worksite.errors.codeLookupFailed' | translate)
+                                      : ('worksite.errors.invalidCode' | translate)
+                                : ''
+                        "
+                        autocomplete="off"
+                        required
+                    />
 
-                        @if (form.controls.code.pending) {
-                            <p class="message info">
-                                {{ 'worksite.messages.codeChecking' | translate }}
-                            </p>
-                        }
-
-                        @if (form.controls.code.touched && form.controls.code.invalid) {
-                            @if (form.controls.code.hasError('duplicatedCode')) {
-                                <p class="message error">
-                                    {{ 'worksite.errors.duplicatedCode' | translate }}
-                                </p>
-                            } @else if (form.controls.code.hasError('codeLookupFailed')) {
-                                <p class="message error">
-                                    {{ 'worksite.errors.codeLookupFailed' | translate }}
-                                </p>
-                            } @else {
-                                <p class="message error">
-                                    {{ 'worksite.errors.invalidCode' | translate }}
-                                </p>
-                            }
-                        }
-                    </div>
-
-                    <div class="field-control">
-                        <label for="worksite-name">{{ 'worksite.name' | translate }}</label>
-                        <input
-                            id="worksite-name"
-                            type="text"
-                            formControlName="name"
-                            autocomplete="off"
-                        />
-
-                        @if (form.controls.name.touched && form.controls.name.invalid) {
-                            <p class="message error">
-                                {{ 'worksite.errors.invalidName' | translate }}
-                            </p>
-                        }
-                    </div>
+                    <app-text-field
+                        inputId="worksite-name"
+                        formControlName="name"
+                        [label]="'worksite.name' | translate"
+                        [error]="
+                            form.controls.name.touched && form.controls.name.invalid
+                                ? ('worksite.errors.invalidName' | translate)
+                                : ''
+                        "
+                        autocomplete="off"
+                        required
+                    />
 
                     <app-select-field
                         inputId="worksite-scope"
@@ -76,41 +63,29 @@
                         required
                     />
 
-                    <div class="field-control">
-                        <label for="worksite-address">{{ 'worksite.address' | translate }}</label>
-                        <input
-                            id="worksite-address"
-                            type="text"
-                            formControlName="address"
-                            autocomplete="street-address"
-                        />
+                    <app-text-field
+                        inputId="worksite-address"
+                        formControlName="address"
+                        [label]="'worksite.address' | translate"
+                        [error]="
+                            form.controls.address.touched && form.controls.address.invalid
+                                ? ('worksite.errors.invalidAddress' | translate)
+                                : ''
+                        "
+                        autocomplete="street-address"
+                    />
 
-                        @if (form.controls.address.touched && form.controls.address.invalid) {
-                            <p class="message error">
-                                {{ 'worksite.errors.invalidAddress' | translate }}
-                            </p>
-                        }
-                    </div>
-
-                    <div class="field-control">
-                        <label for="worksite-description">{{
-                            'worksite.description' | translate
-                        }}</label>
-                        <input
-                            id="worksite-description"
-                            type="text"
-                            formControlName="description"
-                            autocomplete="off"
-                        />
-
-                        @if (
+                    <app-text-field
+                        inputId="worksite-description"
+                        formControlName="description"
+                        [label]="'worksite.description' | translate"
+                        [error]="
                             form.controls.description.touched && form.controls.description.invalid
-                        ) {
-                            <p class="message error">
-                                {{ 'worksite.errors.invalidDescription' | translate }}
-                            </p>
-                        }
-                    </div>
+                                ? ('worksite.errors.invalidDescription' | translate)
+                                : ''
+                        "
+                        autocomplete="off"
+                    />
 
                     @if (errorMessage) {
                         <p class="message error">{{ errorMessage | translate }}</p>

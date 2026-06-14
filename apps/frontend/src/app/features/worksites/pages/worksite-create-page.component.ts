@@ -19,6 +19,7 @@ import {
   SelectFieldComponent,
   SelectOption,
 } from '../../../shared/ui/select-field/select-field.component';
+import { TextFieldComponent } from '../../../shared/ui/text-field/text-field.component';
 import { WorksiteScope } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
 import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.validator';
@@ -32,6 +33,7 @@ import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.
     AutocompleteTextboxFieldComponent,
     ButtonComponent,
     SelectFieldComponent,
+    TextFieldComponent,
     PageTemplateComponent,
   ],
   templateUrl: './worksite-create-page.component.html',
