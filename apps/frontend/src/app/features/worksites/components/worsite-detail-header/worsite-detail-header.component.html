@@ -1,10 +1,10 @@
-<article class="worksite-hero">
-    <div class="worksite-hero__identity">
-        <div class="worksite-hero__icon" aria-hidden="true">
+<article class="worsite-detail-header">
+    <div class="worsite-detail-header__identity">
+        <div class="worsite-detail-header__icon" aria-hidden="true">
             <fa-icon [icon]="faBuilding"></fa-icon>
         </div>
 
-        <div class="worksite-hero__copy">
+        <div class="worsite-detail-header__details">
             <h2>{{ worksite().name }}</h2>
             <p>
                 <span>{{ worksite().code }}</span>
@@ -14,10 +14,12 @@
     </div>
 
     <app-chip
-        class="worksite-hero__status"
+        class="worsite-detail-header__status"
         [type]="worksite().active ? 'green' : 'red'"
         [icon]="faCircle"
         size="big"
-        [label]="(worksite().active ? 'worksite.status.active' : 'worksite.status.inactive') | translate"
+        [label]="
+            (worksite().active ? 'worksite.status.active' : 'worksite.status.inactive') | translate
+        "
     ></app-chip>
 </article>

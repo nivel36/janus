@@ -6,7 +6,7 @@
     @if (hasHeader) {
         <header class="card-header">
             @if (title()) {
-                <h2 [id]="titleElementId" class="card-title">{{ title() }}</h2>
+                <h3 [id]="titleElementId" class="card-title">{{ title() }}</h3>
             }
             @if (headerTpl) {
                 <ng-container [ngTemplateOutlet]="headerTpl"></ng-container>

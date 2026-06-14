@@ -24,7 +24,7 @@ import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
 import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
 import { SummaryCardComponent } from '../../../shared/ui/summary-card/summary-card.component';
 import { ChipComponent } from '../../../shared/ui/chip/chip.component';
-import { WorksiteHeroComponent } from '../components/worksite-hero/worksite-hero.component';
+import { WorsiteDetailHeaderComponent } from '../components/worsite-detail-header/worsite-detail-header.component';
 import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
 
 @Component({
@@ -40,7 +40,7 @@ import { CurrentUserFacade } from '../../../core/user/services/current-user.faca
     TabItemDirective,
     SummaryCardComponent,
     ChipComponent,
-    WorksiteHeroComponent,
+    WorsiteDetailHeaderComponent,
   ],
   templateUrl: './worksite-detail-page.component.html',
   styleUrl: './worksite-detail-page.component.css',

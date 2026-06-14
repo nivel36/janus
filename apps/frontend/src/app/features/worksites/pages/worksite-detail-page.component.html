@@ -11,7 +11,9 @@
         } @else if (worksite(); as worksite) {
             <app-tabs>
                 <ng-template [appTabItem]="'worksite.tabs.general' | translate">
-                    <app-worksite-hero [worksite]="worksite"></app-worksite-hero>
+                    <app-worsite-detail-header
+                        [worksite]="worksite"
+                    ></app-worsite-detail-header>
 
                     <div class="worksite-detail-grid">
                         <app-card styleClass="worksite-panel">
