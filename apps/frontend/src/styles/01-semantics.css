@@ -132,8 +132,10 @@
     --form-control-text-color: var(--text-primary-color);
     --form-control-text-accent-color: var(--accent-color);
     --form-control-text-size: var(--text-body-size);
-    --form-control-padding: var(--size-200) var(--size-300);
+    --form-control-padding-inline: var(--size-300);
+    --form-control-padding-block: 0;
     --form-control-focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+    --form-control-height: var(--size-800);
 
     /* form-range        → slider */
     --form-range-text-color: var(--color-gray-800);

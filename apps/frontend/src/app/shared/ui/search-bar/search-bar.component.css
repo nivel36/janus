@@ -53,17 +53,6 @@
 .search-icon {
     flex: 0 0 auto;
     display: flex;
-
-    --button-height: 100%;
-    --button-icon-size: 3rem;
-    --button-icon-border-radius: 0;
-    --button-primary-background-color: var(--accent);
-    --button-primary-text-color: var(--bg);
-    --button-primary-box-shadow: inset 1px 0 var(--border-muted);
-    --button-primary-hover-background-color: #e5b900;
-    --button-primary-hover-box-shadow: inset 1px 0 var(--border-muted);
-    --button-primary-active-background-color: #c99f00;
-    --button-primary-active-box-shadow: inset 1px 0 var(--border-muted);
 }
 
 .sr-only {

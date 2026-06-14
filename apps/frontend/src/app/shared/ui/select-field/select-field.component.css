@@ -15,7 +15,7 @@
 select {
     width: 100%;
     box-sizing: border-box;
-    padding: var(--form-control-padding);
+    padding-inline: var(--form-control-padding-inline);
     border: 0;
     outline: 0;
     appearance: none;
@@ -23,6 +23,7 @@ select {
     color: var(--form-control-text-color);
     font-size: var(--form-control-text-size);
     cursor: pointer;
+    height: var(--form-control-height);
 }
 
 .select:disabled {
@@ -31,10 +32,10 @@ select {
 }
 
 .arrow {
-    --arrow-size: calc(var(--form-control-text-size) * 1.5);
+    --arrow-size: calc(var(--form-control-height) / 2);
     position: absolute;
     top: 50%;
-    right: calc(var(--arrow-size) / 2);
+    right: var(--form-control-padding-inline);
 
     transform: translateY(-50%);
 

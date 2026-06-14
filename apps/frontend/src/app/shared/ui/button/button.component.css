@@ -53,7 +53,7 @@
 }
 
 .app-button--icon {
-    width: var(--button-icon-size);
+    width: var(--button-size);
     min-width: var(--button-icon-min-width);
     padding: var(--button-icon-padding);
     border-radius: var(--button-icon-border-radius);
