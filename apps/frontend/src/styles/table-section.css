@@ -1,7 +1,7 @@
 .table-section {
     display: flex;
     flex-direction: column;
-    gap: var(--section-medium-gap);
+    gap: var(--table-section-gap);
 }
 
 .table-section-header {
@@ -11,25 +11,25 @@
 }
 
 .table-section-title {
-    font-size: var(--h2-font-size);
+    font-size: var(--table-section-title-font-size);
     margin: 0;
     text-transform: uppercase;
-    color: var(--accent-color);
+    color: var(--table-section-title-color);
     font-weight: 600;
 }
 
 .table-section .table {
     width: 100%;
-    background-color: var(--panel-background-color);
-    border-radius: var(--panel-border-radius);
-    border: var(--panel-border);
+    background-color: var(--table-section-table-background-color);
+    border-radius: var(--table-section-table-border-radius);
+    border: var(--table-section-table-border);
     border-collapse: separate;
-    box-shadow: var(--panel-shadow);
+    box-shadow: var(--table-section-table-shadow);
     overflow: hidden;
 }
 
 .table-section .table thead {
-    background-color: var(--panel-background-color);
+    background-color: var(--table-section-table-background-color);
 }
 
 .table-section .table tbody tr td {
@@ -37,52 +37,52 @@
 }
 
 .table-section .table tbody tr:first-child td {
-    border-top: var(--panel-border);
+    border-top: var(--table-section-table-border);
 }
 
 .table-section .table tbody tr:first-child td:first-child {
-    border-top-left-radius: var(--panel-border-radius);
+    border-top-left-radius: var(--table-section-table-border-radius);
 }
 
 .table-section .table tbody tr:first-child td:last-child {
     border-collapse: separate;
-    border-top-right-radius: var(--panel-border-radius);
+    border-top-right-radius: var(--table-section-table-border-radius);
 }
 
 .table-section .table th {
-    padding-inline: var(--panel-padding-inline);
-    padding-block: var(--panel-padding-block);
+    padding-inline: var(--table-section-header-cell-padding-inline);
+    padding-block: var(--table-section-header-cell-padding-block);
     text-align: left;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-size: var(--text-small-size);
+    letter-spacing: var(--table-section-header-cell-letter-spacing);
+    font-size: var(--table-section-header-cell-font-size);
     font-weight: 600;
 }
 
 .table-section .table td {
-    padding-inline: var(--panel-padding-inline);
-    padding-block: var(--panel-medium-padding-block);
+    padding-inline: var(--table-section-body-cell-padding-inline);
+    padding-block: var(--table-section-body-cell-padding-block);
     text-align: left;
 }
 
 .table-section .table tbody tr:nth-child(odd) {
-    background-color: var(--list-background-color-odd);
+    background-color: var(--table-section-row-odd-background-color);
 }
 
 .table-section .table tbody tr:nth-child(even) {
-    background-color: var(--list-background-color);
+    background-color: var(--table-section-row-even-background-color);
 }
 
 .table-section .table tbody tr:hover {
-    background-color: var(--list-element-hover-background-color);
+    background-color: var(--table-section-row-hover-background-color);
     overflow: hidden;
 }
 
 .table-section-message {
-    padding: 1rem 1.5rem;
-    border-radius: 16px;
-    background-color: rgba(255, 255, 255, 0.06);
-    color: #f9f9f9;
+    padding: var(--table-section-message-padding-block) var(--table-section-message-padding-inline);
+    border-radius: var(--table-section-message-border-radius);
+    background-color: var(--table-section-message-background-color);
+    color: var(--table-section-message-text-color);
 }
 
 @media (max-width: 640px) {
@@ -93,6 +93,6 @@
 
     .table-section .table th,
     .table-section .table td {
-        padding: 0.75rem 1rem;
+        padding: var(--table-section-compact-cell-padding-block) var(--table-section-compact-cell-padding-inline);
     }
 }

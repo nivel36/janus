@@ -23,4 +23,33 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 0.5rem 1rem rgba(255, 212, 0, 0.13);
     --control-accent-hover-glow:
         inset 0 1px 0 rgba(255, 255, 255, 0.48), 0 0.5rem 1rem rgba(255, 212, 0, 0.18);
+
+    --chip-background-color: #f9d600;
+    --chip-text-color: #131313;
+    --chip-padding-block: 0.4rem;
+    --chip-padding-inline: 0.75rem;
+    --chip-border-radius: 0.35rem;
+    --chip-font-size: 0.8rem;
+    --chip-icon-size: var(--chip-font-size);
+    --chip-gap: 0.35rem;
+    --chip-small-padding-block: var(--size-100);
+    --chip-small-padding-inline: var(--size-200);
+    --chip-small-font-size: 0.7rem;
+    --chip-small-icon-size: var(--chip-small-font-size);
+    --chip-small-gap: var(--size-100);
+    --chip-big-padding-block: 0.55rem;
+    --chip-big-padding-inline: var(--size-400);
+    --chip-big-font-size: 0.95rem;
+    --chip-big-icon-size: var(--chip-big-font-size);
+    --chip-big-gap: 0.45rem;
+    --chip-primary-background-color: #7f06a5;
+    --chip-primary-text-color: var(--color-white);
+    --chip-secondary-background-color: #1431a9;
+    --chip-secondary-text-color: var(--color-white);
+    --chip-tertiary-background-color: #615300;
+    --chip-tertiary-text-color: var(--color-white);
+    --chip-success-background-color: rgba(104, 135, 72, 0.16);
+    --chip-success-text-color: #3baa37;
+    --chip-error-background-color: rgba(187, 53, 53, 0.16);
+    --chip-error-text-color: #d24444;
 }

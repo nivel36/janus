@@ -35,4 +35,44 @@
     --panel-medium-padding-inline: var(--section-medium-padding-inline);
     --panel-medium-gap: var(--section-medium-gap);
     --panel-medium-border-radius: var(--section-medium-border-radius);
+
+    --summary-card-padding-block: var(--font-size-350);
+    --summary-card-padding-inline: 1.45rem;
+    --summary-card-border-radius: 22px;
+    --summary-card-background-color: rgba(255, 255, 255, 0.06);
+    --summary-card-icon-size: 3.7rem;
+    --summary-card-icon-margin-bottom: 1.3rem;
+    --summary-card-icon-border-radius: 50%;
+    --summary-card-icon-background-color: rgba(255, 255, 255, 0.08);
+    --summary-card-icon-color: var(--accent-color);
+    --summary-card-icon-font-size: 1.75rem;
+    --summary-card-label-color: rgba(249, 249, 249, 0.72);
+    --summary-card-label-letter-spacing: 0.13em;
+    --summary-card-value-margin-top: 0.8rem;
+    --summary-card-value-color: var(--color-white);
+    --summary-card-value-font-size: var(--text-big-size);
+
+    --table-section-gap: var(--section-medium-gap);
+    --table-section-title-font-size: var(--h2-font-size);
+    --table-section-title-color: var(--accent-color);
+    --table-section-table-background-color: var(--panel-background-color);
+    --table-section-table-border-radius: var(--panel-border-radius);
+    --table-section-table-border: var(--panel-border);
+    --table-section-table-shadow: var(--panel-shadow);
+    --table-section-header-cell-padding-inline: var(--panel-padding-inline);
+    --table-section-header-cell-padding-block: var(--panel-padding-block);
+    --table-section-header-cell-letter-spacing: 0.12em;
+    --table-section-header-cell-font-size: var(--text-small-size);
+    --table-section-body-cell-padding-inline: var(--panel-padding-inline);
+    --table-section-body-cell-padding-block: var(--panel-medium-padding-block);
+    --table-section-row-odd-background-color: var(--list-background-color-odd);
+    --table-section-row-even-background-color: var(--list-background-color);
+    --table-section-row-hover-background-color: var(--list-element-hover-background-color);
+    --table-section-message-padding-block: var(--size-400);
+    --table-section-message-padding-inline: var(--size-500);
+    --table-section-message-border-radius: var(--radius-300);
+    --table-section-message-background-color: var(--summary-card-background-color);
+    --table-section-message-text-color: var(--text-primary-color);
+    --table-section-compact-cell-padding-block: 0.75rem;
+    --table-section-compact-cell-padding-inline: var(--size-400);
 }
