@@ -1,8 +1,8 @@
 <section class="table-section timelog-table-section" aria-labelledby="timelog-title">
     <header class="table-section-header timelog-table-section-header">
-        <h3 id="timelog-title" class="table-section-title timelog-title">
+        <h2 id="timelog-title" class="table-section-title timelog-title">
             {{ 'timelog.timelogs' | translate }}
-        </h3>
+        </h2>
         @if (totalItems() > 0) {
             <app-paginator
                 [totalItems]="totalItems()"

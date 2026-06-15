@@ -20,6 +20,15 @@
     "new": "New",
     "back": "Back"
   },
+  "paginator": {
+    "of": "of",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "ariaLabel": "Pagination"
+  },
+  "clock": {
+    "currentTime": "Current time"
+  },
   "searchBar": {
     "placeholder": "Search worksites...",
     "inputLabel": "Search",
@@ -45,12 +54,7 @@
     "empty": "No time logs available yet.",
     "loadError": "Unable to load time logs at this time.",
     "timelogs": "Time logs",
-    "paginator": {
-      "of": "of",
-      "previousPage": "Previous page",
-      "nextPage": "Next page",
-      "ariaLabel": "Pagination"
-    },
+    "timeTracking": "Time tracking",
     "clockActionPermissionDenied": "You do not have permission to clock in or out.",
     "clockActionNetworkError": "Unable to register your time action right now. Please try again."
   },
@@ -170,12 +174,6 @@
       "invalidAddress": "Address must be up to 500 characters.",
       "invalidDescription": "Description must be up to 500 characters.",
       "invalidTimezone": "Invalid timezone."
-    },
-    "paginator": {
-      "of": "of",
-      "previousPage": "Previous page",
-      "nextPage": "Next page",
-      "ariaLabel": "Pagination"
     }
   },
   "schedule": {
@@ -184,12 +182,6 @@
     "name": "Name",
     "loading": "Loading schedules...",
     "empty": "No schedules available yet.",
-    "loadError": "Unable to load schedules at this time.",
-    "paginator": {
-      "of": "of",
-      "previousPage": "Previous page",
-      "nextPage": "Next page",
-      "ariaLabel": "Pagination"
-    }
+    "loadError": "Unable to load schedules at this time."
   }
 }

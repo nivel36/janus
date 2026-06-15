@@ -20,6 +20,15 @@
     "new": "Nou",
     "back": "Torna"
   },
+  "paginator": {
+    "of": "de",
+    "previousPage": "Pàgina anterior",
+    "nextPage": "Pàgina següent",
+    "ariaLabel": "Paginació"
+  },
+  "clock": {
+    "currentTime": "Hora actual"
+  },
   "searchBar": {
     "placeholder": "Cerca llocs de treball...",
     "inputLabel": "Cerca",
@@ -45,12 +54,7 @@
     "empty": "Encara no hi ha fitxatges disponibles.",
     "loadError": "Ara mateix no es poden carregar els fitxatges.",
     "timelogs": "Fixatges",
-    "paginator": {
-      "of": "de",
-      "previousPage": "Pàgina anterior",
-      "nextPage": "Pàgina següent",
-      "ariaLabel": "Paginació"
-    },
+    "timeTracking": "Registre de jornada",
     "clockActionPermissionDenied": "No tens permisos per fitxar.",
     "clockActionNetworkError": "No s'ha pogut registrar el fitxatge en aquest moment. Torna-ho a provar."
   },
@@ -170,12 +174,6 @@
       "invalidAddress": "L'adreça ha de tenir fins a 500 caràcters.",
       "invalidDescription": "La descripció ha de tenir fins a 500 caràcters.",
       "invalidTimezone": "La zona horaria no és vàlida."
-    },
-    "paginator": {
-      "of": "de",
-      "previousPage": "Pàgina anterior",
-      "nextPage": "Pàgina següent",
-      "ariaLabel": "Paginació"
     }
   },
   "schedule": {
@@ -184,12 +182,6 @@
     "name": "Nom",
     "loading": "S'estan carregant els horaris...",
     "empty": "Encara no hi ha horaris disponibles.",
-    "loadError": "Ara mateix no es poden carregar els horaris.",
-    "paginator": {
-      "of": "de",
-      "previousPage": "Pàgina anterior",
-      "nextPage": "Pàgina següent",
-      "ariaLabel": "Paginació"
-    }
+    "loadError": "Ara mateix no es poden carregar els horaris."
   }
 }

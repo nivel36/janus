@@ -14,9 +14,9 @@
     padding-bottom: var(--section-padding-block);
 }
 
-.clock-in-card-title {
+.clock-in {
     color: var(--text-primary-color);
-    font-size: var(--h3-font-size);
+    font-size: var(--text-large-size);
     font-weight: 600;
 }
 

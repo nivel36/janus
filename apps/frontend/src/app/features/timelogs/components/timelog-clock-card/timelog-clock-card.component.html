@@ -1,11 +1,14 @@
 @if (vm$ | async; as vm) {
     <section class="card clock-in-card" [attr.aria-labelledby]="titleElementId">
-        <header class="card-header clock-in-card-header">
-            <h3 class="card-title clock-in-card-title" [id]="titleElementId">
+        <h2 [id]="titleElementId" class="card-title clock-in-card-title visually-hidden-title">
+            {{ 'timelog.timeTracking' | translate }}
+        </h2>
+
+        <div class="clock-in-card-body">
+            <p class="clock-in">
                 {{ vm.clockActionTitleKey | translate }}
-            </h3>
-        </header>
-        <div class="card-body clock-in-card-body">
+            </p>
+
             <app-clock [locale]="vm.locale" [use12Hour]="vm.use12Hour"></app-clock>
 
             @if (vm.hasClockInOutPermission) {

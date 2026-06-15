@@ -11,3 +11,28 @@ h2 {
 h3 {
     line-height: 1.1;
 }
+
+.title {
+    font-size: var(--font-size-200);
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.card-title {
+    font-size: var(--font-size-400);
+    color: var(--text-primary-color);
+    font-weight: 600;
+}
+
+.section-title {
+    font-size: var(--font-size-500);
+    margin: 0;
+    text-transform: uppercase;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.visually-hidden-title {
+    visibility: hidden;
+}
