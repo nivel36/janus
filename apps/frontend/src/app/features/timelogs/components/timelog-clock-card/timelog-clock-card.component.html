@@ -1,6 +1,6 @@
 @if (vm$ | async; as vm) {
-    <section class="card clock-in-card" [attr.aria-labelledby]="titleElementId">
-        <h2 [id]="titleElementId" class="card-title clock-in-card-title visually-hidden-title">
+    <section class="app-card clock-in-card" [attr.aria-labelledby]="titleElementId">
+        <h2 [id]="titleElementId" class="app-card-title clock-in-card-title visually-hidden-title">
             {{ 'timelog.timeTracking' | translate }}
         </h2>
 
@@ -24,7 +24,7 @@
             }
         </div>
 
-        <footer class="card-footer clock-in-card-footer">
+        <footer class="app-card-footer clock-in-card-footer">
             @if (vm.hasClockInOutPermission) {
                 <button
                     type="button"

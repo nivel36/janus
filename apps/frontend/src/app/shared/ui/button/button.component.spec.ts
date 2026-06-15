@@ -64,7 +64,7 @@ describe('ButtonComponent', () => {
 
     expect(buttonEl).toBeTruthy();
     expect(buttonEl.type).toBe('button');
-    expect(buttonEl.classList).toContain('button--default');
+    expect(buttonEl.classList).toContain('app-button--default');
   });
 
   it('should disable the button when disabled is true', () => {

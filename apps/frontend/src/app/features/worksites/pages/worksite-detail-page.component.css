@@ -74,7 +74,7 @@
     margin-top: 1.55rem;
 }
 
-:host ::ng-deep .empty-panel .card-body {
+:host ::ng-deep .empty-panel .app-card-body {
     min-height: 24rem;
 }
 
