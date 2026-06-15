@@ -1,16 +1,16 @@
-.table-section {
+.app-table-section {
     display: flex;
     flex-direction: column;
     gap: var(--table-section-gap);
 }
 
-.table-section-header {
+.app-table-section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.table-section-title {
+.app-table-section-title {
     font-size: var(--table-section-title-font-size);
     margin: 0;
     text-transform: uppercase;
@@ -18,7 +18,7 @@
     font-weight: 600;
 }
 
-.table-section .table {
+.app-table-section .table {
     width: 100%;
     background-color: var(--table-section-table-background-color);
     border-radius: var(--table-section-table-border-radius);
@@ -28,28 +28,28 @@
     overflow: hidden;
 }
 
-.table-section .table thead {
+.app-table-section .table thead {
     background-color: var(--table-section-table-background-color);
 }
 
-.table-section .table tbody tr td {
+.app-table-section .table tbody tr td {
     overflow: hidden;
 }
 
-.table-section .table tbody tr:first-child td {
+.app-table-section .table tbody tr:first-child td {
     border-top: var(--table-section-table-border);
 }
 
-.table-section .table tbody tr:first-child td:first-child {
+.app-table-section .table tbody tr:first-child td:first-child {
     border-top-left-radius: var(--table-section-table-border-radius);
 }
 
-.table-section .table tbody tr:first-child td:last-child {
+.app-table-section .table tbody tr:first-child td:last-child {
     border-collapse: separate;
     border-top-right-radius: var(--table-section-table-border-radius);
 }
 
-.table-section .table th {
+.app-table-section .table th {
     padding-inline: var(--table-section-header-cell-padding-inline);
     padding-block: var(--table-section-header-cell-padding-block);
     text-align: left;
@@ -59,26 +59,26 @@
     font-weight: 600;
 }
 
-.table-section .table td {
+.app-table-section .table td {
     padding-inline: var(--table-section-body-cell-padding-inline);
     padding-block: var(--table-section-body-cell-padding-block);
     text-align: left;
 }
 
-.table-section .table tbody tr:nth-child(odd) {
+.app-table-section .table tbody tr:nth-child(odd) {
     background-color: var(--table-section-row-odd-background-color);
 }
 
-.table-section .table tbody tr:nth-child(even) {
+.app-table-section .table tbody tr:nth-child(even) {
     background-color: var(--table-section-row-even-background-color);
 }
 
-.table-section .table tbody tr:hover {
+.app-table-section .table tbody tr:hover {
     background-color: var(--table-section-row-hover-background-color);
     overflow: hidden;
 }
 
-.table-section-message {
+.app-table-section-message {
     padding: var(--table-section-message-padding-block) var(--table-section-message-padding-inline);
     border-radius: var(--table-section-message-border-radius);
     background-color: var(--table-section-message-background-color);
@@ -86,13 +86,13 @@
 }
 
 @media (max-width: 640px) {
-    .table-section-header {
+    .app-table-section-header {
         flex-direction: column;
         align-items: flex-start;
     }
 
-    .table-section .table th,
-    .table-section .table td {
+    .app-table-section .table th,
+    .app-table-section .table td {
         padding: var(--table-section-compact-cell-padding-block) var(--table-section-compact-cell-padding-inline);
     }
 }

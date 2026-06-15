@@ -8,7 +8,7 @@
     --card-box-shadow: var(--panel-shadow);
 }
 
-.card {
+.app-card {
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -20,25 +20,25 @@
     box-shadow: var(--card-box-shadow);
 }
 
-.card-header,
-.card-body,
-.card-footer {
+.app-card-header,
+.app-card-body,
+.app-card-footer {
     padding-inline: var(--card-padding-inline);
 }
 
-.card-header {
+.app-card-header {
     flex: 0 0 auto;
     padding-top: var(--card-padding-block);
 }
 
-.card-body {
+.app-card-body {
     flex: 1 1 auto;
     min-height: 0;
     overflow: auto;
     padding-block: var(--card-padding-block);
 }
 
-.card-footer {
+.app-card-footer {
     flex: 0 0 auto;
     padding-bottom: var(--card-padding-block);
 }

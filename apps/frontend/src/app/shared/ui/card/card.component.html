@@ -1,12 +1,12 @@
 <section
-    [class]="'card ' + styleClass()"
+    [class]="'app-card ' + styleClass()"
     [attr.aria-labelledby]="title() ? titleElementId : null"
     [attr.aria-label]="title() ? null : ariaLabel()"
 >
     @if (hasHeader) {
-        <header class="card-header">
+        <header class="app-card-header">
             @if (title()) {
-                <h3 [id]="titleElementId" class="card-title">{{ title() }}</h3>
+                <h3 [id]="titleElementId" class="app-card-title">{{ title() }}</h3>
             }
             @if (headerTpl) {
                 <ng-container [ngTemplateOutlet]="headerTpl"></ng-container>
@@ -14,12 +14,12 @@
         </header>
     }
 
-    <div class="card-body">
+    <div class="app-card-body">
         <ng-content></ng-content>
     </div>
 
     @if (hasFooter) {
-        <footer class="card-footer">
+        <footer class="app-card-footer">
             <ng-container [ngTemplateOutlet]="footerTpl"></ng-container>
         </footer>
     }
