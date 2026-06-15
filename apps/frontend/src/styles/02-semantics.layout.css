@@ -1,0 +1,38 @@
+:root {
+    --layout-page-max-width: 1280px;
+    --layout-page-padding-block: var(--size-600);
+    --layout-main-gap: var(--size-600);
+
+    --section-padding-block: var(--size-500);
+    --section-padding-inline: var(--size-500);
+    --section-gap: var(--size-500);
+
+    --section-small-padding-block: var(--size-100);
+    --section-small-padding-inline: var(--size-200);
+    --section-small-gap: var(--size-100);
+    --section-small-border-radius: var(--radius-100);
+
+    --section-medium-padding-block: var(--size-300);
+    --section-medium-padding-inline: var(--size-500);
+    --section-medium-gap: var(--size-300);
+    --section-medium-border-radius: var(--radius-200);
+
+    --panel-text-color: var(--text-primary-color);
+    --panel-padding-block: var(--section-padding-block);
+    --panel-padding-inline: var(--section-padding-inline);
+    --panel-gap: var(--section-gap);
+    --panel-background-color: var(--color-gray-800);
+    --panel-border: var(--border-width-thin) var(--border-style) var(--border-color);
+    --panel-border-radius: var(--radius-300);
+    --panel-shadow: 0 1.9rem 5.65rem rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+
+    --panel-small-padding-block: var(--section-small-padding-block);
+    --panel-small-padding-inline: var(--section-small-padding-inline);
+    --panel-small-gap: var(--section-small-gap);
+    --panel-small-border-radius: var(--section-small-border-radius);
+
+    --panel-medium-padding-block: var(--section-medium-padding-block);
+    --panel-medium-padding-inline: var(--section-medium-padding-inline);
+    --panel-medium-gap: var(--section-medium-gap);
+    --panel-medium-border-radius: var(--section-medium-border-radius);
+}
