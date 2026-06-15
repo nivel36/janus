@@ -1,8 +1,8 @@
-.buttons {
+.form-actions {
     margin-left: auto;
     margin-top: 2rem;
 }
 
-.buttons > * + * {
+.form-actions > * + * {
     margin-left: 1rem;
 }

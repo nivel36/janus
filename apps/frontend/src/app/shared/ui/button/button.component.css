@@ -1,3 +1,4 @@
+/* Consumes the public button tokens defined in the global styles/button.css layer. */
 .app-button {
     box-sizing: border-box;
 
