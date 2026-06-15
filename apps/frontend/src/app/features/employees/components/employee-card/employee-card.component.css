@@ -19,7 +19,7 @@
 
 .data {
     display: flex;
-    border-top: var(--surface-border);
+    border-top: var(--panel-border);
     padding-block: var(--section-padding-block);
     justify-content: space-between;
 }

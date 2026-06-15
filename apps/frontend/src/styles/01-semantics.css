@@ -63,6 +63,7 @@
     --control-accent-pressed-background-color: var(--accent-active-color);
     --control-accent-disabled-background-color: var(--accent-muted-color);
     --control-accent-text-color: var(--color-black);
+    --control-accent-disabled-text-color: var(--color-gray-800);
     --control-accent-glow:
         inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 0.5rem 1rem rgba(255, 212, 0, 0.13);
     --control-accent-pressed-glow:

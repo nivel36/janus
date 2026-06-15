@@ -22,7 +22,7 @@
 
 .secondary-action {
     color: var(--text-secondary-color);
-    font-size: var(--text-small-font-size);
+    font-size: var(--text-small-size);
     cursor: pointer;
     background: transparent;
     border: 0px;

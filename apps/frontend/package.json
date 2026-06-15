@@ -8,7 +8,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "lint:styles": "node scripts/validate-css-vars.mjs"
   },
   "prettier": {
     "printWidth": 100,
