@@ -4,15 +4,15 @@
 
     --form-label-gap: var(--size-300);
     --form-label-text-color: var(--text-primary-color);
-    --form-label-font-size: var(--text-body-size);
+    --form-label-font-size: var(--font-size-body);
     --form-label-font-weight: 600;
 
     --form-hint-text-color: var(--text-secondary-color);
-    --form-hint-font-size: var(--text-small-size);
+    --form-hint-font-size: var(--font-size-small);
     --form-hint-font-weight: 300;
 
     --form-error-text-color: var(--color-error-500);
-    --form-error-font-size: var(--text-body-size);
+    --form-error-font-size: var(--font-size-body);
     --form-error-font-weight: 300;
 
     /* form-control      → input text / textarea / select */
@@ -21,7 +21,7 @@
     --form-control-background-color: var(--color-gray-900);
     --form-control-text-color: var(--text-primary-color);
     --form-control-text-accent-color: var(--accent-color);
-    --form-control-text-size: var(--text-body-size);
+    --form-control-text-size: var(--font-size-body);
     --form-control-padding-inline: var(--size-300);
     --form-control-padding-block: 0;
     --form-control-focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
@@ -30,7 +30,7 @@
     /* form-range        → slider */
     --form-range-text-color: var(--color-gray-800);
     --form-range-focus-ring: var(--focus-ring);
-    --form-range-text-size: var(--text-body-size);
+    --form-range-text-size: var(--font-size-body);
     --form-range-text-weight: 800;
 
     --form-range-focus-ring: var(--focus-ring);
@@ -40,7 +40,7 @@
     --form-range-color: var(--accent-color);
 
     --form-range-value-text-color: var(--color-gray-800);
-    --form-range-value-text-size: var(--text-body-size);
+    --form-range-value-text-size: var(--font-size-body);
     --form-range-value-text-weight: 800;
     --form-range-value-background-color: var(--accent-color);
     --form-range-value-border-radius: var(--size-200);

@@ -44,10 +44,10 @@
     --summary-card-icon-font-size: 1.75rem;
     --summary-card-label-letter-spacing: 0.13em;
     --summary-card-value-margin-top: 0.8rem;
-    --summary-card-value-font-size: var(--text-big-size);
+    --summary-card-value-font-size: var(--font-size-heading-2);
 
     --table-section-gap: var(--section-medium-gap);
-    --table-section-title-font-size: var(--h2-font-size);
+    --table-section-title-font-size: var(--font-size-heading-2);
     --table-section-title-color: var(--accent-color);
     --table-section-table-background-color: var(--panel-background-color);
     --table-section-table-border-radius: var(--panel-border-radius);
@@ -56,7 +56,7 @@
     --table-section-header-cell-padding-inline: var(--panel-padding-inline);
     --table-section-header-cell-padding-block: var(--panel-padding-block);
     --table-section-header-cell-letter-spacing: 0.12em;
-    --table-section-header-cell-font-size: var(--text-small-size);
+    --table-section-header-cell-font-size: var(--font-size-small);
     --table-section-body-cell-padding-inline: var(--panel-padding-inline);
     --table-section-body-cell-padding-block: var(--panel-medium-padding-block);
     --table-section-row-odd-background-color: var(--list-background-color-odd);

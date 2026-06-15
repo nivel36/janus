@@ -39,7 +39,7 @@
 
 .paginator-text {
     color: var(--text-secondary-color);
-    font-size: var(--text-small-size);
+    font-size: var(--font-size-small);
     letter-spacing: 0.04em;
     font-weight: 600;
 }

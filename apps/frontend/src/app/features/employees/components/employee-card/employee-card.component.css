@@ -5,7 +5,7 @@
 }
 
 .employee-card-title {
-    font-size: var(--h3-font-size);
+    font-size: var(--font-size-large);
     color: var(--text-primary-color);
     font-weight: 600;
 }
