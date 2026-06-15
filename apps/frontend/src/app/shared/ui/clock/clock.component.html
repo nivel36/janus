@@ -1,4 +1,10 @@
-<time class="clock-time" [attr.datetime]="isoDateTime">
-    <span class="visually-hidden">{{ clock.currentTime }}: </span>
+<time
+    class="clock-time"
+    [attr.datetime]="isoDateTime"
+    role="timer"
+    aria-live="off"
+    aria-atomic="true"
+    [attr.aria-label]="ariaLabel()"
+>
     {{ time }}
 </time>
