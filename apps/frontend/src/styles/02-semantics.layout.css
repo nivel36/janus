@@ -21,10 +21,8 @@
     --panel-padding-block: var(--section-padding-block);
     --panel-padding-inline: var(--section-padding-inline);
     --panel-gap: var(--section-gap);
-    --panel-background-color: var(--color-gray-800);
     --panel-border: var(--border-width-thin) var(--border-style) var(--border-color);
     --panel-border-radius: var(--radius-300);
-    --panel-shadow: 0 1.9rem 5.65rem rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.045);
 
     --panel-small-padding-block: var(--section-small-padding-block);
     --panel-small-padding-inline: var(--section-small-padding-inline);
@@ -39,17 +37,13 @@
     --summary-card-padding-block: var(--font-size-350);
     --summary-card-padding-inline: 1.45rem;
     --summary-card-border-radius: 22px;
-    --summary-card-background-color: rgba(255, 255, 255, 0.06);
     --summary-card-icon-size: 3.7rem;
     --summary-card-icon-margin-bottom: 1.3rem;
     --summary-card-icon-border-radius: 50%;
-    --summary-card-icon-background-color: rgba(255, 255, 255, 0.08);
     --summary-card-icon-color: var(--accent-color);
     --summary-card-icon-font-size: 1.75rem;
-    --summary-card-label-color: rgba(249, 249, 249, 0.72);
     --summary-card-label-letter-spacing: 0.13em;
     --summary-card-value-margin-top: 0.8rem;
-    --summary-card-value-color: var(--color-white);
     --summary-card-value-font-size: var(--text-big-size);
 
     --table-section-gap: var(--section-medium-gap);
