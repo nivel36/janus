@@ -16,13 +16,13 @@
 
 .clock-in {
     color: var(--text-primary-color);
-    font-size: var(--text-large-size);
+    font-size: var(--font-size-large);
     font-weight: 600;
 }
 
 .secondary-action {
     color: var(--text-secondary-color);
-    font-size: var(--text-small-size);
+    font-size: var(--font-size-small);
     cursor: pointer;
     background: transparent;
     border: 0px;

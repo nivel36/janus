@@ -41,7 +41,7 @@
     display: flex;
     align-items: center;
     color: var(--accent-strong-color);
-    font-size: var(--text-body-size);
+    font-size: var(--font-size-body);
     font-weight: 600;
     letter-spacing: 0.04em;
     white-space: nowrap;
@@ -57,7 +57,7 @@
     align-items: center;
     justify-content: center;
     color: var(--text-secondary-color);
-    font-size: var(--text-large-size);
+    font-size: var(--font-size-large);
     background: transparent;
     border-left: var(--panel-border);
     font-weight: 600;

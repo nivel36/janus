@@ -16,7 +16,7 @@
     border-right: var(--panel-border);
     background: transparent;
     color: var(--text-primary-color);
-    font-size: var(--text-small-size);
+    font-size: var(--font-size-small);
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;

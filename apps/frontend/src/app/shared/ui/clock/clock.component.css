@@ -1,4 +1,4 @@
 .clock-time {
-    font-size: var(--text-giant-size);
+    font-size: var(--font-size-900);
     color: var(--accent-color);
 }
