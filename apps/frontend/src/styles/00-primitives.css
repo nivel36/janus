@@ -54,6 +54,18 @@
     --color-warning-500: #f59e0b;
     --color-info-500: #38bdf8;
 
+    --color-black-alpha-35: rgba(0, 0, 0, 0.35);
+    --color-white-alpha-06: rgba(255, 255, 255, 0.06);
+    --color-white-alpha-10: rgba(255, 255, 255, 0.1);
+    --color-white-alpha-12: rgba(255, 255, 255, 0.12);
+    --color-error-soft: #ff8a8a;
+    --color-error-soft-alpha-12: rgba(255, 87, 87, 0.12);
+    --color-primary-focus-alpha-30: rgba(249, 214, 0, 0.3);
+    --color-success-muted-alpha-16: rgba(104, 135, 72, 0.16);
+    --color-error-muted-alpha-16: rgba(187, 53, 53, 0.16);
+    --color-success-muted-text: #3baa37;
+    --color-error-muted-text: #d24444;
+
     --size-100: 0.25rem;
     --size-200: 0.5rem;
     --size-300: 0.875rem;

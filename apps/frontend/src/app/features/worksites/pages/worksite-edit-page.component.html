@@ -1,5 +1,5 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="worksite.edit">
-    <div pageContent class="page-content worksite-create-content">
+    <div pageContent class="app-page-content worksite-create-content">
         <section class="app-card worksites-card">
             <div class="app-card-body worksites-card-body">
                 @if (loading) {
@@ -100,7 +100,7 @@
                             <p class="message error">{{ errorMessage | translate }}</p>
                         }
 
-                        <div class="form-actions">
+                        <div class="app-form-actions">
                             <app-button type="button" variant="secondary" (clicked)="cancel()">
                                 {{ 'actions.cancel' | translate }}
                             </app-button>

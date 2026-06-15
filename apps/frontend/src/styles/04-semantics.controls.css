@@ -1,6 +1,6 @@
 :root {
-    --chip-background-color: #f9d600;
-    --chip-text-color: #131313;
+    --chip-background-color: var(--color-primary-500);
+    --chip-text-color: var(--color-gray-800);
     --chip-padding-block: 0.4rem;
     --chip-padding-inline: 0.75rem;
     --chip-border-radius: 0.35rem;
@@ -17,14 +17,14 @@
     --chip-big-font-size: 0.95rem;
     --chip-big-icon-size: var(--chip-big-font-size);
     --chip-big-gap: 0.45rem;
-    --chip-primary-background-color: #7f06a5;
+    --chip-primary-background-color: var(--color-secondary-500);
     --chip-primary-text-color: var(--color-white);
-    --chip-secondary-background-color: #1431a9;
+    --chip-secondary-background-color: var(--color-tertiary-700);
     --chip-secondary-text-color: var(--color-white);
-    --chip-tertiary-background-color: #615300;
+    --chip-tertiary-background-color: var(--color-primary-900);
     --chip-tertiary-text-color: var(--color-white);
-    --chip-success-background-color: rgba(104, 135, 72, 0.16);
-    --chip-success-text-color: #3baa37;
-    --chip-error-background-color: rgba(187, 53, 53, 0.16);
-    --chip-error-text-color: #d24444;
+    --chip-success-background-color: var(--color-success-muted-alpha-16);
+    --chip-success-text-color: var(--color-success-muted-text);
+    --chip-error-background-color: var(--color-error-muted-alpha-16);
+    --chip-error-text-color: var(--color-error-muted-text);
 }

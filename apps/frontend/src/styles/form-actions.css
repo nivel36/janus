@@ -1,8 +1,8 @@
-.form-actions {
+.app-form-actions {
     margin-left: auto;
     margin-top: 2rem;
 }
 
-.form-actions > * + * {
+.app-form-actions > * + * {
     margin-left: 1rem;
 }

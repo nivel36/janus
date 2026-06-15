@@ -1,4 +1,4 @@
-.form {
+.app-form {
     padding-block: var(--panel-padding-block);
     padding-inline: var(--panel-padding-inline);
     display: flex;

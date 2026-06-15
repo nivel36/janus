@@ -18,7 +18,7 @@
     font-weight: 600;
 }
 
-.app-table-section .table {
+.app-table-section .app-table {
     width: 100%;
     background-color: var(--table-section-table-background-color);
     border-radius: var(--table-section-table-border-radius);
@@ -28,28 +28,28 @@
     overflow: hidden;
 }
 
-.app-table-section .table thead {
+.app-table-section .app-table thead {
     background-color: var(--table-section-table-background-color);
 }
 
-.app-table-section .table tbody tr td {
+.app-table-section .app-table tbody tr td {
     overflow: hidden;
 }
 
-.app-table-section .table tbody tr:first-child td {
+.app-table-section .app-table tbody tr:first-child td {
     border-top: var(--table-section-table-border);
 }
 
-.app-table-section .table tbody tr:first-child td:first-child {
+.app-table-section .app-table tbody tr:first-child td:first-child {
     border-top-left-radius: var(--table-section-table-border-radius);
 }
 
-.app-table-section .table tbody tr:first-child td:last-child {
+.app-table-section .app-table tbody tr:first-child td:last-child {
     border-collapse: separate;
     border-top-right-radius: var(--table-section-table-border-radius);
 }
 
-.app-table-section .table th {
+.app-table-section .app-table th {
     padding-inline: var(--table-section-header-cell-padding-inline);
     padding-block: var(--table-section-header-cell-padding-block);
     text-align: left;
@@ -59,21 +59,21 @@
     font-weight: 600;
 }
 
-.app-table-section .table td {
+.app-table-section .app-table td {
     padding-inline: var(--table-section-body-cell-padding-inline);
     padding-block: var(--table-section-body-cell-padding-block);
     text-align: left;
 }
 
-.app-table-section .table tbody tr:nth-child(odd) {
+.app-table-section .app-table tbody tr:nth-child(odd) {
     background-color: var(--table-section-row-odd-background-color);
 }
 
-.app-table-section .table tbody tr:nth-child(even) {
+.app-table-section .app-table tbody tr:nth-child(even) {
     background-color: var(--table-section-row-even-background-color);
 }
 
-.app-table-section .table tbody tr:hover {
+.app-table-section .app-table tbody tr:hover {
     background-color: var(--table-section-row-hover-background-color);
     overflow: hidden;
 }
@@ -91,8 +91,8 @@
         align-items: flex-start;
     }
 
-    .app-table-section .table th,
-    .app-table-section .table td {
+    .app-table-section .app-table th,
+    .app-table-section .app-table td {
         padding: var(--table-section-compact-cell-padding-block) var(--table-section-compact-cell-padding-inline);
     }
 }

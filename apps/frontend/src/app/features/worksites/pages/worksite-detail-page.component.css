@@ -39,7 +39,7 @@
     gap: 1.5rem;
     align-items: center;
     min-height: 4.15rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--color-white-alpha-10);
 }
 
 .detail-row:last-child {
@@ -47,7 +47,7 @@
 }
 
 .detail-row dt {
-    color: rgba(249, 249, 249, 0.72);
+    color: var(--summary-card-label-color);
     font-weight: 900;
     letter-spacing: 0.11em;
     text-transform: uppercase;
@@ -56,7 +56,7 @@
 .detail-row dd {
     min-width: 0;
     margin: 0;
-    color: #ffffff;
+    color: var(--color-white);
     font-size: 1.05rem;
     overflow-wrap: anywhere;
 }
@@ -81,12 +81,12 @@
 .worksite-detail-message {
     padding: 1rem 1.5rem;
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--color-white-alpha-06);
 }
 
 .worksite-detail-message.error {
-    background: rgba(255, 87, 87, 0.12);
-    color: #ff8a8a;
+    background: var(--color-error-soft-alpha-12);
+    color: var(--color-error-soft);
 }
 
 @media (max-width: 900px) {
