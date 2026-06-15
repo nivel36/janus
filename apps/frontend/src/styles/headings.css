@@ -33,6 +33,6 @@ h3 {
     font-weight: 600;
 }
 
-.visually-hidden-title {
+.app-visually-hidden-title {
     visibility: hidden;
 }

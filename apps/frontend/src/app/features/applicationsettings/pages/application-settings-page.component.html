@@ -1,8 +1,8 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.applicationSettings">
-    <div pageContent class="page-content settings-content">
+    <div pageContent class="app-page-content settings-content">
         <section class="app-card settings-card">
             <div class="app-card-body settings-card-body">
-                <form class="form" [formGroup]="form" (ngSubmit)="save()">
+                <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
                     <app-range-slider-field
                         inputId="daysUntilLocked"
                         formControlName="daysUntilLocked"
@@ -62,7 +62,7 @@
                         <p class="message error">{{ errorMessage | translate }}</p>
                     }
 
-                    <div class="form-actions">
+                    <div class="app-form-actions">
                         <app-button type="button" variant="secondary" (clicked)="cancel()">
                             {{ 'actions.cancel' | translate }}
                         </app-button>

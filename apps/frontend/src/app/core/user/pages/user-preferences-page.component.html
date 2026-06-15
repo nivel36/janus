@@ -1,8 +1,8 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.userPreferences">
-    <div pageContent class="page-content preferences-content">
+    <div pageContent class="app-page-content preferences-content">
         <section class="app-card preferences-card">
             <div class="app-card-body preferences-card-body">
-                <form class="form" [formGroup]="form" (ngSubmit)="save()">
+                <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
                     <app-select-field
                         inputId="preferences-locale"
                         formControlName="locale"
@@ -40,7 +40,7 @@
                         <p class="message error">{{ errorMessage | translate }}</p>
                     }
 
-                    <div class="form-actions">
+                    <div class="app-form-actions">
                         <app-button type="button" variant="secondary" (clicked)="cancel()">
                             {{ 'actions.cancel' | translate }}
                         </app-button>

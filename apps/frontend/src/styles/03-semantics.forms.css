@@ -75,7 +75,7 @@
         var(--form-switch-width) - var(--form-switch-knob-size) - (var(--form-switch-padding) * 2)
     );
     --form-switch-checked-knob-background-color: var(--color-gray-800);
-    --form-switch-knob-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.35);
+    --form-switch-knob-shadow: 0 0.2rem 0.5rem var(--color-black-alpha-35);
 
 
     --search-bar-background-color: var(--form-control-background-color);
@@ -86,7 +86,7 @@
     --search-bar-border-style: var(--border-style);
     --search-bar-border: var(--search-bar-border-width) var(--search-bar-border-style) var(--search-bar-accent-color);
     --search-bar-border-radius: var(--form-control-border-radius);
-    --search-bar-focus-ring: 0 0 0 var(--focus-ring-width) rgba(249, 214, 0, 0.3);
+    --search-bar-focus-ring: 0 0 0 var(--focus-ring-width) var(--color-primary-focus-alpha-30);
     --search-bar-padding-block: 0.625rem;
     --search-bar-padding-inline: 0.75rem;
     --search-bar-font-size: 0.95rem;
@@ -99,9 +99,9 @@
     --autocomplete-results-max-height: 14rem;
     --autocomplete-results-padding-block: var(--size-100);
     --autocomplete-results-padding-inline: 0;
-    --autocomplete-results-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.35);
+    --autocomplete-results-shadow: 0 1rem 2rem var(--color-black-alpha-35);
     --autocomplete-result-padding-block: var(--size-200);
     --autocomplete-result-padding-inline: 0.75rem;
 
-    /* form-actions      → buttons */
+    /* app-form-actions      → buttons */
 }
