@@ -1,18 +1,30 @@
 .worksite-detail-content {
-    width: 100%;
-    display: flex;
     flex-direction: column;
-    color: #f9f9f9;
-}
-
-.worksite-panel-title {
-    text-transform: uppercase;
 }
 
 .worksite-detail-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 1.55rem;
+    gap: var(--layout-main-gap);
+    grid-template-areas:
+        'header header'
+        'general sumary';
+}
+
+#header {
+    grid-area: header;
+}
+
+#general {
+    grid-area: general;
+}
+
+#summary {
+    grid-area: sumary;
+}
+
+.worksite-panel-title {
+    text-transform: uppercase;
 }
 
 .detail-list {
@@ -80,6 +92,10 @@
 @media (max-width: 900px) {
     .worksite-detail-grid {
         grid-template-columns: 1fr;
+        grid-template-areas:
+            'header'
+            'general'
+            'sumary';
     }
 }
 

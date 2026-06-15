@@ -11,12 +11,13 @@
         } @else if (worksite(); as worksite) {
             <app-tabs>
                 <ng-template [appTabItem]="'worksite.tabs.general' | translate">
-                    <app-worsite-detail-header
-                        [worksite]="worksite"
-                    ></app-worsite-detail-header>
-
                     <div class="worksite-detail-grid">
-                        <app-card styleClass="worksite-panel">
+                        <app-worsite-detail-header
+                            id="header"
+                            [worksite]="worksite"
+                        ></app-worsite-detail-header>
+
+                        <app-card id="general" styleClass="worksite-panel">
                             <h3 class="worksite-panel-title">
                                 {{ 'worksite.sections.generalInformation' | translate }}
                             </h3>
@@ -60,11 +61,11 @@
                             </dl>
                         </app-card>
 
-                        <app-card styleClass="worksite-panel">
-                            <h3 class="worksite-panel-title">
-                                {{ 'worksite.sections.summary' | translate }}
-                            </h3>
-
+                        <app-card
+                            id="summary"
+                            styleClass="worksite-panel worksite-panel-summary"
+                            title="{{ 'worksite.sections.summary' | translate }}"
+                        >
                             <div class="summary-grid">
                                 <app-summary-card
                                     [icon]="faUsers"
