@@ -33,13 +33,13 @@
 
 .paginator-button:not(:disabled):focus-visible {
     color: var(--accent-hover-color);
-    outline: 2px solid var(--color-focus-ring);
+    outline: 2px solid var(--focus-ring-color);
     outline-offset: 2px;
 }
 
 .paginator-text {
     color: var(--text-secondary-color);
-    font-size: var(--text-small-font-size);
+    font-size: var(--text-small-size);
     letter-spacing: 0.04em;
     font-weight: 600;
 }

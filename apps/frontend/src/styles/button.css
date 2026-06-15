@@ -8,11 +8,13 @@
     --button-font-size: var(--text-body-size);
     --button-font-weight: 600;
     --button-height: var(--size-800);
+    --button-size: var(--button-height);
     --button-border: 0;
 
     --button-icon-padding: 0;
     --button-icon-min-width: 0;
     --button-icon-font-size: var(--text-large-size);
+    --button-icon-border-radius: var(--button-border-radius);
 
     --button-primary-background-color: var(--control-accent-background-color);
     --button-primary-hover-background-color: var(--control-accent-hover-background-color);

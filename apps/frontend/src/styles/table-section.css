@@ -24,7 +24,7 @@
     border-radius: var(--panel-border-radius);
     border: var(--panel-border);
     border-collapse: separate;
-    box-shadow: var(--panel-box-shadow);
+    box-shadow: var(--panel-shadow);
     overflow: hidden;
 }
 
@@ -55,7 +55,7 @@
     text-align: left;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    font-size: var(--text-small-font-size);
+    font-size: var(--text-small-size);
     font-weight: 600;
 }
 
