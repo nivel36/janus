@@ -1,14 +1,5 @@
 :host {
     display: block;
-
-    --bg: #050505;
-    --fg: #f9f9f9;
-    --muted-fg: #b3b3b3;
-    --accent: #fece0b;
-    --border-muted: #2f2f2f;
-
-    --radius: 0.5rem;
-    --focus-ring: 0 0 0 2px rgba(249, 214, 0, 0.3);
 }
 
 .search-bar {
@@ -20,34 +11,34 @@
     width: 100%;
     overflow: hidden;
 
-    border: 1px solid var(--accent);
-    border-radius: var(--radius);
+    border: var(--search-bar-border);
+    border-radius: var(--search-bar-border-radius);
 
-    background: var(--bg);
+    background: var(--search-bar-background-color);
 
     transition: box-shadow 0.2s ease;
 }
 
 .search-bar:focus-within {
-    box-shadow: var(--focus-ring);
+    box-shadow: var(--search-bar-focus-ring);
 }
 
 .search-bar input {
     flex: 1 1 auto;
     min-width: 0;
 
-    padding: 0.625rem 0.75rem;
+    padding: var(--search-bar-padding-block) var(--search-bar-padding-inline);
     border: 0;
     outline: 0;
 
     background: transparent;
-    color: var(--fg);
+    color: var(--search-bar-text-color);
 
-    font-size: 0.95rem;
+    font-size: var(--search-bar-font-size);
 }
 
 .search-bar input::placeholder {
-    color: var(--muted-fg);
+    color: var(--search-bar-placeholder-color);
 }
 
 .search-icon {
