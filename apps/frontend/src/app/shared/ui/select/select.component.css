@@ -1,3 +1,9 @@
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
 .select {
     position: relative;
     width: 100%;
