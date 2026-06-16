@@ -6,6 +6,14 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { FieldComponent } from '../field/field.component';
 import { createUuid } from '../../utils/uuid.utils';
 
+const noopToggleChange = (value: boolean): void => {
+  void value;
+};
+
+const noopTouched = (): void => {
+  void undefined;
+};
+
 @Component({
   selector: 'app-toggle-button-field',
   standalone: true,
@@ -58,12 +66,12 @@ export class ToggleButtonFieldComponent implements ControlValueAccessor {
   /**
    * Callback invoked by Angular forms when the control value changes.
    */
-  private onChange: (value: boolean) => void = () => {};
+  private onChange: (value: boolean) => void = noopToggleChange;
 
   /**
    * Callback invoked by Angular forms when the control is marked as touched.
    */
-  private onTouched: () => void = () => {};
+  private onTouched: () => void = noopTouched;
 
   /**
    * Receives a value from the form model and normalizes it to a boolean.

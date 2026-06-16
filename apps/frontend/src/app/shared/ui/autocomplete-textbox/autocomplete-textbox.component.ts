@@ -46,6 +46,14 @@ import {
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SearchMethod } from '../../types/search.types';
 
+const noopAutocompleteChange = (value: string | null): void => {
+  void value;
+};
+
+const noopTouched = (): void => {
+  void undefined;
+};
+
 /**
  * Visual state of the autocomplete panel.
  *
@@ -389,12 +397,12 @@ export class AutocompleteTextboxComponent<T = unknown>
   /**
    * Callback registered by Angular Forms to propagate value changes.
    */
-  private onChange: (value: string | null) => void = () => {};
+  private onChange: (value: string | null) => void = noopAutocompleteChange;
 
   /**
    * Callback registered by Angular Forms to mark the control as touched.
    */
-  private onTouched: () => void = () => {};
+  private onTouched: () => void = noopTouched;
 
   /**
    * Creates the component and registers cleanup logic for global listeners.
