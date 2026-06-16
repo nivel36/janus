@@ -19,22 +19,42 @@
                         required
                     />
 
-                    <app-autocomplete-textbox-field
-                        inputId="preferences-timezone"
-                        formControlName="defaultTimezone"
+                    <app-field
+                        controlId="preferences-timezone"
                         [label]="'userPreferences.fields.defaultTimezone' | translate"
-                        [searchMethod]="searchMethod"
-                        [displayWith]="timezoneDisplayWith"
-                        [valueWith]="timezoneValueWith"
-                        [resolveByValue]="resolveTimezoneByValue"
-                        [emptyHint]="'userPreferences.fields.defaultTimezoneHint' | translate"
                         [error]="
-                            form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
+                            form.controls.defaultTimezone.touched &&
+                            form.controls.defaultTimezone.invalid
                                 ? ('userPreferences.errors.invalidTimezone' | translate)
                                 : ''
                         "
+                        [invalid]="
+                            form.controls.defaultTimezone.touched &&
+                            form.controls.defaultTimezone.invalid
+                        "
                         required
-                    />
+                    >
+                        <app-autocomplete-textbox
+                            inputId="preferences-timezone"
+                            formControlName="defaultTimezone"
+                            [searchMethod]="searchMethod"
+                            [displayWith]="timezoneDisplayWith"
+                            [valueWith]="timezoneValueWith"
+                            [resolveByValue]="resolveTimezoneByValue"
+                            [emptyHint]="'userPreferences.fields.defaultTimezoneHint' | translate"
+                            ariaLabelledBy="preferences-timezone-label"
+                            [ariaDescribedBy]="
+                                form.controls.defaultTimezone.touched &&
+                                form.controls.defaultTimezone.invalid
+                                    ? 'preferences-timezone-error'
+                                    : null
+                            "
+                            [ariaInvalid]="
+                                form.controls.defaultTimezone.touched &&
+                                form.controls.defaultTimezone.invalid
+                            "
+                        />
+                    </app-field>
 
                     @if (errorMessage) {
                         <p class="message error">{{ errorMessage | translate }}</p>

@@ -14,7 +14,8 @@ import {
   createTimezoneCatalog,
   resolveTimezoneByZoneId,
 } from '../../../shared/utils/timezone-catalog.util';
-import { AutocompleteTextboxFieldComponent } from '../../../shared/ui/autocomplete-textbox-field/autocomplete-textbox-field.component';
+import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { FieldComponent } from '../../../shared/ui/field/field.component';
 import {
   SelectFieldComponent,
   SelectOption,
@@ -47,8 +48,9 @@ import { TimeFormat } from '../services/user-profile-api.service';
   imports: [
     ReactiveFormsModule,
     TranslatePipe,
-    AutocompleteTextboxFieldComponent,
+    AutocompleteTextboxComponent,
     ButtonComponent,
+    FieldComponent,
     SelectFieldComponent,
     PageTemplateComponent,
   ],

@@ -46,22 +46,36 @@
                         required
                     />
 
-                    <app-autocomplete-textbox-field
-                        inputId="worksite-timezone"
-                        formControlName="timeZone"
+                    <app-field
+                        controlId="worksite-timezone"
                         [label]="'worksite.timeZone' | translate"
-                        [searchMethod]="searchMethod"
-                        [displayWith]="timezoneDisplayWith"
-                        [valueWith]="timezoneValueWith"
-                        [resolveByValue]="resolveTimezoneByValue"
-                        [emptyHint]="'worksite.fields.timeZoneHint' | translate"
                         [error]="
                             form.controls.timeZone.touched && form.controls.timeZone.invalid
                                 ? ('worksite.errors.invalidTimezone' | translate)
                                 : ''
                         "
+                        [invalid]="form.controls.timeZone.touched && form.controls.timeZone.invalid"
                         required
-                    />
+                    >
+                        <app-autocomplete-textbox
+                            inputId="worksite-timezone"
+                            formControlName="timeZone"
+                            [searchMethod]="searchMethod"
+                            [displayWith]="timezoneDisplayWith"
+                            [valueWith]="timezoneValueWith"
+                            [resolveByValue]="resolveTimezoneByValue"
+                            [emptyHint]="'worksite.fields.timeZoneHint' | translate"
+                            ariaLabelledBy="worksite-timezone-label"
+                            [ariaDescribedBy]="
+                                form.controls.timeZone.touched && form.controls.timeZone.invalid
+                                    ? 'worksite-timezone-error'
+                                    : null
+                            "
+                            [ariaInvalid]="
+                                form.controls.timeZone.touched && form.controls.timeZone.invalid
+                            "
+                        />
+                    </app-field>
 
                     <app-text-field
                         inputId="worksite-address"
