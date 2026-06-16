@@ -1,0 +1,14 @@
+<input
+    [id]="controlId"
+    type="text"
+    [value]="value"
+    [disabled]="disabled"
+    [required]="required()"
+    [attr.autocomplete]="autocomplete()"
+    [attr.aria-describedby]="ariaDescribedBy()"
+    [attr.aria-labelledby]="ariaLabelledBy()"
+    [attr.aria-invalid]="ariaInvalid() ? 'true' : null"
+    [attr.aria-errormessage]="ariaErrorMessage()"
+    (input)="onInput($event)"
+    (blur)="markTouched()"
+/>
