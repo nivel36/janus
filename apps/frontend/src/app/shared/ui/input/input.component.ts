@@ -1,66 +1,47 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import {
-  booleanAttribute,
-  Component,
-  computed,
-  forwardRef,
-  input,
-} from '@angular/core';
+import { booleanAttribute, Component, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { createUuid } from '../../utils/uuid.utils';
-import { FieldComponent } from '../field/field.component';
 
 /**
- * Text input wrapped in an application field with Angular Forms support.
+ * Native text input with Angular Forms support.
  */
 @Component({
-  selector: 'app-text-field',
+  selector: 'app-input',
   standalone: true,
-  imports: [FieldComponent],
-  templateUrl: './text-field.component.html',
-  styleUrl: './text-field.component.css',
+  templateUrl: './input.component.html',
+  styleUrl: './input.component.css',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => TextFieldComponent),
+      useExisting: forwardRef(() => InputComponent),
       multi: true,
     },
   ],
 })
-export class TextFieldComponent implements ControlValueAccessor {
-  readonly label = input.required<string>();
-  readonly hint = input<string>('');
-  readonly error = input<string>('');
+export class InputComponent implements ControlValueAccessor {
   readonly autocomplete = input<string>('off');
   readonly required = input(false, { transform: booleanAttribute });
   readonly inputId = input<string>();
+  readonly ariaDescribedBy = input<string | null>(null);
+  readonly ariaLabelledBy = input<string | null>(null);
+  readonly ariaInvalid = input(false, { transform: booleanAttribute });
+  readonly ariaErrorMessage = input<string | null>(null);
 
-  private readonly generatedInputId = `text-field-${createUuid()}`;
-
-  readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);
-
-  readonly describedBy = computed(() => {
-    const ids: string[] = [];
-
-    if (this.hint() && !this.error()) {
-      ids.push(`${this.controlId()}-hint`);
-    }
-
-    if (this.error()) {
-      ids.push(`${this.controlId()}-error`);
-    }
-
-    return ids.length ? ids.join(' ') : null;
-  });
+  private readonly generatedInputId = `input-${createUuid()}`;
 
   value = '';
   disabled = false;
 
   private onChange: (value: string) => void = () => undefined;
   private onTouched: () => void = () => undefined;
+
+  get controlId(): string {
+    return this.inputId() ?? this.generatedInputId;
+  }
 
   writeValue(value: string | null): void {
     this.value = value ?? '';
