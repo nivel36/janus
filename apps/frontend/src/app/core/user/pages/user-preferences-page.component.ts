@@ -16,10 +16,7 @@ import {
 } from '../../../shared/utils/timezone-catalog.util';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { FieldComponent } from '../../../shared/ui/field/field.component';
-import {
-  SelectFieldComponent,
-  SelectOption,
-} from '../../../shared/ui/select-field/select-field.component';
+import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { UserPreferences } from '../models/user-preferences';
 import { CurrentUserFacade } from '../services/current-user.facade';
@@ -51,7 +48,7 @@ import { TimeFormat } from '../services/user-profile-api.service';
     AutocompleteTextboxComponent,
     ButtonComponent,
     FieldComponent,
-    SelectFieldComponent,
+    SelectComponent,
     PageTemplateComponent,
   ],
   templateUrl: './user-preferences-page.component.html',

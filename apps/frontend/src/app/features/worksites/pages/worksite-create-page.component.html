@@ -38,13 +38,18 @@
                         required
                     />
 
-                    <app-select-field
-                        inputId="worksite-scope"
-                        formControlName="scope"
+                    <app-field
+                        controlId="worksite-scope"
                         [label]="'worksite.scope' | translate"
-                        [options]="scopeOptions"
                         required
-                    />
+                    >
+                        <app-select
+                            inputId="worksite-scope"
+                            formControlName="scope"
+                            [options]="scopeOptions"
+                            required
+                        />
+                    </app-field>
 
                     <app-field
                         controlId="worksite-timezone"

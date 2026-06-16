@@ -7,8 +7,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { FieldComponent } from '../field/field.component';
-import { SelectFieldComponent } from './select-field.component';
+import { SelectComponent } from './select.component';
 
 @Pipe({
   name: 'translate',
@@ -23,18 +22,17 @@ class MockTranslatePipe implements PipeTransform {
 @Component({
   template: `
     <form [formGroup]="form">
-      <app-select-field
+      <app-select
         formControlName="locale"
-        label="Language"
-        hint="Select a language"
         inputId="preferences-locale"
+        ariaDescribedBy="preferences-locale-hint"
         required
         [options]="options"
       />
     </form>
   `,
   standalone: true,
-  imports: [ReactiveFormsModule, SelectFieldComponent],
+  imports: [ReactiveFormsModule, SelectComponent],
 })
 class TestHostComponent {
   readonly options = [
@@ -47,7 +45,7 @@ class TestHostComponent {
   });
 }
 
-describe('SelectFieldComponent (ControlValueAccessor)', () => {
+describe('SelectComponent (ControlValueAccessor)', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let host: TestHostComponent;
 
@@ -55,9 +53,9 @@ describe('SelectFieldComponent (ControlValueAccessor)', () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
     })
-      .overrideComponent(SelectFieldComponent, {
+      .overrideComponent(SelectComponent, {
         set: {
-          imports: [FieldComponent, MockTranslatePipe],
+          imports: [MockTranslatePipe],
         },
       })
       .compileComponents();
@@ -71,10 +69,7 @@ describe('SelectFieldComponent (ControlValueAccessor)', () => {
     return fixture.debugElement.query(By.css('select')).nativeElement;
   }
 
-  it('should associate the field label with the native select', () => {
-    const label: HTMLLabelElement = fixture.debugElement.query(By.css('label')).nativeElement;
-
-    expect(label.htmlFor).toBe('preferences-locale');
+  it('should assign the input id to the native select', () => {
     expect(getSelect().id).toBe('preferences-locale');
   });
 

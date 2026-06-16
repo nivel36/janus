@@ -1,0 +1,22 @@
+<div class="select" [class.disabled]="disabled">
+    <select
+        #nativeSelect
+        [id]="inputId()"
+        [disabled]="disabled"
+        [required]="required()"
+        [attr.aria-describedby]="ariaDescribedBy()"
+        [attr.aria-invalid]="ariaInvalid() ? 'true' : null"
+        [attr.aria-errormessage]="ariaInvalid() ? inputId() + '-error' : null"
+        [value]="value ?? ''"
+        (change)="onSelectionChange($event)"
+        (blur)="markTouched()"
+    >
+        @for (option of options(); track option.value) {
+            <option [value]="option.value">
+                {{ option.labelKey | translate }}
+            </option>
+        }
+    </select>
+
+    <span class="arrow" aria-hidden="true">▾</span>
+</div>
