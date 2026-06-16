@@ -3,15 +3,20 @@
         <section class="app-card settings-card">
             <div class="app-card-body settings-card-body">
                 <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
-                    <app-range-slider-field
-                        inputId="daysUntilLocked"
-                        formControlName="daysUntilLocked"
+                    <app-field
+                        controlId="daysUntilLocked"
                         [label]="'applicationSettings.fields.daysUntilLocked' | translate"
-                        [min]="0"
-                        [max]="daysUntilLockedSliderMax"
-                        [step]="1"
                         required
-                    />
+                    >
+                        <app-range-slider
+                            inputId="daysUntilLocked"
+                            formControlName="daysUntilLocked"
+                            [min]="0"
+                            [max]="daysUntilLockedSliderMax"
+                            [step]="1"
+                            required
+                        />
+                    </app-field>
 
                     <app-toggle-button-field
                         inputId="employeeWorkplaceCreationAllowed"

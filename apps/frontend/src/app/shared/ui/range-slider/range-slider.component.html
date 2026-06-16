@@ -1,0 +1,28 @@
+<div class="range-slider">
+    <span class="range-slider__value">{{ value }}{{ unit() ? ' ' + unit() : '' }}</span>
+
+    <div class="range-slider__track-wrapper">
+        <input
+            [id]="controlId()"
+            type="range"
+            class="range-slider__input"
+            [min]="min()"
+            [max]="max()"
+            [step]="step()"
+            [value]="value"
+            [disabled]="disabled"
+            [required]="required()"
+            [attr.aria-describedby]="describedBy()"
+            [attr.aria-invalid]="ariaInvalid() ? 'true' : null"
+            [attr.aria-errormessage]="ariaErrorMessage()"
+            [attr.aria-valuemin]="min()"
+            [attr.aria-valuemax]="max()"
+            [attr.aria-valuenow]="value"
+            [attr.aria-valuetext]="valueText"
+            [style.--progress]="progressPercent + '%'"
+            [style.--progress-value]="progressPercent"
+            (input)="onInput($event)"
+            (blur)="onBlur()"
+        />
+    </div>
+</div>
