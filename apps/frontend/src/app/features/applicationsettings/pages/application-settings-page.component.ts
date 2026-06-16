@@ -15,7 +15,7 @@ import {
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../shared/ui/field/field.component';
-import { RangeSliderFieldComponent } from '../../../shared/ui/range-slider-field/range-slider-field.component';
+import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
 import { ToggleButtonFieldComponent } from '../../../shared/ui/toggle-button-field/toggle-button-field.component';
 import { ApplicationSettings } from '../models/application-settings';
 import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
@@ -29,7 +29,7 @@ import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util'
     TranslatePipe,
     AutocompleteTextboxComponent,
     FieldComponent,
-    RangeSliderFieldComponent,
+    RangeSliderComponent,
     ToggleButtonFieldComponent,
     ButtonComponent,
     PageTemplateComponent,

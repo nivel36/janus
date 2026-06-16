@@ -4,10 +4,9 @@
 import { booleanAttribute, Component, computed, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { createUuid } from '../../utils/uuid.utils';
-import { FieldComponent } from '../field/field.component';
 
 /**
- * Range slider field compatible with Angular Forms.
+ * Range slider compatible with Angular Forms.
  *
  * <p>This component exposes its configuration through signal-based inputs and
  * implements {@link ControlValueAccessor} so it can be bound to reactive or
@@ -17,23 +16,19 @@ import { FieldComponent } from '../field/field.component';
  * component generates a stable UUID-based id for accessibility bindings.</p>
  */
 @Component({
-  selector: 'app-range-slider-field',
+  selector: 'app-range-slider',
   standalone: true,
-  imports: [FieldComponent],
-  templateUrl: './range-slider-field.component.html',
-  styleUrl: './range-slider-field.component.css',
+  templateUrl: './range-slider.component.html',
+  styleUrl: './range-slider.component.css',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => RangeSliderFieldComponent),
+      useExisting: forwardRef(() => RangeSliderComponent),
       multi: true,
     },
   ],
 })
-export class RangeSliderFieldComponent implements ControlValueAccessor {
-  readonly label = input.required<string>();
-  readonly hint = input<string>('');
-  readonly error = input<string>('');
+export class RangeSliderComponent implements ControlValueAccessor {
   readonly required = input(false, { transform: booleanAttribute });
 
   /**
@@ -64,24 +59,18 @@ export class RangeSliderFieldComponent implements ControlValueAccessor {
   /**
    * Internally generated stable id used when no external id is provided.
    */
-  private readonly generatedInputId = `range-slider-field-${createUuid()}`;
+  private readonly generatedInputId = `range-slider-${createUuid()}`;
 
   /**
    * Effective id used by the native range input.
    */
   readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);
 
-  readonly describedBy = computed(() => {
-    if (this.error()) {
-      return `${this.controlId()}-error`;
-    }
+  readonly ariaDescribedBy = input<string | null>(null);
+  readonly ariaErrorMessage = input<string | null>(null);
+  readonly ariaInvalid = input(false, { transform: booleanAttribute });
 
-    if (this.hint()) {
-      return `${this.controlId()}-hint`;
-    }
-
-    return null;
-  });
+  readonly describedBy = computed(() => this.ariaDescribedBy());
 
   /**
    * Current numeric slider value.
