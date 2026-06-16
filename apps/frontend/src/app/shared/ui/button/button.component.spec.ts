@@ -32,7 +32,7 @@ class TestHostComponent {
   ariaLabel: string | undefined = undefined;
 
   onClicked(_event: MouseEvent): void {
-    // Intentionally empty.
+    void _event;
   }
 }
 
