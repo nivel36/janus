@@ -1,7 +1,7 @@
 @import './styles/00-primitives.css';
 @import './styles/theme.dark.css';
 @import './styles/theme.light.css';
-@import './styles/01-semantics.color.css';
+@import './styles/01-semantics.base.css';
 @import './styles/02-semantics.layout.css';
 @import './styles/03-semantics.forms.css';
 @import './styles/04-semantics.controls.css';
