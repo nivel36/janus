@@ -32,7 +32,3 @@ h3 {
     color: var(--accent-color);
     font-weight: 600;
 }
-
-.app-visually-hidden-title {
-    visibility: hidden;
-}

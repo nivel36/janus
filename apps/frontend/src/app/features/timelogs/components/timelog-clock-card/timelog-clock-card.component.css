@@ -3,8 +3,11 @@
 }
 
 .clock-in-card-body {
+    padding-top: var(--panel-padding-block);
     display: flex;
     align-items: center;
+    height: 100%;
+    justify-content: center;
     gap: var(--card-gap);
     flex-direction: column;
 }
