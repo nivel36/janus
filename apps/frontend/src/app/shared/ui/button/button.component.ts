@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, input, output } from '@angular/core';
+import { booleanAttribute, Component, input, output } from '@angular/core';
 
 /**
  * Visual intent styles that can be applied to the button.
@@ -34,14 +34,14 @@ export class ButtonComponent {
   /**
    * Whether user interaction is disabled.
    */
-  readonly disabled = input<boolean>(false);
+  readonly disabled = input(false, { transform: booleanAttribute });
 
   /**
    * Whether the button is rendered as an icon-only button.
    *
    * Icon buttons are square, centered and require an accessible label.
    */
-  readonly icon = input<boolean>(false);
+  readonly icon = input(false, { transform: booleanAttribute });
 
   /**
    * Extra CSS classes appended to the root button element.
