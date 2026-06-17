@@ -3,6 +3,7 @@
     min-height: 100vh;
     justify-content: center;
     padding-block: var(--layout-page-padding-block);
+    padding-inline: var(--layout-page-padding-inline);
     box-sizing: border-box;
 }
 
