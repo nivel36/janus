@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { PLATFORM_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -85,6 +86,29 @@ describe('ClockComponent', () => {
     vi.advanceTimersByTime(1000);
 
     expect(spy).toHaveBeenCalledTimes(3);
+  });
+
+  it('should not start a browser interval when rendered on the server', async () => {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+
+    const setIntervalSpy = vi.spyOn(window, 'setInterval');
+    const fmtSpy = vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('10:15:30');
+
+    await TestBed.configureTestingModule({
+      imports: [ClockComponent],
+      providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+    }).compileComponents();
+
+    const serverFixture = TestBed.createComponent(ClockComponent);
+    serverFixture.componentRef.setInput('locale', 'en-US');
+    serverFixture.detectChanges();
+
+    expect(fmtSpy).toHaveBeenCalledWith('en-US', expect.objectContaining({ hour12: false }));
+    expect(setIntervalSpy).not.toHaveBeenCalled();
+
+    expect(() => serverFixture.componentInstance.ngOnDestroy()).not.toThrow();
+    serverFixture.destroy();
   });
 
   it('should clear the interval on destroy', () => {
