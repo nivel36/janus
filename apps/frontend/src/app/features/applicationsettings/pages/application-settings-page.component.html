@@ -18,32 +18,47 @@
                         />
                     </app-field>
 
-                    <app-toggle-button-field
-                        inputId="employeeWorkplaceCreationAllowed"
-                        formControlName="employeeWorkplaceCreationAllowed"
+                    <app-field
+                        controlId="employeeWorkplaceCreationAllowed"
                         [label]="
                             'applicationSettings.fields.employeeWorkplaceCreationAllowed'
                                 | translate
                         "
-                    />
+                    >
+                        <app-toggle-button
+                            inputId="employeeWorkplaceCreationAllowed"
+                            formControlName="employeeWorkplaceCreationAllowed"
+                            ariaLabelledBy="employeeWorkplaceCreationAllowed-label"
+                        />
+                    </app-field>
 
-                    <app-toggle-button-field
-                        inputId="worksiteChangeDuringShiftAllowed"
-                        formControlName="worksiteChangeDuringShiftAllowed"
+                    <app-field
+                        controlId="worksiteChangeDuringShiftAllowed"
                         [label]="
                             'applicationSettings.fields.worksiteChangeDuringShiftAllowed'
                                 | translate
                         "
-                    />
+                    >
+                        <app-toggle-button
+                            inputId="worksiteChangeDuringShiftAllowed"
+                            formControlName="worksiteChangeDuringShiftAllowed"
+                            ariaLabelledBy="worksiteChangeDuringShiftAllowed-label"
+                        />
+                    </app-field>
 
-                    <app-toggle-button-field
-                        inputId="employeeManualTimelogEntryAllowed"
-                        formControlName="employeeManualTimelogEntryAllowed"
+                    <app-field
+                        controlId="employeeManualTimelogEntryAllowed"
                         [label]="
                             'applicationSettings.fields.employeeManualTimelogEntryAllowed'
                                 | translate
                         "
-                    />
+                    >
+                        <app-toggle-button
+                            inputId="employeeManualTimelogEntryAllowed"
+                            formControlName="employeeManualTimelogEntryAllowed"
+                            ariaLabelledBy="employeeManualTimelogEntryAllowed-label"
+                        />
+                    </app-field>
 
                     <app-field
                         controlId="default-timezone"

@@ -7,16 +7,16 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { ToggleButtonFieldComponent } from './toggle-button-field.component';
+import { ToggleButtonComponent } from './toggle-button.component';
 
 @Component({
   template: `
     <form [formGroup]="form">
-      <app-toggle-button-field formControlName="flag" label="Notifications" />
+      <app-toggle-button formControlName="flag" />
     </form>
   `,
   standalone: true,
-  imports: [ReactiveFormsModule, ToggleButtonFieldComponent],
+  imports: [ReactiveFormsModule, ToggleButtonComponent],
 })
 class TestHostComponent {
   form = new FormGroup({
@@ -24,7 +24,7 @@ class TestHostComponent {
   });
 }
 
-describe('ToggleButtonFieldComponent (ControlValueAccessor)', () => {
+describe('ToggleButtonComponent (ControlValueAccessor)', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let host: TestHostComponent;
 
