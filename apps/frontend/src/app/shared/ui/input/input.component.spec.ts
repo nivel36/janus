@@ -93,4 +93,8 @@ describe('InputComponent (ControlValueAccessor)', () => {
   it('should forward the autocomplete value', () => {
     expect(getInput().autocomplete).toBe('organization');
   });
+
+  it('should default to a text input type', () => {
+    expect(getInput().type).toBe('text');
+  });
 });

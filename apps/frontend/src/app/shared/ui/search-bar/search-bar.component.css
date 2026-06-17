@@ -3,46 +3,10 @@
 }
 
 .search-bar {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: stretch;
-
     width: 100%;
-    overflow: hidden;
-
-    border: var(--search-bar-border);
-    border-radius: var(--search-bar-border-radius);
-
-    background: var(--search-bar-background-color);
-
-    transition: box-shadow 0.2s ease;
-}
-
-.search-bar:focus-within {
-    box-shadow: var(--search-bar-focus-ring);
-}
-
-.search-bar input {
-    flex: 1 1 auto;
-    min-width: 0;
-
-    padding: var(--search-bar-padding-block) var(--search-bar-padding-inline);
-    border: 0;
-    outline: 0;
-
-    background: transparent;
-    color: var(--search-bar-text-color);
-
-    font-size: var(--search-bar-font-size);
-}
-
-.search-bar input::placeholder {
-    color: var(--search-bar-placeholder-color);
 }
 
 .search-icon {
-    flex: 0 0 auto;
     display: flex;
 }
 

@@ -7,6 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MockTranslatePipe } from '../../../../testing/mock-translate.pipe';
 import { ButtonComponent } from '../button/button.component';
+import { InputComponent } from '../input/input.component';
+import { InputGroupComponent } from '../input-group/input-group.component';
 import { SearchBarComponent } from './search-bar.component';
 
 describe('SearchBarComponent', () => {
@@ -113,6 +115,18 @@ describe('SearchBarComponent', () => {
 
     expect(buttonComponentDe).toBeTruthy();
     expect(submitButtonDe).toBeTruthy();
+  });
+
+  it('should compose the search input with the shared input group', async () => {
+    fixture = await createComponent();
+
+    const inputGroupDe = fixture.debugElement.query(By.directive(InputGroupComponent));
+    const inputComponentDe = fixture.debugElement.query(By.directive(InputComponent));
+    const input = getInput(fixture);
+
+    expect(inputGroupDe).toBeTruthy();
+    expect(inputComponentDe).toBeTruthy();
+    expect(input.type).toBe('search');
   });
 
   it('should throw when debounceMs is negative', async () => {

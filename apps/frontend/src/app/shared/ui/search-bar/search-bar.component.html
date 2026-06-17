@@ -1,22 +1,23 @@
 <form class="search-bar" role="search" (submit)="$event.preventDefault(); submitCurrentQuery()">
     <label class="sr-only" [for]="inputId">{{ 'searchBar.inputLabel' | translate }}</label>
-    <input
-        [id]="inputId"
-        type="search"
-        [formControl]="queryControl"
-        [attr.placeholder]="'searchBar.placeholder' | translate"
-        [attr.aria-label]="'searchBar.inputLabel' | translate"
-        [attr.aria-describedby]="helpTextId"
-    />
+    <app-input-group [ariaLabel]="'searchBar.inputLabel' | translate">
+        <app-input
+            [inputId]="inputId"
+            type="search"
+            [formControl]="queryControl"
+            [placeholder]="'searchBar.placeholder' | translate"
+            [ariaDescribedBy]="helpTextId"
+        />
+
+        <app-button
+            type="submit"
+            [icon]="true"
+            class="search-icon"
+            [ariaLabel]="'searchBar.buttonAriaLabel' | translate"
+        >
+            <fa-icon [icon]="faMagnifyingGlass"></fa-icon>
+        </app-button>
+    </app-input-group>
 
     <span class="sr-only" [id]="helpTextId">{{ 'searchBar.helpText' | translate }}</span>
-
-    <app-button
-        type="submit"
-        [icon]="true"
-        class="search-icon"
-        [ariaLabel]="'searchBar.buttonAriaLabel' | translate"
-    >
-        <fa-icon [icon]="faMagnifyingGlass"></fa-icon>
-    </app-button>
 </form>

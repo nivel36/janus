@@ -10,6 +10,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 import { ButtonComponent } from '../button/button.component';
+import { InputComponent } from '../input/input.component';
+import { InputGroupComponent } from '../input-group/input-group.component';
 
 /**
  * Standalone search bar component.
@@ -17,7 +19,14 @@ import { ButtonComponent } from '../button/button.component';
 @Component({
   selector: 'app-search-bar',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, FontAwesomeModule, ButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslatePipe,
+    FontAwesomeModule,
+    ButtonComponent,
+    InputComponent,
+    InputGroupComponent,
+  ],
   templateUrl: './search-bar.component.html',
   styleUrl: './search-bar.component.css',
 })

@@ -25,6 +25,7 @@ import { createUuid } from '../../utils/uuid.utils';
 export class InputComponent implements ControlValueAccessor {
   readonly autocomplete = input<string>('off');
   readonly placeholder = input<string>('');
+  readonly type = input<string>('text');
   readonly required = input(false, { transform: booleanAttribute });
   readonly inputId = input<string>();
   readonly ariaDescribedBy = input<string | null>(null);
