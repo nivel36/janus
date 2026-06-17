@@ -66,7 +66,8 @@ describe('TabsComponent', () => {
 
   it('should lazy-load a panel only when its tab is clicked', () => {
     const firstTabs = fixture.nativeElement.querySelector('#tabs-a');
-    const tabButtons: NodeListOf<HTMLButtonElement> = firstTabs.querySelectorAll('button[role="tab"]');
+    const tabButtons: NodeListOf<HTMLButtonElement> =
+      firstTabs.querySelectorAll('button[role="tab"]');
 
     tabButtons[1].click();
     fixture.detectChanges();
@@ -76,8 +77,10 @@ describe('TabsComponent', () => {
   });
 
   it('should generate unique ids across different app-tabs instances', () => {
-    const tabElements: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('[role="tab"]');
-    const panelElements: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('[role="tabpanel"]');
+    const tabElements: NodeListOf<HTMLElement> =
+      fixture.nativeElement.querySelectorAll('[role="tab"]');
+    const panelElements: NodeListOf<HTMLElement> =
+      fixture.nativeElement.querySelectorAll('[role="tabpanel"]');
 
     const tabIds = Array.from(tabElements, (tab) => tab.id);
     const panelIds = Array.from(panelElements, (panel) => panel.id);
@@ -99,5 +102,64 @@ describe('TabsComponent', () => {
       expect(labelledById).toBeTruthy();
       expect(fixture.nativeElement.querySelector(`#${labelledById}`)).toBeTruthy();
     });
+  });
+
+  it('should navigate tabs with ArrowRight and ArrowLeft', () => {
+    const firstTabs = fixture.nativeElement.querySelector('#tabs-a');
+    const tabButtons: NodeListOf<HTMLButtonElement> =
+      firstTabs.querySelectorAll('button[role="tab"]');
+
+    tabButtons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(tabButtons[1].getAttribute('aria-selected')).toBe('true');
+    expect(tabButtons[1].getAttribute('tabindex')).toBe('0');
+    expect(firstTabs.querySelector('.details-content')).toBeTruthy();
+    expect(document.activeElement).toBe(tabButtons[1]);
+
+    tabButtons[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(tabButtons[0].getAttribute('aria-selected')).toBe('true');
+    expect(tabButtons[0].getAttribute('tabindex')).toBe('0');
+    expect(document.activeElement).toBe(tabButtons[0]);
+  });
+
+  it('should wrap arrow key navigation between first and last tabs', () => {
+    const firstTabs = fixture.nativeElement.querySelector('#tabs-a');
+    const tabButtons: NodeListOf<HTMLButtonElement> =
+      firstTabs.querySelectorAll('button[role="tab"]');
+
+    tabButtons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(tabButtons[1].getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(tabButtons[1]);
+
+    tabButtons[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(tabButtons[0].getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(tabButtons[0]);
+  });
+
+  it('should navigate to first and last tabs with Home and End', () => {
+    const firstTabs = fixture.nativeElement.querySelector('#tabs-a');
+    const tabButtons: NodeListOf<HTMLButtonElement> =
+      firstTabs.querySelectorAll('button[role="tab"]');
+
+    tabButtons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(tabButtons[1].getAttribute('aria-selected')).toBe('true');
+    expect(tabButtons[1].getAttribute('tabindex')).toBe('0');
+    expect(document.activeElement).toBe(tabButtons[1]);
+
+    tabButtons[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(tabButtons[0].getAttribute('aria-selected')).toBe('true');
+    expect(tabButtons[0].getAttribute('tabindex')).toBe('0');
+    expect(document.activeElement).toBe(tabButtons[0]);
   });
 });
