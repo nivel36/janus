@@ -40,5 +40,7 @@
 
 .app-card-footer {
     flex: 0 0 auto;
+    margin-top: auto;
     padding-bottom: var(--card-padding-block);
+    align-self: stretch;
 }
