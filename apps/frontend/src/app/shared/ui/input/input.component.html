@@ -16,6 +16,7 @@
     [attr.aria-labelledby]="ariaLabelledBy()"
     [attr.aria-invalid]="ariaInvalid() ? 'true' : null"
     [attr.aria-errormessage]="ariaErrorMessage()"
+    [attr.aria-readonly]="formatBooleanAria(ariaReadonly())"
     [attr.aria-expanded]="formatBooleanAria(ariaExpanded())"
     [attr.aria-haspopup]="formatBooleanAria(ariaHaspopup())"
     [attr.aria-controls]="ariaControls()"

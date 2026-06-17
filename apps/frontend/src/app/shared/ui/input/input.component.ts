@@ -35,6 +35,7 @@ export class InputComponent implements ControlValueAccessor {
   readonly ariaLabelledBy = input<string | null>(null);
   readonly ariaInvalid = input(false, { transform: booleanAttribute });
   readonly ariaErrorMessage = input<string | null>(null);
+  readonly ariaReadonly = input<boolean | string | null>(null);
   readonly ariaExpanded = input<boolean | string | null>(null);
   readonly ariaHaspopup = input<boolean | string | null>(null);
   readonly ariaControls = input<string | null>(null);

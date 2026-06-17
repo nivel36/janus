@@ -24,6 +24,7 @@ import { InputComponent } from './input.component';
           role="combobox"
           [readonly]="isReadonly"
           [ariaExpanded]="isExpanded"
+          [ariaReadonly]="isReadonly"
           ariaHaspopup="listbox"
           ariaControls="worksite-results"
           ariaActiveDescendant="worksite-option-1"
@@ -125,6 +126,7 @@ describe('InputComponent (ControlValueAccessor)', () => {
     expect(input.getAttribute('role')).toBe('combobox');
     expect(input.getAttribute('aria-label')).toBe('Worksite name');
     expect(input.getAttribute('aria-expanded')).toBe('false');
+    expect(input.getAttribute('aria-readonly')).toBe('false');
     expect(input.getAttribute('aria-haspopup')).toBe('listbox');
     expect(input.getAttribute('aria-controls')).toBe('worksite-results');
     expect(input.getAttribute('aria-activedescendant')).toBe('worksite-option-1');
@@ -145,6 +147,7 @@ describe('InputComponent (ControlValueAccessor)', () => {
 
     expect(input.getAttribute('aria-expanded')).toBe('true');
     expect(input.getAttribute('aria-busy')).toBe('false');
+    expect(input.getAttribute('aria-readonly')).toBe('true');
     expect(input.readOnly).toBe(true);
     expect(host.form.controls.name.value).toBe('Madrid Hub');
   });

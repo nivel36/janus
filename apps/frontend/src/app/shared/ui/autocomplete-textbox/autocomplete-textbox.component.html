@@ -15,7 +15,7 @@
             [ariaLabelledBy]="ariaLabelledBy() || null"
             [ariaDescribedBy]="ariaDescribedBy() || null"
             [ariaInvalid]="ariaInvalid()"
-            [attr.aria-readonly]="hasSelection ? 'true' : null"
+            [ariaReadonly]="hasSelection ? true : null"
             [attr.aria-disabled]="disabled ? 'true' : null"
             [ariaExpanded]="isOverlayOpen"
             ariaHaspopup="listbox"
