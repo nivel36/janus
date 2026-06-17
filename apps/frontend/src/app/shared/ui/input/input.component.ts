@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { booleanAttribute, Component, forwardRef, input } from '@angular/core';
+import { booleanAttribute, Component, forwardRef, input, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { createUuid } from '../../utils/uuid.utils';
@@ -24,14 +24,32 @@ import { createUuid } from '../../utils/uuid.utils';
 })
 export class InputComponent implements ControlValueAccessor {
   readonly autocomplete = input<string>('off');
+  readonly role = input<string | null>(null);
   readonly placeholder = input<string>('');
   readonly type = input<string>('text');
   readonly required = input(false, { transform: booleanAttribute });
+  readonly readonly = input(false, { transform: booleanAttribute });
   readonly inputId = input<string>();
+  readonly ariaLabel = input<string | null>(null);
   readonly ariaDescribedBy = input<string | null>(null);
   readonly ariaLabelledBy = input<string | null>(null);
   readonly ariaInvalid = input(false, { transform: booleanAttribute });
   readonly ariaErrorMessage = input<string | null>(null);
+  readonly ariaExpanded = input<boolean | string | null>(null);
+  readonly ariaHaspopup = input<boolean | string | null>(null);
+  readonly ariaControls = input<string | null>(null);
+  readonly ariaActiveDescendant = input<string | null>(null);
+  readonly ariaBusy = input<boolean | string | null>(null);
+  readonly ariaAutocomplete = input<string | null>(null);
+  readonly autocapitalize = input<string | null>(null);
+  readonly autocorrect = input<string | null>(null);
+  readonly spellcheck = input<boolean | string | null>(null);
+
+  // Native event output names are intentional so app-input can replace a native input in templates.
+  // eslint-disable-next-line @angular-eslint/no-output-native
+  readonly keydown = output<KeyboardEvent>();
+  // eslint-disable-next-line @angular-eslint/no-output-native
+  readonly blur = output<FocusEvent>();
 
   private readonly generatedInputId = `input-${createUuid()}`;
 
@@ -66,7 +84,25 @@ export class InputComponent implements ControlValueAccessor {
     this.onChange(this.value);
   }
 
-  markTouched(): void {
+  onKeydown(event: KeyboardEvent): void {
+    event.stopPropagation();
+    this.keydown.emit(event);
+  }
+
+  onBlur(event: FocusEvent): void {
     this.onTouched();
+    this.blur.emit(event);
+  }
+
+  formatBooleanAria(value: boolean | string | null): string | null {
+    if (value === null) {
+      return null;
+    }
+
+    if (typeof value === 'boolean') {
+      return value ? 'true' : 'false';
+    }
+
+    return value;
   }
 }
