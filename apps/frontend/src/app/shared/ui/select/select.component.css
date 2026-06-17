@@ -1,3 +1,9 @@
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
 .select {
     position: relative;
     width: 100%;
@@ -26,7 +32,7 @@ select {
     height: var(--form-control-height);
 }
 
-.select:disabled {
+.select.disabled {
     cursor: not-allowed;
     opacity: var(--form-disabled-opacity);
 }

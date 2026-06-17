@@ -16,10 +16,7 @@ import {
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../shared/ui/field/field.component';
-import {
-  SelectFieldComponent,
-  SelectOption,
-} from '../../../shared/ui/select-field/select-field.component';
+import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
 import { InputComponent } from '../../../shared/ui/input/input.component';
 import { WorksiteScope } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
@@ -34,7 +31,7 @@ import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.
     AutocompleteTextboxComponent,
     ButtonComponent,
     FieldComponent,
-    SelectFieldComponent,
+    SelectComponent,
     InputComponent,
     PageTemplateComponent,
   ],

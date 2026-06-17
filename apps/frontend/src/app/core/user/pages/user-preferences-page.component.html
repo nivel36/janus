@@ -3,21 +3,31 @@
         <section class="app-card preferences-card">
             <div class="app-card-body preferences-card-body">
                 <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
-                    <app-select-field
-                        inputId="preferences-locale"
-                        formControlName="locale"
+                    <app-field
+                        controlId="preferences-locale"
                         [label]="'userPreferences.fields.locale' | translate"
-                        [options]="localeOptions"
                         required
-                    />
+                    >
+                        <app-select
+                            inputId="preferences-locale"
+                            formControlName="locale"
+                            [options]="localeOptions"
+                            required
+                        />
+                    </app-field>
 
-                    <app-select-field
-                        inputId="preferences-time-format"
-                        formControlName="timeFormat"
+                    <app-field
+                        controlId="preferences-time-format"
                         [label]="'userPreferences.fields.timeFormat' | translate"
-                        [options]="timeFormatOptions"
                         required
-                    />
+                    >
+                        <app-select
+                            inputId="preferences-time-format"
+                            formControlName="timeFormat"
+                            [options]="timeFormatOptions"
+                            required
+                        />
+                    </app-field>
 
                     <app-field
                         controlId="preferences-timezone"

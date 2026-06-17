@@ -5,7 +5,6 @@ import {
   AfterViewInit,
   booleanAttribute,
   Component,
-  computed,
   effect,
   ElementRef,
   forwardRef,
@@ -15,11 +14,8 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { createUuid } from '../../utils/uuid.utils';
-import { FieldComponent } from '../field/field.component';
-
 /**
- * Represents a single option rendered by the select field.
+ * Represents a single option rendered by the select component.
  *
  * @typeParam TValue - String-based value type propagated by Angular Forms.
  */
@@ -36,51 +32,32 @@ export interface SelectOption<TValue extends string = string> {
 }
 
 /**
- * Select control wrapped in an application field with Angular Forms support.
+ * Select control with Angular Forms support.
  *
  * @typeParam TValue - String-based value type handled by the component.
  */
 @Component({
-  selector: 'app-select-field',
+  selector: 'app-select',
   standalone: true,
-  imports: [FieldComponent, TranslatePipe],
-  templateUrl: './select-field.component.html',
-  styleUrl: './select-field.component.css',
+  imports: [TranslatePipe],
+  templateUrl: './select.component.html',
+  styleUrl: './select.component.css',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => SelectFieldComponent),
+      useExisting: forwardRef(() => SelectComponent),
       multi: true,
     },
   ],
 })
-export class SelectFieldComponent<TValue extends string = string>
+export class SelectComponent<TValue extends string = string>
   implements ControlValueAccessor, AfterViewInit
 {
-  readonly label = input.required<string>();
   readonly options = input.required<readonly SelectOption<TValue>[]>();
-  readonly hint = input<string>('');
-  readonly error = input<string>('');
   readonly required = input(false, { transform: booleanAttribute });
-  readonly inputId = input<string>();
-
-  private readonly generatedInputId = `select-field-${createUuid()}`;
-
-  readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);
-
-  readonly describedBy = computed(() => {
-    const ids: string[] = [];
-
-    if (this.hint() && !this.error()) {
-      ids.push(`${this.controlId()}-hint`);
-    }
-
-    if (this.error()) {
-      ids.push(`${this.controlId()}-error`);
-    }
-
-    return ids.length ? ids.join(' ') : null;
-  });
+  readonly inputId = input.required<string>();
+  readonly ariaDescribedBy = input<string | null>(null);
+  readonly ariaInvalid = input(false, { transform: booleanAttribute });
 
   @ViewChild('nativeSelect') private nativeSelect?: ElementRef<HTMLSelectElement>;
 
