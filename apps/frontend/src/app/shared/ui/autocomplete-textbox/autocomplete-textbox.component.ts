@@ -28,6 +28,7 @@ import {
 } from '@angular/forms';
 import {
   Observable,
+  ReplaySubject,
   Subject,
   catchError,
   debounceTime,
@@ -273,7 +274,7 @@ export class AutocompleteTextboxComponent<T = unknown>
   /**
    * Internal stream used to serialize external writes received through {@link writeValue}.
    */
-  private readonly writeValueRequests$ = new Subject<string | null>();
+  private readonly writeValueRequests$ = new ReplaySubject<string | null>(1);
 
   /**
    * Stream used to invalidate ongoing asynchronous searches when component state

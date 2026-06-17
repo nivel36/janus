@@ -2,14 +2,45 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { OverlayContainer } from '@angular/cdk/overlay';
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AutocompleteTextboxComponent } from './autocomplete-textbox.component';
 import { MockTranslateService } from '../../../../testing/mock-translate.service';
+
+interface TestOption {
+  code: string;
+  label: string;
+}
+
+@Component({
+  standalone: true,
+  imports: [ReactiveFormsModule, AutocompleteTextboxComponent],
+  template: `
+    <app-autocomplete-textbox
+      [formControl]="control"
+      [searchMethod]="searchMethod"
+      [resolveByValue]="resolveByValue"
+      [displayWith]="displayWith"
+      [valueWith]="valueWith"
+      ariaLabel="Country"
+    />
+  `,
+})
+class InitialValueHostComponent {
+  readonly control = new FormControl<string | null>('es');
+  readonly searchMethod = vi.fn<(query: string) => Observable<TestOption[]>>(() => of([]));
+  readonly resolveByValue = vi.fn<(value: string) => Observable<TestOption | null>>(
+    (value: string) => of(value === 'es' ? { code: 'es', label: 'España' } : null),
+  );
+  readonly displayWith = (option: TestOption): string => option.label;
+  readonly valueWith = (option: TestOption): string => option.code;
+}
 
 describe('AutocompleteTextboxComponent', () => {
   let fixture: ComponentFixture<AutocompleteTextboxComponent<string>>;
@@ -27,7 +58,7 @@ describe('AutocompleteTextboxComponent', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [AutocompleteTextboxComponent],
+      imports: [AutocompleteTextboxComponent, InitialValueHostComponent],
       providers: [{ provide: TranslateService, useClass: MockTranslateService }],
     }).compileComponents();
 
@@ -214,6 +245,22 @@ describe('AutocompleteTextboxComponent', () => {
     expect(component.selectedValue).toBeNull();
     expect(component.isOverlayOpen).toBe(false);
     expect(overlayContainerElement.querySelector('.results')).toBeNull();
+  });
+
+  it('should rebuild visible text from a FormControl initial value before first detectChanges', () => {
+    const hostFixture = TestBed.createComponent(InitialValueHostComponent);
+    const hostComponent = hostFixture.componentInstance;
+
+    expect(hostComponent.resolveByValue).not.toHaveBeenCalled();
+
+    hostFixture.detectChanges();
+
+    const input: HTMLInputElement = hostFixture.debugElement.query(By.css('input')).nativeElement;
+
+    expect(hostComponent.resolveByValue).toHaveBeenCalledTimes(1);
+    expect(hostComponent.resolveByValue).toHaveBeenCalledWith('es');
+    expect(input.value).toBe('España');
+    expect(input.readOnly).toBe(true);
   });
 
   it('should resolve external value into a selected option when writeValue is used', async () => {
