@@ -1,4 +1,5 @@
 :root {
-    --brand-color: var(--accent-strong-color);
+    --brand-color: var(--accent-color);
+    --brand-hover-color: var(--accent-hover-color);
     --brand-font-size: var(--font-size-large);
 }

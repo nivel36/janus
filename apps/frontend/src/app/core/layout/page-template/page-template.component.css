@@ -29,7 +29,8 @@
 
 .page-brand:hover,
 .page-brand:focus-visible {
-    text-decoration: underline;
+    color: var(--brand-hover-color);
+    text-decoration: none;
 }
 
 .page-title {
