@@ -24,6 +24,7 @@
     border-radius: var(--table-section-table-border-radius);
     border: var(--table-section-table-border);
     border-collapse: separate;
+    border-spacing: 0;
     box-shadow: var(--table-section-table-shadow);
     overflow: hidden;
 }
@@ -65,15 +66,15 @@
     text-align: left;
 }
 
-.app-table-section .app-table tbody tr:nth-child(odd) {
+.app-table-section .app-table tbody tr:nth-child(odd) td {
     background-color: var(--table-section-row-odd-background-color);
 }
 
-.app-table-section .app-table tbody tr:nth-child(even) {
+.app-table-section .app-table tbody tr:nth-child(even) td {
     background-color: var(--table-section-row-even-background-color);
 }
 
-.app-table-section .app-table tbody tr:hover {
+.app-table-section .app-table tbody tr:hover td {
     background-color: var(--table-section-row-hover-background-color);
     overflow: hidden;
 }
