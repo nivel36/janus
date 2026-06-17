@@ -35,6 +35,27 @@ class TestHostComponent {
     void _event;
   }
 }
+@Component({
+  standalone: true,
+  imports: [ButtonComponent],
+  template: `
+    <app-button disabled>
+      Save
+    </app-button>
+  `,
+})
+class DisabledAttributeHostComponent {}
+
+@Component({
+  standalone: true,
+  imports: [ButtonComponent],
+  template: `
+    <app-button icon>
+      Save
+    </app-button>
+  `,
+})
+class IconAttributeHostComponent {}
 
 describe('ButtonComponent', () => {
   let fixture: ComponentFixture<TestHostComponent>;
@@ -42,7 +63,7 @@ describe('ButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent],
+      imports: [TestHostComponent, DisabledAttributeHostComponent, IconAttributeHostComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
@@ -73,6 +94,22 @@ describe('ButtonComponent', () => {
 
     const buttonEl = getButton();
     expect(buttonEl.disabled).toBe(true);
+  });
+
+  it('should disable the button when disabled is provided as an attribute', () => {
+    const attributeFixture = TestBed.createComponent(DisabledAttributeHostComponent);
+    attributeFixture.detectChanges();
+
+    const buttonEl: HTMLButtonElement = attributeFixture.nativeElement.querySelector('button');
+    expect(buttonEl.disabled).toBe(true);
+  });
+
+  it('should render the icon class when icon is provided as an attribute', () => {
+    const attributeFixture = TestBed.createComponent(IconAttributeHostComponent);
+    attributeFixture.detectChanges();
+
+    const buttonEl: HTMLButtonElement = attributeFixture.nativeElement.querySelector('button');
+    expect(buttonEl.classList).toContain('app-button--icon');
   });
 
   it('should expose aria-label when provided', () => {
