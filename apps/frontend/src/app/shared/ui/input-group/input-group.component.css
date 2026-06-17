@@ -4,12 +4,21 @@
 }
 
 .input-group {
+    position: relative;
     display: inline-flex;
     align-items: stretch;
     width: 100%;
+    border-radius: var(--form-control-border-radius);
+    transition: box-shadow 0.2s ease;
+}
+
+.input-group:focus-within {
+    box-shadow: var(--form-control-focus-ring);
 }
 
 :host ::ng-deep app-input {
+    --form-control-focus-ring: none;
+
     flex: 1 1 auto;
     min-width: 0;
 }
@@ -72,6 +81,8 @@
     --button-min-width: var(--form-control-height);
     --button-padding-inline: var(--form-control-padding-inline);
     --button-border-radius: 0;
+    --button-primary-hover-box-shadow: none;
+    --button-primary-active-box-shadow: none;
 }
 
 :host ::ng-deep app-button .app-button {
