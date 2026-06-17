@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FieldComponent } from '../field/field.component';
 import { InputComponent } from './input.component';
@@ -20,7 +20,22 @@ import { InputComponent } from './input.component';
           autocomplete="organization"
           ariaLabelledBy="worksite-name-label"
           ariaDescribedBy="worksite-name-hint"
+          ariaLabel="Worksite name"
+          role="combobox"
+          [readonly]="isReadonly"
+          [ariaExpanded]="isExpanded"
+          [ariaReadonly]="isReadonly"
+          ariaHaspopup="listbox"
+          ariaControls="worksite-results"
+          ariaActiveDescendant="worksite-option-1"
+          [ariaBusy]="isBusy"
+          ariaAutocomplete="list"
+          autocapitalize="off"
+          autocorrect="off"
+          [spellcheck]="false"
           required
+          (keydown)="handleKeydown($event)"
+          (blur)="handleBlur($event)"
         />
       </app-field>
     </form>
@@ -32,6 +47,13 @@ class TestHostComponent {
   readonly form = new FormGroup({
     name: new FormControl('Madrid Hub'),
   });
+
+  isReadonly = false;
+  isExpanded = false;
+  isBusy = true;
+
+  readonly handleKeydown = vi.fn();
+  readonly handleBlur = vi.fn();
 }
 
 describe('InputComponent (ControlValueAccessor)', () => {
@@ -96,5 +118,50 @@ describe('InputComponent (ControlValueAccessor)', () => {
 
   it('should default to a text input type', () => {
     expect(getInput().type).toBe('text');
+  });
+
+  it('should forward combobox ARIA and native text attributes', () => {
+    const input = getInput();
+
+    expect(input.getAttribute('role')).toBe('combobox');
+    expect(input.getAttribute('aria-label')).toBe('Worksite name');
+    expect(input.getAttribute('aria-expanded')).toBe('false');
+    expect(input.getAttribute('aria-readonly')).toBe('false');
+    expect(input.getAttribute('aria-haspopup')).toBe('listbox');
+    expect(input.getAttribute('aria-controls')).toBe('worksite-results');
+    expect(input.getAttribute('aria-activedescendant')).toBe('worksite-option-1');
+    expect(input.getAttribute('aria-busy')).toBe('true');
+    expect(input.getAttribute('aria-autocomplete')).toBe('list');
+    expect(input.getAttribute('autocapitalize')).toBe('off');
+    expect(input.getAttribute('autocorrect')).toBe('off');
+    expect(input.getAttribute('spellcheck')).toBe('false');
+  });
+
+  it('should update reflected combobox state without changing the CVA value', () => {
+    host.isExpanded = true;
+    host.isBusy = false;
+    host.isReadonly = true;
+    fixture.detectChanges();
+
+    const input = getInput();
+
+    expect(input.getAttribute('aria-expanded')).toBe('true');
+    expect(input.getAttribute('aria-busy')).toBe('false');
+    expect(input.getAttribute('aria-readonly')).toBe('true');
+    expect(input.readOnly).toBe(true);
+    expect(host.form.controls.name.value).toBe('Madrid Hub');
+  });
+
+  it('should emit native keydown and blur events while keeping CVA touch handling', () => {
+    const input = getInput();
+    const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true });
+    const blurEvent = new FocusEvent('blur');
+
+    input.dispatchEvent(keydownEvent);
+    input.dispatchEvent(blurEvent);
+
+    expect(host.handleKeydown).toHaveBeenCalledWith(keydownEvent);
+    expect(host.handleBlur).toHaveBeenCalledWith(blurEvent);
+    expect(host.form.controls.name.touched).toBe(true);
   });
 });
