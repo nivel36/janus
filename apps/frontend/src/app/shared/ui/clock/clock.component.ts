@@ -1,7 +1,8 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, OnInit, OnDestroy, input } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, input } from '@angular/core';
 
 /**
  * Displays the current local time and refreshes it every second.
@@ -19,7 +20,7 @@ import { Component, OnInit, OnDestroy, input } from '@angular/core';
 export class ClockComponent implements OnInit, OnDestroy {
   /**
    * Preferred BCP 47 locale used to format the visual time string.
-   * If not provided, the component falls back to `navigator.language`.
+   * If not provided, the component falls back to the browser locale or `en-US`.
    */
   readonly locale = input<string>();
 
@@ -46,28 +47,40 @@ export class ClockComponent implements OnInit, OnDestroy {
   /**
    * Internal interval handle used to stop periodic updates on destroy.
    */
-  private timerId?: number;
+  private readonly platformId = inject(PLATFORM_ID);
+
+  /**
+   * Whether browser-only APIs can be used safely.
+   */
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
+
+  private timerId?: ReturnType<typeof setInterval>;
 
   /**
    * Initializes the clock and starts a one-second refresh interval.
    */
   ngOnInit(): void {
     this.updateTime();
-    this.timerId = window.setInterval(() => this.updateTime(), 1000);
+
+    if (this.isBrowser) {
+      this.timerId = window.setInterval(() => this.updateTime(), 1000);
+    }
   }
 
   /**
    * Stops the internal timer when the component is destroyed.
    */
   ngOnDestroy(): void {
-    if (this.timerId) clearInterval(this.timerId);
+    if (this.timerId !== undefined) {
+      clearInterval(this.timerId);
+    }
   }
 
   /**
    * Recomputes the formatted and machine-readable current time values.
    */
   private updateTime(): void {
-    const currentLocale = this.locale() ?? navigator.language;
+    const currentLocale = this.locale() ?? globalThis.navigator?.language ?? 'en-US';
     const now = new Date();
 
     this.time = now.toLocaleTimeString(currentLocale, {
