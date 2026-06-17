@@ -1,0 +1,87 @@
+:host {
+    display: flex;
+    width: 100%;
+}
+
+.input-group {
+    display: inline-flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+:host ::ng-deep app-input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+:host ::ng-deep app-input input,
+:host ::ng-deep app-button .app-button,
+:host ::ng-deep [inputGroupAddon] {
+    position: relative;
+    border-radius: 0;
+}
+
+:host ::ng-deep app-input:not(:first-child) input,
+:host ::ng-deep app-button:not(:first-child) .app-button,
+:host ::ng-deep [inputGroupAddon]:not(:first-child) {
+    margin-left: calc(var(--border-width-thin) * -1);
+}
+
+:host ::ng-deep app-input:first-child input,
+:host ::ng-deep app-button:first-child .app-button,
+:host ::ng-deep [inputGroupAddon]:first-child {
+    border-top-left-radius: var(--form-control-border-radius);
+    border-bottom-left-radius: var(--form-control-border-radius);
+}
+
+:host ::ng-deep app-input:last-child input,
+:host ::ng-deep app-button:last-child .app-button,
+:host ::ng-deep [inputGroupAddon]:last-child {
+    border-top-right-radius: var(--form-control-border-radius);
+    border-bottom-right-radius: var(--form-control-border-radius);
+}
+
+:host ::ng-deep app-input:focus-within,
+:host ::ng-deep app-button:focus-within,
+:host ::ng-deep [inputGroupAddon]:focus-within {
+    z-index: 1;
+}
+
+:host ::ng-deep [inputGroupAddon] {
+    box-sizing: border-box;
+    min-width: var(--form-control-height);
+    min-height: var(--form-control-height);
+    padding-block: var(--form-control-padding-block);
+    padding-inline: var(--form-control-padding-inline);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+
+    border: var(--form-control-border);
+    background: var(--input-group-addon-background-color, var(--form-control-background-color));
+    color: var(--input-group-addon-text-color, var(--text-secondary-color));
+    font-size: var(--form-control-text-size);
+    line-height: 1;
+    white-space: nowrap;
+}
+
+:host ::ng-deep app-button {
+    --button-height: var(--form-control-height);
+    --button-min-width: var(--form-control-height);
+    --button-padding-inline: var(--form-control-padding-inline);
+    --button-border-radius: 0;
+}
+
+:host ::ng-deep app-button .app-button {
+    box-shadow: none;
+}
+
+:host ::ng-deep app-button:not(:first-child) .app-button {
+    border-left: var(--button-border);
+}
+
+:host(.input-group--disabled) ::ng-deep [inputGroupAddon] {
+    opacity: var(--form-disabled-opacity);
+}
