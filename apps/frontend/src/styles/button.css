@@ -13,7 +13,7 @@
 
     --button-icon-padding: 0;
     --button-icon-min-width: 0;
-    --button-icon-font-size: var(--font-size-large);
+    --button-icon-font-size: var(--font-size-350);
     --button-icon-border-radius: var(--button-border-radius);
 
     --button-primary-background-color: var(--control-accent-background-color);
