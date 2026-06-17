@@ -134,7 +134,7 @@ interface ResolvedWriteValue<T> {
     ButtonComponent,
   ],
   templateUrl: './autocomplete-textbox.component.html',
-  styleUrls: ['./autocomplete-textbox.component.css'],
+  styleUrl: './autocomplete-textbox.component.css',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

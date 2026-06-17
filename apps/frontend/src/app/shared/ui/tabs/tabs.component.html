@@ -1,31 +1,31 @@
 <div class="tabs" role="tablist" aria-label="Tabs navigation">
-  @for (tabItem of tabItems(); track $index; let index = $index) {
-    <button
-      type="button"
-      class="tabs-trigger"
-      role="tab"
-      [id]="triggerId(index)"
-      [attr.aria-controls]="panelId(index)"
-      [attr.aria-selected]="activeIndex() === index"
-      [attr.tabindex]="activeIndex() === index ? 0 : -1"
-      [class.tabs-trigger-active]="activeIndex() === index"
-      (click)="selectTab(index)"
-      (keydown)="onTabKeydown($event, index)"
-    >
-      {{ tabItem.label() }}
-    </button>
-  }
+    @for (tabItem of tabItems(); track $index; let index = $index) {
+        <button
+            type="button"
+            class="tabs-trigger"
+            role="tab"
+            [id]="triggerId(index)"
+            [attr.aria-controls]="panelId(index)"
+            [attr.aria-selected]="activeIndex() === index"
+            [attr.tabindex]="activeIndex() === index ? 0 : -1"
+            [class.tabs-trigger-active]="activeIndex() === index"
+            (click)="selectTab(index)"
+            (keydown)="onTabKeydown($event, index)"
+        >
+            {{ tabItem.label() }}
+        </button>
+    }
 </div>
 
 @for (tabItem of tabItems(); track $index; let index = $index) {
-  @if (isLoaded(index) && activeIndex() === index) {
-    <section
-      class="tabs-panel"
-      role="tabpanel"
-      [id]="panelId(index)"
-      [attr.aria-labelledby]="triggerId(index)"
-    >
-      <ng-container [ngTemplateOutlet]="tabItem.template"></ng-container>
-    </section>
-  }
+    @if (isLoaded(index) && activeIndex() === index) {
+        <section
+            class="tabs-panel"
+            role="tabpanel"
+            [id]="panelId(index)"
+            [attr.aria-labelledby]="triggerId(index)"
+        >
+            <ng-container [ngTemplateOutlet]="tabItem.template"></ng-container>
+        </section>
+    }
 }

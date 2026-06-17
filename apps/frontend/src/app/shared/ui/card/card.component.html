@@ -8,8 +8,8 @@
             @if (title()) {
                 <h3 [id]="titleElementId" class="app-card-title">{{ title() }}</h3>
             }
-            @if (headerTpl) {
-                <ng-container [ngTemplateOutlet]="headerTpl"></ng-container>
+            @if (headerTpl()) {
+                <ng-container [ngTemplateOutlet]="headerTpl()"></ng-container>
             }
         </header>
     }
@@ -20,7 +20,7 @@
 
     @if (hasFooter) {
         <footer class="app-card-footer">
-            <ng-container [ngTemplateOutlet]="footerTpl"></ng-container>
+            <ng-container [ngTemplateOutlet]="footerTpl()"></ng-container>
         </footer>
     }
 </section>

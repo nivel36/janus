@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, ContentChild, TemplateRef, input } from '@angular/core';
+import { Component, TemplateRef, contentChild, input } from '@angular/core';
 import { createUuid } from '../../utils/uuid.utils';
 
 /**
@@ -22,7 +22,7 @@ import { createUuid } from '../../utils/uuid.utils';
   standalone: true,
   imports: [NgTemplateOutlet],
   templateUrl: './card.component.html',
-  styleUrls: ['./card.component.css'],
+  styleUrl: './card.component.css',
 })
 export class CardComponent {
   readonly titleElementId = `card-${createUuid()}-title`;
@@ -51,14 +51,16 @@ export class CardComponent {
   /**
    * Optional projected template rendered inside the header container.
    */
-  @ContentChild('cardHeader', { read: TemplateRef })
-  headerTpl?: TemplateRef<unknown>;
+  readonly headerTpl = contentChild<string, TemplateRef<unknown>>('cardHeader', {
+    read: TemplateRef,
+  });
 
   /**
    * Optional projected template rendered inside the footer container.
    */
-  @ContentChild('cardFooter', { read: TemplateRef })
-  footerTpl?: TemplateRef<unknown>;
+  readonly footerTpl = contentChild<string, TemplateRef<unknown>>('cardFooter', {
+    read: TemplateRef,
+  });
 
   /**
    * Indicates whether the card header should be rendered.
@@ -67,13 +69,13 @@ export class CardComponent {
    * template.</p>
    */
   get hasHeader(): boolean {
-    return !!this.headerTpl || !!this.title();
+    return !!this.headerTpl() || !!this.title();
   }
 
   /**
    * Indicates whether the card footer should be rendered.
    */
   get hasFooter(): boolean {
-    return !!this.footerTpl;
+    return !!this.footerTpl();
   }
 }
