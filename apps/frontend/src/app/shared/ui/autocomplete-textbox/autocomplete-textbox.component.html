@@ -1,32 +1,32 @@
 <div class="autocomplete" [class.disabled]="disabled">
     <div class="input-wrapper" #inputWrapper cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <input
-            [id]="controlId()"
+        <app-input
+            [inputId]="controlId()"
             type="text"
             role="combobox"
             autocomplete="off"
             autocapitalize="off"
             autocorrect="off"
-            spellcheck="false"
+            [spellcheck]="false"
             [placeholder]="hasSelection ? '' : emptyHint() || placeholder() || ''"
             [formControl]="textControl"
             [readonly]="hasSelection"
-            [attr.aria-label]="ariaLabelledBy() ? null : ariaLabel() || null"
-            [attr.aria-labelledby]="ariaLabelledBy() || null"
-            [attr.aria-describedby]="ariaDescribedBy() || null"
-            [attr.aria-invalid]="ariaInvalid() ? 'true' : null"
-            [attr.aria-readonly]="hasSelection ? 'true' : null"
+            [ariaLabel]="ariaLabelledBy() ? null : ariaLabel() || null"
+            [ariaLabelledBy]="ariaLabelledBy() || null"
+            [ariaDescribedBy]="ariaDescribedBy() || null"
+            [ariaInvalid]="ariaInvalid()"
+            [ariaReadonly]="hasSelection ? true : null"
             [attr.aria-disabled]="disabled ? 'true' : null"
-            [attr.aria-expanded]="isOverlayOpen ? 'true' : 'false'"
-            [attr.aria-haspopup]="'listbox'"
-            [attr.aria-controls]="isOverlayOpen ? resultsListId : null"
-            [attr.aria-activedescendant]="
+            [ariaExpanded]="isOverlayOpen"
+            ariaHaspopup="listbox"
+            [ariaControls]="isOverlayOpen ? resultsListId : null"
+            [ariaActiveDescendant]="
                 isOverlayOpen && activeIndex >= 0 && results.length > 0
                     ? getOptionId(activeIndex)
                     : null
             "
-            [attr.aria-busy]="isLoading ? 'true' : 'false'"
-            [attr.aria-autocomplete]="hasSelection ? null : 'list'"
+            [ariaBusy]="isLoading"
+            [ariaAutocomplete]="hasSelection ? null : 'list'"
             (blur)="handleBlur()"
             (keydown)="onInputKeydown($event)"
         />
