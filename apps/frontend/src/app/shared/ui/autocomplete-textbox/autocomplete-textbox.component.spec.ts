@@ -162,7 +162,7 @@ describe('AutocompleteTextboxComponent', () => {
     expect(input.readOnly).toBe(true);
     expect(input.value).toBe('madr-1');
     expect(component.isOverlayOpen).toBe(false);
-    expect(fixture.debugElement.query(By.css('.clear-button'))).not.toBeNull();
+    expect(fixture.debugElement.query(By.css('app-button button'))).not.toBeNull();
     expect(onChangeSpy).toHaveBeenCalledTimes(1);
     expect(onChangeSpy).toHaveBeenCalledWith('madr-1');
     expect(selectedChangeSpy).toHaveBeenCalledTimes(1);
@@ -229,7 +229,7 @@ describe('AutocompleteTextboxComponent', () => {
     expect(component.selectedValue).toBe('valor fijo');
     expect(input.value).toBe('valor fijo');
     expect(input.readOnly).toBe(true);
-    expect(fixture.debugElement.query(By.css('.clear-button'))).not.toBeNull();
+    expect(fixture.debugElement.query(By.css('app-button button'))).not.toBeNull();
   });
 
   it('should keep fallback text without selection when resolveByValue returns null', async () => {
@@ -245,7 +245,7 @@ describe('AutocompleteTextboxComponent', () => {
     expect(component.selectedValue).toBeNull();
     expect(input.value).toBe('texto externo');
     expect(input.readOnly).toBe(false);
-    expect(fixture.debugElement.query(By.css('.clear-button'))).toBeNull();
+    expect(fixture.debugElement.query(By.css('app-button button'))).toBeNull();
   });
 
   it('should clear selection, hide clear button and make input editable again', async () => {
@@ -257,7 +257,7 @@ describe('AutocompleteTextboxComponent', () => {
     fixture.detectChanges();
 
     const clearButton: HTMLButtonElement = fixture.debugElement.query(
-      By.css('.clear-button'),
+      By.css('app-button button'),
     ).nativeElement;
 
     clearButton.click();
@@ -269,7 +269,7 @@ describe('AutocompleteTextboxComponent', () => {
     expect(input.readOnly).toBe(false);
     expect(input.value).toBe('');
     expect(component.textControl.value).toBe('');
-    expect(fixture.debugElement.query(By.css('.clear-button'))).toBeNull();
+    expect(fixture.debugElement.query(By.css('app-button button'))).toBeNull();
   });
 
   it('should show empty hint when no value is selected', () => {
