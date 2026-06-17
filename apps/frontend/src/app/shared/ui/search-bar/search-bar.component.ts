@@ -11,6 +11,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 import { ButtonComponent } from '../button/button.component';
 import { InputComponent } from '../input/input.component';
+import { createUuid } from '../../utils/uuid.utils';
 import { InputGroupComponent } from '../input-group/input-group.component';
 
 /**
@@ -32,6 +33,7 @@ import { InputGroupComponent } from '../input-group/input-group.component';
 })
 export class SearchBarComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly instanceId = createUuid();
 
   /**
    * Debounce time, in milliseconds, applied to user typing.
@@ -56,12 +58,12 @@ export class SearchBarComponent implements OnInit {
   /**
    * DOM identifier of the main input element.
    */
-  protected readonly inputId = 'search-bar-input';
+  protected readonly inputId = `search-bar-${this.instanceId}-input`;
 
   /**
    * DOM identifier of the hidden helper text associated with the input.
    */
-  protected readonly helpTextId = 'search-bar-help';
+  protected readonly helpTextId = `search-bar-${this.instanceId}-help`;
 
   /**
    * Reactive control bound to the visible search input.
