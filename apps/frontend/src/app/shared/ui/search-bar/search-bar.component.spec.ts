@@ -107,6 +107,24 @@ describe('SearchBarComponent', () => {
     expect(component).toBeTruthy();
   });
 
+
+  it('should generate unique input and help text IDs for each component instance', async () => {
+    const firstFixture = await createComponent();
+    const secondFixture = await createComponent();
+
+    const firstInput = getInput(firstFixture);
+    const secondInput = getInput(secondFixture);
+    const firstHelpTextId = firstInput.getAttribute('aria-describedby');
+    const secondHelpTextId = secondInput.getAttribute('aria-describedby');
+
+    expect(firstInput.id).toMatch(/^search-bar-.+-input$/);
+    expect(secondInput.id).toMatch(/^search-bar-.+-input$/);
+    expect(firstHelpTextId).toMatch(/^search-bar-.+-help$/);
+    expect(secondHelpTextId).toMatch(/^search-bar-.+-help$/);
+    expect(firstInput.id).not.toBe(secondInput.id);
+    expect(firstHelpTextId).not.toBe(secondHelpTextId);
+  });
+
   it('should render the shared button component as a submit button', async () => {
     fixture = await createComponent();
 
