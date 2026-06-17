@@ -1,27 +1,7 @@
-h1 {
-    line-height: 1.1;
-    letter-spacing: 0.1rem;
-}
-
-h2 {
-    margin: 0 0 1rem;
-    line-height: 1.05;
-}
-
-h3 {
-    line-height: 1.1;
-}
-
 .app-title {
     font-size: var(--font-size-200);
     color: var(--text-secondary-color);
     text-transform: uppercase;
-    font-weight: 600;
-}
-
-.app-card-title {
-    font-size: var(--font-size-400);
-    color: var(--text-primary-color);
     font-weight: 600;
 }
 

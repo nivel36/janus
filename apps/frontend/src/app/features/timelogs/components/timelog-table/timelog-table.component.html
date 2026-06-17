@@ -1,6 +1,6 @@
 <section class="app-table-section timelog-table-section" aria-labelledby="timelog-title">
     <header class="app-table-section-header timelog-table-section-header">
-        <h2 id="timelog-title" class="app-table-section-title timelog-title">
+        <h2 id="timelog-title" class="app-table-section-title timelog-table-section-title">
             {{ 'timelog.timelogs' | translate }}
         </h2>
         @if (totalItems() > 0) {
@@ -30,7 +30,7 @@
     }
 
     @if (!timelogsResource.isLoading() && timelogs().length > 0) {
-        <table class="app-table timelog-table" aria-labelledby="timelog-title">
+        <table class="app-table timelog-table">
             <thead>
                 <tr>
                     <th scope="col">{{ 'timelog.date' | translate }}</th>

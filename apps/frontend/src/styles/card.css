@@ -31,6 +31,12 @@
     padding-top: var(--card-padding-block);
 }
 
+.app-card-title {
+    font-size: var(--font-size-very-large);
+    color: var(--text-primary-color);
+    font-weight: 600;
+}
+
 .app-card-body {
     flex: 1 1 auto;
     min-height: 0;

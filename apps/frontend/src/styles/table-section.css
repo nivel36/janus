@@ -93,6 +93,7 @@
 
     .app-table-section .app-table th,
     .app-table-section .app-table td {
-        padding: var(--table-section-compact-cell-padding-block) var(--table-section-compact-cell-padding-inline);
+        padding: var(--table-section-compact-cell-padding-block)
+            var(--table-section-compact-cell-padding-inline);
     }
 }

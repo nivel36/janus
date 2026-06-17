@@ -1,4 +1,6 @@
 .clock-time {
     font-size: var(--font-size-900);
-    color: var(--accent-color);
+    color: var(--accent-strong-color);
+    font-weight: 700;
+    letter-spacing: 0.125rem;
 }

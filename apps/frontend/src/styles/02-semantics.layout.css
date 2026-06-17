@@ -47,7 +47,7 @@
     --summary-card-value-font-size: var(--font-size-heading-2);
 
     --table-section-gap: var(--section-medium-gap);
-    --table-section-title-font-size: var(--font-size-heading-2);
+    --table-section-title-font-size: var(--font-size-large);
     --table-section-title-color: var(--accent-color);
     --table-section-table-background-color: var(--panel-background-color);
     --table-section-table-border-radius: var(--panel-border-radius);

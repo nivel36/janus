@@ -18,7 +18,7 @@
 
 .clock-in {
     color: var(--text-primary-color);
-    font-size: var(--font-size-large);
+    font-size: var(--font-size-very-large);
     font-weight: 600;
 }
 
