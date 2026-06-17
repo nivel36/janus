@@ -17,7 +17,7 @@ import { TabItemDirective } from './tab-item.directive';
   standalone: true,
   imports: [NgTemplateOutlet],
   templateUrl: './tabs.component.html',
-  styleUrls: ['./tabs.component.css'],
+  styleUrl: './tabs.component.css',
 })
 export class TabsComponent {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
