@@ -1,47 +1,49 @@
 <div class="autocomplete" [class.disabled]="disabled">
     <div class="input-wrapper" #inputWrapper cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <app-input
-            [inputId]="controlId()"
-            type="text"
-            role="combobox"
-            autocomplete="off"
-            autocapitalize="off"
-            autocorrect="off"
-            [spellcheck]="false"
-            [placeholder]="hasSelection ? '' : emptyHint() || placeholder() || ''"
-            [formControl]="textControl"
-            [readonly]="hasSelection"
-            [ariaLabel]="ariaLabelledBy() ? null : ariaLabel() || null"
-            [ariaLabelledBy]="ariaLabelledBy() || null"
-            [ariaDescribedBy]="ariaDescribedBy() || null"
-            [ariaInvalid]="ariaInvalid()"
-            [ariaReadonly]="hasSelection ? true : null"
-            [attr.aria-disabled]="disabled ? 'true' : null"
-            [ariaExpanded]="isOverlayOpen"
-            ariaHaspopup="listbox"
-            [ariaControls]="isOverlayOpen ? resultsListId : null"
-            [ariaActiveDescendant]="
-                isOverlayOpen && activeIndex >= 0 && results.length > 0
-                    ? getOptionId(activeIndex)
-                    : null
-            "
-            [ariaBusy]="isLoading"
-            [ariaAutocomplete]="hasSelection ? null : 'list'"
-            (blur)="handleBlur()"
-            (keydown)="onInputKeydown($event)"
-        />
+        <app-input-group [disabled]="disabled">
+            <app-input
+                [inputId]="controlId()"
+                type="text"
+                role="combobox"
+                autocomplete="off"
+                autocapitalize="off"
+                autocorrect="off"
+                [spellcheck]="false"
+                [placeholder]="hasSelection ? '' : emptyHint() || placeholder() || ''"
+                [formControl]="textControl"
+                [readonly]="hasSelection"
+                [ariaLabel]="ariaLabelledBy() ? null : ariaLabel() || null"
+                [ariaLabelledBy]="ariaLabelledBy() || null"
+                [ariaDescribedBy]="ariaDescribedBy() || null"
+                [ariaInvalid]="ariaInvalid()"
+                [ariaReadonly]="hasSelection ? true : null"
+                [attr.aria-disabled]="disabled ? 'true' : null"
+                [ariaExpanded]="isOverlayOpen"
+                ariaHaspopup="listbox"
+                [ariaControls]="isOverlayOpen ? resultsListId : null"
+                [ariaActiveDescendant]="
+                    isOverlayOpen && activeIndex >= 0 && results.length > 0
+                        ? getOptionId(activeIndex)
+                        : null
+                "
+                [ariaBusy]="isLoading"
+                [ariaAutocomplete]="hasSelection ? null : 'list'"
+                (blur)="handleBlur()"
+                (keydown)="onInputKeydown($event)"
+            />
 
-        @if (hasSelection) {
-            <button
-                type="button"
-                class="clear-button"
-                [attr.aria-label]="clearButtonAriaLabel() || ('actions.clearSelection' | translate)"
-                [disabled]="disabled"
-                (click)="clearSelection()"
-            >
-                ✕
-            </button>
-        }
+            @if (hasSelection) {
+                <app-button
+                    type="button"
+                    [icon]="true"
+                    [disabled]="disabled"
+                    [ariaLabel]="clearButtonAriaLabel() || ('actions.clearSelection' | translate)"
+                    (clicked)="clearSelection()"
+                >
+                    ✕
+                </app-button>
+            }
+        </app-input-group>
     </div>
 
     <div class="sr-only" [id]="statusMessageId" role="status" aria-live="polite" aria-atomic="true">

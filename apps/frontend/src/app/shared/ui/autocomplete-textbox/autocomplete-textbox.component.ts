@@ -45,7 +45,9 @@ import {
 } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SearchMethod } from '../../types/search.types';
+import { ButtonComponent } from '../button/button.component';
 import { InputComponent } from '../input/input.component';
+import { InputGroupComponent } from '../input-group/input-group.component';
 
 const noopAutocompleteChange = (value: string | null): void => {
   void value;
@@ -121,7 +123,15 @@ interface ResolvedWriteValue<T> {
 @Component({
   selector: 'app-autocomplete-textbox',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, OverlayModule, TranslatePipe, InputComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    OverlayModule,
+    TranslatePipe,
+    InputComponent,
+    InputGroupComponent,
+    ButtonComponent,
+  ],
   templateUrl: './autocomplete-textbox.component.html',
   styleUrls: ['./autocomplete-textbox.component.css'],
   providers: [
