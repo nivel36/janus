@@ -3,9 +3,8 @@
         <section class="app-card worksites-card">
             <div class="app-card-body worksites-card-body">
                 <form [formGroup]="form" (ngSubmit)="save()">
-                    <app-text-field
-                        inputId="worksite-code"
-                        formControlName="code"
+                    <app-field
+                        controlId="worksite-code"
                         [label]="'worksite.code' | translate"
                         [hint]="
                             form.controls.code.pending
@@ -21,22 +20,63 @@
                                       : ('worksite.errors.invalidCode' | translate)
                                 : ''
                         "
-                        autocomplete="off"
+                        [invalid]="form.controls.code.touched && form.controls.code.invalid"
+                        [disabled]="form.controls.code.disabled"
                         required
-                    />
+                    >
+                        <app-input
+                            inputId="worksite-code"
+                            formControlName="code"
+                            autocomplete="off"
+                            ariaLabelledBy="worksite-code-label"
+                            [ariaDescribedBy]="
+                                form.controls.code.touched && form.controls.code.invalid
+                                    ? 'worksite-code-error'
+                                    : form.controls.code.pending
+                                      ? 'worksite-code-hint'
+                                      : null
+                            "
+                            [ariaInvalid]="form.controls.code.touched && form.controls.code.invalid"
+                            [ariaErrorMessage]="
+                                form.controls.code.touched && form.controls.code.invalid
+                                    ? 'worksite-code-error'
+                                    : null
+                            "
+                            required
+                        />
+                    </app-field>
 
-                    <app-text-field
-                        inputId="worksite-name"
-                        formControlName="name"
+                    <app-field
+                        controlId="worksite-name"
                         [label]="'worksite.name' | translate"
                         [error]="
                             form.controls.name.touched && form.controls.name.invalid
                                 ? ('worksite.errors.invalidName' | translate)
                                 : ''
                         "
-                        autocomplete="off"
+                        [invalid]="form.controls.name.touched && form.controls.name.invalid"
+                        [disabled]="form.controls.name.disabled"
                         required
-                    />
+                    >
+                        <app-input
+                            inputId="worksite-name"
+                            formControlName="name"
+                            autocomplete="off"
+                            ariaLabelledBy="worksite-name-label"
+                            [ariaDescribedBy]="
+                                form.controls.name.touched && form.controls.name.invalid
+                                    ? 'worksite-name-error'
+                                    : null
+                            "
+                            [ariaInvalid]="form.controls.name.touched && form.controls.name.invalid"
+                            [ariaErrorMessage]="
+                                form.controls.name.touched && form.controls.name.invalid
+                                    ? 'worksite-name-error'
+                                    : null
+                            "
+                            required
+                        />
+                    </app-field>
 
                     <app-field
                         controlId="worksite-scope"
@@ -82,29 +122,65 @@
                         />
                     </app-field>
 
-                    <app-text-field
-                        inputId="worksite-address"
-                        formControlName="address"
+                    <app-field
+                        controlId="worksite-address"
                         [label]="'worksite.address' | translate"
                         [error]="
                             form.controls.address.touched && form.controls.address.invalid
                                 ? ('worksite.errors.invalidAddress' | translate)
                                 : ''
                         "
-                        autocomplete="street-address"
-                    />
+                        [invalid]="form.controls.address.touched && form.controls.address.invalid"
+                        [disabled]="form.controls.address.disabled"
+                    >
+                        <app-input
+                            inputId="worksite-address"
+                            formControlName="address"
+                            autocomplete="street-address"
+                            ariaLabelledBy="worksite-address-label"
+                            [ariaDescribedBy]="
+                                form.controls.address.touched && form.controls.address.invalid
+                                    ? 'worksite-address-error'
+                                    : null
+                            "
+                            [ariaInvalid]="form.controls.address.touched && form.controls.address.invalid"
+                            [ariaErrorMessage]="
+                                form.controls.address.touched && form.controls.address.invalid
+                                    ? 'worksite-address-error'
+                                    : null
+                            "
+                        />
+                    </app-field>
 
-                    <app-text-field
-                        inputId="worksite-description"
-                        formControlName="description"
+                    <app-field
+                        controlId="worksite-description"
                         [label]="'worksite.description' | translate"
                         [error]="
                             form.controls.description.touched && form.controls.description.invalid
                                 ? ('worksite.errors.invalidDescription' | translate)
                                 : ''
                         "
-                        autocomplete="off"
-                    />
+                        [invalid]="form.controls.description.touched && form.controls.description.invalid"
+                        [disabled]="form.controls.description.disabled"
+                    >
+                        <app-input
+                            inputId="worksite-description"
+                            formControlName="description"
+                            autocomplete="off"
+                            ariaLabelledBy="worksite-description-label"
+                            [ariaDescribedBy]="
+                                form.controls.description.touched && form.controls.description.invalid
+                                    ? 'worksite-description-error'
+                                    : null
+                            "
+                            [ariaInvalid]="form.controls.description.touched && form.controls.description.invalid"
+                            [ariaErrorMessage]="
+                                form.controls.description.touched && form.controls.description.invalid
+                                    ? 'worksite-description-error'
+                                    : null
+                            "
+                        />
+                    </app-field>
 
                     @if (errorMessage) {
                         <p class="message error">{{ errorMessage | translate }}</p>

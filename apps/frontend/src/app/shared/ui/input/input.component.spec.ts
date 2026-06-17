@@ -7,23 +7,26 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { TextFieldComponent } from './text-field.component';
+import { FieldComponent } from '../field/field.component';
+import { InputComponent } from './input.component';
 
 @Component({
   template: `
     <form [formGroup]="form">
-      <app-text-field
-        formControlName="name"
-        label="Name"
-        hint="Enter a name"
-        inputId="worksite-name"
-        autocomplete="organization"
-        required
-      />
+      <app-field controlId="worksite-name" label="Name" hint="Enter a name" required>
+        <app-input
+          formControlName="name"
+          inputId="worksite-name"
+          autocomplete="organization"
+          ariaLabelledBy="worksite-name-label"
+          ariaDescribedBy="worksite-name-hint"
+          required
+        />
+      </app-field>
     </form>
   `,
   standalone: true,
-  imports: [ReactiveFormsModule, TextFieldComponent],
+  imports: [ReactiveFormsModule, FieldComponent, InputComponent],
 })
 class TestHostComponent {
   readonly form = new FormGroup({
@@ -31,7 +34,7 @@ class TestHostComponent {
   });
 }
 
-describe('TextFieldComponent (ControlValueAccessor)', () => {
+describe('InputComponent (ControlValueAccessor)', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let host: TestHostComponent;
 
