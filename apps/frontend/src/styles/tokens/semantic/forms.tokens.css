@@ -94,17 +94,6 @@
     --search-bar-padding-inline: 0.75rem;
     --search-bar-font-size: 0.95rem;
 
-    --autocomplete-clear-button-padding-inline: 0.66rem;
-    --autocomplete-clear-button-font-size: 1.66rem;
-    --autocomplete-clear-button-focus-outline: var(--focus-ring-width) var(--border-style) var(--form-control-background-color);
-    --autocomplete-clear-button-focus-outline-offset: calc(var(--focus-ring-width) * -1);
-    --autocomplete-results-max-width: min(30rem, calc(100vw - var(--size-600)));
-    --autocomplete-results-max-height: 14rem;
-    --autocomplete-results-padding-block: var(--size-100);
-    --autocomplete-results-padding-inline: 0;
-    --autocomplete-results-shadow: 0 1rem 2rem var(--color-black-alpha-35);
-    --autocomplete-result-padding-block: var(--size-200);
-    --autocomplete-result-padding-inline: 0.75rem;
 
     /* app-form-actions      → buttons */
 }
