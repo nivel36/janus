@@ -1,4 +1,4 @@
-.employee-card-header {
+.employee-card__header {
     display: flex;
     align-items: center;
     gap: var(--section-gap);
@@ -22,7 +22,7 @@
     padding-bottom: 0;
 }
 
-.employee-data dt {
+.employee-card__data dt {
     color: var(--accent-color);
     font-weight: 600;
     text-shadow: 0 1px 0 var(--color-black);

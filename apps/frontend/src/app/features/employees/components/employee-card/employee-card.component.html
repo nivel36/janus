@@ -1,14 +1,14 @@
 <section class="app-card employee-card" [attr.aria-labelledby]="titleElementId">
-    <header class="app-card-header employee-card-header">
+    <header class="app-card__header employee-card__header">
         <img class="avatar" [src]="avatarSrc()" alt="" />
 
-        <h2 class="app-card-title employee-card-title" [id]="titleElementId">
+        <h2 class="app-card__title employee-card__title" [id]="titleElementId">
             {{ 'employee.employee' | translate }}
         </h2>
     </header>
 
-    <div class="app-card-body employee-card-body">
-        <dl class="employee-data">
+    <div class="app-card__body employee-card__body">
+        <dl class="employee-card__data">
             <div class="data">
                 <dt>{{ 'employee.fullName' | translate }}</dt>
                 <dd>{{ fullName() || '—' }}</dd>

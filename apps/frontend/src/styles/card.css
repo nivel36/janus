@@ -1,52 +1,42 @@
-:root {
-    --card-padding-inline: var(--panel-padding-inline);
-    --card-padding-block: var(--panel-padding-block);
-    --card-gap: var(--panel-gap);
-    --card-background-color: var(--panel-background-color);
-    --card-border: var(--panel-border);
-    --card-border-radius: var(--panel-border-radius);
-    --card-box-shadow: var(--panel-shadow);
-}
-
 .app-card {
     display: flex;
     flex: 1;
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    background: var(--card-background-color);
-    border: var(--card-border);
-    border-radius: var(--card-border-radius);
-    box-shadow: var(--card-box-shadow);
+    background: var(--panel-background-color);
+    border: var(--panel-border);
+    border-radius: var(--panel-border-radius);
+    box-shadow: var(--panel-shadow);
 }
 
-.app-card-header,
-.app-card-body,
-.app-card-footer {
-    padding-inline: var(--card-padding-inline);
+.app-card__header,
+.app-card__body,
+.app-card__footer {
+    padding-inline: var(--panel-padding-inline);
 }
 
-.app-card-header {
+.app-card__header {
     flex: 0 0 auto;
-    padding-top: var(--card-padding-block);
+    padding-top: var(--panel-padding-block);
 }
 
-.app-card-title {
+.app-card__title {
     font-size: var(--font-size-very-large);
     color: var(--text-primary-color);
     font-weight: 600;
 }
 
-.app-card-body {
+.app-card__body {
     flex: 1 1 auto;
     min-height: 0;
     overflow: auto;
-    padding-block: var(--card-padding-block);
+    padding-block: var(--panel-padding-block);
 }
 
-.app-card-footer {
+.app-card__footer {
     flex: 0 0 auto;
     margin-top: auto;
-    padding-bottom: var(--card-padding-block);
+    padding-bottom: var(--panel-padding-block);
     align-self: stretch;
 }

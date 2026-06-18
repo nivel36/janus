@@ -2,7 +2,7 @@
     text-align: center;
 }
 
-.clock-in-card-body {
+.clock-in-card__body {
     display: flex;
     align-items: center;
     height: 100%;
@@ -11,17 +11,17 @@
     flex-direction: column;
 }
 
-.clock-in-card-footer {
+.clock-in-card__footer {
     text-align: right;
 }
 
-.clock-in {
+.clock-in-card__clock-in {
     color: var(--text-primary-color);
     font-size: var(--font-size-very-large);
     font-weight: 600;
 }
 
-.secondary-action {
+.clock-in-card__secondary-action {
     color: var(--text-secondary-color);
     font-size: var(--font-size-small);
     cursor: pointer;
@@ -29,23 +29,23 @@
     border: 0px;
 }
 
-.secondary-action .icon {
+.clock-in-card__secondary-action .clock-in-card__icon {
     color: var(--accent-strong-color);
 }
 
-.secondary-action:disabled {
+.clock-in-card__secondary-action:disabled {
     cursor: default;
     pointer-events: none;
 }
 
-.secondary-action:disabled .icon {
+.clock-in-card__secondary-action:disabled .clock-in-card__icon {
     color: var(--accent-muted-color);
 }
 
-.secondary-action:hover {
+.clock-in-card__secondary-action:hover {
     color: var(--text-primary-color);
 }
 
-.secondary-action:hover .icon {
+.clock-in-card__secondary-action:hover .clock-in-card__icon {
     color: var(--accent-hover-color);
 }

@@ -20,7 +20,7 @@
     text-transform: uppercase;
 }
 
-.chip__icon {
+.app-chip__icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -29,53 +29,53 @@
     line-height: 1;
 }
 
-.chip__label {
+.app-chip__label {
     line-height: 1;
 }
 
-.chip--size-small {
+.app-chip--size-small {
     padding-block: var(--chip-small-padding-block);
     padding-inline: var(--chip-small-padding-inline);
     font-size: var(--chip-small-font-size);
     gap: var(--chip-small-gap);
 }
 
-.chip--size-small .chip__icon {
+.app-chip--size-small .app-chip__icon {
     font-size: var(--chip-small-icon-size);
 }
 
-.chip--size-big {
+.app-chip--size-big {
     padding-block: var(--chip-big-padding-block);
     padding-inline: var(--chip-big-padding-inline);
     font-size: var(--chip-big-font-size);
     gap: var(--chip-big-gap);
 }
 
-.chip--size-big .chip__icon {
+.app-chip--size-big .app-chip__icon {
     font-size: var(--chip-big-icon-size);
 }
 
-.chip--primary {
+.app-chip--primary {
     background-color: var(--chip-primary-background-color);
     color: var(--chip-primary-text-color);
 }
 
-.chip--secondary {
+.app-chip--secondary {
     background-color: var(--chip-secondary-background-color);
     color: var(--chip-secondary-text-color);
 }
 
-.chip--tertiary {
+.app-chip--tertiary {
     background-color: var(--chip-tertiary-background-color);
     color: var(--chip-tertiary-text-color);
 }
 
-.chip--green {
+.app-chip--green {
     background-color: var(--chip-success-background-color);
     color: var(--chip-success-text-color);
 }
 
-.chip--red {
+.app-chip--red {
     background-color: var(--chip-error-background-color);
     color: var(--chip-error-text-color);
 }

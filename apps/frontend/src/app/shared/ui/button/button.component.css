@@ -1,4 +1,3 @@
-/* Consumes the public button tokens defined in the global styles/button.css layer. */
 .app-button {
     box-sizing: border-box;
 
@@ -47,7 +46,7 @@
     cursor: not-allowed;
 }
 
-.button-label {
+.app-button__label {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -66,7 +65,7 @@
     text-transform: none;
 }
 
-.app-button--icon .button-label {
+.app-button--icon .app-button__label {
     width: 100%;
     height: 100%;
 }

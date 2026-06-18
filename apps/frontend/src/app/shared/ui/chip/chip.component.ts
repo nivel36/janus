@@ -52,14 +52,14 @@ export class ChipComponent {
    * Builds the BEM modifier class for the selected type.
    */
   get typeClass(): string {
-    return `chip--${this.type()}`;
+    return `app-chip--${this.type()}`;
   }
 
   /**
    * Builds the BEM modifier class for the selected size.
    */
   get sizeClass(): string {
-    return `chip--size-${this.size()}`;
+    return `app-chip--size-${this.size()}`;
   }
 
   /**

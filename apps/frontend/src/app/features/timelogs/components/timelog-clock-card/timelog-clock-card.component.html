@@ -1,11 +1,11 @@
 @if (vm$ | async; as vm) {
     <section class="app-card clock-in-card" [attr.aria-labelledby]="titleElementId">
-        <h2 [id]="titleElementId" class="app-card-title clock-in-card-title app-visually-hidden">
+        <h2 [id]="titleElementId" class="app-card__title clock-in-card__title app-visually-hidden">
             {{ 'timelog.timeTracking' | translate }}
         </h2>
 
-        <div class="clock-in-card-body">
-            <p class="clock-in">
+        <div class="app-card__body clock-in-card__body">
+            <p class="clock-in-card__clock-in">
                 {{ vm.clockActionTitleKey | translate }}
             </p>
 
@@ -18,22 +18,22 @@
             }
 
             @if (vm.clockActionFeedbackKey; as feedbackKey) {
-                <p class="clock-action-feedback" role="status" aria-live="polite">
+                <p class="clock-in-card__clock-action-feedback" role="status" aria-live="polite">
                     {{ feedbackKey | translate }}
                 </p>
             }
         </div>
 
-        <footer class="app-card-footer clock-in-card-footer">
+        <footer class="app-card__footer clock-in-card__footer">
             @if (vm.hasClockInOutPermission) {
                 <button
                     type="button"
-                    class="secondary-action"
+                    class="clock-in-card__secondary-action"
                     [disabled]="vm.isClockActionLoading"
                     (click)="onOppositeClockAction()"
                 >
                     {{ vm.oppositeClockActionLabelKey | translate }}
-                    <span class="icon">
+                    <span class="clock-in-card__icon">
                         <fa-icon [icon]="faAngleRight"></fa-icon>
                     </span>
                 </button>
