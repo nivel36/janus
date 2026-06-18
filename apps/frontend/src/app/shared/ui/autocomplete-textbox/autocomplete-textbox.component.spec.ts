@@ -319,6 +319,27 @@ describe('AutocompleteTextboxComponent', () => {
     expect(fixture.debugElement.query(By.css('app-button button'))).toBeNull();
   });
 
+  it('should not move focus before clearing a selection with the pointer', async () => {
+    fixture.componentRef.setInput('resolveByValue', (value: string) => value);
+    fixture.detectChanges();
+
+    component.writeValue('valor fijo');
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const clearButton: HTMLButtonElement = fixture.debugElement.query(
+      By.css('app-button button'),
+    ).nativeElement;
+    const pointerdown = new PointerEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+    });
+
+    clearButton.dispatchEvent(pointerdown);
+
+    expect(pointerdown.defaultPrevented).toBe(true);
+  });
+
   it('should show empty hint when no value is selected', () => {
     fixture.componentRef.setInput('emptyHint', 'Search timezone');
     fixture.detectChanges();

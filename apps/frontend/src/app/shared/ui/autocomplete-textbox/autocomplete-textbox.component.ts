@@ -925,6 +925,19 @@ export class AutocompleteTextboxComponent<T = unknown>
   }
 
   /**
+   * Prevents pointer activation of the clear button from stealing focus from the
+   * currently edited field before the selection is cleared.
+   *
+   * This matters when another form control validates on blur: clearing this
+   * autocomplete should not implicitly validate the focused field.
+   *
+   * @param event Pointerdown event fired on the clear button
+   */
+  onClearButtonPointerDown(event: PointerEvent): void {
+    event.preventDefault();
+  }
+
+  /**
    * Selects an option from the current list and propagates the corresponding value
    * to the parent form.
    *

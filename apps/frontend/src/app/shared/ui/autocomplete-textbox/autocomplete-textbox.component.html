@@ -38,6 +38,7 @@
                     [icon]="true"
                     [disabled]="disabled"
                     [ariaLabel]="clearButtonAriaLabel() || ('actions.clearSelection' | translate)"
+                    (pointerdown)="onClearButtonPointerDown($event)"
                     (clicked)="clearSelection()"
                 >
                     ✕
