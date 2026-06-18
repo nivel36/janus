@@ -1,0 +1,16 @@
+:root {
+    --app-header-detail-gap: var(--panel-gap);
+    --app-header-detail-padding-inline: var(--panel-padding-inline);
+    --app-header-detail-padding-block: var(--panel-padding-block);
+    --app-header-detail-background-color: var(--panel-background-color);
+    --app-header-detail-border: var(--panel-border);
+    --app-header-detail-border-radius: var(--panel-border-radius);
+    --app-header-detail-icon-size: 6rem;
+    --app-header-detail-icon-border: var(--stroke-400) solid var(--color-white-alpha-12);
+    --app-header-detail-icon-border-radius: var(--radius-400);
+    --app-header-detail-icon-color: var(--accent-color);
+    --app-header-detail-icon-font-size: var(--font-size-700);
+    --app-header-detail-info-gap: var(--size-300);
+    --app-header-detail-info-font-size: var(--font-size-350);
+    --app-header-detail-compact-padding-inline-end: 1.85rem;
+}
