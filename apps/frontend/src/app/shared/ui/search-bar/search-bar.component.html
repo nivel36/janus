@@ -5,7 +5,7 @@
             [inputId]="inputId"
             type="search"
             [formControl]="queryControl"
-            [placeholder]="'searchBar.placeholder' | translate"
+            [placeholder]="placeholderKey() | translate"
             [ariaDescribedBy]="helpTextId"
         />
 
@@ -19,5 +19,5 @@
         </app-button>
     </app-input-group>
 
-    <span class="sr-only" [id]="helpTextId">{{ 'searchBar.helpText' | translate }}</span>
+    <span class="sr-only" [id]="helpTextId">{{ helpTextKey() | translate }}</span>
 </form>

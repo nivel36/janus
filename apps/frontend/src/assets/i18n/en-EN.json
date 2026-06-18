@@ -180,6 +180,10 @@
     "schedules": "Schedules",
     "code": "Code",
     "name": "Name",
+    "search": {
+      "placeholder": "Search schedules...",
+      "helpText": "Type to filter the schedules list"
+    },
     "loading": "Loading schedules...",
     "empty": "No schedules available yet.",
     "loadError": "Unable to load schedules at this time."

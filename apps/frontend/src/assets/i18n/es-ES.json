@@ -180,6 +180,10 @@
     "schedules": "Horarios",
     "code": "Código",
     "name": "Nombre",
+    "search": {
+      "placeholder": "Buscar horarios...",
+      "helpText": "Escribe para filtrar la lista de horarios"
+    },
     "loading": "Cargando horarios...",
     "empty": "Todavía no hay horarios disponibles.",
     "loadError": "No se pueden cargar los horarios en este momento."

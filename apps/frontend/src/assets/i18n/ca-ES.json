@@ -180,6 +180,10 @@
     "schedules": "Horaris",
     "code": "Codi",
     "name": "Nom",
+    "search": {
+      "placeholder": "Cerca horaris...",
+      "helpText": "Escriu per filtrar la llista d'horaris"
+    },
     "loading": "S'estan carregant els horaris...",
     "empty": "Encara no hi ha horaris disponibles.",
     "loadError": "Ara mateix no es poden carregar els horaris."

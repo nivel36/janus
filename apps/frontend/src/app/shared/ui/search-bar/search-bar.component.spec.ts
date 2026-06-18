@@ -18,7 +18,9 @@ describe('SearchBarComponent', () => {
   async function createComponent(
     inputs?: Partial<{
       debounceMs: number;
+      helpTextKey: string;
       minChars: number;
+      placeholderKey: string;
     }>,
   ): Promise<ComponentFixture<SearchBarComponent>> {
     const createdFixture = TestBed.createComponent(SearchBarComponent);
@@ -29,6 +31,14 @@ describe('SearchBarComponent', () => {
 
     if (inputs?.minChars !== undefined) {
       createdFixture.componentRef.setInput('minChars', inputs.minChars);
+    }
+
+    if (inputs?.placeholderKey !== undefined) {
+      createdFixture.componentRef.setInput('placeholderKey', inputs.placeholderKey);
+    }
+
+    if (inputs?.helpTextKey !== undefined) {
+      createdFixture.componentRef.setInput('helpTextKey', inputs.helpTextKey);
     }
 
     createdFixture.detectChanges();
@@ -145,6 +155,19 @@ describe('SearchBarComponent', () => {
     expect(inputGroupDe).toBeTruthy();
     expect(inputComponentDe).toBeTruthy();
     expect(input.type).toBe('search');
+  });
+
+  it('should render configurable placeholder and helper text translation keys', async () => {
+    fixture = await createComponent({
+      placeholderKey: 'schedule.search.placeholder',
+      helpTextKey: 'schedule.search.helpText',
+    });
+
+    const input = getInput(fixture);
+    const helpText = fixture.debugElement.query(By.css(`#${input.getAttribute('aria-describedby')}`));
+
+    expect(input.placeholder).toBe('schedule.search.placeholder');
+    expect(helpText.nativeElement.textContent.trim()).toBe('schedule.search.helpText');
   });
 
   it('should throw when debounceMs is negative', async () => {

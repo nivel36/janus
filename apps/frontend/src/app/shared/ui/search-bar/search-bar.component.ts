@@ -46,6 +46,16 @@ export class SearchBarComponent implements OnInit {
   readonly minChars = input(3);
 
   /**
+   * Translation key used for the input placeholder.
+   */
+  readonly placeholderKey = input('searchBar.placeholder');
+
+  /**
+   * Translation key used for the input helper text.
+   */
+  readonly helpTextKey = input('searchBar.helpText');
+
+  /**
    * Emits the effective query that has started processing.
    */
   readonly queryChange = output<string>();
