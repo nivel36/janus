@@ -6,10 +6,10 @@
 @import './styles/tokens/theme.light.css';
 
 /* Semantic tokens */
-@import './styles/tokens/01-semantics.base.css';
-@import './styles/tokens/02-semantics.layout.css';
-@import './styles/tokens/03-semantics.forms.css';
-@import './styles/tokens/04-semantics.controls.css';
+@import './styles/tokens/semantic/base.tokens.css';
+@import './styles/tokens/semantic/layout.tokens.css';
+@import './styles/tokens/semantic/forms.tokens.css';
+@import './styles/tokens/semantic/controls.tokens.css';
 
 /* Component tokens */
 @import './styles/tokens/avatar.tokens.css';
