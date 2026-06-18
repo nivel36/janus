@@ -36,7 +36,6 @@
     --form-range-text-size: var(--font-size-body);
     --form-range-text-weight: 800;
 
-    --form-range-focus-ring: var(--focus-ring);
     --form-range-height: var(--size-200);
     --form-range-radius: var(--size-100);
     --form-range-background: var(--color-gray-50);
