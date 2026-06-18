@@ -2,7 +2,7 @@
     <div pageContent class="app-page-content worksite-create-content">
         <section class="app-card worksites-card">
             <div class="app-card__body worksites-card__body">
-                <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
+                    <form class="app-form worksite-form" [formGroup]="form" (ngSubmit)="save()">
                     <app-field
                         controlId="worksite-code"
                         [label]="'worksite.code' | translate"
@@ -192,7 +192,9 @@
                     </app-field>
 
                     @if (errorMessage) {
-                        <p class="message error">{{ errorMessage | translate }}</p>
+                        <p class="worksite-form__message worksite-form__message--error">
+                            {{ errorMessage | translate }}
+                        </p>
                     }
 
                     <div class="app-form-actions">

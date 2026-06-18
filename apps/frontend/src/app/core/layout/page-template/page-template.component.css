@@ -15,36 +15,36 @@
     gap: var(--layout-main-gap);
 }
 
-.page-header {
+.page-template__header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
 }
 
-.page-brand {
+.page-template__brand {
     font-size: var(--brand-font-size);
     color: var(--brand-color);
     text-decoration: none;
     font-weight: 600;
 }
 
-.page-brand:hover,
-.page-brand:focus-visible {
+.page-template__brand:hover,
+.page-template__brand:focus-visible {
     color: var(--brand-hover-color);
     text-decoration: none;
 }
 
-.page-title {
+.page-template__title {
     font-size: var(--font-size-body);
     color: var(--text-secondary-color);
     text-transform: uppercase;
     font-weight: 600;
 }
 
-.page-body {
+.page-template__body {
     display: flex;
 }
 
-.page-footer {
+.page-template__footer {
     display: flex;
 }

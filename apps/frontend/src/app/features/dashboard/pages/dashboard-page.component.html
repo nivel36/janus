@@ -1,5 +1,5 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.dashboard">
-    <div pageContent class="app-page-content dashboard-content">
+    <div pageContent class="app-page-content dashboard-page__content">
         @if (employeeEmail$ | async; as employeeEmail) {
             <app-timelog-clock-card
                 id="clock"

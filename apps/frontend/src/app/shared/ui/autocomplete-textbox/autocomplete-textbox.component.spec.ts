@@ -99,12 +99,12 @@ describe('AutocompleteTextboxComponent', () => {
 
   function getOverlayOptions(): HTMLLIElement[] {
     return Array.from(
-      overlayContainerElement.querySelectorAll('.results li[role="option"]'),
+      overlayContainerElement.querySelectorAll('.autocomplete__results li[role="option"]'),
     ) as HTMLLIElement[];
   }
 
   function getOverlayMessage(): HTMLElement | null {
-    return overlayContainerElement.querySelector('.results .results-message');
+    return overlayContainerElement.querySelector('.autocomplete__results .autocomplete__message');
   }
 
   function selectOverlayOption(index: number): void {
@@ -244,7 +244,7 @@ describe('AutocompleteTextboxComponent', () => {
     expect(component.textControl.value).toBe('');
     expect(component.selectedValue).toBeNull();
     expect(component.isOverlayOpen).toBe(false);
-    expect(overlayContainerElement.querySelector('.results')).toBeNull();
+    expect(overlayContainerElement.querySelector('.autocomplete__results')).toBeNull();
   });
 
   it('should rebuild visible text from a FormControl initial value before first detectChanges', () => {

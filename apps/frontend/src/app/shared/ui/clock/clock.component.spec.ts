@@ -39,7 +39,7 @@ describe('ClockComponent', () => {
     fixture.detectChanges();
 
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelector('.clock-time')?.textContent?.trim()).toBe('10:15:30');
+    expect(el.querySelector('.clock__time')?.textContent?.trim()).toBe('10:15:30');
   });
 
   it('should prefer locale input over navigator.language', () => {
@@ -129,7 +129,7 @@ describe('ClockComponent', () => {
     vi.advanceTimersByTime(0);
     fixture.detectChanges();
 
-    const timeEl = fixture.nativeElement.querySelector('time.clock-time') as HTMLElement | null;
+    const timeEl = fixture.nativeElement.querySelector('time.clock__time') as HTMLElement | null;
 
     expect(timeEl).not.toBeNull();
     expect(timeEl?.getAttribute('role')).toBe('timer');

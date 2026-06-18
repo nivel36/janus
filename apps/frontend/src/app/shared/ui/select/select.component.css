@@ -32,12 +32,12 @@ select {
     height: var(--form-control-height);
 }
 
-.select.disabled {
+.select--disabled {
     cursor: not-allowed;
     opacity: var(--form-disabled-opacity);
 }
 
-.arrow {
+.select__arrow {
     --arrow-size: calc(var(--form-control-height) / 2);
     position: absolute;
     top: 50%;

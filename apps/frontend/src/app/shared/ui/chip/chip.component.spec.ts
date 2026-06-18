@@ -45,7 +45,7 @@ describe('ChipComponent', () => {
     const chipEl: HTMLElement = fixture.nativeElement.querySelector('.app-chip');
 
     expect(chipEl.textContent?.trim()).toBe('Activo');
-    expect(chipEl.querySelector('.chip__icon')).toBeNull();
+    expect(chipEl.querySelector('.app-chip__icon')).toBeNull();
   });
 
   it('should render the optional icon before the label', () => {
@@ -55,9 +55,9 @@ describe('ChipComponent', () => {
     const chipEl: HTMLElement = fixture.nativeElement.querySelector('.app-chip');
     const children = Array.from(chipEl.children);
 
-    expect(chipEl.querySelector('.chip__icon fa-icon')).not.toBeNull();
-    expect(children[0].classList).toContain('chip__icon');
-    expect(children[1].classList).toContain('chip__label');
+    expect(chipEl.querySelector('.app-chip__icon fa-icon')).not.toBeNull();
+    expect(children[0].classList).toContain('app-chip__icon');
+    expect(children[1].classList).toContain('app-chip__label');
   });
 
   it('should apply type, size, and extra classes', () => {
@@ -68,8 +68,8 @@ describe('ChipComponent', () => {
 
     const chipEl: HTMLElement = fixture.nativeElement.querySelector('.app-chip');
 
-    expect(chipEl.classList).toContain('chip--green');
-    expect(chipEl.classList).toContain('chip--size-big');
+    expect(chipEl.classList).toContain('app-chip--green');
+    expect(chipEl.classList).toContain('app-chip--size-big');
     expect(chipEl.classList).toContain('custom-chip');
   });
 });

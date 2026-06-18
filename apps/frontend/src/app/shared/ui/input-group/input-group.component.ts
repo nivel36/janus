@@ -14,9 +14,6 @@ import { booleanAttribute, Component, input } from '@angular/core';
   standalone: true,
   templateUrl: './input-group.component.html',
   styleUrl: './input-group.component.css',
-  host: {
-    '[class.input-group--disabled]': 'disabled()',
-  },
 })
 export class InputGroupComponent {
   /** Accessible label for the grouped input controls. */

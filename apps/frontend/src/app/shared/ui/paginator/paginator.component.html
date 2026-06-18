@@ -1,7 +1,7 @@
 <div class="paginator" role="group" [attr.aria-label]="ariaLabel()">
     <button
         type="button"
-        class="paginator-button"
+        class="paginator__button"
         [disabled]="!hasPreviousPage()"
         [attr.aria-label]="previousLabel()"
         (click)="goToPreviousPage()"
@@ -9,13 +9,13 @@
         <fa-icon [icon]="faAngleLeft"></fa-icon>
     </button>
 
-    <span class="paginator-text">
+    <span class="paginator__text">
         {{ startItem() }}-{{ endItem() }} {{ betweenLabel() }} {{ totalItems() }}
     </span>
 
     <button
         type="button"
-        class="paginator-button"
+        class="paginator__button"
         [disabled]="!hasNextPage()"
         [attr.aria-label]="nextLabel()"
         (click)="goToNextPage()"

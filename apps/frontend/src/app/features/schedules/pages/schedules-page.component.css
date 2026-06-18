@@ -1,31 +1,31 @@
-.schedules-content {
+.schedules-page__content {
     flex-direction: column;
 }
 
-.schedules-toolbar {
+.schedules-page__toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.schedules-toolbar app-search-bar {
+.schedules-page__toolbar app-search-bar {
     display: block;
     width: min(25rem, 100%);
 }
 
-.schedules-content app-schedule-table {
+.schedules-page__content app-schedule-table {
     display: block;
     flex: 1;
     min-height: 32rem;
 }
 
 @media (max-width: 640px) {
-    .schedules-toolbar {
+    .schedules-page__toolbar {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .schedules-toolbar app-search-bar {
+    .schedules-page__toolbar app-search-bar {
         width: 100%;
     }
 }

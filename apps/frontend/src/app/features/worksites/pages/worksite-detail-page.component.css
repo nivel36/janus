@@ -1,8 +1,8 @@
-.worksite-detail-content {
+.worksite-detail__content {
     flex-direction: column;
 }
 
-.worksite-detail-grid {
+.worksite-detail__grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--layout-main-gap);
@@ -23,17 +23,17 @@
     grid-area: sumary;
 }
 
-.worksite-panel-title {
+.worksite-detail__panel-title {
     text-transform: uppercase;
 }
 
-.detail-list {
+.worksite-detail__list {
     display: flex;
     flex-direction: column;
     margin: 0;
 }
 
-.detail-row {
+.worksite-detail__row {
     display: grid;
     grid-template-columns: minmax(8rem, 0.34fr) minmax(0, 1fr);
     gap: 1.5rem;
@@ -42,18 +42,18 @@
     border-bottom: 1px solid var(--color-white-alpha-10);
 }
 
-.detail-row:last-child {
+.worksite-detail__row:last-child {
     border-bottom: 0;
 }
 
-.detail-row dt {
+.worksite-detail__row dt {
     color: var(--summary-card-label-color);
     font-weight: 900;
     letter-spacing: 0.11em;
     text-transform: uppercase;
 }
 
-.detail-row dd {
+.worksite-detail__row dd {
     min-width: 0;
     margin: 0;
     color: var(--color-white);
@@ -61,36 +61,36 @@
     overflow-wrap: anywhere;
 }
 
-.summary-grid {
+.worksite-detail__summary-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
 }
 
-.worksite-actions {
+.worksite-detail__actions {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 1.55rem;
 }
 
-:host ::ng-deep .empty-panel .app-card-body {
+:host ::ng-deep .worksite-detail__panel--empty .app-card__body {
     min-height: 24rem;
 }
 
-.worksite-detail-message {
+.worksite-detail__message {
     padding: 1rem 1.5rem;
     border-radius: 0.5rem;
     background: var(--color-white-alpha-06);
 }
 
-.worksite-detail-message.error {
+.worksite-detail__message--error {
     background: var(--color-error-soft-alpha-12);
     color: var(--color-error-soft);
 }
 
 @media (max-width: 900px) {
-    .worksite-detail-grid {
+    .worksite-detail__grid {
         grid-template-columns: 1fr;
         grid-template-areas:
             'header'
@@ -100,16 +100,16 @@
 }
 
 @media (max-width: 640px) {
-    .worksite-actions {
+    .worksite-detail__actions {
         flex-direction: column;
     }
 
-    .worksite-actions app-button {
+    .worksite-detail__actions app-button {
         width: 100%;
     }
 
-    .detail-row,
-    .summary-grid {
+    .worksite-detail__row,
+    .worksite-detail__summary-grid {
         grid-template-columns: 1fr;
     }
 }

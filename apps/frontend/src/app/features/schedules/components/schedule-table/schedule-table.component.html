@@ -18,7 +18,7 @@
     </header>
 
     @if (schedulesResource.error() !== undefined) {
-        <div class="app-section__message schedule-table__message error" role="alert">
+        <div class="app-section__message app-section__message--error schedule-table__message schedule-table__message--error" role="alert">
             {{ 'schedule.loadError' | translate }}
         </div>
     }

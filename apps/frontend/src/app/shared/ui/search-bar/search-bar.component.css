@@ -6,11 +6,12 @@
     width: 100%;
 }
 
-.search-icon {
+.search-bar__icon {
     display: flex;
 }
 
-.sr-only {
+.search-bar__label,
+.search-bar__help {
     position: absolute;
     width: 1px;
     height: 1px;

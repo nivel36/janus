@@ -13,19 +13,19 @@
     box-shadow: var(--panel-shadow);
 }
 
-.identity,
-.actions {
+.main-menu__identity,
+.main-menu__actions {
     padding-inline: var(--panel-medium-padding-inline);
     padding-block: var(--panel-medium-padding-block);
     display: flex;
 }
 
-.identity {
+.main-menu__identity {
     min-width: 0;
     border-right: var(--panel-border);
 }
 
-.actions {
+.main-menu__actions {
     flex-shrink: 0;
 }
 
@@ -36,7 +36,7 @@
         color 120ms ease;
 }
 
-.user-name {
+.main-menu__user-name {
     padding: 0 var(--panel-medium-padding-inline) 0 0;
     display: flex;
     align-items: center;
@@ -51,7 +51,7 @@
     border: 0;
 }
 
-.icon-button {
+.main-menu__icon-button {
     border: 0;
     padding: var(--panel-small-padding-block) var(--panel-medium-padding-inline);
     align-items: center;
@@ -63,7 +63,7 @@
     font-weight: 600;
 }
 
-.icon-button--logout {
+.main-menu__icon-button--logout {
     color: var(--accent-strong-color);
     padding-right: 0;
 }

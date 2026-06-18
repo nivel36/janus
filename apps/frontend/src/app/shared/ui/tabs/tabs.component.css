@@ -9,7 +9,7 @@
     background: var(--panel-background-color);
 }
 
-.tabs-trigger {
+.tabs__trigger {
     min-height: 3.25rem;
     padding: 0.85rem 1rem;
     border: 0;
@@ -23,16 +23,16 @@
     cursor: pointer;
 }
 
-.tabs-trigger:last-child {
+.tabs__trigger:last-child {
     border-right: 0;
 }
 
-.tabs-trigger-active {
+.tabs__trigger--active {
     background: var(--control-accent-background-color);
     color: var(--control-accent-text-color);
     cursor: default;
 }
 
-.tabs-panel {
+.tabs__panel {
     min-height: 0;
 }

@@ -1,5 +1,5 @@
 <form class="search-bar" role="search" (submit)="$event.preventDefault(); submitCurrentQuery()">
-    <label class="sr-only" [for]="inputId">{{ 'searchBar.inputLabel' | translate }}</label>
+    <label class="search-bar__label" [for]="inputId">{{ 'searchBar.inputLabel' | translate }}</label>
     <app-input-group [ariaLabel]="'searchBar.inputLabel' | translate">
         <app-input
             [inputId]="inputId"
@@ -12,12 +12,12 @@
         <app-button
             type="submit"
             [icon]="true"
-            class="search-icon"
+            class="search-bar__icon"
             [ariaLabel]="'searchBar.buttonAriaLabel' | translate"
         >
             <fa-icon [icon]="faMagnifyingGlass"></fa-icon>
         </app-button>
     </app-input-group>
 
-    <span class="sr-only" [id]="helpTextId">{{ helpTextKey() | translate }}</span>
+    <span class="search-bar__help" [id]="helpTextId">{{ helpTextKey() | translate }}</span>
 </form>

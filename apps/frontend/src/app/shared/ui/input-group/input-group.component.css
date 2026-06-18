@@ -93,6 +93,6 @@
     border-left: var(--button-border);
 }
 
-:host(.input-group--disabled) ::ng-deep [inputGroupAddon] {
+.input-group--disabled ::ng-deep [inputGroupAddon] {
     opacity: var(--form-disabled-opacity);
 }

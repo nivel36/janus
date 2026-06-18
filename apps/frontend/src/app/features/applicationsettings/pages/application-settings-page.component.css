@@ -1,9 +1,11 @@
-.settings-content {
+.application-settings__content {
     display: flex;
 }
 
-.timezone-control {
-    display: flex;
-    flex-direction: column;
-    gap: var(--form-label-gap);
+.application-settings__message {
+    margin: 0;
+}
+
+.application-settings__message--error {
+    color: var(--color-error-soft);
 }

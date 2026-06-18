@@ -1,5 +1,5 @@
 <section class="app-section worksite-table" aria-labelledby="worksite-table-title">
-    <header class="app-section__header worksite-table-header">
+    <header class="app-section__header worksite-table__header">
         <h3 id="worksite-table-title" class="app-section__title worksite-table__title">
             {{ 'worksite.worksites' | translate }}
         </h3>
@@ -18,7 +18,7 @@
     </header>
 
     @if (worksitesResource.error() !== undefined) {
-        <div class="app-section__message worksite-table__message error" role="alert">
+        <div class="app-section__message app-section__message--error worksite-table__message worksite-table__message--error" role="alert">
             {{ 'worksite.loadError' | translate }}
         </div>
     }
@@ -41,7 +41,7 @@
             <tbody>
                 @for (worksite of pagedWorksites(); track worksite.code) {
                     <tr
-                        class="worksite-row"
+                        class="worksite-table__row"
                         role="button"
                         tabindex="0"
                         [attr.aria-label]="

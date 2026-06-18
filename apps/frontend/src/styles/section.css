@@ -26,6 +26,11 @@
     color: var(--section-message-text-color);
 }
 
+.app-section__message--error {
+    background: var(--color-error-soft-alpha-12);
+    color: var(--color-error-soft);
+}
+
 @media (max-width: 640px) {
     .app-section__header {
         flex-direction: column;

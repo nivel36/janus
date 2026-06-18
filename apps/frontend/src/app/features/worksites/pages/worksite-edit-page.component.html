@@ -3,10 +3,10 @@
         <section class="app-card worksites-card">
             <div class="app-card__body worksites-card__body">
                 @if (loading) {
-                    <p class="message">{{ 'worksite.detailLoading' | translate }}</p>
+                    <p class="worksite-form__message">{{ 'worksite.detailLoading' | translate }}</p>
                 } @else {
-                    <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
-                        <div class="field-control">
+                    <form class="app-form worksite-form" [formGroup]="form" (ngSubmit)="save()">
+                        <div class="worksite-form__field">
                             <label for="worksite-code">{{ 'worksite.code' | translate }}</label>
                             <input
                                 id="worksite-code"
@@ -16,7 +16,7 @@
                             />
                         </div>
 
-                        <div class="field-control">
+                        <div class="worksite-form__field">
                             <label for="worksite-name">{{ 'worksite.name' | translate }}</label>
                             <input
                                 id="worksite-name"
@@ -26,7 +26,7 @@
                             />
 
                             @if (form.controls.name.touched && form.controls.name.invalid) {
-                                <p class="message error">
+                                <p class="worksite-form__message worksite-form__message--error">
                                     {{ 'worksite.errors.invalidName' | translate }}
                                 </p>
                             }
@@ -78,7 +78,7 @@
                             />
                         </app-field>
 
-                        <div class="field-control">
+                        <div class="worksite-form__field">
                             <label for="worksite-address">{{
                                 'worksite.address' | translate
                             }}</label>
@@ -90,13 +90,13 @@
                             />
 
                             @if (form.controls.address.touched && form.controls.address.invalid) {
-                                <p class="message error">
+                                <p class="worksite-form__message worksite-form__message--error">
                                     {{ 'worksite.errors.invalidAddress' | translate }}
                                 </p>
                             }
                         </div>
 
-                        <div class="field-control">
+                        <div class="worksite-form__field">
                             <label for="worksite-description">{{
                                 'worksite.description' | translate
                             }}</label>
@@ -111,14 +111,16 @@
                                 form.controls.description.touched &&
                                 form.controls.description.invalid
                             ) {
-                                <p class="message error">
+                                <p class="worksite-form__message worksite-form__message--error">
                                     {{ 'worksite.errors.invalidDescription' | translate }}
                                 </p>
                             }
                         </div>
 
                         @if (errorMessage) {
-                            <p class="message error">{{ errorMessage | translate }}</p>
+                            <p class="worksite-form__message worksite-form__message--error">
+                                {{ errorMessage | translate }}
+                            </p>
                         }
 
                         <div class="app-form-actions">

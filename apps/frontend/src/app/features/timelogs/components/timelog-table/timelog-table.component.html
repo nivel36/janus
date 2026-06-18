@@ -18,7 +18,7 @@
     </header>
 
     @if (timelogsResource.error() !== undefined) {
-        <div class="app-section__message timelog-table__message error" role="alert">
+        <div class="app-section__message app-section__message--error timelog-table__message timelog-table__message--error" role="alert">
             {{ 'timelog.loadError' | translate }}
         </div>
     }

@@ -5,20 +5,20 @@
 }
 
 .autocomplete,
-.input-wrapper {
+.autocomplete__input-wrapper {
     width: 100%;
 }
 
-.autocomplete.disabled {
+.autocomplete--disabled {
     cursor: not-allowed;
     opacity: var(--form-disabled-opacity);
 }
 
-.results-panel {
+.autocomplete__results-panel {
     max-width: var(--autocomplete-results-max-width);
 }
 
-.results {
+.autocomplete__results {
     width: max-content;
     min-width: 100%;
     max-height: var(--autocomplete-results-max-height);
@@ -39,7 +39,7 @@
     box-shadow: var(--autocomplete-results-shadow);
 }
 
-.results li {
+.autocomplete__option {
     padding: var(--autocomplete-result-padding-block) var(--autocomplete-result-padding-inline);
 
     white-space: nowrap;
@@ -48,21 +48,21 @@
     cursor: pointer;
 }
 
-.results li:hover,
-.results li.active {
+.autocomplete__option:hover,
+.autocomplete__option--active {
     background: var(--list-element-hover-background-color);
 }
 
-.results-message {
+.autocomplete__message {
     cursor: default;
     white-space: normal;
 }
 
-.results-message:hover {
+.autocomplete__message:hover {
     background: transparent;
 }
 
-.sr-only {
+.autocomplete__status {
     position: absolute;
     width: 1px;
     height: 1px;

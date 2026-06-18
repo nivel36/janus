@@ -1,6 +1,6 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.worksites">
-    <div pageContent class="app-page-content worksites-content">
-        <div class="worksites-toolbar">
+    <div pageContent class="app-page-content worksites-page__content">
+        <div class="worksites-page__toolbar">
             <app-search-bar (queryChange)="onQueryChange($event)" />
             @if (isAdmin | async) {
                 <app-button variant="main" (clicked)="createWorksite()">

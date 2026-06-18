@@ -1,5 +1,5 @@
-<div class="autocomplete" [class.disabled]="disabled">
-    <div class="input-wrapper" #inputWrapper cdkOverlayOrigin #trigger="cdkOverlayOrigin">
+<div class="autocomplete" [class.autocomplete--disabled]="disabled">
+    <div class="autocomplete__input-wrapper" #inputWrapper cdkOverlayOrigin #trigger="cdkOverlayOrigin">
         <app-input-group [disabled]="disabled">
             <app-input
                 [inputId]="controlId()"
@@ -46,7 +46,7 @@
         </app-input-group>
     </div>
 
-    <div class="sr-only" [id]="statusMessageId" role="status" aria-live="polite" aria-atomic="true">
+    <div class="autocomplete__status" [id]="statusMessageId" role="status" aria-live="polite" aria-atomic="true">
         {{ liveRegionMessage }}
     </div>
 
@@ -59,16 +59,17 @@
         [cdkConnectedOverlayPush]="true"
         (overlayOutsideClick)="onOutsideClick()"
     >
-        <div class="results-panel" [style.min-width.px]="overlayWidth">
-            <ul class="results" [id]="resultsListId" role="listbox">
+        <div class="autocomplete__results-panel" [style.min-width.px]="overlayWidth">
+            <ul class="autocomplete__results" [id]="resultsListId" role="listbox">
                 @if (panel.kind === 'results') {
                     @for (result of panel.items; track trackByValue()(result); let i = $index) {
                         <li
                             #resultOption
+                            class="autocomplete__option"
                             role="option"
                             tabindex="-1"
                             [id]="getOptionId(i)"
-                            [class.active]="isActive(i)"
+                            [class.autocomplete__option--active]="isActive(i)"
                             [attr.aria-selected]="isActive(i) ? 'true' : 'false'"
                             (pointerdown)="onOptionPointerDown($event)"
                             (click)="onSelect(result)"
@@ -79,11 +80,11 @@
                         </li>
                     }
                 } @else if (panel.kind === 'loading') {
-                    <li role="presentation" class="results-message">
+                    <li role="presentation" class="autocomplete__message">
                         {{ 'autocomplete.loadingResults' | translate }}
                     </li>
                 } @else if (panel.kind === 'empty') {
-                    <li role="presentation" class="results-message">
+                    <li role="presentation" class="autocomplete__message">
                         {{ 'autocomplete.noResultsFound' | translate }}
                     </li>
                 }

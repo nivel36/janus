@@ -1,31 +1,31 @@
-.worksites-content {
+.worksites-page__content {
     flex-direction: column;
 }
 
-.worksites-toolbar {
+.worksites-page__toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.worksites-toolbar app-search-bar {
+.worksites-page__toolbar app-search-bar {
     display: block;
     width: min(25rem, 100%);
 }
 
-.worksites-content app-worksite-table {
+.worksites-page__content app-worksite-table {
     display: block;
     flex: 1;
     min-height: 32rem;
 }
 
 @media (max-width: 640px) {
-    .worksites-toolbar {
+    .worksites-page__toolbar {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .worksites-toolbar app-search-bar {
+    .worksites-page__toolbar app-search-bar {
         width: 100%;
     }
 }

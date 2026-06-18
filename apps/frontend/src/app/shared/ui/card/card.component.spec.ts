@@ -82,7 +82,7 @@ describe('CardComponent', () => {
       hostComponent.title = 'My card title';
       fixture.detectChanges();
 
-      const titleElement = fixture.nativeElement.querySelector('.app-card-title');
+      const titleElement = fixture.nativeElement.querySelector('.app-card__title');
 
       expect(titleElement).toBeTruthy();
       expect(titleElement.textContent.trim()).toBe('My card title');
@@ -138,7 +138,7 @@ describe('CardComponent', () => {
     it('should render the header element when a header template exists even if title is undefinied', () => {
       fixture.detectChanges();
 
-      const headerElement = fixture.nativeElement.querySelector('.app-card-header');
+      const headerElement = fixture.nativeElement.querySelector('.app-card__header');
 
       expect(headerElement).toBeTruthy();
     });
@@ -148,7 +148,7 @@ describe('CardComponent', () => {
       fixture.detectChanges();
 
       const cardElement = fixture.nativeElement.querySelector('section.app-card');
-      const titleElement = fixture.nativeElement.querySelector('.app-card-title');
+      const titleElement = fixture.nativeElement.querySelector('.app-card__title');
 
       expect(cardElement.getAttribute('aria-labelledby')).toBe(titleElement.id);
       expect(cardElement.hasAttribute('aria-label')).toBe(false);
@@ -157,7 +157,7 @@ describe('CardComponent', () => {
     it('should render the footer element when a footer template exists', () => {
       fixture.detectChanges();
 
-      const footerElement = fixture.nativeElement.querySelector('.app-card-footer');
+      const footerElement = fixture.nativeElement.querySelector('.app-card__footer');
 
       expect(footerElement).toBeTruthy();
     });
@@ -179,7 +179,7 @@ describe('CardComponent', () => {
     it('should not render the header when there is no title and no header template', () => {
       fixture.detectChanges();
 
-      const headerElement = fixture.nativeElement.querySelector('.app-card-header');
+      const headerElement = fixture.nativeElement.querySelector('.app-card__header');
       const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
       const cardComponent = cardDebugElement.componentInstance as CardComponent;
 
@@ -191,8 +191,8 @@ describe('CardComponent', () => {
       hostComponent.title = 'Title only';
       fixture.detectChanges();
 
-      const headerElement = fixture.nativeElement.querySelector('.app-card-header');
-      const titleElement = fixture.nativeElement.querySelector('.app-card-title');
+      const headerElement = fixture.nativeElement.querySelector('.app-card__header');
+      const titleElement = fixture.nativeElement.querySelector('.app-card__title');
       const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
       const cardComponent = cardDebugElement.componentInstance as CardComponent;
 
@@ -205,7 +205,7 @@ describe('CardComponent', () => {
     it('should not render the footer when there is no footer template', () => {
       fixture.detectChanges();
 
-      const footerElement = fixture.nativeElement.querySelector('.app-card-footer');
+      const footerElement = fixture.nativeElement.querySelector('.app-card__footer');
       const cardDebugElement = fixture.debugElement.query(By.directive(CardComponent));
       const cardComponent = cardDebugElement.componentInstance as CardComponent;
 

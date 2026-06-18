@@ -4,21 +4,21 @@
     gap: var(--section-gap);
 }
 
-.avatar {
+.employee-card__avatar {
     width: var(--avatar-size);
     vertical-align: middle;
     background-color: var(--accent-color);
     border-radius: 999px;
 }
 
-.data {
+.employee-card__row {
     display: flex;
     border-top: var(--panel-border);
     padding-block: var(--section-padding-block);
     justify-content: space-between;
 }
 
-.data:last-child {
+.employee-card__row:last-child {
     padding-bottom: 0;
 }
 

@@ -34,7 +34,7 @@ describe('PaginatorComponent', () => {
   }
 
   function getSummaryText(): string {
-    return (fixture.debugElement.query(By.css('.paginator-text')).nativeElement as HTMLElement)
+    return (fixture.debugElement.query(By.css('.paginator__text')).nativeElement as HTMLElement)
       .textContent
       ?.trim() ?? '';
   }

@@ -1,4 +1,4 @@
-<div class="select" [class.disabled]="disabled">
+<div class="select" [class.select--disabled]="disabled">
     <select
         #nativeSelect
         [id]="inputId()"
@@ -18,5 +18,5 @@
         }
     </select>
 
-    <span class="arrow" aria-hidden="true">▾</span>
+    <span class="select__arrow" aria-hidden="true">▾</span>
 </div>

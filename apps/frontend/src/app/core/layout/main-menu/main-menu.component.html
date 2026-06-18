@@ -1,9 +1,9 @@
 @if (currentUser$ | async; as user) {
     <nav class="main-menu" aria-label="Menú principal">
-        <div class="identity">
+        <div class="main-menu__identity">
             <button
                 type="button"
-                class="user-name"
+                class="main-menu__user-name"
                 [attr.aria-label]="user.fullName"
                 [attr.title]="user.fullName"
                 (click)="goToUserPreferences()"
@@ -12,10 +12,10 @@
             </button>
         </div>
 
-        <div class="actions">
+        <div class="main-menu__actions">
             <button
                 type="button"
-                class="icon-button"
+                class="main-menu__icon-button"
                 [attr.aria-label]="'navigation.worksites' | translate"
                 [attr.title]="'navigation.worksites' | translate"
                 (click)="goToWorksites()"
@@ -25,7 +25,7 @@
 
             <button
                 type="button"
-                class="icon-button"
+                class="main-menu__icon-button"
                 [attr.aria-label]="'navigation.schedules' | translate"
                 [attr.title]="'navigation.schedules' | translate"
                 (click)="goToSchedules()"
@@ -36,7 +36,7 @@
             @if (user.isAdmin) {
                 <button
                     type="button"
-                    class="icon-button"
+                    class="main-menu__icon-button"
                     [attr.aria-label]="'navigation.applicationSettings' | translate"
                     [attr.title]="'navigation.applicationSettings' | translate"
                     (click)="goToApplicationSettings()"
@@ -47,7 +47,7 @@
 
             <button
                 type="button"
-                class="icon-button icon-button--logout"
+                class="main-menu__icon-button main-menu__icon-button--logout"
                 aria-label="Salir"
                 title="Salir"
                 (click)="logout()"

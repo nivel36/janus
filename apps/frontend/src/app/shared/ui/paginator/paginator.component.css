@@ -11,33 +11,33 @@
     border-radius: var(--panel-small-border-radius);
 }
 
-.paginator-button {
+.paginator__button {
     color: var(--accent-strong-color);
     cursor: pointer;
     border: 0;
     background: transparent;
 }
 
-.paginator-button:disabled {
+.paginator__button:disabled {
     color: var(--accent-muted-color);
     cursor: default;
 }
 
-.paginator-button:not(:disabled):hover {
+.paginator__button:not(:disabled):hover {
     color: var(--accent-hover-color);
 }
 
-.paginator-button:not(:disabled):active {
+.paginator__button:not(:disabled):active {
     color: var(--accent-active-color);
 }
 
-.paginator-button:not(:disabled):focus-visible {
+.paginator__button:not(:disabled):focus-visible {
     color: var(--accent-hover-color);
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 2px;
 }
 
-.paginator-text {
+.paginator__text {
     color: var(--text-secondary-color);
     font-size: var(--font-size-small);
     letter-spacing: 0.04em;

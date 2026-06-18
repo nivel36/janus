@@ -5,10 +5,16 @@ form {
     flex-grow: 1;
 }
 
-.message {
+.worksite-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.worksite-form__message {
     margin: 0;
 }
 
-.error {
+.worksite-form__message--error {
     color: var(--color-error-soft);
 }
