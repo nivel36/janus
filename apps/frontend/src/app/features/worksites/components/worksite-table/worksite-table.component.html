@@ -1,6 +1,6 @@
-<section class="app-table-section worksite-table-section" aria-labelledby="worksite-title">
-    <header class="app-table-section-header worksite-table-section-header">
-        <h3 id="worksite-title" class="app-table-section-title worksite-table-section-title">
+<section class="app-section worksite-table" aria-labelledby="worksite-table-title">
+    <header class="app-section__header worksite-table-header">
+        <h3 id="worksite-table-title" class="app-section__title worksite-table__title">
             {{ 'worksite.worksites' | translate }}
         </h3>
         @if (totalItems() > 0) {
@@ -18,19 +18,19 @@
     </header>
 
     @if (worksitesResource.error() !== undefined) {
-        <div class="app-table-section-message worksite-table-section-message error" role="alert">
+        <div class="app-section__message worksite-table__message error" role="alert">
             {{ 'worksite.loadError' | translate }}
         </div>
     }
 
     @if (worksitesResource.isLoading()) {
-        <div class="app-table-section-message worksite-table-section-message" aria-live="polite">
+        <div class="app-section__message worksite-table__message" aria-live="polite">
             {{ 'worksite.loading' | translate }}
         </div>
     }
 
     @if (!worksitesResource.isLoading() && worksites().length > 0) {
-        <table class="app-table worksite-table" aria-labelledby="worksite-title">
+        <table class="app-table worksite-table__table">
             <thead>
                 <tr>
                     <th scope="col">{{ 'worksite.code' | translate }}</th>
@@ -66,7 +66,7 @@
     }
 
     @if (isEmpty()) {
-        <div class="app-table-section-message worksite-table-section-message" aria-live="polite">
+        <div class="app-section__message worksite-table__message" aria-live="polite">
             {{ 'worksite.empty' | translate }}
         </div>
     }

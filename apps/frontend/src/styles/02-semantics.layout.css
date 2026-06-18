@@ -4,9 +4,19 @@
     --layout-page-padding-inline: var(--size-600);
     --layout-main-gap: var(--size-600);
 
+    --section-title-font-size: var(--font-size-350);
+    --section-title-color: var(--accent-color);
     --section-padding-block: var(--size-500);
     --section-padding-inline: var(--size-500);
-    --section-gap: var(--size-500);
+    --section-gap: var(--size-300);
+
+    --section-big-gap: var(--size-400);
+
+    --section-message-padding-block: var(--size-400);
+    --section-message-padding-inline: var(--size-500);
+    --section-message-border-radius: var(--radius-300);
+    --section-message-background-color: var(--summary-card-background-color);
+    --section-message-text-color: var(--text-primary-color);
 
     --section-small-padding-block: var(--size-100);
     --section-small-padding-inline: var(--size-200);
@@ -47,27 +57,19 @@
     --summary-card-value-margin-top: 0.8rem;
     --summary-card-value-font-size: var(--font-size-heading-2);
 
-    --table-section-gap: var(--section-medium-gap);
-    --table-section-title-font-size: var(--font-size-large);
-    --table-section-title-color: var(--accent-color);
-    --table-section-table-background-color: var(--panel-background-color);
-    --table-section-table-border-radius: var(--panel-border-radius);
-    --table-section-table-border: var(--panel-border);
-    --table-section-table-shadow: var(--panel-shadow);
-    --table-section-header-cell-padding-inline: var(--panel-padding-inline);
-    --table-section-header-cell-padding-block: var(--panel-padding-block);
-    --table-section-header-cell-letter-spacing: 0.12em;
-    --table-section-header-cell-font-size: var(--font-size-small);
-    --table-section-body-cell-padding-inline: var(--panel-padding-inline);
-    --table-section-body-cell-padding-block: var(--panel-medium-padding-block);
-    --table-section-row-odd-background-color: var(--list-background-color-odd);
-    --table-section-row-even-background-color: var(--list-background-color);
-    --table-section-row-hover-background-color: var(--list-element-hover-background-color);
-    --table-section-message-padding-block: var(--size-400);
-    --table-section-message-padding-inline: var(--size-500);
-    --table-section-message-border-radius: var(--radius-300);
-    --table-section-message-background-color: var(--summary-card-background-color);
-    --table-section-message-text-color: var(--text-primary-color);
-    --table-section-compact-cell-padding-block: 0.75rem;
-    --table-section-compact-cell-padding-inline: var(--size-400);
+    --table-background-color: var(--panel-background-color);
+    --table-border-radius: var(--panel-border-radius);
+    --table-border: var(--panel-border);
+    --table-shadow: var(--panel-shadow);
+    --table-header-cell-padding-inline: var(--panel-padding-inline);
+    --table-header-cell-padding-block: var(--panel-padding-block);
+    --table-header-cell-letter-spacing: 0.12em;
+    --table-header-cell-font-size: var(--font-size-small);
+    --table-body-cell-padding-inline: var(--panel-padding-inline);
+    --table-body-cell-padding-block: var(--panel-medium-padding-block);
+    --table-row-odd-background-color: var(--list-background-color-odd);
+    --table-row-even-background-color: var(--list-background-color);
+    --table-row-hover-background-color: var(--list-element-hover-background-color);
+    --table-compact-cell-padding-block: 0.75rem;
+    --table-compact-cell-padding-inline: var(--size-400);
 }

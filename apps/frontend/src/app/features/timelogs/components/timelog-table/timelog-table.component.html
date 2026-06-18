@@ -1,6 +1,6 @@
-<section class="app-table-section timelog-table-section" aria-labelledby="timelog-title">
-    <header class="app-table-section-header timelog-table-section-header">
-        <h2 id="timelog-title" class="app-table-section-title timelog-table-section-title">
+<section class="app-section timelog-table" aria-labelledby="timelog-table-title">
+    <header class="app-section__header timelog-table__header">
+        <h2 id="timelog-table-title" class="app-section__title timelog-table__title">
             {{ 'timelog.timelogs' | translate }}
         </h2>
         @if (totalItems() > 0) {
@@ -18,19 +18,19 @@
     </header>
 
     @if (timelogsResource.error() !== undefined) {
-        <div class="app-table-section-message timelog-table-section-message error" role="alert">
+        <div class="app-section__message timelog-table__message error" role="alert">
             {{ 'timelog.loadError' | translate }}
         </div>
     }
 
     @if (timelogsResource.isLoading()) {
-        <div class="app-table-section-message timelog-table-section-message" aria-live="polite">
+        <div class="app-section__message timelog-table__message" aria-live="polite">
             {{ 'timelog.loading' | translate }}
         </div>
     }
 
     @if (!timelogsResource.isLoading() && timelogs().length > 0) {
-        <table class="app-table timelog-table">
+        <table class="app-table timelog-table__table">
             <thead>
                 <tr>
                     <th scope="col">{{ 'timelog.date' | translate }}</th>
@@ -75,7 +75,7 @@
     }
 
     @if (isEmpty()) {
-        <div class="app-table-section-message timelog-table-section-message" aria-live="polite">
+        <div class="app-section__message timelog-table__message" aria-live="polite">
             {{ 'timelog.empty' | translate }}
         </div>
     }

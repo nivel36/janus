@@ -1,6 +1,6 @@
-<section class="app-table-section table-section-schedule" aria-labelledby="schedule-title">
-    <header class="app-table-section-header schedule-table-section-header">
-        <h3 id="schedule-title" class="app-table-section-title schedule-table-section-title">
+<section class="app-section schedule-table" aria-labelledby="schedule-table-title">
+    <header class="app-section__header schedule-table__header">
+        <h3 id="schedule-table-title" class="app-section__title schedule-table__title">
             {{ 'schedule.schedules' | translate }}
         </h3>
         @if (totalItems() > 0) {
@@ -18,19 +18,19 @@
     </header>
 
     @if (schedulesResource.error() !== undefined) {
-        <div class="app-table-section-message schedule-table-section-message error" role="alert">
+        <div class="app-section__message schedule-table__message error" role="alert">
             {{ 'schedule.loadError' | translate }}
         </div>
     }
 
     @if (schedulesResource.isLoading()) {
-        <div class="app-table-section-message schedule-table-section-message" aria-live="polite">
+        <div class="app-section__message schedule-table__message" aria-live="polite">
             {{ 'schedule.loading' | translate }}
         </div>
     }
 
     @if (!schedulesResource.isLoading() && schedules().length > 0) {
-        <table class="app-table schedule-table" aria-labelledby="schedule-title">
+        <table class="app-table schedule-table__table">
             <thead>
                 <tr>
                     <th scope="col">{{ 'schedule.code' | translate }}</th>
@@ -49,7 +49,7 @@
     }
 
     @if (isEmpty()) {
-        <div class="app-table-section-message schedule-table-section-message" aria-live="polite">
+        <div class="app-section__message schedule-table__message" aria-live="polite">
             {{ 'schedule.empty' | translate }}
         </div>
     }
