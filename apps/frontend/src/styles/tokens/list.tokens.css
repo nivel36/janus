@@ -2,6 +2,7 @@
     --list-background-color: var(--panel-background-color);
     --list-border: var(--panel-border);
     --list-border-radius: var(--panel-border-radius);
+    --list-text-color: var(--text-primary-color);
     --list-shadow: var(--panel-shadow);
     --list-padding-block: var(--size-100);
     --list-padding-inline: 0;
