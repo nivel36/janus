@@ -58,18 +58,18 @@
     --summary-card-value-font-size: var(--font-size-heading-2);
 
     --table-background-color: var(--panel-background-color);
-    --table-border-radius: var(--panel-border-radius);
-    --table-border: var(--panel-border);
-    --table-shadow: var(--panel-shadow);
+    --table-border-radius: var(--list-border-radius);
+    --table-border: var(--list-border);
+    --table-shadow: var(--list-shadow);
     --table-header-cell-padding-inline: var(--panel-padding-inline);
     --table-header-cell-padding-block: var(--panel-padding-block);
     --table-header-cell-letter-spacing: 0.12em;
     --table-header-cell-font-size: var(--font-size-small);
-    --table-body-cell-padding-inline: var(--panel-padding-inline);
-    --table-body-cell-padding-block: var(--panel-medium-padding-block);
-    --table-row-odd-background-color: var(--list-background-color-odd);
-    --table-row-even-background-color: var(--list-background-color);
-    --table-row-hover-background-color: var(--list-element-hover-background-color);
+    --table-body-cell-padding-inline: var(--list-item-padding-inline);
+    --table-body-cell-padding-block: var(--list-item-padding-block);
+    --table-row-odd-background-color: var(--list-item-odd-background-color);
+    --table-row-even-background-color: var(--list-item-even-background-color);
+    --table-row-hover-background-color: var(--list-item-hover-background-color);
     --table-compact-cell-padding-block: 0.75rem;
     --table-compact-cell-padding-inline: var(--size-400);
 }
