@@ -17,6 +17,7 @@
 @import './styles/tokens/button.tokens.css';
 @import './styles/tokens/header-detail.tokens.css';
 @import './styles/tokens/list.tokens.css';
+@import './styles/tokens/autocomplete.tokens.css';
 
 /* Base styles */
 @import './styles/base.css';
