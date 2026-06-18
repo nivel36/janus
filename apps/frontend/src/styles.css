@@ -1,19 +1,29 @@
+/* Primitives */
 @import './styles/tokens/00-primitives.css';
+
+/* Themes */
 @import './styles/tokens/theme.dark.css';
 @import './styles/tokens/theme.light.css';
+
+/* Semantic tokens */
 @import './styles/tokens/01-semantics.base.css';
 @import './styles/tokens/02-semantics.layout.css';
 @import './styles/tokens/03-semantics.forms.css';
 @import './styles/tokens/04-semantics.controls.css';
-@import './styles/tokens/avatar.css';
-@import './styles/tokens/brand.css';
-@import './styles/tokens/button.css';
-@import './styles/tokens/list.css';
-@import './styles/tokens/header-detail.tokens.css';
 
+/* Component tokens */
+@import './styles/tokens/avatar.tokens.css';
+@import './styles/tokens/brand.tokens.css';
+@import './styles/tokens/button.tokens.css';
+@import './styles/tokens/header-detail.tokens.css';
+@import './styles/tokens/list.tokens.css';
+
+/* Base styles */
 @import './styles/base.css';
-@import './styles/components/form-actions.css';
+
+/* Global component styles */
 @import './styles/components/card.css';
+@import './styles/components/form-actions.css';
 @import './styles/components/forms.css';
 @import './styles/components/header-detail.css';
 @import './styles/components/section.css';
