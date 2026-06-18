@@ -1,11 +1,11 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="worksite.edit">
     <div pageContent class="app-page-content worksite-create-content">
         <section class="app-card worksites-card">
-            <div class="app-card-body worksites-card-body">
+            <div class="app-card__body worksites-card__body">
                 @if (loading) {
                     <p class="message">{{ 'worksite.detailLoading' | translate }}</p>
                 } @else {
-                    <form [formGroup]="form" (ngSubmit)="save()">
+                    <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
                         <div class="field-control">
                             <label for="worksite-code">{{ 'worksite.code' | translate }}</label>
                             <input

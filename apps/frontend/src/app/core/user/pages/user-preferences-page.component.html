@@ -1,7 +1,7 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.userPreferences">
     <div pageContent class="app-page-content preferences-content">
         <section class="app-card preferences-card">
-            <div class="app-card-body preferences-card-body">
+            <div class="app-card__body preferences-card__body">
                 <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
                     <app-field
                         controlId="preferences-locale"
