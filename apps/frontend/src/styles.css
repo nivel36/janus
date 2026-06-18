@@ -9,6 +9,7 @@
 @import './styles/tokens/brand.css';
 @import './styles/tokens/button.css';
 @import './styles/tokens/list.css';
+@import './styles/tokens/header-detail.tokens.css';
 
 @import './styles/base.css';
 @import './styles/components/form-actions.css';
