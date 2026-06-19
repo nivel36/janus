@@ -13,6 +13,4 @@
     --list-item-even-background-color: var(--list-background-color);
 
     --list-background-color-odd: var(--list-item-odd-background-color);
-    /* Deprecated: use --list-item-hover-background-color instead. */
-    --list-element-hover-background-color: var(--list-item-hover-background-color);
 }
