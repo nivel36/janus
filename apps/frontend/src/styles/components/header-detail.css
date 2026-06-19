@@ -2,30 +2,30 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--app-header-detail-gap);
-    padding-inline: var(--app-header-detail-padding-inline);
-    padding-block: var(--app-header-detail-padding-block);
-    border: var(--app-header-detail-border);
-    border-radius: var(--app-header-detail-border-radius);
-    background: var(--app-header-detail-background-color);
+    gap: var(--panel-gap);
+    padding-inline: var(--panel-padding-inline);
+    padding-block: var(--panel-padding-block);
+    border: var(--panel-border);
+    border-radius: var(--panel-border-radius);
+    background: var(--panel-background-color);
 }
 
 .app-header-detail__identity {
     display: flex;
     align-items: center;
-    gap: var(--app-header-detail-gap);
+    gap: var(--panel-gap);
 }
 
 .app-header-detail__icon {
     display: grid;
-    width: var(--app-header-detail-icon-size);
-    flex: 0 0 var(--app-header-detail-icon-size);
+    width: 6rem;
+    flex: 0 0 6rem;
     aspect-ratio: 1;
     place-items: center;
-    border: var(--app-header-detail-icon-border);
-    border-radius: var(--app-header-detail-icon-border-radius);
-    color: var(--app-header-detail-icon-color);
-    font-size: var(--app-header-detail-icon-font-size);
+    border: var(--stroke-400) solid var(--color-white-alpha-12);
+    border-radius: var(--radius-400);
+    color: var(--accent-color);
+    font-size: var(--font-size-700);
 }
 
 .app-header-detail__title {
@@ -35,15 +35,15 @@
 .app-header-detail__info {
     display: flex;
     align-items: center;
-    gap: var(--app-header-detail-info-gap);
+    gap: var(--size-300);
     margin: 0;
-    font-size: var(--app-header-detail-info-font-size);
+    font-size: var(--font-size-350);
 }
 
 @media (max-width: 900px) {
     .app-header-detail {
         align-items: flex-start;
-        padding-inline-end: var(--app-header-detail-compact-padding-inline-end);
+        padding-inline-end: 1.85rem;
     }
 }
 
@@ -54,7 +54,8 @@
     }
 
     .app-header-detail__icon {
-        --app-header-detail-icon-size: 4.8rem;
-        --app-header-detail-icon-font-size: var(--font-size-500);
+        width: 4.8rem;
+        flex-basis: 4.8rem;
+        font-size: var(--font-size-500);
     }
 }

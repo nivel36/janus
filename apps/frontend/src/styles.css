@@ -2,8 +2,8 @@
 @import './styles/tokens/00-primitives.css';
 
 /* Themes */
-@import './styles/tokens/theme.dark.css';
-@import './styles/tokens/theme.light.css';
+@import './styles/themes/theme.dark.css';
+@import './styles/themes/theme.light.css';
 
 /* Semantic tokens */
 @import './styles/tokens/semantic/base.tokens.css';
@@ -15,10 +15,7 @@
 @import './styles/tokens/avatar.tokens.css';
 @import './styles/tokens/brand.tokens.css';
 @import './styles/tokens/button.tokens.css';
-@import './styles/tokens/header-detail.tokens.css';
 @import './styles/tokens/list.tokens.css';
-@import './styles/tokens/table.tokens.css';
-@import './styles/tokens/autocomplete.tokens.css';
 
 /* Base styles */
 @import './styles/base.css';

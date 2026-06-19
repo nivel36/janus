@@ -1,5 +1,6 @@
 :root {
     --list-background-color: var(--panel-background-color);
+    --list-background-color-odd: var(--list-item-odd-background-color);
     --list-border: var(--panel-border);
     --list-border-radius: var(--panel-border-radius);
     --list-text-color: var(--text-primary-color);
@@ -11,6 +12,4 @@
     --list-item-hover-background-color: var(--color-primary-900);
     --list-item-odd-background-color: var(--color-gray-850);
     --list-item-even-background-color: var(--list-background-color);
-
-    --list-background-color-odd: var(--list-item-odd-background-color);
 }

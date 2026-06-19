@@ -15,13 +15,13 @@
 }
 
 .autocomplete__results-panel {
-    max-width: var(--autocomplete-results-max-width);
+    max-width: min(30rem, calc(100vw - var(--size-600)));
 }
 
 .autocomplete__results {
     width: max-content;
     min-width: 100%;
-    max-height: var(--autocomplete-results-max-height);
+    max-height: 14rem;
     overflow-y: auto;
     box-sizing: border-box;
 
