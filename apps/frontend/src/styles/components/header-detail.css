@@ -29,7 +29,8 @@
 }
 
 .app-header-detail__title {
-    font-size: var(--font-size-heading-2);
+    font-size: var(--font-size-500);
+    padding-bottom: var(--section-gap);
 }
 
 .app-header-detail__info {
