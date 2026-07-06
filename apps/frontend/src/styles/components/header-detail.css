@@ -29,16 +29,21 @@
 }
 
 .app-header-detail__title {
-    font-size: var(--font-size-500);
+    font-size: var(--section-title-font-size);
+    color: var(--section-title-color);
+    font-weight: var(--section-title-font-weight);
     padding-bottom: var(--section-gap);
 }
 
 .app-header-detail__info {
     display: flex;
+    font-size: var(--section-subtitle-font-size);
+    color: var(--section-subtitle-color);
+    font-weight: var(--section-subtitle-font-weight);
+
     align-items: center;
     gap: var(--size-300);
     margin: 0;
-    font-size: var(--font-size-350);
 }
 
 @media (max-width: 900px) {

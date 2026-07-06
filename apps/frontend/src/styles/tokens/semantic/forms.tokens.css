@@ -4,15 +4,15 @@
 
     --form-label-gap: var(--size-300);
     --form-label-text-color: var(--text-primary-color);
-    --form-label-font-size: var(--font-size-body);
-    --form-label-font-weight: 600;
+    --form-label-font-size: var(--literal-control-label-font-size);
+    --form-label-font-weight: var(--literal-control-label-font-weight);
 
     --form-hint-text-color: var(--text-secondary-color);
-    --form-hint-font-size: var(--font-size-small);
+    --form-hint-font-size: var(--literal-small-font-size);
     --form-hint-font-weight: 300;
 
     --form-error-text-color: var(--color-error-500);
-    --form-error-font-size: var(--font-size-body);
+    --form-error-font-size: var(--literal-body-font-size);
     --form-error-font-weight: 300;
 
     /* form-control      → input text / textarea / select */
@@ -21,7 +21,7 @@
     --form-control-background-color: var(--color-gray-900);
     --form-control-text-color: var(--text-primary-color);
     --form-control-text-accent-color: var(--accent-color);
-    --form-control-text-size: var(--font-size-body);
+    --form-control-text-size: var(--literal-body-font-size);
     --form-control-padding-inline: var(--size-300);
     --form-control-padding-block: 0;
     --form-control-focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
@@ -33,7 +33,7 @@
     /* form-range        → slider */
     --form-range-text-color: var(--color-gray-800);
     --form-range-focus-ring: var(--focus-ring);
-    --form-range-text-size: var(--font-size-body);
+    --form-range-text-size: var(--literal-body-font-size);
     --form-range-text-weight: 800;
 
     --form-range-height: var(--size-200);
@@ -42,7 +42,7 @@
     --form-range-color: var(--accent-color);
 
     --form-range-value-text-color: var(--color-gray-800);
-    --form-range-value-text-size: var(--font-size-body);
+    --form-range-value-text-size: var(--literal-body-font-size);
     --form-range-value-text-weight: 800;
     --form-range-value-background-color: var(--accent-color);
     --form-range-value-border-radius: var(--size-200);
@@ -91,7 +91,7 @@
     --search-bar-focus-ring: 0 0 0 var(--focus-ring-width) var(--color-primary-focus-alpha-30);
     --search-bar-padding-block: var(--size-225);
     --search-bar-padding-inline: var(--size-250);
-    --search-bar-font-size: var(--font-size-300);
+    --search-bar-font-size: var(--literal-body-font-size);
 
     /* app-form-actions      → buttons */
 }

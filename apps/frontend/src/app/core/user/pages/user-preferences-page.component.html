@@ -1,5 +1,5 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.userPreferences">
-    <div pageContent class="app-page-content user-preferences__content">
+    <div pageContent class="app-page-content user-preferences">
         <section class="app-card preferences-card">
             <div class="app-card__body preferences-card__body">
                 <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
@@ -67,7 +67,7 @@
                     </app-field>
 
                     @if (errorMessage) {
-                        <p class="user-preferences__message user-preferences__message--error">
+                        <p class="app-message app-message--error">
                             {{ errorMessage | translate }}
                         </p>
                     }

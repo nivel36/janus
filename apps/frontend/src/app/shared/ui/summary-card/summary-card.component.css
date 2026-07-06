@@ -24,9 +24,9 @@
 
 .summary-card__label {
     color: var(--summary-card-label-color);
-    font-weight: 600;
+    font-weight: var(--summary-card-label-font-weight);
     letter-spacing: var(--summary-card-label-letter-spacing);
-    text-transform: uppercase;
+    text-transform: var(--summary-card-label-text-transform);
 }
 
 .summary-card__value {

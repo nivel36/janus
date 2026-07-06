@@ -4,7 +4,9 @@
     --chip-padding-block: var(--size-150);
     --chip-padding-inline: var(--size-250);
     --chip-border-radius: var(--size-150);
-    --chip-font-size: var(--font-size-200);
+    --chip-font-size: var(--literal-chip-label-font-size);
+    --chip-font-weight: var(--literal-chip-label-font-weight);
+    --chip-text-transform: var(--literal-chip-label-text-transform);
     --chip-icon-size: var(--chip-font-size);
     --chip-gap: var(--size-150);
 
@@ -16,7 +18,7 @@
 
     --chip-big-padding-block: var(--size-200);
     --chip-big-padding-inline: var(--size-400);
-    --chip-big-font-size: var(--font-size-300);
+    --chip-big-font-size: var(--literal-body-font-size);
     --chip-big-icon-size: var(--chip-big-font-size);
     --chip-big-gap: var(--size-200);
 

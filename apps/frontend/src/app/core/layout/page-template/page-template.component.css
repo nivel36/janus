@@ -25,7 +25,7 @@
     font-size: var(--brand-font-size);
     color: var(--brand-color);
     text-decoration: none;
-    font-weight: 600;
+    font-weight: var(--brand-font-weight);
 }
 
 .page-template__brand:hover,
@@ -35,10 +35,10 @@
 }
 
 .page-template__title {
-    font-size: var(--font-size-body);
-    color: var(--text-secondary-color);
-    text-transform: uppercase;
-    font-weight: 600;
+    font-size: var(--page-title-font-size);
+    color: var(--page-title-color);
+    text-transform: var(--page-title-text-transform);
+    font-weight: var(--page-title-font-weight);
 }
 
 .page-template__body {

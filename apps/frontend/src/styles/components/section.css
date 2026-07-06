@@ -11,11 +11,11 @@
 }
 
 .app-section__title {
-    font-size: var(--section-title-font-size);
+    font-size: var(--section-title-emphasis-font-size);
     margin: 0;
-    text-transform: uppercase;
-    color: var(--accent-color);
-    font-weight: 600;
+    text-transform: var(--section-title-emphasis-text-transform);
+    color: var(--section-title-emphasis-color);
+    font-weight: var(--section-title-emphasis-font-weight);
 }
 
 .app-section__message {

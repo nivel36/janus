@@ -24,7 +24,7 @@
 }
 
 .worksite-detail__panel-title {
-    text-transform: uppercase;
+    text-transform: var(--literal-caps-text-transform);
 }
 
 .worksite-detail__list {
@@ -48,16 +48,16 @@
 
 .worksite-detail__row dt {
     color: var(--summary-card-label-color);
-    font-weight: 900;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
+    font-weight: var(--literal-detail-label-font-weight);
+    letter-spacing: var(--literal-detail-label-letter-spacing);
+    text-transform: var(--literal-detail-label-text-transform);
 }
 
 .worksite-detail__row dd {
     min-width: 0;
     margin: 0;
     color: var(--color-white);
-    font-size: 1.05rem;
+    font-size: var(--literal-detail-value-font-size);
     overflow-wrap: anywhere;
 }
 

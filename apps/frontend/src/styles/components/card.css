@@ -22,9 +22,9 @@
 }
 
 .app-card__title {
-    font-size: var(--font-size-very-large);
-    color: var(--text-primary-color);
-    font-weight: 600;
+    font-size: var(--section-title-font-size);
+    color: var(--section-title-color);
+    font-weight: var(--section-title-font-weight);
 }
 
 .app-card__body {

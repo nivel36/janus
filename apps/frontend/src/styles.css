@@ -7,13 +7,13 @@
 
 /* Semantic tokens */
 @import './styles/tokens/semantic/base.tokens.css';
+@import './styles/tokens/semantic/literals.tokens.css';
 @import './styles/tokens/semantic/layout.tokens.css';
 @import './styles/tokens/semantic/forms.tokens.css';
 @import './styles/tokens/semantic/controls.tokens.css';
 
 /* Component tokens */
 @import './styles/tokens/avatar.tokens.css';
-@import './styles/tokens/brand.tokens.css';
 @import './styles/tokens/button.tokens.css';
 @import './styles/tokens/list.tokens.css';
 
@@ -27,3 +27,4 @@
 @import './styles/components/header-detail.css';
 @import './styles/components/section.css';
 @import './styles/components/table.css';
+@import './styles/components/message.css';

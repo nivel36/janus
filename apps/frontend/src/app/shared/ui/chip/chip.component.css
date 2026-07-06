@@ -15,9 +15,9 @@
     color: var(--chip-text-color);
 
     font-size: var(--chip-font-size);
-    font-weight: 600;
+    font-weight: var(--chip-font-weight);
     line-height: 1;
-    text-transform: uppercase;
+    text-transform: var(--chip-text-transform);
 }
 
 .app-chip__icon {

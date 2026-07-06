@@ -16,10 +16,10 @@
     border-right: var(--panel-border);
     background: transparent;
     color: var(--text-primary-color);
-    font-size: var(--font-size-small);
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-size: var(--literal-tab-label-font-size);
+    font-weight: var(--literal-tab-label-font-weight);
+    letter-spacing: var(--literal-tab-label-letter-spacing);
+    text-transform: var(--literal-tab-label-text-transform);
     cursor: pointer;
 }
 

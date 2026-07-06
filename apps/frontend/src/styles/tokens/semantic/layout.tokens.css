@@ -4,8 +4,6 @@
     --layout-page-padding-inline: var(--size-600);
     --layout-main-gap: var(--size-600);
 
-    --section-title-font-size: var(--font-size-350);
-    --section-title-color: var(--accent-color);
     --section-padding-block: var(--size-500);
     --section-padding-inline: var(--size-500);
     --section-gap: var(--size-300);
@@ -53,8 +51,9 @@
     --summary-card-icon-border-radius: 50%;
     --summary-card-icon-color: var(--accent-color);
     --summary-card-icon-font-size: 1.75rem;
-    --summary-card-label-letter-spacing: 0.13em;
+    --summary-card-label-font-weight: var(--literal-summary-label-font-weight);
+    --summary-card-label-letter-spacing: var(--literal-summary-label-letter-spacing);
+    --summary-card-label-text-transform: var(--literal-summary-label-text-transform);
     --summary-card-value-margin-top: 0.8rem;
-    --summary-card-value-font-size: var(--font-size-heading-2);
-
+    --summary-card-value-font-size: var(--literal-summary-value-font-size);
 }

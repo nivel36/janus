@@ -20,11 +20,11 @@
 
     font-size: var(--button-font-size);
     font-weight: var(--button-font-weight);
-    letter-spacing: 0.14em;
+    letter-spacing: var(--button-letter-spacing);
     line-height: 1;
 
     cursor: pointer;
-    text-transform: uppercase;
+    text-transform: var(--button-text-transform);
 }
 
 .app-button:hover,

@@ -17,13 +17,13 @@
 
 .clock-in-card__clock-in {
     color: var(--text-primary-color);
-    font-size: var(--font-size-very-large);
-    font-weight: 600;
+    font-size: var(--literal-clock-status-font-size);
+    font-weight: var(--literal-clock-status-font-weight);
 }
 
 .clock-in-card__secondary-action {
     color: var(--text-secondary-color);
-    font-size: var(--font-size-small);
+    font-size: var(--literal-clock-action-font-size);
     cursor: pointer;
     background: transparent;
     border: 0px;

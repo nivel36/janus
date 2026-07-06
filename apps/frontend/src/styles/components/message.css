@@ -1,0 +1,7 @@
+.app-message {
+    margin: 0;
+}
+
+.app-message--error {
+    color: var(--color-error-soft);
+}
