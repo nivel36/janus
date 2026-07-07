@@ -1,0 +1,40 @@
+<app-card
+    styleClass="worksite-detail__panel"
+    title="{{ 'worksite.sections.generalInformation' | translate }}"
+>
+    <dl class="worksite-detail__list">
+        <div class="worksite-detail__row">
+            <dt>{{ 'worksite.code' | translate }}</dt>
+            <dd>{{ worksite().code }}</dd>
+        </div>
+
+        <div class="worksite-detail__row">
+            <dt>{{ 'worksite.name' | translate }}</dt>
+            <dd>{{ worksite().name }}</dd>
+        </div>
+
+        <div class="worksite-detail__row">
+            <dt>{{ 'worksite.scope' | translate }}</dt>
+            <dd>
+                <app-chip
+                    [label]="'worksite.scopes.' + worksite().scope | translate"
+                ></app-chip>
+            </dd>
+        </div>
+
+        <div class="worksite-detail__row">
+            <dt>{{ 'worksite.timeZone' | translate }}</dt>
+            <dd>{{ worksite().timeZone }}</dd>
+        </div>
+
+        <div class="worksite-detail__row">
+            <dt>{{ 'worksite.address' | translate }}</dt>
+            <dd>{{ worksite().address || '-' }}</dd>
+        </div>
+
+        <div class="worksite-detail__row">
+            <dt>{{ 'worksite.description' | translate }}</dt>
+            <dd>{{ worksite().description || '-' }}</dd>
+        </div>
+    </dl>
+</app-card>

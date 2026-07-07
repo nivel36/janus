@@ -29,17 +29,17 @@
 }
 
 .app-header-detail__title {
-    font-size: var(--section-title-font-size);
-    color: var(--section-title-color);
-    font-weight: var(--section-title-font-weight);
+    font-size: var(--title-font-size);
+    color: var(--title-color);
+    font-weight: var(--title-font-weight);
     padding-bottom: var(--section-gap);
 }
 
 .app-header-detail__info {
     display: flex;
-    font-size: var(--section-subtitle-font-size);
-    color: var(--section-subtitle-color);
-    font-weight: var(--section-subtitle-font-weight);
+    font-size: var(--subtitle-font-size);
+    color: var(--subtitle-color);
+    font-weight: var(--subtitle-font-weight);
 
     align-items: center;
     gap: var(--size-300);

@@ -1,0 +1,11 @@
+.worksite-detail__summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .worksite-detail__summary-grid {
+        grid-template-columns: 1fr;
+    }
+}

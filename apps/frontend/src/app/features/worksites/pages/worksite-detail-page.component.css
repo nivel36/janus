@@ -23,50 +23,6 @@
     grid-area: sumary;
 }
 
-.worksite-detail__panel-title {
-    text-transform: var(--literal-caps-text-transform);
-}
-
-.worksite-detail__list {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-}
-
-.worksite-detail__row {
-    display: grid;
-    grid-template-columns: minmax(8rem, 0.34fr) minmax(0, 1fr);
-    gap: 1.5rem;
-    align-items: center;
-    min-height: 4.15rem;
-    border-bottom: 1px solid var(--color-white-alpha-10);
-}
-
-.worksite-detail__row:last-child {
-    border-bottom: 0;
-}
-
-.worksite-detail__row dt {
-    color: var(--summary-card-label-color);
-    font-weight: var(--literal-detail-label-font-weight);
-    letter-spacing: var(--literal-detail-label-letter-spacing);
-    text-transform: var(--literal-detail-label-text-transform);
-}
-
-.worksite-detail__row dd {
-    min-width: 0;
-    margin: 0;
-    color: var(--color-white);
-    font-size: var(--literal-detail-value-font-size);
-    overflow-wrap: anywhere;
-}
-
-.worksite-detail__summary-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-}
-
 .worksite-detail__actions {
     display: flex;
     justify-content: flex-end;
@@ -108,8 +64,4 @@
         width: 100%;
     }
 
-    .worksite-detail__row,
-    .worksite-detail__summary-grid {
-        grid-template-columns: 1fr;
-    }
 }

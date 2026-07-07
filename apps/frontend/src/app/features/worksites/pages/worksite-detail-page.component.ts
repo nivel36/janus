@@ -7,12 +7,6 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { map } from 'rxjs';
-import {
-  faCalendarDays,
-  faClock,
-  faExclamationTriangle,
-  faUsers,
-} from '@fortawesome/free-solid-svg-icons';
 
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
@@ -22,10 +16,10 @@ import { Worksite } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
 import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
 import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
-import { SummaryCardComponent } from '../../../shared/ui/summary-card/summary-card.component';
-import { ChipComponent } from '../../../shared/ui/chip/chip.component';
 import { WorsiteDetailHeaderComponent } from '../components/worsite-detail-header/worsite-detail-header.component';
 import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
+import { WorksiteDetailPanelComponent } from '../components/worksite-detail-panel/worksite-detail-panel.component';
+import { WorksiteSummaryPanelComponent } from '../components/worksite-summary-panel/worksite-summary-panel.component';
 
 @Component({
   selector: 'app-worksite-detail-page',
@@ -38,9 +32,9 @@ import { CurrentUserFacade } from '../../../core/user/services/current-user.faca
     AsyncPipe,
     TabsComponent,
     TabItemDirective,
-    SummaryCardComponent,
-    ChipComponent,
     WorsiteDetailHeaderComponent,
+    WorksiteDetailPanelComponent,
+    WorksiteSummaryPanelComponent,
   ],
   templateUrl: './worksite-detail-page.component.html',
   styleUrl: './worksite-detail-page.component.css',
@@ -65,11 +59,6 @@ export class WorksiteDetailPageComponent {
 
   protected readonly worksite = computed(() => this.worksiteResource.value());
   protected readonly isAdmin = this.currentUser.isAdmin$;
-
-  protected readonly faCalendarDays = faCalendarDays;
-  protected readonly faClock = faClock;
-  protected readonly faExclamationTriangle = faExclamationTriangle;
-  protected readonly faUsers = faUsers;
 
   protected goBack(): void {
     this.router.navigate(['/worksites']);

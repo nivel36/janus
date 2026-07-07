@@ -17,81 +17,12 @@
                             [worksite]="worksite"
                         ></app-worsite-detail-header>
 
-                        <app-card id="general" styleClass="worksite-detail__panel">
-                            <h2 class="worksite-detail__panel-title">
-                                {{ 'worksite.sections.generalInformation' | translate }}
-                            </h2>
+                        <app-worksite-detail-panel
+                            id="general"
+                            [worksite]="worksite"
+                        ></app-worksite-detail-panel>
 
-                            <dl class="worksite-detail__list">
-                                <div class="worksite-detail__row">
-                                    <dt>{{ 'worksite.code' | translate }}</dt>
-                                    <dd>{{ worksite.code }}</dd>
-                                </div>
-
-                                <div class="worksite-detail__row">
-                                    <dt>{{ 'worksite.name' | translate }}</dt>
-                                    <dd>{{ worksite.name }}</dd>
-                                </div>
-
-                                <div class="worksite-detail__row">
-                                    <dt>{{ 'worksite.scope' | translate }}</dt>
-                                    <dd>
-                                        <app-chip
-                                            [label]="
-                                                'worksite.scopes.' + worksite.scope | translate
-                                            "
-                                        ></app-chip>
-                                    </dd>
-                                </div>
-
-                                <div class="worksite-detail__row">
-                                    <dt>{{ 'worksite.timeZone' | translate }}</dt>
-                                    <dd>{{ worksite.timeZone }}</dd>
-                                </div>
-
-                                <div class="worksite-detail__row">
-                                    <dt>{{ 'worksite.address' | translate }}</dt>
-                                    <dd>{{ worksite.address || '-' }}</dd>
-                                </div>
-
-                                <div class="worksite-detail__row">
-                                    <dt>{{ 'worksite.description' | translate }}</dt>
-                                    <dd>{{ worksite.description || '-' }}</dd>
-                                </div>
-                            </dl>
-                        </app-card>
-
-                        <app-card
-                            id="summary"
-                            styleClass="worksite-detail__panel worksite-detail__panel--summary"
-                            title="{{ 'worksite.sections.summary' | translate }}"
-                        >
-                            <div class="worksite-detail__summary-grid">
-                                <app-summary-card
-                                    [icon]="faUsers"
-                                    [label]="'worksite.summary.employees' | translate"
-                                    [value]="24"
-                                />
-
-                                <app-summary-card
-                                    [icon]="faClock"
-                                    [label]="'worksite.summary.activeShifts' | translate"
-                                    [value]="3"
-                                />
-
-                                <app-summary-card
-                                    [icon]="faCalendarDays"
-                                    [label]="'worksite.summary.todayTimelogs' | translate"
-                                    [value]="19"
-                                />
-
-                                <app-summary-card
-                                    [icon]="faExclamationTriangle"
-                                    [label]="'worksite.summary.incidents' | translate"
-                                    [value]="0"
-                                />
-                            </div>
-                        </app-card>
+                        <app-worksite-summary-panel id="summary"></app-worksite-summary-panel>
                     </div>
 
                     <div class="worksite-detail__actions">
@@ -111,11 +42,15 @@
                 </ng-template>
 
                 <ng-template [appTabItem]="'worksite.tabs.employees' | translate">
-                    <app-card styleClass="worksite-detail__panel worksite-detail__panel--empty"></app-card>
+                    <app-card
+                        styleClass="worksite-detail__panel worksite-detail__panel--empty"
+                    ></app-card>
                 </ng-template>
 
                 <ng-template [appTabItem]="'worksite.tabs.schedules' | translate">
-                    <app-card styleClass="worksite-detail__panel worksite-detail__panel--empty"></app-card>
+                    <app-card
+                        styleClass="worksite-detail__panel worksite-detail__panel--empty"
+                    ></app-card>
                 </ng-template>
             </app-tabs>
         }
