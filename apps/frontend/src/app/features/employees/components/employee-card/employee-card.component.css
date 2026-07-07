@@ -23,7 +23,12 @@
 }
 
 .employee-card__data dt {
-    color: var(--accent-color);
-    font-weight: var(--literal-data-label-font-weight);
-    text-shadow: 0 1px 0 var(--color-black);
+    color: var(--data-label-emphasis-color);
+    font-weight: var(--data-label-emphasis-font-weight);
+    text-shadow: var(--data-label-emphasis-text-shadow);
+}
+
+.employee-card__data dd {
+    color: var(--data-description-emphasis-color);
+    font-weight: var(--data-description-emphasis-font-weight);
 }

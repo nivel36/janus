@@ -29,6 +29,7 @@
     --title-color: var(--text-primary-color);
     --title-font-size: var(--font-size-500);
     --title-font-weight: var(--literal-emphasis-font-weight);
+    --title-emphasis-text-transform: none;
 
     --subtitle-color: var(--text-secondary-color);
     --subtitle-font-size: var(--font-size-350);
@@ -40,17 +41,21 @@
     --data-label-text-transform: var(--literal-caps-text-transform);
     --data-label-font-size: 1.05rem;
 
-    --data-description-color: --data-description-font-weight: 900;
+    --data-description-color: var(--text-primary-color);
+    --data-description-font-weight: 900;
     --data-description-letter-spacing: var(--literal-letter-spacing);
     --data-description-text-transform: var(--literal-caps-text-transform);
     --data-description-font-size: 1.05rem;
 
     --data-label-emphasis-color: var(--accent-color);
+    --data-label-emphasis-font-weight: 900;
     --data-label-emphasis-letter-spacing: var(--literal-letter-spacing);
     --data-label-emphasis-text-transform: var(--literal-caps-text-transform);
     --data-label-emphasis-font-size: 1.05rem;
+    --data-label-emphasis-text-shadow: 0 1px 0 var(--color-black);
 
-    --data-description-emphasis-color: --data-description-font-weight: 900;
+    --data-description-emphasis-color: var(--text-primary-color);
+    --data-description-emphasis-font-weight: 400;
     --data-description-emphasis-letter-spacing: var(--literal-letter-spacing);
     --data-description-emphasis-text-transform: var(--literal-caps-text-transform);
     --data-description-emphasis-font-size: 1.05rem;
