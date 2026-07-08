@@ -16,14 +16,14 @@
 }
 
 .clock-in-card__clock-in {
-    color: var(--text-primary-color);
-    font-size: var(--literal-clock-status-font-size);
-    font-weight: var(--literal-clock-status-font-weight);
+    color: var(--title-color);
+    font-size: var(--title-font-size);
+    font-weight: var(--title-font-weight);
 }
 
 .clock-in-card__secondary-action {
-    color: var(--text-secondary-color);
-    font-size: var(--literal-clock-action-font-size);
+    color: var(--link-small-font-size);
+    font-size: var(--link-small-font-size);
     cursor: pointer;
     background: transparent;
     border: 0px;

@@ -22,17 +22,21 @@
 }
 
 .worksite-detail__row dt {
-    color: var(--summary-card-label-color);
-    font-weight: var(--literal-detail-label-font-weight);
-    letter-spacing: var(--literal-detail-label-letter-spacing);
-    text-transform: var(--literal-detail-label-text-transform);
+    color: var(--data-label-color);
+    font-weight: var(--data-label-font-weight);
+    font-size: var(--data-label-font-size);
+    letter-spacing: var(--data-label-letter-spacing);
+    text-transform: var(--data-label-text-transform);
 }
 
 .worksite-detail__row dd {
     min-width: 0;
     margin: 0;
-    color: var(--color-white);
-    font-size: var(--literal-detail-value-font-size);
+    color: var(--data-description-color);
+    font-weight: var(--data-description-font-weight);
+    font-size: var(--data-description-font-size);
+    letter-spacing: var(--data-description-letter-spacing);
+    text-transform: var(--data-description-text-transform);
     overflow-wrap: anywhere;
 }
 

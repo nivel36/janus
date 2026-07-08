@@ -25,10 +25,16 @@
 .employee-card__data dt {
     color: var(--data-label-emphasis-color);
     font-weight: var(--data-label-emphasis-font-weight);
+    font-size: var(--data-label-emphasis-font-size);
+    text-transform: var(--data-label-emphasis-text-transform);
+    letter-spacing: var(--data-label-emphasis-letter-spacing);
     text-shadow: var(--data-label-emphasis-text-shadow);
 }
 
 .employee-card__data dd {
     color: var(--data-description-emphasis-color);
     font-weight: var(--data-description-emphasis-font-weight);
+    font-size: var(--data-description-emphasis-font-size);
+    text-transform: var(--data-description-emphasis-text-transform);
+    letter-spacing: var(--data-description-emphasis-letter-spacing);
 }

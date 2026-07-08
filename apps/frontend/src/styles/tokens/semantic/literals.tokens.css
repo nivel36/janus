@@ -35,39 +35,35 @@
     --subtitle-font-size: var(--font-size-350);
     --subtitle-font-weight: 400;
 
-    --data-label-color: var(--text-primary-color);
-    --data-label-font-weight: 900;
+    --data-label-color: var(--text-secondary-color);
+    --data-label-font-weight: 800;
     --data-label-letter-spacing: var(--literal-letter-spacing);
     --data-label-text-transform: var(--literal-caps-text-transform);
-    --data-label-font-size: 1.05rem;
+    --data-label-font-size: var(--font-size-300);
+    --data-label-text-transform: var(--literal-caps-text-transform);
 
     --data-description-color: var(--text-primary-color);
-    --data-description-font-weight: 900;
-    --data-description-letter-spacing: var(--literal-letter-spacing);
+    --data-description-font-weight: 400;
+    --data-description-letter-spacing: var(--literal-caps-letter-spacing);
     --data-description-text-transform: var(--literal-caps-text-transform);
-    --data-description-font-size: 1.05rem;
+    --data-description-font-size: var(--font-size-200);
+    --data-description-text-transform: var(--literal-caps-text-transform);
 
     --data-label-emphasis-color: var(--accent-color);
-    --data-label-emphasis-font-weight: 900;
-    --data-label-emphasis-letter-spacing: var(--literal-letter-spacing);
+    --data-label-emphasis-font-weight: 800;
+    --data-label-emphasis-letter-spacing: var(--literal-caps-letter-spacing);
     --data-label-emphasis-text-transform: var(--literal-caps-text-transform);
-    --data-label-emphasis-font-size: 1.05rem;
+    --data-label-emphasis-font-size: var(--font-size-300);
     --data-label-emphasis-text-shadow: 0 1px 0 var(--color-black);
 
     --data-description-emphasis-color: var(--text-primary-color);
     --data-description-emphasis-font-weight: 400;
-    --data-description-emphasis-letter-spacing: var(--literal-letter-spacing);
-    --data-description-emphasis-text-transform: var(--literal-caps-text-transform);
-    --data-description-emphasis-font-size: 1.05rem;
+    --data-description-emphasis-letter-spacing: 0;
+    --data-description-emphasis-text-transform: none;
+    --data-description-emphasis-font-size: var(--font-size-300);
 
-    --literal-detail-label-font-weight: 900;
-    --literal-detail-label-letter-spacing: var(--literal-letter-spacing);
-    --literal-detail-label-text-transform: var(--literal-caps-text-transform);
-    --literal-detail-value-font-size: 1.05rem;
-
-    --literal-clock-status-font-size: var(--font-size-500);
-    --literal-clock-status-font-weight: var(--literal-emphasis-font-weight);
-    --literal-clock-action-font-size: var(--literal-small-font-size);
+    --link-small-color: var(--literal-small-font-size);
+    --link-small-font-size: var(--text-secondary-color);
 
     --literal-summary-label-font-weight: var(--literal-emphasis-font-weight);
     --literal-summary-label-letter-spacing: var(--literal-wide-letter-spacing);
