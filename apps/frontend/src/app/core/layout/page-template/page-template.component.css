@@ -30,7 +30,7 @@
 
 .page-template__brand:hover,
 .page-template__brand:focus-visible {
-    color: var(--brand-hover-color);
+    color: color-mix(in srgb, var(--brand-color) 36%, white 64%);
     text-decoration: none;
 }
 

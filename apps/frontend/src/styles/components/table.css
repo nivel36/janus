@@ -34,10 +34,11 @@
     padding-inline: var(--panel-padding-inline);
     padding-block: var(--panel-padding-block);
     text-align: left;
-    text-transform: var(--literal-table-heading-text-transform);
-    letter-spacing: var(--literal-table-heading-letter-spacing);
-    font-size: var(--literal-table-heading-font-size);
-    font-weight: var(--literal-table-heading-font-weight);
+    text-transform: var(--table-heading-text-transform);
+    letter-spacing: var(--table-heading-letter-spacing);
+    font-size: var(--table-heading-font-size);
+    font-weight: var(--table-heading-font-weight);
+    color: var(--table-heading-font-color);
 }
 
 .app-table td {

@@ -23,14 +23,18 @@
 }
 
 .summary-card__label {
-    color: var(--summary-card-label-color);
-    font-weight: var(--summary-card-label-font-weight);
-    letter-spacing: var(--summary-card-label-letter-spacing);
-    text-transform: var(--summary-card-label-text-transform);
+    color: var(--data-label-color);
+    font-weight: var(--data-label-font-weight);
+    letter-spacing: var(--data-label-letter-spacing);
+    text-transform: var(--data-label-text-transform);
+    font-size: var(--data-label-font-size);
 }
 
 .summary-card__value {
     margin-top: var(--summary-card-value-margin-top);
-    color: var(--summary-card-value-color);
-    font-size: var(--summary-card-value-font-size);
+    color: var(--title-color);
+    font-weight: var(--title-font-weight);
+    letter-spacing: var(--title-letter-spacing);
+    text-transform: var(--title-text-transform);
+    font-size: var(--title-font-size);
 }

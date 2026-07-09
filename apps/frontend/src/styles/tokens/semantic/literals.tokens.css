@@ -15,6 +15,9 @@
     --brand-hover-color: var(--accent-hover-color);
     --brand-font-size: var(--font-size-400);
     --brand-font-weight: var(--literal-emphasis-font-weight);
+    --brand-letter-spacing: none;
+    --brand-text-transform: none;
+    --brand-text-shadow: none;
 
     --page-title-color: var(--text-secondary-color);
     --page-title-font-size: var(--literal-body-font-size);
@@ -25,11 +28,13 @@
     --title-emphasis-font-size: var(--font-size-350);
     --title-emphasis-font-weight: var(--literal-strong-font-weight);
     --title-emphasis-text-transform: var(--literal-caps-text-transform);
+    --title-emphasis-letter-spacing: var(--literal-caps-letter-spacing);
 
     --title-color: var(--text-primary-color);
     --title-font-size: var(--font-size-500);
     --title-font-weight: var(--literal-emphasis-font-weight);
-    --title-emphasis-text-transform: none;
+    --title-text-transform: none;
+    --title-letter-spacing: none;
 
     --subtitle-color: var(--text-secondary-color);
     --subtitle-font-size: var(--font-size-350);
@@ -40,14 +45,12 @@
     --data-label-letter-spacing: var(--literal-letter-spacing);
     --data-label-text-transform: var(--literal-caps-text-transform);
     --data-label-font-size: var(--font-size-300);
-    --data-label-text-transform: var(--literal-caps-text-transform);
 
     --data-description-color: var(--text-primary-color);
     --data-description-font-weight: 400;
     --data-description-letter-spacing: var(--literal-caps-letter-spacing);
     --data-description-text-transform: var(--literal-caps-text-transform);
     --data-description-font-size: var(--font-size-200);
-    --data-description-text-transform: var(--literal-caps-text-transform);
 
     --data-label-emphasis-color: var(--accent-color);
     --data-label-emphasis-font-weight: 800;
@@ -65,38 +68,39 @@
     --link-small-color: var(--literal-small-font-size);
     --link-small-font-size: var(--text-secondary-color);
 
-    --literal-summary-label-font-weight: var(--literal-emphasis-font-weight);
-    --literal-summary-label-letter-spacing: var(--literal-wide-letter-spacing);
-    --literal-summary-label-text-transform: var(--literal-caps-text-transform);
-    --literal-summary-value-font-size: var(--font-size-500);
+    --table-heading-color: var(--text-primary-color);
+    --table-heading-font-weight: var(--literal-emphasis-font-weight);
+    --table-heading-font-size: var(--literal-small-font-size);
+    --table-heading-letter-spacing: var(--literal-caps-letter-spacing);
+    --table-heading-text-transform: var(--literal-caps-text-transform);
 
-    --literal-table-heading-font-size: var(--literal-small-font-size);
-    --literal-table-heading-font-weight: var(--literal-emphasis-font-weight);
-    --literal-table-heading-letter-spacing: var(--literal-caps-letter-spacing);
-    --literal-table-heading-text-transform: var(--literal-caps-text-transform);
+    --control-label-font-size: var(--literal-body-font-size);
+    --control-label-font-weight: var(--literal-emphasis-font-weight);
+    --control-label-letter-spacing: var(--literal-wide-caps-letter-spacing);
+    --control-label-text-transform: var(--literal-caps-text-transform);
 
-    --literal-control-label-font-size: var(--literal-body-font-size);
-    --literal-control-label-font-weight: var(--literal-emphasis-font-weight);
-    --literal-control-label-letter-spacing: var(--literal-wide-caps-letter-spacing);
-    --literal-control-label-text-transform: var(--literal-caps-text-transform);
+    --form-label-font-size: var(--literal-body-font-size);
+    --form-label-font-weight: var(--literal-emphasis-font-weight);
+    --form-label-letter-spacing: var(--literal-wide-caps-letter-spacing);
+    --form-label-text-transform: var(--literal-caps-text-transform);
 
-    --literal-tab-label-font-size: var(--literal-small-font-size);
-    --literal-tab-label-font-weight: var(--literal-strong-font-weight);
-    --literal-tab-label-letter-spacing: var(--literal-wide-caps-letter-spacing);
-    --literal-tab-label-text-transform: var(--literal-caps-text-transform);
+    --tab-label-font-size: var(--literal-small-font-size);
+    --tab-label-font-weight: var(--literal-strong-font-weight);
+    --tab-label-letter-spacing: var(--literal-wide-caps-letter-spacing);
+    --tab-label-text-transform: var(--literal-caps-text-transform);
+    --tab-label-color: var(--text-primary-color);
 
-    --literal-paginator-label-font-size: var(--literal-small-font-size);
-    --literal-paginator-label-font-weight: var(--literal-emphasis-font-weight);
-    --literal-paginator-label-letter-spacing: var(--literal-subtle-caps-letter-spacing);
+    --paginator-label-font-size: var(--literal-small-font-size);
+    --paginator-label-font-weight: var(--literal-emphasis-font-weight);
+    --paginator-label-letter-spacing: var(--literal-subtle-caps-letter-spacing);
+    --paginator-label-color: var(--text-secondary-color);
 
-    --literal-menu-label-color: var(--accent-color);
-    --literal-menu-label-font-size: var(--literal-body-font-size);
-    --literal-menu-label-font-weight: var(--literal-emphasis-font-weight);
-    --literal-menu-label-letter-spacing: var(--literal-subtle-caps-letter-spacing);
+    --menu-label-color: var(--accent-color);
+    --menu-label-font-size: var(--literal-body-font-size);
+    --menu-label-font-weight: var(--literal-emphasis-font-weight);
+    --menu-label-letter-spacing: var(--literal-subtle-caps-letter-spacing);
 
-    --literal-chip-label-font-size: var(--literal-small-font-size);
-    --literal-chip-label-font-weight: var(--literal-emphasis-font-weight);
-    --literal-chip-label-text-transform: var(--literal-caps-text-transform);
-
-    --literal-data-label-font-weight: var(--literal-emphasis-font-weight);
+    --chip-label-font-size: var(--literal-small-font-size);
+    --chip-label-font-weight: var(--literal-emphasis-font-weight);
+    --chip-label-text-transform: var(--literal-caps-text-transform);
 }

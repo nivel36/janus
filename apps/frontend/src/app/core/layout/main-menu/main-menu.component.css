@@ -40,10 +40,10 @@
     padding: 0 var(--panel-medium-padding-inline) 0 0;
     display: flex;
     align-items: center;
-    color: var(--literal-menu-label-color);
-    font-size: var(--literal-menu-label-font-size);
-    font-weight: var(--literal-menu-label-font-weight);
-    letter-spacing: var(--literal-menu-label-letter-spacing);
+    color: var(--menu-label-color);
+    font-size: var(--menu-label-font-size);
+    font-weight: var(--menu-label-font-weight);
+    letter-spacing: var(--menu-label-letter-spacing);
     white-space: nowrap;
     overflow: hidden;
     border-right: var(--panel-border);

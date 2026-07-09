@@ -3,9 +3,6 @@
     --form-disabled-opacity: 0.72;
 
     --form-label-gap: var(--size-300);
-    --form-label-text-color: var(--text-primary-color);
-    --form-label-font-size: var(--literal-control-label-font-size);
-    --form-label-font-weight: var(--literal-control-label-font-weight);
 
     --form-hint-text-color: var(--text-secondary-color);
     --form-hint-font-size: var(--literal-small-font-size);

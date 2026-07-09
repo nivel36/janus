@@ -51,9 +51,5 @@
     --summary-card-icon-border-radius: 50%;
     --summary-card-icon-color: var(--accent-color);
     --summary-card-icon-font-size: 1.75rem;
-    --summary-card-label-font-weight: var(--literal-summary-label-font-weight);
-    --summary-card-label-letter-spacing: var(--literal-summary-label-letter-spacing);
-    --summary-card-label-text-transform: var(--literal-summary-label-text-transform);
     --summary-card-value-margin-top: 0.8rem;
-    --summary-card-value-font-size: var(--literal-summary-value-font-size);
 }

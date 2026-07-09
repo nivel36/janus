@@ -15,11 +15,11 @@
     border: 0;
     border-right: var(--panel-border);
     background: transparent;
-    color: var(--text-primary-color);
-    font-size: var(--literal-tab-label-font-size);
-    font-weight: var(--literal-tab-label-font-weight);
-    letter-spacing: var(--literal-tab-label-letter-spacing);
-    text-transform: var(--literal-tab-label-text-transform);
+    color: var(--tab-label-color);
+    font-size: var(--tab-label-font-size);
+    font-weight: var(--tab-label-font-weight);
+    letter-spacing: var(--tab-label-letter-spacing);
+    text-transform: var(--tab-label-text-transform);
     cursor: pointer;
 }
 
