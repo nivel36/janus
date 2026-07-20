@@ -9,7 +9,7 @@
     align-items: baseline;
     font-size: var(--type-label-md-size);
     font-weight: var(--type-label-md-weight);
-    text-transform: var(--type-label-md-transform);
+    text-transform: none;
     letter-spacing: var(--type-label-md-letter-spacing);
     color: var(--text-primary-color);
 }
