@@ -38,8 +38,8 @@
 }
 
 .paginator__text {
-    color: var(--paginator-label-color);
-    font-size: var(--paginator-label-font-size);
-    letter-spacing: var(--paginator-label-letter-spacing);
-    font-weight: var(--paginator-label-font-weight);
+    color: var(--text-secondary-color);
+    font-size: var(--type-label-sm-size);
+    font-weight: var(--type-label-sm-weight);
+    letter-spacing: var(--type-label-sm-letter-spacing);
 }

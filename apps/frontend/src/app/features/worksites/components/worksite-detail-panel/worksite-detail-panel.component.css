@@ -22,21 +22,21 @@
 }
 
 .worksite-detail__row dt {
-    color: var(--data-label-color);
-    font-weight: var(--data-label-font-weight);
-    font-size: var(--data-label-font-size);
-    letter-spacing: var(--data-label-letter-spacing);
-    text-transform: var(--data-label-text-transform);
+    color: var(--text-secondary-color);
+    font-size: var(--type-label-md-size);
+    font-weight: var(--type-label-md-weight);
+    letter-spacing: var(--type-label-md-letter-spacing);
+    text-transform: var(--type-label-md-transform);
 }
 
 .worksite-detail__row dd {
     min-width: 0;
     margin: 0;
-    color: var(--data-description-color);
-    font-weight: var(--data-description-font-weight);
-    font-size: var(--data-description-font-size);
-    letter-spacing: var(--data-description-letter-spacing);
-    text-transform: var(--data-description-text-transform);
+    color: var(--text-primary-color);
+    font-weight: var(--type-caption-sm-weight);
+    font-size: var(--type-caption-sm-size);
+    letter-spacing: var(--type-caption-sm-letter-spacing);
+    text-transform: var(--type-caption-sm-transform);
     overflow-wrap: anywhere;
 }
 

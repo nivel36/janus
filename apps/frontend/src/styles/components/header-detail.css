@@ -29,17 +29,22 @@
 }
 
 .app-header-detail__title {
-    font-size: var(--title-font-size);
-    color: var(--title-color);
-    font-weight: var(--title-font-weight);
+    font-size: var(--type-heading-lg-size);
+    font-weight: var(--type-heading-lg-weight);
+    letter-spacing: var(--type-heading-lg-spacing);
+    text-transform: var(--type-heading-lg-text-transform);
+    color: var(--text-primary-color);
     padding-bottom: var(--section-gap);
 }
 
 .app-header-detail__info {
     display: flex;
-    font-size: var(--subtitle-font-size);
-    color: var(--subtitle-color);
-    font-weight: var(--subtitle-font-weight);
+
+    font-size: var(--type-label-lg-size);
+    font-weight: var(--type-label-lg-weight);
+    letter-spacing: var(--type-label-lg-spacing);
+    text-transform: var(--type-label-lg-text-transform);
+    color: var(--text-secondary-color);
 
     align-items: center;
     gap: var(--size-300);

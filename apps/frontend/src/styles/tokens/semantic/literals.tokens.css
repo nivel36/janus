@@ -1,112 +1,60 @@
 :root {
-    --literal-small-font-size: var(--font-size-200);
-    --literal-body-font-size: var(--font-size-300);
-    --literal-prominent-font-size: var(--font-size-350);
-    --literal-large-font-size: var(--font-size-400);
-    --literal-title-font-size: var(--font-size-500);
+    --type-brand-font-size: var(--font-size-400);
+    --type-brand-font-weight: 600;
+    --type-brand-letter-spacing: var(--letter-spacing-000);
+    --type-brand-text-transform: none;
 
-    --literal-regular-font-weight: 400;
-    --literal-emphasis-font-weight: 600;
-    --literal-strong-font-weight: 800;
+    /* Heading */
+    --type-heading-lg-size: var(--font-size-500);
+    --type-heading-lg-weight: 600;
+    --type-heading-lg-letter-spacing: var(--letter-spacing-000);
+    --type-heading-lg-transform: none;
 
-    --literal-no-letter-spacing: 0;
-    --literal-letter-spacing: 0.11rem;
-    --literal-wide-letter-spacing: 0.13rem;
-    --literal-caps-letter-spacing: 0.12rem;
-    --literal-wide-caps-letter-spacing: 0.14rem;
-    --literal-subtle-caps-letter-spacing: 0.04rem;
+    --type-heading-md-size: var(--font-size-350);
+    --type-heading-md-weight: 800;
+    --type-heading-md-letter-spacing: var(--letter-spacing-caps);
+    --type-heading-md-transform: uppercase;
 
-    --literal-no-text-transform: none;
-    --literal-caps-text-transform: uppercase;
+    --type-heading-sm-size: var(--font-size-300);
+    --type-heading-sm-weight: 600;
+    --type-heading-sm-letter-spacing: var(--letter-spacing-caps);
+    --type-heading-sm-transform: uppercase;
 
-    --literal-no-text-shadow: none;
-    --literal-dark-text-shadow: 0 1px 0 var(--color-black);
+    /* Body */
+    --type-body-size: var(--font-size-300);
+    --type-body-weight: 400;
+    --type-body-letter-spacing: var(--letter-spacing-000);
+    --type-body-transform: none;
 
-    --brand-color: var(--accent-color);
-    --brand-hover-color: var(--accent-hover-color);
-    --brand-font-size: var(--literal-large-font-size);
-    --brand-font-weight: var(--literal-emphasis-font-weight);
-    --brand-letter-spacing: var(--literal-no-letter-spacing);
-    --brand-text-transform: var(--literal-no-text-transform);
-    --brand-text-shadow: var(--literal-no-text-shadow);
+    --type-body-sm-size: var(--font-size-300);
+    --type-body-sm-weight: 400;
+    --type-body-sm-letter-spacing: var(--letter-spacing-000);
+    --type-body-sm-transform: none;
 
-    --page-title-color: var(--text-secondary-color);
-    --page-title-font-size: var(--literal-body-font-size);
-    --page-title-font-weight: var(--literal-emphasis-font-weight);
-    --page-title-text-transform: var(--literal-caps-text-transform);
+    /* Label */
+    --type-label-lg-size: var(--font-size-350);
+    --type-label-lg-weight: 400;
+    --type-label-lg-letter-spacing: var(--letter-spacing-100);
+    --type-label-lg-transform: none;
 
-    --title-emphasis-color: var(--accent-color);
-    --title-emphasis-font-size: var(--literal-prominent-font-size);
-    --title-emphasis-font-weight: var(--literal-strong-font-weight);
-    --title-emphasis-text-transform: var(--literal-caps-text-transform);
-    --title-emphasis-letter-spacing: var(--literal-caps-letter-spacing);
+    --type-label-md-size: var(--font-size-300);
+    --type-label-md-weight: 800;
+    --type-label-md-letter-spacing: var(--letter-spacing-200);
+    --type-label-md-transform: uppercase;
 
-    --title-color: var(--text-primary-color);
-    --title-font-size: var(--literal-title-font-size);
-    --title-font-weight: var(--literal-emphasis-font-weight);
-    --title-text-transform: var(--literal-no-text-transform);
-    --title-letter-spacing: var(--literal-no-letter-spacing);
+    --type-label-sm-size: var(--font-size-200);
+    --type-label-sm-weight: 800;
+    --type-label-sm-letter-spacing: var(--letter-spacing-400);
+    --type-label-sm-transform: uppercase;
 
-    --subtitle-color: var(--text-secondary-color);
-    --subtitle-font-size: var(--literal-prominent-font-size);
-    --subtitle-font-weight: var(--literal-regular-font-weight);
+    /* Caption */
+    --type-caption-md-size: var(--font-size-300);
+    --type-caption-md-weight: 600;
+    --type-caption-md-letter-spacing: var(--letter-spacing-200);
+    --type-caption-md-transform: none;
 
-    --data-label-color: var(--text-secondary-color);
-    --data-label-font-weight: var(--literal-strong-font-weight);
-    --data-label-letter-spacing: var(--literal-letter-spacing);
-    --data-label-text-transform: var(--literal-caps-text-transform);
-    --data-label-font-size: var(--literal-body-font-size);
-
-    --data-description-color: var(--text-primary-color);
-    --data-description-font-weight: var(--literal-regular-font-weight);
-    --data-description-letter-spacing: var(--literal-caps-letter-spacing);
-    --data-description-text-transform: var(--literal-caps-text-transform);
-    --data-description-font-size: var(--literal-small-font-size);
-
-    --data-label-emphasis-color: var(--accent-color);
-    --data-label-emphasis-font-weight: var(--literal-strong-font-weight);
-    --data-label-emphasis-letter-spacing: var(--literal-caps-letter-spacing);
-    --data-label-emphasis-text-transform: var(--literal-caps-text-transform);
-    --data-label-emphasis-font-size: var(--literal-body-font-size);
-    --data-label-emphasis-text-shadow: var(--literal-dark-text-shadow);
-
-    --data-description-emphasis-color: var(--text-primary-color);
-    --data-description-emphasis-font-weight: var(--literal-regular-font-weight);
-    --data-description-emphasis-letter-spacing: var(--literal-no-letter-spacing);
-    --data-description-emphasis-text-transform: var(--literal-no-text-transform);
-    --data-description-emphasis-font-size: var(--literal-body-font-size);
-
-    --link-small-color: var(--text-secondary-color);
-    --link-small-font-size: var(--literal-small-font-size);
-
-    --table-heading-color: var(--text-primary-color);
-    --table-heading-font-weight: var(--literal-emphasis-font-weight);
-    --table-heading-font-size: var(--literal-small-font-size);
-    --table-heading-letter-spacing: var(--literal-caps-letter-spacing);
-    --table-heading-text-transform: var(--literal-caps-text-transform);
-
-    --control-label-font-size: var(--literal-small-font-size);
-    --control-label-font-weight: var(--literal-strong-font-weight);
-    --control-label-letter-spacing: var(--literal-wide-caps-letter-spacing);
-    --control-label-text-transform: var(--literal-caps-text-transform);
-    --control-label-color: var(--text-primary-color);
-
-    --form-label-font-size: var(--literal-body-font-size);
-    --form-label-font-weight: var(--literal-emphasis-font-weight);
-    --form-label-letter-spacing: var(--literal-wide-caps-letter-spacing);
-    --form-label-text-transform: var(--literal-caps-text-transform);
-
-    --paginator-label-font-size: var(--literal-small-font-size);
-    --paginator-label-font-weight: var(--literal-emphasis-font-weight);
-    --paginator-label-letter-spacing: var(--literal-subtle-caps-letter-spacing);
-    --paginator-label-color: var(--text-secondary-color);
-
-    --menu-label-color: var(--accent-color);
-    --menu-label-font-size: var(--literal-body-font-size);
-    --menu-label-font-weight: var(--literal-emphasis-font-weight);
-    --menu-label-letter-spacing: var(--literal-subtle-caps-letter-spacing);
-
-    --chip-label-font-size: var(--literal-small-font-size);
-    --chip-label-font-weight: var(--literal-emphasis-font-weight);
-    --chip-label-text-transform: var(--literal-caps-text-transform);
+    --type-caption-sm-size: var(--font-size-200);
+    --type-caption-sm-weight: 400;
+    --type-caption-sm-letter-spacing: var(--letter-spacing-400);
+    --type-caption-sm-transform: uppercase;
 }

@@ -4,21 +4,15 @@
     --chip-padding-block: var(--size-150);
     --chip-padding-inline: var(--size-250);
     --chip-border-radius: var(--size-150);
-    --chip-font-size: var(--chip-label-font-size);
-    --chip-font-weight: var(--chip-label-font-weight);
-    --chip-text-transform: var(--chip-label-text-transform);
+    --chip-font-size: var(--type-label-sm-size);
+    --chip-font-weight: var(--type-label-sm-weight);
+    --chip-text-transform: var(--type-label-sm-text-transform);
     --chip-icon-size: var(--chip-font-size);
     --chip-gap: var(--size-150);
 
-    --chip-small-padding-block: var(--size-100);
-    --chip-small-padding-inline: var(--size-200);
-    --chip-small-font-size: var(--size-250);
-    --chip-small-icon-size: var(--chip-small-font-size);
-    --chip-small-gap: var(--size-100);
-
     --chip-big-padding-block: var(--size-200);
     --chip-big-padding-inline: var(--size-400);
-    --chip-big-font-size: var(--literal-body-font-size);
+    --chip-big-font-size: var(--type-label-md-size);
     --chip-big-icon-size: var(--chip-big-font-size);
     --chip-big-gap: var(--size-200);
 

@@ -11,11 +11,12 @@
 }
 
 .app-section__title {
-    font-size: var(--title-emphasis-font-size);
+    font-size: var(--type-heading-md-size);
+    font-weight: var(--type-heading-md-weight);
+    text-transform: var(--type-heading-md-transform);
+    letter-spacing: var(--type-heading-md-letter-spacing);
+    color: var(--accent-color);
     margin: 0;
-    text-transform: var(--title-emphasis-text-transform);
-    color: var(--title-emphasis-color);
-    font-weight: var(--title-emphasis-font-weight);
 }
 
 .app-section__message {

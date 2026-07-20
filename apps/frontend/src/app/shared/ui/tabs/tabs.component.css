@@ -15,11 +15,11 @@
     border: 0;
     border-right: var(--panel-border);
     background: transparent;
-    color: var(--control-label-color);
-    font-size: var(--control-label-font-size);
-    font-weight: var(--control-label-font-weight);
-    letter-spacing: var(--control-label-letter-spacing);
-    text-transform: var(--control-label-text-transform);
+    color: var(--text-primary-color);
+    font-size: var(--type-label-sm-size);
+    font-weight: var(--type-label-sm-weight);
+    letter-spacing: var(--type-label-sm-letter-spacing);
+    text-transform: var(--type-label-sm-transform);
     cursor: pointer;
 }
 

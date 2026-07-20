@@ -7,9 +7,11 @@
 .app-field__label {
     display: inline-flex;
     align-items: baseline;
-    font-size: var(--form-label-font-size);
-    font-weight: var(--form-label-font-weight);
-    color: var(--form-label-text-color);
+    font-size: var(--type-label-md-size);
+    font-weight: var(--type-label-md-weight);
+    text-transform: var(--type-label-md-transform);
+    letter-spacing: var(--type-label-md-letter-spacing);
+    color: var(--text-primary-color);
 }
 
 .app-field__control {

@@ -22,10 +22,11 @@
 }
 
 .app-card__title {
-    font-size: var(--title-font-size);
-    color: var(--title-color);
-    font-weight: var(--title-font-weight);
-    text-transform: var(--title-text-transform);
+    font-size: var(--type-heading-lg-size);
+    font-weight: var(--type-heading-lg-weight);
+    letter-spacing: var(--type-heading-lg-spacing);
+    text-transform: var(--type-heading-lg-text-transform);
+    color: var(--text-primary-color);
 }
 
 .app-card__body {

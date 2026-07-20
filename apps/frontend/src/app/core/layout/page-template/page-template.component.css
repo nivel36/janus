@@ -22,23 +22,26 @@
 }
 
 .page-template__brand {
-    font-size: var(--brand-font-size);
-    color: var(--brand-color);
+    font-size: var(--type-brand-font-size);
+    font-weight: var(--type-brand-font-weight);
+    letter-spacing: var(--type-brand-letter-spacing);
+    text-transform: var(--type-brand-text-transform);
+    color: var(--accent-color);
     text-decoration: none;
-    font-weight: var(--brand-font-weight);
 }
 
 .page-template__brand:hover,
 .page-template__brand:focus-visible {
-    color: color-mix(in srgb, var(--brand-color) 36%, white 64%);
+    color: var(--accent-hover-color);
     text-decoration: none;
 }
 
 .page-template__title {
-    font-size: var(--page-title-font-size);
-    color: var(--page-title-color);
-    text-transform: var(--page-title-text-transform);
-    font-weight: var(--page-title-font-weight);
+    font-size: var(--type-heading-sm-size);
+    font-weight: var(--type-heading-sm-weight);
+    letter-spacing: var(--type-heading-sm-letter-spacing);
+    text-transform: var(--type-heading-sm-transform);
+    color: var(--text-secondary-color);
 }
 
 .page-template__body {

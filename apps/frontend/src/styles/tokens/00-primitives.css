@@ -93,6 +93,12 @@
     --font-size-800: 3rem;
     --font-size-900: 3.5rem;
 
+    --letter-spacing-000: 0;
+    --letter-spacing-200: 0.0625rem;
+    --letter-spacing-400: 0.125rem;
+    --letter-spacing-600: 0.1875;
+    --letter-spacing-800: 0.25rem;
+
     --radius-100: 0.5rem;
     --radius-200: 0.875rem;
     --radius-300: 1rem;

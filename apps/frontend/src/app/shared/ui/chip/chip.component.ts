@@ -13,7 +13,7 @@ type ChipType = 'default' | 'primary' | 'secondary' | 'tertiary' | 'green' | 're
 /**
  * Size variants supported by the chip component.
  */
-type ChipSize = 'normal' | 'big' | 'small';
+type ChipSize = 'normal' | 'big';
 
 @Component({
   selector: 'app-chip',

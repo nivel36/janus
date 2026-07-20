@@ -40,10 +40,11 @@
     padding: 0 var(--panel-medium-padding-inline) 0 0;
     display: flex;
     align-items: center;
-    color: var(--menu-label-color);
-    font-size: var(--menu-label-font-size);
-    font-weight: var(--menu-label-font-weight);
-    letter-spacing: var(--menu-label-letter-spacing);
+    color: var(--accent-color);
+    font-size: var(--type-caption-md-size);
+    font-weight: var(--type-caption-md-weight);
+    letter-spacing: var(--type-caption-md-letter-spacing);
+    text-transform: var(--type-caption-md-transform);
     white-space: nowrap;
     overflow: hidden;
     border-right: var(--panel-border);
