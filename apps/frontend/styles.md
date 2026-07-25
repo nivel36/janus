@@ -44,7 +44,7 @@ This layer lets components speak in terms of intent: primary text, panel, focus,
 
 ### Component tokens
 
-Specific token files (`avatar.tokens.css`, `brand.tokens.css`, `button.tokens.css`, `list.tokens.css`, `autocomplete.tokens.css`, etc.) tune concrete interface pieces.
+Specific token files (`brand.tokens.css`, `button.tokens.css`, `list.tokens.css`, `autocomplete.tokens.css`, etc.) tune concrete interface pieces.
 
 Their purpose is to isolate decisions for a component family without moving them into structural CSS. Some shared component styles keep their values beside the rules that consume them; for example, table values live directly in `src/styles/components/table.css` while still building on list and panel tokens.
 
