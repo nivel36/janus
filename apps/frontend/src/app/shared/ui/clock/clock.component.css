@@ -1,6 +1,7 @@
 .clock__time {
     font-size: var(--font-size-900);
+    letter-spacing: var(--type-caps-wide-letter-spacing);
+    font-weight: var(--font-weight-semibold);
+
     color: var(--accent-strong-color);
-    font-weight: 600;
-    letter-spacing: var(--letter-spacing-400);
 }

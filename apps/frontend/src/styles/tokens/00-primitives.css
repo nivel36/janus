@@ -93,11 +93,19 @@
     --font-size-800: 3rem;
     --font-size-900: 3.5rem;
 
+    --font-weight-regular: 400;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 800;
+
     --letter-spacing-000: 0;
     --letter-spacing-200: 0.0625rem;
     --letter-spacing-400: 0.125rem;
     --letter-spacing-600: 0.1875;
     --letter-spacing-800: 0.25rem;
+
+    --line-height-tight: 1.15;
+    --line-height-normal: 1.4;
+    --line-height-relaxed: 1.5;
 
     --radius-100: 0.5rem;
     --radius-200: 0.875rem;

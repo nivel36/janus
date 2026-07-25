@@ -10,7 +10,6 @@
 @import './styles/tokens/semantic/literals.tokens.css';
 @import './styles/tokens/semantic/layout.tokens.css';
 @import './styles/tokens/semantic/forms.tokens.css';
-@import './styles/tokens/semantic/controls.tokens.css';
 
 /* Component tokens */
 @import './styles/tokens/avatar.tokens.css';

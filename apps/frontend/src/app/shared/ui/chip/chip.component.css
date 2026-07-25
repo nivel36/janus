@@ -6,18 +6,17 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--chip-gap);
+    gap: var(--size-150);
 
-    padding: var(--chip-padding-block) var(--chip-padding-inline);
-    border-radius: var(--chip-border-radius);
+    padding: var(--size-150) var(--size-250);
+    border-radius: var(--size-150);
 
-    background-color: var(--chip-background-color);
-    color: var(--chip-text-color);
+    background-color: var(--color-primary-500);
+    color: var(--color-gray-800);
 
-    font-size: var(--chip-font-size);
-    font-weight: var(--chip-font-weight);
-    line-height: 1;
-    text-transform: var(--chip-text-transform);
+    font-size: var(--type-label-sm-font-size);
+    font-weight: var(--type-label-sm-font-weight);
+    line-height: var(--type-label-sm-line-height);
 }
 
 .app-chip__icon {
@@ -25,7 +24,7 @@
     align-items: center;
     justify-content: center;
 
-    font-size: var(--chip-icon-size);
+    font-size: var(--type-label-sm-font-size);
     line-height: 1;
 }
 
@@ -33,49 +32,40 @@
     line-height: 1;
 }
 
-.app-chip--size-small {
-    padding-block: var(--chip-small-padding-block);
-    padding-inline: var(--chip-small-padding-inline);
-    font-size: var(--chip-small-font-size);
-    gap: var(--chip-small-gap);
-}
-
-.app-chip--size-small .app-chip__icon {
-    font-size: var(--chip-small-icon-size);
-}
-
 .app-chip--size-big {
-    padding-block: var(--chip-big-padding-block);
-    padding-inline: var(--chip-big-padding-inline);
-    font-size: var(--chip-big-font-size);
-    gap: var(--chip-big-gap);
+    padding-block: var(--size-200);
+    padding-inline: var(--size-400);
+    font-size: var(--type-label-md-font-size);
+    font-weight: var(--type-label-md-font-weight);
+    line-height: var(--type-label-md-line-height);
+    gap: var(--size-200);
 }
 
 .app-chip--size-big .app-chip__icon {
-    font-size: var(--chip-big-icon-size);
+    font-size: var(--type-label-md-font-size);
 }
 
 .app-chip--primary {
-    background-color: var(--chip-primary-background-color);
-    color: var(--chip-primary-text-color);
+    background-color: var(--color-secondary-500);
+    color: var(--color-white);
 }
 
 .app-chip--secondary {
-    background-color: var(--chip-secondary-background-color);
-    color: var(--chip-secondary-text-color);
+    background-color: var(--color-tertiary-700);
+    color: var(--color-white);
 }
 
 .app-chip--tertiary {
-    background-color: var(--chip-tertiary-background-color);
-    color: var(--chip-tertiary-text-color);
+    background-color: var(--color-primary-900);
+    color: var(--color-white);
 }
 
 .app-chip--green {
-    background-color: var(--chip-success-background-color);
-    color: var(--chip-success-text-color);
+    background-color: var(--color-success-muted-alpha-16);
+    color: var(--color-success-muted-text);
 }
 
 .app-chip--red {
-    background-color: var(--chip-error-background-color);
-    color: var(--chip-error-text-color);
+    background-color: var(--color-error-muted-alpha-16);
+    color: var(--color-error-muted-text);
 }

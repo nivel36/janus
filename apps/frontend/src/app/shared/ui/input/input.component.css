@@ -13,8 +13,13 @@ input {
     border-radius: var(--form-control-border-radius);
     outline: 0;
     background: var(--form-control-background-color);
+
     color: var(--form-control-text-color);
-    font-size: var(--form-control-text-size);
+
+    font-size: var(--form-control-font-size);
+    font-weight: var(--form-control-font-weight);
+    line-height: var(--form-control-line-height);
+
     transition: box-shadow 0.2s ease;
 }
 

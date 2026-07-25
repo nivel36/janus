@@ -22,11 +22,12 @@
 }
 
 .page-template__brand {
+    color: var(--accent-color);
+
     font-size: var(--type-brand-font-size);
     font-weight: var(--type-brand-font-weight);
-    letter-spacing: var(--type-brand-letter-spacing);
-    text-transform: var(--type-brand-text-transform);
-    color: var(--accent-color);
+    line-height: var(--type-brand-line-height);
+
     text-decoration: none;
 }
 
@@ -37,11 +38,14 @@
 }
 
 .page-template__title {
-    font-size: var(--type-heading-sm-size);
-    font-weight: var(--type-heading-sm-weight);
-    letter-spacing: var(--type-heading-sm-letter-spacing);
-    text-transform: var(--type-heading-sm-transform);
     color: var(--text-secondary-color);
+
+    font-size: var(--type-heading-sm-font-size);
+    font-weight: var(--type-heading-sm-font-weight);
+    line-height: var(--type-heading-sm-line-height);
+
+    letter-spacing: var(--type-caps-wide-letter-spacing);
+    text-transform: var(--type-caps-text-transform);
 }
 
 .page-template__body {

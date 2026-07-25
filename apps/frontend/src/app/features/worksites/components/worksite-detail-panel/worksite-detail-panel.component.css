@@ -23,20 +23,27 @@
 
 .worksite-detail__row dt {
     color: var(--text-secondary-color);
-    font-size: var(--type-label-md-size);
-    font-weight: var(--type-label-md-weight);
-    letter-spacing: var(--type-label-md-letter-spacing);
-    text-transform: var(--type-label-md-transform);
+
+    font-size: var(--type-label-md-font-size);
+    font-weight: var(--type-label-md-font-weight);
+    line-height: var(--type-label-md-line-weight);
+
+    letter-spacing: var(--type-wide-caps-letter-spacing);
+    text-transform: var(--type-caps-text-transform);
 }
 
 .worksite-detail__row dd {
     min-width: 0;
     margin: 0;
     color: var(--text-primary-color);
+
     font-weight: var(--type-caption-sm-weight);
     font-size: var(--type-caption-sm-size);
-    letter-spacing: var(--type-caption-sm-letter-spacing);
-    text-transform: var(--type-caption-sm-transform);
+    line-height: var(--type-caption-sm-line-weight);
+
+    letter-spacing: var(--type-wide-caps-letter-spacing);
+    text-transform: var(--type-caps-text-transform);
+
     overflow-wrap: anywhere;
 }
 

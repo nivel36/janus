@@ -16,9 +16,14 @@
     --form-control-border: var(--border-width-thin) var(--border-style) var(--border-color-accent);
     --form-control-border-radius: var(--radius-100);
     --form-control-background-color: var(--color-gray-900);
+
     --form-control-text-color: var(--text-primary-color);
     --form-control-text-accent-color: var(--accent-color);
-    --form-control-text-size: var(--literal-body-font-size);
+
+    --form-control-font-size: var(--type-body-md-font-size);
+    --form-control-font-weight: var(--type-body-md-font-weight);
+    --form-control-line-height: var(--type-body-md-line-height);
+
     --form-control-padding-inline: var(--size-300);
     --form-control-padding-block: 0;
     --form-control-focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);

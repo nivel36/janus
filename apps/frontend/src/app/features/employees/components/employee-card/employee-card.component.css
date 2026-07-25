@@ -24,17 +24,18 @@
 
 .employee-card__data dt {
     color: var(--accent-color);
-    font-weight: var(--type-label-md-weight);
-    font-size: var(--type-label-md-size);
-    text-transform: var(--type-label-md-transform);
-    letter-spacing: var(--type-label-md-letter-spacing);
+    font-weight: var(--type-label-md-font-weight);
+    font-size: var(--type-label-md-font-size);
+    line-height: var(--type-label-md-line-height);
+
+    text-transform: var(--type-caps-transform);
+    letter-spacing: var(--type-caps-letter-spacing);
     text-shadow: 0 1px 0 var(--color-black);
 }
 
 .employee-card__data dd {
     color: var(--text-primary-color);
-    font-weight: var(--type-body-weight);
-    font-size: var(--type-body-size);
-    text-transform: var(--type-body-transform);
-    letter-spacing: var(--type-body-letter-spacing);
+    font-weight: var(--type-body-md-font-weight);
+    font-size: var(--type-body-md-font-size);
+    line-height: var(--type-body-md-line-height);
 }

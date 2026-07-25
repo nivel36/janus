@@ -39,7 +39,6 @@ Files under `src/styles/tokens/semantic/` name variables by their role in the in
 - `literals.tokens.css`: semantic styles for visible text literals such as brand, page title, card title, card subtitle, section title, table heading, labels, values, and control text.
 - `layout.tokens.css`: page structure, sections, panels, and summary cards.
 - `forms.tokens.css`: forms, fields, hints, errors, controls, ranges, switches, and search bars.
-- `controls.tokens.css`: small visual controls such as chips and their state variants.
 
 This layer lets components speak in terms of intent: primary text, panel, focus, section, error, control, or action.
 

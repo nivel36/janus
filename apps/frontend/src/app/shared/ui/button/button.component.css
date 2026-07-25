@@ -14,17 +14,19 @@
     border: var(--button-border);
     border-radius: var(--button-border-radius);
 
-    color: var(--button-primary-text-color);
     background: var(--button-primary-background-color);
     box-shadow: var(--button-primary-box-shadow);
 
-    font-size: var(--button-font-size);
-    font-weight: var(--button-font-weight);
-    letter-spacing: var(--button-letter-spacing);
-    line-height: 1;
+    color: var(--button-primary-text-color);
+
+    font-size: var(--type-label-sm-font-size);
+    font-weight: var(--type-label-sm-font-weight);
+    line-height: var(--type-label-sm-line-height);
+
+    letter-spacing: var(--type-caps-letter-spacing);
+    text-transform: var(--type-caps-text-transform);
 
     cursor: pointer;
-    text-transform: var(--button-text-transform);
 }
 
 .app-button:hover,

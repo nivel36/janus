@@ -7,10 +7,11 @@
 .app-field__label {
     display: inline-flex;
     align-items: baseline;
-    font-size: var(--type-label-md-size);
-    font-weight: var(--type-label-md-weight);
-    text-transform: none;
-    letter-spacing: var(--type-label-md-letter-spacing);
+
+    font-size: var(--type-label-md-font-size);
+    font-weight: var(--type-label-md-font-weight);
+    line-height: var(--type-label-md-line-weight);
+
     color: var(--text-primary-color);
 }
 
@@ -20,15 +21,19 @@
 }
 
 .app-field__hint {
-    font-size: var(--form-hint-font-size);
-    font-weight: var(--form-hint-font-weight);
-    color: var(--form-hint-text-color);
+    font-size: var(--type-body-sm-font-size);
+    font-weight: var(--type-body-sm-font-weight);
+    line-height: var(--type-body-sm-line-weight);
+
+    color: var(--text-primary-color);
 }
 
 .app-field__error {
-    font-size: var(--form-error-font-size);
-    font-weight: var(--form-error-font-weight);
-    color: var(--form-error-text-color);
+    font-size: var(--type-body-sm-font-size);
+    font-weight: var(--type-body-sm-font-weight);
+    line-height: var(--type-body-sm-line-weight);
+
+    color: var(--color-error-500);
 }
 
 .app-field--disabled {

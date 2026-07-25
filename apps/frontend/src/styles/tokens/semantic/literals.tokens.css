@@ -1,60 +1,53 @@
 :root {
     --type-brand-font-size: var(--font-size-400);
-    --type-brand-font-weight: 600;
-    --type-brand-letter-spacing: var(--letter-spacing-000);
-    --type-brand-text-transform: none;
+    --type-brand-font-weight: var(--font-weight-semibold);
+    --type-brand-line-height: var(--line-height-tight);
 
     /* Heading */
-    --type-heading-lg-size: var(--font-size-500);
-    --type-heading-lg-weight: 600;
-    --type-heading-lg-letter-spacing: var(--letter-spacing-000);
-    --type-heading-lg-transform: none;
+    --type-heading-lg-font-size: var(--font-size-500);
+    --type-heading-lg-font-weight: var(--font-weight-semibold);
+    --type-heading-lg-line-height: var(--line-height-tight);
 
-    --type-heading-md-size: var(--font-size-350);
-    --type-heading-md-weight: 800;
-    --type-heading-md-letter-spacing: var(--letter-spacing-caps);
-    --type-heading-md-transform: uppercase;
+    --type-heading-md-font-size: var(--font-size-350);
+    --type-heading-md-font-weight: var(--font-weight-bold);
+    --type-heading-md-line-height: var(--line-height-tight);
 
-    --type-heading-sm-size: var(--font-size-300);
-    --type-heading-sm-weight: 600;
-    --type-heading-sm-letter-spacing: var(--letter-spacing-caps);
-    --type-heading-sm-transform: uppercase;
+    --type-heading-sm-font-size: var(--font-size-300);
+    --type-heading-sm-font-weight: var(--font-weight-semibold);
+    --type-heading-sm-line-height: var(--line-height-tight);
 
     /* Body */
-    --type-body-size: var(--font-size-300);
-    --type-body-weight: 400;
-    --type-body-letter-spacing: var(--letter-spacing-000);
-    --type-body-transform: none;
+    --type-body-md-font-size: var(--font-size-300);
+    --type-body-md-font-weight: var(--font-weight-regular);
+    --type-body-md-line-height: var(--line-height-relaxed);
 
-    --type-body-sm-size: var(--font-size-300);
-    --type-body-sm-weight: 400;
-    --type-body-sm-letter-spacing: var(--letter-spacing-000);
-    --type-body-sm-transform: none;
+    --type-body-sm-font-size: var(--font-size-200);
+    --type-body-sm-font-weight: var(--font-weight-regular);
+    --type-body-sm-line-height: var(--line-height-relaxed);
 
     /* Label */
-    --type-label-lg-size: var(--font-size-350);
-    --type-label-lg-weight: 400;
-    --type-label-lg-letter-spacing: var(--letter-spacing-100);
-    --type-label-lg-transform: none;
+    --type-label-lg-font-size: var(--font-size-350);
+    --type-label-lg-font-weight: var(--font-weight-regular);
+    --type-label-lg-line-height: var(--line-height-tight);
 
-    --type-label-md-size: var(--font-size-300);
-    --type-label-md-weight: 600;
-    --type-label-md-letter-spacing: var(--letter-spacing-200);
-    --type-label-md-transform: uppercase;
+    --type-label-md-font-size: var(--font-size-300);
+    --type-label-md-font-weight: var(--font-weight-semibold);
+    --type-label-md-line-height: var(--line-height-tight);
 
-    --type-label-sm-size: var(--font-size-200);
-    --type-label-sm-weight: 800;
-    --type-label-sm-letter-spacing: var(--letter-spacing-400);
-    --type-label-sm-transform: uppercase;
+    --type-label-sm-font-size: var(--font-size-200);
+    --type-label-sm-font-weight: var(--font-weight-bold);
+    --type-label-sm-line-height: var(--line-height-tight);
 
     /* Caption */
-    --type-caption-md-size: var(--font-size-300);
-    --type-caption-md-weight: 600;
-    --type-caption-md-letter-spacing: var(--letter-spacing-200);
-    --type-caption-md-transform: none;
+    --type-caption-md-font-size: var(--font-size-300);
+    --type-caption-md-font-weight: var(--font-weight-semibold);
+    --type-caption-md-line-height: var(--line-height-normal);
 
-    --type-caption-sm-size: var(--font-size-200);
-    --type-caption-sm-weight: 400;
-    --type-caption-sm-letter-spacing: var(--letter-spacing-400);
-    --type-caption-sm-transform: uppercase;
+    --type-caption-sm-font-size: var(--font-size-200);
+    --type-caption-sm-font-weight: var(--font-weight-regular);
+    --type-caption-sm-line-height: var(--line-height-normal);
+
+    --type-caps-letter-spacing: var(--letter-spacing-200);
+    --type-caps-wide-letter-spacing: var(--letter-spacing-400);
+    --type-caps-text-transform: uppercase;
 }
