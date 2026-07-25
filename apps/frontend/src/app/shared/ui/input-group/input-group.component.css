@@ -76,21 +76,21 @@
     white-space: nowrap;
 }
 
-:host ::ng-deep app-button {
-    --button-height: var(--form-control-height);
-    --button-min-width: var(--form-control-height);
-    --button-padding-inline: var(--form-control-padding-inline);
-    --button-border-radius: 0;
-    --button-primary-hover-box-shadow: none;
-    --button-primary-active-box-shadow: none;
+:host ::ng-deep app-button .app-button {
+    height: var(--form-control-height);
+    min-width: var(--form-control-height);
+    padding-inline: var(--form-control-padding-inline);
+    box-shadow: none;
 }
 
-:host ::ng-deep app-button .app-button {
+:host ::ng-deep app-button .app-button:hover,
+:host ::ng-deep app-button .app-button:focus-visible,
+:host ::ng-deep app-button .app-button:active {
     box-shadow: none;
 }
 
 :host ::ng-deep app-button:not(:first-child) .app-button {
-    border-left: var(--button-border);
+    border-left: 0;
 }
 
 .input-group--disabled ::ng-deep [inputGroupAddon] {

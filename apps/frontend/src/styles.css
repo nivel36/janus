@@ -12,7 +12,6 @@
 @import './styles/tokens/semantic/forms.tokens.css';
 
 /* Component tokens */
-@import './styles/tokens/button.tokens.css';
 @import './styles/tokens/list.tokens.css';
 
 /* Base styles */

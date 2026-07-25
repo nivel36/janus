@@ -1,23 +1,23 @@
 .app-button {
     box-sizing: border-box;
 
-    height: var(--button-height);
-    min-width: var(--button-min-width);
-    padding-block: var(--button-padding-block);
-    padding-inline: var(--button-padding-inline);
+    height: var(--size-800);
+    min-width: 15rem;
+    padding-block: var(--size-200);
+    padding-inline: var(--size-400);
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--button-gap);
+    gap: var(--size-200);
 
-    border: var(--button-border);
-    border-radius: var(--button-border-radius);
+    border: 0;
+    border-radius: var(--radius-100);
 
-    background: var(--button-primary-background-color);
-    box-shadow: var(--button-primary-box-shadow);
+    background: var(--control-accent-background-color);
+    box-shadow: var(--control-accent-glow);
 
-    color: var(--button-primary-text-color);
+    color: var(--control-accent-text-color);
 
     font-size: var(--type-label-sm-font-size);
     font-weight: var(--type-label-sm-font-weight);
@@ -31,20 +31,20 @@
 
 .app-button:hover,
 .app-button:focus-visible {
-    background: var(--button-primary-hover-background-color);
-    box-shadow: var(--button-primary-hover-box-shadow);
+    background: var(--control-accent-hover-background-color);
+    box-shadow: var(--control-accent-hover-glow);
     outline: none;
 }
 
 .app-button:active {
-    background: var(--button-primary-active-background-color);
-    box-shadow: var(--button-primary-active-box-shadow);
+    background: var(--control-accent-pressed-background-color);
+    box-shadow: var(--control-accent-hover-glow);
 }
 
 .app-button:disabled {
-    color: var(--button-primary-disabled-text-color);
-    background: var(--button-primary-disabled-background-color);
-    box-shadow: var(--button-primary-disabled-box-shadow);
+    color: var(--control-accent-disabled-text-color, var(--control-accent-text-color));
+    background: var(--control-accent-disabled-background-color);
+    box-shadow: none;
     cursor: not-allowed;
 }
 
@@ -55,14 +55,14 @@
 }
 
 .app-button--icon {
-    width: var(--button-size);
-    min-width: var(--button-icon-min-width);
-    padding: var(--button-icon-padding);
-    border-radius: var(--button-icon-border-radius);
+    width: var(--size-800);
+    min-width: 0;
+    padding: 0;
+    border-radius: var(--radius-100);
 
     aspect-ratio: 1;
 
-    font-size: var(--button-icon-font-size);
+    font-size: var(--font-size-350);
     letter-spacing: normal;
     text-transform: none;
 }
