@@ -6,11 +6,11 @@
 
     --form-hint-text-color: var(--text-secondary-color);
     --form-hint-font-size: var(--literal-small-font-size);
-    --form-hint-font-weight: 300;
+    --form-hint-font-weight: var(--font-weight-regular);
 
     --form-error-text-color: var(--color-error-500);
     --form-error-font-size: var(--literal-body-font-size);
-    --form-error-font-weight: 300;
+    --form-error-font-weight: var(--font-weight-regular);
 
     /* form-control      → input text / textarea / select */
     --form-control-border: var(--border-width-thin) var(--border-style) var(--border-color-accent);
@@ -36,7 +36,7 @@
     --form-range-text-color: var(--color-gray-800);
     --form-range-focus-ring: var(--focus-ring);
     --form-range-text-size: var(--literal-body-font-size);
-    --form-range-text-weight: 800;
+    --form-range-text-weight: var(--font-weight-bold);
 
     --form-range-height: var(--size-200);
     --form-range-radius: var(--size-100);
@@ -45,7 +45,7 @@
 
     --form-range-value-text-color: var(--color-gray-800);
     --form-range-value-text-size: var(--literal-body-font-size);
-    --form-range-value-text-weight: 800;
+    --form-range-value-text-weight: var(--font-weight-bold);
     --form-range-value-background-color: var(--accent-color);
     --form-range-value-border-radius: var(--size-200);
     --form-range-value-padding: var(--size-100) var(--size-200);

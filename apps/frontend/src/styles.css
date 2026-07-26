@@ -1,15 +1,15 @@
 /* Primitives */
-@import './styles/tokens/00-primitives.css';
+@import './styles/primitives.css';
 
 /* Themes */
 @import './styles/themes/theme.dark.css';
 @import './styles/themes/theme.light.css';
 
 /* Semantic tokens */
-@import './styles/tokens/semantic/base.tokens.css';
-@import './styles/tokens/semantic/literals.tokens.css';
-@import './styles/tokens/semantic/layout.tokens.css';
-@import './styles/tokens/semantic/forms.tokens.css';
+@import './styles/tokens/base.tokens.css';
+@import './styles/tokens/literals.tokens.css';
+@import './styles/tokens/layout.tokens.css';
+@import './styles/tokens/forms.tokens.css';
 
 /* Component tokens */
 @import './styles/tokens/list.tokens.css';
