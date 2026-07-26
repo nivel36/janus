@@ -1,7 +1,9 @@
-<article [class]="summaryCardClass">
+<div [class]="summaryCardClass">
     <span class="summary-card__icon" aria-hidden="true">
         <fa-icon [icon]="icon()"></fa-icon>
     </span>
-    <span class="summary-card__label">{{ label() }}</span>
-    <p class="summary-card__value">{{ value() }}</p>
-</article>
+    <dl class="summary-card__metric">
+        <dt class="summary-card__label">{{ label() }}</dt>
+        <dd class="summary-card__value">{{ value() }}</dd>
+    </dl>
+</div>

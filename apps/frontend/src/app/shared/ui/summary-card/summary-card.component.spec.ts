@@ -49,10 +49,14 @@ describe('SummaryCardComponent', () => {
   });
 
   it('should render the label and value', () => {
+    const cardElement = fixture.nativeElement.querySelector('.summary-card');
     const labelElement = fixture.nativeElement.querySelector('.summary-card__label');
     const valueElement = fixture.nativeElement.querySelector('.summary-card__value');
 
+    expect(cardElement.tagName).not.toBe('ARTICLE');
+    expect(labelElement.tagName).toBe('DT');
     expect(labelElement.textContent.trim()).toBe('Employees');
+    expect(valueElement.tagName).toBe('DD');
     expect(valueElement.textContent.trim()).toBe('24');
   });
 
