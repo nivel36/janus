@@ -5,10 +5,10 @@
         </div>
 
         <div>
-            <h2 class="worksite-header-detail__title app-header-detail__title">
+            <h2 class="app-header-detail__title worksite-header-detail__title">
                 {{ worksite().name }}
             </h2>
-            <p class="worksite-header-detail__info app-header-detail__info">
+            <p class="app-header-detail__info worksite-header-detail__info">
                 <span>{{ worksite().code }}</span>
                 <app-chip [label]="'worksite.scopes.' + worksite().scope | translate"></app-chip>
             </p>

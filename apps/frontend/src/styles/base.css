@@ -23,6 +23,10 @@ body {
     overflow-x: hidden;
 }
 
+p {
+    padding-top: var(--section-gap);
+}
+
 .app-page-content {
     display: flex;
     width: min(var(--layout-page-max-width), 100%);
