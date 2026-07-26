@@ -13,7 +13,7 @@
     --section-message-padding-block: var(--size-400);
     --section-message-padding-inline: var(--size-500);
     --section-message-border-radius: var(--radius-300);
-    --section-message-background-color: var(--summary-card-background-color);
+    --section-message-background-color: var(--subtle-surface-background-color);
     --section-message-text-color: var(--text-primary-color);
 
     --section-small-padding-block: var(--size-100);
@@ -42,14 +42,4 @@
     --panel-medium-padding-inline: var(--section-medium-padding-inline);
     --panel-medium-gap: var(--section-medium-gap);
     --panel-medium-border-radius: var(--section-medium-border-radius);
-
-    --summary-card-padding-block: var(--font-size-350);
-    --summary-card-padding-inline: 1.45rem;
-    --summary-card-border-radius: 22px;
-    --summary-card-icon-size: 3.7rem;
-    --summary-card-icon-margin-bottom: 1.3rem;
-    --summary-card-icon-border-radius: 50%;
-    --summary-card-icon-color: var(--accent-color);
-    --summary-card-icon-font-size: 1.75rem;
-    --summary-card-value-margin-top: 0.8rem;
 }

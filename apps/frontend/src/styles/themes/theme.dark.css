@@ -35,10 +35,8 @@
     --panel-background-color: var(--color-gray-800);
     --panel-shadow: 0 1.9rem 5.65rem rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.045);
 
-    --summary-card-background-color: rgba(255, 255, 255, 0.06);
-    --summary-card-icon-background-color: rgba(255, 255, 255, 0.08);
-    --summary-card-label-color: rgba(249, 249, 249, 0.72);
-    --summary-card-value-color: var(--color-white);
+    --subtle-surface-background-color: var(--color-gray-700);
+    --subtle-icon-background-color: var(--color-gray-650);
 
     --control-accent-background-color: linear-gradient(
         180deg,
