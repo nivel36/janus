@@ -22,6 +22,10 @@
     font-size: var(--summary-card-icon-font-size);
 }
 
+.summary-card__metric {
+    margin: 0;
+}
+
 .summary-card__label {
     color: var(--text-secondary-color);
 
@@ -34,6 +38,7 @@
 }
 
 .summary-card__value {
+    margin: var(--summary-card-value-margin-top) 0 0;
     color: var(--text-secondary-color);
 
     font-size: var(--type-heading-lg-font-size);
