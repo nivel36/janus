@@ -38,7 +38,7 @@
 }
 
 .summary-card__value {
-    margin: 0;
+    margin: var(--summary-card-value-margin-top) 0 0;
     color: var(--text-secondary-color);
 
     font-size: var(--type-heading-lg-font-size);
