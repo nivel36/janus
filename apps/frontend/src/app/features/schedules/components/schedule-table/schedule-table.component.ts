@@ -17,10 +17,12 @@ import { ScheduleApiService, SchedulePage } from '../../services/schedule-api.se
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
+import { MessageComponent } from '../../../../shared/ui/message/message.component';
+
 @Component({
   selector: 'app-schedule-table',
   standalone: true,
-  imports: [TranslatePipe, PaginatorComponent],
+  imports: [MessageComponent, TranslatePipe, PaginatorComponent],
   templateUrl: './schedule-table.component.html',
   styleUrl: './schedule-table.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

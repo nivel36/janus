@@ -22,10 +22,13 @@ import { WorksiteScope } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
 import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.validator';
 
+import { MessageComponent } from '../../../shared/ui/message/message.component';
+
 @Component({
   selector: 'app-worksite-create-page',
   standalone: true,
   imports: [
+    MessageComponent,
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,

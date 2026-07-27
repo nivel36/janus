@@ -21,10 +21,13 @@ import { ApplicationSettings } from '../models/application-settings';
 import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
 import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
 
+import { MessageComponent } from '../../../shared/ui/message/message.component';
+
 @Component({
   selector: 'app-application-settings-page',
   standalone: true,
   imports: [
+    MessageComponent,
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,

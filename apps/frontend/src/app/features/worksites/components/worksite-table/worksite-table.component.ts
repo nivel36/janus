@@ -20,10 +20,12 @@ import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.co
 import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
 import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
+import { MessageComponent } from '../../../../shared/ui/message/message.component';
+
 @Component({
   selector: 'app-worksite-table',
   standalone: true,
-  imports: [TranslatePipe, PaginatorComponent, ChipComponent],
+  imports: [MessageComponent, TranslatePipe, PaginatorComponent, ChipComponent],
   templateUrl: './worksite-table.component.html',
   styleUrl: './worksite-table.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

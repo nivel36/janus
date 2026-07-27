@@ -1,58 +1,46 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="worksite.detail">
-    <section pageContent class="app-page-content worksite-detail__content">
-        @if (worksiteResource.error() !== undefined) {
-            <div class="worksite-detail__message worksite-detail__message--error" role="alert">
-                {{ 'worksite.detailLoadError' | translate }}
-            </div>
-        } @else if (worksiteResource.isLoading()) {
-            <div class="worksite-detail__message" aria-live="polite">
-                {{ 'worksite.detailLoading' | translate }}
-            </div>
-        } @else if (worksite(); as worksite) {
-            <app-tabs>
-                <ng-template [appTabItem]="'worksite.tabs.general' | translate">
-                    <div class="worksite-detail__grid">
-                        <app-worksite-detail-header
-                            id="header"
-                            [worksite]="worksite"
-                        ></app-worksite-detail-header>
+  <section pageContent class="app-page-content worksite-detail__content">
+    @if (worksiteResource.error() !== undefined) {
+      <app-message type="error">{{ 'worksite.detailLoadError' | translate }}</app-message>
+    } @else if (worksiteResource.isLoading()) {
+      <app-message type="info">{{ 'worksite.detailLoading' | translate }}</app-message>
+    } @else if (worksite(); as worksite) {
+      <app-tabs>
+        <ng-template [appTabItem]="'worksite.tabs.general' | translate">
+          <div class="worksite-detail__grid">
+            <app-worksite-detail-header
+              id="header"
+              [worksite]="worksite"
+            ></app-worksite-detail-header>
 
-                        <app-worksite-detail-panel
-                            id="general"
-                            [worksite]="worksite"
-                        ></app-worksite-detail-panel>
+            <app-worksite-detail-panel
+              id="general"
+              [worksite]="worksite"
+            ></app-worksite-detail-panel>
 
-                        <app-worksite-summary-panel id="summary"></app-worksite-summary-panel>
-                    </div>
+            <app-worksite-summary-panel id="summary"></app-worksite-summary-panel>
+          </div>
 
-                    <div class="worksite-detail__actions">
-                        <app-button type="button" variant="secondary" (clicked)="goBack()">
-                            {{ 'actions.cancel' | translate }}
-                        </app-button>
-                        @if (isAdmin | async) {
-                            <app-button
-                                type="button"
-                                variant="main"
-                                (clicked)="editWorksite(worksite)"
-                            >
-                                {{ 'actions.edit' | translate }}
-                            </app-button>
-                        }
-                    </div>
-                </ng-template>
+          <div class="worksite-detail__actions">
+            <app-button type="button" variant="secondary" (clicked)="goBack()">
+              {{ 'actions.cancel' | translate }}
+            </app-button>
+            @if (isAdmin | async) {
+              <app-button type="button" variant="main" (clicked)="editWorksite(worksite)">
+                {{ 'actions.edit' | translate }}
+              </app-button>
+            }
+          </div>
+        </ng-template>
 
-                <ng-template [appTabItem]="'worksite.tabs.employees' | translate">
-                    <app-card
-                        styleClass="worksite-detail__panel worksite-detail__panel--empty"
-                    ></app-card>
-                </ng-template>
+        <ng-template [appTabItem]="'worksite.tabs.employees' | translate">
+          <app-card styleClass="worksite-detail__panel worksite-detail__panel--empty"></app-card>
+        </ng-template>
 
-                <ng-template [appTabItem]="'worksite.tabs.schedules' | translate">
-                    <app-card
-                        styleClass="worksite-detail__panel worksite-detail__panel--empty"
-                    ></app-card>
-                </ng-template>
-            </app-tabs>
-        }
-    </section>
+        <ng-template [appTabItem]="'worksite.tabs.schedules' | translate">
+          <app-card styleClass="worksite-detail__panel worksite-detail__panel--empty"></app-card>
+        </ng-template>
+      </app-tabs>
+    }
+  </section>
 </app-page-template>

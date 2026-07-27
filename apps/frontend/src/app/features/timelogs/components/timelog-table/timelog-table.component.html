@@ -1,82 +1,67 @@
 <section class="app-section timelog-table" aria-labelledby="timelog-table-title">
-    <header class="app-section__header timelog-table__header">
-        <h2 id="timelog-table-title" class="app-section__title timelog-table__title">
-            {{ 'timelog.timelogs' | translate }}
-        </h2>
-        @if (totalItems() > 0) {
-            <app-paginator
-                [totalItems]="totalItems()"
-                [pageSize]="pageSize"
-                [currentPage]="currentPage()"
-                [betweenLabel]="'paginator.of' | translate"
-                [previousLabel]="'paginator.previousPage' | translate"
-                [nextLabel]="'paginator.nextPage' | translate"
-                [ariaLabel]="'paginator.ariaLabel' | translate"
-                (pageRequested)="onPageChange($event)"
-            />
+  <header class="app-section__header timelog-table__header">
+    <h2 id="timelog-table-title" class="app-section__title timelog-table__title">
+      {{ 'timelog.timelogs' | translate }}
+    </h2>
+    @if (totalItems() > 0) {
+      <app-paginator
+        [totalItems]="totalItems()"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage()"
+        [betweenLabel]="'paginator.of' | translate"
+        [previousLabel]="'paginator.previousPage' | translate"
+        [nextLabel]="'paginator.nextPage' | translate"
+        [ariaLabel]="'paginator.ariaLabel' | translate"
+        (pageRequested)="onPageChange($event)"
+      />
+    }
+  </header>
+
+  @if (timelogsResource.error() !== undefined) {
+    <app-message type="error">{{ 'timelog.loadError' | translate }}</app-message>
+  }
+
+  @if (timelogsResource.isLoading()) {
+    <app-message type="info">{{ 'timelog.loading' | translate }}</app-message>
+  }
+
+  @if (!timelogsResource.isLoading() && timelogs().length > 0) {
+    <table class="app-table timelog-table__table">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'timelog.date' | translate }}</th>
+          <th scope="col">{{ 'timelog.clockin' | translate }}</th>
+          <th scope="col">{{ 'timelog.clockout' | translate }}</th>
+          <th scope="col">{{ 'timelog.duration' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (
+          timelog of pagedTimelogs();
+          track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')
+        ) {
+          <tr>
+            <td>
+              {{ timelog.entryTime | date: 'shortDate' : userTimezone() : userLocale() }}
+            </td>
+            <td>
+              {{ timelog.entryTime | date: timeFormat() : userTimezone() : userLocale() }}
+            </td>
+            <td>
+              @if (timelog.exitTime) {
+                {{ timelog.exitTime | date: timeFormat() : userTimezone() : userLocale() }}
+              } @else {
+                —
+              }
+            </td>
+            <td>{{ timelog.workTime | duration }}</td>
+          </tr>
         }
-    </header>
+      </tbody>
+    </table>
+  }
 
-    @if (timelogsResource.error() !== undefined) {
-        <div class="app-section__message app-section__message--error timelog-table__message timelog-table__message--error" role="alert">
-            {{ 'timelog.loadError' | translate }}
-        </div>
-    }
-
-    @if (timelogsResource.isLoading()) {
-        <div class="app-section__message timelog-table__message" aria-live="polite">
-            {{ 'timelog.loading' | translate }}
-        </div>
-    }
-
-    @if (!timelogsResource.isLoading() && timelogs().length > 0) {
-        <table class="app-table timelog-table__table">
-            <thead>
-                <tr>
-                    <th scope="col">{{ 'timelog.date' | translate }}</th>
-                    <th scope="col">{{ 'timelog.clockin' | translate }}</th>
-                    <th scope="col">{{ 'timelog.clockout' | translate }}</th>
-                    <th scope="col">{{ 'timelog.duration' | translate }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (
-                    timelog of pagedTimelogs();
-                    track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')
-                ) {
-                    <tr>
-                        <td>
-                            {{
-                                timelog.entryTime
-                                    | date: 'shortDate' : userTimezone() : userLocale()
-                            }}
-                        </td>
-                        <td>
-                            {{
-                                timelog.entryTime
-                                    | date: timeFormat() : userTimezone() : userLocale()
-                            }}
-                        </td>
-                        <td>
-                            @if (timelog.exitTime) {
-                                {{
-                                    timelog.exitTime
-                                        | date: timeFormat() : userTimezone() : userLocale()
-                                }}
-                            } @else {
-                                —
-                            }
-                        </td>
-                        <td>{{ timelog.workTime | duration }}</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-
-    @if (isEmpty()) {
-        <div class="app-section__message timelog-table__message" aria-live="polite">
-            {{ 'timelog.empty' | translate }}
-        </div>
-    }
+  @if (isEmpty()) {
+    <app-message type="info">{{ 'timelog.empty' | translate }}</app-message>
+  }
 </section>

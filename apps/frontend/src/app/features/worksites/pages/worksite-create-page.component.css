@@ -1,20 +1,12 @@
 form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex-grow: 1;
 }
 
 .worksite-form__field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
-}
-
-.worksite-form__message {
-    margin: 0;
-}
-
-.worksite-form__message--error {
-    color: var(--color-error-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
 }

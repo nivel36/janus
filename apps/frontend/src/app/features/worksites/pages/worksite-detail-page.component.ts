@@ -21,10 +21,13 @@ import { CurrentUserFacade } from '../../../core/user/services/current-user.faca
 import { WorksiteDetailPanelComponent } from '../components/worksite-detail-panel/worksite-detail-panel.component';
 import { WorksiteSummaryPanelComponent } from '../components/worksite-summary-panel/worksite-summary-panel.component';
 
+import { MessageComponent } from '../../../shared/ui/message/message.component';
+
 @Component({
   selector: 'app-worksite-detail-page',
   standalone: true,
   imports: [
+    MessageComponent,
     ButtonComponent,
     CardComponent,
     PageTemplateComponent,

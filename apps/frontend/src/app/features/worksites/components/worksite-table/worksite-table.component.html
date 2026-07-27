@@ -1,76 +1,65 @@
 <section class="app-section worksite-table" aria-labelledby="worksite-table-title">
-    <header class="app-section__header worksite-table__header">
-        <h2 id="worksite-table-title" class="app-section__title worksite-table__title">
-            {{ 'worksite.worksites' | translate }}
-        </h2>
-        @if (totalItems() > 0) {
-            <app-paginator
-                [totalItems]="totalItems()"
-                [pageSize]="pageSize"
-                [currentPage]="currentPage()"
-                [betweenLabel]="'paginator.of' | translate"
-                [previousLabel]="'paginator.previousPage' | translate"
-                [nextLabel]="'paginator.nextPage' | translate"
-                [ariaLabel]="'paginator.ariaLabel' | translate"
-                (pageRequested)="onPageChange($event)"
-            />
+  <header class="app-section__header worksite-table__header">
+    <h2 id="worksite-table-title" class="app-section__title worksite-table__title">
+      {{ 'worksite.worksites' | translate }}
+    </h2>
+    @if (totalItems() > 0) {
+      <app-paginator
+        [totalItems]="totalItems()"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage()"
+        [betweenLabel]="'paginator.of' | translate"
+        [previousLabel]="'paginator.previousPage' | translate"
+        [nextLabel]="'paginator.nextPage' | translate"
+        [ariaLabel]="'paginator.ariaLabel' | translate"
+        (pageRequested)="onPageChange($event)"
+      />
+    }
+  </header>
+
+  @if (worksitesResource.error() !== undefined) {
+    <app-message type="error">{{ 'worksite.loadError' | translate }}</app-message>
+  }
+
+  @if (worksitesResource.isLoading()) {
+    <app-message type="info">{{ 'worksite.loading' | translate }}</app-message>
+  }
+
+  @if (!worksitesResource.isLoading() && worksites().length > 0) {
+    <table class="app-table worksite-table__table">
+      <thead>
+        <tr>
+          <th scope="col">{{ 'worksite.code' | translate }}</th>
+          <th scope="col">{{ 'worksite.name' | translate }}</th>
+          <th scope="col">{{ 'worksite.scope' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (worksite of pagedWorksites(); track worksite.code) {
+          <tr
+            class="worksite-table__row"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="'worksite.openDetail' | translate: { name: worksite.name }"
+            (click)="openWorksite(worksite)"
+            (keydown.enter)="openWorksite(worksite)"
+            (keydown.space)="$event.preventDefault(); openWorksite(worksite)"
+          >
+            <td>{{ worksite.code }}</td>
+            <td>{{ worksite.name }}</td>
+            <td>
+              <app-chip
+                [label]="'worksite.scopes.' + worksite.scope | translate"
+                [type]="worksite.scope === 'ASSIGNED' ? 'primary' : 'default'"
+              ></app-chip>
+            </td>
+          </tr>
         }
-    </header>
+      </tbody>
+    </table>
+  }
 
-    @if (worksitesResource.error() !== undefined) {
-        <div
-            class="app-section__message app-section__message--error worksite-table__message worksite-table__message--error"
-            role="alert"
-        >
-            {{ 'worksite.loadError' | translate }}
-        </div>
-    }
-
-    @if (worksitesResource.isLoading()) {
-        <div class="app-section__message worksite-table__message" aria-live="polite">
-            {{ 'worksite.loading' | translate }}
-        </div>
-    }
-
-    @if (!worksitesResource.isLoading() && worksites().length > 0) {
-        <table class="app-table worksite-table__table">
-            <thead>
-                <tr>
-                    <th scope="col">{{ 'worksite.code' | translate }}</th>
-                    <th scope="col">{{ 'worksite.name' | translate }}</th>
-                    <th scope="col">{{ 'worksite.scope' | translate }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (worksite of pagedWorksites(); track worksite.code) {
-                    <tr
-                        class="worksite-table__row"
-                        role="button"
-                        tabindex="0"
-                        [attr.aria-label]="
-                            'worksite.openDetail' | translate: { name: worksite.name }
-                        "
-                        (click)="openWorksite(worksite)"
-                        (keydown.enter)="openWorksite(worksite)"
-                        (keydown.space)="$event.preventDefault(); openWorksite(worksite)"
-                    >
-                        <td>{{ worksite.code }}</td>
-                        <td>{{ worksite.name }}</td>
-                        <td>
-                            <app-chip
-                                [label]="'worksite.scopes.' + worksite.scope | translate"
-                                [type]="worksite.scope === 'ASSIGNED' ? 'primary' : 'default'"
-                            ></app-chip>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-
-    @if (isEmpty()) {
-        <div class="app-section__message worksite-table__message" aria-live="polite">
-            {{ 'worksite.empty' | translate }}
-        </div>
-    }
+  @if (isEmpty()) {
+    <app-message type="info">{{ 'worksite.empty' | translate }}</app-message>
+  }
 </section>
