@@ -2,9 +2,15 @@
 
 This document explains how frontend styles are conceptually organized and when each layer should be used. It is not meant to be an inventory of CSS variables, but a guide to understanding the application's design system.
 
-## Global entry point
+## Global entry points
 
-The global style entry point is `src/styles.css`. This file does not define visual rules directly: it works as the loading manifest and sets the import order for the system layers.
+The Angular build declares two global entry points in `angular.json`, in this order:
+
+1. `src/reset.css` normalizes browser defaults.
+2. `src/styles.css` loads the application design system.
+
+`src/styles.css` does not define visual rules directly: it works as the design-system loading
+manifest and sets the import order for its layers.
 
 The order matters because later layers depend on earlier ones:
 
@@ -17,8 +23,10 @@ The order matters because later layers depend on earlier ones:
 
 ## Style layers and files
 
-The paths below are the files currently loaded by `src/styles.css`. Keep this list aligned with
-that manifest; files that are not imported there are not part of the global style pipeline.
+The paths below are the design-system files currently loaded by `src/styles.css`. Keep this list
+aligned with that manifest; files that are not imported there are not part of the design-system
+pipeline managed by `src/styles.css`. The separate `src/reset.css` entry point remains part of
+the Angular global style pipeline described above.
 
 ### Primitives
 
