@@ -37,6 +37,11 @@
 
     --subtle-surface-background-color: var(--color-gray-700);
     --subtle-icon-background-color: var(--color-gray-650);
+    --list-background-color: var(--panel-background-color);
+    --list-text-color: var(--text-primary-color);
+    --list-item-odd-background-color: var(--color-gray-850);
+    --list-item-even-background-color: var(--panel-background-color);
+    --list-item-hover-background-color: var(--color-primary-900);
 
     --control-accent-background-color: linear-gradient(
         180deg,
