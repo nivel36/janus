@@ -20,12 +20,25 @@ import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.co
 import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
 import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
-import { MessageComponent } from '../../../../shared/ui/message/message.component';
+import {
+  AsyncEmptyDirective,
+  AsyncErrorDirective,
+  AsyncLoadingDirective,
+  AsyncStateComponent,
+} from '../../../../shared/ui/async-state/async-state.component';
 
 @Component({
   selector: 'app-worksite-table',
   standalone: true,
-  imports: [MessageComponent, TranslatePipe, PaginatorComponent, ChipComponent],
+  imports: [
+    AsyncStateComponent,
+    AsyncLoadingDirective,
+    AsyncErrorDirective,
+    AsyncEmptyDirective,
+    TranslatePipe,
+    PaginatorComponent,
+    ChipComponent,
+  ],
   templateUrl: './worksite-table.component.html',
   styleUrl: './worksite-table.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

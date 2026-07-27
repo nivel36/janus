@@ -20,12 +20,26 @@ import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
-import { MessageComponent } from '../../../../shared/ui/message/message.component';
+import {
+  AsyncEmptyDirective,
+  AsyncErrorDirective,
+  AsyncLoadingDirective,
+  AsyncStateComponent,
+} from '../../../../shared/ui/async-state/async-state.component';
 
 @Component({
   selector: 'app-timelog-table',
   standalone: true,
-  imports: [MessageComponent, TranslatePipe, DatePipe, DurationPipe, PaginatorComponent],
+  imports: [
+    AsyncStateComponent,
+    AsyncLoadingDirective,
+    AsyncErrorDirective,
+    AsyncEmptyDirective,
+    TranslatePipe,
+    DatePipe,
+    DurationPipe,
+    PaginatorComponent,
+  ],
   templateUrl: './timelog-table.component.html',
   styleUrl: './timelog-table.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -17,13 +17,15 @@
     }
   </header>
 
-  @if (timelogsResource.error() !== undefined) {
-    <app-message type="error">{{ 'timelog.loadError' | translate }}</app-message>
-  }
-
-  @if (timelogsResource.isLoading()) {
-    <app-message type="info">{{ 'timelog.loading' | translate }}</app-message>
-  }
+  <app-async-state
+    [loading]="timelogsResource.isLoading()"
+    [error]="timelogsResource.error() !== undefined"
+    [empty]="isEmpty()"
+  >
+    <ng-template appAsyncLoading>{{ 'timelog.loading' | translate }}</ng-template>
+    <ng-template appAsyncError>{{ 'timelog.loadError' | translate }}</ng-template>
+    <ng-template appAsyncEmpty>{{ 'timelog.empty' | translate }}</ng-template>
+  </app-async-state>
 
   @if (!timelogsResource.isLoading() && timelogs().length > 0) {
     <table class="app-table timelog-table__table">
@@ -59,9 +61,5 @@
         }
       </tbody>
     </table>
-  }
-
-  @if (isEmpty()) {
-    <app-message type="info">{{ 'timelog.empty' | translate }}</app-message>
   }
 </section>

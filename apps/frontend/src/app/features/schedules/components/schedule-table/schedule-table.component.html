@@ -17,13 +17,15 @@
     }
   </header>
 
-  @if (schedulesResource.error() !== undefined) {
-    <app-message type="error">{{ 'schedule.loadError' | translate }}</app-message>
-  }
-
-  @if (schedulesResource.isLoading()) {
-    <app-message type="info">{{ 'schedule.loading' | translate }}</app-message>
-  }
+  <app-async-state
+    [loading]="schedulesResource.isLoading()"
+    [error]="schedulesResource.error() !== undefined"
+    [empty]="isEmpty()"
+  >
+    <ng-template appAsyncLoading>{{ 'schedule.loading' | translate }}</ng-template>
+    <ng-template appAsyncError>{{ 'schedule.loadError' | translate }}</ng-template>
+    <ng-template appAsyncEmpty>{{ 'schedule.empty' | translate }}</ng-template>
+  </app-async-state>
 
   @if (!schedulesResource.isLoading() && schedules().length > 0) {
     <table class="app-table schedule-table__table">
@@ -42,9 +44,5 @@
         }
       </tbody>
     </table>
-  }
-
-  @if (isEmpty()) {
-    <app-message type="info">{{ 'schedule.empty' | translate }}</app-message>
   }
 </section>
