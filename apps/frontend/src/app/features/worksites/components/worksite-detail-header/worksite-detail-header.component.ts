@@ -10,14 +10,14 @@ import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
 import { Worksite } from '../../models/worksite';
 
 @Component({
-  selector: 'app-worsite-detail-header',
+  selector: 'app-worksite-detail-header',
   standalone: true,
   imports: [ChipComponent, FontAwesomeModule, TranslatePipe],
-  templateUrl: './worsite-detail-header.component.html',
-  styleUrl: './worsite-detail-header.component.css',
+  templateUrl: './worksite-detail-header.component.html',
+  styleUrl: './worksite-detail-header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WorsiteDetailHeaderComponent {
+export class WorksiteDetailHeaderComponent {
   readonly worksite = input.required<Worksite>();
 
   protected readonly faBuilding = faBuilding;
