@@ -2,9 +2,15 @@
 
 This document explains how frontend styles are conceptually organized and when each layer should be used. It is not meant to be an inventory of CSS variables, but a guide to understanding the application's design system.
 
-## Global entry point
+## Global entry points
 
-The global style entry point is `src/styles.css`. This file does not define visual rules directly: it works as the loading manifest and sets the import order for the system layers.
+The Angular build declares two global entry points in `angular.json`, in this order:
+
+1. `src/reset.css` normalizes browser defaults.
+2. `src/styles.css` loads the application design system.
+
+`src/styles.css` does not define visual rules directly: it works as the design-system loading
+manifest and sets the import order for its layers.
 
 The order matters because later layers depend on earlier ones:
 
@@ -15,38 +21,80 @@ The order matters because later layers depend on earlier ones:
 5. **Base styles**: general document rules and global utilities.
 6. **Generic component styles**: shared `app-*` classes used across screens.
 
-## Basic variable files
+## Style layers and files
 
-Basic variables live under `src/styles/tokens/` and are grouped by abstraction level.
+The paths below are the design-system files currently loaded by `src/styles.css`. Keep this list
+aligned with that manifest; files that are not imported there are not part of the design-system
+pipeline managed by `src/styles.css`. The separate `src/reset.css` entry point remains part of
+the Angular global style pipeline described above.
 
 ### Primitives
 
-`src/styles/tokens/00-primitives.css` contains the most basic system values: color palette, size scales, radii, stroke widths, and elementary type sizes. These tokens should not be used to express interface intent; they are the raw material used to build higher-level tokens.
+`src/styles/primitives.css` contains the most basic system values: color palette, size scales,
+radii, stroke widths, font sizes and weights, letter spacing, and line heights. These tokens
+should not be used to express interface intent; they are the raw material used to build
+higher-level tokens.
 
 For example, a primitive color represents a palette value; it does not say whether it is used for text, borders, backgrounds, error states, or accents.
 
 ### Themes
 
-`src/styles/tokens/theme.dark.css` and `src/styles/tokens/theme.light.css` translate primitives into theme-dependent visual decisions. This is where concepts such as page background, text color, accent, borders, panels, selection, focus, and highlighted controls are defined.
+`src/styles/themes/theme.dark.css` and `src/styles/themes/theme.light.css` translate primitives
+into theme-dependent visual decisions. This is where concepts such as page background, text
+color, accent, borders, panels, selection, focus, and highlighted controls are defined.
 
 The application uses the dark theme as the global base and can override it with the `data-theme='light'` attribute for light mode. Component rules should not duplicate theme decisions; they should consume semantic or component tokens.
 
 ### Semantic tokens
 
-Files under `src/styles/tokens/semantic/` name variables by their role in the interface:
+Semantic token files live directly under `src/styles/tokens/` and name variables by their role
+in the interface:
 
-- `base.tokens.css`: semantic typography, focus, and common border definitions.
-- `literals.tokens.css`: semantic styles for visible text literals such as brand, page title, card title, card subtitle, section title, table heading, labels, values, and control text.
-- `layout.tokens.css`: page structure, sections, panels, and summary cards.
-- `forms.tokens.css`: forms, fields, hints, errors, controls, ranges, switches, and search bars.
+- `src/styles/tokens/base.tokens.css`: focus rings and common border definitions.
+- `src/styles/tokens/literals.tokens.css`: the semantic typography roles and capitalization
+  helpers.
+- `src/styles/tokens/layout.tokens.css`: page, section, and panel structure.
+- `src/styles/tokens/forms.tokens.css`: forms, fields, hints, errors, controls, ranges, switches,
+  and search bars.
 
 This layer lets components speak in terms of intent: primary text, panel, focus, section, error, control, or action.
 
 ### Component tokens
 
-Specific token files (`brand.tokens.css`, `list.tokens.css`, `autocomplete.tokens.css`, etc.) tune concrete interface pieces.
+`src/styles/tokens/list.tokens.css` is the component-token file currently loaded by the
+manifest. It tunes list spacing, borders, radius, shadow, and alternating-row background. Its
+purpose is to isolate decisions for that component family without moving them into structural
+CSS. Other shared component styles keep their values beside the rules that consume them; for
+example, table rules live directly in `src/styles/components/table.css` while building on list
+and panel tokens.
 
-Their purpose is to isolate decisions for a component family without moving them into structural CSS. Some shared component styles keep their values beside the rules that consume them; for example, table values live directly in `src/styles/components/table.css` while still building on list and panel tokens.
+There are currently no `semantic/` or component-specific subdirectories below
+`src/styles/tokens/`. Do not document or import a proposed token file until it exists and has
+been added to `src/styles.css` in the intended cascade position.
+
+## Typography token convention
+
+Typography primitives (`--font-size-*`, `--font-weight-*`, and `--line-height-*`) are defined in
+`src/styles/primitives.css`. Components should normally consume the semantic aliases in
+`src/styles/tokens/literals.tokens.css` instead of those primitives directly.
+
+For roles that have multiple sizes, the naming convention is
+`--type-{role}-{size}-{font-size|font-weight|line-height}`. The current roles and sizes are:
+
+- `heading`: `lg`, `md`, and `sm`;
+- `body`: `md` and `sm`;
+- `label`: `lg`, `md`, and `sm`;
+- `caption`: `md` and `sm`.
+
+For example, a medium body style is composed from `--type-body-md-font-size`,
+`--type-body-md-font-weight`, and `--type-body-md-line-height`. The single brand style is the
+intentional size-less exception: it uses `--type-brand-font-size`, `--type-brand-font-weight`,
+and `--type-brand-line-height`.
+
+Uppercase treatments are independent helpers with the `--type-caps-*` prefix:
+`--type-caps-letter-spacing`, `--type-caps-wide-letter-spacing`, and
+`--type-caps-text-transform`. They can be combined with any semantic typography role and do not
+define a font size, weight, or line height themselves.
 
 ## Base styles
 
@@ -110,3 +158,7 @@ As a general rule:
   - `app-table th`: compact, highlighted header cells.
   - `app-table td`: body data cells.
   - `app-table tbody tr`: result rows with visual alternation and hover state.
+
+- **Messages** (`src/styles/components/message.css`)
+  - `app-message`: generic textual message.
+  - `app-message--error`: error-colored message variant.
