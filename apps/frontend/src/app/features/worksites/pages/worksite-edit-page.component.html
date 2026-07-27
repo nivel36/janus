@@ -6,31 +6,50 @@
                     <p class="worksite-form__message">{{ 'worksite.detailLoading' | translate }}</p>
                 } @else {
                     <form class="app-form worksite-form" [formGroup]="form" (ngSubmit)="save()">
-                        <div class="worksite-form__field">
-                            <label for="worksite-code">{{ 'worksite.code' | translate }}</label>
-                            <input
-                                id="worksite-code"
-                                type="text"
+                        <app-field
+                            controlId="worksite-code"
+                            [label]="'worksite.code' | translate"
+                            [disabled]="form.controls.code.disabled"
+                        >
+                            <app-input
+                                inputId="worksite-code"
                                 formControlName="code"
                                 autocomplete="off"
+                                ariaLabelledBy="worksite-code-label"
                             />
-                        </div>
+                        </app-field>
 
-                        <div class="worksite-form__field">
-                            <label for="worksite-name">{{ 'worksite.name' | translate }}</label>
-                            <input
-                                id="worksite-name"
-                                type="text"
+                        <app-field
+                            controlId="worksite-name"
+                            [label]="'worksite.name' | translate"
+                            [error]="
+                                form.controls.name.touched && form.controls.name.invalid
+                                    ? ('worksite.errors.invalidName' | translate)
+                                    : ''
+                            "
+                            [invalid]="form.controls.name.touched && form.controls.name.invalid"
+                            [disabled]="form.controls.name.disabled"
+                            required
+                        >
+                            <app-input
+                                inputId="worksite-name"
                                 formControlName="name"
                                 autocomplete="off"
+                                ariaLabelledBy="worksite-name-label"
+                                [ariaDescribedBy]="
+                                    form.controls.name.touched && form.controls.name.invalid
+                                        ? 'worksite-name-error'
+                                        : null
+                                "
+                                [ariaInvalid]="form.controls.name.touched && form.controls.name.invalid"
+                                [ariaErrorMessage]="
+                                    form.controls.name.touched && form.controls.name.invalid
+                                        ? 'worksite-name-error'
+                                        : null
+                                "
+                                required
                             />
-
-                            @if (form.controls.name.touched && form.controls.name.invalid) {
-                                <p class="worksite-form__message worksite-form__message--error">
-                                    {{ 'worksite.errors.invalidName' | translate }}
-                                </p>
-                            }
-                        </div>
+                        </app-field>
 
                         <app-field
                             controlId="worksite-scope"
@@ -78,44 +97,76 @@
                             />
                         </app-field>
 
-                        <div class="worksite-form__field">
-                            <label for="worksite-address">{{
-                                'worksite.address' | translate
-                            }}</label>
-                            <input
-                                id="worksite-address"
-                                type="text"
+                        <app-field
+                            controlId="worksite-address"
+                            [label]="'worksite.address' | translate"
+                            [error]="
+                                form.controls.address.touched && form.controls.address.invalid
+                                    ? ('worksite.errors.invalidAddress' | translate)
+                                    : ''
+                            "
+                            [invalid]="form.controls.address.touched && form.controls.address.invalid"
+                            [disabled]="form.controls.address.disabled"
+                        >
+                            <app-input
+                                inputId="worksite-address"
                                 formControlName="address"
                                 autocomplete="street-address"
+                                ariaLabelledBy="worksite-address-label"
+                                [ariaDescribedBy]="
+                                    form.controls.address.touched && form.controls.address.invalid
+                                        ? 'worksite-address-error'
+                                        : null
+                                "
+                                [ariaInvalid]="
+                                    form.controls.address.touched && form.controls.address.invalid
+                                "
+                                [ariaErrorMessage]="
+                                    form.controls.address.touched && form.controls.address.invalid
+                                        ? 'worksite-address-error'
+                                        : null
+                                "
                             />
+                        </app-field>
 
-                            @if (form.controls.address.touched && form.controls.address.invalid) {
-                                <p class="worksite-form__message worksite-form__message--error">
-                                    {{ 'worksite.errors.invalidAddress' | translate }}
-                                </p>
-                            }
-                        </div>
-
-                        <div class="worksite-form__field">
-                            <label for="worksite-description">{{
-                                'worksite.description' | translate
-                            }}</label>
-                            <input
-                                id="worksite-description"
-                                type="text"
-                                formControlName="description"
-                                autocomplete="off"
-                            />
-
-                            @if (
+                        <app-field
+                            controlId="worksite-description"
+                            [label]="'worksite.description' | translate"
+                            [error]="
                                 form.controls.description.touched &&
                                 form.controls.description.invalid
-                            ) {
-                                <p class="worksite-form__message worksite-form__message--error">
-                                    {{ 'worksite.errors.invalidDescription' | translate }}
-                                </p>
-                            }
-                        </div>
+                                    ? ('worksite.errors.invalidDescription' | translate)
+                                    : ''
+                            "
+                            [invalid]="
+                                form.controls.description.touched &&
+                                form.controls.description.invalid
+                            "
+                            [disabled]="form.controls.description.disabled"
+                        >
+                            <app-input
+                                inputId="worksite-description"
+                                formControlName="description"
+                                autocomplete="off"
+                                ariaLabelledBy="worksite-description-label"
+                                [ariaDescribedBy]="
+                                    form.controls.description.touched &&
+                                    form.controls.description.invalid
+                                        ? 'worksite-description-error'
+                                        : null
+                                "
+                                [ariaInvalid]="
+                                    form.controls.description.touched &&
+                                    form.controls.description.invalid
+                                "
+                                [ariaErrorMessage]="
+                                    form.controls.description.touched &&
+                                    form.controls.description.invalid
+                                        ? 'worksite-description-error'
+                                        : null
+                                "
+                            />
+                        </app-field>
 
                         @if (errorMessage) {
                             <p class="worksite-form__message worksite-form__message--error">

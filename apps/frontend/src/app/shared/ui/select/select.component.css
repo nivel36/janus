@@ -27,7 +27,7 @@ select {
     appearance: none;
     background: transparent;
     color: var(--form-control-text-color);
-    font-size: var(--form-control-text-size);
+    font-size: var(--form-control-font-size);
     cursor: pointer;
     height: var(--form-control-height);
 }

@@ -12,6 +12,7 @@ import { TimezoneOption } from '../../../shared/models/timezone-option.model';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../shared/ui/field/field.component';
+import { InputComponent } from '../../../shared/ui/input/input.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
 import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
 import {
@@ -30,6 +31,7 @@ import { WorksiteApiService } from '../services/worksite-api.service';
     AutocompleteTextboxComponent,
     ButtonComponent,
     FieldComponent,
+    InputComponent,
     SelectComponent,
     PageTemplateComponent,
   ],

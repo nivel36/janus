@@ -71,7 +71,7 @@
     border: var(--form-control-border);
     background: var(--input-group-addon-background-color, var(--form-control-background-color));
     color: var(--input-group-addon-text-color, var(--text-secondary-color));
-    font-size: var(--form-control-text-size);
+    font-size: var(--form-control-font-size);
     line-height: 1;
     white-space: nowrap;
 }
