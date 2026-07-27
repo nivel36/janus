@@ -28,7 +28,7 @@
     font-size: var(--type-label-md-font-size);
     line-height: var(--type-label-md-line-height);
 
-    text-transform: var(--type-caps-transform);
+    text-transform: var(--type-caps-text-transform);
     letter-spacing: var(--type-caps-letter-spacing);
     text-shadow: 0 1px 0 var(--color-black);
 }

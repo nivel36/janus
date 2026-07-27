@@ -34,7 +34,7 @@
 
     font-size: var(--type-label-md-font-size);
     font-weight: var(--type-label-md-font-weight);
-    line-height: var(--type-label-md-line-weight);
+    line-height: var(--type-label-md-line-height);
 
     letter-spacing: var(--type-caps-letter-spacing);
     text-transform: var(--type-caps-text-transform);

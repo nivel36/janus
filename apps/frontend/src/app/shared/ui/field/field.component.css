@@ -10,7 +10,7 @@
 
     font-size: var(--type-label-md-font-size);
     font-weight: var(--type-label-md-font-weight);
-    line-height: var(--type-label-md-line-weight);
+    line-height: var(--type-label-md-line-height);
 
     color: var(--text-primary-color);
 }
@@ -23,7 +23,7 @@
 .app-field__hint {
     font-size: var(--type-body-sm-font-size);
     font-weight: var(--type-body-sm-font-weight);
-    line-height: var(--type-body-sm-line-weight);
+    line-height: var(--type-body-sm-line-height);
 
     color: var(--text-primary-color);
 }
@@ -31,7 +31,7 @@
 .app-field__error {
     font-size: var(--type-body-sm-font-size);
     font-weight: var(--type-body-sm-font-weight);
-    line-height: var(--type-body-sm-line-weight);
+    line-height: var(--type-body-sm-line-height);
 
     color: var(--color-error-500);
 }

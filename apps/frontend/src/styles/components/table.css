@@ -34,10 +34,11 @@
     padding-inline: var(--panel-padding-inline);
     padding-block: var(--panel-padding-block);
     text-align: left;
-    font-size: var(--type-label-sm-size);
-    font-weight: var(--type-label-sm-weight);
-    text-transform: var(--type-label-sm-transform);
-    letter-spacing: var(--type-label-sm-letter-spacing);
+    font-size: var(--type-label-sm-font-size);
+    font-weight: var(--type-label-sm-font-weight);
+    line-height: var(--type-label-sm-line-height);
+    text-transform: var(--type-caps-text-transform);
+    letter-spacing: var(--type-caps-letter-spacing);
     color: var(--text-primary-color);
 }
 
