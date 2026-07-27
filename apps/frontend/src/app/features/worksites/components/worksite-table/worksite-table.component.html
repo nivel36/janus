@@ -17,13 +17,15 @@
     }
   </header>
 
-  @if (worksitesResource.error() !== undefined) {
-    <app-message type="error">{{ 'worksite.loadError' | translate }}</app-message>
-  }
-
-  @if (worksitesResource.isLoading()) {
-    <app-message type="info">{{ 'worksite.loading' | translate }}</app-message>
-  }
+  <app-async-state
+    [loading]="worksitesResource.isLoading()"
+    [error]="worksitesResource.error() !== undefined"
+    [empty]="isEmpty()"
+  >
+    <ng-template appAsyncLoading>{{ 'worksite.loading' | translate }}</ng-template>
+    <ng-template appAsyncError>{{ 'worksite.loadError' | translate }}</ng-template>
+    <ng-template appAsyncEmpty>{{ 'worksite.empty' | translate }}</ng-template>
+  </app-async-state>
 
   @if (!worksitesResource.isLoading() && worksites().length > 0) {
     <table class="app-table worksite-table__table">
@@ -57,9 +59,5 @@
         }
       </tbody>
     </table>
-  }
-
-  @if (isEmpty()) {
-    <app-message type="info">{{ 'worksite.empty' | translate }}</app-message>
   }
 </section>
