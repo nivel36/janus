@@ -5,12 +5,12 @@
     --form-label-gap: var(--size-300);
 
     --form-hint-text-color: var(--text-secondary-color);
-    --form-hint-font-size: var(--literal-small-font-size);
-    --form-hint-font-weight: var(--font-weight-regular);
+    --form-hint-font-size: var(--type-body-sm-font-size);
+    --form-hint-font-weight: var(--type-body-sm-font-weight);
 
     --form-error-text-color: var(--color-error-500);
-    --form-error-font-size: var(--literal-body-font-size);
-    --form-error-font-weight: var(--font-weight-regular);
+    --form-error-font-size: var(--type-body-sm-font-size);
+    --form-error-font-weight: var(--type-body-sm-font-weight);
 
     /* form-control      → input text / textarea / select */
     --form-control-border: var(--border-width-thin) var(--border-style) var(--border-color-accent);
@@ -35,8 +35,8 @@
     /* form-range        → slider */
     --form-range-text-color: var(--color-gray-800);
     --form-range-focus-ring: var(--focus-ring);
-    --form-range-text-size: var(--literal-body-font-size);
-    --form-range-text-weight: var(--font-weight-bold);
+    --form-range-text-font-size: var(--type-body-md-font-size);
+    --form-range-text-weight: var(--type-body-md-font-weight);
 
     --form-range-height: var(--size-200);
     --form-range-radius: var(--size-100);
@@ -44,8 +44,8 @@
     --form-range-color: var(--accent-color);
 
     --form-range-value-text-color: var(--color-gray-800);
-    --form-range-value-text-size: var(--literal-body-font-size);
-    --form-range-value-text-weight: var(--font-weight-bold);
+    --form-range-value-text-font-size: var(--type-body-md-font-size);
+    --form-range-value-text-weight: var(--type-label-sm-font-weight);
     --form-range-value-background-color: var(--accent-color);
     --form-range-value-border-radius: var(--size-200);
     --form-range-value-padding: var(--size-100) var(--size-200);
@@ -93,7 +93,7 @@
     --search-bar-focus-ring: 0 0 0 var(--focus-ring-width) var(--color-primary-focus-alpha-30);
     --search-bar-padding-block: var(--size-225);
     --search-bar-padding-inline: var(--size-250);
-    --search-bar-font-size: var(--literal-body-font-size);
+    --search-bar-font-size: var(--type-body-md-font-size);
 
     /* app-form-actions      → buttons */
 }

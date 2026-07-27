@@ -16,7 +16,7 @@
     border-radius: var(--form-range-value-border-radius);
     background: var(--form-range-value-background-color);
     color: var(--form-range-value-text-color);
-    font-size: var(--form-range-value-text-size);
+    font-size: var(--form-range-value-text-font-size);
     font-weight: var(--form-range-value-text-weight);
 }
 

@@ -60,7 +60,7 @@
     align-items: center;
     justify-content: center;
     color: var(--text-secondary-color);
-    font-size: var(--font-size-large);
+    font-size: var(--type-heading-md-font-size);
     background: transparent;
     border-left: var(--panel-border);
     font-weight: 600;
