@@ -16,7 +16,7 @@ import { Worksite } from '../models/worksite';
 import { WorksiteApiService } from '../services/worksite-api.service';
 import { TabItemDirective } from '../../../shared/ui/tabs/tab-item.directive';
 import { TabsComponent } from '../../../shared/ui/tabs/tabs.component';
-import { WorsiteDetailHeaderComponent } from '../components/worsite-detail-header/worsite-detail-header.component';
+import { WorksiteDetailHeaderComponent } from '../components/worksite-detail-header/worksite-detail-header.component';
 import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
 import { WorksiteDetailPanelComponent } from '../components/worksite-detail-panel/worksite-detail-panel.component';
 import { WorksiteSummaryPanelComponent } from '../components/worksite-summary-panel/worksite-summary-panel.component';
@@ -32,7 +32,7 @@ import { WorksiteSummaryPanelComponent } from '../components/worksite-summary-pa
     AsyncPipe,
     TabsComponent,
     TabItemDirective,
-    WorsiteDetailHeaderComponent,
+    WorksiteDetailHeaderComponent,
     WorksiteDetailPanelComponent,
     WorksiteSummaryPanelComponent,
   ],

@@ -8,7 +8,7 @@
     gap: var(--layout-main-gap);
     grid-template-areas:
         'header header'
-        'general sumary';
+        'general summary';
 }
 
 #header {
@@ -20,7 +20,7 @@
 }
 
 #summary {
-    grid-area: sumary;
+    grid-area: summary;
 }
 
 .worksite-detail__actions {
@@ -51,7 +51,7 @@
         grid-template-areas:
             'header'
             'general'
-            'sumary';
+            'summary';
     }
 }
 
