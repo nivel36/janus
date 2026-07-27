@@ -1,217 +1,200 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="worksite.new">
-    <div pageContent class="app-page-content worksite-create-content">
-        <section class="app-card worksites-card">
-            <div class="app-card__body worksites-card__body">
-                    <form class="app-form worksite-form" [formGroup]="form" (ngSubmit)="save()">
-                    <app-field
-                        controlId="worksite-code"
-                        [label]="'worksite.code' | translate"
-                        [hint]="
-                            form.controls.code.pending
-                                ? ('worksite.messages.codeChecking' | translate)
-                                : ''
-                        "
-                        [error]="
-                            form.controls.code.touched && form.controls.code.invalid
-                                ? form.controls.code.hasError('duplicatedCode')
-                                    ? ('worksite.errors.duplicatedCode' | translate)
-                                    : form.controls.code.hasError('codeLookupFailed')
-                                      ? ('worksite.errors.codeLookupFailed' | translate)
-                                      : ('worksite.errors.invalidCode' | translate)
-                                : ''
-                        "
-                        [invalid]="form.controls.code.touched && form.controls.code.invalid"
-                        [disabled]="form.controls.code.disabled"
-                        required
-                    >
-                        <app-input
-                            inputId="worksite-code"
-                            formControlName="code"
-                            autocomplete="off"
-                            ariaLabelledBy="worksite-code-label"
-                            [ariaDescribedBy]="
-                                form.controls.code.touched && form.controls.code.invalid
-                                    ? 'worksite-code-error'
-                                    : form.controls.code.pending
-                                      ? 'worksite-code-hint'
-                                      : null
-                            "
-                            [ariaInvalid]="form.controls.code.touched && form.controls.code.invalid"
-                            [ariaErrorMessage]="
-                                form.controls.code.touched && form.controls.code.invalid
-                                    ? 'worksite-code-error'
-                                    : null
-                            "
-                            required
-                        />
-                    </app-field>
+  <div pageContent class="app-page-content worksite-create-content">
+    <section class="app-card worksites-card">
+      <div class="app-card__body worksites-card__body">
+        <form class="app-form worksite-form" [formGroup]="form" (ngSubmit)="save()">
+          <app-field
+            controlId="worksite-code"
+            [label]="'worksite.code' | translate"
+            [hint]="
+              form.controls.code.pending ? ('worksite.messages.codeChecking' | translate) : ''
+            "
+            [error]="
+              form.controls.code.touched && form.controls.code.invalid
+                ? form.controls.code.hasError('duplicatedCode')
+                  ? ('worksite.errors.duplicatedCode' | translate)
+                  : form.controls.code.hasError('codeLookupFailed')
+                    ? ('worksite.errors.codeLookupFailed' | translate)
+                    : ('worksite.errors.invalidCode' | translate)
+                : ''
+            "
+            [invalid]="form.controls.code.touched && form.controls.code.invalid"
+            [disabled]="form.controls.code.disabled"
+            required
+          >
+            <app-input
+              inputId="worksite-code"
+              formControlName="code"
+              autocomplete="off"
+              ariaLabelledBy="worksite-code-label"
+              [ariaDescribedBy]="
+                form.controls.code.touched && form.controls.code.invalid
+                  ? 'worksite-code-error'
+                  : form.controls.code.pending
+                    ? 'worksite-code-hint'
+                    : null
+              "
+              [ariaInvalid]="form.controls.code.touched && form.controls.code.invalid"
+              [ariaErrorMessage]="
+                form.controls.code.touched && form.controls.code.invalid
+                  ? 'worksite-code-error'
+                  : null
+              "
+              required
+            />
+          </app-field>
 
-                    <app-field
-                        controlId="worksite-name"
-                        [label]="'worksite.name' | translate"
-                        [error]="
-                            form.controls.name.touched && form.controls.name.invalid
-                                ? ('worksite.errors.invalidName' | translate)
-                                : ''
-                        "
-                        [invalid]="form.controls.name.touched && form.controls.name.invalid"
-                        [disabled]="form.controls.name.disabled"
-                        required
-                    >
-                        <app-input
-                            inputId="worksite-name"
-                            formControlName="name"
-                            autocomplete="off"
-                            ariaLabelledBy="worksite-name-label"
-                            [ariaDescribedBy]="
-                                form.controls.name.touched && form.controls.name.invalid
-                                    ? 'worksite-name-error'
-                                    : null
-                            "
-                            [ariaInvalid]="form.controls.name.touched && form.controls.name.invalid"
-                            [ariaErrorMessage]="
-                                form.controls.name.touched && form.controls.name.invalid
-                                    ? 'worksite-name-error'
-                                    : null
-                            "
-                            required
-                        />
-                    </app-field>
+          <app-field
+            controlId="worksite-name"
+            [label]="'worksite.name' | translate"
+            [error]="
+              form.controls.name.touched && form.controls.name.invalid
+                ? ('worksite.errors.invalidName' | translate)
+                : ''
+            "
+            [invalid]="form.controls.name.touched && form.controls.name.invalid"
+            [disabled]="form.controls.name.disabled"
+            required
+          >
+            <app-input
+              inputId="worksite-name"
+              formControlName="name"
+              autocomplete="off"
+              ariaLabelledBy="worksite-name-label"
+              [ariaDescribedBy]="
+                form.controls.name.touched && form.controls.name.invalid
+                  ? 'worksite-name-error'
+                  : null
+              "
+              [ariaInvalid]="form.controls.name.touched && form.controls.name.invalid"
+              [ariaErrorMessage]="
+                form.controls.name.touched && form.controls.name.invalid
+                  ? 'worksite-name-error'
+                  : null
+              "
+              required
+            />
+          </app-field>
 
-                    <app-field
-                        controlId="worksite-scope"
-                        [label]="'worksite.scope' | translate"
-                        required
-                    >
-                        <app-select
-                            inputId="worksite-scope"
-                            formControlName="scope"
-                            [options]="scopeOptions"
-                            required
-                        />
-                    </app-field>
+          <app-field controlId="worksite-scope" [label]="'worksite.scope' | translate" required>
+            <app-select
+              inputId="worksite-scope"
+              formControlName="scope"
+              [options]="scopeOptions"
+              required
+            />
+          </app-field>
 
-                    <app-field
-                        controlId="worksite-timezone"
-                        [label]="'worksite.timeZone' | translate"
-                        [error]="
-                            form.controls.timeZone.touched && form.controls.timeZone.invalid
-                                ? ('worksite.errors.invalidTimezone' | translate)
-                                : ''
-                        "
-                        [invalid]="form.controls.timeZone.touched && form.controls.timeZone.invalid"
-                        required
-                    >
-                        <app-autocomplete-textbox
-                            inputId="worksite-timezone"
-                            formControlName="timeZone"
-                            [searchMethod]="searchMethod"
-                            [displayWith]="timezoneDisplayWith"
-                            [valueWith]="timezoneValueWith"
-                            [resolveByValue]="resolveTimezoneByValue"
-                            [emptyHint]="'worksite.fields.timeZoneHint' | translate"
-                            ariaLabelledBy="worksite-timezone-label"
-                            [ariaDescribedBy]="
-                                form.controls.timeZone.touched && form.controls.timeZone.invalid
-                                    ? 'worksite-timezone-error'
-                                    : null
-                            "
-                            [ariaInvalid]="
-                                form.controls.timeZone.touched && form.controls.timeZone.invalid
-                            "
-                        />
-                    </app-field>
+          <app-field
+            controlId="worksite-timezone"
+            [label]="'worksite.timeZone' | translate"
+            [error]="
+              form.controls.timeZone.touched && form.controls.timeZone.invalid
+                ? ('worksite.errors.invalidTimezone' | translate)
+                : ''
+            "
+            [invalid]="form.controls.timeZone.touched && form.controls.timeZone.invalid"
+            required
+          >
+            <app-autocomplete-textbox
+              inputId="worksite-timezone"
+              formControlName="timeZone"
+              [searchMethod]="searchMethod"
+              [displayWith]="timezoneDisplayWith"
+              [valueWith]="timezoneValueWith"
+              [resolveByValue]="resolveTimezoneByValue"
+              [emptyHint]="'worksite.fields.timeZoneHint' | translate"
+              ariaLabelledBy="worksite-timezone-label"
+              [ariaDescribedBy]="
+                form.controls.timeZone.touched && form.controls.timeZone.invalid
+                  ? 'worksite-timezone-error'
+                  : null
+              "
+              [ariaInvalid]="form.controls.timeZone.touched && form.controls.timeZone.invalid"
+            />
+          </app-field>
 
-                    <app-field
-                        controlId="worksite-address"
-                        [label]="'worksite.address' | translate"
-                        [error]="
-                            form.controls.address.touched && form.controls.address.invalid
-                                ? ('worksite.errors.invalidAddress' | translate)
-                                : ''
-                        "
-                        [invalid]="form.controls.address.touched && form.controls.address.invalid"
-                        [disabled]="form.controls.address.disabled"
-                    >
-                        <app-input
-                            inputId="worksite-address"
-                            formControlName="address"
-                            autocomplete="street-address"
-                            ariaLabelledBy="worksite-address-label"
-                            [ariaDescribedBy]="
-                                form.controls.address.touched && form.controls.address.invalid
-                                    ? 'worksite-address-error'
-                                    : null
-                            "
-                            [ariaInvalid]="
-                                form.controls.address.touched && form.controls.address.invalid
-                            "
-                            [ariaErrorMessage]="
-                                form.controls.address.touched && form.controls.address.invalid
-                                    ? 'worksite-address-error'
-                                    : null
-                            "
-                        />
-                    </app-field>
+          <app-field
+            controlId="worksite-address"
+            [label]="'worksite.address' | translate"
+            [error]="
+              form.controls.address.touched && form.controls.address.invalid
+                ? ('worksite.errors.invalidAddress' | translate)
+                : ''
+            "
+            [invalid]="form.controls.address.touched && form.controls.address.invalid"
+            [disabled]="form.controls.address.disabled"
+          >
+            <app-input
+              inputId="worksite-address"
+              formControlName="address"
+              autocomplete="street-address"
+              ariaLabelledBy="worksite-address-label"
+              [ariaDescribedBy]="
+                form.controls.address.touched && form.controls.address.invalid
+                  ? 'worksite-address-error'
+                  : null
+              "
+              [ariaInvalid]="form.controls.address.touched && form.controls.address.invalid"
+              [ariaErrorMessage]="
+                form.controls.address.touched && form.controls.address.invalid
+                  ? 'worksite-address-error'
+                  : null
+              "
+            />
+          </app-field>
 
-                    <app-field
-                        controlId="worksite-description"
-                        [label]="'worksite.description' | translate"
-                        [error]="
-                            form.controls.description.touched && form.controls.description.invalid
-                                ? ('worksite.errors.invalidDescription' | translate)
-                                : ''
-                        "
-                        [invalid]="
-                            form.controls.description.touched && form.controls.description.invalid
-                        "
-                        [disabled]="form.controls.description.disabled"
-                    >
-                        <app-input
-                            inputId="worksite-description"
-                            formControlName="description"
-                            autocomplete="off"
-                            ariaLabelledBy="worksite-description-label"
-                            [ariaDescribedBy]="
-                                form.controls.description.touched &&
-                                form.controls.description.invalid
-                                    ? 'worksite-description-error'
-                                    : null
-                            "
-                            [ariaInvalid]="
-                                form.controls.description.touched &&
-                                form.controls.description.invalid
-                            "
-                            [ariaErrorMessage]="
-                                form.controls.description.touched &&
-                                form.controls.description.invalid
-                                    ? 'worksite-description-error'
-                                    : null
-                            "
-                        />
-                    </app-field>
+          <app-field
+            controlId="worksite-description"
+            [label]="'worksite.description' | translate"
+            [error]="
+              form.controls.description.touched && form.controls.description.invalid
+                ? ('worksite.errors.invalidDescription' | translate)
+                : ''
+            "
+            [invalid]="form.controls.description.touched && form.controls.description.invalid"
+            [disabled]="form.controls.description.disabled"
+          >
+            <app-input
+              inputId="worksite-description"
+              formControlName="description"
+              autocomplete="off"
+              ariaLabelledBy="worksite-description-label"
+              [ariaDescribedBy]="
+                form.controls.description.touched && form.controls.description.invalid
+                  ? 'worksite-description-error'
+                  : null
+              "
+              [ariaInvalid]="form.controls.description.touched && form.controls.description.invalid"
+              [ariaErrorMessage]="
+                form.controls.description.touched && form.controls.description.invalid
+                  ? 'worksite-description-error'
+                  : null
+              "
+            />
+          </app-field>
 
-                    @if (errorMessage) {
-                        <p class="worksite-form__message worksite-form__message--error">
-                            {{ errorMessage | translate }}
-                        </p>
-                    }
+          @if (errorMessage) {
+            <app-message type="error" presentation="inline">
+              {{ errorMessage | translate }}
+            </app-message>
+          }
 
-                    <div class="app-form-actions">
-                        <app-button type="button" variant="secondary" (clicked)="cancel()">
-                            {{ 'actions.cancel' | translate }}
-                        </app-button>
+          <div class="app-form-actions">
+            <app-button type="button" variant="secondary" (clicked)="cancel()">
+              {{ 'actions.cancel' | translate }}
+            </app-button>
 
-                        <app-button
-                            type="submit"
-                            variant="main"
-                            [disabled]="form.invalid || form.pending || saving"
-                        >
-                            {{ 'actions.save' | translate }}
-                        </app-button>
-                    </div>
-                </form>
-            </div>
-        </section>
-    </div>
+            <app-button
+              type="submit"
+              variant="main"
+              [disabled]="form.invalid || form.pending || saving"
+            >
+              {{ 'actions.save' | translate }}
+            </app-button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
 </app-page-template>

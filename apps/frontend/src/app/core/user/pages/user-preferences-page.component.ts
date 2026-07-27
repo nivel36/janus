@@ -39,10 +39,13 @@ import { TimeFormat } from '../services/user-profile-api.service';
  *
  * Those responsibilities belong to CurrentUserFacade and lower layers.
  */
+import { MessageComponent } from '../../../shared/ui/message/message.component';
+
 @Component({
   selector: 'app-user-preferences-page',
   standalone: true,
   imports: [
+    MessageComponent,
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,

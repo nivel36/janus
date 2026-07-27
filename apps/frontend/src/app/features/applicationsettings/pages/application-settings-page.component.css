@@ -1,11 +1,3 @@
 .application-settings__content {
-    display: flex;
-}
-
-.application-settings__message {
-    margin: 0;
-}
-
-.application-settings__message--error {
-    color: var(--color-error-soft);
+  display: flex;
 }

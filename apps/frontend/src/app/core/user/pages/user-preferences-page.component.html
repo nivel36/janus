@@ -1,88 +1,84 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.userPreferences">
-    <div pageContent class="app-page-content user-preferences">
-        <section class="app-card preferences-card">
-            <div class="app-card__body preferences-card__body">
-                <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
-                    <app-field
-                        controlId="preferences-locale"
-                        [label]="'userPreferences.fields.locale' | translate"
-                        required
-                    >
-                        <app-select
-                            inputId="preferences-locale"
-                            formControlName="locale"
-                            [options]="localeOptions"
-                            required
-                        />
-                    </app-field>
+  <div pageContent class="app-page-content user-preferences">
+    <section class="app-card preferences-card">
+      <div class="app-card__body preferences-card__body">
+        <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
+          <app-field
+            controlId="preferences-locale"
+            [label]="'userPreferences.fields.locale' | translate"
+            required
+          >
+            <app-select
+              inputId="preferences-locale"
+              formControlName="locale"
+              [options]="localeOptions"
+              required
+            />
+          </app-field>
 
-                    <app-field
-                        controlId="preferences-time-format"
-                        [label]="'userPreferences.fields.timeFormat' | translate"
-                        required
-                    >
-                        <app-select
-                            inputId="preferences-time-format"
-                            formControlName="timeFormat"
-                            [options]="timeFormatOptions"
-                            required
-                        />
-                    </app-field>
+          <app-field
+            controlId="preferences-time-format"
+            [label]="'userPreferences.fields.timeFormat' | translate"
+            required
+          >
+            <app-select
+              inputId="preferences-time-format"
+              formControlName="timeFormat"
+              [options]="timeFormatOptions"
+              required
+            />
+          </app-field>
 
-                    <app-field
-                        controlId="preferences-timezone"
-                        [label]="'userPreferences.fields.defaultTimezone' | translate"
-                        [error]="
-                            form.controls.defaultTimezone.touched &&
-                            form.controls.defaultTimezone.invalid
-                                ? ('userPreferences.errors.invalidTimezone' | translate)
-                                : ''
-                        "
-                        [invalid]="
-                            form.controls.defaultTimezone.touched &&
-                            form.controls.defaultTimezone.invalid
-                        "
-                        required
-                    >
-                        <app-autocomplete-textbox
-                            inputId="preferences-timezone"
-                            formControlName="defaultTimezone"
-                            [searchMethod]="searchMethod"
-                            [displayWith]="timezoneDisplayWith"
-                            [valueWith]="timezoneValueWith"
-                            [resolveByValue]="resolveTimezoneByValue"
-                            [emptyHint]="'userPreferences.fields.defaultTimezoneHint' | translate"
-                            ariaLabelledBy="preferences-timezone-label"
-                            [ariaDescribedBy]="
-                                form.controls.defaultTimezone.touched &&
-                                form.controls.defaultTimezone.invalid
-                                    ? 'preferences-timezone-error'
-                                    : null
-                            "
-                            [ariaInvalid]="
-                                form.controls.defaultTimezone.touched &&
-                                form.controls.defaultTimezone.invalid
-                            "
-                        />
-                    </app-field>
+          <app-field
+            controlId="preferences-timezone"
+            [label]="'userPreferences.fields.defaultTimezone' | translate"
+            [error]="
+              form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
+                ? ('userPreferences.errors.invalidTimezone' | translate)
+                : ''
+            "
+            [invalid]="
+              form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
+            "
+            required
+          >
+            <app-autocomplete-textbox
+              inputId="preferences-timezone"
+              formControlName="defaultTimezone"
+              [searchMethod]="searchMethod"
+              [displayWith]="timezoneDisplayWith"
+              [valueWith]="timezoneValueWith"
+              [resolveByValue]="resolveTimezoneByValue"
+              [emptyHint]="'userPreferences.fields.defaultTimezoneHint' | translate"
+              ariaLabelledBy="preferences-timezone-label"
+              [ariaDescribedBy]="
+                form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
+                  ? 'preferences-timezone-error'
+                  : null
+              "
+              [ariaInvalid]="
+                form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
+              "
+            />
+          </app-field>
 
-                    @if (errorMessage) {
-                        <p class="app-message app-message--error">
-                            {{ errorMessage | translate }}
-                        </p>
-                    }
+          @if (errorMessage) {
+            <app-message type="error" presentation="inline">
+              {{ errorMessage | translate }}
+            </app-message>
+          }
 
-                    <div class="app-form-actions">
-                        <app-button type="button" variant="secondary" (clicked)="cancel()">
-                            {{ 'actions.cancel' | translate }}
-                        </app-button>
+          <div class="app-form-actions">
+            <app-button type="button" variant="secondary" (clicked)="cancel()">
+              {{ 'actions.cancel' | translate }}
+            </app-button>
 
-                        <app-button type="submit" variant="main">
-                            {{ 'actions.save' | translate }}
-                        </app-button>
-                    </div>
-                </form>
-            </div>
-        </section>
-    </div>
+            <app-button type="submit" variant="main">
+              {{ 'actions.save' | translate }}
+            </app-button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
 </app-page-template>

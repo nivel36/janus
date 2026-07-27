@@ -1,67 +1,55 @@
 .worksite-detail__content {
-    flex-direction: column;
+  flex-direction: column;
 }
 
 .worksite-detail__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--layout-main-gap);
-    grid-template-areas:
-        'header header'
-        'general summary';
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--layout-main-gap);
+  grid-template-areas:
+    'header header'
+    'general summary';
 }
 
 #header {
-    grid-area: header;
+  grid-area: header;
 }
 
 #general {
-    grid-area: general;
+  grid-area: general;
 }
 
 #summary {
-    grid-area: summary;
+  grid-area: summary;
 }
 
 .worksite-detail__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1.55rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.55rem;
 }
 
 :host ::ng-deep .worksite-detail__panel--empty .app-card__body {
-    min-height: 24rem;
-}
-
-.worksite-detail__message {
-    padding: 1rem 1.5rem;
-    border-radius: 0.5rem;
-    background: var(--color-white-alpha-06);
-}
-
-.worksite-detail__message--error {
-    background: var(--color-error-soft-alpha-12);
-    color: var(--color-error-soft);
+  min-height: 24rem;
 }
 
 @media (max-width: 900px) {
-    .worksite-detail__grid {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            'header'
-            'general'
-            'summary';
-    }
+  .worksite-detail__grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'header'
+      'general'
+      'summary';
+  }
 }
 
 @media (max-width: 640px) {
-    .worksite-detail__actions {
-        flex-direction: column;
-    }
+  .worksite-detail__actions {
+    flex-direction: column;
+  }
 
-    .worksite-detail__actions app-button {
-        width: 100%;
-    }
-
+  .worksite-detail__actions app-button {
+    width: 100%;
+  }
 }
