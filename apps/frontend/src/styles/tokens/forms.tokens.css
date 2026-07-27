@@ -45,7 +45,7 @@
 
     --form-range-value-text-color: var(--color-gray-800);
     --form-range-value-text-font-size: var(--type-body-md-font-size);
-    --form-range-value-text-weight: var(--type-body-md-font-weight);
+    --form-range-value-text-weight: var(--type-label-sm-font-weight);
     --form-range-value-background-color: var(--accent-color);
     --form-range-value-border-radius: var(--size-200);
     --form-range-value-padding: var(--size-100) var(--size-200);
