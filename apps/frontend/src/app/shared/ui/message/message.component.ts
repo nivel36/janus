@@ -8,7 +8,6 @@ export type MessagePresentation = 'inline' | 'panel';
 
 @Component({
   selector: 'app-message',
-  standalone: true,
   templateUrl: './message.component.html',
   styleUrl: './message.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,6 +19,12 @@ export class MessageComponent {
   protected readonly classes = computed(
     () => `message message--${this.type()} message--${this.presentation()}`,
   );
-  protected readonly role = computed(() => (this.type() === 'error' ? 'alert' : null));
-  protected readonly ariaLive = computed(() => (this.type() === 'error' ? 'assertive' : 'polite'));
+
+  protected readonly role = computed<'alert' | null>(() =>
+    this.type() === 'error' ? 'alert' : null,
+  );
+
+  protected readonly ariaLive = computed<'assertive' | 'polite'>(() =>
+    this.type() === 'error' ? 'assertive' : 'polite',
+  );
 }

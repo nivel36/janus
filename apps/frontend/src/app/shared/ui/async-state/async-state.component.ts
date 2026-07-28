@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,28 +11,32 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 
 import { MessageComponent } from '../message/message.component';
 
-@Directive({ selector: 'ng-template[appAsyncLoading]', standalone: true })
+@Directive({
+  selector: 'ng-template[appAsyncLoading]',
+})
 export class AsyncLoadingDirective {
   readonly template = inject(TemplateRef<unknown>);
 }
 
-@Directive({ selector: 'ng-template[appAsyncError]', standalone: true })
+@Directive({
+  selector: 'ng-template[appAsyncError]',
+})
 export class AsyncErrorDirective {
   readonly template = inject(TemplateRef<unknown>);
 }
 
-@Directive({ selector: 'ng-template[appAsyncEmpty]', standalone: true })
+@Directive({
+  selector: 'ng-template[appAsyncEmpty]',
+})
 export class AsyncEmptyDirective {
   readonly template = inject(TemplateRef<unknown>);
 }
 
 @Component({
   selector: 'app-async-state',
-  standalone: true,
   imports: [MessageComponent, NgTemplateOutlet],
   templateUrl: './async-state.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
