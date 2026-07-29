@@ -22,7 +22,6 @@ import { createUuid } from '../../utils/uuid.utils';
   standalone: true,
   imports: [NgTemplateOutlet],
   templateUrl: './card.component.html',
-  styleUrl: './card.component.css',
 })
 export class CardComponent {
   readonly titleElementId = `card-${createUuid()}-title`;

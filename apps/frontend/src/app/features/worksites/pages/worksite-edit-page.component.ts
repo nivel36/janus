@@ -39,7 +39,6 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
     PageTemplateComponent,
   ],
   templateUrl: './worksite-edit-page.component.html',
-  styleUrl: './worksite-create-page.component.css',
 })
 export class WorksiteEditPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

@@ -9,6 +9,5 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'app-forbidden',
   imports: [RouterLink, TranslatePipe],
   templateUrl: './forbidden.component.html',
-  styleUrl: './forbidden.component.css',
 })
 export class ForbiddenComponent {}

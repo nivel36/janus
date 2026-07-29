@@ -14,7 +14,6 @@ import { Worksite } from '../../models/worksite';
   standalone: true,
   imports: [ChipComponent, FontAwesomeModule, TranslatePipe],
   templateUrl: './worksite-detail-header.component.html',
-  styleUrl: './worksite-detail-header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorksiteDetailHeaderComponent {

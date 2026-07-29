@@ -36,7 +36,6 @@ import {
     PaginatorComponent,
   ],
   templateUrl: './schedule-table.component.html',
-  styleUrl: './schedule-table.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleTableComponent {
