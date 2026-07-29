@@ -1,13 +1,13 @@
 @if (error()) {
-  <app-message type="error">
-    <ng-container [ngTemplateOutlet]="errorContent()?.template ?? null" />
-  </app-message>
+    <app-message type="error">
+        <ng-container [ngTemplateOutlet]="errorContent()?.template ?? null" />
+    </app-message>
 } @else if (loading()) {
-  <app-message type="info">
-    <ng-container [ngTemplateOutlet]="loadingContent()?.template ?? null" />
-  </app-message>
+    <app-message type="info">
+        <ng-container [ngTemplateOutlet]="loadingContent()?.template ?? null" />
+    </app-message>
 } @else if (empty()) {
-  <app-message type="info">
-    <ng-container [ngTemplateOutlet]="emptyContent()?.template ?? null" />
-  </app-message>
+    <app-message type="info">
+        <ng-container [ngTemplateOutlet]="emptyContent()?.template ?? null" />
+    </app-message>
 }

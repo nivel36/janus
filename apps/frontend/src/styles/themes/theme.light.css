@@ -39,6 +39,7 @@
 
     --subtle-surface-background-color: var(--color-gray-50);
     --subtle-icon-background-color: var(--color-gray-100);
+
     --list-background-color: var(--panel-background-color);
     --list-text-color: var(--text-primary-color);
     --list-item-odd-background-color: var(--color-gray-10);

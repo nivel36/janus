@@ -50,7 +50,6 @@
     white-space: nowrap;
     overflow: hidden;
     border: 0;
-    border-right: var(--panel-border);
     background: transparent;
 }
 
