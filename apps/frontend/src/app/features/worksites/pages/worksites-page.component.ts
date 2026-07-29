@@ -24,7 +24,6 @@ import { WorksiteTableComponent } from '../components/worksite-table/worksite-ta
     WorksiteTableComponent,
   ],
   templateUrl: './worksites-page.component.html',
-  styleUrl: './worksites-page.component.css',
 })
 export class WorksitesPageComponent {
   private readonly router = inject(Router);

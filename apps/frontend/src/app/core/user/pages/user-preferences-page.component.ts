@@ -55,7 +55,6 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
     PageTemplateComponent,
   ],
   templateUrl: './user-preferences-page.component.html',
-  styleUrl: './user-preferences-page.component.css',
 })
 export class UserPreferencesPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

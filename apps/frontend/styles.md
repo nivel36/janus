@@ -159,6 +159,10 @@ As a general rule:
   - `app-table td`: body data cells.
   - `app-table tbody tr`: result rows with visual alternation and hover state.
 
-- **Messages** (`src/styles/components/message.css`)
-  - `app-message`: generic textual message.
-  - `app-message--error`: error-colored message variant.
+- **List pages** (`src/styles/components/56-list-page.css`)
+  - `app-list-page`: vertical content layout for searchable result pages.
+  - `app-list-page__toolbar`: responsive search and actions row.
+  - `app-list-page__results`: growing results area with a stable minimum height.
+
+Message visuals remain local to `shared/ui/message` because their variants are encapsulated by
+the Angular component rather than exposed as global `app-*` classes.

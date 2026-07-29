@@ -1,31 +1,31 @@
-.worksites-page__content {
+.app-list-page {
     flex-direction: column;
 }
 
-.worksites-page__toolbar {
+.app-list-page__toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.worksites-page__toolbar app-search-bar {
+.app-list-page__toolbar app-search-bar {
     display: block;
     width: min(25rem, 100%);
 }
 
-.worksites-page__content app-worksite-table {
+.app-list-page__results {
     display: block;
     flex: 1;
     min-height: 32rem;
 }
 
 @media (max-width: 640px) {
-    .worksites-page__toolbar {
+    .app-list-page__toolbar {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .worksites-page__toolbar app-search-bar {
+    .app-list-page__toolbar app-search-bar {
         width: 100%;
     }
 }

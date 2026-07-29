@@ -24,7 +24,6 @@ import { ScheduleTableComponent } from '../components/schedule-table/schedule-ta
     TranslatePipe,
   ],
   templateUrl: './schedules-page.component.html',
-  styleUrl: './schedules-page.component.css',
 })
 export class SchedulesPageComponent {
   private readonly router = inject(Router);
