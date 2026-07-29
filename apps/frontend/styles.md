@@ -30,7 +30,7 @@ the Angular global style pipeline described above.
 
 ### Primitives
 
-`src/styles/primitives.css` contains the most basic system values: color palette, size scales,
+`src/styles/00-primitives.css` contains the most basic system values: color palette, size scales,
 radii, stroke widths, font sizes and weights, letter spacing, and line heights. These tokens
 should not be used to express interface intent; they are the raw material used to build
 higher-level tokens.
@@ -39,7 +39,7 @@ For example, a primitive color represents a palette value; it does not say wheth
 
 ### Themes
 
-`src/styles/themes/theme.dark.css` and `src/styles/themes/theme.light.css` translate primitives
+`src/styles/themes/10-theme.dark.css` and `src/styles/themes/11-theme.light.css` translate primitives
 into theme-dependent visual decisions. This is where concepts such as page background, text
 color, accent, borders, panels, selection, focus, and highlighted controls are defined.
 
@@ -50,22 +50,22 @@ The application uses the dark theme as the global base and can override it with 
 Semantic token files live directly under `src/styles/tokens/` and name variables by their role
 in the interface:
 
-- `src/styles/tokens/base.tokens.css`: focus rings and common border definitions.
-- `src/styles/tokens/literals.tokens.css`: the semantic typography roles and capitalization
+- `src/styles/tokens/20-base.tokens.css`: focus rings and common border definitions.
+- `src/styles/tokens/21-literals.tokens.css`: the semantic typography roles and capitalization
   helpers.
-- `src/styles/tokens/layout.tokens.css`: page, section, and panel structure.
-- `src/styles/tokens/forms.tokens.css`: forms, fields, hints, errors, controls, ranges, switches,
+- `src/styles/tokens/22-layout.tokens.css`: page, section, and panel structure.
+- `src/styles/tokens/23-forms.tokens.css`: forms, fields, hints, errors, controls, ranges, switches,
   and search bars.
 
 This layer lets components speak in terms of intent: primary text, panel, focus, section, error, control, or action.
 
 ### Component tokens
 
-`src/styles/tokens/list.tokens.css` is the component-token file currently loaded by the
+`src/styles/tokens/30-list.tokens.css` is the component-token file currently loaded by the
 manifest. It tunes list spacing, borders, radius, shadow, and alternating-row background. Its
 purpose is to isolate decisions for that component family without moving them into structural
 CSS. Other shared component styles keep their values beside the rules that consume them; for
-example, table rules live directly in `src/styles/components/table.css` while building on list
+example, table rules live directly in `src/styles/components/55-table.css` while building on list
 and panel tokens.
 
 There are currently no `semantic/` or component-specific subdirectories below
@@ -75,8 +75,8 @@ been added to `src/styles.css` in the intended cascade position.
 ## Typography token convention
 
 Typography primitives (`--font-size-*`, `--font-weight-*`, and `--line-height-*`) are defined in
-`src/styles/primitives.css`. Components should normally consume the semantic aliases in
-`src/styles/tokens/literals.tokens.css` instead of those primitives directly.
+`src/styles/00-primitives.css`. Components should normally consume the semantic aliases in
+`src/styles/tokens/21-literals.tokens.css` instead of those primitives directly.
 
 For roles that have multiple sizes, the naming convention is
 `--type-{role}-{size}-{font-size|font-weight|line-height}`. The current roles and sizes are:
@@ -98,7 +98,7 @@ define a font size, weight, or line height themselves.
 
 ## Base styles
 
-`src/styles/base.css` defines cross-cutting rules that affect the document and global utilities. It sets the type family, basic `html` and `body` behavior, the application background, the common page content container, and accessibility utilities.
+`src/styles/40-base.css` defines cross-cutting rules that affect the document and global utilities. It sets the type family, basic `html` and `body` behavior, the application background, the common page content container, and accessibility utilities.
 
 These styles should stay small and generic. If a rule describes a reusable UI piece, it should live in `src/styles/components/`; if it describes a specific screen, it should remain in the corresponding Angular component CSS.
 
@@ -120,24 +120,24 @@ As a general rule:
 
 ## Generic application style schema
 
-- **Application base** (`src/styles/base.css`)
+- **Application base** (`src/styles/40-base.css`)
   - `app-page-content`: common flexible container for the main content of pages.
   - `app-visually-hidden`: accessibility utility that visually hides content while keeping it available to screen readers.
 
-- **Cards and panels** (`src/styles/components/card.css`)
+- **Cards and panels** (`src/styles/components/50-card.css`)
   - `app-card`: main container for content panels, forms, widgets, and highlighted blocks.
   - `app-card__header`: top area of a card, usually for a title or contextual actions.
   - `app-card__title`: visual title of a card.
   - `app-card__body`: main content area with growth and internal scroll handling.
   - `app-card__footer`: bottom area for actions, totals, or secondary content.
 
-- **Forms** (`src/styles/components/forms.css`)
+- **Forms** (`src/styles/components/51-forms.css`)
   - `app-form`: common vertical structure for creation, editing, and preferences forms.
 
-- **Form actions** (`src/styles/components/form-actions.css`)
+- **Form actions** (`src/styles/components/52-form-actions.css`)
   - `app-form-actions`: aligned group of submit, cancel, or other action buttons at the end of a form.
 
-- **Detail headers** (`src/styles/components/header-detail.css`)
+- **Detail headers** (`src/styles/components/53-header-detail.css`)
   - `app-header-detail`: highlighted header for entity detail pages.
   - `app-header-detail__identity`: identity block that groups icon, title, and main information.
   - `app-header-detail__icon`: visual container for the entity icon or avatar.
@@ -145,14 +145,14 @@ As a general rule:
   - `app-header-detail__info`: metadata line or secondary information.
   - `app-header-detail__status`: reserved area for status, label, or chip associated with the detail view.
 
-- **Sections** (`src/styles/components/section.css`)
+- **Sections** (`src/styles/components/54-section.css`)
   - `app-section`: reusable vertical block that groups related content inside a page or card.
   - `app-section__header`: section header with title and optional actions.
   - `app-section__title`: section title with consistent visual treatment.
   - `app-section__message`: informational message, empty state, or notice associated with a section.
   - `app-section__message--error`: message variant for errors inside a section.
 
-- **Tables and tabular lists** (`src/styles/components/table.css`)
+- **Tables and tabular lists** (`src/styles/components/55-table.css`)
   - `app-table`: generic table for result lists, records, schedules, worksites, and time logs.
   - `app-table thead`: visual table header.
   - `app-table th`: compact, highlighted header cells.

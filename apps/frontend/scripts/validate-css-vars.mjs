@@ -60,7 +60,7 @@ function lineForIndex(content, index) {
 function isColorDefinitionFile(file) {
   const name = basename(file);
 
-  return name === '00-primitives.css' || /^theme\..+\.css$/.test(name);
+  return name === '00-primitives.css' || /^\d{2}-theme\..+\.css$/.test(name);
 }
 
 function stripCssComments(content) {
