@@ -1,6 +1,8 @@
 :root {
     --form-gap: var(--size-600);
     --form-disabled-opacity: 0.72;
+    --form-padding-block: var(--section-padding-block);
+    --form-padding-inline: var(--section-padding-inline);
 
     --form-label-gap: var(--size-300);
 
