@@ -4,6 +4,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { from, switchMap } from 'rxjs';
 import { keycloak } from './keycloak';
+import { resolveKeycloakLocale } from './keycloak-locale';
 
 import { environment } from '../../../environments/environment';
 
@@ -42,7 +43,10 @@ async function getTokenFresh(): Promise<string | undefined> {
       keycloak.clearToken();
       if (!loginRedirectInProgress) {
         loginRedirectInProgress = true;
-        void keycloak.login({ redirectUri: globalThis.location?.href });
+        void keycloak.login({
+          redirectUri: globalThis.location?.href,
+          locale: resolveKeycloakLocale(),
+        });
       }
       return undefined;
     } finally {
