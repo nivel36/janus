@@ -41,7 +41,6 @@ import {
     PaginatorComponent,
   ],
   templateUrl: './timelog-table.component.html',
-  styleUrl: './timelog-table.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimelogTableComponent {

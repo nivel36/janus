@@ -1,6 +1,6 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.schedules">
-    <div pageContent class="app-page-content schedules-page__content">
-        <div class="schedules-page__toolbar">
+    <div pageContent class="app-page-content app-list-page">
+        <div class="app-list-page__toolbar">
             <app-search-bar
                 placeholderKey="schedule.search.placeholder"
                 helpTextKey="schedule.search.helpText"
@@ -12,6 +12,6 @@
                 </app-button>
             }
         </div>
-        <app-schedule-table [query]="searchQuery()" />
+        <app-schedule-table class="app-list-page__results" [query]="searchQuery()" />
     </div>
 </app-page-template>

@@ -4,6 +4,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { keycloak } from './keycloak';
+import { resolveKeycloakLocale } from './keycloak-locale';
 
 interface KeycloakClaims {
   sub?: string;
@@ -67,7 +68,7 @@ export class AuthService {
     if (!keycloak) {
       return Promise.reject(new Error('Keycloak is not configured'));
     }
-    return keycloak.login();
+    return keycloak.login({ locale: resolveKeycloakLocale() });
   }
 
   loginWithRedirect(redirectUri?: string, options?: LoginRedirectOptions): Promise<void> {
@@ -84,6 +85,7 @@ export class AuthService {
       prompt: options?.prompt,
       maxAge: options?.maxAge,
       idpHint: options?.idpHint,
+      locale: resolveKeycloakLocale(),
     });
   }
 
