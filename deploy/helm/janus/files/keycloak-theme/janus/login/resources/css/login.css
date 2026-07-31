@@ -91,16 +91,19 @@ body::after {
 .login-card,
 .security-panel {
     border: 1px solid var(--line);
+
     background:
         radial-gradient(
-            ellipse at 50% 0%,
-            rgba(255, 255, 255, 0.055),
-            transparent 21rem
+            ellipse 70% 100% at 50% 0%,
+            rgba(255, 255, 255, 0.055) 0%,
+            transparent 100%
         ),
         linear-gradient(180deg, rgba(31, 34, 41, 0.82), rgba(20, 23, 28, 0.82));
+
     box-shadow:
         0 1.9rem 5.65rem rgba(0, 0, 0, 0.46),
         inset 0 1px 0 rgba(255, 255, 255, 0.045);
+
     backdrop-filter: blur(1.25rem);
 }
 
