@@ -3,6 +3,7 @@
  */
 import Keycloak, { type KeycloakConfig } from 'keycloak-js';
 import { environment } from '../../../environments/environment';
+import { resolveKeycloakLocale } from './keycloak-locale';
 
 const keycloakConfig: KeycloakConfig = {
   url: environment.keycloak.url,
@@ -24,12 +25,14 @@ export async function initKeycloak(): Promise<boolean> {
     pkceMethod: 'S256',
     checkLoginIframe: false,
     silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
+    locale: resolveKeycloakLocale(),
   });
 }
 
 export function login(redirectUri?: string) {
   return keycloak.login({
     redirectUri: redirectUri ?? window.location.href,
+    locale: resolveKeycloakLocale(),
   });
 }
 
