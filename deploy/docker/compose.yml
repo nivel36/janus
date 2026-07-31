@@ -44,6 +44,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.5
     container_name: janus-keycloak-prod
+    entrypoint: ["/bin/sh", "/opt/janus/reconcile-keycloak-realm.sh"]
     command: ["start", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
@@ -60,6 +61,7 @@ services:
     volumes:
       - ../helm/janus/files/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
       - ../helm/janus/files/keycloak-theme/janus:/opt/keycloak/themes/janus:ro
+      - ../helm/janus/files/reconcile-keycloak-realm.sh:/opt/janus/reconcile-keycloak-realm.sh:ro
     depends_on:
       postgres_keycloak:
         condition: service_healthy

@@ -22,6 +22,7 @@ spec:
         - name: keycloak
           image: "{{ .Values.keycloak.image.repository }}:{{ .Values.keycloak.image.tag }}"
           imagePullPolicy: {{ .Values.keycloak.image.pullPolicy }}
+          command: ["/bin/sh", "/opt/janus/reconcile-keycloak-realm.sh"]
           args: ["start", "--import-realm"]
           env:
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
@@ -62,6 +63,9 @@ spec:
             - name: realm
               mountPath: /opt/keycloak/data/import/realm-export.json
               subPath: realm-export.json
+            - name: realm
+              mountPath: /opt/janus/reconcile-keycloak-realm.sh
+              subPath: reconcile-keycloak-realm.sh
             - name: theme
               mountPath: /opt/keycloak/themes/janus/login
       volumes:

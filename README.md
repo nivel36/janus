@@ -169,6 +169,11 @@ If the realm changes, update these files together:
 - `apps/frontend/src/environments/environment.prod.ts`
 - `deploy/helm/janus/files/realm-export.json`
 
+Keycloak skips startup imports for realms already stored in its database. The
+container entrypoint therefore reconciles the theme and internationalization
+settings on every startup, so persistent installations also receive newly
+supported login locales.
+
 ## Environment variables used in Docker
 
 The containerized deployment supports overriding these values:

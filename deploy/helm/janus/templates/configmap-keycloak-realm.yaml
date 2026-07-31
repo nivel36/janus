@@ -8,3 +8,5 @@ metadata:
 data:
   realm-export.json: |
 {{ .Files.Get "files/realm-export.json" | indent 4 }}
+  reconcile-keycloak-realm.sh: |
+{{ .Files.Get "files/reconcile-keycloak-realm.sh" | indent 4 }}
