@@ -1,5 +1,4 @@
 .dashboard-page__content {
-    width: min(var(--layout-page-max-width), 100%);
     display: grid;
     grid-template-columns: minmax(0, 1fr) clamp(
             calc(var(--layout-page-max-width) / 4),
@@ -9,7 +8,6 @@
     grid-template-areas:
         'clock employee'
         'records records';
-    gap: var(--layout-main-gap);
 }
 
 #clock {
@@ -28,8 +26,8 @@
     .dashboard-page__content {
         grid-template-columns: 1fr;
         grid-template-areas:
-            'employee'
             'clock'
+            'employee'
             'records';
     }
 }
