@@ -38,7 +38,6 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
     PageTemplateComponent,
   ],
   templateUrl: './application-settings-page.component.html',
-  styleUrl: './application-settings-page.component.css',
 })
 export class ApplicationSettingsPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
