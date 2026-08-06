@@ -1,10 +1,14 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="worksite.detail">
   <section pageContent class="app-page-content worksite-detail__content">
-    @if (worksiteResource.error() !== undefined) {
-      <app-message type="error">{{ 'worksite.detailLoadError' | translate }}</app-message>
-    } @else if (worksiteResource.isLoading()) {
-      <app-message type="info">{{ 'worksite.detailLoading' | translate }}</app-message>
-    } @else if (worksite(); as worksite) {
+    <app-async-state
+      [loading]="worksiteResource.isLoading()"
+      [error]="worksiteResource.error() !== undefined"
+    >
+      <ng-template appAsyncLoading>{{ 'worksite.detailLoading' | translate }}</ng-template>
+      <ng-template appAsyncError>{{ 'worksite.detailLoadError' | translate }}</ng-template>
+    </app-async-state>
+
+    @if (!worksiteResource.isLoading() && worksite(); as worksite) {
       <app-tabs>
         <ng-template [appTabItem]="'worksite.tabs.general' | translate">
           <div class="worksite-detail__grid">

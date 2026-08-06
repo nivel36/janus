@@ -11,6 +11,11 @@ import { map } from 'rxjs';
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../../shared/ui/card/card.component';
+import {
+  AsyncErrorDirective,
+  AsyncLoadingDirective,
+  AsyncStateComponent,
+} from '../../../../shared/ui/async-state/async-state.component';
 import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 import { Worksite } from '../../models/worksite';
 import { WorksiteApiService } from '../../services/worksite-api.service';
@@ -21,13 +26,13 @@ import { CurrentUserFacade } from '../../../../core/user/services/current-user.f
 import { WorksiteDetailPanelComponent } from '../../components/worksite-detail-panel/worksite-detail-panel.component';
 import { WorksiteSummaryPanelComponent } from '../../components/worksite-summary-panel/worksite-summary-panel.component';
 
-import { MessageComponent } from '../../../../shared/ui/message/message.component';
-
 @Component({
   selector: 'app-worksite-detail-page',
   standalone: true,
   imports: [
-    MessageComponent,
+    AsyncStateComponent,
+    AsyncLoadingDirective,
+    AsyncErrorDirective,
     ButtonComponent,
     CardComponent,
     PageTemplateComponent,
