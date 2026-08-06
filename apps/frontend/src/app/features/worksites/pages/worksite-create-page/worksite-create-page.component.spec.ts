@@ -8,7 +8,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { Subject, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { WorksiteApiService } from '../services/worksite-api.service';
+import { WorksiteApiService } from '../../services/worksite-api.service';
 import { WorksiteCreatePageComponent } from './worksite-create-page.component';
 
 describe('WorksiteCreatePageComponent', () => {

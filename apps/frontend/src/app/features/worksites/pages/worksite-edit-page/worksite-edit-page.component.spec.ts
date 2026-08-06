@@ -7,7 +7,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { WorksiteApiService } from '../services/worksite-api.service';
+import { WorksiteApiService } from '../../services/worksite-api.service';
 import { WorksiteEditPageComponent } from './worksite-edit-page.component';
 
 describe('WorksiteEditPageComponent', () => {

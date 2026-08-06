@@ -52,7 +52,7 @@ export const appRoutes: Routes = [
       realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
     },
     loadComponent: () =>
-      import('./features/worksites/pages/worksite-create-page.component').then(
+      import('./features/worksites/pages/worksite-create-page/worksite-create-page.component').then(
         (m) => m.WorksiteCreatePageComponent,
       ),
   },
@@ -63,7 +63,7 @@ export const appRoutes: Routes = [
       realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
     },
     loadComponent: () =>
-      import('./features/worksites/pages/worksite-edit-page.component').then(
+      import('./features/worksites/pages/worksite-edit-page/worksite-edit-page.component').then(
         (m) => m.WorksiteEditPageComponent,
       ),
   },
@@ -74,7 +74,7 @@ export const appRoutes: Routes = [
       realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
     },
     loadComponent: () =>
-      import('./features/worksites/pages/worksite-detail-page.component').then(
+      import('./features/worksites/pages/worksite-detail-page/worksite-detail-page.component').then(
         (m) => m.WorksiteDetailPageComponent,
       ),
   },
@@ -85,7 +85,7 @@ export const appRoutes: Routes = [
       realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
     },
     loadComponent: () =>
-      import('./features/worksites/pages/worksites-page.component').then(
+      import('./features/worksites/pages/worksites-page/worksites-page.component').then(
         (m) => m.WorksitesPageComponent,
       ),
   },

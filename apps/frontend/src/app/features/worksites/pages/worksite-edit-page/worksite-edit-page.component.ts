@@ -1,31 +1,31 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, finalize, of } from 'rxjs';
 
-import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
-import { TimezoneOption } from '../../../shared/models/timezone-option.model';
+import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
+import { TimezoneOption } from '../../../../shared/models/timezone-option.model';
+import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { FieldComponent } from '../../../../shared/ui/field/field.component';
+import { InputComponent } from '../../../../shared/ui/input/input.component';
+import { SelectComponent, SelectOption } from '../../../../shared/ui/select/select.component';
+import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 import {
   createTimezoneCatalog,
   resolveTimezoneByZoneId,
-} from '../../../shared/utils/timezone-catalog.util';
-import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
-import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { FieldComponent } from '../../../shared/ui/field/field.component';
-import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
-import { InputComponent } from '../../../shared/ui/input/input.component';
-import { WorksiteScope } from '../models/worksite';
-import { WorksiteApiService } from '../services/worksite-api.service';
-import { UniqueWorksiteCodeValidator } from '../validators/unique-worksite-code.validator';
+} from '../../../../shared/utils/timezone-catalog.util';
+import { Worksite, WorksiteScope } from '../../models/worksite';
+import { WorksiteApiService } from '../../services/worksite-api.service';
 
-import { MessageComponent } from '../../../shared/ui/message/message.component';
+import { MessageComponent } from '../../../../shared/ui/message/message.component';
 
 @Component({
-  selector: 'app-worksite-create-page',
+  selector: 'app-worksite-edit-page',
   standalone: true,
   imports: [
     MessageComponent,
@@ -34,28 +34,24 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
     AutocompleteTextboxComponent,
     ButtonComponent,
     FieldComponent,
-    SelectComponent,
     InputComponent,
+    SelectComponent,
     PageTemplateComponent,
   ],
-  templateUrl: './worksite-create-page.component.html',
+  templateUrl: './worksite-edit-page.component.html',
 })
-export class WorksiteCreatePageComponent {
+export class WorksiteEditPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly worksiteApiService = inject(WorksiteApiService);
-  private readonly uniqueWorksiteCodeValidator = inject(UniqueWorksiteCodeValidator);
+
+  private loadedWorksite: Worksite | null = null;
+
+  readonly worksiteCode = this.route.snapshot.paramMap.get('code') ?? '';
 
   readonly form = this.fb.group({
-    code: this.fb.nonNullable.control('', {
-      validators: [
-        Validators.required,
-        Validators.maxLength(50),
-        Validators.pattern(/^[A-Za-z0-9_-]+$/),
-      ],
-      asyncValidators: [this.uniqueWorksiteCodeValidator.validate],
-      updateOn: 'blur',
-    }),
+    code: this.fb.nonNullable.control({ value: '', disabled: true }),
 
     name: this.fb.nonNullable.control('', {
       validators: [
@@ -89,12 +85,41 @@ export class WorksiteCreatePageComponent {
 
   readonly timezoneCatalog = createTimezoneCatalog();
 
+  loading = true;
+
   saving = false;
 
   errorMessage = '';
 
+  ngOnInit(): void {
+    this.worksiteApiService
+      .findByCode(this.worksiteCode)
+      .pipe(
+        retryTransientHttpErrors(),
+        finalize(() => {
+          this.loading = false;
+        }),
+      )
+      .subscribe({
+        next: (worksite) => {
+          this.loadedWorksite = worksite;
+          this.form.reset({
+            code: worksite.code,
+            name: worksite.name,
+            timeZone: worksite.timeZone,
+            scope: worksite.scope,
+            description: worksite.description,
+            address: worksite.address,
+          });
+        },
+        error: () => {
+          this.errorMessage = 'worksite.detailLoadError';
+        },
+      });
+  }
+
   save(): void {
-    if (this.saving || this.form.pending || this.form.invalid) {
+    if (this.saving || this.loading || this.form.invalid || this.loadedWorksite === null) {
       this.form.markAllAsTouched();
       return;
     }
@@ -105,13 +130,13 @@ export class WorksiteCreatePageComponent {
     this.errorMessage = '';
 
     this.worksiteApiService
-      .create({
-        code: rawValue.code.trim(),
+      .update(this.loadedWorksite.code, {
         name: rawValue.name.trim(),
         timeZone: rawValue.timeZone!,
         scope: rawValue.scope,
         description: rawValue.description?.trim() || null,
         address: rawValue.address?.trim() || null,
+        ownerEmployeeEmail: this.loadedWorksite.ownerEmployeeEmail,
       })
       .pipe(
         finalize(() => {
@@ -119,17 +144,17 @@ export class WorksiteCreatePageComponent {
         }),
       )
       .subscribe({
-        next: () => {
-          this.router.navigate(['/worksites']);
+        next: (worksite) => {
+          this.router.navigate(['/worksites', worksite.code]);
         },
         error: () => {
-          this.errorMessage = 'worksite.errors.create';
+          this.errorMessage = 'worksite.errors.update';
         },
       });
   }
 
   cancel(): void {
-    this.router.navigate(['/worksites']);
+    this.router.navigate(['/worksites', this.worksiteCode]);
   }
 
   readonly timezoneDisplayWith = (option: TimezoneOption): string => option.literal;
