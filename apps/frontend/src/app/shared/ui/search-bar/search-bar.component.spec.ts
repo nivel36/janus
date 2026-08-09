@@ -117,7 +117,6 @@ describe('SearchBarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-
   it('should generate unique input and help text IDs for each component instance', async () => {
     const firstFixture = await createComponent();
     const secondFixture = await createComponent();
@@ -164,7 +163,9 @@ describe('SearchBarComponent', () => {
     });
 
     const input = getInput(fixture);
-    const helpText = fixture.debugElement.query(By.css(`#${input.getAttribute('aria-describedby')}`));
+    const helpText = fixture.debugElement.query(
+      By.css(`#${input.getAttribute('aria-describedby')}`),
+    );
 
     expect(input.placeholder).toBe('schedule.search.placeholder');
     expect(helpText.nativeElement.textContent.trim()).toBe('schedule.search.helpText');
@@ -279,6 +280,33 @@ describe('SearchBarComponent', () => {
 
     expect(emitSpy).toHaveBeenCalledTimes(1);
     expect(emitSpy).toHaveBeenCalledWith('abcd');
+  });
+
+  it('should replace a pending debounced query on submit and keep processing changes', async () => {
+    fixture = await createComponent({ debounceMs: 300, minChars: 3 });
+    component = fixture.componentInstance;
+
+    const emitSpy = vi.spyOn(component.queryChange, 'emit');
+
+    setInputValue(fixture, 'first');
+    vi.advanceTimersByTime(100);
+    submitFromDom(fixture);
+
+    expect(emitSpy).toHaveBeenCalledTimes(1);
+    expect(emitSpy).toHaveBeenLastCalledWith('first');
+
+    vi.advanceTimersByTime(300);
+    expect(emitSpy).toHaveBeenCalledTimes(1);
+
+    setInputValue(fixture, 'second');
+    vi.advanceTimersByTime(300);
+    expect(emitSpy).toHaveBeenCalledTimes(2);
+    expect(emitSpy).toHaveBeenLastCalledWith('second');
+
+    setInputValue(fixture, '');
+    vi.advanceTimersByTime(300);
+    expect(emitSpy).toHaveBeenCalledTimes(3);
+    expect(emitSpy).toHaveBeenLastCalledWith('');
   });
 
   it('should not emit on explicit submit when query length is below minChars', async () => {
