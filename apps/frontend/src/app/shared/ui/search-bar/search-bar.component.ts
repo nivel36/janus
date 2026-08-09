@@ -5,7 +5,7 @@ import { Component, DestroyRef, OnInit, inject, input, output } from '@angular/c
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { debounceTime, distinctUntilChanged, filter, map } from 'rxjs';
+import { Subject, distinctUntilChanged, filter, map, of, switchMap, timer } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
@@ -34,6 +34,7 @@ import { InputGroupComponent } from '../input-group/input-group.component';
 export class SearchBarComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly instanceId = createUuid();
+  private readonly queryRequests = new Subject<{ query: string; immediate: boolean }>();
 
   /**
    * Debounce time, in milliseconds, applied to user typing.
@@ -83,26 +84,34 @@ export class SearchBarComponent implements OnInit {
   ngOnInit(): void {
     this.validateInputs();
 
-    this.queryControl.valueChanges
+    this.queryRequests
       .pipe(
-        map((value) => value.trim()),
-        debounceTime(this.debounceMs()),
-        distinctUntilChanged(),
+        switchMap(({ query, immediate }) =>
+          immediate ? of(query) : timer(this.debounceMs()).pipe(map(() => query)),
+        ),
         filter((query) => query.length === 0 || query.length >= this.minChars()),
+        distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((query) => this.queryChange.emit(query));
+
+    this.queryControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.requestQuery(value, false));
   }
 
   /**
    * Emits the current query when the user explicitly submits it.
    */
   protected submitCurrentQuery(): void {
-    const query = this.queryControl.value.trim();
+    this.requestQuery(this.queryControl.value, true);
+  }
 
-    if (query.length === 0 || query.length >= this.minChars()) {
-      this.queryChange.emit(query);
-    }
+  /**
+   * Adds an automatic or explicit request to the shared query pipeline.
+   */
+  private requestQuery(value: string, immediate: boolean): void {
+    this.queryRequests.next({ query: value.trim(), immediate });
   }
 
   /**
