@@ -13,8 +13,8 @@
     --section-message-padding-block: var(--size-400);
     --section-message-padding-inline: var(--size-500);
     --section-message-border-radius: var(--radius-300);
-    --section-message-background-color: var(--subtle-surface-background-color);
-    --section-message-text-color: var(--text-primary-color);
+    --section-message-background-color: var(--surface-subtle);
+    --section-message-text-color: var(--content-primary);
 
     --section-small-padding-block: var(--size-100);
     --section-small-padding-inline: var(--size-200);
@@ -26,11 +26,11 @@
     --section-medium-gap: var(--size-300);
     --section-medium-border-radius: var(--radius-200);
 
-    --panel-text-color: var(--text-primary-color);
+    --panel-text-color: var(--content-primary);
     --panel-padding-block: var(--section-padding-block);
     --panel-padding-inline: var(--section-padding-inline);
     --panel-gap: var(--section-gap);
-    --panel-border: var(--border-width-thin) var(--border-style) var(--border-color);
+    --panel-border: var(--border-width-thin) var(--border-style) var(--border-default);
     --panel-border-radius: var(--radius-300);
 
     --panel-small-padding-block: var(--section-small-padding-block);

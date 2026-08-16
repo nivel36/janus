@@ -11,8 +11,8 @@
     padding: var(--size-150) var(--size-250);
     border-radius: var(--size-150);
 
-    background-color: var(--color-primary-500);
-    color: var(--color-gray-800);
+    background-color: var(--accent-default);
+    color: var(--content-inverse);
 
     font-size: var(--type-label-sm-font-size);
     font-weight: var(--type-label-sm-font-weight);
@@ -46,26 +46,26 @@
 }
 
 .app-chip--primary {
-    background-color: var(--color-secondary-500);
-    color: var(--color-white);
+    background-color: var(--accent-secondary);
+    color: var(--content-inverse);
 }
 
 .app-chip--secondary {
-    background-color: var(--color-tertiary-700);
-    color: var(--color-white);
+    background-color: var(--accent-tertiary);
+    color: var(--content-inverse);
 }
 
 .app-chip--tertiary {
-    background-color: var(--color-primary-900);
-    color: var(--color-white);
+    background-color: var(--accent-muted);
+    color: var(--content-inverse);
 }
 
 .app-chip--green {
-    background-color: var(--color-success-muted-alpha-16);
-    color: var(--color-success-muted-text);
+    background-color: var(--surface-success-subtle);
+    color: var(--content-success);
 }
 
 .app-chip--red {
-    background-color: var(--color-error-muted-alpha-16);
-    color: var(--color-error-muted-text);
+    background-color: var(--surface-error-subtle);
+    color: var(--content-error);
 }

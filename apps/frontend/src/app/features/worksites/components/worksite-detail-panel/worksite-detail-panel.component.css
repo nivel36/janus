@@ -14,7 +14,7 @@
     gap: 1.5rem;
     align-items: center;
     min-height: 4.15rem;
-    border-bottom: 1px solid var(--color-white-alpha-10);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .worksite-detail__row:last-child {
@@ -22,7 +22,7 @@
 }
 
 .worksite-detail__row dt {
-    color: var(--text-secondary-color);
+    color: var(--content-secondary);
 
     font-size: var(--type-label-md-font-size);
     font-weight: var(--type-label-md-font-weight);
@@ -35,7 +35,7 @@
 .worksite-detail__row dd {
     min-width: 0;
     margin: 0;
-    color: var(--text-primary-color);
+    color: var(--content-primary);
 
     font-weight: var(--type-caption-sm-font-weight);
     font-size: var(--type-caption-sm-font-size);

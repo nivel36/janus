@@ -6,39 +6,39 @@
     gap: var(--panel-small-gap);
     padding-inline: var(--panel-small-padding-inline);
     padding-block: var(--panel-small-padding-block);
-    background: var(--panel-background-color);
+    background: var(--surface-default);
     border: var(--panel-border);
     border-radius: var(--panel-small-border-radius);
 }
 
 .paginator__button {
-    color: var(--accent-strong-color);
+    color: var(--accent-strong);
     cursor: pointer;
     border: 0;
     background: transparent;
 }
 
 .paginator__button:disabled {
-    color: var(--accent-muted-color);
+    color: var(--accent-muted);
     cursor: default;
 }
 
 .paginator__button:not(:disabled):hover {
-    color: var(--accent-hover-color);
+    color: var(--accent-hover);
 }
 
 .paginator__button:not(:disabled):active {
-    color: var(--accent-active-color);
+    color: var(--accent-active);
 }
 
 .paginator__button:not(:disabled):focus-visible {
-    color: var(--accent-hover-color);
+    color: var(--accent-hover);
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 2px;
 }
 
 .paginator__text {
-    color: var(--text-secondary-color);
+    color: var(--content-secondary);
     font-size: var(--type-label-sm-font-size);
     font-weight: var(--type-label-sm-font-weight);
     line-height: var(--type-label-sm-line-height);

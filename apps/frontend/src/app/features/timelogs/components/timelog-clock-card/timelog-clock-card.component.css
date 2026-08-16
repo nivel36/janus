@@ -16,7 +16,7 @@
 }
 
 .clock-in-card__clock-in {
-    color: var(--text-primary-color);
+    color: var(--content-primary);
 
     font-size: var(--type-heading-lg-font-size);
     font-weight: var(--type-heading-lg-font-weight);
@@ -24,7 +24,7 @@
 }
 
 .clock-in-card__secondary-action {
-    color: var(--text-secondary-color);
+    color: var(--content-secondary);
 
     font-size: var(--type-body-sm-font-size);
     font-weight: var(--type-body-sm-font-weight);
@@ -36,7 +36,7 @@
 }
 
 .clock-in-card__secondary-action .clock-in-card__icon {
-    color: var(--accent-strong-color);
+    color: var(--accent-strong);
 }
 
 .clock-in-card__secondary-action:disabled {
@@ -45,13 +45,13 @@
 }
 
 .clock-in-card__secondary-action:disabled .clock-in-card__icon {
-    color: var(--accent-muted-color);
+    color: var(--accent-muted);
 }
 
 .clock-in-card__secondary-action:hover {
-    color: var(--text-primary-color);
+    color: var(--content-primary);
 }
 
 .clock-in-card__secondary-action:hover .clock-in-card__icon {
-    color: var(--accent-hover-color);
+    color: var(--accent-hover);
 }

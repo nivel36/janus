@@ -4,7 +4,7 @@
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    background: var(--panel-background-color);
+    background: var(--surface-default);
     border: var(--panel-border);
     border-radius: var(--panel-border-radius);
     box-shadow: var(--panel-shadow);
@@ -29,7 +29,7 @@
     letter-spacing: var(--type-caps-letter-spacing);
     text-transform: var(--type-caps-text-transform);
 
-    color: var(--text-primary-color);
+    color: var(--content-primary);
 }
 
 .app-card__body {

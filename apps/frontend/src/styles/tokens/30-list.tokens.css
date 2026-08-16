@@ -1,4 +1,11 @@
 :root {
+    /* Component aliases: override these to customize lists without changing other surfaces. */
+    --list-background-color: var(--surface-default);
+    --list-text-color: var(--content-primary);
+    --list-item-odd-background-color: var(--surface-alternating);
+    --list-item-even-background-color: var(--surface-default);
+    --list-item-hover-background-color: var(--surface-interactive-hover);
+
     --list-border: var(--panel-border);
     --list-border-radius: var(--panel-border-radius);
     --list-shadow: var(--panel-shadow);

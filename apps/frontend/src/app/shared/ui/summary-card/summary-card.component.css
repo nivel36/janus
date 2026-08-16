@@ -7,7 +7,7 @@
     flex-direction: column;
     padding: var(--section-medium-padding-block) var(--section-medium-padding-inline);
     border-radius: var(--section-medium-border-radius);
-    background: var(--subtle-surface-background-color);
+    background: var(--surface-subtle);
     gap: var(--section-medium-gap);
 }
 
@@ -17,8 +17,8 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: var(--subtle-icon-background-color);
-    color: var(--accent-color);
+    background: var(--surface-interactive);
+    color: var(--accent-default);
     font-size: var(--type-heading-lg-font-size);
 }
 
@@ -30,7 +30,7 @@
 }
 
 .summary-card__label {
-    color: var(--text-secondary-color);
+    color: var(--content-secondary);
 
     font-size: var(--type-label-md-font-size);
     font-weight: var(--type-label-md-font-weight);
@@ -41,7 +41,7 @@
 }
 
 .summary-card__value {
-    color: var(--text-primary-color);
+    color: var(--content-primary);
 
     font-size: var(--type-heading-lg-font-size);
     font-weight: var(--type-heading-lg-font-weight);

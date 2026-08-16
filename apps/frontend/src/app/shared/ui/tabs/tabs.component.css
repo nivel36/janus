@@ -6,7 +6,7 @@
     overflow: hidden;
     border: var(--panel-border);
     border-radius: var(--panel-border-radius);
-    background: var(--panel-background-color);
+    background: var(--surface-default);
 }
 
 .tabs__trigger {
@@ -16,7 +16,7 @@
     border-right: var(--panel-border);
     background: transparent;
 
-    color: var(--text-primary-color);
+    color: var(--content-primary);
 
     font-size: var(--type-label-sm-font-size);
     font-weight: var(--type-label-sm-font-weight);
