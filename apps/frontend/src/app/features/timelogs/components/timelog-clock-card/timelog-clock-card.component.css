@@ -23,6 +23,11 @@
     line-height: var(--type-heading-lg-line-height);
 }
 
+.clock-in-card__clock-in,
+.clock-in-card__clock-action-feedback {
+    margin: 0;
+}
+
 .clock-in-card__secondary-action {
     color: var(--content-secondary);
 
