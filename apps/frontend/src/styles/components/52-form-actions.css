@@ -1,0 +1,8 @@
+.app-form-actions {
+    margin-left: auto;
+    margin-top: var(--form-actions-margin-block-start);
+}
+
+.app-form-actions > * + * {
+    margin-left: var(--form-actions-gap);
+}

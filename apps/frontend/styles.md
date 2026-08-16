@@ -136,6 +136,7 @@ As a general rule:
 
 - **Form actions** (`src/styles/components/52-form-actions.css`)
   - `app-form-actions`: aligned group of submit, cancel, or other action buttons at the end of a form.
+  - `app-form-actions > * + *`: consistent separation between consecutive actions.
 
 - **Detail headers** (`src/styles/components/53-header-detail.css`)
   - `app-header-detail`: highlighted header for entity detail pages.
