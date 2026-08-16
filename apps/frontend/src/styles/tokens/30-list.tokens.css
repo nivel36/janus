@@ -1,5 +1,4 @@
 :root {
-    --list-background-color-odd: var(--list-item-odd-background-color);
     --list-border: var(--panel-border);
     --list-border-radius: var(--panel-border-radius);
     --list-shadow: var(--panel-shadow);
