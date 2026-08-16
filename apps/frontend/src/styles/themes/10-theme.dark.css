@@ -18,10 +18,10 @@
     --content-inverse: var(--color-gray-800);
     --content-on-accent: var(--color-black);
     --content-disabled: var(--color-gray-800);
-    --content-error: var(--color-error-soft);
-    --content-success: var(--color-success-500);
-    --content-warning: var(--color-warning-500);
-    --content-info: var(--color-info-500);
+    --content-error: var(--color-red-300);
+    --content-success: var(--color-green-500);
+    --content-warning: var(--color-amber-500);
+    --content-info: var(--color-sky-500);
 
     --surface-page: var(--color-black);
     --surface-default: var(--color-gray-800);
@@ -30,8 +30,8 @@
     --surface-alternating: var(--color-gray-850);
     --surface-interactive: var(--color-gray-650);
     --surface-interactive-hover: var(--color-primary-900);
-    --surface-success-subtle: var(--color-success-muted-alpha-16);
-    --surface-error-subtle: var(--color-error-soft-alpha-12);
+    --surface-success-subtle: var(--color-olive-500-alpha-16);
+    --surface-error-subtle: var(--color-red-400-alpha-12);
 
     --border-subtle: var(--color-gray-900);
     --border-default: var(--color-gray-600);
