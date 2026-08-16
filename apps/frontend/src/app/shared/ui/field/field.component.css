@@ -12,7 +12,7 @@
     font-weight: var(--type-label-md-font-weight);
     line-height: var(--type-label-md-line-height);
 
-    color: var(--text-primary-color);
+    color: var(--content-primary);
 }
 
 .app-field__control {
@@ -25,7 +25,7 @@
     font-weight: var(--type-body-sm-font-weight);
     line-height: var(--type-body-sm-line-height);
 
-    color: var(--text-primary-color);
+    color: var(--content-primary);
 }
 
 .app-field__error {
@@ -33,7 +33,7 @@
     font-weight: var(--type-body-sm-font-weight);
     line-height: var(--type-body-sm-line-height);
 
-    color: var(--color-error-500);
+    color: var(--content-error);
 }
 
 .app-field--disabled {

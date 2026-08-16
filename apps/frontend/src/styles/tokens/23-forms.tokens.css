@@ -6,21 +6,21 @@
 
     --form-label-gap: var(--size-300);
 
-    --form-hint-text-color: var(--text-secondary-color);
+    --form-hint-text-color: var(--content-secondary);
     --form-hint-font-size: var(--type-body-sm-font-size);
     --form-hint-font-weight: var(--type-body-sm-font-weight);
 
-    --form-error-text-color: var(--color-error-500);
+    --form-error-text-color: var(--content-error);
     --form-error-font-size: var(--type-body-sm-font-size);
     --form-error-font-weight: var(--type-body-sm-font-weight);
 
     /* form-control      → input text / textarea / select */
-    --form-control-border: var(--border-width-thin) var(--border-style) var(--border-color-accent);
+    --form-control-border: var(--border-width-thin) var(--border-style) var(--border-accent);
     --form-control-border-radius: var(--radius-100);
-    --form-control-background-color: var(--color-gray-900);
+    --form-control-background-color: var(--surface-sunken);
 
-    --form-control-text-color: var(--text-primary-color);
-    --form-control-text-accent-color: var(--accent-color);
+    --form-control-text-color: var(--content-primary);
+    --form-control-text-accent-color: var(--accent-default);
 
     --form-control-font-size: var(--type-body-md-font-size);
     --form-control-font-weight: var(--type-body-md-font-weight);
@@ -32,29 +32,29 @@
     --form-control-height: var(--size-800);
 
     --input-group-addon-background-color: var(--form-control-background-color);
-    --input-group-addon-text-color: var(--text-secondary-color);
+    --input-group-addon-text-color: var(--content-secondary);
 
     /* form-range        → slider */
-    --form-range-text-color: var(--color-gray-800);
+    --form-range-text-color: var(--content-on-accent);
     --form-range-focus-ring: var(--focus-ring);
     --form-range-text-font-size: var(--type-body-md-font-size);
     --form-range-text-weight: var(--type-body-md-font-weight);
 
     --form-range-height: var(--size-200);
     --form-range-radius: var(--size-100);
-    --form-range-background: var(--color-gray-50);
-    --form-range-color: var(--accent-color);
+    --form-range-background: var(--surface-subtle);
+    --form-range-color: var(--accent-default);
 
-    --form-range-value-text-color: var(--color-gray-800);
+    --form-range-value-text-color: var(--content-on-accent);
     --form-range-value-text-font-size: var(--type-body-md-font-size);
     --form-range-value-text-weight: var(--type-label-sm-font-weight);
-    --form-range-value-background-color: var(--accent-color);
+    --form-range-value-background-color: var(--accent-default);
     --form-range-value-border-radius: var(--size-200);
     --form-range-value-padding: var(--size-100) var(--size-200);
 
     --form-range-thumb-size: var(--size-500);
-    --form-range-thumb-color: var(--color-gray-800);
-    --form-range-thumb-border: var(--stroke-400) var(--border-style) var(--accent-color);
+    --form-range-thumb-color: var(--content-on-accent);
+    --form-range-thumb-border: var(--stroke-400) var(--border-style) var(--accent-default);
 
     /* form-check        → checkbox/radio */
 
@@ -64,10 +64,10 @@
     --form-switch-width: calc((var(--form-switch-height) + var(--form-switch-padding)) * 2);
     --form-switch-border: 0;
     --form-switch-border-radius: calc(var(--form-switch-height) * 0.5);
-    --form-switch-background-color: var(--color-gray-650);
-    --form-switch-text-color: var(--accent-color);
-    --form-switch-checked-background-color: var(--accent-color);
-    --form-switch-checked-text-color: var(--color-gray-800);
+    --form-switch-background-color: var(--surface-interactive);
+    --form-switch-text-color: var(--accent-default);
+    --form-switch-checked-background-color: var(--accent-default);
+    --form-switch-checked-text-color: var(--content-on-accent);
     --form-switch-focus-ring: var(--focus-ring);
     --form-switch-transition-duration: 0.2s;
 
@@ -76,12 +76,12 @@
         ((var(--form-switch-width) - var(--form-switch-knob-size)) * 0.5) - var(--form-switch-padding)
     );
     --form-switch-knob-size: calc(var(--form-switch-height) - var(--form-switch-padding));
-    --form-switch-knob-background-color: var(--accent-color);
+    --form-switch-knob-background-color: var(--accent-default);
     --form-switch-knob-offset: calc(
         var(--form-switch-width) - var(--form-switch-knob-size) - (var(--form-switch-padding) * 2)
     );
-    --form-switch-checked-knob-background-color: var(--color-gray-800);
-    --form-switch-knob-shadow: 0 var(--size-100) var(--size-200) var(--color-black-alpha-35);
+    --form-switch-checked-knob-background-color: var(--content-on-accent);
+    --form-switch-knob-shadow: 0 var(--size-100) var(--size-200) var(--shadow-color);
 
     /* app-form-actions      → buttons */
 }

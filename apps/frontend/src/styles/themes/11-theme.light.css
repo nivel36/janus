@@ -10,41 +10,47 @@
             var(--color-gray-50) 100%
         );
 
-    --accent-color: var(--color-primary-600);
-    --accent-soft-color: var(--color-primary-300);
-    --accent-strong-color: var(--color-primary-700);
-    --accent-hover-color: var(--color-primary-500);
-    --accent-active-color: var(--color-primary-800);
-    --accent-muted-color: var(--color-primary-200);
+    /* Semantic color tokens: primitives are mapped to intent only in themes. */
+    --content-primary: var(--color-gray-850);
+    --content-secondary: var(--color-gray-500);
+    --content-inverse: var(--color-white);
+    --content-on-accent: var(--color-black);
+    --content-disabled: var(--color-gray-600);
+    --content-error: var(--color-error-500);
+    --content-success: var(--color-success-muted-text);
+    --content-warning: var(--color-warning-500);
+    --content-info: var(--color-info-500);
 
-    --text-primary-color: var(--color-gray-850);
-    --text-secondary-color: var(--color-gray-500);
+    --surface-page: var(--color-white);
+    --surface-default: var(--color-white);
+    --surface-subtle: var(--color-gray-50);
+    --surface-sunken: var(--color-white);
+    --surface-alternating: var(--color-gray-10);
+    --surface-interactive: var(--color-gray-100);
+    --surface-interactive-hover: var(--color-primary-100);
+    --surface-success-subtle: var(--color-success-muted-alpha-16);
+    --surface-error-subtle: var(--color-error-muted-alpha-16);
 
-    --page-background-color: var(--color-white);
+    --border-subtle: var(--color-gray-100);
+    --border-default: var(--color-gray-200);
+    --border-accent: var(--color-primary-700);
 
-    --focus-ring-color: var(--color-primary-300);
-    --selection-background-color: var(--color-primary-200);
-    --selection-text-color: var(--color-gray-900);
+    --accent-default: var(--color-primary-600);
+    --accent-soft: var(--color-primary-300);
+    --accent-strong: var(--color-primary-700);
+    --accent-hover: var(--color-primary-500);
+    --accent-active: var(--color-primary-800);
+    --accent-muted: var(--color-primary-200);
+    --accent-secondary: var(--color-secondary-500);
+    --accent-tertiary: var(--color-tertiary-700);
 
-    --border-color-subtle: var(--color-gray-100);
-    --border-color: var(--color-gray-200);
-    --border-color-accent: var(--accent-strong-color);
+    --focus-ring-color: var(--accent-soft);
+    --selection-background-color: var(--accent-muted);
+    --selection-text-color: var(--content-primary);
+    --shadow-color: var(--color-black-alpha-35);
 
-    --panel-background-color: var(--color-white);
     --panel-shadow:
         0 1.9rem 5.65rem rgba(17, 24, 39, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.72);
-
-    --form-control-background-color: var(--color-white);
-    --form-control-text-color: var(--text-primary-color);
-
-    --subtle-surface-background-color: var(--color-gray-50);
-    --subtle-icon-background-color: var(--color-gray-100);
-
-    --list-background-color: var(--panel-background-color);
-    --list-text-color: var(--text-primary-color);
-    --list-item-odd-background-color: var(--color-gray-10);
-    --list-item-even-background-color: var(--panel-background-color);
-    --list-item-hover-background-color: var(--color-primary-100);
 
     --control-accent-background-color: linear-gradient(
         180deg,
@@ -58,10 +64,10 @@
         var(--color-primary-300) 45%,
         var(--color-primary-glow-400)
     );
-    --control-accent-pressed-background-color: var(--accent-active-color);
-    --control-accent-disabled-background-color: var(--accent-muted-color);
-    --control-accent-text-color: var(--color-black);
-    --control-accent-disabled-text-color: var(--color-gray-600);
+    --control-accent-pressed-background-color: var(--accent-active);
+    --control-accent-disabled-background-color: var(--accent-muted);
+    --control-accent-text-color: var(--content-on-accent);
+    --control-accent-disabled-text-color: var(--content-disabled);
     --control-accent-glow:
         inset 0 1px 0 rgba(255, 255, 255, 0.52), 0 0.5rem 1rem rgba(255, 212, 0, 0.16);
     --control-accent-pressed-glow:

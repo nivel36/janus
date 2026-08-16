@@ -33,7 +33,7 @@
     border: var(--list-border);
     border-radius: var(--list-border-radius);
 
-    background: var(--list-background-color);
+    background-color: var(--list-background-color);
     color: var(--list-text-color);
 
     box-shadow: var(--list-shadow);
@@ -50,7 +50,7 @@
 
 .autocomplete__option:hover,
 .autocomplete__option--active {
-    background: var(--list-item-hover-background-color);
+    background-color: var(--list-item-hover-background-color);
 }
 
 .autocomplete__message {
@@ -59,7 +59,7 @@
 }
 
 .autocomplete__message:hover {
-    background: transparent;
+    background-color: transparent;
 }
 
 .autocomplete__status {

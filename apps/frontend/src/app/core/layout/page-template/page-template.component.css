@@ -22,7 +22,7 @@
 }
 
 .page-template__brand {
-    color: var(--accent-color);
+    color: var(--accent-default);
 
     font-size: var(--type-brand-font-size);
     font-weight: var(--type-brand-font-weight);
@@ -33,12 +33,12 @@
 
 .page-template__brand:hover,
 .page-template__brand:focus-visible {
-    color: var(--accent-hover-color);
+    color: var(--accent-hover);
     text-decoration: none;
 }
 
 .page-template__title {
-    color: var(--text-secondary-color);
+    color: var(--content-secondary);
 
     font-size: var(--type-heading-sm-font-size);
     font-weight: var(--type-heading-sm-font-weight);

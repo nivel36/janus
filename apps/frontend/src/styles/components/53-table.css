@@ -39,7 +39,7 @@
     line-height: var(--type-label-sm-line-height);
     text-transform: var(--type-caps-text-transform);
     letter-spacing: var(--type-caps-letter-spacing);
-    color: var(--text-primary-color);
+    color: var(--list-text-color);
 }
 
 .app-table td {

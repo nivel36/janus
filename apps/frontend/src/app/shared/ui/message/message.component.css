@@ -4,7 +4,7 @@
 
 .message {
     margin: 0;
-    color: var(--text-primary-color);
+    color: var(--content-primary);
 }
 
 .message--panel {
@@ -21,26 +21,26 @@
 }
 
 .message--error {
-    color: var(--color-error-soft);
+    color: var(--content-error);
 }
 
 .message--error.message--panel {
-    border-color: var(--color-error-soft);
-    background-color: var(--color-error-soft-alpha-12);
+    border-color: var(--content-error);
+    background-color: var(--surface-error-subtle);
 }
 
 .message--success {
-    color: var(--color-success-500);
+    color: var(--content-success);
 }
 
 .message--success.message--panel {
-    background-color: var(--color-success-muted-alpha-16);
+    background-color: var(--surface-success-subtle);
 }
 
 .message--warning {
-    color: var(--color-warning-500);
+    color: var(--content-warning);
 }
 
 .message--info {
-    color: var(--color-info-500);
+    color: var(--content-info);
 }
