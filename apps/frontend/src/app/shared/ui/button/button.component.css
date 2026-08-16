@@ -38,13 +38,13 @@
 
 .app-button:active {
     background: var(--control-accent-pressed-background);
-    box-shadow: var(--control-accent-hover-glow);
+    box-shadow: var(--control-accent-pressed-glow);
 }
 
 .app-button:disabled {
     color: var(--control-accent-disabled-text-color, var(--control-accent-text-color));
     background: var(--control-accent-disabled-background);
-    box-shadow: none;
+    box-shadow: var(--control-accent-disabled-glow);
     cursor: not-allowed;
 }
 
