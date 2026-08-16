@@ -23,6 +23,11 @@ body {
     overflow-x: hidden;
 }
 
+::selection {
+    background-color: var(--selection-background-color);
+    color: var(--selection-text-color);
+}
+
 p {
     padding-top: var(--section-gap);
 }
