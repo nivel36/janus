@@ -19,7 +19,7 @@ body {
 }
 
 body {
-    background: var(--body-background-color);
+    background: var(--body-background);
     overflow-x: hidden;
 }
 
