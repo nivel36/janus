@@ -49,22 +49,23 @@
     --color-tertiary-700: #223b9c;
     --color-tertiary-900: #111f55;
 
-    --color-success-500: #22c55e;
-    --color-error-500: #ef4444;
-    --color-warning-500: #f59e0b;
-    --color-info-500: #38bdf8;
+    --color-green-500: #22c55e;
+    --color-green-600: #3baa37;
+    --color-red-300: #ff8a8a;
+    --color-red-400: #ff5757;
+    --color-red-500: #ef4444;
+    --color-red-700: #bb3535;
+    --color-amber-500: #f59e0b;
+    --color-sky-500: #38bdf8;
+    --color-olive-500: #688748;
 
     --color-black-alpha-35: rgba(0, 0, 0, 0.35);
     --color-white-alpha-06: rgba(255, 255, 255, 0.06);
     --color-white-alpha-10: rgba(255, 255, 255, 0.1);
     --color-white-alpha-12: rgba(255, 255, 255, 0.12);
-    --color-error-soft: #ff8a8a;
-    --color-error-soft-alpha-12: rgba(255, 87, 87, 0.12);
-    --color-primary-focus-alpha-30: rgba(249, 214, 0, 0.3);
-    --color-success-muted-alpha-16: rgba(104, 135, 72, 0.16);
-    --color-error-muted-alpha-16: rgba(187, 53, 53, 0.16);
-    --color-success-muted-text: #3baa37;
-    --color-error-muted-text: #d24444;
+    --color-red-400-alpha-12: rgba(255, 87, 87, 0.12);
+    --color-red-700-alpha-16: rgba(187, 53, 53, 0.16);
+    --color-olive-500-alpha-16: rgba(104, 135, 72, 0.16);
 
     --size-100: 0.25rem;
     --size-150: 0.375rem;
