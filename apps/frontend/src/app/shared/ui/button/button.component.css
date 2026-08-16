@@ -14,7 +14,7 @@
     border: 0;
     border-radius: var(--radius-100);
 
-    background: var(--control-accent-background-color);
+    background: var(--control-accent-background);
     box-shadow: var(--control-accent-glow);
 
     color: var(--control-accent-text-color);
@@ -31,19 +31,19 @@
 
 .app-button:hover,
 .app-button:focus-visible {
-    background: var(--control-accent-hover-background-color);
+    background: var(--control-accent-hover-background);
     box-shadow: var(--control-accent-hover-glow);
     outline: none;
 }
 
 .app-button:active {
-    background: var(--control-accent-pressed-background-color);
+    background: var(--control-accent-pressed-background);
     box-shadow: var(--control-accent-hover-glow);
 }
 
 .app-button:disabled {
     color: var(--control-accent-disabled-text-color, var(--control-accent-text-color));
-    background: var(--control-accent-disabled-background-color);
+    background: var(--control-accent-disabled-background);
     box-shadow: none;
     cursor: not-allowed;
 }

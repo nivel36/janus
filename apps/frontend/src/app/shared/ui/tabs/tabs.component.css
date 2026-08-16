@@ -33,7 +33,7 @@
 }
 
 .tabs__trigger--active {
-    background: var(--control-accent-background-color);
+    background: var(--control-accent-background);
     color: var(--control-accent-text-color);
     cursor: default;
 }

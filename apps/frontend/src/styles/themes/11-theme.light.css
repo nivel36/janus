@@ -1,7 +1,7 @@
 [data-theme='light'] {
     color-scheme: light;
 
-    --body-background-color:
+    --body-background:
         radial-gradient(circle at 50% 4%, rgba(254, 219, 0, 0.18), transparent 28rem),
         linear-gradient(
             115deg,
@@ -52,20 +52,20 @@
     --panel-shadow:
         0 1.9rem 5.65rem rgba(17, 24, 39, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.72);
 
-    --control-accent-background-color: linear-gradient(
+    --control-accent-background: linear-gradient(
         180deg,
         var(--color-primary-200) 0%,
         var(--color-primary-400) 45%,
         var(--color-primary-glow-500)
     );
-    --control-accent-hover-background-color: linear-gradient(
+    --control-accent-hover-background: linear-gradient(
         180deg,
         var(--color-primary-100) 0%,
         var(--color-primary-300) 45%,
         var(--color-primary-glow-400)
     );
-    --control-accent-pressed-background-color: var(--accent-active);
-    --control-accent-disabled-background-color: var(--accent-muted);
+    --control-accent-pressed-background: var(--accent-active);
+    --control-accent-disabled-background: var(--accent-muted);
     --control-accent-text-color: var(--content-on-accent);
     --control-accent-disabled-text-color: var(--content-disabled);
     --control-accent-glow:
