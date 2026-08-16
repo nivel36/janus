@@ -13,10 +13,6 @@
     background-color: var(--list-background-color);
 }
 
-.app-table tbody tr td {
-    overflow: hidden;
-}
-
 .app-table tbody tr:first-child td {
     border-top: var(--list-border);
 }
@@ -26,7 +22,6 @@
 }
 
 .app-table tbody tr:first-child td:last-child {
-    border-collapse: separate;
     border-top-right-radius: var(--list-border-radius);
 }
 
@@ -58,7 +53,6 @@
 
 .app-table tbody tr:hover td {
     background-color: var(--list-item-hover-background-color);
-    overflow: hidden;
 }
 
 @media (max-width: 640px) {
