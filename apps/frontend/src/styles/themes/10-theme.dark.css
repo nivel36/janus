@@ -17,7 +17,7 @@
     --content-secondary: var(--color-gray-300);
     --content-inverse: var(--color-gray-800);
     --content-on-accent: var(--color-black);
-    --content-disabled: var(--color-gray-800);
+    --content-disabled: var(--color-gray-400);
     --content-error: var(--color-red-300);
     --content-success: var(--color-green-500);
     --content-warning: var(--color-amber-500);
@@ -68,7 +68,7 @@
     --control-accent-pressed-background: var(--accent-active);
     --control-accent-disabled-background: var(--accent-muted);
     --control-accent-text-color: var(--content-on-accent);
-    --control-accent-disabled-text-color: var(--content-disabled);
+    --control-accent-disabled-text-color: var(--color-gray-200);
     --control-accent-glow:
         inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 0.5rem 1rem rgba(255, 212, 0, 0.13);
     --control-accent-pressed-glow:
