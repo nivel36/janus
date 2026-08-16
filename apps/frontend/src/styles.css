@@ -19,7 +19,9 @@
 
 /* Global component styles */
 @import './styles/components/50-card.css';
-@import './styles/components/51-header-detail.css';
-@import './styles/components/52-section.css';
-@import './styles/components/53-table.css';
-@import './styles/components/54-list-page.css';
+@import './styles/components/51-forms.css';
+@import './styles/components/52-form-actions.css';
+@import './styles/components/53-header-detail.css';
+@import './styles/components/54-section.css';
+@import './styles/components/55-table.css';
+@import './styles/components/56-list-page.css';
