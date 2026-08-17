@@ -161,7 +161,7 @@ As a general rule:
   - `app-table tbody tr`: result rows with visual alternation and hover state.
 
 - **List pages** (`src/styles/components/56-list-page.css`)
-  - `app-list-page`: vertical content layout for searchable result pages.
+  - `app-list-page`: autonomous flex container with a vertical content layout for searchable result pages. It can be combined with `app-page-content` when that class's page spacing is also needed, but it is not a modifier of `app-page-content` and does not depend on it.
   - `app-list-page__toolbar`: responsive search and actions row.
   - `app-list-page__results`: growing results area with a stable minimum height.
 
