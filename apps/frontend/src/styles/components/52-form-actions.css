@@ -1,8 +1,29 @@
 .app-form-actions {
-    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--form-actions-gap);
+
+    margin-inline-start: auto;
     margin-top: var(--form-actions-margin-block-start);
 }
 
-.app-form-actions > * + * {
-    margin-left: var(--form-actions-gap);
+@media (max-width: 640px) {
+    .app-form-actions {
+        flex-direction: column;
+        align-items: stretch;
+        inline-size: 100%;
+    }
+
+    .app-form-actions > * {
+        min-inline-size: 0;
+        inline-size: 100%;
+    }
+
+    .app-form-actions .app-button {
+        block-size: auto;
+        min-block-size: var(--size-800);
+        min-inline-size: 0;
+        inline-size: 100%;
+    }
 }

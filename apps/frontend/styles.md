@@ -135,8 +135,7 @@ As a general rule:
   - `app-form`: common vertical structure for creation, editing, and preferences forms.
 
 - **Form actions** (`src/styles/components/52-form-actions.css`)
-  - `app-form-actions`: aligned group of submit, cancel, or other action buttons at the end of a form.
-  - `app-form-actions > * + *`: consistent separation between consecutive actions.
+  - `app-form-actions`: wrapping, end-aligned group of submit, cancel, or other form actions; actions stack at the mobile breakpoint.
 
 - **Detail headers** (`src/styles/components/53-header-detail.css`)
   - `app-header-detail`: highlighted header for entity detail pages.
