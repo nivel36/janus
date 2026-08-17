@@ -1,6 +1,10 @@
 :root {
+    --focus-ring-gap-width: var(--stroke-100);
     --focus-ring-width: var(--stroke-200);
-    --focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+    --focus-ring:
+        0 0 0 var(--focus-ring-gap-width) var(--focus-ring-gap-color),
+        0 0 0 calc(var(--focus-ring-gap-width) + var(--focus-ring-width))
+            var(--focus-ring-color);
 
     --border-width-thin: var(--stroke-100);
     --border-width-medium: var(--stroke-200);

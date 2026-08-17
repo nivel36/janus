@@ -33,8 +33,8 @@
 
 .paginator__button:not(:disabled):focus-visible {
     color: var(--accent-hover);
-    outline: 2px solid var(--focus-ring-color);
-    outline-offset: 2px;
+    box-shadow: var(--focus-ring);
+    outline: none;
 }
 
 .paginator__text {
