@@ -29,10 +29,14 @@
     cursor: pointer;
 }
 
-.app-button:hover,
-.app-button:focus-visible {
+.app-button:hover {
     background: var(--control-accent-hover-background);
     box-shadow: var(--control-accent-hover-glow);
+}
+
+.app-button:focus-visible {
+    background: var(--control-accent-hover-background);
+    box-shadow: var(--control-accent-hover-glow), var(--focus-ring);
     outline: none;
 }
 

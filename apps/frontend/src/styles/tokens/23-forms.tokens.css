@@ -28,7 +28,7 @@
 
     --form-control-padding-inline: var(--size-300);
     --form-control-padding-block: 0;
-    --form-control-focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+    --form-control-focus-ring: var(--focus-ring);
     --form-control-height: var(--size-800);
 
     --input-group-addon-background-color: var(--form-control-background-color);

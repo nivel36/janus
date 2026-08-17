@@ -44,7 +44,9 @@
     --accent-secondary: var(--color-secondary-500);
     --accent-tertiary: var(--color-tertiary-700);
 
-    --focus-ring-color: var(--accent-soft);
+    /* The stronger accent stays above 3:1 against every control surface in this theme. */
+    --focus-ring-color: var(--accent-active);
+    --focus-ring-gap-color: var(--surface-page);
     --selection-background-color: var(--accent-muted);
     --selection-text-color: var(--content-primary);
     --shadow-color: var(--color-black-alpha-35);
