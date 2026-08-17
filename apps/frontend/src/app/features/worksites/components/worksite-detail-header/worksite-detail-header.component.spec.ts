@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { reflectComponentType } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -31,7 +32,9 @@ describe('WorksiteDetailHeaderComponent', () => {
   });
 
   it('uses the corrected selector', () => {
-    expect((fixture.nativeElement as HTMLElement).matches('app-worksite-detail-header')).toBe(true);
+    expect(reflectComponentType(WorksiteDetailHeaderComponent)?.selector).toBe(
+      'app-worksite-detail-header',
+    );
   });
 
   it('renders the worksite identity', () => {
