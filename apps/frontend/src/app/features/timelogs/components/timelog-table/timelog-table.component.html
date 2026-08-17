@@ -28,38 +28,40 @@
   </app-async-state>
 
   @if (!timelogsResource.isLoading() && timelogs().length > 0) {
-    <table class="app-table timelog-table__table">
-      <thead>
-        <tr>
-          <th scope="col">{{ 'timelog.date' | translate }}</th>
-          <th scope="col">{{ 'timelog.clockin' | translate }}</th>
-          <th scope="col">{{ 'timelog.clockout' | translate }}</th>
-          <th scope="col">{{ 'timelog.duration' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (
-          timelog of pagedTimelogs();
-          track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')
-        ) {
+    <div class="app-table-wrapper" role="region" tabindex="0" aria-labelledby="timelog-table-title">
+      <table class="app-table timelog-table__table">
+        <thead>
           <tr>
-            <td>
-              {{ timelog.entryTime | date: 'shortDate' : userTimezone() : userLocale() }}
-            </td>
-            <td>
-              {{ timelog.entryTime | date: timeFormat() : userTimezone() : userLocale() }}
-            </td>
-            <td>
-              @if (timelog.exitTime) {
-                {{ timelog.exitTime | date: timeFormat() : userTimezone() : userLocale() }}
-              } @else {
-                —
-              }
-            </td>
-            <td>{{ timelog.workTime | duration }}</td>
+            <th scope="col">{{ 'timelog.date' | translate }}</th>
+            <th scope="col">{{ 'timelog.clockin' | translate }}</th>
+            <th scope="col">{{ 'timelog.clockout' | translate }}</th>
+            <th scope="col">{{ 'timelog.duration' | translate }}</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (
+            timelog of pagedTimelogs();
+            track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')
+          ) {
+            <tr>
+              <td>
+                {{ timelog.entryTime | date: 'shortDate' : userTimezone() : userLocale() }}
+              </td>
+              <td>
+                {{ timelog.entryTime | date: timeFormat() : userTimezone() : userLocale() }}
+              </td>
+              <td>
+                @if (timelog.exitTime) {
+                  {{ timelog.exitTime | date: timeFormat() : userTimezone() : userLocale() }}
+                } @else {
+                  —
+                }
+              </td>
+              <td>{{ timelog.workTime | duration }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>

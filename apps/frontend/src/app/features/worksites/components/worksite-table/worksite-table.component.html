@@ -28,36 +28,43 @@
   </app-async-state>
 
   @if (!worksitesResource.isLoading() && worksites().length > 0) {
-    <table class="app-table worksite-table__table">
-      <thead>
-        <tr>
-          <th scope="col">{{ 'worksite.code' | translate }}</th>
-          <th scope="col">{{ 'worksite.name' | translate }}</th>
-          <th scope="col">{{ 'worksite.scope' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (worksite of pagedWorksites(); track worksite.code) {
-          <tr
-            class="worksite-table__row"
-            role="button"
-            tabindex="0"
-            [attr.aria-label]="'worksite.openDetail' | translate: { name: worksite.name }"
-            (click)="openWorksite(worksite)"
-            (keydown.enter)="openWorksite(worksite)"
-            (keydown.space)="$event.preventDefault(); openWorksite(worksite)"
-          >
-            <td>{{ worksite.code }}</td>
-            <td>{{ worksite.name }}</td>
-            <td>
-              <app-chip
-                [label]="'worksite.scopes.' + worksite.scope | translate"
-                [type]="worksite.scope === 'ASSIGNED' ? 'primary' : 'default'"
-              ></app-chip>
-            </td>
+    <div
+      class="app-table-wrapper"
+      role="region"
+      tabindex="0"
+      aria-labelledby="worksite-table-title"
+    >
+      <table class="app-table worksite-table__table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'worksite.code' | translate }}</th>
+            <th scope="col">{{ 'worksite.name' | translate }}</th>
+            <th scope="col">{{ 'worksite.scope' | translate }}</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (worksite of pagedWorksites(); track worksite.code) {
+            <tr
+              class="worksite-table__row"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="'worksite.openDetail' | translate: { name: worksite.name }"
+              (click)="openWorksite(worksite)"
+              (keydown.enter)="openWorksite(worksite)"
+              (keydown.space)="$event.preventDefault(); openWorksite(worksite)"
+            >
+              <td>{{ worksite.code }}</td>
+              <td>{{ worksite.name }}</td>
+              <td>
+                <app-chip
+                  [label]="'worksite.scopes.' + worksite.scope | translate"
+                  [type]="worksite.scope === 'ASSIGNED' ? 'primary' : 'default'"
+                ></app-chip>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>

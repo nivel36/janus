@@ -28,21 +28,28 @@
   </app-async-state>
 
   @if (!schedulesResource.isLoading() && schedules().length > 0) {
-    <table class="app-table schedule-table__table">
-      <thead>
-        <tr>
-          <th scope="col">{{ 'schedule.code' | translate }}</th>
-          <th scope="col">{{ 'schedule.name' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (schedule of schedules(); track schedule.code) {
+    <div
+      class="app-table-wrapper"
+      role="region"
+      tabindex="0"
+      aria-labelledby="schedule-table-title"
+    >
+      <table class="app-table schedule-table__table">
+        <thead>
           <tr>
-            <td>{{ schedule.code }}</td>
-            <td>{{ schedule.name }}</td>
+            <th scope="col">{{ 'schedule.code' | translate }}</th>
+            <th scope="col">{{ 'schedule.name' | translate }}</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (schedule of schedules(); track schedule.code) {
+            <tr>
+              <td>{{ schedule.code }}</td>
+              <td>{{ schedule.name }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>

@@ -20,7 +20,6 @@ body {
 
 body {
     background: var(--body-background);
-    overflow-x: hidden;
 }
 
 ::selection {
@@ -31,6 +30,7 @@ body {
 .app-page-content {
     display: flex;
     width: min(var(--layout-page-max-width), 100%);
+    min-width: 0;
     gap: var(--layout-main-gap);
 }
 
