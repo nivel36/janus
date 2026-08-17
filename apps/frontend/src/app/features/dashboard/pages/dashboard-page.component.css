@@ -20,6 +20,7 @@
 
 #records {
     grid-area: records;
+    min-width: 0;
 }
 
 @media (max-width: 900px) {
