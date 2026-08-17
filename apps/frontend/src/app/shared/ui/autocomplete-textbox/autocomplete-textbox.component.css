@@ -15,7 +15,7 @@
 }
 
 .autocomplete__results-panel {
-    max-width: min(30rem, calc(100vw - var(--size-600)));
+    max-width: min(30rem, calc(100vw - 2rem));
 }
 
 .autocomplete__results {
