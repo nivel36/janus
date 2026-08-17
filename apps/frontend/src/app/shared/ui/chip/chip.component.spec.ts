@@ -25,7 +25,7 @@ class TestHostComponent {
   label = 'Activo';
   icon: IconDefinition | undefined = undefined;
   type: 'default' | 'primary' | 'secondary' | 'tertiary' | 'green' = 'default';
-  size: 'normal' | 'big' | 'small' = 'normal';
+  size: 'normal' | 'big' = 'normal';
   styleClass = '';
 }
 
