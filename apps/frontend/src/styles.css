@@ -13,6 +13,7 @@
 
 /* Component tokens */
 @import './styles/tokens/30-list.tokens.css';
+@import './styles/tokens/31-button.tokens.css';
 
 /* Base styles */
 @import './styles/40-base.css';

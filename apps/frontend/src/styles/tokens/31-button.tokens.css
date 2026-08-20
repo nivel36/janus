@@ -1,0 +1,11 @@
+:where(:root) {
+    /* Component aliases: override these to customize buttons without changing other controls. */
+    --button-height: var(--size-800);
+    --button-min-width: calc(var(--size-800) * 5);
+    --button-padding-block: var(--size-200);
+    --button-padding-inline: var(--size-400);
+    --button-gap: var(--size-200);
+    --button-border: 0;
+    --button-border-radius: var(--radius-100);
+    --button-icon-size: var(--font-size-350);
+}
