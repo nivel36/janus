@@ -1,0 +1,10 @@
+:where(:root) {
+    /* Component aliases: override these to customize chips without changing other controls. */
+    --chip-gap: var(--size-150);
+    --chip-padding-block: var(--size-150);
+    --chip-padding-inline: var(--size-250);
+    --chip-border-radius: var(--size-150);
+    --chip-big-gap: var(--size-200);
+    --chip-big-padding-block: var(--size-200);
+    --chip-big-padding-inline: var(--size-400);
+}

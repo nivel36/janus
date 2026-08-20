@@ -6,10 +6,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--size-150);
+    gap: var(--chip-gap);
 
-    padding: var(--size-150) var(--size-250);
-    border-radius: var(--size-150);
+    padding-block: var(--chip-padding-block);
+    padding-inline: var(--chip-padding-inline);
+    border-radius: var(--chip-border-radius);
 
     background-color: var(--accent-default);
     color: var(--content-inverse);
@@ -33,12 +34,12 @@
 }
 
 .app-chip--size-big {
-    padding-block: var(--size-200);
-    padding-inline: var(--size-400);
+    padding-block: var(--chip-big-padding-block);
+    padding-inline: var(--chip-big-padding-inline);
     font-size: var(--type-label-md-font-size);
     font-weight: var(--type-label-md-font-weight);
     line-height: var(--type-label-md-line-height);
-    gap: var(--size-200);
+    gap: var(--chip-big-gap);
 }
 
 .app-chip--size-big .app-chip__icon {
