@@ -20,12 +20,12 @@
         box-shadow var(--form-switch-transition-duration) ease;
 }
 
-.toggle-button:hover,
-.toggle-button:focus-visible {
-    box-shadow: var(--form-switch-focus-ring);
+.toggle-button:not(:disabled):not(.toggle-button--disabled):hover {
+    background: var(--form-switch-hover-background-color);
 }
 
-.toggle-button:focus-visible {
+.toggle-button:not(:disabled):not(.toggle-button--disabled):focus-visible {
+    box-shadow: var(--form-switch-focus-ring);
     outline: none;
 }
 
@@ -60,6 +60,10 @@
     background: var(--form-switch-checked-background-color);
 }
 
+.toggle-button--checked:not(:disabled):not(.toggle-button--disabled):hover {
+    background: var(--form-switch-checked-hover-background-color);
+}
+
 .toggle-button--checked .toggle-button__icon {
     color: var(--form-switch-checked-icon-color);
     transform: translateX(calc(var(--form-switch-icon-offset) * -1));
@@ -74,9 +78,4 @@
 .toggle-button:disabled {
     cursor: not-allowed;
     opacity: var(--form-disabled-opacity);
-}
-
-.toggle-button--disabled:hover,
-.toggle-button:disabled:hover {
-    box-shadow: none;
 }
