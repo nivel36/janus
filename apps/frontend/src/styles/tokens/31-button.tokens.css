@@ -1,4 +1,4 @@
-:root {
+:where(:root) {
     /* Component aliases: override these to customize buttons without changing other controls. */
     --button-height: var(--size-800);
     --button-min-width: calc(var(--size-800) * 5);
