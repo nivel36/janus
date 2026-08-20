@@ -12,7 +12,7 @@
 }
 
 .summary-card__icon {
-    width: var(--size-900);
+    width: var(--type-display-lg-font-size);
     aspect-ratio: 1;
     display: grid;
     place-items: center;
