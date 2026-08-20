@@ -23,6 +23,15 @@
     line-height: var(--type-heading-lg-line-height);
 }
 
+.clock-in-card__clock {
+    color: var(--accent-strong);
+
+    font-size: var(--type-display-lg-font-size);
+    font-weight: var(--type-display-lg-font-weight);
+    line-height: var(--type-display-lg-line-height);
+    letter-spacing: var(--type-caps-wide-letter-spacing);
+}
+
 .clock-in-card__clock-in,
 .clock-in-card__clock-action-feedback {
     margin: 0;

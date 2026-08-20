@@ -9,7 +9,11 @@
                 {{ vm.clockActionTitleKey | translate }}
             </p>
 
-            <app-clock [locale]="vm.locale" [use12Hour]="vm.use12Hour"></app-clock>
+            <app-clock
+                class="clock-in-card__clock"
+                [locale]="vm.locale"
+                [use12Hour]="vm.use12Hour"
+            ></app-clock>
 
             @if (vm.hasClockInOutPermission) {
                 <app-button [disabled]="vm.isClockActionLoading" (clicked)="onClockAction()">

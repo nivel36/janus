@@ -15,7 +15,6 @@ import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, input } from '@angul
   selector: 'app-clock',
   standalone: true,
   templateUrl: './clock.component.html',
-  styleUrl: './clock.component.css',
 })
 export class ClockComponent implements OnInit, OnDestroy {
   /**

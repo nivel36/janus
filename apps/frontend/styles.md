@@ -82,6 +82,7 @@ For roles that have multiple sizes, the naming convention is
 `--type-{role}-{size}-{font-size|font-weight|line-height}`. The current roles and sizes are:
 
 - `heading`: `lg`, `md`, and `sm`;
+- `display`: `lg`;
 - `body`: `md` and `sm`;
 - `label`: `lg`, `md`, and `sm`;
 - `caption`: `md` and `sm`.

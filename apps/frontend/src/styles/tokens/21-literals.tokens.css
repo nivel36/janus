@@ -3,6 +3,11 @@
     --type-brand-font-weight: var(--font-weight-semibold);
     --type-brand-line-height: var(--line-height-tight);
 
+    /* Display */
+    --type-display-lg-font-size: var(--font-size-900);
+    --type-display-lg-font-weight: var(--font-weight-semibold);
+    --type-display-lg-line-height: var(--line-height-tight);
+
     /* Heading */
     --type-heading-lg-font-size: var(--font-size-500);
     --type-heading-lg-font-weight: var(--font-weight-semibold);
