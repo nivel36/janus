@@ -1,18 +1,18 @@
 .app-button {
     box-sizing: border-box;
 
-    height: var(--size-800);
-    min-width: 15rem;
-    padding-block: var(--size-200);
-    padding-inline: var(--size-400);
+    height: var(--button-height);
+    min-width: var(--button-min-width);
+    padding-block: var(--button-padding-block);
+    padding-inline: var(--button-padding-inline);
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--size-200);
+    gap: var(--button-gap);
 
-    border: 0;
-    border-radius: var(--radius-100);
+    border: var(--button-border);
+    border-radius: var(--button-border-radius);
 
     background: var(--control-accent-background);
     box-shadow: var(--control-accent-glow);
@@ -59,14 +59,13 @@
 }
 
 .app-button--icon {
-    width: var(--size-800);
+    width: var(--button-height);
     min-width: 0;
     padding: 0;
-    border-radius: var(--radius-100);
 
     aspect-ratio: 1;
 
-    font-size: var(--font-size-350);
+    font-size: var(--button-icon-size);
     letter-spacing: normal;
     text-transform: none;
 }
