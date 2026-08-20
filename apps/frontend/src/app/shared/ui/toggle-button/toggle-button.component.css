@@ -79,3 +79,11 @@
     cursor: not-allowed;
     opacity: var(--form-disabled-opacity);
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .toggle-button,
+    .toggle-button__icon,
+    .toggle-button__knob {
+        transition: none;
+    }
+}
