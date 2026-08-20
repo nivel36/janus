@@ -20,6 +20,7 @@
     --content-success: var(--color-green-600);
     --content-warning: var(--color-amber-500);
     --content-info: var(--color-sky-500);
+    --content-switch-off: var(--color-primary-800);
 
     --surface-page: var(--color-white);
     --surface-default: var(--color-white);
@@ -28,6 +29,7 @@
     --surface-alternating: var(--color-gray-10);
     --surface-interactive: var(--color-gray-100);
     --surface-interactive-hover: var(--color-primary-100);
+    --surface-switch-knob-off: var(--color-primary-800);
     --surface-success-subtle: var(--color-olive-500-alpha-16);
     --surface-error-subtle: var(--color-red-700-alpha-16);
 

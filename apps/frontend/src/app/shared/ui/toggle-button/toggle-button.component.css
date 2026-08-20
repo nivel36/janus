@@ -11,7 +11,6 @@
     border-radius: var(--form-switch-border-radius);
 
     background: var(--form-switch-background-color);
-    color: var(--form-switch-text-color);
 
     cursor: pointer;
 
@@ -31,6 +30,7 @@
 }
 
 .toggle-button__icon {
+    color: var(--form-switch-icon-color);
     font-size: var(--form-switch-icon-size);
     font-weight: 700;
     line-height: 1;
@@ -58,10 +58,10 @@
 
 .toggle-button--checked {
     background: var(--form-switch-checked-background-color);
-    color: var(--form-switch-checked-text-color);
 }
 
 .toggle-button--checked .toggle-button__icon {
+    color: var(--form-switch-checked-icon-color);
     transform: translateX(calc(var(--form-switch-icon-offset) * -1));
 }
 

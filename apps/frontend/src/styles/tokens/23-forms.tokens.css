@@ -65,9 +65,9 @@
     --form-switch-border: 0;
     --form-switch-border-radius: calc(var(--form-switch-height) * 0.5);
     --form-switch-background-color: var(--surface-interactive);
-    --form-switch-text-color: var(--accent-default);
+    --form-switch-icon-color: var(--content-switch-off);
     --form-switch-checked-background-color: var(--accent-default);
-    --form-switch-checked-text-color: var(--content-on-accent);
+    --form-switch-checked-icon-color: var(--content-on-accent);
     --form-switch-focus-ring: var(--focus-ring);
     --form-switch-transition-duration: 0.2s;
 
@@ -76,7 +76,7 @@
         ((var(--form-switch-width) - var(--form-switch-knob-size)) * 0.5) - var(--form-switch-padding)
     );
     --form-switch-knob-size: calc(var(--form-switch-height) - var(--form-switch-padding));
-    --form-switch-knob-background-color: var(--accent-default);
+    --form-switch-knob-background-color: var(--surface-switch-knob-off);
     --form-switch-knob-offset: calc(
         var(--form-switch-width) - var(--form-switch-knob-size) - (var(--form-switch-padding) * 2)
     );
