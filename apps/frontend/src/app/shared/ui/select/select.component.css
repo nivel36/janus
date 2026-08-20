@@ -38,7 +38,7 @@ select {
 }
 
 .select__arrow {
-    --arrow-size: calc(var(--form-control-height) / 2);
+    --arrow-size: calc(var(--form-control-height) * 0.5);
     position: absolute;
     top: 50%;
     right: var(--form-control-padding-inline);
