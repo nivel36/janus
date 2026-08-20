@@ -65,8 +65,10 @@
     --form-switch-border: 0;
     --form-switch-border-radius: calc(var(--form-switch-height) * 0.5);
     --form-switch-background-color: var(--surface-interactive);
+    --form-switch-hover-background-color: var(--surface-interactive-hover);
     --form-switch-icon-color: var(--content-switch-off);
     --form-switch-checked-background-color: var(--accent-default);
+    --form-switch-checked-hover-background-color: var(--accent-hover);
     --form-switch-checked-icon-color: var(--content-on-accent);
     --form-switch-focus-ring: var(--focus-ring);
     --form-switch-transition-duration: 0.2s;
