@@ -47,6 +47,13 @@
     pointer-events: none;
 }
 
+@media (forced-colors: active) {
+    .tabs__trigger:focus-visible {
+        outline: var(--focus-ring-width) solid CanvasText;
+        outline-offset: calc(-1 * var(--tabs-trigger-focus-ring-offset));
+    }
+}
+
 .tabs__trigger--active {
     background: var(--tabs-trigger-active-background);
     color: var(--tabs-trigger-active-color);
