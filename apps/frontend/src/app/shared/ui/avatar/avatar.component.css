@@ -1,0 +1,21 @@
+.app-avatar {
+    display: block;
+    inline-size: var(--avatar-size);
+    block-size: var(--avatar-size);
+    flex: 0 0 var(--avatar-size);
+    border-radius: 999px;
+    background-color: var(--accent-default);
+    object-fit: cover;
+}
+
+.app-avatar--large {
+    --avatar-size: var(--size-900);
+}
+
+.app-avatar--medium {
+    --avatar-size: var(--size-700);
+}
+
+.app-avatar--small {
+    --avatar-size: var(--size-600);
+}

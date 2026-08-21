@@ -3,12 +3,13 @@
  */
 import { Component, input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { AvatarComponent } from '../../../../shared/ui/avatar/avatar.component';
 import { createUuid } from '../../../../shared/utils/uuid.utils';
 
 @Component({
   selector: 'app-employee-card',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [AvatarComponent, TranslatePipe],
   templateUrl: './employee-card.component.html',
   styleUrl: './employee-card.component.css',
 })

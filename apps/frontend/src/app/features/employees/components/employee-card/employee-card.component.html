@@ -1,6 +1,11 @@
 <section class="app-card employee-card" [attr.aria-labelledby]="titleElementId">
     <header class="app-card__header employee-card__header">
-        <img class="employee-card__avatar" [src]="avatarSrc()" alt="" />
+        <app-avatar
+            [src]="avatarSrc()"
+            [alt]="avatarAlt()"
+            size="large"
+            styleClass="employee-card__avatar"
+        ></app-avatar>
 
         <h2 class="app-card__title employee-card__title" [id]="titleElementId">
             {{ 'employee.employee' | translate }}

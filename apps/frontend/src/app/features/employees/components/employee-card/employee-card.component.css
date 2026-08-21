@@ -4,12 +4,6 @@
     gap: var(--section-gap);
 }
 
-.employee-card__avatar {
-    width: var(--size-900);
-    background-color: var(--accent-default);
-    border-radius: 999px;
-}
-
 .employee-card__row {
     display: flex;
     border-top: var(--panel-border);

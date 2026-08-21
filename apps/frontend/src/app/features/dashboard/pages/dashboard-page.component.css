@@ -1,9 +1,9 @@
 .dashboard-page__content {
     display: grid;
     grid-template-columns: minmax(0, 1fr) clamp(
-            calc(var(--layout-page-max-width) / 4),
+            calc(var(--layout-page-max-width) * 0.25),
             34%,
-            calc(var(--layout-page-max-width) / 2)
+            calc(var(--layout-page-max-width) * 0.5)
         );
     grid-template-areas:
         'clock employee'
