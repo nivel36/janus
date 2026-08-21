@@ -8,6 +8,8 @@ import { Component, input } from '@angular/core';
  */
 export type AvatarSize = 'large' | 'medium' | 'small';
 
+const DEFAULT_AVATAR_SRC = 'assets/images/user.png';
+
 @Component({
   selector: 'app-avatar',
   standalone: true,
@@ -19,7 +21,12 @@ export class AvatarComponent {
   /**
    * Image source rendered inside the avatar.
    */
-  readonly src = input<string>('assets/images/user.png');
+  readonly src = input<string>(DEFAULT_AVATAR_SRC);
+
+  /**
+   * Image displayed when the requested avatar cannot be loaded.
+   */
+  readonly fallbackSrc = DEFAULT_AVATAR_SRC;
 
   /**
    * Accessible alternative text for informative avatars.
@@ -35,6 +42,19 @@ export class AvatarComponent {
    * Extra CSS classes appended to the root element.
    */
   readonly styleClass = input<string>('');
+
+  /**
+   * Replaces a failed avatar without retrying when the fallback also fails.
+   */
+  onImageError(event: Event): void {
+    const image = event.target as HTMLImageElement | null;
+
+    if (!image || image.getAttribute('src') === this.fallbackSrc) {
+      return;
+    }
+
+    image.src = this.fallbackSrc;
+  }
 
   /**
    * Builds the complete CSS class list for the root avatar element.
