@@ -1,21 +1,26 @@
-.app-avatar {
+:host {
     display: block;
     inline-size: var(--avatar-size);
     block-size: var(--avatar-size);
     flex: 0 0 var(--avatar-size);
+}
+
+.app-avatar {
+    inline-size: 100%;
+    block-size: 100%;
     border-radius: 999px;
     background-color: var(--accent-default);
     object-fit: cover;
 }
 
-.app-avatar--large {
-    --avatar-size: var(--size-900);
+:host(.app-avatar--large) {
+    --avatar-size: var(--avatar-size-large);
 }
 
-.app-avatar--medium {
-    --avatar-size: var(--size-700);
+:host(.app-avatar--medium) {
+    --avatar-size: var(--avatar-size-medium);
 }
 
-.app-avatar--small {
-    --avatar-size: var(--size-600);
+:host(.app-avatar--small) {
+    --avatar-size: var(--avatar-size-small);
 }

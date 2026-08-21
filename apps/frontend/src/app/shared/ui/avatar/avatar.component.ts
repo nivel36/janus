@@ -16,6 +16,9 @@ const DEFAULT_AVATAR_SRC = 'assets/images/user.png';
   imports: [],
   templateUrl: './avatar.component.html',
   styleUrl: './avatar.component.css',
+  host: {
+    '[class]': 'hostClass',
+  },
 })
 export class AvatarComponent {
   /**
@@ -59,8 +62,8 @@ export class AvatarComponent {
   /**
    * Builds the complete CSS class list for the root avatar element.
    */
-  get avatarClass(): string {
-    return ['app-avatar', `app-avatar--${this.size()}`, this.styleClass().trim()]
+  get hostClass(): string {
+    return [`app-avatar--${this.size()}`, this.styleClass().trim()]
       .filter(Boolean)
       .join(' ');
   }
