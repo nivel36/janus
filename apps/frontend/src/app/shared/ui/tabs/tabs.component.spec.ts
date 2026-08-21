@@ -146,6 +146,19 @@ describe('TabsComponent', () => {
     expect(document.activeElement).toBe(tabButtons[0]);
   });
 
+  it('should move keyboard focus to the selected trigger', () => {
+    const firstTabs = fixture.nativeElement.querySelector('#tabs-a');
+    const tabButtons: NodeListOf<HTMLButtonElement> =
+      firstTabs.querySelectorAll('button[role="tab"]');
+
+    tabButtons[0].focus();
+    tabButtons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(tabButtons[1].getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(tabButtons[1]);
+  });
+
   it('should wrap arrow key navigation between first and last tabs', () => {
     const firstTabs = fixture.nativeElement.querySelector('#tabs-a');
     const tabButtons: NodeListOf<HTMLButtonElement> =
