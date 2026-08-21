@@ -5,6 +5,9 @@
     --tabs-border: var(--panel-border);
     --tabs-border-radius: var(--panel-border-radius);
     --tabs-background: var(--surface-default);
+    --tabs-column-min-width: calc(var(--size-800) * 4);
+    --tabs-overflow-x: auto;
+    --tabs-overflow-y: hidden;
     --tabs-trigger-min-height: calc(var(--size-800) + var(--size-100));
     --tabs-trigger-padding-block: var(--size-300);
     --tabs-trigger-padding-inline: var(--size-400);
