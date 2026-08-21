@@ -3,7 +3,7 @@
  */
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AvatarComponent, AvatarSize } from './avatar.component';
 
@@ -52,5 +52,29 @@ describe('AvatarComponent', () => {
 
     expect(avatarEl.classList).toContain('app-avatar--large');
     expect(avatarEl.classList).toContain('employee-card__avatar');
+  });
+
+  it('should use the fallback image when the requested image fails', () => {
+    hostComponent.src = 'assets/images/missing-user.png';
+    fixture.detectChanges();
+
+    const avatarEl: HTMLImageElement = fixture.nativeElement.querySelector('.app-avatar');
+    avatarEl.dispatchEvent(new Event('error'));
+
+    expect(avatarEl.getAttribute('src')).toBe('assets/images/user.png');
+  });
+
+  it('should not retry the fallback image when it also fails', () => {
+    hostComponent.src = 'assets/images/missing-user.png';
+    fixture.detectChanges();
+
+    const avatarEl: HTMLImageElement = fixture.nativeElement.querySelector('.app-avatar');
+    const srcSetter = vi.spyOn(avatarEl, 'src', 'set');
+
+    avatarEl.dispatchEvent(new Event('error'));
+    avatarEl.dispatchEvent(new Event('error'));
+
+    expect(srcSetter).toHaveBeenCalledOnce();
+    expect(avatarEl.getAttribute('src')).toBe('assets/images/user.png');
   });
 });
