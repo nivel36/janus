@@ -36,11 +36,13 @@ describe('AvatarComponent', () => {
   });
 
   it('should render the image with the default medium size', () => {
+    const avatarHost: HTMLElement = fixture.nativeElement.querySelector('app-avatar');
     const avatarEl: HTMLImageElement = fixture.nativeElement.querySelector('.app-avatar');
 
     expect(avatarEl.getAttribute('src')).toBe('assets/images/user.png');
     expect(avatarEl.getAttribute('alt')).toBe('User avatar');
-    expect(avatarEl.classList).toContain('app-avatar--medium');
+    expect(avatarHost.classList).toContain('app-avatar--medium');
+    expect(avatarEl.classList).not.toContain('app-avatar--medium');
   });
 
   it('should apply the selected size and extra classes', () => {
@@ -48,10 +50,20 @@ describe('AvatarComponent', () => {
     hostComponent.styleClass = 'employee-card__avatar';
     fixture.detectChanges();
 
-    const avatarEl: HTMLImageElement = fixture.nativeElement.querySelector('.app-avatar');
+    const avatarHost: HTMLElement = fixture.nativeElement.querySelector('app-avatar');
 
-    expect(avatarEl.classList).toContain('app-avatar--large');
-    expect(avatarEl.classList).toContain('employee-card__avatar');
+    expect(avatarHost.classList).toContain('app-avatar--large');
+    expect(avatarHost.classList).toContain('employee-card__avatar');
+  });
+
+  it('should update the size class on the host', () => {
+    const avatarHost: HTMLElement = fixture.nativeElement.querySelector('app-avatar');
+
+    hostComponent.size = 'small';
+    fixture.detectChanges();
+
+    expect(avatarHost.classList).toContain('app-avatar--small');
+    expect(avatarHost.classList).not.toContain('app-avatar--medium');
   });
 
   it('should use the fallback image when the requested image fails', () => {

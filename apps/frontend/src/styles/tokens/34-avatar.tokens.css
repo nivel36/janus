@@ -1,0 +1,6 @@
+:where(:root) {
+    /* Component aliases: override these to customize avatars without changing other controls. */
+    --avatar-size-large: var(--size-900);
+    --avatar-size-medium: var(--size-700);
+    --avatar-size-small: var(--size-600);
+}
