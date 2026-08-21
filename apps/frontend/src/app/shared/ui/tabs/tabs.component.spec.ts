@@ -34,6 +34,14 @@ import { TabsComponent } from './tabs.component';
         <ng-template appTabItem="Dos">
           <p class="two-content">Contenido dos</p>
         </ng-template>
+
+        <ng-template appTabItem="Tres">
+          <p class="three-content">Contenido tres</p>
+        </ng-template>
+
+        <ng-template appTabItem="Cuatro">
+          <p class="four-content">Contenido cuatro</p>
+        </ng-template>
       </app-tabs>
     </section>
   `,
@@ -55,6 +63,19 @@ describe('TabsComponent', () => {
   it('should create', () => {
     const tabsDebugEls = fixture.debugElement.queryAll(By.directive(TabsComponent));
     expect(tabsDebugEls.length).toBe(2);
+  });
+
+  it.each([
+    ['#tabs-a', 2],
+    ['#tabs-b', 4],
+  ])('should keep all %s triggers in a single tablist', (hostSelector, triggerCount) => {
+    const host: HTMLElement = fixture.nativeElement.querySelector(hostSelector);
+    const tablist = host.querySelector('[role="tablist"]');
+    const tabButtons = host.querySelectorAll('button[role="tab"]');
+
+    expect(tablist).toBeTruthy();
+    expect(tabButtons.length).toBe(triggerCount);
+    tabButtons.forEach((tabButton) => expect(tabButton.parentElement).toBe(tablist));
   });
 
   it('should render only the first tab panel on initial load', () => {
@@ -160,6 +181,30 @@ describe('TabsComponent', () => {
 
     expect(tabButtons[0].getAttribute('aria-selected')).toBe('true');
     expect(tabButtons[0].getAttribute('tabindex')).toBe('0');
+    expect(document.activeElement).toBe(tabButtons[0]);
+  });
+
+  it.each([
+    ['#tabs-a', 2],
+    ['#tabs-b', 4],
+  ])('should preserve circular arrows and Home/End navigation for %s', (hostSelector, tabCount) => {
+    const host: HTMLElement = fixture.nativeElement.querySelector(hostSelector);
+    const tabButtons: NodeListOf<HTMLButtonElement> = host.querySelectorAll('button[role="tab"]');
+    const press = (index: number, key: string): void => {
+      tabButtons[index].dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+      fixture.detectChanges();
+    };
+
+    press(0, 'ArrowLeft');
+    expect(document.activeElement).toBe(tabButtons[tabCount - 1]);
+
+    press(tabCount - 1, 'ArrowRight');
+    expect(document.activeElement).toBe(tabButtons[0]);
+
+    press(0, 'End');
+    expect(document.activeElement).toBe(tabButtons[tabCount - 1]);
+
+    press(tabCount - 1, 'Home');
     expect(document.activeElement).toBe(tabButtons[0]);
   });
 });
