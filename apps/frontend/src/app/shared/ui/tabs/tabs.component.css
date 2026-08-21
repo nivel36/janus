@@ -1,41 +1,45 @@
 .tabs {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0;
-    margin: 0 0 var(--layout-page-padding-block);
+    gap: var(--tabs-gap);
+    margin: 0 0 var(--tabs-margin-bottom);
     overflow: hidden;
-    border: var(--panel-border);
-    border-radius: var(--panel-border-radius);
-    background: var(--surface-default);
+    border: var(--tabs-border);
+    border-radius: var(--tabs-border-radius);
+    background: var(--tabs-background);
 }
 
 .tabs__trigger {
-    min-height: 3.25rem;
-    padding: 0.85rem 1rem;
-    border: 0;
-    border-right: var(--panel-border);
-    background: transparent;
+    min-height: var(--tabs-trigger-min-height);
+    padding: var(--tabs-trigger-padding-block) var(--tabs-trigger-padding-inline);
+    border: var(--tabs-trigger-border);
+    border-right: var(--tabs-trigger-divider-border);
+    background: var(--tabs-trigger-background);
 
-    color: var(--content-primary);
+    color: var(--tabs-trigger-color);
 
-    font-size: var(--type-label-sm-font-size);
-    font-weight: var(--type-label-sm-font-weight);
-    line-height: var(--type-label-sm-line-height);
+    font-size: var(--tabs-trigger-font-size);
+    font-weight: var(--tabs-trigger-font-weight);
+    line-height: var(--tabs-trigger-line-height);
 
-    letter-spacing: var(--type-caps-wide-letter-spacing);
-    text-transform: var(--type-caps-text-transform);
+    letter-spacing: var(--tabs-trigger-letter-spacing);
+    text-transform: var(--tabs-trigger-text-transform);
 
-    cursor: pointer;
+    cursor: var(--tabs-trigger-cursor);
 }
 
 .tabs__trigger:last-child {
-    border-right: 0;
+    border-right: var(--tabs-trigger-border);
+}
+
+.tabs__trigger:focus-visible {
+    box-shadow: var(--tabs-trigger-focus-ring);
 }
 
 .tabs__trigger--active {
-    background: var(--control-accent-background);
-    color: var(--control-accent-text-color);
-    cursor: default;
+    background: var(--tabs-trigger-active-background);
+    color: var(--tabs-trigger-active-color);
+    cursor: var(--tabs-trigger-active-cursor);
 }
 
 .tabs__panel {

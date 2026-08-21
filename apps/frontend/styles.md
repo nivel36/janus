@@ -61,9 +61,18 @@ This layer lets components speak in terms of intent: primary text, panel, focus,
 
 ### Component tokens
 
-`src/styles/tokens/30-list.tokens.css` is the component-token file currently loaded by the
-manifest. It tunes list spacing, borders, radius, shadow, and alternating-row background. Its
-purpose is to isolate decisions for that component family without moving them into structural
+The component-token files currently loaded by the manifest are:
+
+- `src/styles/tokens/30-list.tokens.css`: list spacing, borders, radius, shadow, and
+  alternating-row background;
+- `src/styles/tokens/31-button.tokens.css`: button dimensions, spacing, border, radius, and icon
+  size;
+- `src/styles/tokens/32-chip.tokens.css`: spacing, padding, and radius for the chip family and its
+  large variant;
+- `src/styles/tokens/33-tabs.tokens.css`: structure, spacing, normal and active trigger states,
+  typography, cursor, and focus treatment for the tabs family.
+
+These files isolate decisions for their component families without moving them into structural
 CSS. Other shared component styles keep their values beside the rules that consume them; for
 example, table rules live directly in `src/styles/components/55-table.css` while building on list
 and panel tokens.
