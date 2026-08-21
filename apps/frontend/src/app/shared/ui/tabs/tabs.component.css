@@ -12,6 +12,7 @@
 }
 
 .tabs__trigger {
+    position: relative;
     min-height: var(--tabs-trigger-min-height);
     padding: var(--tabs-trigger-padding-block) var(--tabs-trigger-padding-inline);
     border: var(--tabs-trigger-border);
@@ -35,7 +36,22 @@
 }
 
 .tabs__trigger:focus-visible {
+    outline: none;
+}
+
+.tabs__trigger:focus-visible::after {
+    position: absolute;
+    inset: var(--tabs-trigger-focus-ring-offset);
+    content: '';
     box-shadow: var(--tabs-trigger-focus-ring);
+    pointer-events: none;
+}
+
+@media (forced-colors: active) {
+    .tabs__trigger:focus-visible {
+        outline: var(--focus-ring-width) solid CanvasText;
+        outline-offset: calc(-1 * var(--tabs-trigger-focus-ring-offset));
+    }
 }
 
 .tabs__trigger--active {
