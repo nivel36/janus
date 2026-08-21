@@ -1,0 +1,28 @@
+:where(:root) {
+    /* Component aliases: override these to customize tabs without changing other controls. */
+    --tabs-margin-bottom: var(--layout-page-padding-block);
+    --tabs-gap: 0;
+    --tabs-border: var(--panel-border);
+    --tabs-border-radius: var(--panel-border-radius);
+    --tabs-background: var(--surface-default);
+    --tabs-trigger-min-height: calc(var(--size-800) + var(--size-100));
+    --tabs-trigger-padding-block: var(--size-300);
+    --tabs-trigger-padding-inline: var(--size-400);
+    --tabs-trigger-border: 0;
+    --tabs-trigger-divider-border: var(--panel-border);
+    --tabs-trigger-background: transparent;
+    --tabs-trigger-color: var(--content-primary);
+    --tabs-trigger-active-background: var(--control-accent-background);
+    --tabs-trigger-active-color: var(--control-accent-text-color);
+    --tabs-trigger-font-size: var(--type-label-sm-font-size);
+    --tabs-trigger-font-weight: var(--type-label-sm-font-weight);
+    --tabs-trigger-line-height: var(--type-label-sm-line-height);
+    --tabs-trigger-letter-spacing: var(--type-caps-wide-letter-spacing);
+    --tabs-trigger-text-transform: var(--type-caps-text-transform);
+    --tabs-trigger-cursor: pointer;
+    --tabs-trigger-active-cursor: default;
+    --tabs-trigger-focus-ring:
+        inset 0 0 0 var(--focus-ring-gap-width) var(--focus-ring-gap-color),
+        inset 0 0 0 calc(var(--focus-ring-gap-width) + var(--focus-ring-width))
+            var(--focus-ring-color);
+}
