@@ -21,5 +21,8 @@
     --tabs-trigger-text-transform: var(--type-caps-text-transform);
     --tabs-trigger-cursor: pointer;
     --tabs-trigger-active-cursor: default;
-    --tabs-trigger-focus-ring: var(--focus-ring);
+    --tabs-trigger-focus-ring:
+        inset 0 0 0 var(--focus-ring-gap-width) var(--focus-ring-gap-color),
+        inset 0 0 0 calc(var(--focus-ring-gap-width) + var(--focus-ring-width))
+            var(--focus-ring-color);
 }
