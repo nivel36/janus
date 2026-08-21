@@ -24,7 +24,7 @@
     background: var(--form-switch-hover-background-color);
 }
 
-.toggle-button:not(:disabled):not(.toggle-button--disabled):focus-visible {
+.toggle-button:not(:disabled):not(.toggle-button--disabled):focus {
     box-shadow: var(--form-switch-focus-ring);
     outline: none;
 }
