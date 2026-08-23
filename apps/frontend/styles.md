@@ -70,7 +70,7 @@ The component-token files currently loaded by the manifest are:
 - `src/styles/tokens/32-chip.tokens.css`: spacing, padding, and radius for the chip family and its
   large variant;
 - `src/styles/tokens/33-tabs.tokens.css`: structure, spacing, normal and active trigger states,
-  typography, cursor, and focus treatment for the tabs family.
+  cursor, and focus treatment for the tabs family.
 
 These files isolate decisions for their component families without moving them into structural
 CSS. Other shared component styles keep their values beside the rules that consume them; for
