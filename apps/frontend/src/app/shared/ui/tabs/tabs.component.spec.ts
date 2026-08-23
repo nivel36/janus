@@ -223,4 +223,23 @@ describe('TabsComponent', () => {
     press(tabCount - 1, 'Home');
     expect(document.activeElement).toBe(tabButtons[0]);
   });
+
+  it('should isolate keyboard navigation between tab instances', () => {
+    const firstButtons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll(
+      '#tabs-a button[role="tab"]',
+    );
+    const secondButtons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll(
+      '#tabs-b button[role="tab"]',
+    );
+
+    secondButtons[0].dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }),
+    );
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(secondButtons[3]);
+    expect(secondButtons[3].getAttribute('aria-selected')).toBe('true');
+    expect(firstButtons[0].getAttribute('aria-selected')).toBe('true');
+    expect(firstButtons[1].getAttribute('aria-selected')).toBe('false');
+  });
 });
