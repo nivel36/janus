@@ -9,9 +9,7 @@ import {
   ElementRef,
   OnInit,
   output,
-  QueryList,
   ViewChild,
-  ViewChildren,
   forwardRef,
   inject,
   isDevMode,
@@ -19,6 +17,7 @@ import {
   computed,
 } from '@angular/core';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
+import { ActiveDescendantKeyManager, LiveAnnouncer } from '@angular/cdk/a11y';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ControlValueAccessor,
@@ -49,6 +48,11 @@ import { SearchMethod } from '../../types/search.types';
 import { ButtonComponent } from '../button/button.component';
 import { InputComponent } from '../input/input.component';
 import { InputGroupComponent } from '../input-group/input-group.component';
+import {
+  AUTOCOMPLETE_OPTION_CONTROLLER,
+  AutocompleteOptionController,
+  AutocompleteOptionDirective,
+} from './autocomplete-option.directive';
 
 const noopAutocompleteChange = (value: string | null): void => {
   void value;
@@ -132,6 +136,7 @@ interface ResolvedWriteValue<T> {
     InputComponent,
     InputGroupComponent,
     ButtonComponent,
+    AutocompleteOptionDirective,
   ],
   templateUrl: './autocomplete-textbox.component.html',
   styleUrl: './autocomplete-textbox.component.css',
@@ -141,10 +146,14 @@ interface ResolvedWriteValue<T> {
       useExisting: forwardRef(() => AutocompleteTextboxComponent),
       multi: true,
     },
+    {
+      provide: AUTOCOMPLETE_OPTION_CONTROLLER,
+      useExisting: forwardRef(() => AutocompleteTextboxComponent),
+    },
   ],
 })
 export class AutocompleteTextboxComponent<T = unknown>
-  implements OnInit, AfterViewInit, ControlValueAccessor
+  implements OnInit, AfterViewInit, ControlValueAccessor, AutocompleteOptionController
 {
   /**
    * Reference to the DOM element used as origin for the connected overlay.
@@ -268,8 +277,10 @@ export class AutocompleteTextboxComponent<T = unknown>
   /**
    * References to the DOM elements representing the rendered options.
    */
-  @ViewChildren('resultOption')
-  private resultOptions!: QueryList<ElementRef<HTMLElement>>;
+  private readonly resultOptions: AutocompleteOptionDirective[] = [];
+
+  /** CDK manager responsible for the active descendant within the results list. */
+  private keyManager?: ActiveDescendantKeyManager<AutocompleteOptionDirective>;
 
   /**
    * Internal stream used to serialize external writes received through {@link writeValue}.
@@ -304,11 +315,6 @@ export class AutocompleteTextboxComponent<T = unknown>
    * Whether the component is disabled.
    */
   disabled = false;
-
-  /**
-   * Index of the currently active option for keyboard navigation.
-   */
-  activeIndex = -1;
 
   /**
    * Current visual state of the floating panel.
@@ -385,21 +391,12 @@ export class AutocompleteTextboxComponent<T = unknown>
   private resolvingValueCount = 0;
 
   /**
-   * Sequential counter used to distinguish transient live-region announcements.
-   *
-   * This prevents an old timer from clearing a newer message with identical text.
-   */
-  private liveMessageSequence = 0;
-
-  /**
-   * Last transient message explicitly announced through the live region.
-   */
-  private transientLiveMessage = '';
-
-  /**
    * Translation service used to build localized messages.
    */
   private readonly translateService = inject(TranslateService);
+
+  /** CDK service used for transient screen-reader announcements. */
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
 
   /**
    * Reference used to automatically dispose subscriptions when the component is destroyed.
@@ -424,6 +421,8 @@ export class AutocompleteTextboxComponent<T = unknown>
       if (typeof window !== 'undefined') {
         window.removeEventListener('resize', this.handleWindowResize);
       }
+      this.keyManager?.destroy();
+      this.liveAnnouncer.clear();
     });
   }
 
@@ -544,7 +543,7 @@ export class AutocompleteTextboxComponent<T = unknown>
         /**
          * Each new result block resets active keyboard navigation.
          */
-        this.activeIndex = -1;
+        this.clearActiveOption();
         this.panel = panel;
       });
   }
@@ -641,7 +640,8 @@ export class AutocompleteTextboxComponent<T = unknown>
    */
   private closePanelSilently(): void {
     this.panel = { kind: 'closed' };
-    this.activeIndex = -1;
+    this.clearActiveOption();
+    this.liveAnnouncer.clear();
   }
 
   /**
@@ -780,6 +780,28 @@ export class AutocompleteTextboxComponent<T = unknown>
     this.updateOverlayWidth();
   };
 
+  /** Adds a rendered option to the collection managed by the CDK. */
+  registerOption(option: AutocompleteOptionDirective): void {
+    this.resultOptions.push(option);
+    this.recreateKeyManager();
+  }
+
+  /** Removes an option when its overlay view is destroyed. */
+  unregisterOption(option: AutocompleteOptionDirective): void {
+    const index = this.resultOptions.indexOf(option);
+    if (index >= 0) {
+      this.resultOptions.splice(index, 1);
+      this.recreateKeyManager();
+    }
+  }
+
+  private recreateKeyManager(): void {
+    this.keyManager?.destroy();
+    this.keyManager = new ActiveDescendantKeyManager(this.resultOptions)
+      .withWrap()
+      .withVerticalOrientation();
+  }
+
   /**
    * Handles keyboard interaction originating from the main input.
    *
@@ -790,70 +812,26 @@ export class AutocompleteTextboxComponent<T = unknown>
       return;
     }
 
-    switch (event.key) {
-      case 'ArrowDown':
-      case 'ArrowUp':
-        if (!this.hasResults) {
-          return;
-        }
-
+    if (event.key === 'Enter') {
+      const activeIndex = this.keyManager?.activeItemIndex;
+      if (this.hasResults && activeIndex != null) {
         event.preventDefault();
-        this.moveActiveIndex(event.key === 'ArrowDown' ? 1 : -1);
-        return;
-
-      case 'Enter':
-        if (this.hasResults && this.activeIndex >= 0 && this.activeIndex < this.results.length) {
-          event.preventDefault();
-          this.onSelect(this.results[this.activeIndex]);
-        }
-        return;
-
-      case 'Escape':
-        if (this.isOverlayOpen) {
-          event.preventDefault();
-          this.closeOverlay();
-        }
-        return;
-
-      default:
-        return;
-    }
-  }
-
-  /**
-   * Moves the active index through the current results list.
-   *
-   * @param step Offset to apply to the current index
-   */
-  private moveActiveIndex(step: number): void {
-    if (!this.hasResults) {
-      this.activeIndex = -1;
+        this.onSelect(this.results[activeIndex]);
+      }
       return;
     }
 
-    if (this.activeIndex < 0) {
-      this.activeIndex = step > 0 ? 0 : this.results.length - 1;
-      this.scrollActiveOptionIntoView();
+    if (event.key === 'Escape') {
+      if (this.isOverlayOpen) {
+        event.preventDefault();
+        this.closeOverlay();
+      }
       return;
     }
 
-    this.activeIndex = (this.activeIndex + step + this.results.length) % this.results.length;
-    this.scrollActiveOptionIntoView();
-  }
-
-  /**
-   * Scrolls the list to ensure the active option remains visible.
-   */
-  private scrollActiveOptionIntoView(): void {
-    if (this.activeIndex < 0) {
-      return;
+    if (this.hasResults) {
+      this.keyManager?.onKeydown(event);
     }
-
-    const option = this.resultOptions.get(this.activeIndex)?.nativeElement;
-
-    option?.scrollIntoView({
-      block: 'nearest',
-    });
   }
 
   /**
@@ -877,39 +855,10 @@ export class AutocompleteTextboxComponent<T = unknown>
      */
     this.cancelPendingSearches();
     this.closePanelSilently();
-    this.announceTransientMessage(this.translateService.instant('autocomplete.resultsClosed'));
-  }
-
-  /**
-   * Announces a transient message in the live region.
-   *
-   * A sequential identifier is used to ensure stale timers cannot clear a newer message.
-   *
-   * @param message Message to announce
-   */
-  private announceTransientMessage(message: string): void {
-    const sequence = ++this.liveMessageSequence;
-    this.transientLiveMessage = '';
-
-    queueMicrotask(() => {
-      /**
-       * If a newer message was generated during the microtask, this one is no longer valid.
-       */
-      if (this.liveMessageSequence !== sequence) {
-        return;
-      }
-
-      this.transientLiveMessage = message;
-
-      setTimeout(() => {
-        /**
-         * Only the timer associated with the most recent message may clear it.
-         */
-        if (this.liveMessageSequence === sequence) {
-          this.transientLiveMessage = '';
-        }
-      }, 300);
-    });
+    void this.liveAnnouncer.announce(
+      this.translateService.instant('autocomplete.resultsClosed'),
+      'polite',
+    );
   }
 
   /**
@@ -1045,7 +994,17 @@ export class AutocompleteTextboxComponent<T = unknown>
    * @returns {@code true} if the option is active
    */
   isActive(index: number): boolean {
-    return this.activeIndex === index;
+    return this.keyManager?.activeItemIndex === index;
+  }
+
+  /** ID of the option currently exposed as the input's active descendant. */
+  get activeDescendantId(): string | null {
+    return this.keyManager?.activeItem?.id ?? null;
+  }
+
+  /** Clears CDK navigation state and removes active styling from the old option. */
+  private clearActiveOption(): void {
+    this.keyManager?.setActiveItem(-1);
   }
 
   /**
@@ -1062,10 +1021,6 @@ export class AutocompleteTextboxComponent<T = unknown>
    * Current message exposed by the persistent live region.
    */
   get liveRegionMessage(): string {
-    if (this.transientLiveMessage) {
-      return this.transientLiveMessage;
-    }
-
     if (!this.isOverlayOpen) {
       return '';
     }

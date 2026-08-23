@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { OverlayContainer } from '@angular/cdk/overlay';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -48,6 +49,7 @@ describe('AutocompleteTextboxComponent', () => {
   let searchMethodSpy: ReturnType<typeof vi.fn<(query: string) => Observable<string[]>>>;
   let overlayContainer: OverlayContainer;
   let overlayContainerElement: HTMLElement;
+  let liveAnnouncer: LiveAnnouncer;
 
   beforeEach(async () => {
     vi.useFakeTimers();
@@ -63,6 +65,7 @@ describe('AutocompleteTextboxComponent', () => {
     }).compileComponents();
 
     overlayContainer = TestBed.inject(OverlayContainer);
+    liveAnnouncer = TestBed.inject(LiveAnnouncer);
     overlayContainerElement = overlayContainer.getContainerElement();
 
     fixture = TestBed.createComponent(AutocompleteTextboxComponent<string>);
@@ -114,6 +117,12 @@ describe('AutocompleteTextboxComponent', () => {
     option.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
     option.click();
     fixture.detectChanges();
+  }
+
+  function dispatchKeydown(input: HTMLInputElement, key: string, keyCode: number): void {
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key, keyCode, which: keyCode, bubbles: true }),
+    );
   }
 
   it('should call search method after debounce when text has at least minChars characters', async () => {
@@ -376,24 +385,32 @@ describe('AutocompleteTextboxComponent', () => {
     fixture.detectChanges();
 
     const input = getInput();
+    const options = getOverlayOptions();
 
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    dispatchKeydown(input, 'ArrowDown', 40);
     fixture.detectChanges();
 
-    expect(component.activeIndex).toBe(0);
+    expect(component.activeDescendantId).toBe(options[0].id);
     expect(component.isActive(0)).toBe(true);
+    expect(options[0].classList).toContain('autocomplete__option--active');
+    expect(input.getAttribute('aria-activedescendant')).toBe(options[0].id);
 
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    dispatchKeydown(input, 'ArrowDown', 40);
     fixture.detectChanges();
 
-    expect(component.activeIndex).toBe(1);
+    expect(component.activeDescendantId).toBe(options[1].id);
     expect(component.isActive(1)).toBe(true);
 
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    dispatchKeydown(input, 'ArrowUp', 38);
     fixture.detectChanges();
 
-    expect(component.activeIndex).toBe(0);
+    expect(component.activeDescendantId).toBe(options[0].id);
     expect(component.isActive(0)).toBe(true);
+
+    dispatchKeydown(input, 'ArrowUp', 38);
+    fixture.detectChanges();
+
+    expect(component.activeDescendantId).toBe(options[1].id);
   });
 
   it('should select the active option when pressing Enter', async () => {
@@ -406,10 +423,10 @@ describe('AutocompleteTextboxComponent', () => {
 
     const input = getInput();
 
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    dispatchKeydown(input, 'ArrowDown', 40);
     fixture.detectChanges();
 
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    dispatchKeydown(input, 'Enter', 13);
     fixture.detectChanges();
 
     expect(component.selectedValue).toBe('madr-1');
@@ -420,6 +437,8 @@ describe('AutocompleteTextboxComponent', () => {
   });
 
   it('should close overlay when pressing Escape', async () => {
+    const announceSpy = vi.spyOn(liveAnnouncer, 'announce');
+    const clearSpy = vi.spyOn(liveAnnouncer, 'clear');
     setInputValue('madr');
     await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
@@ -427,11 +446,21 @@ describe('AutocompleteTextboxComponent', () => {
     expect(component.isOverlayOpen).toBe(true);
 
     const input = getInput();
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    dispatchKeydown(input, 'Escape', 27);
     fixture.detectChanges();
 
     expect(component.isOverlayOpen).toBe(false);
     expect(component.panel.kind).toBe('closed');
+    expect(clearSpy).toHaveBeenCalled();
+    expect(announceSpy).toHaveBeenCalledWith('autocomplete.resultsClosed', 'polite');
+  });
+
+  it('should clear live announcements when destroyed', () => {
+    const clearSpy = vi.spyOn(liveAnnouncer, 'clear');
+
+    fixture.destroy();
+
+    expect(clearSpy).toHaveBeenCalled();
   });
 
   it('should mark control as touched on blur', () => {
