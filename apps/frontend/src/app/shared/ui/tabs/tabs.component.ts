@@ -37,7 +37,10 @@ export class TabsComponent {
   constructor() {
     effect((onCleanup) => {
       const triggers = this.tabTriggers();
-      const keyManager = new FocusKeyManager(triggers).withHorizontalOrientation('ltr').withWrap();
+      const keyManager = new FocusKeyManager(triggers)
+        .withHorizontalOrientation('ltr')
+        .withWrap()
+        .withHomeAndEnd();
 
       keyManager.setActiveItem(untracked(this.activeIndex));
       const subscription = keyManager.change.subscribe((index) => this.activateTab(index));
