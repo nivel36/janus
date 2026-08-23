@@ -4,19 +4,23 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import Keycloak from 'keycloak-js';
 import { catchError, throwError } from 'rxjs';
 
-import { AuthService } from './auth.service';
+import { resolveKeycloakLocale } from './keycloak-locale';
 
 export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
-  const authService = inject(AuthService);
+  const keycloak = inject(Keycloak);
   const router = inject(Router);
 
   return next(request).pipe(
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse && error.status === 401) {
-        authService.clearToken();
-        void authService.loginWithRedirect(globalThis.location?.href);
+        keycloak.clearToken();
+        void keycloak.login({
+          redirectUri: globalThis.location?.href,
+          locale: resolveKeycloakLocale(),
+        });
       }
       if (error instanceof HttpErrorResponse && error.status === 403) {
         void router.navigateByUrl('/forbidden');

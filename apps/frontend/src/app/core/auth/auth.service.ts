@@ -1,9 +1,10 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Injectable } from '@angular/core';
+import { effect, inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { keycloak } from './keycloak';
+import Keycloak from 'keycloak-js';
+import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 import { resolveKeycloakLocale } from './keycloak-locale';
 
 interface KeycloakClaims {
@@ -42,8 +43,10 @@ interface LoginRedirectOptions {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly keycloak = inject(Keycloak);
+  private readonly keycloakEvent = inject(KEYCLOAK_EVENT_SIGNAL);
   private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(
-    Boolean(keycloak?.authenticated),
+    Boolean(this.keycloak.authenticated),
   );
   private readonly usernameSubject = new BehaviorSubject<string | null>(
     this.getUsernameFromClaims(),
@@ -60,27 +63,22 @@ export class AuthService {
   readonly permissions$ = this.permissionsSubject.asObservable();
 
   constructor() {
-    this.bindKeycloakEvents();
-    this.syncAuthState();
+    effect(() => {
+      this.keycloakEvent();
+      this.syncAuthState();
+    });
   }
 
   login(): Promise<void> {
-    if (!keycloak) {
-      return Promise.reject(new Error('Keycloak is not configured'));
-    }
-    return keycloak.login({ locale: resolveKeycloakLocale() });
+    return this.keycloak.login({ locale: resolveKeycloakLocale() });
   }
 
   loginWithRedirect(redirectUri?: string, options?: LoginRedirectOptions): Promise<void> {
-    if (!keycloak) {
-      return Promise.reject(new Error('Keycloak is not configured'));
-    }
-
     const resolvedRedirectUri = redirectUri
       ? new URL(redirectUri, window.location.origin).toString()
       : window.location.href;
 
-    return keycloak.login({
+    return this.keycloak.login({
       redirectUri: resolvedRedirectUri,
       prompt: options?.prompt,
       maxAge: options?.maxAge,
@@ -90,49 +88,31 @@ export class AuthService {
   }
 
   logout(): Promise<void> {
-    if (!keycloak) {
-      this.syncAuthState();
-      return Promise.resolve();
-    }
-    return keycloak.logout();
-  }
-
-  clearToken(): void {
-    void this.logout();
+    return this.keycloak.logout({ redirectUri: globalThis.location?.origin });
   }
 
   getToken(): string | null {
-    return keycloak?.token ?? null;
+    return this.keycloak.token ?? null;
   }
 
   getClaims(): KeycloakClaims | null {
-    if (!keycloak?.tokenParsed) {
+    if (!this.keycloak.tokenParsed) {
       return null;
     }
 
-    return keycloak.tokenParsed as KeycloakClaims;
+    return this.keycloak.tokenParsed as KeycloakClaims;
   }
 
   hasRealmRole(role: string): boolean {
-    return this.permissionsSubject.value.realmRoles.includes(role);
+    return this.keycloak.hasRealmRole(role);
   }
 
   hasClientRole(clientId: string, role: string): boolean {
-    return this.permissionsSubject.value.clientRoles[clientId]?.includes(role) ?? false;
-  }
-
-  private bindKeycloakEvents(): void {
-    if (!keycloak) {
-      return;
-    }
-
-    keycloak.onAuthSuccess = () => this.syncAuthState();
-    keycloak.onAuthRefreshSuccess = () => this.syncAuthState();
-    keycloak.onAuthLogout = () => this.syncAuthState();
+    return this.keycloak.hasResourceRole(role, clientId);
   }
 
   private syncAuthState(): void {
-    const isAuthenticated = Boolean(keycloak?.authenticated);
+    const isAuthenticated = Boolean(this.keycloak.authenticated);
     this.isAuthenticatedSubject.next(isAuthenticated);
     const claims = this.getClaims();
     this.claimsSubject.next(claims);
