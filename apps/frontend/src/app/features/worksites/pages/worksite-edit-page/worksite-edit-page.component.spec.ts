@@ -1,11 +1,14 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import Keycloak from 'keycloak-js';
+import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
 
 import { WorksiteApiService } from '../../services/worksite-api.service';
 import { WorksiteEditPageComponent } from './worksite-edit-page.component';
@@ -57,6 +60,11 @@ describe('WorksiteEditPageComponent', () => {
         },
         { provide: Router, useValue: router },
         { provide: WorksiteApiService, useValue: worksiteApiService },
+        { provide: Keycloak, useValue: { authenticated: false, tokenParsed: undefined } },
+        {
+          provide: KEYCLOAK_EVENT_SIGNAL,
+          useValue: signal({ type: KeycloakEventType.KeycloakAngularNotInitialized }),
+        },
       ],
     }).compileComponents();
 

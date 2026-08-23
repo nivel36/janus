@@ -37,6 +37,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
+    "keycloak-angular": "21.0.0",
     "keycloak-js": "^26.2.3",
     "rxjs": "^7.8.1",
     "tslib": "^2.6.2",

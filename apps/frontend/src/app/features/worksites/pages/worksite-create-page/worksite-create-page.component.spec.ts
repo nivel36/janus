@@ -2,11 +2,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { Subject, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import Keycloak from 'keycloak-js';
+import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
 
 import { WorksiteApiService } from '../../services/worksite-api.service';
 import { WorksiteCreatePageComponent } from './worksite-create-page.component';
@@ -31,6 +34,11 @@ describe('WorksiteCreatePageComponent', () => {
         provideRouter([]),
         provideTranslateService(),
         { provide: WorksiteApiService, useValue: worksiteApiService },
+        { provide: Keycloak, useValue: { authenticated: false, tokenParsed: undefined } },
+        {
+          provide: KEYCLOAK_EVENT_SIGNAL,
+          useValue: signal({ type: KeycloakEventType.KeycloakAngularNotInitialized }),
+        },
       ],
     }).compileComponents();
 
