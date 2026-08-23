@@ -117,7 +117,7 @@ describe('SearchBarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should generate unique input and help text IDs for each component instance', async () => {
+  it('should keep associated IDs stable and unique for each component instance', async () => {
     const firstFixture = await createComponent();
     const secondFixture = await createComponent();
 
@@ -126,12 +126,15 @@ describe('SearchBarComponent', () => {
     const firstHelpTextId = firstInput.getAttribute('aria-describedby');
     const secondHelpTextId = secondInput.getAttribute('aria-describedby');
 
-    expect(firstInput.id).toMatch(/^search-bar-.+-input$/);
-    expect(secondInput.id).toMatch(/^search-bar-.+-input$/);
-    expect(firstHelpTextId).toMatch(/^search-bar-.+-help$/);
-    expect(secondHelpTextId).toMatch(/^search-bar-.+-help$/);
+    const firstInputId = firstInput.id;
+
+    firstFixture.detectChanges();
+
+    expect(firstInput.id).toBe(firstInputId);
     expect(firstInput.id).not.toBe(secondInput.id);
     expect(firstHelpTextId).not.toBe(secondHelpTextId);
+    expect(firstFixture.nativeElement.querySelector('label').htmlFor).toBe(firstInput.id);
+    expect(firstFixture.nativeElement.querySelector(`#${firstHelpTextId}`)).toBeTruthy();
   });
 
   it('should render the shared button component as a submit button', async () => {
