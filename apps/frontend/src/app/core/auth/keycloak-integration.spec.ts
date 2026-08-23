@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpRequest, HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router, type ActivatedRouteSnapshot, type RouterStateSnapshot } from '@angular/router';
 import Keycloak from 'keycloak-js';
@@ -12,10 +12,11 @@ import {
   type AuthGuardData,
   type IncludeBearerTokenCondition,
 } from 'keycloak-angular';
-import { firstValueFrom, of } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 
 import { apiBearerUrlPattern } from '../../app.config';
+import { authErrorInterceptor } from './auth-error.interceptor';
 import { isAccessAllowed } from './auth.guard';
 
 function requestHandledByOfficialInterceptor(url: string) {
@@ -86,6 +87,34 @@ describe('official bearer interceptor', () => {
     handled.keycloak.updateToken.mockRejectedValueOnce(new Error('refresh failed'));
 
     await expect(firstValueFrom(handled.response)).resolves.toMatchObject({ status: 200 });
+  });
+});
+
+describe('authentication error recovery', () => {
+  it('clears the unusable token and redirects to login after an API 401', async () => {
+    const keycloak = {
+      clearToken: vi.fn(),
+      login: vi.fn().mockResolvedValue(undefined),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Keycloak, useValue: keycloak },
+        { provide: Router, useValue: { navigateByUrl: vi.fn() } },
+      ],
+    });
+    const unauthorized = new HttpErrorResponse({ status: 401, url: '/api/worksites' });
+    const response = TestBed.runInInjectionContext(() =>
+      authErrorInterceptor(new HttpRequest('GET', '/api/worksites'), () =>
+        throwError(() => unauthorized),
+      ),
+    );
+
+    await expect(firstValueFrom(response)).rejects.toBe(unauthorized);
+    expect(keycloak.clearToken).toHaveBeenCalledOnce();
+    expect(keycloak.login).toHaveBeenCalledWith({
+      redirectUri: window.location.href,
+      locale: expect.any(String),
+    });
   });
 });
 
