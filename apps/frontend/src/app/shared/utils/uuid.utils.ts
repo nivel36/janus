@@ -1,15 +1,12 @@
 /**
  * Creates a UUID string.
  *
- * <p>Uses the native {@link crypto.randomUUID} implementation when available.
- * When it is not available, it falls back to a UUID-like identifier.</p>
+ * <p>Uses the native Web Crypto implementation supported by the application's
+ * browser targets. In browsers, this API is only available in a secure context
+ * (HTTPS, or HTTP on a potentially trustworthy origin such as localhost).</p>
  *
  * @returns Generated identifier string.
  */
 export function createUuid(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+  return globalThis.crypto.randomUUID();
 }

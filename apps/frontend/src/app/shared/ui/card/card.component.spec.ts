@@ -154,6 +154,27 @@ describe('CardComponent', () => {
       expect(cardElement.hasAttribute('aria-label')).toBe(false);
     });
 
+    it('should keep title IDs stable and unique between card instances', () => {
+      hostComponent.title = 'First card';
+      fixture.detectChanges();
+      const firstCard = fixture.nativeElement.querySelector('section.app-card');
+      const firstTitle = fixture.nativeElement.querySelector('.app-card__title');
+      const firstTitleId = firstTitle.id;
+
+      const secondFixture = TestBed.createComponent(TestHostComponent);
+      secondFixture.componentInstance.title = 'Second card';
+      secondFixture.detectChanges();
+      const secondCard = secondFixture.nativeElement.querySelector('section.app-card');
+      const secondTitle = secondFixture.nativeElement.querySelector('.app-card__title');
+
+      fixture.detectChanges();
+
+      expect(firstTitle.id).toBe(firstTitleId);
+      expect(secondTitle.id).not.toBe(firstTitleId);
+      expect(firstCard.getAttribute('aria-labelledby')).toBe(firstTitleId);
+      expect(secondCard.getAttribute('aria-labelledby')).toBe(secondTitle.id);
+    });
+
     it('should render the footer element when a footer template exists', () => {
       fixture.detectChanges();
 

@@ -106,6 +106,9 @@ describe('TabsComponent', () => {
     const tabIds = Array.from(tabElements, (tab) => tab.id);
     const panelIds = Array.from(panelElements, (panel) => panel.id);
 
+    fixture.detectChanges();
+
+    expect(Array.from(tabElements, (tab) => tab.id)).toEqual(tabIds);
     expect(new Set(tabIds).size).toBe(tabIds.length);
     expect(new Set(panelIds).size).toBe(panelIds.length);
 

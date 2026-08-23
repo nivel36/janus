@@ -45,7 +45,16 @@ nginx:
         paths:
           - path: /
             pathType: Prefix
+    tls:
+      - secretName: janus-tls
+        hosts:
+          - your-domain
 ```
+
+HTTPS is required when users access Janus through a non-local hostname or IP address. The frontend
+uses secure-context browser APIs, including `crypto.randomUUID()`, which browsers do not expose to
+pages served over plain HTTP. `http://localhost` remains valid for local development because
+browsers treat loopback origins as potentially trustworthy.
 
 Then install:
 

@@ -60,6 +60,21 @@ describe('ToggleButtonComponent (ControlValueAccessor)', () => {
     expect(button.getAttribute('aria-label')).toBeNull();
   });
 
+  it('should keep generated IDs stable and unique between instances', () => {
+    const firstButton = getButton();
+    const firstId = firstButton.id;
+    const secondFixture = TestBed.createComponent(ToggleButtonComponent);
+    secondFixture.componentRef.setInput('ariaLabelledBy', 'toggle-label');
+    secondFixture.detectChanges();
+    const secondButton: HTMLButtonElement = secondFixture.nativeElement.querySelector('button');
+
+    fixture.detectChanges();
+
+    expect(getButton().id).toBe(firstId);
+    expect(secondButton.id).not.toBe(firstId);
+    expect(secondButton.getAttribute('aria-labelledby')).toBe('toggle-label');
+  });
+
   it('should update the FormControl when clicked', () => {
     const button = getButton();
 

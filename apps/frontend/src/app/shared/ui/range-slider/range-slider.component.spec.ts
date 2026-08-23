@@ -74,8 +74,16 @@ describe('RangeSliderComponent', () => {
     expect(component.controlId()).toBe('custom-slider-id');
   });
 
-  it('should generate a field control id when inputId is not provided', () => {
-    expect(component.controlId()).toMatch(/^range-slider-/);
+  it('should keep generated control IDs stable and unique between instances', () => {
+    const firstId = component.controlId();
+    const secondFixture = TestBed.createComponent(RangeSliderComponent);
+    secondFixture.detectChanges();
+
+    fixture.detectChanges();
+
+    expect(component.controlId()).toBe(firstId);
+    expect(secondFixture.componentInstance.controlId()).not.toBe(firstId);
+    expect(fixture.nativeElement.querySelector('input').id).toBe(firstId);
   });
 
   it('should expose the value text with unit when unit is configured', () => {

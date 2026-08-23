@@ -95,6 +95,11 @@ Default URLs in this mode:
 
 > Note: the exposed port comes from `deploy/docker/.env.prod` and is currently set to `4200`.
 
+`http://localhost` is considered a potentially trustworthy origin by browsers, so local runs can
+use secure-context Web APIs such as `crypto.randomUUID()`. Any deployment accessed through a
+non-local hostname or IP address must use HTTPS; serving the frontend over plain HTTP in that case
+is unsupported and prevents those APIs from being exposed by the browser.
+
 ### Option 2: local development
 
 This mode starts only the supporting services with Compose and runs frontend/backend directly from source.
