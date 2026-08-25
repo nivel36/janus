@@ -25,7 +25,7 @@ import org.springframework.data.repository.CrudRepository;
 /**
  * Repository contract for persisting and querying {@link WorkShift} aggregates.
  */
-public interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
+interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 
 	/**
 	 * Retrieves the {@link WorkShift} for a specific employee and date if it has

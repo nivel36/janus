@@ -22,5 +22,5 @@ import org.springframework.stereotype.Repository;
  * Repository for accessing {@link ApplicationSettings} records.
  */
 @Repository
-public interface ApplicationSettingsRepository extends JpaRepository<ApplicationSettings, Long> {
+interface ApplicationSettingsRepository extends JpaRepository<ApplicationSettings, Long> {
 }
