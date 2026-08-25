@@ -17,6 +17,7 @@
 @import './styles/tokens/32-chip.tokens.css';
 @import './styles/tokens/33-tabs.tokens.css';
 @import './styles/tokens/34-avatar.tokens.css';
+@import './styles/tokens/35-header-detail.tokens.css';
 
 /* Base styles */
 @import './styles/40-base.css';

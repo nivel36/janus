@@ -71,6 +71,9 @@ The component-token files currently loaded by the manifest are:
   large variant;
 - `src/styles/tokens/33-tabs.tokens.css`: structure, spacing, normal and active trigger states,
   cursor, and focus treatment for the tabs family.
+- `src/styles/tokens/34-avatar.tokens.css`: sizes for the avatar variants;
+- `src/styles/tokens/35-header-detail.tokens.css`: detail-header metadata spacing, icon sizing and
+  treatment, and responsive inline padding.
 
 These files isolate decisions for their component families without moving them into structural
 CSS. Other shared component styles keep their values beside the rules that consume them; for
