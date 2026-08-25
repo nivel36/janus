@@ -1,0 +1,17 @@
+:where(:root) {
+    /* Component aliases: override these to customize detail headers without changing panels. */
+    --header-detail-info-gap: var(--size-300);
+    --header-detail-icon-size: calc(var(--size-800) + var(--size-800));
+    --header-detail-icon-size-mobile: calc(
+        var(--font-size-600) + var(--font-size-600) + var(--font-size-600) +
+            var(--font-size-600) - var(--size-900) - var(--size-200)
+    );
+    --header-detail-icon-font-size: var(--font-size-700);
+    --header-detail-icon-font-size-mobile: var(--font-size-500);
+    --header-detail-icon-border-width: var(--stroke-400);
+    --header-detail-icon-border-radius: var(--radius-400);
+    --header-detail-padding-inline-end-tablet: calc(
+        var(--font-size-600) + var(--font-size-600) + var(--font-size-600) - var(--size-800) -
+            var(--size-300) - var(--size-300)
+    );
+}
