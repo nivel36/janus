@@ -2,8 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { NgTemplateOutlet } from '@angular/common';
-import { FocusKeyManager } from '@angular/cdk/a11y';
-import { Component, contentChildren, effect, signal, untracked, viewChildren } from '@angular/core';
+import { Component, contentChildren, signal, viewChildren } from '@angular/core';
 import { createUuid } from '../../utils/uuid.utils';
 import { TabItemDirective } from './tab-item.directive';
 import { TabTriggerDirective } from './tab-trigger.directive';
@@ -32,38 +31,45 @@ export class TabsComponent {
 
   private readonly loadedIndices = signal<Set<number>>(new Set([0]));
 
-  private keyManager?: FocusKeyManager<TabTriggerDirective>;
-
-  constructor() {
-    effect((onCleanup) => {
-      const triggers = this.tabTriggers();
-      const keyManager = new FocusKeyManager(triggers)
-        .withHorizontalOrientation('ltr')
-        .withWrap()
-        .withHomeAndEnd();
-
-      keyManager.setActiveItem(untracked(this.activeIndex));
-      const subscription = keyManager.change.subscribe((index) => this.activateTab(index));
-      this.keyManager = keyManager;
-
-      onCleanup(() => subscription.unsubscribe());
-    });
-  }
-
   selectTab(index: number): void {
-    if (this.keyManager) {
-      this.keyManager.setActiveItem(index);
-    } else {
-      this.activateTab(index);
-    }
+    this.activateTab(index);
   }
 
   onKeydown(event: KeyboardEvent): void {
-    this.keyManager?.onKeydown(event);
+    const triggerCount = this.tabTriggers().length;
+    if (triggerCount === 0) {
+      return;
+    }
+
+    const currentIndex = this.activeIndex();
+    let nextIndex: number | null = null;
+
+    if (event.key === 'ArrowRight') {
+      nextIndex = (currentIndex + 1) % triggerCount;
+    } else if (event.key === 'ArrowLeft') {
+      nextIndex = (currentIndex - 1 + triggerCount) % triggerCount;
+    } else if (event.key === 'Home') {
+      nextIndex = 0;
+    } else if (event.key === 'End') {
+      nextIndex = triggerCount - 1;
+    }
+
+    if (nextIndex != null) {
+      event.preventDefault();
+      this.activateTab(nextIndex);
+      this.tabTriggers()[nextIndex]?.focus();
+    }
   }
 
   private activateTab(index: number): void {
-    this.activeIndex.set(index);
+    if (this.activeIndex() !== index) {
+      this.activeIndex.set(index);
+    }
+
+    if (this.loadedIndices().has(index)) {
+      return;
+    }
+
     this.loadedIndices.update((loaded) => {
       const next = new Set(loaded);
       next.add(index);

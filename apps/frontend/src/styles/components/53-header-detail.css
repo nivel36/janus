@@ -22,7 +22,7 @@
     flex: 0 0 6rem;
     aspect-ratio: 1;
     place-items: center;
-    border: var(--stroke-400) solid var(--border-subtle);
+    border: var(--stroke-400) solid var(--border-default);
     border-radius: var(--radius-400);
     color: var(--accent-default);
     font-size: var(--font-size-700);

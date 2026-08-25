@@ -3,7 +3,6 @@
  */
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
-import { KEYCLOAK_CLIENT_ID } from './core/auth/keycloak.constants';
 
 export const appRoutes: Routes = [
   {
@@ -93,7 +92,7 @@ export const appRoutes: Routes = [
     path: '',
     canActivate: [authGuard],
     data: {
-      clientRole: { clientId: KEYCLOAK_CLIENT_ID, role: 'JANUS_USER' },
+      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
     },
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-page.component').then(

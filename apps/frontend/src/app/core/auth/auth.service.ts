@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { effect, inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable, type Signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
@@ -44,7 +44,7 @@ interface LoginRedirectOptions {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly keycloak = inject(Keycloak);
-  private readonly keycloakEvent = inject(KEYCLOAK_EVENT_SIGNAL);
+  private readonly keycloakEvent = inject(KEYCLOAK_EVENT_SIGNAL) as Signal<unknown>;
   private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(
     Boolean(this.keycloak.authenticated),
   );
