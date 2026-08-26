@@ -22,7 +22,7 @@
 
 @media (max-width: 640px) {
     .app-section__header {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: var(--responsive-section-header-flex-direction-mobile);
+        align-items: var(--responsive-section-header-align-items-mobile);
     }
 }

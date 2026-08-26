@@ -1,0 +1,40 @@
+:root {
+    /* Accessibility preferences */
+    --responsive-focus-outline-forced-colors: var(--focus-ring-width) solid CanvasText;
+    --responsive-tabs-focus-outline-offset-forced-colors: calc(
+        -1 * var(--tabs-trigger-focus-ring-offset)
+    );
+    --responsive-transition-reduced-motion: none;
+
+    /* Tablet layouts */
+    --responsive-dashboard-grid-columns-tablet: 1fr;
+    --responsive-dashboard-grid-areas-tablet:
+        'clock'
+        'employee'
+        'records';
+    --responsive-header-detail-align-items-tablet: flex-start;
+    --responsive-worksite-detail-grid-columns-tablet: 1fr;
+    --responsive-worksite-detail-grid-areas-tablet:
+        'header'
+        'general'
+        'summary';
+
+    /* Mobile layouts */
+    --responsive-form-actions-align-items-mobile: stretch;
+    --responsive-form-actions-block-size-mobile: auto;
+    --responsive-form-actions-flex-direction-mobile: column;
+    --responsive-form-actions-inline-size-mobile: 100%;
+    --responsive-form-actions-min-block-size-mobile: var(--button-height);
+    --responsive-form-actions-min-inline-size-mobile: 0;
+    --responsive-header-detail-flex-direction-mobile: column;
+    --responsive-list-page-search-width-mobile: 100%;
+    --responsive-list-page-toolbar-align-items-mobile: stretch;
+    --responsive-list-page-toolbar-flex-direction-mobile: column;
+    --responsive-section-header-align-items-mobile: flex-start;
+    --responsive-section-header-flex-direction-mobile: column;
+    --responsive-table-cell-padding-mobile: var(--size-250) var(--size-400);
+    --responsive-worksite-actions-flex-direction-mobile: column;
+    --responsive-worksite-actions-width-mobile: 100%;
+    --responsive-worksite-detail-row-grid-columns-mobile: 1fr;
+    --responsive-worksite-summary-grid-columns-mobile: 1fr;
+}

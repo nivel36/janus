@@ -10,6 +10,7 @@
 @import './styles/tokens/21-literals.tokens.css';
 @import './styles/tokens/22-layout.tokens.css';
 @import './styles/tokens/23-forms.tokens.css';
+@import './styles/tokens/24-responsive.tokens.css';
 
 /* Component tokens */
 @import './styles/tokens/30-list.tokens.css';

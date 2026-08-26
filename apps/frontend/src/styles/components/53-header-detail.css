@@ -58,7 +58,7 @@
 
 @media (max-width: 900px) {
     .app-header-detail {
-        align-items: flex-start;
+        align-items: var(--responsive-header-detail-align-items-tablet);
         padding-inline-end: var(--header-detail-padding-inline-end-tablet);
     }
 }
@@ -66,7 +66,7 @@
 @media (max-width: 640px) {
     .app-header-detail,
     .app-header-detail__identity {
-        flex-direction: column;
+        flex-direction: var(--responsive-header-detail-flex-direction-mobile);
     }
 
     .app-header-detail__icon {

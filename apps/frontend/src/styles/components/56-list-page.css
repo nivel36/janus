@@ -22,11 +22,11 @@
 
 @media (max-width: 640px) {
     .app-list-page__toolbar {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: var(--responsive-list-page-toolbar-flex-direction-mobile);
+        align-items: var(--responsive-list-page-toolbar-align-items-mobile);
     }
 
     .app-list-page__toolbar app-search-bar {
-        width: 100%;
+        width: var(--responsive-list-page-search-width-mobile);
     }
 }

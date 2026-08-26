@@ -36,20 +36,17 @@
 
 @media (max-width: 900px) {
   .worksite-detail__grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'header'
-      'general'
-      'summary';
+    grid-template-columns: var(--responsive-worksite-detail-grid-columns-tablet);
+    grid-template-areas: var(--responsive-worksite-detail-grid-areas-tablet);
   }
 }
 
 @media (max-width: 640px) {
   .worksite-detail__actions {
-    flex-direction: column;
+    flex-direction: var(--responsive-worksite-actions-flex-direction-mobile);
   }
 
   .worksite-detail__actions app-button {
-    width: 100%;
+    width: var(--responsive-worksite-actions-width-mobile);
   }
 }
