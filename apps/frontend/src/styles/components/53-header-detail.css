@@ -28,6 +28,12 @@
     font-size: var(--header-detail-icon-font-size);
 }
 
+.app-header-detail__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--header-detail-content-gap);
+}
+
 .app-header-detail__title {
     font-size: var(--type-heading-lg-font-size);
     font-weight: var(--type-heading-lg-font-weight);
