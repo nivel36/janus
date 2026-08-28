@@ -25,10 +25,7 @@
 
 @media (max-width: 900px) {
     .dashboard-page__content {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            'clock'
-            'employee'
-            'records';
+        grid-template-columns: var(--responsive-dashboard-grid-columns-tablet);
+        grid-template-areas: var(--responsive-dashboard-grid-areas-tablet);
     }
 }

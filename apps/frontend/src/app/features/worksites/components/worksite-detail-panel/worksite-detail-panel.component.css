@@ -49,6 +49,6 @@
 
 @media (max-width: 640px) {
     .worksite-detail__row {
-        grid-template-columns: 1fr;
+        grid-template-columns: var(--responsive-worksite-detail-row-grid-columns-mobile);
     }
 }

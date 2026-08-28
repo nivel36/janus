@@ -10,20 +10,20 @@
 
 @media (max-width: 640px) {
     .app-form-actions {
-        flex-direction: column;
-        align-items: stretch;
-        inline-size: 100%;
+        flex-direction: var(--responsive-form-actions-flex-direction-mobile);
+        align-items: var(--responsive-form-actions-align-items-mobile);
+        inline-size: var(--responsive-form-actions-inline-size-mobile);
     }
 
     .app-form-actions > * {
-        min-inline-size: 0;
-        inline-size: 100%;
+        min-inline-size: var(--responsive-form-actions-min-inline-size-mobile);
+        inline-size: var(--responsive-form-actions-inline-size-mobile);
     }
 
     .app-form-actions .app-button {
-        block-size: auto;
-        min-block-size: var(--size-800);
-        min-inline-size: 0;
-        inline-size: 100%;
+        block-size: var(--responsive-form-actions-block-size-mobile);
+        min-block-size: var(--responsive-form-actions-min-block-size-mobile);
+        min-inline-size: var(--responsive-form-actions-min-inline-size-mobile);
+        inline-size: var(--responsive-form-actions-inline-size-mobile);
     }
 }

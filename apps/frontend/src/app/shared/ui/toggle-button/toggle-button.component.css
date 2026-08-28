@@ -84,6 +84,6 @@
     .toggle-button,
     .toggle-button__icon,
     .toggle-button__knob {
-        transition: none;
+        transition: var(--responsive-transition-reduced-motion);
     }
 }

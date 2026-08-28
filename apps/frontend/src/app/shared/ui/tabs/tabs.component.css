@@ -49,8 +49,8 @@
 
 @media (forced-colors: active) {
     .tabs__trigger:focus-visible {
-        outline: var(--focus-ring-width) solid CanvasText;
-        outline-offset: calc(-1 * var(--tabs-trigger-focus-ring-offset));
+        outline: var(--responsive-focus-outline-forced-colors);
+        outline-offset: var(--responsive-tabs-focus-outline-offset-forced-colors);
     }
 }
 

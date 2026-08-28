@@ -56,6 +56,8 @@ in the interface:
 - `src/styles/tokens/22-layout.tokens.css`: page, section, and panel structure.
 - `src/styles/tokens/23-forms.tokens.css`: forms, fields, hints, errors, controls, ranges, switches,
   and search bars.
+- `src/styles/tokens/24-responsive.tokens.css`: semantic tablet, mobile, forced-color, and
+  reduced-motion values consumed by responsive and accessibility media queries.
 
 This layer lets components speak in terms of intent: primary text, panel, focus, section, error, control, or action.
 

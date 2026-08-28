@@ -6,6 +6,6 @@
 
 @media (max-width: 640px) {
     .worksite-detail__summary-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: var(--responsive-worksite-summary-grid-columns-mobile);
     }
 }

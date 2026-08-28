@@ -17,6 +17,30 @@
 
     --gold: #ffd400;
     --danger: #ff6b6b;
+
+    /* Responsive layout */
+    --responsive-login-shell-min-height-tablet: auto;
+    --responsive-login-shell-padding-tablet: 3rem 1.15rem 2rem;
+    --responsive-login-card-padding-tablet: 2rem 1.5rem 2.15rem;
+    --responsive-security-panel-grid-columns-tablet: 1fr;
+    --responsive-security-panel-gap-tablet: 1.5rem;
+    --responsive-security-panel-padding-tablet: 1.75rem;
+    --responsive-security-panel-article-padding-tablet: 0;
+    --responsive-security-panel-divider-border-left-tablet: 0;
+    --responsive-security-panel-divider-border-tablet: 1px solid rgba(255, 255, 255, 0.12);
+    --responsive-security-panel-divider-padding-tablet: 1.5rem;
+    --responsive-login-shell-min-height-mobile: auto;
+    --responsive-login-shell-padding-mobile: 3rem 1rem 2rem;
+    --responsive-login-title-font-size-mobile: 1.7rem;
+    --responsive-login-subtitle-font-size-mobile: 1.05rem;
+    --responsive-login-input-height-mobile: 3.5rem;
+    --responsive-login-input-font-size-mobile: 1.05rem;
+    --responsive-login-links-grid-columns-mobile: 1fr;
+    --responsive-login-links-justify-items-mobile: center;
+    --responsive-login-links-gap-mobile: 1rem;
+    --responsive-login-links-margin-top-mobile: 2.4rem;
+    --responsive-login-decoration-display-mobile: none;
+    --responsive-security-panel-display-mobile: none;
 }
 
 * {
@@ -379,63 +403,63 @@ input:-webkit-autofill:focus {
 
 @media (max-width: 51rem) {
     .login-shell {
-        min-height: auto;
-        padding: 3rem 1.15rem 2rem;
+        min-height: var(--responsive-login-shell-min-height-tablet);
+        padding: var(--responsive-login-shell-padding-tablet);
     }
 
     .login-card {
-        padding: 2rem 1.5rem 2.15rem;
+        padding: var(--responsive-login-card-padding-tablet);
     }
 
     .security-panel {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        padding: 1.75rem;
+        grid-template-columns: var(--responsive-security-panel-grid-columns-tablet);
+        gap: var(--responsive-security-panel-gap-tablet);
+        padding: var(--responsive-security-panel-padding-tablet);
     }
 
     .security-panel article {
-        padding: 0;
+        padding: var(--responsive-security-panel-article-padding-tablet);
     }
 
     .security-panel article + article {
-        border-left: 0;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
-        padding-top: 1.5rem;
+        border-left: var(--responsive-security-panel-divider-border-left-tablet);
+        border-top: var(--responsive-security-panel-divider-border-tablet);
+        padding-top: var(--responsive-security-panel-divider-padding-tablet);
     }
 }
 
 @media (max-width: 35rem) {
     .login-shell {
-        min-height: auto;
-        padding: 3rem 1rem 2rem;
+        min-height: var(--responsive-login-shell-min-height-mobile);
+        padding: var(--responsive-login-shell-padding-mobile);
     }
 
     h1 {
-        font-size: 1.7rem;
+        font-size: var(--responsive-login-title-font-size-mobile);
     }
 
     .subtitle {
-        font-size: 1.05rem;
+        font-size: var(--responsive-login-subtitle-font-size-mobile);
     }
 
     input {
-        height: 3.5rem;
-        font-size: 1.05rem;
+        height: var(--responsive-login-input-height-mobile);
+        font-size: var(--responsive-login-input-font-size-mobile);
     }
 
     .login-links {
-        grid-template-columns: 1fr;
-        justify-items: center;
-        gap: 1rem;
-        margin-top: 2.4rem;
+        grid-template-columns: var(--responsive-login-links-grid-columns-mobile);
+        justify-items: var(--responsive-login-links-justify-items-mobile);
+        gap: var(--responsive-login-links-gap-mobile);
+        margin-top: var(--responsive-login-links-margin-top-mobile);
     }
 
     .login-links .rule,
     .login-links .divider {
-        display: none;
+        display: var(--responsive-login-decoration-display-mobile);
     }
 
     .security-panel {
-        display: none;
+        display: var(--responsive-security-panel-display-mobile);
     }
 }
