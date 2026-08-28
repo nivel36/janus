@@ -23,4 +23,8 @@
     --tabs-trigger-focus-ring-offset: calc(
         var(--focus-ring-gap-width) + var(--focus-ring-width)
     );
+    --tabs-trigger-focus-ring-border-radius: max(
+        0px,
+        calc(var(--tabs-border-radius) - var(--tabs-trigger-focus-ring-offset))
+    );
 }

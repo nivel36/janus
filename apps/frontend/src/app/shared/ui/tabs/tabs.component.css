@@ -47,6 +47,16 @@
     pointer-events: none;
 }
 
+.tabs__trigger:first-child:focus-visible::after {
+    border-start-start-radius: var(--tabs-trigger-focus-ring-border-radius);
+    border-end-start-radius: var(--tabs-trigger-focus-ring-border-radius);
+}
+
+.tabs__trigger:last-child:focus-visible::after {
+    border-start-end-radius: var(--tabs-trigger-focus-ring-border-radius);
+    border-end-end-radius: var(--tabs-trigger-focus-ring-border-radius);
+}
+
 @media (forced-colors: active) {
     .tabs__trigger:focus-visible {
         outline: var(--responsive-focus-outline-forced-colors);
