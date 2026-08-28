@@ -1,95 +1,101 @@
 <div class="autocomplete" [class.autocomplete--disabled]="disabled">
-    <div class="autocomplete__input-wrapper" #inputWrapper cdkOverlayOrigin #trigger="cdkOverlayOrigin">
-        <app-input-group [disabled]="disabled">
-            <app-input
-                [inputId]="controlId()"
-                type="text"
-                role="combobox"
-                autocomplete="off"
-                autocapitalize="off"
-                autocorrect="off"
-                [spellcheck]="false"
-                [placeholder]="hasSelection ? '' : emptyHint() || placeholder() || ''"
-                [formControl]="textControl"
-                [readonly]="hasSelection"
-                [ariaLabel]="ariaLabelledBy() ? null : ariaLabel() || null"
-                [ariaLabelledBy]="ariaLabelledBy() || null"
-                [ariaDescribedBy]="ariaDescribedBy() || null"
-                [ariaInvalid]="ariaInvalid()"
-                [ariaReadonly]="hasSelection ? true : null"
-                [attr.aria-disabled]="disabled ? 'true' : null"
-                [ariaExpanded]="isOverlayOpen"
-                ariaHaspopup="listbox"
-                [ariaControls]="isOverlayOpen ? resultsListId : null"
-                [ariaActiveDescendant]="
-                    isOverlayOpen && activeIndex >= 0 && results.length > 0
-                        ? getOptionId(activeIndex)
-                        : null
-                "
-                [ariaBusy]="isLoading"
-                [ariaAutocomplete]="hasSelection ? null : 'list'"
-                (blur)="handleBlur()"
-                (keydown)="onInputKeydown($event)"
-            />
+  <div
+    class="autocomplete__input-wrapper"
+    #inputWrapper
+    cdkOverlayOrigin
+    #trigger="cdkOverlayOrigin"
+  >
+    <app-input-group [disabled]="disabled">
+      <app-input
+        [inputId]="controlId()"
+        type="text"
+        role="combobox"
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        [spellcheck]="false"
+        [placeholder]="hasSelection ? '' : emptyHint() || placeholder() || ''"
+        [formControl]="textControl"
+        [readonly]="hasSelection"
+        [ariaLabel]="ariaLabelledBy() ? null : ariaLabel() || null"
+        [ariaLabelledBy]="ariaLabelledBy() || null"
+        [ariaDescribedBy]="ariaDescribedBy() || null"
+        [ariaInvalid]="ariaInvalid()"
+        [ariaReadonly]="hasSelection ? true : null"
+        [attr.aria-disabled]="disabled ? 'true' : null"
+        [ariaExpanded]="isOverlayOpen"
+        ariaHaspopup="listbox"
+        [ariaControls]="isOverlayOpen ? resultsListId : null"
+        [ariaActiveDescendant]="isOverlayOpen ? activeDescendantId : null"
+        [ariaBusy]="isLoading"
+        [ariaAutocomplete]="hasSelection ? null : 'list'"
+        (blur)="handleBlur()"
+        (keydown)="onInputKeydown($event)"
+      />
 
-            @if (hasSelection) {
-                <app-button
-                    type="button"
-                    [icon]="true"
-                    [disabled]="disabled"
-                    [ariaLabel]="clearButtonAriaLabel() || ('actions.clearSelection' | translate)"
-                    (pointerdown)="onClearButtonPointerDown($event)"
-                    (clicked)="clearSelection()"
-                >
-                    ✕
-                </app-button>
-            }
-        </app-input-group>
+      @if (hasSelection) {
+        <app-button
+          type="button"
+          [icon]="true"
+          [disabled]="disabled"
+          [ariaLabel]="clearButtonAriaLabel() || ('actions.clearSelection' | translate)"
+          (pointerdown)="onClearButtonPointerDown($event)"
+          (clicked)="clearSelection()"
+        >
+          ✕
+        </app-button>
+      }
+    </app-input-group>
+  </div>
+
+  <div
+    class="autocomplete__status"
+    [id]="statusMessageId"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    {{ liveRegionMessage }}
+  </div>
+
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="trigger"
+    [cdkConnectedOverlayOpen]="isOverlayOpen"
+    [cdkConnectedOverlayPositions]="overlayPositions"
+    [cdkConnectedOverlayHasBackdrop]="false"
+    [cdkConnectedOverlayPush]="true"
+    (overlayOutsideClick)="onOutsideClick()"
+  >
+    <div class="autocomplete__results-panel" [style.min-width.px]="overlayWidth">
+      <ul class="autocomplete__results" [id]="resultsListId" role="listbox">
+        @if (panel.kind === 'results') {
+          @for (result of panel.items; track trackByValue()(result); let i = $index) {
+            <li
+              appAutocompleteOption
+              class="autocomplete__option"
+              role="option"
+              tabindex="-1"
+              [id]="getOptionId(i)"
+              [attr.aria-selected]="isActive(i)"
+              (pointerdown)="onOptionPointerDown($event)"
+              (click)="onSelect(result)"
+              (keydown.enter)="onSelect(result)"
+              (keydown.space)="onSelect(result)"
+            >
+              {{ displayWith()(result) }}
+            </li>
+          }
+        } @else if (panel.kind === 'loading') {
+          <li role="presentation" class="autocomplete__message">
+            {{ 'autocomplete.loadingResults' | translate }}
+          </li>
+        } @else if (panel.kind === 'empty') {
+          <li role="presentation" class="autocomplete__message">
+            {{ 'autocomplete.noResultsFound' | translate }}
+          </li>
+        }
+      </ul>
     </div>
-
-    <div class="autocomplete__status" [id]="statusMessageId" role="status" aria-live="polite" aria-atomic="true">
-        {{ liveRegionMessage }}
-    </div>
-
-    <ng-template
-        cdkConnectedOverlay
-        [cdkConnectedOverlayOrigin]="trigger"
-        [cdkConnectedOverlayOpen]="isOverlayOpen"
-        [cdkConnectedOverlayPositions]="overlayPositions"
-        [cdkConnectedOverlayHasBackdrop]="false"
-        [cdkConnectedOverlayPush]="true"
-        (overlayOutsideClick)="onOutsideClick()"
-    >
-        <div class="autocomplete__results-panel" [style.min-width.px]="overlayWidth">
-            <ul class="autocomplete__results" [id]="resultsListId" role="listbox">
-                @if (panel.kind === 'results') {
-                    @for (result of panel.items; track trackByValue()(result); let i = $index) {
-                        <li
-                            #resultOption
-                            class="autocomplete__option"
-                            role="option"
-                            tabindex="-1"
-                            [id]="getOptionId(i)"
-                            [class.autocomplete__option--active]="isActive(i)"
-                            [attr.aria-selected]="isActive(i) ? 'true' : 'false'"
-                            (pointerdown)="onOptionPointerDown($event)"
-                            (click)="onSelect(result)"
-                            (keydown.enter)="onSelect(result)"
-                            (keydown.space)="onSelect(result)"
-                        >
-                            {{ displayWith()(result) }}
-                        </li>
-                    }
-                } @else if (panel.kind === 'loading') {
-                    <li role="presentation" class="autocomplete__message">
-                        {{ 'autocomplete.loadingResults' | translate }}
-                    </li>
-                } @else if (panel.kind === 'empty') {
-                    <li role="presentation" class="autocomplete__message">
-                        {{ 'autocomplete.noResultsFound' | translate }}
-                    </li>
-                }
-            </ul>
-        </div>
-    </ng-template>
+  </ng-template>
 </div>
