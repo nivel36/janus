@@ -14,6 +14,4 @@
         var(--font-size-600) + var(--font-size-600) + var(--font-size-600) - var(--size-800) -
             var(--size-300) - var(--size-300)
     );
-
-    --header-detail-content-gap: var(--size-300);
 }
