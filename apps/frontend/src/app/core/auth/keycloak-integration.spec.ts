@@ -307,10 +307,10 @@ describe('Keycloak Angular guard', () => {
 
   const authData = (
     realmRoles: string[],
-    resourceRoles: Record<string, string[]>,
+    clientRoles: Record<string, string[]>,
   ): AuthGuardData => ({
     authenticated: true,
-    grantedRoles: { realmRoles, resourceRoles },
+    grantedRoles: { realmRoles, resourceRoles: clientRoles },
     keycloak: keycloak as unknown as Keycloak,
   });
 

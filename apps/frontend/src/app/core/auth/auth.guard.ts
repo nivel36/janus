@@ -11,33 +11,28 @@ import {
 } from '@angular/router';
 import { createAuthGuard, type AuthGuardData } from 'keycloak-angular';
 import { AuthRedirectService } from './auth-redirect.service';
+import type { AuthRouteData } from './auth.models';
 
-interface ClientRole {
-  clientId: string;
-  role: string;
-}
-
-interface RouteRoleData {
-  realmRole?: string | string[];
-  clientRole?: ClientRole | ClientRole[];
-}
-
-function asArray<T>(v: T | T[] | null | undefined): T[] {
+function asArray<T>(v: T | readonly T[] | null | undefined): readonly T[] {
   if (v == null) return [];
-  return Array.isArray(v) ? v : [v];
+  return (Array.isArray(v) ? v : [v]) as readonly T[];
 }
 
 export async function isAccessAllowed(
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot,
-  { authenticated, grantedRoles, keycloak }: AuthGuardData,
+  {
+    authenticated,
+    grantedRoles: { realmRoles, resourceRoles: clientRoles },
+    keycloak,
+  }: AuthGuardData,
 ): Promise<boolean | UrlTree> {
   const router = inject(Router);
   const redirects = inject(AuthRedirectService);
   // A canActivateChild guard receives the child snapshot. Resolve the policy from
   // the complete route explicitly instead of relying on paramsInheritanceStrategy.
-  const roleData = route.pathFromRoot.reduce<RouteRoleData>(
-    (policy, snapshot) => ({ ...policy, ...(snapshot.data as RouteRoleData) }),
+  const roleData = route.pathFromRoot.reduce<AuthRouteData>(
+    (policy, snapshot) => ({ ...policy, ...(snapshot.data as AuthRouteData) }),
     {},
   );
 
@@ -52,9 +47,9 @@ export async function isAccessAllowed(
   const requiredRealmRoles = asArray(roleData?.realmRole);
   const requiredClientRoles = asArray(roleData?.clientRole);
 
-  const hasAnyRealmRole = requiredRealmRoles.some((role) => grantedRoles.realmRoles.includes(role));
+  const hasAnyRealmRole = requiredRealmRoles.some((role) => realmRoles.includes(role));
   const hasAnyClientRole = requiredClientRoles.some((required) =>
-    grantedRoles.resourceRoles[required.clientId]?.includes(required.role),
+    clientRoles[required.clientId]?.includes(required.role),
   );
 
   const anyRoleRequired = requiredRealmRoles.length > 0 || requiredClientRoles.length > 0;
