@@ -16,6 +16,7 @@ import { Page } from '../../../shared/models/page.model';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
   HTTP_RETRY_POLICY,
+  type HttpRetryPolicy,
 } from '../../../core/http/http-retry.interceptor';
 
 interface WorksiteResponse {
@@ -80,12 +81,16 @@ export class WorksiteApiService {
    * Retrieves a single worksite by its unique code.
    *
    * @param worksiteCode Unique worksite business identifier.
+   * @param retryPolicy Optional retry policy for active-screen callers.
    * @returns Observable emitting the requested worksite.
    */
-  findByCode(worksiteCode: string): Observable<Worksite> {
+  findByCode(
+    worksiteCode: string,
+    retryPolicy: HttpRetryPolicy | null = null,
+  ): Observable<Worksite> {
     return this.http
       .get<WorksiteResponse>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`, {
-        context: new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
+        context: new HttpContext().set(HTTP_RETRY_POLICY, retryPolicy),
       })
       .pipe(map((worksite) => this.mapWorksite(worksite)));
   }
