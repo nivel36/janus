@@ -23,7 +23,7 @@ export async function isAccessAllowed(
   state: RouterStateSnapshot,
   {
     authenticated,
-    grantedRoles: { realmRoles, resourceRoles: clientRoles },
+    grantedRoles: { realmRoles },
     keycloak,
   }: AuthGuardData,
 ): Promise<boolean | UrlTree> {
@@ -45,15 +45,8 @@ export async function isAccessAllowed(
   }
 
   const requiredRealmRoles = asArray(roleData?.realmRole);
-  const requiredClientRoles = asArray(roleData?.clientRole);
-
   const hasAnyRealmRole = requiredRealmRoles.some((role) => realmRoles.includes(role));
-  const hasAnyClientRole = requiredClientRoles.some((required) =>
-    clientRoles[required.clientId]?.includes(required.role),
-  );
-
-  const anyRoleRequired = requiredRealmRoles.length > 0 || requiredClientRoles.length > 0;
-  const isAuthorized = !anyRoleRequired || hasAnyRealmRole || hasAnyClientRole;
+  const isAuthorized = requiredRealmRoles.length === 0 || hasAnyRealmRole;
 
   return isAuthorized ? true : router.parseUrl('/forbidden');
 }

@@ -331,16 +331,9 @@ describe('Keycloak Angular guard', () => {
     );
   }
 
-  it('accepts either a realm role or a client role', async () => {
+  it('accepts a configured realm role', async () => {
     await expect(
       evaluate({ realmRole: JANUS_REALM_ROLES.ADMIN }, authData([JANUS_REALM_ROLES.ADMIN], {})),
-    ).resolves.toBe(true);
-    TestBed.resetTestingModule();
-    await expect(
-      evaluate(
-        { clientRole: { clientId: 'janus', role: 'editor' } },
-        authData([], { janus: ['editor'] }),
-      ),
     ).resolves.toBe(true);
   });
 
