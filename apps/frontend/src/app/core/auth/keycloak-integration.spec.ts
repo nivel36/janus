@@ -289,8 +289,8 @@ describe('authentication error recovery', () => {
     expect(keycloak.clearToken).toHaveBeenCalledOnce();
     expect(keycloak.login).toHaveBeenCalledWith({
       redirectUri: 'https://janus.example/current',
-      locale: expect.any(String),
     });
+    expect(keycloak.login.mock.calls[0]?.[0]).not.toHaveProperty('locale');
   });
 });
 
@@ -362,8 +362,8 @@ describe('Keycloak Angular guard', () => {
     expect(redirects.loginRedirectUri).toHaveBeenCalledWith('/protected');
     expect(keycloak.login).toHaveBeenCalledWith({
       redirectUri: 'https://janus.example/protected',
-      locale: expect.any(String),
     });
+    expect(keycloak.login.mock.calls.at(-1)?.[0]).not.toHaveProperty('locale');
   });
 
   it('omits the redirect URI when it cannot be resolved without a window', async () => {
@@ -371,6 +371,6 @@ describe('Keycloak Angular guard', () => {
 
     redirects.loginRedirectUri.mockReturnValueOnce(undefined);
     await expect(evaluate({}, authentication)).resolves.toBe(false);
-    expect(keycloak.login).toHaveBeenLastCalledWith({ locale: expect.any(String) });
+    expect(keycloak.login).toHaveBeenLastCalledWith({});
   });
 });

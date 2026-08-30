@@ -5,7 +5,6 @@ import { computed, effect, inject, Injectable, signal, type Signal } from '@angu
 import { toObservable } from '@angular/core/rxjs-interop';
 import Keycloak, { type KeycloakLoginOptions, type KeycloakTokenParsed } from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
-import { resolveKeycloakLocale } from './keycloak-locale';
 import { AuthRedirectService } from './auth-redirect.service';
 
 interface ApplicationTokenClaims extends KeycloakTokenParsed {
@@ -53,7 +52,7 @@ export class AuthService {
   }
 
   login(): Promise<void> {
-    return this.keycloak.login({ locale: resolveKeycloakLocale() });
+    return this.keycloak.login();
   }
 
   loginWithRedirect(
@@ -65,7 +64,6 @@ export class AuthService {
       prompt: options?.prompt,
       maxAge: options?.maxAge,
       idpHint: options?.idpHint,
-      locale: resolveKeycloakLocale(),
     });
   }
 

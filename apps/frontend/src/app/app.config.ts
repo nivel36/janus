@@ -27,7 +27,6 @@ import { provideRouter } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { authErrorInterceptor } from './core/auth/auth-error.interceptor';
 import { httpRetryInterceptor } from './core/http/http-retry.interceptor';
-import { resolveKeycloakLocale } from './core/auth/keycloak-locale';
 import { environment } from '../environments/environment';
 import { FALLBACK_LANGUAGE, resolveInitialLanguage } from './core/i18n/language.util';
 import { DOCUMENT, isPlatformBrowser, registerLocaleData } from '@angular/common';
@@ -62,13 +61,11 @@ export const KEYCLOAK_INIT_OPTIONS = new InjectionToken<KeycloakInitOptions>(
   {
     factory: () => {
       const origin = inject(APP_ORIGIN);
-      const language = inject(INITIAL_LANGUAGE);
       return {
         onLoad: 'check-sso',
         pkceMethod: 'S256',
         checkLoginIframe: false,
         silentCheckSsoRedirectUri: origin ? `${origin}/assets/silent-check-sso.html` : undefined,
-        locale: resolveKeycloakLocale([language]),
       };
     },
   },

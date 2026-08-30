@@ -11,7 +11,6 @@ import {
 } from '@angular/router';
 import { createAuthGuard, type AuthGuardData } from 'keycloak-angular';
 import { AuthRedirectService } from './auth-redirect.service';
-import { resolveKeycloakLocale } from './keycloak-locale';
 
 interface ClientRole {
   clientId: string;
@@ -46,7 +45,6 @@ export async function isAccessAllowed(
     const redirectUri = redirects.loginRedirectUri(state.url || '/');
     await keycloak.login({
       ...(redirectUri !== undefined ? { redirectUri } : {}),
-      locale: resolveKeycloakLocale(),
     });
     return false;
   }
