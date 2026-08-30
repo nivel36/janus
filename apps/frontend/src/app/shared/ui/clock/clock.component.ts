@@ -2,7 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { isPlatformBrowser } from '@angular/common';
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, input } from '@angular/core';
+import { Component, DestroyRef, OnInit, PLATFORM_ID, inject, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer } from 'rxjs';
 
 /**
  * Displays the current local time and refreshes it every second.
@@ -16,7 +18,7 @@ import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, input } from '@angul
   standalone: true,
   templateUrl: './clock.component.html',
 })
-export class ClockComponent implements OnInit, OnDestroy {
+export class ClockComponent implements OnInit {
   /**
    * Preferred BCP 47 locale used to format the visual time string.
    * If not provided, the component falls back to the browser locale or `en-US`.
@@ -43,35 +45,28 @@ export class ClockComponent implements OnInit, OnDestroy {
    */
   isoDateTime = '';
 
-  /**
-   * Internal interval handle used to stop periodic updates on destroy.
-   */
   private readonly platformId = inject(PLATFORM_ID);
+
+  /**
+   * Completes the browser timer subscription with the component lifecycle.
+   */
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * Whether browser-only APIs can be used safely.
    */
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
-  private timerId?: ReturnType<typeof setInterval>;
-
   /**
-   * Initializes the clock and starts a one-second refresh interval.
+   * Starts a browser-only clock which emits immediately and then every second.
+   * SSR intentionally renders an empty value so server and hydrated output do
+   * not depend on different wall-clock instants.
    */
   ngOnInit(): void {
-    this.updateTime();
-
     if (this.isBrowser) {
-      this.timerId = window.setInterval(() => this.updateTime(), 1000);
-    }
-  }
-
-  /**
-   * Stops the internal timer when the component is destroyed.
-   */
-  ngOnDestroy(): void {
-    if (this.timerId !== undefined) {
-      clearInterval(this.timerId);
+      timer(0, 1000)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.updateTime());
     }
   }
 
