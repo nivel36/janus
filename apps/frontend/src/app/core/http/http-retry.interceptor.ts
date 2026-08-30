@@ -51,5 +51,8 @@ function isTransientHttpError(error: unknown): boolean {
 
 function computeRetryDelay(baseDelayMs: number, attempt: number): number {
   const exponentialDelay = Math.max(0, baseDelayMs) * Math.pow(2, Math.max(0, attempt - 1));
-  return Math.min(exponentialDelay, 30_000);
+  const cappedDelay = Math.min(exponentialDelay, 30_000);
+  const jitterFactor = 0.85 + Math.random() * 0.3;
+
+  return Math.round(cappedDelay * jitterFactor);
 }

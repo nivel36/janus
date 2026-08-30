@@ -8,7 +8,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { HTTP_RETRY_POLICY, httpRetryInterceptor } from './http-retry.interceptor';
 
 describe('httpRetryInterceptor', () => {
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
 
   it.each([0, 408, 500, 502, 503, 504])(
     'retries transient HTTP status %i when the request opts in',
@@ -133,6 +136,33 @@ describe('httpRetryInterceptor', () => {
 
     expect(await result).toBeInstanceOf(HttpResponse);
     expect(authorizationHeaders).toEqual(['Bearer token-1', 'Bearer token-2']);
+  });
+
+  it('adds jitter around the exponential retry delay', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    let attempts = 0;
+    const request = new HttpRequest('GET', '/api/example', null, {
+      context: new HttpContext().set(HTTP_RETRY_POLICY, {
+        retries: 1,
+        baseDelayMs: 100,
+      }),
+    });
+    const result = firstValueFrom(
+      httpRetryInterceptor(request, () => {
+        attempts += 1;
+        return attempts === 1
+          ? throwError(() => new HttpErrorResponse({ status: 503 }))
+          : of(new HttpResponse({ status: 200 }));
+      }),
+    );
+
+    await vi.advanceTimersByTimeAsync(84);
+    expect(attempts).toBe(1);
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(await result).toBeInstanceOf(HttpResponse);
+    expect(attempts).toBe(2);
   });
 });
 
