@@ -24,6 +24,8 @@ import { authErrorInterceptor } from './auth-error.interceptor';
 import { isAccessAllowed } from './auth.guard';
 import { JANUS_REALM_ROLES, type AuthTokenClaims } from './auth.models';
 import { AuthService } from './auth.service';
+import { CurrentUserFacade } from '../user/services/current-user.facade';
+import { UserProfileApiService } from '../user/services/user-profile-api.service';
 
 describe('AuthService Keycloak event state', () => {
   it('updates all signal-derived observable values from the same event snapshot', () => {
@@ -94,6 +96,81 @@ describe('AuthService Keycloak event state', () => {
     TestBed.tick();
 
     expect(observedStates.at(-1)).toEqual([false, null, null, { realmRoles: [], clientRoles: {} }]);
+    subscription.unsubscribe();
+  });
+
+  it('keeps reactive and imperative role selectors aligned through login, refresh, and logout', () => {
+    const keycloak = {
+      authenticated: false,
+      tokenParsed: undefined as AuthTokenClaims | undefined,
+      login: vi.fn(),
+      logout: vi.fn(),
+      // Deliberately stale adapter answers prove that consumers use the event snapshot instead.
+      hasRealmRole: vi.fn().mockReturnValue(true),
+      hasResourceRole: vi.fn().mockReturnValue(true),
+    };
+    const keycloakEvent = signal({ type: KeycloakEventType.KeycloakAngularNotInitialized });
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        CurrentUserFacade,
+        { provide: Keycloak, useValue: keycloak },
+        { provide: KEYCLOAK_EVENT_SIGNAL, useValue: keycloakEvent },
+        {
+          provide: UserProfileApiService,
+          useValue: {
+            getPreferences: vi.fn().mockReturnValue(of(null)),
+            updatePreferences: vi.fn(),
+          },
+        },
+      ],
+    });
+    const auth = TestBed.inject(AuthService);
+    const currentUser = TestBed.inject(CurrentUserFacade);
+    const reactiveRoles: boolean[][] = [];
+    const subscription = combineLatest([
+      currentUser.isAdmin$,
+      currentUser.isUser$,
+      currentUser.isEmployee$,
+    ]).subscribe((roles) => reactiveRoles.push(roles));
+    const expectSelectors = (expected: boolean[]) => {
+      TestBed.tick();
+      expect(reactiveRoles.at(-1)).toEqual(expected);
+      expect([currentUser.isAdmin(), currentUser.isUser(), currentUser.isEmployee()]).toEqual(
+        expected,
+      );
+    };
+
+    expectSelectors([false, false, false]);
+    expect(auth.hasClientRole('janus', 'editor')).toBe(false);
+
+    keycloak.authenticated = true;
+    keycloak.tokenParsed = {
+      preferred_username: 'ada',
+      realm_access: { roles: [JANUS_REALM_ROLES.ADMIN, JANUS_REALM_ROLES.USER] },
+      resource_access: { janus: { roles: ['editor'] } },
+    };
+    keycloakEvent.set({ type: KeycloakEventType.AuthSuccess });
+    expectSelectors([true, true, false]);
+    expect(auth.hasClientRole('janus', 'editor')).toBe(true);
+
+    keycloak.tokenParsed = {
+      preferred_username: 'ada',
+      realm_access: { roles: [JANUS_REALM_ROLES.EMPLOYEE] },
+      resource_access: { janus: { roles: ['viewer'] } },
+    };
+    keycloakEvent.set({ type: KeycloakEventType.AuthRefreshSuccess });
+    expectSelectors([false, false, true]);
+    expect(auth.hasClientRole('janus', 'editor')).toBe(false);
+    expect(auth.hasClientRole('janus', 'viewer')).toBe(true);
+
+    keycloak.authenticated = false;
+    keycloak.tokenParsed = undefined;
+    keycloakEvent.set({ type: KeycloakEventType.AuthLogout });
+    expectSelectors([false, false, false]);
+    expect(auth.hasClientRole('janus', 'viewer')).toBe(false);
+    expect(keycloak.hasRealmRole).not.toHaveBeenCalled();
+    expect(keycloak.hasResourceRole).not.toHaveBeenCalled();
     subscription.unsubscribe();
   });
 });

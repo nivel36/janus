@@ -82,25 +82,21 @@ export class AuthService {
   }
 
   getClaims(): AuthTokenClaims | null {
-    if (!this.keycloak.tokenParsed) {
-      return null;
-    }
-
-    return this.keycloak.tokenParsed;
+    return this.claims();
   }
 
   hasRealmRole(role: string): boolean {
-    return this.keycloak.hasRealmRole(role);
+    return this.permissions().realmRoles.includes(role);
   }
 
   hasClientRole(clientId: string, role: string): boolean {
-    return this.keycloak.hasResourceRole(role, clientId);
+    return this.permissions().clientRoles[clientId]?.includes(role) ?? false;
   }
 
   private readKeycloakSnapshot(): KeycloakSnapshot {
     return {
       isAuthenticated: Boolean(this.keycloak.authenticated),
-      claims: this.getClaims(),
+      claims: this.keycloak.tokenParsed ?? null,
     };
   }
 
