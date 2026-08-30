@@ -23,6 +23,7 @@ import { apiBearerUrlPattern } from '../../app.config';
 import { authErrorInterceptor } from './auth-error.interceptor';
 import { AuthRedirectService } from './auth-redirect.service';
 import { isAccessAllowed } from './auth.guard';
+import { JANUS_REALM_ROLES } from './auth.models';
 import { AuthService } from './auth.service';
 
 describe('AuthService Keycloak event state', () => {
@@ -331,7 +332,9 @@ describe('Keycloak Angular guard', () => {
   }
 
   it('accepts either a realm role or a client role', async () => {
-    await expect(evaluate({ realmRole: 'ADMIN' }, authData(['ADMIN'], {}))).resolves.toBe(true);
+    await expect(
+      evaluate({ realmRole: JANUS_REALM_ROLES.ADMIN }, authData([JANUS_REALM_ROLES.ADMIN], {})),
+    ).resolves.toBe(true);
     TestBed.resetTestingModule();
     await expect(
       evaluate(
@@ -342,13 +345,15 @@ describe('Keycloak Angular guard', () => {
   });
 
   it('redirects an authenticated user without any required role to forbidden', async () => {
-    await expect(evaluate({}, authData(['USER'], {}), { realmRole: 'ADMIN' })).resolves.toEqual({
-      redirectTo: '/forbidden',
-    });
+    await expect(
+      evaluate({}, authData([JANUS_REALM_ROLES.USER], {}), { realmRole: JANUS_REALM_ROLES.ADMIN }),
+    ).resolves.toEqual({ redirectTo: '/forbidden' });
   });
 
   it('allows an authenticated user using the policy on the parent route', async () => {
-    await expect(evaluate({}, authData(['ADMIN'], {}), { realmRole: 'ADMIN' })).resolves.toBe(true);
+    await expect(
+      evaluate({}, authData([JANUS_REALM_ROLES.ADMIN], {}), { realmRole: JANUS_REALM_ROLES.ADMIN }),
+    ).resolves.toBe(true);
   });
 
   it('redirects an unauthenticated user to login', async () => {
@@ -358,7 +363,9 @@ describe('Keycloak Angular guard', () => {
     };
 
     redirects.loginRedirectUri.mockReturnValueOnce('https://janus.example/protected');
-    await expect(evaluate({}, authentication, { realmRole: 'ADMIN' })).resolves.toBe(false);
+    await expect(
+      evaluate({}, authentication, { realmRole: JANUS_REALM_ROLES.ADMIN }),
+    ).resolves.toBe(false);
     expect(redirects.loginRedirectUri).toHaveBeenCalledWith('/protected');
     expect(keycloak.login).toHaveBeenCalledWith({
       redirectUri: 'https://janus.example/protected',

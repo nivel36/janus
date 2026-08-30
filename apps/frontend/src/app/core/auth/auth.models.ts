@@ -3,6 +3,15 @@
  */
 import type { KeycloakTokenParsed } from 'keycloak-js';
 
+/** Realm roles owned by Janus and assigned through Keycloak. */
+export const JANUS_REALM_ROLES = {
+  ADMIN: 'JANUS_ADMIN',
+  USER: 'JANUS_USER',
+  EMPLOYEE: 'JANUS_EMPLOYEE',
+} as const;
+
+export type JanusRealmRole = (typeof JANUS_REALM_ROLES)[keyof typeof JANUS_REALM_ROLES];
+
 export interface ApplicationTokenClaims extends KeycloakTokenParsed {
   preferred_username?: string;
   email?: string;
@@ -32,6 +41,6 @@ export interface ClientRoleRequirement {
 
 /** Authorization policy supported in an Angular route's `data`. */
 export interface AuthRouteData {
-  realmRole?: string | readonly string[];
+  realmRole?: JanusRealmRole | readonly JanusRealmRole[];
   clientRole?: ClientRoleRequirement | readonly ClientRoleRequirement[];
 }
