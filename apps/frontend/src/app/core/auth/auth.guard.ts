@@ -10,6 +10,7 @@ import {
   type UrlTree,
 } from '@angular/router';
 import { createAuthGuard, type AuthGuardData } from 'keycloak-angular';
+import { AuthRedirectService } from './auth-redirect.service';
 import { resolveKeycloakLocale } from './keycloak-locale';
 
 interface ClientRole {
@@ -33,6 +34,7 @@ export async function isAccessAllowed(
   { authenticated, grantedRoles, keycloak }: AuthGuardData,
 ): Promise<boolean | UrlTree> {
   const router = inject(Router);
+  const redirects = inject(AuthRedirectService);
   // A canActivateChild guard receives the child snapshot. Resolve the policy from
   // the complete route explicitly instead of relying on paramsInheritanceStrategy.
   const roleData = route.pathFromRoot.reduce<RouteRoleData>(
@@ -41,8 +43,11 @@ export async function isAccessAllowed(
   );
 
   if (!authenticated) {
-    const targetUrl = new URL(state.url || '/', globalThis.location?.origin).toString();
-    await keycloak.login({ redirectUri: targetUrl, locale: resolveKeycloakLocale() });
+    const redirectUri = redirects.loginRedirectUri(state.url || '/');
+    await keycloak.login({
+      ...(redirectUri !== undefined ? { redirectUri } : {}),
+      locale: resolveKeycloakLocale(),
+    });
     return false;
   }
 
