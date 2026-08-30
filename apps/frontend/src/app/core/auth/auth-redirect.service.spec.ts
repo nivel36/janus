@@ -35,9 +35,18 @@ describe('AuthRedirectService', () => {
     );
   });
 
+  it('uses the current URL when no return route is provided', () => {
+    const service = serviceFor({
+      defaultView: { location: new URL('https://janus.example/current?tab=details') },
+    });
+
+    expect(service.loginRedirectUri()).toBe('https://janus.example/current?tab=details');
+  });
+
   it('returns undefined when the document has no default view', () => {
     const service = serviceFor({ defaultView: null });
 
     expect(service.loginRedirectUri('/employees')).toBeUndefined();
+    expect(service.loginRedirectUri()).toBeUndefined();
   });
 });
