@@ -117,7 +117,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(
-      withInterceptors([includeBearerTokenInterceptor, authErrorInterceptor, httpRetryInterceptor]),
+      withInterceptors([httpRetryInterceptor, includeBearerTokenInterceptor, authErrorInterceptor]),
     ),
     provideRouter(appRoutes),
     provideTranslateService({

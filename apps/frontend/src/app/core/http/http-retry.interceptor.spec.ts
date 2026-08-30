@@ -110,6 +110,30 @@ describe('httpRetryInterceptor', () => {
     expect(await result).toBeInstanceOf(HttpResponse);
     expect(attempts).toBe(2);
   });
+
+  it('re-enters downstream interceptors so every retry can use a current bearer token', async () => {
+    vi.useFakeTimers();
+    const authorizationHeaders: string[] = [];
+    let tokenVersion = 0;
+    const result = firstValueFrom(
+      httpRetryInterceptor(retryingRequest('GET', 1), (request) => {
+        tokenVersion += 1;
+        const authorizedRequest = request.clone({
+          setHeaders: { Authorization: `Bearer token-${tokenVersion}` },
+        });
+        authorizationHeaders.push(authorizedRequest.headers.get('Authorization')!);
+
+        return tokenVersion === 1
+          ? throwError(() => new HttpErrorResponse({ status: 503 }))
+          : of(new HttpResponse({ status: 200 }));
+      }),
+    );
+
+    await vi.runAllTimersAsync();
+
+    expect(await result).toBeInstanceOf(HttpResponse);
+    expect(authorizationHeaders).toEqual(['Bearer token-1', 'Bearer token-2']);
+  });
 });
 
 function retryingRequest(method: string, retries: number): HttpRequest<unknown> {

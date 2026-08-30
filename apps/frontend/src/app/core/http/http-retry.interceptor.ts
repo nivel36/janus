@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { HttpContextToken, HttpErrorResponse, type HttpInterceptorFn } from '@angular/common/http';
-import { throwError, timer } from 'rxjs';
+import { defer, throwError, timer } from 'rxjs';
 import { retry } from 'rxjs/operators';
 
 export interface HttpRetryPolicy {
@@ -29,7 +29,9 @@ export const httpRetryInterceptor: HttpInterceptorFn = (request, next) => {
     return next(request);
   }
 
-  return next(request).pipe(
+  // Re-enter the downstream interceptor chain for every subscription so retries
+  // can obtain a freshly refreshed bearer token instead of reusing a cloned request.
+  return defer(() => next(request)).pipe(
     retry({
       count: policy.retries,
       delay: (error: unknown, retryCount: number) => {
