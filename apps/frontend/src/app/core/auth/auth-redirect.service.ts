@@ -14,7 +14,14 @@ export class AuthRedirectService {
       return undefined;
     }
 
-    return redirectUri ? new URL(redirectUri, location.origin).toString() : location.href;
+    if (!redirectUri) {
+      return location.href;
+    }
+
+    const resolved = new URL(redirectUri, location.origin);
+    const isHttp = resolved.protocol === 'http:' || resolved.protocol === 'https:';
+
+    return isHttp && resolved.origin === location.origin ? resolved.toString() : location.href;
   }
 
   logoutRedirectUri(): string | undefined {
