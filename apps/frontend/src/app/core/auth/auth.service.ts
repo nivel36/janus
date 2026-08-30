@@ -3,43 +3,22 @@
  */
 import { computed, effect, inject, Injectable, signal, type Signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import Keycloak from 'keycloak-js';
+import Keycloak, { type KeycloakLoginOptions, type KeycloakTokenParsed } from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 import { resolveKeycloakLocale } from './keycloak-locale';
 import { AuthRedirectService } from './auth-redirect.service';
 
-interface KeycloakClaims {
-  sub?: string;
-  iss?: string;
-  aud?: string | string[];
-  exp?: number;
-  iat?: number;
-  auth_time?: number;
-  session_state?: string;
-  azp?: string;
-  typ?: string;
+interface ApplicationTokenClaims extends KeycloakTokenParsed {
   preferred_username?: string;
   email?: string;
-  email_verified?: boolean;
-  name?: string;
   given_name?: string;
   family_name?: string;
   locale?: string;
-  realm_access?: {
-    roles?: string[];
-  };
-  resource_access?: Record<string, { roles?: string[] }>;
 }
 
 interface PermissionState {
   realmRoles: string[];
   clientRoles: Record<string, string[]>;
-}
-
-interface LoginRedirectOptions {
-  prompt?: 'none' | 'login' | 'consent';
-  maxAge?: number;
-  idpHint?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -77,7 +56,10 @@ export class AuthService {
     return this.keycloak.login({ locale: resolveKeycloakLocale() });
   }
 
-  loginWithRedirect(redirectUri?: string, options?: LoginRedirectOptions): Promise<void> {
+  loginWithRedirect(
+    redirectUri?: string,
+    options?: Pick<KeycloakLoginOptions, 'prompt' | 'maxAge' | 'idpHint'>,
+  ): Promise<void> {
     return this.keycloak.login({
       redirectUri: this.redirects.loginRedirectUri(redirectUri),
       prompt: options?.prompt,
@@ -95,12 +77,12 @@ export class AuthService {
     return this.keycloak.token ?? null;
   }
 
-  getClaims(): KeycloakClaims | null {
+  getClaims(): ApplicationTokenClaims | null {
     if (!this.keycloak.tokenParsed) {
       return null;
     }
 
-    return this.keycloak.tokenParsed as KeycloakClaims;
+    return this.keycloak.tokenParsed;
   }
 
   hasRealmRole(role: string): boolean {
@@ -113,7 +95,7 @@ export class AuthService {
 
   private readKeycloakSnapshot(): {
     isAuthenticated: boolean;
-    claims: KeycloakClaims | null;
+    claims: ApplicationTokenClaims | null;
   } {
     return {
       isAuthenticated: Boolean(this.keycloak.authenticated),
@@ -121,7 +103,7 @@ export class AuthService {
     };
   }
 
-  private extractPermissions(claims: KeycloakClaims | null): PermissionState {
+  private extractPermissions(claims: ApplicationTokenClaims | null): PermissionState {
     const realmRoles = claims?.realm_access?.roles ?? [];
     const clientRoles = Object.entries(claims?.resource_access ?? {}).reduce<
       Record<string, string[]>

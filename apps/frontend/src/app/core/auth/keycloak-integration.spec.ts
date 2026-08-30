@@ -99,6 +99,42 @@ describe('AuthService Keycloak event state', () => {
 });
 
 describe('AuthService redirects', () => {
+  it('delegates supported login options without altering their values', async () => {
+    const keycloak = {
+      login: vi.fn().mockResolvedValue(undefined),
+      logout: vi.fn(),
+      hasRealmRole: vi.fn(),
+      hasResourceRole: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        { provide: Keycloak, useValue: keycloak },
+        { provide: KEYCLOAK_EVENT_SIGNAL, useValue: signal({}) },
+        {
+          provide: DOCUMENT,
+          useValue: { defaultView: { location: new URL('https://janus.example/current') } },
+        },
+      ],
+    });
+    const service = TestBed.inject(AuthService);
+
+    await service.loginWithRedirect('/employees', {
+      prompt: 'consent',
+      maxAge: 0,
+      idpHint: 'corporate-sso',
+    });
+
+    expect(keycloak.login).toHaveBeenCalledWith(
+      expect.objectContaining({
+        redirectUri: 'https://janus.example/employees',
+        prompt: 'consent',
+        maxAge: 0,
+        idpHint: 'corporate-sso',
+      }),
+    );
+  });
+
   it('builds login and logout URLs from the injected document', async () => {
     const keycloak = {
       login: vi.fn().mockResolvedValue(undefined),
