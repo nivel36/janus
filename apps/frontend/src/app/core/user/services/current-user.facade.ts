@@ -15,6 +15,7 @@ import {
 } from 'rxjs/operators';
 
 import { AuthService } from '../../auth/auth.service';
+import { JANUS_REALM_ROLES } from '../../auth/auth.models';
 import { UserProfileApiService } from './user-profile-api.service';
 import { User } from '../models/user';
 import { UserPreferences } from '../models/user-preferences';
@@ -125,7 +126,7 @@ export class CurrentUserFacade {
    * Emits whether the current user has the ADMIN role.
    */
   readonly isAdmin$ = this.permissions$.pipe(
-    map((p) => p.realmRoles.includes('JANUS_ADMIN')),
+    map((p) => p.realmRoles.includes(JANUS_REALM_ROLES.ADMIN)),
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -134,7 +135,7 @@ export class CurrentUserFacade {
    * Emits whether the current user has the USER role.
    */
   readonly isUser$ = this.permissions$.pipe(
-    map((p) => p.realmRoles.includes('JANUS_USER')),
+    map((p) => p.realmRoles.includes(JANUS_REALM_ROLES.USER)),
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -143,7 +144,7 @@ export class CurrentUserFacade {
    * Emits whether the current user has the EMPLOYEE role.
    */
   readonly isEmployee$ = this.permissions$.pipe(
-    map((p) => p.realmRoles.includes('JANUS_EMPLOYEE')),
+    map((p) => p.realmRoles.includes(JANUS_REALM_ROLES.EMPLOYEE)),
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -225,7 +226,7 @@ export class CurrentUserFacade {
    * @returns True when the current user has the ADMIN role
    */
   isAdmin(): boolean {
-    return this.authService.hasRealmRole('JANUS_ADMIN');
+    return this.authService.hasRealmRole(JANUS_REALM_ROLES.ADMIN);
   }
 
   /**
@@ -234,7 +235,7 @@ export class CurrentUserFacade {
    * @returns True when the current user has the USER role
    */
   isUser(): boolean {
-    return this.authService.hasRealmRole('JANUS_USER');
+    return this.authService.hasRealmRole(JANUS_REALM_ROLES.USER);
   }
 
   /**
@@ -243,6 +244,6 @@ export class CurrentUserFacade {
    * @returns True when the current user has the EMPLOYEE role
    */
   isEmployee(): boolean {
-    return this.authService.hasRealmRole('JANUS_EMPLOYEE');
+    return this.authService.hasRealmRole(JANUS_REALM_ROLES.EMPLOYEE);
   }
 }
