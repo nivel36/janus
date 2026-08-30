@@ -26,6 +26,7 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { provideRouter } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { authErrorInterceptor } from './core/auth/auth-error.interceptor';
+import { httpRetryInterceptor } from './core/http/http-retry.interceptor';
 import { resolveKeycloakLocale } from './core/auth/keycloak-locale';
 import { environment } from '../environments/environment';
 import { FALLBACK_LANGUAGE, resolveInitialLanguage } from './core/i18n/language.util';
@@ -66,9 +67,7 @@ export const KEYCLOAK_INIT_OPTIONS = new InjectionToken<KeycloakInitOptions>(
         onLoad: 'check-sso',
         pkceMethod: 'S256',
         checkLoginIframe: false,
-        silentCheckSsoRedirectUri: origin
-          ? `${origin}/assets/silent-check-sso.html`
-          : undefined,
+        silentCheckSsoRedirectUri: origin ? `${origin}/assets/silent-check-sso.html` : undefined,
         locale: resolveKeycloakLocale([language]),
       };
     },
@@ -79,10 +78,7 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function apiBearerUrlPattern(
-  apiBaseUrl: string,
-  origin?: string,
-): RegExp {
+export function apiBearerUrlPattern(apiBaseUrl: string, origin?: string): RegExp {
   const base = apiBaseUrl.replace(/\/$/, '');
   const absoluteBase = /^https?:\/\//i.test(base)
     ? base
@@ -120,7 +116,9 @@ export const appConfig: ApplicationConfig = {
     },
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(withInterceptors([includeBearerTokenInterceptor, authErrorInterceptor])),
+    provideHttpClient(
+      withInterceptors([httpRetryInterceptor, includeBearerTokenInterceptor, authErrorInterceptor]),
+    ),
     provideRouter(appRoutes),
     provideTranslateService({
       fallbackLang: FALLBACK_LANGUAGE,

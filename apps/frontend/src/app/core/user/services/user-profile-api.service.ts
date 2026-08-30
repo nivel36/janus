@@ -2,12 +2,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../../../../environments/environment';
 import { UserPreferences } from '../models/user-preferences';
+import { HTTP_RETRY_POLICY } from '../../http/http-retry.interceptor';
 
 /**
  * Supported time formats for user preferences.
@@ -66,7 +67,12 @@ export class UserProfileApiService {
    * @returns Observable emitting the raw AppUserProfile DTO
    */
   private getProfile(username: string): Observable<AppUserProfile> {
-    return this.http.get<AppUserProfile>(`${this.baseUrl}/${encodeURIComponent(username)}`);
+    return this.http.get<AppUserProfile>(`${this.baseUrl}/${encodeURIComponent(username)}`, {
+      context: new HttpContext().set(HTTP_RETRY_POLICY, {
+        retries: 10,
+        baseDelayMs: 1_000,
+      }),
+    });
   }
 
   /**
