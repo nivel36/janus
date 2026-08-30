@@ -12,18 +12,30 @@ export const JANUS_REALM_ROLES = {
 
 export type JanusRealmRole = (typeof JANUS_REALM_ROLES)[keyof typeof JANUS_REALM_ROLES];
 
-export interface ApplicationTokenClaims extends KeycloakTokenParsed {
-  preferred_username?: string;
-  email?: string;
-  given_name?: string;
-  family_name?: string;
-  locale?: string;
+export interface AuthTokenClaims
+  extends Omit<KeycloakTokenParsed, 'realm_access' | 'resource_access'> {
+  readonly preferred_username?: string;
+  readonly email?: string;
+  readonly given_name?: string;
+  readonly family_name?: string;
+  readonly locale?: string;
+  readonly realm_access?: {
+    readonly roles: readonly string[];
+  };
+  readonly resource_access?: Readonly<
+    Record<
+      string,
+      {
+        readonly roles: readonly string[];
+      }
+    >
+  >;
 }
 
 /** Roles keyed by the Keycloak client that grants them. */
 export type ClientRolesByClient = Readonly<Record<string, readonly string[]>>;
 
-export interface PermissionState {
+export interface AuthPermissions {
   readonly realmRoles: readonly string[];
   /**
    * Keycloak client roles. This is the application-facing name for the roles

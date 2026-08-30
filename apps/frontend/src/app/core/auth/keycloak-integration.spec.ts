@@ -22,14 +22,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { apiBearerUrlPattern } from '../../app.config';
 import { authErrorInterceptor } from './auth-error.interceptor';
 import { isAccessAllowed } from './auth.guard';
-import { JANUS_REALM_ROLES } from './auth.models';
+import { JANUS_REALM_ROLES, type AuthTokenClaims } from './auth.models';
 import { AuthService } from './auth.service';
 
 describe('AuthService Keycloak event state', () => {
   it('updates all signal-derived observable values from the same event snapshot', () => {
     const keycloak = {
       authenticated: false,
-      tokenParsed: undefined as Record<string, unknown> | undefined,
+      tokenParsed: undefined as AuthTokenClaims | undefined,
       login: vi.fn(),
       logout: vi.fn(),
       hasRealmRole: vi.fn(),
