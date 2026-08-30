@@ -6,6 +6,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 import { resolveKeycloakLocale } from './keycloak-locale';
+import { AuthRedirectService } from './auth-redirect.service';
 
 interface KeycloakClaims {
   sub?: string;
@@ -45,6 +46,7 @@ interface LoginRedirectOptions {
 export class AuthService {
   private readonly keycloak = inject(Keycloak);
   private readonly keycloakEvent = inject(KEYCLOAK_EVENT_SIGNAL) as Signal<unknown>;
+  private readonly redirects = inject(AuthRedirectService);
   private readonly keycloakSnapshot = signal(this.readKeycloakSnapshot());
 
   readonly isAuthenticated = computed(() => this.keycloakSnapshot().isAuthenticated);
@@ -76,12 +78,8 @@ export class AuthService {
   }
 
   loginWithRedirect(redirectUri?: string, options?: LoginRedirectOptions): Promise<void> {
-    const resolvedRedirectUri = redirectUri
-      ? new URL(redirectUri, window.location.origin).toString()
-      : window.location.href;
-
     return this.keycloak.login({
-      redirectUri: resolvedRedirectUri,
+      redirectUri: this.redirects.loginRedirectUri(redirectUri),
       prompt: options?.prompt,
       maxAge: options?.maxAge,
       idpHint: options?.idpHint,
@@ -90,7 +88,7 @@ export class AuthService {
   }
 
   logout(): Promise<void> {
-    return this.keycloak.logout({ redirectUri: globalThis.location?.origin });
+    return this.keycloak.logout({ redirectUri: this.redirects.logoutRedirectUri() });
   }
 
   getToken(): string | null {

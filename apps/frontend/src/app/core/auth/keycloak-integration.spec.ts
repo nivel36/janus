@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { DOCUMENT } from '@angular/common';
 import { HttpErrorResponse, HttpRequest, HttpResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -96,6 +97,61 @@ describe('AuthService Keycloak event state', () => {
   });
 });
 
+describe('AuthService redirects', () => {
+  it('builds login and logout URLs from the injected document', async () => {
+    const keycloak = {
+      login: vi.fn().mockResolvedValue(undefined),
+      logout: vi.fn().mockResolvedValue(undefined),
+      hasRealmRole: vi.fn(),
+      hasResourceRole: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        { provide: Keycloak, useValue: keycloak },
+        { provide: KEYCLOAK_EVENT_SIGNAL, useValue: signal({}) },
+        {
+          provide: DOCUMENT,
+          useValue: { defaultView: { location: new URL('https://janus.example/current') } },
+        },
+      ],
+    });
+    const service = TestBed.inject(AuthService);
+
+    await service.loginWithRedirect('/employees');
+    await service.logout();
+
+    expect(keycloak.login).toHaveBeenCalledWith(
+      expect.objectContaining({ redirectUri: 'https://janus.example/employees' }),
+    );
+    expect(keycloak.logout).toHaveBeenCalledWith({ redirectUri: 'https://janus.example' });
+  });
+
+  it('passes undefined redirects when the document has no default view', async () => {
+    const keycloak = {
+      login: vi.fn().mockResolvedValue(undefined),
+      logout: vi.fn().mockResolvedValue(undefined),
+      hasRealmRole: vi.fn(),
+      hasResourceRole: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        { provide: Keycloak, useValue: keycloak },
+        { provide: KEYCLOAK_EVENT_SIGNAL, useValue: signal({}) },
+        { provide: DOCUMENT, useValue: { defaultView: null } },
+      ],
+    });
+    const service = TestBed.inject(AuthService);
+
+    await service.loginWithRedirect('/employees');
+    await service.logout();
+
+    expect(keycloak.login).toHaveBeenCalledWith(expect.objectContaining({ redirectUri: undefined }));
+    expect(keycloak.logout).toHaveBeenCalledWith({ redirectUri: undefined });
+  });
+});
+
 function requestHandledByOfficialInterceptor(url: string) {
   const keycloak = {
     authenticated: true,
@@ -109,7 +165,7 @@ function requestHandledByOfficialInterceptor(url: string) {
         provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
         useValue: [
           createInterceptorCondition<IncludeBearerTokenCondition>({
-            urlPattern: apiBearerUrlPattern('/api', window.location.origin),
+            urlPattern: apiBearerUrlPattern('/api', 'http://localhost:3000'),
           }),
         ],
       },
@@ -177,6 +233,10 @@ describe('authentication error recovery', () => {
       providers: [
         { provide: Keycloak, useValue: keycloak },
         { provide: Router, useValue: { navigateByUrl: vi.fn() } },
+        {
+          provide: DOCUMENT,
+          useValue: { defaultView: { location: new URL('https://janus.example/current') } },
+        },
       ],
     });
     const unauthorized = new HttpErrorResponse({ status: 401, url: '/api/worksites' });
@@ -189,7 +249,7 @@ describe('authentication error recovery', () => {
     await expect(firstValueFrom(response)).rejects.toBe(unauthorized);
     expect(keycloak.clearToken).toHaveBeenCalledOnce();
     expect(keycloak.login).toHaveBeenCalledWith({
-      redirectUri: window.location.href,
+      redirectUri: 'https://janus.example/current',
       locale: expect.any(String),
     });
   });
