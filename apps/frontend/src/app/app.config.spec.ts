@@ -1,8 +1,16 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { DOCUMENT } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { resolveInitialLanguage, resolveSupportedLanguage } from './core/i18n/language.util';
-import { apiBearerUrlPattern, keycloakInitOptions } from './app.config';
+import {
+  APP_ORIGIN,
+  apiBearerUrlPattern,
+  INITIAL_LANGUAGE,
+  KEYCLOAK_INIT_OPTIONS,
+} from './app.config';
 import { resolveKeycloakLocale } from './core/auth/keycloak-locale';
 
 describe('resolveInitialLanguage', () => {
@@ -34,16 +42,45 @@ describe('resolveSupportedLanguage', () => {
 });
 
 describe('Keycloak application configuration', () => {
+  const fakeDocument = (href: string, languages = ['ca-ES']) =>
+    ({
+      defaultView: {
+        location: new URL(href),
+        navigator: { language: languages[0], languages },
+      },
+    }) as unknown as Document;
+
   it('initializes check-sso with PKCE, silent SSO and the realm locale', () => {
-    expect(keycloakInitOptions).toMatchObject({
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: DOCUMENT, useValue: fakeDocument('https://janus.example/worksites') },
+        { provide: PLATFORM_ID, useValue: 'browser' },
+      ],
+    });
+    const options = TestBed.inject(KEYCLOAK_INIT_OPTIONS);
+
+    expect(options).toMatchObject({
       onLoad: 'check-sso',
       pkceMethod: 'S256',
       checkLoginIframe: false,
-      locale: resolveKeycloakLocale(),
+      locale: resolveKeycloakLocale(['ca-ES']),
     });
-    expect(keycloakInitOptions.silentCheckSsoRedirectUri).toBe(
-      `${window.location.origin}/assets/silent-check-sso.html`,
+    expect(options.silentCheckSsoRedirectUri).toBe(
+      'https://janus.example/assets/silent-check-sso.html',
     );
+  });
+
+  it('has explicit server defaults when the document has no default view', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: DOCUMENT, useValue: { defaultView: null } },
+        { provide: PLATFORM_ID, useValue: 'server' },
+      ],
+    });
+
+    expect(TestBed.inject(APP_ORIGIN)).toBeUndefined();
+    expect(TestBed.inject(INITIAL_LANGUAGE)).toBe('es-ES');
+    expect(TestBed.inject(KEYCLOAK_INIT_OPTIONS).silentCheckSsoRedirectUri).toBeUndefined();
   });
 
   it('limits bearer URLs to the configured API path', () => {
