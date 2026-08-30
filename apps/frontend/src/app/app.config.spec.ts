@@ -14,7 +14,7 @@ describe('resolveInitialLanguage', () => {
     expect(resolveInitialLanguage(['fr-FR', 'es-ES', 'en-GB'])).toBe('es-ES');
   });
 
-  it('falls back to English when no supported languages are present', () => {
+  it('falls back to Spanish when no supported languages are present', () => {
     expect(resolveInitialLanguage(['fr-FR', 'de-DE'])).toBe('es-ES');
   });
 });
@@ -29,7 +29,7 @@ describe('resolveSupportedLanguage', () => {
   });
 
   it('falls back when locale is not supported', () => {
-    expect(resolveSupportedLanguage('fr-FR', 'en-EN')).toBe('en-EN');
+    expect(resolveSupportedLanguage('fr-FR', 'en-GB')).toBe('en-GB');
   });
 });
 

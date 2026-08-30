@@ -10,12 +10,12 @@ import {
 describe('language.util', () => {
   describe('supportedLanguages', () => {
     it('should expose the supported languages in the expected order', () => {
-      expect(supportedLanguages).toEqual(['en-EN', 'es-ES', 'ca-ES']);
+      expect(supportedLanguages).toEqual(['en-GB', 'es-ES', 'ca-ES']);
     });
   });
 
   describe('FALLBACK_LANGUAGE', () => {
-    it('should define en-EN as the default fallback language', () => {
+    it('should define es-ES as the default fallback language', () => {
       expect(FALLBACK_LANGUAGE).toBe('es-ES');
     });
   });
@@ -27,6 +27,7 @@ describe('language.util', () => {
 
     it('should match locales case-insensitively', () => {
       expect(findSupportedLanguage('ES-es')).toBe('es-ES');
+      expect(findSupportedLanguage('EN-gb')).toBe('en-GB');
     });
 
     it('should resolve by language when the region is different', () => {
@@ -35,6 +36,19 @@ describe('language.util', () => {
 
     it('should resolve a language-only locale', () => {
       expect(findSupportedLanguage('ca')).toBe('ca-ES');
+    });
+
+    it('should resolve locales containing Unicode extensions by language', () => {
+      expect(findSupportedLanguage('ca-ES-u-ca-gregory')).toBe('ca-ES');
+    });
+
+    it('should return undefined for an unsupported locale containing a script', () => {
+      expect(findSupportedLanguage('zh-Hant-TW')).toBeUndefined();
+    });
+
+    it('should return undefined for invalid locale tags', () => {
+      expect(findSupportedLanguage('es--ES')).toBeUndefined();
+      expect(findSupportedLanguage('not_a_locale')).toBeUndefined();
     });
 
     it('should return undefined for an unsupported locale', () => {
@@ -60,7 +74,7 @@ describe('language.util', () => {
     });
 
     it('should resolve by base language when possible', () => {
-      expect(resolveSupportedLanguage('en-US')).toBe('en-EN');
+      expect(resolveSupportedLanguage('en-US')).toBe('en-GB');
     });
 
     it('should return the default fallback language when locale is unsupported', () => {
@@ -75,6 +89,10 @@ describe('language.util', () => {
   describe('resolveInitialLanguage', () => {
     it('should return the first supported browser language', () => {
       expect(resolveInitialLanguage(['fr-FR', 'es-ES', 'ca-ES'])).toBe('es-ES');
+    });
+
+    it('should skip invalid and unsupported locales before negotiating a supported locale', () => {
+      expect(resolveInitialLanguage(['invalid_locale', 'zh-Hant-TW', 'es-MX'])).toBe('es-ES');
     });
 
     it('should resolve the first browser language that matches by base language', () => {

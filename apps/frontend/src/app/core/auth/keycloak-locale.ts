@@ -11,5 +11,5 @@ import { resolveInitialLanguage } from '../i18n/language.util';
 export function resolveKeycloakLocale(
   browserLanguages: readonly string[] | undefined = globalThis.navigator?.languages,
 ): string {
-  return resolveInitialLanguage(browserLanguages).split('-')[0];
+  return new Intl.Locale(resolveInitialLanguage(browserLanguages)).language;
 }
