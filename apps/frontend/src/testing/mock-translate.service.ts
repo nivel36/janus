@@ -14,7 +14,7 @@ export class MockTranslateService {
   }
 
   getFallbackLang(): string {
-    return 'en-EN';
+    return 'en-GB';
   }
 
   instant(key: string, params?: Record<string, unknown>): string {

@@ -7,7 +7,7 @@
  *
  * The values are expressed as language-region tags.
  */
-export const supportedLanguages = ['en-EN', 'es-ES', 'ca-ES'] as const;
+export const supportedLanguages = ['en-GB', 'es-ES', 'ca-ES'] as const;
 
 /**
  * Union type containing every supported language tag.
@@ -23,13 +23,13 @@ export const FALLBACK_LANGUAGE: SupportedLanguage = 'es-ES';
  * Resolves a locale to one of the supported languages.
  *
  * Resolution is performed in two steps:
- * 1. Try an exact match against the full locale, ignoring case.
+ * 1. Canonicalize the locale and try an exact match against the full locale.
  * 2. If no exact match is found, try matching only the language part
  *    (for example, {@code es} resolves to {@code es-ES}).
  *
  * Examples:
- * - {@code en-EN} -> {@code en-EN}
- * - {@code EN-en} -> {@code en-EN}
+ * - {@code en-GB} -> {@code en-GB}
+ * - {@code EN-gb} -> {@code en-GB}
  * - {@code es-MX} -> {@code es-ES}
  * - {@code fr-FR} -> {@code undefined}
  *
@@ -39,20 +39,34 @@ export const FALLBACK_LANGUAGE: SupportedLanguage = 'es-ES';
 export function findSupportedLanguage(
   locale: string | undefined | null,
 ): SupportedLanguage | undefined {
-  const normalizedLocale = locale?.toLowerCase();
+  if (!locale) {
+    return undefined;
+  }
+
+  let canonicalLocale: string;
+
+  try {
+    [canonicalLocale] = Intl.getCanonicalLocales(locale);
+  } catch (error) {
+    if (error instanceof RangeError) {
+      return undefined;
+    }
+
+    throw error;
+  }
 
   const exactMatch = supportedLanguages.find(
-    (supportedLanguage) => supportedLanguage.toLowerCase() === normalizedLocale,
+    (supportedLanguage) => supportedLanguage === canonicalLocale,
   );
 
   if (exactMatch) {
     return exactMatch;
   }
 
-  const languageOnly = normalizedLocale?.split('-')[0];
+  const requestedLanguage = new Intl.Locale(canonicalLocale).language;
 
-  return supportedLanguages.find((supportedLanguage) =>
-    supportedLanguage.toLowerCase().startsWith(`${languageOnly}-`),
+  return supportedLanguages.find(
+    (supportedLanguage) => new Intl.Locale(supportedLanguage).language === requestedLanguage,
   );
 }
 

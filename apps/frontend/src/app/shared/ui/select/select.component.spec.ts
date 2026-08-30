@@ -37,7 +37,7 @@ class MockTranslatePipe implements PipeTransform {
 class TestHostComponent {
   readonly options = [
     { value: 'es-ES', labelKey: 'locale.es-ES' },
-    { value: 'en-EN', labelKey: 'locale.en-EN' },
+    { value: 'en-GB', labelKey: 'locale.en-GB' },
   ];
 
   readonly form = new FormGroup({
@@ -80,17 +80,17 @@ describe('SelectComponent (ControlValueAccessor)', () => {
   it('should update the FormControl when the selection changes', () => {
     const select = getSelect();
 
-    select.value = 'en-EN';
+    select.value = 'en-GB';
     select.dispatchEvent(new Event('change', { bubbles: true }));
 
-    expect(host.form.controls.locale.value).toBe('en-EN');
+    expect(host.form.controls.locale.value).toBe('en-GB');
   });
 
   it('should update the view when the FormControl value changes', () => {
-    host.form.controls.locale.setValue('en-EN');
+    host.form.controls.locale.setValue('en-GB');
     fixture.detectChanges();
 
-    expect(getSelect().value).toBe('en-EN');
+    expect(getSelect().value).toBe('en-GB');
   });
 
   it('should respect the disabled state from FormControl', () => {
