@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth/auth.guard';
+import { authChildGuard } from './core/auth/auth.guard';
 
 export const appRoutes: Routes = [
   {
@@ -11,92 +11,68 @@ export const appRoutes: Routes = [
       import('./core/error-pages/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
   },
   {
-    path: 'user-preferences',
-    canActivate: [authGuard],
-    data: {
-      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
-    },
-    loadComponent: () =>
-      import('./core/user/pages/user-preferences-page.component').then(
-        (m) => m.UserPreferencesPageComponent,
-      ),
-  },
-  {
-    path: 'application-settings',
-    canActivate: [authGuard],
-    data: {
-      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
-    },
-    loadComponent: () =>
-      import('./features/applicationsettings/pages/application-settings-page.component').then(
-        (m) => m.ApplicationSettingsPageComponent,
-      ),
-  },
-
-  {
-    path: 'schedules',
-    canActivate: [authGuard],
-    data: {
-      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
-    },
-    loadComponent: () =>
-      import('./features/schedules/pages/schedules-page.component').then(
-        (m) => m.SchedulesPageComponent,
-      ),
-  },
-  {
-    path: 'worksites/new',
-    canActivate: [authGuard],
-    data: {
-      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
-    },
-    loadComponent: () =>
-      import('./features/worksites/pages/worksite-create-page/worksite-create-page.component').then(
-        (m) => m.WorksiteCreatePageComponent,
-      ),
-  },
-  {
-    path: 'worksites/:code/edit',
-    canActivate: [authGuard],
-    data: {
-      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
-    },
-    loadComponent: () =>
-      import('./features/worksites/pages/worksite-edit-page/worksite-edit-page.component').then(
-        (m) => m.WorksiteEditPageComponent,
-      ),
-  },
-  {
-    path: 'worksites/:code',
-    canActivate: [authGuard],
-    data: {
-      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
-    },
-    loadComponent: () =>
-      import('./features/worksites/pages/worksite-detail-page/worksite-detail-page.component').then(
-        (m) => m.WorksiteDetailPageComponent,
-      ),
-  },
-  {
-    path: 'worksites',
-    canActivate: [authGuard],
-    data: {
-      realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
-    },
-    loadComponent: () =>
-      import('./features/worksites/pages/worksites-page/worksites-page.component').then(
-        (m) => m.WorksitesPageComponent,
-      ),
-  },
-  {
     path: '',
-    canActivate: [authGuard],
+    canActivateChild: [authChildGuard],
     data: {
       realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
     },
-    loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-page.component').then(
-        (m) => m.DashboardPageComponent,
-      ),
+    children: [
+      {
+        path: 'user-preferences',
+        loadComponent: () =>
+          import('./core/user/pages/user-preferences-page.component').then(
+            (m) => m.UserPreferencesPageComponent,
+          ),
+      },
+      {
+        path: 'application-settings',
+        loadComponent: () =>
+          import('./features/applicationsettings/pages/application-settings-page.component').then(
+            (m) => m.ApplicationSettingsPageComponent,
+          ),
+      },
+      {
+        path: 'schedules',
+        loadComponent: () =>
+          import('./features/schedules/pages/schedules-page.component').then(
+            (m) => m.SchedulesPageComponent,
+          ),
+      },
+      {
+        path: 'worksites/new',
+        loadComponent: () =>
+          import('./features/worksites/pages/worksite-create-page/worksite-create-page.component').then(
+            (m) => m.WorksiteCreatePageComponent,
+          ),
+      },
+      {
+        path: 'worksites/:code/edit',
+        loadComponent: () =>
+          import('./features/worksites/pages/worksite-edit-page/worksite-edit-page.component').then(
+            (m) => m.WorksiteEditPageComponent,
+          ),
+      },
+      {
+        path: 'worksites/:code',
+        loadComponent: () =>
+          import('./features/worksites/pages/worksite-detail-page/worksite-detail-page.component').then(
+            (m) => m.WorksiteDetailPageComponent,
+          ),
+      },
+      {
+        path: 'worksites',
+        loadComponent: () =>
+          import('./features/worksites/pages/worksites-page/worksites-page.component').then(
+            (m) => m.WorksitesPageComponent,
+          ),
+      },
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/dashboard/pages/dashboard-page.component').then(
+            (m) => m.DashboardPageComponent,
+          ),
+      },
+    ],
   },
 ];
