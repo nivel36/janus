@@ -1,9 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { TimeLog } from '../models/timelog';
 import { environment } from '../../../../environments/environment';
 import { Page } from '../../../shared/models/page.model';
+import {
+  ACTIVE_SCREEN_HTTP_RETRY_POLICY,
+  HTTP_RETRY_POLICY,
+} from '../../../core/http/http-retry.interceptor';
 
 export interface TimeLogPage {
   items: TimeLog[];
@@ -28,7 +32,10 @@ export class TimeLogService {
       .set('size', String(size));
 
     return this.http
-      .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
+      .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, {
+        params,
+        context: new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
+      })
       .pipe(
         map((r) => ({
           items: r.content,
@@ -44,7 +51,10 @@ export class TimeLogService {
     const params = new HttpParams().set('page', '0').set('size', '1').set('sort', 'entryTime,desc');
 
     return this.http
-      .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, { params })
+      .get<Page<TimeLog>>(`${this.baseUrl}/${encodeURIComponent(email)}/timelogs/`, {
+        params,
+        context: new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
+      })
       .pipe(map((r) => r.content[0]));
   }
 

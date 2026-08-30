@@ -17,6 +17,12 @@ export interface HttpRetryPolicy {
 /** A null value keeps retries disabled unless a caller explicitly opts in. */
 export const HTTP_RETRY_POLICY = new HttpContextToken<HttpRetryPolicy | null>(() => null);
 
+/** Retry policy for GET requests backing active screens. */
+export const ACTIVE_SCREEN_HTTP_RETRY_POLICY: HttpRetryPolicy = {
+  retries: 10,
+  baseDelayMs: 1_000,
+};
+
 const TRANSIENT_HTTP_STATUSES = new Set([0, 408, 500, 502, 503, 504]);
 const IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'OPTIONS', 'PUT', 'DELETE', 'TRACE']);
 

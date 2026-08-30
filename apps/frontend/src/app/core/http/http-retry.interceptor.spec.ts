@@ -5,7 +5,11 @@ import { HttpContext, HttpErrorResponse, HttpRequest, HttpResponse } from '@angu
 import { firstValueFrom, defer, of, throwError } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { HTTP_RETRY_POLICY, httpRetryInterceptor } from './http-retry.interceptor';
+import {
+  ACTIVE_SCREEN_HTTP_RETRY_POLICY,
+  HTTP_RETRY_POLICY,
+  httpRetryInterceptor,
+} from './http-retry.interceptor';
 
 describe('httpRetryInterceptor', () => {
   afterEach(() => {
@@ -52,6 +56,30 @@ describe('httpRetryInterceptor', () => {
       ),
     ).rejects.toBe(error);
     expect(attempts).toBe(1);
+  });
+
+  it('preserves the retry count migrated from active-screen consumers', async () => {
+    vi.useFakeTimers();
+    let attempts = 0;
+    const error = new HttpErrorResponse({ status: 503 });
+    const request = new HttpRequest('GET', '/api/example', null, {
+      context: new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
+    });
+    const result = firstValueFrom(
+      httpRetryInterceptor(request, () =>
+        defer(() => {
+          attempts += 1;
+          return throwError(() => error);
+        }),
+      ),
+    );
+
+    const rejection = expect(result).rejects.toBe(error);
+    await vi.runAllTimersAsync();
+    await rejection;
+
+    expect(ACTIVE_SCREEN_HTTP_RETRY_POLICY).toEqual({ retries: 10, baseDelayMs: 1_000 });
+    expect(attempts).toBe(11);
   });
 
   it('does not retry a request without the opt-in context', async () => {

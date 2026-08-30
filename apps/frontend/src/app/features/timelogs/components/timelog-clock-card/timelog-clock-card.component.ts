@@ -27,7 +27,6 @@ import {
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { ClockComponent } from '../../../../shared/ui/clock/clock.component';
 import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
-import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 import { TimeLog } from '../../models/timelog';
 import { TimeLogService } from '../../services/timelog-api.service';
 import { createUuid } from '../../../../shared/utils/uuid.utils';
@@ -324,7 +323,6 @@ export class TimelogClockCardComponent {
   private searchLatestTimeLog(employeeEmail: string): Observable<TimeLog | undefined> {
     return this.timeLogService
       .searchLatestByEmployee(employeeEmail)
-      .pipe(retryTransientHttpErrors())
       .pipe(catchError(() => of(undefined)));
   }
 

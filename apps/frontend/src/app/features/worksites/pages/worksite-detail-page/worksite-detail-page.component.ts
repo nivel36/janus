@@ -16,7 +16,6 @@ import {
   AsyncLoadingDirective,
   AsyncStateComponent,
 } from '../../../../shared/ui/async-state/async-state.component';
-import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 import { Worksite } from '../../models/worksite';
 import { WorksiteApiService } from '../../services/worksite-api.service';
 import { TabItemDirective } from '../../../../shared/ui/tabs/tab-item.directive';
@@ -61,8 +60,7 @@ export class WorksiteDetailPageComponent {
 
   protected readonly worksiteResource = rxResource<Worksite, { code: string }>({
     params: () => ({ code: this.worksiteCode() }),
-    stream: ({ params }) =>
-      this.worksiteApiService.findByCode(params.code).pipe(retryTransientHttpErrors()),
+    stream: ({ params }) => this.worksiteApiService.findByCode(params.code),
   });
 
   protected readonly worksite = computed(() => this.worksiteResource.value());

@@ -19,7 +19,6 @@ import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slid
 import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-button.component';
 import { ApplicationSettings } from '../models/application-settings';
 import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
-import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
 
 import { MessageComponent } from '../../../shared/ui/message/message.component';
 
@@ -105,7 +104,6 @@ export class ApplicationSettingsPageComponent implements OnInit {
     this.settingsApiService
       .find()
       .pipe(
-        retryTransientHttpErrors(),
         finalize(() => {
           this.loading = false;
         }),
@@ -201,7 +199,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
             option.literal.toLowerCase().includes(normalizedQuery),
         )
         .slice(0, 50),
-    ).pipe(retryTransientHttpErrors());
+    );
   };
 
   /**

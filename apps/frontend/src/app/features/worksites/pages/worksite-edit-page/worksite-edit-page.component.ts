@@ -14,7 +14,6 @@ import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
 import { InputComponent } from '../../../../shared/ui/input/input.component';
 import { SelectComponent, SelectOption } from '../../../../shared/ui/select/select.component';
-import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 import {
   createTimezoneCatalog,
   resolveTimezoneByZoneId,
@@ -95,7 +94,6 @@ export class WorksiteEditPageComponent implements OnInit {
     this.worksiteApiService
       .findByCode(this.worksiteCode)
       .pipe(
-        retryTransientHttpErrors(),
         finalize(() => {
           this.loading = false;
         }),
