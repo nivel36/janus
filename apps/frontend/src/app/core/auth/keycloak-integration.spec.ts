@@ -21,6 +21,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { apiBearerUrlPattern } from '../../app.config';
 import { authErrorInterceptor } from './auth-error.interceptor';
+import { AuthRedirectService } from './auth-redirect.service';
 import { isAccessAllowed } from './auth.guard';
 import { AuthService } from './auth.service';
 
@@ -266,6 +267,7 @@ describe('Keycloak Angular guard', () => {
   const state = { url: '/protected' } as RouterStateSnapshot;
   const keycloak = { login: vi.fn().mockResolvedValue(undefined) };
   const router = { parseUrl: vi.fn((url: string) => ({ redirectTo: url })) };
+  const redirects = { loginRedirectUri: vi.fn((): string | undefined => undefined) };
 
   const authData = (
     realmRoles: string[],
@@ -281,7 +283,12 @@ describe('Keycloak Angular guard', () => {
     authentication: AuthGuardData,
     parentData?: Record<string, unknown>,
   ) {
-    TestBed.configureTestingModule({ providers: [{ provide: Router, useValue: router }] });
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Router, useValue: router },
+        { provide: AuthRedirectService, useValue: redirects },
+      ],
+    });
     return TestBed.runInInjectionContext(() =>
       isAccessAllowed(route(data, parentData), state, authentication),
     );
@@ -314,9 +321,20 @@ describe('Keycloak Angular guard', () => {
       authenticated: false,
     };
 
+    redirects.loginRedirectUri.mockReturnValueOnce('https://janus.example/protected');
     await expect(evaluate({}, authentication, { realmRole: 'ADMIN' })).resolves.toBe(false);
-    expect(keycloak.login).toHaveBeenCalledWith(
-      expect.objectContaining({ redirectUri: expect.stringContaining('/protected') }),
-    );
+    expect(redirects.loginRedirectUri).toHaveBeenCalledWith('/protected');
+    expect(keycloak.login).toHaveBeenCalledWith({
+      redirectUri: 'https://janus.example/protected',
+      locale: expect.any(String),
+    });
+  });
+
+  it('omits the redirect URI when it cannot be resolved without a window', async () => {
+    const authentication = { ...authData([], {}), authenticated: false };
+
+    redirects.loginRedirectUri.mockReturnValueOnce(undefined);
+    await expect(evaluate({}, authentication)).resolves.toBe(false);
+    expect(keycloak.login).toHaveBeenLastCalledWith({ locale: expect.any(String) });
   });
 });
