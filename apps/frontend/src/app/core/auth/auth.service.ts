@@ -1,8 +1,8 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { effect, inject, Injectable, type Signal } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { computed, effect, inject, Injectable, signal, type Signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 import { resolveKeycloakLocale } from './keycloak-locale';
@@ -45,27 +45,29 @@ interface LoginRedirectOptions {
 export class AuthService {
   private readonly keycloak = inject(Keycloak);
   private readonly keycloakEvent = inject(KEYCLOAK_EVENT_SIGNAL) as Signal<unknown>;
-  private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(
-    Boolean(this.keycloak.authenticated),
-  );
-  private readonly usernameSubject = new BehaviorSubject<string | null>(
-    this.getUsernameFromClaims(),
-  );
-  private readonly claimsSubject = new BehaviorSubject<KeycloakClaims | null>(this.getClaims());
-  private readonly permissionsSubject = new BehaviorSubject<PermissionState>({
-    realmRoles: [],
-    clientRoles: {},
-  });
+  private readonly keycloakSnapshot = signal(this.readKeycloakSnapshot());
 
-  readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  readonly username$ = this.usernameSubject.asObservable();
-  readonly claims$ = this.claimsSubject.asObservable();
-  readonly permissions$ = this.permissionsSubject.asObservable();
+  readonly isAuthenticated = computed(() => this.keycloakSnapshot().isAuthenticated);
+  readonly claims = computed(() => this.keycloakSnapshot().claims);
+  readonly username = computed(() => {
+    if (!this.isAuthenticated()) {
+      return null;
+    }
+
+    const claims = this.claims();
+    return claims?.preferred_username ?? claims?.email ?? null;
+  });
+  readonly permissions = computed(() => this.extractPermissions(this.claims()));
+
+  readonly isAuthenticated$ = toObservable(this.isAuthenticated);
+  readonly username$ = toObservable(this.username);
+  readonly claims$ = toObservable(this.claims);
+  readonly permissions$ = toObservable(this.permissions);
 
   constructor() {
     effect(() => {
       this.keycloakEvent();
-      this.syncAuthState();
+      this.keycloakSnapshot.set(this.readKeycloakSnapshot());
     });
   }
 
@@ -111,29 +113,14 @@ export class AuthService {
     return this.keycloak.hasResourceRole(role, clientId);
   }
 
-  private syncAuthState(): void {
-    const isAuthenticated = Boolean(this.keycloak.authenticated);
-    this.isAuthenticatedSubject.next(isAuthenticated);
-    const claims = this.getClaims();
-    this.claimsSubject.next(claims);
-    this.permissionsSubject.next(this.extractPermissions(claims));
-
-    if (!isAuthenticated) {
-      this.usernameSubject.next(null);
-      return;
-    }
-
-    const username = this.getUsernameFromClaims();
-    this.usernameSubject.next(username);
-
-    if (!username) {
-      return;
-    }
-  }
-
-  private getUsernameFromClaims(): string | null {
-    const claims = this.getClaims();
-    return claims?.preferred_username ?? claims?.email ?? null;
+  private readKeycloakSnapshot(): {
+    isAuthenticated: boolean;
+    claims: KeycloakClaims | null;
+  } {
+    return {
+      isAuthenticated: Boolean(this.keycloak.authenticated),
+      claims: this.getClaims(),
+    };
   }
 
   private extractPermissions(claims: KeycloakClaims | null): PermissionState {

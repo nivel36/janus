@@ -2,22 +2,99 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { HttpErrorResponse, HttpRequest, HttpResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, type ActivatedRouteSnapshot, type RouterStateSnapshot } from '@angular/router';
 import Keycloak from 'keycloak-js';
 import {
   INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+  KEYCLOAK_EVENT_SIGNAL,
+  KeycloakEventType,
   createInterceptorCondition,
   includeBearerTokenInterceptor,
   type AuthGuardData,
   type IncludeBearerTokenCondition,
 } from 'keycloak-angular';
-import { firstValueFrom, of, throwError } from 'rxjs';
+import { combineLatest, firstValueFrom, of, throwError } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 
 import { apiBearerUrlPattern } from '../../app.config';
 import { authErrorInterceptor } from './auth-error.interceptor';
 import { isAccessAllowed } from './auth.guard';
+import { AuthService } from './auth.service';
+
+describe('AuthService Keycloak event state', () => {
+  it('updates all signal-derived observable values from the same event snapshot', () => {
+    const keycloak = {
+      authenticated: false,
+      tokenParsed: undefined as Record<string, unknown> | undefined,
+      login: vi.fn(),
+      logout: vi.fn(),
+      hasRealmRole: vi.fn(),
+      hasResourceRole: vi.fn(),
+    };
+    const keycloakEvent = signal({ type: KeycloakEventType.KeycloakAngularNotInitialized });
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        { provide: Keycloak, useValue: keycloak },
+        { provide: KEYCLOAK_EVENT_SIGNAL, useValue: keycloakEvent },
+      ],
+    });
+    const service = TestBed.inject(AuthService);
+    const observedStates: unknown[][] = [];
+    const subscription = combineLatest([
+      service.isAuthenticated$,
+      service.username$,
+      service.claims$,
+      service.permissions$,
+    ]).subscribe((state) => observedStates.push(state));
+
+    TestBed.tick();
+    expect(observedStates.at(-1)).toEqual([false, null, null, { realmRoles: [], clientRoles: {} }]);
+
+    const authenticatedClaims = {
+      preferred_username: 'ada',
+      realm_access: { roles: ['manager'] },
+      resource_access: { janus: { roles: ['editor'] } },
+    };
+    keycloak.authenticated = true;
+    keycloak.tokenParsed = authenticatedClaims;
+    keycloakEvent.set({ type: KeycloakEventType.AuthSuccess });
+    TestBed.tick();
+
+    expect(observedStates.at(-1)).toEqual([
+      true,
+      'ada',
+      authenticatedClaims,
+      { realmRoles: ['manager'], clientRoles: { janus: ['editor'] } },
+    ]);
+
+    const refreshedClaims = {
+      email: 'ada@example.com',
+      realm_access: { roles: ['admin'] },
+      resource_access: { reporting: { roles: ['viewer'] } },
+    };
+    keycloak.tokenParsed = refreshedClaims;
+    keycloakEvent.set({ type: KeycloakEventType.AuthRefreshSuccess });
+    TestBed.tick();
+
+    expect(observedStates.at(-1)).toEqual([
+      true,
+      'ada@example.com',
+      refreshedClaims,
+      { realmRoles: ['admin'], clientRoles: { reporting: ['viewer'] } },
+    ]);
+
+    keycloak.authenticated = false;
+    keycloak.tokenParsed = undefined;
+    keycloakEvent.set({ type: KeycloakEventType.AuthLogout });
+    TestBed.tick();
+
+    expect(observedStates.at(-1)).toEqual([false, null, null, { realmRoles: [], clientRoles: {} }]);
+    subscription.unsubscribe();
+  });
+});
 
 function requestHandledByOfficialInterceptor(url: string) {
   const keycloak = {
