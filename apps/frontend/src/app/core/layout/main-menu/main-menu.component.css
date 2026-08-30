@@ -15,8 +15,8 @@
 
 .main-menu__identity,
 .main-menu__actions {
-    padding-inline: var(--panel-medium-padding-inline);
     padding-block: var(--panel-medium-padding-block);
+    padding-inline: 0;
     display: flex;
 }
 
@@ -37,7 +37,7 @@
 }
 
 .main-menu__user-name {
-    padding: 0 var(--panel-medium-padding-inline) 0 0;
+    padding-inline: var(--panel-medium-padding-inline);
     display: flex;
     align-items: center;
 
@@ -67,5 +67,4 @@
 
 .main-menu__icon-button--logout {
     color: var(--accent-strong);
-    padding-right: 0;
 }
