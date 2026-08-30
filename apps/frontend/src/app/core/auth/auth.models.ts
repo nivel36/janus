@@ -33,14 +33,7 @@ export interface PermissionState {
   readonly clientRoles: ClientRolesByClient;
 }
 
-/** A client role required by a route authorization policy. */
-export interface ClientRoleRequirement {
-  clientId: string;
-  role: string;
-}
-
 /** Authorization policy supported in an Angular route's `data`. */
 export interface AuthRouteData {
   realmRole?: JanusRealmRole | readonly JanusRealmRole[];
-  clientRole?: ClientRoleRequirement | readonly ClientRoleRequirement[];
 }
