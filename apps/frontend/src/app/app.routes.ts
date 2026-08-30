@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Routes } from '@angular/router';
+import type { AuthRouteData } from './core/auth/auth.models';
 import { authChildGuard } from './core/auth/auth.guard';
 
 export const appRoutes: Routes = [
@@ -15,7 +16,7 @@ export const appRoutes: Routes = [
     canActivateChild: [authChildGuard],
     data: {
       realmRole: ['JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN'],
-    },
+    } satisfies AuthRouteData,
     children: [
       {
         path: 'user-preferences',

@@ -3,22 +3,10 @@
  */
 import { computed, effect, inject, Injectable, signal, type Signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import Keycloak, { type KeycloakLoginOptions, type KeycloakTokenParsed } from 'keycloak-js';
+import Keycloak, { type KeycloakLoginOptions } from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 import { AuthRedirectService } from './auth-redirect.service';
-
-interface ApplicationTokenClaims extends KeycloakTokenParsed {
-  preferred_username?: string;
-  email?: string;
-  given_name?: string;
-  family_name?: string;
-  locale?: string;
-}
-
-interface PermissionState {
-  realmRoles: string[];
-  clientRoles: Record<string, string[]>;
-}
+import type { ApplicationTokenClaims, ClientRolesByClient, PermissionState } from './auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -103,12 +91,12 @@ export class AuthService {
 
   private extractPermissions(claims: ApplicationTokenClaims | null): PermissionState {
     const realmRoles = claims?.realm_access?.roles ?? [];
-    const clientRoles = Object.entries(claims?.resource_access ?? {}).reduce<
-      Record<string, string[]>
-    >((accumulator, [clientId, access]) => {
-      accumulator[clientId] = access.roles ?? [];
-      return accumulator;
-    }, {});
+    const clientRoles: ClientRolesByClient = Object.fromEntries(
+      Object.entries(claims?.resource_access ?? {}).map(([clientId, access]) => [
+        clientId,
+        access.roles ?? [],
+      ]),
+    );
 
     return { realmRoles, clientRoles };
   }
