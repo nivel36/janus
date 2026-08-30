@@ -1,12 +1,13 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   AfterViewInit,
   Component,
   DestroyRef,
   ElementRef,
+  NgZone,
   OnInit,
   output,
   ViewChild,
@@ -403,6 +404,12 @@ export class AutocompleteTextboxComponent<T = unknown>
    */
   private readonly destroyRef = inject(DestroyRef);
 
+  /** Document used to obtain browser-only APIs without relying on global objects. */
+  private readonly document = inject(DOCUMENT);
+
+  /** Zone used to trigger change detection only when the observed width changes. */
+  private readonly ngZone = inject(NgZone);
+
   /**
    * Callback registered by Angular Forms to propagate value changes.
    */
@@ -414,13 +421,10 @@ export class AutocompleteTextboxComponent<T = unknown>
   private onTouched: () => void = noopTouched;
 
   /**
-   * Creates the component and registers cleanup logic for global listeners.
+   * Creates the component and registers cleanup logic.
    */
   constructor() {
     this.destroyRef.onDestroy(() => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('resize', this.handleWindowResize);
-      }
       this.keyManager?.destroy();
       this.liveAnnouncer.clear();
     });
@@ -755,15 +759,32 @@ export class AutocompleteTextboxComponent<T = unknown>
   /**
    * Finalizes view-dependent initialization once child references are available.
    *
-   * This currently synchronizes the overlay width with the host input container
-   * and registers a global resize listener to keep that width updated.
+   * This synchronizes the overlay width with the host input container and observes
+   * that container for subsequent size changes.
    */
   ngAfterViewInit(): void {
     this.updateOverlayWidth();
 
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', this.handleWindowResize, { passive: true });
+    const ResizeObserverConstructor = this.document.defaultView?.ResizeObserver;
+    if (!ResizeObserverConstructor) {
+      return;
     }
+
+    this.ngZone.runOutsideAngular(() => {
+      const resizeObserver = new ResizeObserverConstructor((entries) => {
+        const width = entries[0]?.contentRect.width;
+        if (width === undefined || width === this.overlayWidth) {
+          return;
+        }
+
+        this.ngZone.run(() => {
+          this.overlayWidth = width;
+        });
+      });
+
+      resizeObserver.observe(this.inputWrapper.nativeElement);
+      this.destroyRef.onDestroy(() => resizeObserver.disconnect());
+    });
   }
 
   /**
@@ -772,13 +793,6 @@ export class AutocompleteTextboxComponent<T = unknown>
   private updateOverlayWidth(): void {
     this.overlayWidth = this.inputWrapper?.nativeElement.getBoundingClientRect().width ?? 0;
   }
-
-  /**
-   * Window resize handler used to keep the overlay width aligned with the input.
-   */
-  private readonly handleWindowResize = (): void => {
-    this.updateOverlayWidth();
-  };
 
   /** Adds a rendered option to the collection managed by the CDK. */
   registerOption(option: AutocompleteOptionDirective): void {
