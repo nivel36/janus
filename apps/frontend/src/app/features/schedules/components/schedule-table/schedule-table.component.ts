@@ -15,7 +15,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { ScheduleApiService, SchedulePage } from '../../services/schedule-api.service';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
 import {
   AsyncEmptyDirective,
@@ -60,9 +59,11 @@ export class ScheduleTableComponent {
       query: this.normalizedQuery(),
     }),
     stream: ({ params }) =>
-      this.scheduleApiService
-        .search(params.page - 1, ScheduleTableComponent.PAGE_SIZE, params.query)
-        .pipe(retryTransientHttpErrors()),
+      this.scheduleApiService.search(
+        params.page - 1,
+        ScheduleTableComponent.PAGE_SIZE,
+        params.query,
+      ),
     defaultValue: {
       items: [],
       totalItems: 0,

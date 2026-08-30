@@ -18,7 +18,6 @@ import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
 import { TimeLogService, TimeLogPage } from '../../services/timelog-api.service';
 import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
 import {
   AsyncEmptyDirective,
@@ -92,9 +91,11 @@ export class TimelogTableComponent {
       page: this.currentPage(),
     }),
     stream: ({ params }) =>
-      this.timeLogService
-        .searchByEmployee(params.employeeEmail, params.page - 1, TimelogTableComponent.PAGE_SIZE)
-        .pipe(retryTransientHttpErrors()),
+      this.timeLogService.searchByEmployee(
+        params.employeeEmail,
+        params.page - 1,
+        TimelogTableComponent.PAGE_SIZE,
+      ),
     defaultValue: {
       items: [],
       totalItems: 0,

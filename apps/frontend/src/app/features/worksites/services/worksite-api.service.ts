@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
@@ -13,6 +13,11 @@ import {
   WorksiteScope,
 } from '../models/worksite';
 import { Page } from '../../../shared/models/page.model';
+import {
+  ACTIVE_SCREEN_HTTP_RETRY_POLICY,
+  HTTP_RETRY_POLICY,
+  type HttpRetryPolicy,
+} from '../../../core/http/http-retry.interceptor';
 
 interface WorksiteResponse {
   code: string;
@@ -60,7 +65,8 @@ export class WorksiteApiService {
       params = params.set('query', normalizedQuery);
     }
 
-    return this.http.get<Page<WorksiteResponse>>(this.baseUrl, { params }).pipe(
+    const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+    return this.http.get<Page<WorksiteResponse>>(this.baseUrl, { params, context }).pipe(
       map((r) => ({
         items: (r.content ?? []).map((worksite) => this.mapWorksite(worksite)),
         totalItems: r.page?.totalElements ?? 0,
@@ -75,11 +81,17 @@ export class WorksiteApiService {
    * Retrieves a single worksite by its unique code.
    *
    * @param worksiteCode Unique worksite business identifier.
+   * @param retryPolicy Optional retry policy for active-screen callers.
    * @returns Observable emitting the requested worksite.
    */
-  findByCode(worksiteCode: string): Observable<Worksite> {
+  findByCode(
+    worksiteCode: string,
+    retryPolicy: HttpRetryPolicy | null = null,
+  ): Observable<Worksite> {
     return this.http
-      .get<WorksiteResponse>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`)
+      .get<WorksiteResponse>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`, {
+        context: new HttpContext().set(HTTP_RETRY_POLICY, retryPolicy),
+      })
       .pipe(map((worksite) => this.mapWorksite(worksite)));
   }
 

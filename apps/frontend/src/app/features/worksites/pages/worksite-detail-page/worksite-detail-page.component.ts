@@ -16,7 +16,6 @@ import {
   AsyncLoadingDirective,
   AsyncStateComponent,
 } from '../../../../shared/ui/async-state/async-state.component';
-import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 import { Worksite } from '../../models/worksite';
 import { WorksiteApiService } from '../../services/worksite-api.service';
 import { TabItemDirective } from '../../../../shared/ui/tabs/tab-item.directive';
@@ -25,6 +24,7 @@ import { WorksiteDetailHeaderComponent } from '../../components/worksite-detail-
 import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
 import { WorksiteDetailPanelComponent } from '../../components/worksite-detail-panel/worksite-detail-panel.component';
 import { WorksiteSummaryPanelComponent } from '../../components/worksite-summary-panel/worksite-summary-panel.component';
+import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
 
 @Component({
   selector: 'app-worksite-detail-page',
@@ -62,7 +62,7 @@ export class WorksiteDetailPageComponent {
   protected readonly worksiteResource = rxResource<Worksite, { code: string }>({
     params: () => ({ code: this.worksiteCode() }),
     stream: ({ params }) =>
-      this.worksiteApiService.findByCode(params.code).pipe(retryTransientHttpErrors()),
+      this.worksiteApiService.findByCode(params.code, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
   });
 
   protected readonly worksite = computed(() => this.worksiteResource.value());

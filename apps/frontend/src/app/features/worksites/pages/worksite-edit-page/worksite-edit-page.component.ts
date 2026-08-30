@@ -8,13 +8,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, finalize, of } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
+import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
 import { TimezoneOption } from '../../../../shared/models/timezone-option.model';
 import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
 import { InputComponent } from '../../../../shared/ui/input/input.component';
 import { SelectComponent, SelectOption } from '../../../../shared/ui/select/select.component';
-import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 import {
   createTimezoneCatalog,
   resolveTimezoneByZoneId,
@@ -93,9 +93,8 @@ export class WorksiteEditPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.worksiteApiService
-      .findByCode(this.worksiteCode)
+      .findByCode(this.worksiteCode, ACTIVE_SCREEN_HTTP_RETRY_POLICY)
       .pipe(
-        retryTransientHttpErrors(),
         finalize(() => {
           this.loading = false;
         }),

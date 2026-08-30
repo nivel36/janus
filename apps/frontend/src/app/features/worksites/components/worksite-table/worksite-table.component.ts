@@ -18,7 +18,6 @@ import { WorksiteApiService, WorksitePage } from '../../services/worksite-api.se
 import { Worksite } from '../../models/worksite';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
-import { retryTransientHttpErrors } from '../../../../shared/utils/http-retry.util';
 
 import {
   AsyncEmptyDirective,
@@ -66,9 +65,11 @@ export class WorksiteTableComponent {
       query: this.normalizedQuery(),
     }),
     stream: ({ params }) =>
-      this.worksiteApiService
-        .search(params.page - 1, WorksiteTableComponent.PAGE_SIZE, params.query)
-        .pipe(retryTransientHttpErrors()),
+      this.worksiteApiService.search(
+        params.page - 1,
+        WorksiteTableComponent.PAGE_SIZE,
+        params.query,
+      ),
     defaultValue: {
       items: [],
       totalItems: 0,

@@ -12,6 +12,7 @@ import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
 
 import { WorksiteApiService } from '../../services/worksite-api.service';
 import { WorksiteEditPageComponent } from './worksite-edit-page.component';
+import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
 
 describe('WorksiteEditPageComponent', () => {
   let component: WorksiteEditPageComponent;
@@ -74,7 +75,10 @@ describe('WorksiteEditPageComponent', () => {
   });
 
   it('loads the worksite and keeps the code field immutable', () => {
-    expect(worksiteApiService.findByCode).toHaveBeenCalledWith('BCN-HQ');
+    expect(worksiteApiService.findByCode).toHaveBeenCalledWith(
+      'BCN-HQ',
+      ACTIVE_SCREEN_HTTP_RETRY_POLICY,
+    );
     expect(component.form.controls.code.disabled).toBe(true);
     expect(component.form.getRawValue().code).toBe('BCN-HQ');
   });
