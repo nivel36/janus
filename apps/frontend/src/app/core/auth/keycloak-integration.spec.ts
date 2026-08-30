@@ -147,7 +147,9 @@ describe('AuthService redirects', () => {
     await service.loginWithRedirect('/employees');
     await service.logout();
 
-    expect(keycloak.login).toHaveBeenCalledWith(expect.objectContaining({ redirectUri: undefined }));
+    expect(keycloak.login).toHaveBeenCalledWith(
+      expect.objectContaining({ redirectUri: undefined }),
+    );
     expect(keycloak.logout).toHaveBeenCalledWith({ redirectUri: undefined });
   });
 });
@@ -256,7 +258,11 @@ describe('authentication error recovery', () => {
 });
 
 describe('Keycloak Angular guard', () => {
-  const route = (data: Record<string, unknown>) => ({ data }) as unknown as ActivatedRouteSnapshot;
+  const route = (data: Record<string, unknown>, parentData?: Record<string, unknown>) =>
+    ({
+      data,
+      pathFromRoot: [...(parentData ? [{ data: parentData }] : []), { data }],
+    }) as unknown as ActivatedRouteSnapshot;
   const state = { url: '/protected' } as RouterStateSnapshot;
   const keycloak = { login: vi.fn().mockResolvedValue(undefined) };
   const router = { parseUrl: vi.fn((url: string) => ({ redirectTo: url })) };
@@ -270,9 +276,15 @@ describe('Keycloak Angular guard', () => {
     keycloak: keycloak as unknown as Keycloak,
   });
 
-  async function evaluate(data: Record<string, unknown>, authentication: AuthGuardData) {
+  async function evaluate(
+    data: Record<string, unknown>,
+    authentication: AuthGuardData,
+    parentData?: Record<string, unknown>,
+  ) {
     TestBed.configureTestingModule({ providers: [{ provide: Router, useValue: router }] });
-    return TestBed.runInInjectionContext(() => isAccessAllowed(route(data), state, authentication));
+    return TestBed.runInInjectionContext(() =>
+      isAccessAllowed(route(data, parentData), state, authentication),
+    );
   }
 
   it('accepts either a realm role or a client role', async () => {
@@ -287,8 +299,24 @@ describe('Keycloak Angular guard', () => {
   });
 
   it('redirects an authenticated user without any required role to forbidden', async () => {
-    await expect(evaluate({ realmRole: 'ADMIN' }, authData(['USER'], {}))).resolves.toEqual({
+    await expect(evaluate({}, authData(['USER'], {}), { realmRole: 'ADMIN' })).resolves.toEqual({
       redirectTo: '/forbidden',
     });
+  });
+
+  it('allows an authenticated user using the policy on the parent route', async () => {
+    await expect(evaluate({}, authData(['ADMIN'], {}), { realmRole: 'ADMIN' })).resolves.toBe(true);
+  });
+
+  it('redirects an unauthenticated user to login', async () => {
+    const authentication = {
+      ...authData([], {}),
+      authenticated: false,
+    };
+
+    await expect(evaluate({}, authentication, { realmRole: 'ADMIN' })).resolves.toBe(false);
+    expect(keycloak.login).toHaveBeenCalledWith(
+      expect.objectContaining({ redirectUri: expect.stringContaining('/protected') }),
+    );
   });
 });

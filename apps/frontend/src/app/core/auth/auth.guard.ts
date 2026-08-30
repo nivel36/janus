@@ -3,7 +3,7 @@
  */
 import { inject } from '@angular/core';
 import {
-  CanActivateFn,
+  CanActivateChildFn,
   Router,
   type ActivatedRouteSnapshot,
   type RouterStateSnapshot,
@@ -33,7 +33,12 @@ export async function isAccessAllowed(
   { authenticated, grantedRoles, keycloak }: AuthGuardData,
 ): Promise<boolean | UrlTree> {
   const router = inject(Router);
-  const roleData = route.data as RouteRoleData | undefined;
+  // A canActivateChild guard receives the child snapshot. Resolve the policy from
+  // the complete route explicitly instead of relying on paramsInheritanceStrategy.
+  const roleData = route.pathFromRoot.reduce<RouteRoleData>(
+    (policy, snapshot) => ({ ...policy, ...(snapshot.data as RouteRoleData) }),
+    {},
+  );
 
   if (!authenticated) {
     const targetUrl = new URL(state.url || '/', globalThis.location?.origin).toString();
@@ -55,4 +60,4 @@ export async function isAccessAllowed(
   return isAuthorized ? true : router.parseUrl('/forbidden');
 }
 
-export const authGuard = createAuthGuard<CanActivateFn>(isAccessAllowed);
+export const authChildGuard = createAuthGuard<CanActivateChildFn>(isAccessAllowed);
