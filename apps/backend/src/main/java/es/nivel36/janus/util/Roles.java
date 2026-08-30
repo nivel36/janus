@@ -61,38 +61,41 @@ public final class Roles {
 	/**
 	 * Determines whether the given authorities contain exclusively the employee role.
 	 * <p>
-	 * This method returns {@code true} only if the set of authorities contains exactly
-	 * one role and that role is {@code EMPLOYEE}.
+	 * This method returns {@code true} only if the set of {@code ROLE_}-prefixed
+	 * authorities contains exactly one role and that role is {@code EMPLOYEE}.
+	 * Non-role authorities, such as OAuth scopes, are ignored.
 	 * </p>
 	 *
 	 * @param authorities the authorities to inspect
 	 * @return {@code true} if the only role present is employee; {@code false} otherwise
 	 */
 	public static boolean hasOnlyEmployeeRole(Collection<? extends GrantedAuthority> authorities) {
-		return toAuthoritySet(authorities).equals(Set.of(EMPLOYEE));
+		return toRoleSet(authorities).equals(Set.of(EMPLOYEE));
 	}
 
 	/**
 	 * Determines whether the given authorities contain exclusively the user role.
 	 * <p>
-	 * This method returns {@code true} only if the set of authorities contains exactly
-	 * one role and that role is {@code USER}.
+	 * This method returns {@code true} only if the set of {@code ROLE_}-prefixed
+	 * authorities contains exactly one role and that role is {@code USER}.
+	 * Non-role authorities, such as OAuth scopes, are ignored.
 	 * </p>
 	 *
 	 * @param authorities the authorities to inspect
 	 * @return {@code true} if the only role present is user; {@code false} otherwise
 	 */
 	public static boolean hasOnlyUserRole(Collection<? extends GrantedAuthority> authorities) {
-		return toAuthoritySet(authorities).equals(Set.of(USER));
+		return toRoleSet(authorities).equals(Set.of(USER));
 	}
 
 	private static boolean hasRole(Collection<? extends GrantedAuthority> authorities, String role) {
 		return authorities.stream().anyMatch(authority -> role.equals(authority.getAuthority()));
 	}
 
-	private static Set<String> toAuthoritySet(Collection<? extends GrantedAuthority> authorities) {
+	private static Set<String> toRoleSet(Collection<? extends GrantedAuthority> authorities) {
 		return authorities.stream()
 				.map(GrantedAuthority::getAuthority)
+				.filter(authority -> authority.startsWith("ROLE_"))
 				.collect(Collectors.toUnmodifiableSet());
 	}
 

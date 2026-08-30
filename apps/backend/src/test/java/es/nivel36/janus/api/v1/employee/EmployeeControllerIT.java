@@ -78,6 +78,14 @@ class EmployeeControllerIT {
 	}
 
 	@Test
+	void testEmployeeWithScopeCannotFindAnotherEmployee() throws Exception {
+		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
+				.jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read")))) //
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')" //
 	})
@@ -141,6 +149,17 @@ class EmployeeControllerIT {
 				.andExpect(jsonPath("$.name").value("Abel")) //
 				.andExpect(jsonPath("$.surname").value("Ferrer Jiménez")) //
 				.andExpect(jsonPath("$.scheduleCode").value("STD-WH"));
+	}
+
+	@Test
+	void testEmployeeWithScopeCannotUpdateAnotherEmployee() throws Exception {
+		final String body = """
+				{"name":"Other","surname":"Employee","scheduleCode":"STD-WH"}
+				""";
+		this.mvc.perform(put(BASE + "/{employeeEmail}", "other@nivel36.es").contentType(APPLICATION_JSON)
+				.content(body).with(jwt().jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read")))) //
+				.andExpect(status().isForbidden());
 	}
 
 	@Test

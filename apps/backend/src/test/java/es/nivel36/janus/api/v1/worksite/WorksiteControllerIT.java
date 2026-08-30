@@ -74,7 +74,7 @@ class WorksiteControllerIT {
 		this.mvc.perform(get(BASE).param("employeeEmail", "bperson@nivel36.es").with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es"))
-				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());
 	}
 
