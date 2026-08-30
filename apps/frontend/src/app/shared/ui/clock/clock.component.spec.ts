@@ -88,11 +88,10 @@ describe('ClockComponent', () => {
     expect(spy).toHaveBeenCalledTimes(3);
   });
 
-  it('should not start a browser interval when rendered on the server', async () => {
+  it('should render an empty deterministic value on the server', async () => {
     fixture.destroy();
     TestBed.resetTestingModule();
 
-    const setIntervalSpy = vi.spyOn(window, 'setInterval');
     const fmtSpy = vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('10:15:30');
 
     await TestBed.configureTestingModule({
@@ -103,22 +102,30 @@ describe('ClockComponent', () => {
     const serverFixture = TestBed.createComponent(ClockComponent);
     serverFixture.componentRef.setInput('locale', 'en-US');
     serverFixture.detectChanges();
+    vi.advanceTimersByTime(2000);
 
-    expect(fmtSpy).toHaveBeenCalledWith('en-US', expect.objectContaining({ hour12: false }));
-    expect(setIntervalSpy).not.toHaveBeenCalled();
+    const timeEl = serverFixture.nativeElement.querySelector('time.clock__time') as HTMLElement;
 
-    expect(() => serverFixture.componentInstance.ngOnDestroy()).not.toThrow();
+    expect(fmtSpy).not.toHaveBeenCalled();
+    expect(timeEl.textContent?.trim()).toBe('');
+    expect(timeEl.getAttribute('datetime')).toBe('');
     serverFixture.destroy();
   });
 
-  it('should clear the interval on destroy', () => {
-    const clearSpy = vi.spyOn(window, 'clearInterval');
+  it('should stop timer emissions when the fixture is destroyed', () => {
+    const spy = vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('time');
 
     fixture.detectChanges();
     vi.advanceTimersByTime(0);
-    component.ngOnDestroy();
+    expect(spy).toHaveBeenCalledTimes(1);
 
-    expect(clearSpy).toHaveBeenCalled();
+    vi.advanceTimersByTime(1000);
+    expect(spy).toHaveBeenCalledTimes(2);
+
+    fixture.destroy();
+    vi.advanceTimersByTime(3000);
+
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 
   it('should expose semantic and ARIA attributes for assistive technologies', () => {
