@@ -50,9 +50,30 @@ describe('AutocompleteTextboxComponent', () => {
   let overlayContainer: OverlayContainer;
   let overlayContainerElement: HTMLElement;
   let liveAnnouncer: LiveAnnouncer;
+  let resizeObserverInstances: MockResizeObserver[];
+
+  class MockResizeObserver implements ResizeObserver {
+    readonly observe = vi.fn<(target: Element) => void>();
+    readonly unobserve = vi.fn<(target: Element) => void>();
+    readonly disconnect = vi.fn<() => void>();
+
+    constructor(private readonly callback: ResizeObserverCallback) {
+      resizeObserverInstances.push(this);
+    }
+
+    emitWidth(width: number): void {
+      this.callback([{ contentRect: { width } } as ResizeObserverEntry], this);
+    }
+  }
 
   beforeEach(async () => {
     vi.useFakeTimers();
+    resizeObserverInstances = [];
+
+    Object.defineProperty(document.defaultView, 'ResizeObserver', {
+      configurable: true,
+      value: MockResizeObserver,
+    });
 
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
       configurable: true,
@@ -87,6 +108,7 @@ describe('AutocompleteTextboxComponent', () => {
     overlayContainerElement.innerHTML = '';
     vi.clearAllTimers();
     vi.useRealTimers();
+    Reflect.deleteProperty(document.defaultView!, 'ResizeObserver');
   });
 
   function getInput(): HTMLInputElement {
@@ -461,6 +483,19 @@ describe('AutocompleteTextboxComponent', () => {
     fixture.destroy();
 
     expect(clearSpy).toHaveBeenCalled();
+  });
+
+  it('should update overlay width from ResizeObserver and disconnect when destroyed', () => {
+    const resizeObserver = resizeObserverInstances.at(-1);
+    expect(resizeObserver).toBeDefined();
+
+    resizeObserver!.emitWidth(428);
+
+    expect(component.overlayWidth).toBe(428);
+
+    fixture.destroy();
+
+    expect(resizeObserver!.disconnect).toHaveBeenCalledTimes(1);
   });
 
   it('should mark control as touched on blur', () => {
