@@ -18,7 +18,6 @@ import { AuthService } from '../../auth/auth.service';
 import { UserProfileApiService } from './user-profile-api.service';
 import { User } from '../models/user';
 import { UserPreferences } from '../models/user-preferences';
-import { retryTransientHttpErrors } from '../../../shared/utils/http-retry.util';
 
 /**
  * Facade responsible for exposing the current authenticated user as a
@@ -117,10 +116,7 @@ export class CurrentUserFacade {
         return of(null);
       }
 
-      return this.userProfileApi.getPreferences(username).pipe(
-        retryTransientHttpErrors(),
-        catchError(() => of(null)),
-      );
+      return this.userProfileApi.getPreferences(username).pipe(catchError(() => of(null)));
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
