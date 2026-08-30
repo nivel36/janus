@@ -7,7 +7,6 @@ import { Router } from '@angular/router';
 import Keycloak from 'keycloak-js';
 import { catchError, throwError } from 'rxjs';
 
-import { resolveKeycloakLocale } from './keycloak-locale';
 import { AuthRedirectService } from './auth-redirect.service';
 
 export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
@@ -21,7 +20,6 @@ export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
         keycloak.clearToken();
         void keycloak.login({
           redirectUri: redirects.loginRedirectUri(),
-          locale: resolveKeycloakLocale(),
         });
       }
       if (error instanceof HttpErrorResponse && error.status === 403) {

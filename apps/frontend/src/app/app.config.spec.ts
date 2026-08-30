@@ -11,7 +11,6 @@ import {
   INITIAL_LANGUAGE,
   KEYCLOAK_INIT_OPTIONS,
 } from './app.config';
-import { resolveKeycloakLocale } from './core/auth/keycloak-locale';
 
 describe('resolveInitialLanguage', () => {
   it('returns ca when browser language is Catalan', () => {
@@ -50,7 +49,7 @@ describe('Keycloak application configuration', () => {
       },
     }) as unknown as Document;
 
-  it('initializes check-sso with PKCE, silent SSO and the realm locale', () => {
+  it('initializes check-sso with PKCE and silent SSO', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: DOCUMENT, useValue: fakeDocument('https://janus.example/worksites') },
@@ -63,8 +62,8 @@ describe('Keycloak application configuration', () => {
       onLoad: 'check-sso',
       pkceMethod: 'S256',
       checkLoginIframe: false,
-      locale: resolveKeycloakLocale(['ca-ES']),
     });
+    expect(options).not.toHaveProperty('locale');
     expect(options.silentCheckSsoRedirectUri).toBe(
       'https://janus.example/assets/silent-check-sso.html',
     );
