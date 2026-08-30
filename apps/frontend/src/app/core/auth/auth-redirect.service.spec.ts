@@ -25,13 +25,33 @@ describe('AuthRedirectService', () => {
     );
   });
 
-  it('preserves an absolute login URL', () => {
+  it('preserves an absolute login URL from the document origin', () => {
+    const service = serviceFor({
+      defaultView: { location: new URL('https://janus.example/current') },
+    });
+
+    expect(service.loginRedirectUri('https://janus.example/complete')).toBe(
+      'https://janus.example/complete',
+    );
+  });
+
+  it('uses the current URL instead of an HTTPS login URL from another origin', () => {
     const service = serviceFor({
       defaultView: { location: new URL('https://janus.example/current') },
     });
 
     expect(service.loginRedirectUri('https://other.example/complete')).toBe(
-      'https://other.example/complete',
+      'https://janus.example/current',
+    );
+  });
+
+  it('uses the current URL instead of a login URL with a disallowed protocol', () => {
+    const service = serviceFor({
+      defaultView: { location: new URL('https://janus.example/current') },
+    });
+
+    expect(service.loginRedirectUri('javascript:alert(1)')).toBe(
+      'https://janus.example/current',
     );
   });
 
