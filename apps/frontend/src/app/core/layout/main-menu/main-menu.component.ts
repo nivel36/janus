@@ -30,9 +30,8 @@ export class MainMenuComponent {
   readonly faBuilding = faBuilding;
   readonly faUserCircle = faUserCircle;
 
-  logout(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
+  async logout(): Promise<void> {
+    await this.auth.logout();
   }
 
   goToUserPreferences(): void {
