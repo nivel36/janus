@@ -21,7 +21,6 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { apiBearerUrlPattern } from '../../app.config';
 import { authErrorInterceptor } from './auth-error.interceptor';
-import { AuthRedirectService } from './auth-redirect.service';
 import { isAccessAllowed } from './auth.guard';
 import { JANUS_REALM_ROLES } from './auth.models';
 import { AuthService } from './auth.service';
@@ -120,20 +119,18 @@ describe('AuthService redirects', () => {
     });
     const service = TestBed.inject(AuthService);
 
-    await service.loginWithRedirect('/employees', {
+    await service.login('/employees', {
       prompt: 'consent',
       maxAge: 0,
       idpHint: 'corporate-sso',
     });
 
-    expect(keycloak.login).toHaveBeenCalledWith(
-      expect.objectContaining({
-        redirectUri: 'https://janus.example/employees',
-        prompt: 'consent',
-        maxAge: 0,
-        idpHint: 'corporate-sso',
-      }),
-    );
+    expect(keycloak.login).toHaveBeenCalledWith({
+      redirectUri: 'https://janus.example/employees',
+      prompt: 'consent',
+      maxAge: 0,
+      idpHint: 'corporate-sso',
+    });
   });
 
   it('builds login and logout URLs from the injected document', async () => {
@@ -156,16 +153,16 @@ describe('AuthService redirects', () => {
     });
     const service = TestBed.inject(AuthService);
 
-    await service.loginWithRedirect('/employees');
+    await service.login('/employees');
     await service.logout();
 
-    expect(keycloak.login).toHaveBeenCalledWith(
-      expect.objectContaining({ redirectUri: 'https://janus.example/employees' }),
-    );
+    expect(keycloak.login).toHaveBeenCalledWith({
+      redirectUri: 'https://janus.example/employees',
+    });
     expect(keycloak.logout).toHaveBeenCalledWith({ redirectUri: 'https://janus.example' });
   });
 
-  it('passes undefined redirects when the document has no default view', async () => {
+  it('omits undefined login options and redirects when the document has no default view', async () => {
     const keycloak = {
       login: vi.fn().mockResolvedValue(undefined),
       logout: vi.fn().mockResolvedValue(undefined),
@@ -182,12 +179,10 @@ describe('AuthService redirects', () => {
     });
     const service = TestBed.inject(AuthService);
 
-    await service.loginWithRedirect('/employees');
+    await service.login('/employees', { prompt: undefined, maxAge: undefined, idpHint: undefined });
     await service.logout();
 
-    expect(keycloak.login).toHaveBeenCalledWith(
-      expect.objectContaining({ redirectUri: undefined }),
-    );
+    expect(keycloak.login).toHaveBeenCalledWith({});
     expect(keycloak.logout).toHaveBeenCalledWith({ redirectUri: undefined });
   });
 });
@@ -265,13 +260,12 @@ describe('official bearer interceptor', () => {
 
 describe('authentication error recovery', () => {
   it('clears the unusable token and redirects to login after an API 401', async () => {
-    const keycloak = {
-      clearToken: vi.fn(),
-      login: vi.fn().mockResolvedValue(undefined),
-    };
+    const keycloak = { clearToken: vi.fn() };
+    const auth = { login: vi.fn().mockResolvedValue(undefined) };
     TestBed.configureTestingModule({
       providers: [
         { provide: Keycloak, useValue: keycloak },
+        { provide: AuthService, useValue: auth },
         { provide: Router, useValue: { navigateByUrl: vi.fn() } },
         {
           provide: DOCUMENT,
@@ -288,10 +282,7 @@ describe('authentication error recovery', () => {
 
     await expect(firstValueFrom(response)).rejects.toBe(unauthorized);
     expect(keycloak.clearToken).toHaveBeenCalledOnce();
-    expect(keycloak.login).toHaveBeenCalledWith({
-      redirectUri: 'https://janus.example/current',
-    });
-    expect(keycloak.login.mock.calls[0]?.[0]).not.toHaveProperty('locale');
+    expect(auth.login).toHaveBeenCalledWith();
   });
 });
 
@@ -304,7 +295,7 @@ describe('Keycloak Angular guard', () => {
   const state = { url: '/protected' } as RouterStateSnapshot;
   const keycloak = { login: vi.fn().mockResolvedValue(undefined) };
   const router = { parseUrl: vi.fn((url: string) => ({ redirectTo: url })) };
-  const redirects = { loginRedirectUri: vi.fn((): string | undefined => undefined) };
+  const auth = { login: vi.fn().mockResolvedValue(undefined) };
 
   const authData = (
     realmRoles: string[],
@@ -319,15 +310,16 @@ describe('Keycloak Angular guard', () => {
     data: Record<string, unknown>,
     authentication: AuthGuardData,
     parentData?: Record<string, unknown>,
+    routerState = state,
   ) {
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: router },
-        { provide: AuthRedirectService, useValue: redirects },
+        { provide: AuthService, useValue: auth },
       ],
     });
     return TestBed.runInInjectionContext(() =>
-      isAccessAllowed(route(data, parentData), state, authentication),
+      isAccessAllowed(route(data, parentData), routerState, authentication),
     );
   }
 
@@ -355,22 +347,18 @@ describe('Keycloak Angular guard', () => {
       authenticated: false,
     };
 
-    redirects.loginRedirectUri.mockReturnValueOnce('https://janus.example/protected');
     await expect(
       evaluate({}, authentication, { realmRole: JANUS_REALM_ROLES.ADMIN }),
     ).resolves.toBe(false);
-    expect(redirects.loginRedirectUri).toHaveBeenCalledWith('/protected');
-    expect(keycloak.login).toHaveBeenCalledWith({
-      redirectUri: 'https://janus.example/protected',
-    });
-    expect(keycloak.login.mock.calls.at(-1)?.[0]).not.toHaveProperty('locale');
+    expect(auth.login).toHaveBeenCalledWith('/protected');
   });
 
-  it('omits the redirect URI when it cannot be resolved without a window', async () => {
+  it('uses the root route as the login return route when the router URL is empty', async () => {
     const authentication = { ...authData([], {}), authenticated: false };
 
-    redirects.loginRedirectUri.mockReturnValueOnce(undefined);
-    await expect(evaluate({}, authentication)).resolves.toBe(false);
-    expect(keycloak.login).toHaveBeenLastCalledWith({});
+    await expect(
+      evaluate({}, authentication, undefined, { url: '' } as RouterStateSnapshot),
+    ).resolves.toBe(false);
+    expect(auth.login).toHaveBeenLastCalledWith('/');
   });
 });

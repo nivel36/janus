@@ -39,19 +39,17 @@ export class AuthService {
     });
   }
 
-  login(): Promise<void> {
-    return this.keycloak.login();
-  }
-
-  loginWithRedirect(
-    redirectUri?: string,
+  login(
+    returnRoute?: string,
     options?: Pick<KeycloakLoginOptions, 'prompt' | 'maxAge' | 'idpHint'>,
   ): Promise<void> {
+    const redirectUri = this.redirects.loginRedirectUri(returnRoute);
+
     return this.keycloak.login({
-      redirectUri: this.redirects.loginRedirectUri(redirectUri),
-      prompt: options?.prompt,
-      maxAge: options?.maxAge,
-      idpHint: options?.idpHint,
+      ...(redirectUri !== undefined ? { redirectUri } : {}),
+      ...(options?.prompt !== undefined ? { prompt: options.prompt } : {}),
+      ...(options?.maxAge !== undefined ? { maxAge: options.maxAge } : {}),
+      ...(options?.idpHint !== undefined ? { idpHint: options.idpHint } : {}),
     });
   }
 

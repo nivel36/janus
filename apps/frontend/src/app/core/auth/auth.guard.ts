@@ -10,8 +10,8 @@ import {
   type UrlTree,
 } from '@angular/router';
 import { createAuthGuard, type AuthGuardData } from 'keycloak-angular';
-import { AuthRedirectService } from './auth-redirect.service';
 import type { AuthRouteData } from './auth.models';
+import { AuthService } from './auth.service';
 
 function asArray<T>(v: T | readonly T[] | null | undefined): readonly T[] {
   if (v == null) return [];
@@ -21,14 +21,10 @@ function asArray<T>(v: T | readonly T[] | null | undefined): readonly T[] {
 export async function isAccessAllowed(
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot,
-  {
-    authenticated,
-    grantedRoles: { realmRoles },
-    keycloak,
-  }: AuthGuardData,
+  { authenticated, grantedRoles: { realmRoles } }: AuthGuardData,
 ): Promise<boolean | UrlTree> {
   const router = inject(Router);
-  const redirects = inject(AuthRedirectService);
+  const auth = inject(AuthService);
   // A canActivateChild guard receives the child snapshot. Resolve the policy from
   // the complete route explicitly instead of relying on paramsInheritanceStrategy.
   const roleData = route.pathFromRoot.reduce<AuthRouteData>(
@@ -37,10 +33,7 @@ export async function isAccessAllowed(
   );
 
   if (!authenticated) {
-    const redirectUri = redirects.loginRedirectUri(state.url || '/');
-    await keycloak.login({
-      ...(redirectUri !== undefined ? { redirectUri } : {}),
-    });
+    await auth.login(state.url || '/');
     return false;
   }
 
