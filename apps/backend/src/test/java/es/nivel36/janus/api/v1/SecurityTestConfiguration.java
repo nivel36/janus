@@ -31,7 +31,10 @@ public class SecurityTestConfiguration {
 	JwtDecoder testJwtDecoder() {
 		return token -> Jwt.withTokenValue(token) //
 				.header("alg", "none") //
-				.claim("sub", "jdoe") //
+				.claim("sub", "provider-account-id") //
+				.claim("email", token) //
+				.claim("email_verified", true) //
+				.claim("preferred_username", "renamed-user") //
 				.claim("scope", "read") //
 				.issuedAt(Instant.now()) //
 				.expiresAt(Instant.now().plusSeconds(3600)) //

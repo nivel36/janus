@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.config.AuthenticatedIdentity;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
@@ -94,9 +95,9 @@ public class EmployeeController {
 			final Authentication authentication) {
 		logger.debug("Find employee by email ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 			throw new AccessDeniedException("Employees can only search his own user");
 		}
 		
@@ -146,9 +147,9 @@ public class EmployeeController {
 			final Authentication authentication) {
 		logger.debug("Update employee ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 			throw new AccessDeniedException("Employees can only update his own employee");
 		}
 		

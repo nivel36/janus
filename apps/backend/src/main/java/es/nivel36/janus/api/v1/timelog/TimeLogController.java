@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.config.AuthenticatedIdentity;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
@@ -136,10 +137,10 @@ public class TimeLogController {
 			final Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
-		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		if (employeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 			throw new AccessDeniedException("Employees can only create their own clock-in records");
 		}
 
@@ -190,10 +191,10 @@ public class TimeLogController {
 			final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
-		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		if (employeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 			throw new AccessDeniedException("Employees can only create their own clock-out records");
 		}
 
@@ -240,10 +241,10 @@ public class TimeLogController {
 
 		this.assertManualTimeEntryAllowed();
 		
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
-		if (employeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		if (employeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 			throw new AccessDeniedException("Employees can only create their own clock-in/clock-out records");
 		}
 
@@ -294,9 +295,9 @@ public class TimeLogController {
 		}
 		logger.debug("Search time logs by employee ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 			throw new AccessDeniedException("Employees can only search their own time log records");
 		}
 
@@ -357,9 +358,9 @@ public class TimeLogController {
 			final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(employeeEmail)) {
+		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 			throw new AccessDeniedException("Employees can only search their own time log records");
 		}
 
