@@ -3,14 +3,14 @@
   "enabled": true,
   "loginTheme": "janus",
   "internationalizationEnabled": true,
-  "supportedLocales": ["es", "ca", "en"],
+  "supportedLocales": [
+    "es",
+    "ca",
+    "en"
+  ],
   "defaultLocale": "es",
   "roles": {
-    "realm": [
-      { "name": "JANUS_USER" },
-      { "name": "JANUS_EMPLOYEE" },
-      { "name": "JANUS_ADMIN" }
-    ]
+    "realm": []
   },
   "clients": [
     {
@@ -25,8 +25,50 @@
       "serviceAccountsEnabled": false,
       "consentRequired": false,
       "fullScopeAllowed": true,
-      "redirectUris": ["http://localhost/*", "http://localhost:4200/*"],
-      "webOrigins": ["http://localhost", "http://localhost:4200"]
+      "redirectUris": [
+        "http://localhost/*",
+        "http://localhost:4200/*"
+      ],
+      "webOrigins": [
+        "http://localhost",
+        "http://localhost:4200"
+      ],
+      "protocolMappers": [
+        {
+          "name": "janus-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "janus-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "janus-api",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "roles": [
+        {
+          "name": "JANUS_USER"
+        },
+        {
+          "name": "JANUS_EMPLOYEE"
+        },
+        {
+          "name": "JANUS_ADMIN"
+        }
+      ]
     }
   ],
   "users": [
@@ -38,9 +80,19 @@
       "enabled": true,
       "emailVerified": true,
       "credentials": [
-        { "type": "password", "value": "Janus2026!", "temporary": false }
+        {
+          "type": "password",
+          "value": "Janus2026!",
+          "temporary": false
+        }
       ],
-      "realmRoles": ["JANUS_EMPLOYEE", "JANUS_USER", "JANUS_ADMIN"]
+      "clientRoles": {
+        "janus-api": [
+          "JANUS_EMPLOYEE",
+          "JANUS_USER",
+          "JANUS_ADMIN"
+        ]
+      }
     }
   ]
 }

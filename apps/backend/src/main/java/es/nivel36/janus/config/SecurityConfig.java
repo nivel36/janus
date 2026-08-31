@@ -38,8 +38,8 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
@@ -204,10 +204,10 @@ public class SecurityConfig {
 
 	@Bean
 	@ConditionalOnMissingBean(JwtDecoder.class)
-	JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String issuer,
+	JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") final String jwkSetUri,
 			final OAuth2TokenValidator<Jwt> jwtValidator) {
-		final JwtDecoder decoder = JwtDecoders.fromIssuerLocation(issuer);
-		((org.springframework.security.oauth2.jwt.NimbusJwtDecoder) decoder).setJwtValidator(jwtValidator);
+		final NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+		decoder.setJwtValidator(jwtValidator);
 		return decoder;
 	}
 }
