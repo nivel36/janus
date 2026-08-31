@@ -28,18 +28,18 @@ spec:
             - name: JANUS_DATASOURCE_URL
               value: jdbc:postgresql://{{ include "janus.postgresServiceName" . }}:{{ .Values.postgres.service.port }}/app
             - name: JANUS_DATASOURCE_USERNAME
-              value: app
+              # Required by the prod profile; keep credentials explicit in the deployment manifest.
+              value: {{ required "backend.env.datasourceUsername is required" .Values.backend.env.datasourceUsername | quote }}
             - name: JANUS_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "janus.fullname" . }}-secrets
                   key: APP_DB_PASSWORD
             - name: JWT_ISSUER_URL
-              value: {{ .Values.backend.env.jwtIssuerUrl | quote }}
-            - name: SPRING_JWT_ISSUER_URI
-              value: {{ .Values.backend.env.springJwtIssuerUri | quote }}
+              # Spring discovers the JWKS from this issuer's OIDC metadata.
+              value: {{ required "backend.env.jwtIssuerUrl is required" .Values.backend.env.jwtIssuerUrl | quote }}
             - name: JANUS_SECURITY_CLIENT_ID
-              value: {{ .Values.backend.env.securityClientId | quote }}
+              value: {{ required "backend.env.securityClientId is required" .Values.backend.env.securityClientId | quote }}
             - name: JANUS_CORS_ALLOWED_ORIGINS
               value: {{ .Values.backend.env.corsAllowedOrigins | quote }}
           ports:

@@ -17,15 +17,14 @@ spring:
 
   datasource:
     url: ${JANUS_DATASOURCE_URL:jdbc:postgresql://postgres:5432/app}
-    username: ${JANUS_DATASOURCE_USERNAME:app}
-    password: ${JANUS_DATASOURCE_PASSWORD:app}
+    username: ${JANUS_DATASOURCE_USERNAME}
+    password: ${JANUS_DATASOURCE_PASSWORD}
 
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: ${JWT_ISSUER_URL}
-          jwk-set-uri: ${SPRING_JWT_ISSUER_URI:${JWT_ISSUER_URL}}/protocol/openid-connect/certs
 
   sql:
     init:
