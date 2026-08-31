@@ -29,8 +29,10 @@ global:
 
 backend:
   env:
+    # Required together with global.appDbPassword.
+    datasourceUsername: "app"
     jwtIssuerUrl: "https://your-domain/auth/realms/Nivel36"
-    springJwtIssuerUri: "https://your-domain/auth/realms/Nivel36"
+    securityClientId: "janus-api"
     corsAllowedOrigins: "https://your-domain"
 
 keycloak:
@@ -50,6 +52,12 @@ nginx:
         hosts:
           - your-domain
 ```
+
+The production backend requires `backend.env.datasourceUsername`,
+`global.appDbPassword`, `backend.env.jwtIssuerUrl`, and `backend.env.securityClientId`. The chart
+passes these as `JANUS_DATASOURCE_USERNAME`, `JANUS_DATASOURCE_PASSWORD`, `JWT_ISSUER_URL`, and
+`JANUS_SECURITY_CLIENT_ID`. Spring discovers the JWKS endpoint from the issuer's OIDC metadata; do
+not configure a second issuer or a derived JWKS URL.
 
 HTTPS is required when users access Janus through a non-local hostname or IP address. The frontend
 uses secure-context browser APIs, including `crypto.randomUUID()`, which browsers do not expose to

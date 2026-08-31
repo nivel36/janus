@@ -176,15 +176,28 @@ If the realm changes, update these files together:
 
 ## Environment variables used in Docker
 
-The containerized deployment supports overriding these values:
+The production backend **requires** these variables (there are no credential or authentication
+defaults):
+
+- `JANUS_DATASOURCE_USERNAME`
+- `JANUS_DATASOURCE_PASSWORD` (provided as `APP_DB_PASSWORD` by the Docker/Helm manifests)
+- `JWT_ISSUER_URL` (the canonical issuer used to validate the token's `iss` claim)
+- `JANUS_SECURITY_CLIENT_ID`
+
+Do not configure alternative issuer/JWKS variables in the production environment. In particular,
+`SPRING_JWT_ISSUER_URI` and `JWT_JWK_SET_URI` are no longer used. The bundled Compose manifest sets
+Spring's JWKS property directly to Keycloak's internal service URL so the backend can fetch signing
+keys from inside its container; token issuer validation still uses the canonical `JWT_ISSUER_URL`.
+This internal transport setting is fixed by the manifest rather than exposed as a second realm
+configuration.
+
+The containerized deployment also supports overriding these values:
 
 - `NGINX_PORT`
 - `APP_DB_PASSWORD`
 - `KEYCLOAK_DB_PASSWORD`
 - `KEYCLOAK_ADMIN`
 - `KEYCLOAK_ADMIN_PASSWORD`
-- `JWT_ISSUER_URL`
-- `SPRING_JWT_ISSUER_URI`
 - `JANUS_CORS_ALLOWED_ORIGINS`
 
 ## Useful commands

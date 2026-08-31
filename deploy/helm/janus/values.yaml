@@ -40,8 +40,9 @@ backend:
     port: 8080
   env:
     springProfilesActive: prod
+    # Required production variables consumed by application-prod.yml.
+    datasourceUsername: app
     jwtIssuerUrl: "http://janus.local/auth/realms/Nivel36"
-    springJwtIssuerUri: "http://janus.local/auth/realms/Nivel36"
     securityClientId: janus-api
     corsAllowedOrigins: "http://janus.local"
 

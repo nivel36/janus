@@ -73,10 +73,12 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       JANUS_DATASOURCE_URL: jdbc:postgresql://postgres:5432/app
       JANUS_DATASOURCE_USERNAME: app
-      JANUS_DATASOURCE_PASSWORD: ${APP_DB_PASSWORD}
-      JWT_ISSUER_URL: ${JWT_ISSUER_URL}
-      SPRING_JWT_ISSUER_URI: ${SPRING_JWT_ISSUER_URI}
-      JANUS_SECURITY_CLIENT_ID: ${JANUS_SECURITY_CLIENT_ID}
+      # Required production settings; Compose stops before deployment when one is absent.
+      JANUS_DATASOURCE_PASSWORD: ${APP_DB_PASSWORD:?APP_DB_PASSWORD is required}
+      JWT_ISSUER_URL: ${JWT_ISSUER_URL:?JWT_ISSUER_URL is required}
+      # Keep issuer validation canonical while fetching signing keys over the Compose network.
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/auth/realms/janus-realm/protocol/openid-connect/certs
+      JANUS_SECURITY_CLIENT_ID: ${JANUS_SECURITY_CLIENT_ID:?JANUS_SECURITY_CLIENT_ID is required}
       JANUS_CORS_ALLOWED_ORIGINS: ${JANUS_CORS_ALLOWED_ORIGINS}
     depends_on:
       postgres:
