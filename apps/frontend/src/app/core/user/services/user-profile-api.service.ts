@@ -63,11 +63,10 @@ export class UserProfileApiService {
    * This method is intentionally private to prevent exposing backend DTOs
    * outside of this service.
    *
-   * @param username - Unique identifier of the user
    * @returns Observable emitting the raw AppUserProfile DTO
    */
-  private getProfile(username: string): Observable<AppUserProfile> {
-    return this.http.get<AppUserProfile>(`${this.baseUrl}/${encodeURIComponent(username)}`, {
+  private getProfile(): Observable<AppUserProfile> {
+    return this.http.get<AppUserProfile>(`${this.baseUrl}/me`, {
       context: new HttpContext().set(HTTP_RETRY_POLICY, {
         retries: 10,
         baseDelayMs: 1_000,
@@ -81,11 +80,10 @@ export class UserProfileApiService {
    * The backend profile is fetched and transformed into a UserPreferences
    * domain model, hiding any backend-specific structure.
    *
-   * @param username - Unique identifier of the user
    * @returns Observable emitting the user's preferences
    */
-  getPreferences(username: string): Observable<UserPreferences> {
-    return this.getProfile(username).pipe(map((response) => this.toPreferences(response)));
+  getPreferences(): Observable<UserPreferences> {
+    return this.getProfile().pipe(map((response) => this.toPreferences(response)));
   }
 
   /**
@@ -94,13 +92,12 @@ export class UserProfileApiService {
    * The backend response is mapped back into a UserPreferences model,
    * ensuring consistency with the rest of the application.
    *
-   * @param username - Unique identifier of the user
    * @param payload - Preferences to update
    * @returns Observable emitting the updated preferences
    */
-  updatePreferences(username: string, payload: UserPreferences): Observable<UserPreferences> {
+  updatePreferences(payload: UserPreferences): Observable<UserPreferences> {
     return this.http
-      .put<AppUserProfile>(`${this.baseUrl}/${encodeURIComponent(username)}`, payload)
+      .put<AppUserProfile>(`${this.baseUrl}/me`, payload)
       .pipe(map((response) => this.toPreferences(response)));
   }
 
