@@ -197,14 +197,14 @@ class WorksiteControllerIT {
 
 		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es"))
+				.jwt(jwt -> jwt.subject("aferrer@nivel36.es"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Barcelona Assigned"))
 				.andExpect(jsonPath("$.scope").value("ASSIGNED"));
 
 		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.claim("email", "bperson@nivel36.es"))
+				.jwt(jwt -> jwt.subject("bperson@nivel36.es"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());
 	}
