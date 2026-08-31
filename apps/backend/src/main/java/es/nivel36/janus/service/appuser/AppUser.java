@@ -31,6 +31,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -38,6 +40,8 @@ import jakarta.validation.constraints.NotNull;
  * Entity representing an application user within the Janus system.
  */
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(name = "UK_APP_USER_EXTERNAL_IDENTITY", columnNames = {
+		"IDENTITY_ISSUER", "IDENTITY_SUBJECT" }))
 public class AppUser implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -52,6 +56,14 @@ public class AppUser implements Serializable {
 	@Column(updatable = false, unique = true)
 	private String username;
 
+	@NotEmpty
+	@Column(name = "IDENTITY_ISSUER", nullable = false, updatable = false)
+	private String identityIssuer;
+
+	@NotEmpty
+	@Column(name = "IDENTITY_SUBJECT", nullable = false, updatable = false)
+	private String identitySubject;
+
 	@NotNull
 	private Locale locale;
 
@@ -65,13 +77,17 @@ public class AppUser implements Serializable {
 	AppUser() {
 	}
 
-	public AppUser(final String username, final Locale locale, final TimeFormat timeFormat) {
-		this(username, locale, timeFormat, DEFAULT_TIMEZONE);
+	public AppUser(final String username, final String identityIssuer, final String identitySubject,
+			final Locale locale, final TimeFormat timeFormat) {
+		this(username, identityIssuer, identitySubject, locale, timeFormat, DEFAULT_TIMEZONE);
 	}
 
-	public AppUser(final String username, final Locale locale, final TimeFormat timeFormat,
+	public AppUser(final String username, final String identityIssuer, final String identitySubject,
+			final Locale locale, final TimeFormat timeFormat,
 			final ZoneId defaultTimezone) {
 		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
+		this.identityIssuer = Strings.requireNonBlank(identityIssuer, "identityIssuer can't be null or blank");
+		this.identitySubject = Strings.requireNonBlank(identitySubject, "identitySubject can't be null or blank");
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null or blank");
@@ -87,6 +103,14 @@ public class AppUser implements Serializable {
 
 	public String getUsername() {
 		return this.username;
+	}
+
+	public String getIdentityIssuer() {
+		return this.identityIssuer;
+	}
+
+	public String getIdentitySubject() {
+		return this.identitySubject;
 	}
 
 	public Locale getLocale() {

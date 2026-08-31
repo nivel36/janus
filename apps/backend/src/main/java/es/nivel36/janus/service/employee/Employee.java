@@ -67,8 +67,9 @@ import jakarta.validation.constraints.NotNull;
  * </p>
  *
  * <p>
- * Equality and hash code are based solely on the natural identifier
- * ({@code email}), assuming it is immutable and unique across the system.
+ * Equality and hash code use the domain's normalized, unique email value. This is
+ * a business-data rule and does not make email an immutable authentication
+ * identity; security identity is the AppUser's OpenID Connect {@code (iss, sub)}.
  * </p>
  */
 @Entity

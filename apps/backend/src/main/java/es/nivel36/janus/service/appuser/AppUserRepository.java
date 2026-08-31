@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.service.appuser;
 
+import java.util.Optional;
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -41,4 +43,8 @@ interface AppUserRepository extends CrudRepository<AppUser, Long> {
 	 *         no user is found
 	 */
 	AppUser findByUsername(final String username);
+
+	Optional<AppUser> findByIdentityIssuerAndIdentitySubject(String identityIssuer, String identitySubject);
+
+	boolean existsByIdentityIssuerAndIdentitySubject(String identityIssuer, String identitySubject);
 }

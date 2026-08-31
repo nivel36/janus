@@ -47,22 +47,23 @@ class SecurityConfigTest {
 	}
 
 	@Test
-	void shouldUseVerifiedEmailRatherThanPreferredUsername() {
+	void shouldUseSubjectAsPrincipal() {
 		final Jwt jwt = this.jwt(List.of("janus-api"), "person@example.test", true, "old-login");
 		final JwtAuthenticationToken authentication = (JwtAuthenticationToken) new SecurityConfig()
 				.jwtAuthenticationConverter("janus-api").convert(jwt);
 
-		assertThat(authentication.getName()).isEqualTo("person@example.test");
-		assertThat(AuthenticatedIdentity.email(authentication)).isEqualTo("person@example.test");
+		assertThat(authentication.getName()).isEqualTo("immutable-provider-id");
+		assertThat(AuthenticatedIdentity.externalIdentity(authentication))
+				.isEqualTo(new ExternalIdentity(ISSUER, "immutable-provider-id"));
 	}
 
 	@Test
-	void shouldIgnoreAChangedPreferredUsername() {
+	void shouldIgnoreChangedPreferredUsernameAndEmailForExternalIdentity() {
 		final Jwt first = this.jwt(List.of("janus-api"), "person@example.test", true, "old-login");
-		final Jwt renamed = this.jwt(List.of("janus-api"), "person@example.test", true, "new-login");
+		final Jwt renamed = this.jwt(List.of("janus-api"), "renamed@example.test", true, "new-login");
 
-		assertThat(AuthenticatedIdentity.email(new JwtAuthenticationToken(first)))
-				.isEqualTo(AuthenticatedIdentity.email(new JwtAuthenticationToken(renamed)));
+		assertThat(AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(first)))
+				.isEqualTo(AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(renamed)));
 	}
 
 	@Test
@@ -73,23 +74,53 @@ class SecurityConfigTest {
 	}
 
 	@Test
-	void shouldRejectMissingEmailClaim() {
+	void shouldAcceptMissingEmailAsIdentityDoesNotDependOnIt() {
 		final Jwt jwt = this.jwt(List.of("janus-api"), null, true, "person");
 
-		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isTrue();
+		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isFalse();
 		org.assertj.core.api.Assertions.assertThatThrownBy(
 				() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
 				.isInstanceOf(BadCredentialsException.class);
 	}
 
 	@Test
-	void shouldRejectUnverifiedEmail() {
+	void shouldAcceptUnverifiedEmailForGlobalIdentityValidation() {
 		final Jwt jwt = this.jwt(List.of("janus-api"), "person@example.test", false, "person");
 
-		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isTrue();
+		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isFalse();
 		org.assertj.core.api.Assertions.assertThatThrownBy(
 				() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
 				.isInstanceOf(BadCredentialsException.class);
+	}
+
+	@Test
+	void shouldRejectExternalIdentityWithoutIssuer() {
+		final Instant now = Instant.now();
+		final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject("subject").issuedAt(now)
+				.expiresAt(now.plusSeconds(60)).build();
+		org.assertj.core.api.Assertions.assertThatThrownBy(
+				() -> AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(jwt)))
+				.isInstanceOf(BadCredentialsException.class);
+	}
+
+	@Test
+	void shouldRejectExternalIdentityWithoutSubject() {
+		final Instant now = Instant.now();
+		final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").issuer(ISSUER).issuedAt(now)
+				.expiresAt(now.plusSeconds(60)).build();
+		org.assertj.core.api.Assertions.assertThatThrownBy(
+				() -> AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(jwt)))
+				.isInstanceOf(BadCredentialsException.class);
+	}
+
+	@Test
+	void shouldScopeSameSubjectByIssuer() {
+		final Jwt first = this.jwt(List.of("janus-api"));
+		final Instant now = Instant.now();
+		final Jwt second = Jwt.withTokenValue("token").header("alg", "none").issuer("https://other.test")
+				.subject("immutable-provider-id").issuedAt(now).expiresAt(now.plusSeconds(60)).build();
+		assertThat(AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(first)))
+				.isNotEqualTo(AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(second)));
 	}
 
 	private Jwt jwt(final List<String> audience) {

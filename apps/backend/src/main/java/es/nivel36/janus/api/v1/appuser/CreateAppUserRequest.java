@@ -31,6 +31,7 @@ import jakarta.validation.constraints.Pattern;
  *                        and must match the allowed pattern
  * @param timeFormat      the preferred {@link TimeFormat} of the user; must not
  *                        be {@code null}
+ * @param identitySubject UUID of the corresponding Keycloak account
  * @param defaultTimezone the default timezone identifier of the user (for
  *                        example {@code "Europe/Madrid"}); must not be blank
  */
@@ -39,6 +40,11 @@ public record CreateAppUserRequest( //
 		@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
 				message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
 		String username, //
+
+		@NotBlank(message = "identitySubject must not be blank") //
+		@Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$", //
+				message = "identitySubject must be a UUID") //
+		String identitySubject, //
 
 		@NotBlank(message = "locale must not be blank") //
 		@Pattern(regexp = "^[a-z]{2,3}-[A-Z]{2}$", //

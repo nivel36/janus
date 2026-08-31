@@ -49,7 +49,7 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
+			"INSERT INTO app_user(username,identity_issuer,identity_subject,locale,time_format,default_timezone) VALUES('jdoe','https://issuer.example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testFindByUsernameShouldReturnUser() throws Exception {
 		this.mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
@@ -76,10 +76,10 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
+			"INSERT INTO app_user(username,identity_issuer,identity_subject,locale,time_format,default_timezone) VALUES('jdoe','https://issuer.example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
 		final String body = """
-				  {"username":"jdoe","locale":"en-US","timeFormat":"H24","defaultTimezone":"Europe/Madrid"}
+				  {"username":"jdoe","identitySubject":"22222222-2222-4222-8222-222222222222","locale":"en-US","timeFormat":"H24","defaultTimezone":"Europe/Madrid"}
 				""";
 
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
@@ -90,7 +90,7 @@ class AppUserControllerIT {
 	@Test
 	void testCreateShouldReturn201AndBody() throws Exception {
 		final String body = """
-				  {"username":"asmith","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Europe/London"}
+				  {"username":"asmith","identitySubject":"22222222-2222-4222-8222-222222222222","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Europe/London"}
 				""";
 
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
@@ -108,7 +108,7 @@ class AppUserControllerIT {
 	@Test
 	void testCreateShouldRejectInvalidTimezone() throws Exception {
 		final String body = """
-				  {"username":"asmith","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Mars/Olympus"}
+				  {"username":"asmith","identitySubject":"22222222-2222-4222-8222-222222222222","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Mars/Olympus"}
 				""";
 
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
@@ -119,7 +119,7 @@ class AppUserControllerIT {
 	@Test
 	void testCreateShouldAcceptUsernamesWithAtSign() throws Exception {
 		final String body = """
-				  {"username":"alice@example.com","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Europe/London"}
+				  {"username":"alice@example.com","identitySubject":"22222222-2222-4222-8222-222222222222","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Europe/London"}
 				""";
 
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
@@ -136,7 +136,7 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
+			"INSERT INTO app_user(username,identity_issuer,identity_subject,locale,time_format,default_timezone) VALUES('jdoe','https://issuer.example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		final String body = """
 				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
@@ -154,22 +154,50 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
-	void testNonEmailUserCanUpdateUsingProviderUsernameMapping() throws Exception {
+			"INSERT INTO app_user(username,identity_issuer,identity_subject,locale,time_format,default_timezone) VALUES('jdoe','https://issuer.example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
+	void testMeUpdatesByIssuerAndSubjectDespiteCopiedMutableClaims() throws Exception {
 		final String body = """
 				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
 				""";
 
-		this.mvc.perform(put(BASE + "/{username}", "jdoe").with(jwt().jwt(jwt -> jwt
-				.claim("email", "jdoe@example.com").claim("email_verified", true)
-				.claim("preferred_username", "jdoe"))
+		this.mvc.perform(put(BASE + "/me").with(jwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
+				.subject("11111111-1111-4111-8111-111111111111")
+				.claim("email", "someone-else@example.com").claim("preferred_username", "someone-else"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))).contentType(APPLICATION_JSON).content(body))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("jdoe"));
 	}
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
+			"INSERT INTO app_user(username,identity_issuer,identity_subject,locale,time_format,default_timezone) VALUES('jdoe','https://issuer.example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
+	void testMeFindsProvisionedIdentity() throws Exception {
+		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
+				.subject("11111111-1111-4111-8111-111111111111").claim("preferred_username", "changed"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("jdoe"));
+	}
+
+	@Test
+	void testMeRejectsUnprovisionedIdentityWithoutServerError() throws Exception {
+		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
+				.subject("99999999-9999-4999-8999-999999999999"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void testNonAdminCannotProvision() throws Exception {
+		final String body = """
+				  {"username":"asmith","identitySubject":"22222222-2222-4222-8222-222222222222","locale":"en-GB","timeFormat":"H12","defaultTimezone":"Europe/London"}
+				""";
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@Sql(statements = {
+			"INSERT INTO app_user(username,identity_issuer,identity_subject,locale,time_format,default_timezone) VALUES('jdoe','https://issuer.example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
 		this.mvc.perform(delete(BASE + "/{username}", "jdoe").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
