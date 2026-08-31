@@ -86,10 +86,9 @@ public class AppUserController {
 			final Authentication authentication) {
 		logger.debug("Find app user ACTION performed");
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean employeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
 
-		if (employeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(username))) {
+		if (employeeRole && !AuthenticatedIdentity.appUserUsername(authentication).equals(username)) {
 			throw new AccessDeniedException("Employees can only search his own user");
 		}
 		final AppUser appUser = this.appUserService.findAppUserByUsername(username);
@@ -134,16 +133,11 @@ public class AppUserController {
 			final Authentication authentication) {
 		logger.debug("Update app user ACTION performed");
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-		
 		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(username))) {
-			throw new AccessDeniedException("Employees can only update his own user");
-		}
-		
 		final boolean hasOnlyUserRole = Roles.hasOnlyUserRole(authentication.getAuthorities());
-		if (hasOnlyUserRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(username))) {
-			throw new AccessDeniedException("Users can only update his own user");
+		if ((hasOnlyEmployeeRole || hasOnlyUserRole)
+				&& !AuthenticatedIdentity.appUserUsername(authentication).equals(username)) {
+			throw new AccessDeniedException("Employees can only update his own user");
 		}
 
 		final Locale locale = Locale.forLanguageTag(request.locale());

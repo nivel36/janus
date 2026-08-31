@@ -5,13 +5,13 @@
  */
 package es.nivel36.janus.config;
 
-import java.util.Locale;
-
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import es.nivel36.janus.util.EmailAddresses;
 
 /**
  * Defines the link between an identity-provider account and Janus' email-based
@@ -42,10 +42,26 @@ public final class AuthenticatedIdentity {
 		return email(authentication).equals(normalizeEmail(candidate));
 	}
 
+	/**
+	 * Returns the provider account name explicitly mapped to an {@code AppUser}.
+	 * Unlike employee identity, AppUser usernames are not necessarily emails and
+	 * remain case-sensitive.
+	 */
+	public static String appUserUsername(final Authentication authentication) {
+		// Also validate the verified email required of every accepted identity.
+		email(authentication);
+		final JwtAuthenticationToken jwtAuthentication = (JwtAuthenticationToken) authentication;
+		final String username = jwtAuthentication.getToken().getClaimAsString("preferred_username");
+		if (!StringUtils.hasText(username)) {
+			throw new BadCredentialsException("A provider username claim is required");
+		}
+		return username.trim();
+	}
+
 	public static String normalizeEmail(final String email) {
 		if (!StringUtils.hasText(email)) {
 			throw new IllegalArgumentException("email cannot be null or blank");
 		}
-		return email.trim().toLowerCase(Locale.ROOT);
+		return EmailAddresses.canonicalize(email);
 	}
 }

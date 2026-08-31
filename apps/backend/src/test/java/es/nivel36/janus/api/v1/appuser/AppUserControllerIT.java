@@ -155,6 +155,21 @@ class AppUserControllerIT {
 	@Test
 	@Sql(statements = {
 			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
+	void testNonEmailUserCanUpdateUsingProviderUsernameMapping() throws Exception {
+		final String body = """
+				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
+				""";
+
+		this.mvc.perform(put(BASE + "/{username}", "jdoe").with(jwt().jwt(jwt -> jwt
+				.claim("email", "jdoe@example.com").claim("email_verified", true)
+				.claim("preferred_username", "jdoe"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))).contentType(APPLICATION_JSON).content(body))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("jdoe"));
+	}
+
+	@Test
+	@Sql(statements = {
+			"INSERT INTO app_user(username,locale,time_format,default_timezone) VALUES('jdoe','en-US','H24','Europe/Madrid')" })
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
 		this.mvc.perform(delete(BASE + "/{username}", "jdoe").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //

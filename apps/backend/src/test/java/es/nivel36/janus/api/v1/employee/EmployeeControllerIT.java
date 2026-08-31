@@ -115,7 +115,7 @@ class EmployeeControllerIT {
 	})
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
 		final String body = """
-				{"name":"Abel","surname":"Ferrer","email":"aferrer@nivel36.es","scheduleCode":"STD-WH"}
+				{"name":"Abel","surname":"Ferrer","email":"AFERRER@NIVEL36.ES","scheduleCode":"STD-WH"}
 				""";
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
