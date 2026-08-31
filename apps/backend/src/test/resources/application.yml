@@ -29,6 +29,11 @@ spring:
       mode: always
       schema-locations: classpath:sql/schema-h2.sql
       continue-on-error: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://issuer.example.test
 server:
   port: 0
   
@@ -39,5 +44,7 @@ logging:
     es.nivel36.janus: TRACE
 
 janus:
+  security:
+    client-id: janus-api
   cors:
     allowed-origins: "*"

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,14 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
@@ -97,7 +106,8 @@ public class SecurityConfig {
 	 * @throws Exception if the security configuration cannot be built.
 	 */
 	@Bean
-	SecurityFilterChain securityFilterChain(final HttpSecurity http) {
+	SecurityFilterChain securityFilterChain(final HttpSecurity http,
+			final JwtAuthenticationConverter jwtAuthenticationConverter) {
 		return http.cors(Customizer.withDefaults()) //
 				.csrf(CsrfConfigurer::disable) //
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //
@@ -111,7 +121,7 @@ public class SecurityConfig {
 				}) //
 				.authorizeHttpRequests(this::getAuthorizations) //
 				.oauth2ResourceServer(
-						oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(this.jwtAuthenticationConverter()))) //
+						oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))) //
 				.exceptionHandling(exception -> exception
 						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))) //
 				.build();
@@ -162,21 +172,42 @@ public class SecurityConfig {
 	 * The returned converter combines authorities produced by the default
 	 * {@link JwtGrantedAuthoritiesConverter} with additional authorities extracted
 	 * through
-	 * {@link KeycloakJwtRolesConverter#extract(org.springframework.security.oauth2.jwt.Jwt)}.
+	 * {@link KeycloakJwtRolesConverter#extract(org.springframework.security.oauth2.jwt.Jwt, String)}.
 	 * Duplicate authorities are removed from the final result.
 	 *
 	 * @return a {@link JwtAuthenticationConverter} that maps JWT claims to granted
 	 *         authorities.
 	 */
 	@Bean
-	JwtAuthenticationConverter jwtAuthenticationConverter() {
+	JwtAuthenticationConverter jwtAuthenticationConverter(
+			@Value("${janus.security.client-id}") final String clientId) {
 		final JwtGrantedAuthoritiesConverter scopesConverter = new JwtGrantedAuthoritiesConverter();
 
 		final JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
 		authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> Stream
-				.concat(scopesConverter.convert(jwt).stream(), KeycloakJwtRolesConverter.extract(jwt).stream())
+				.concat(scopesConverter.convert(jwt).stream(), KeycloakJwtRolesConverter.extract(jwt, clientId).stream())
 				.distinct().toList());
 		authenticationConverter.setPrincipalClaimName("preferred_username");
 		return authenticationConverter;
+	}
+
+	@Bean
+	OAuth2TokenValidator<Jwt> jwtValidator(
+			@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String issuer,
+			@Value("${janus.security.client-id}") final String clientId) {
+		final OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience().contains(clientId)
+				? OAuth2TokenValidatorResult.success()
+				: OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
+						"The token audience does not contain the Janus client", null));
+		return new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefaultWithIssuer(issuer), audienceValidator);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(JwtDecoder.class)
+	JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") final String jwkSetUri,
+			final OAuth2TokenValidator<Jwt> jwtValidator) {
+		final NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+		decoder.setJwtValidator(jwtValidator);
+		return decoder;
 	}
 }

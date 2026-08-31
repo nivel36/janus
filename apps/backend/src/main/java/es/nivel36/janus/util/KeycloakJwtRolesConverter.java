@@ -28,9 +28,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * from a Keycloak {@link Jwt}.
  *
  * <p>
- * This converter reads both realm-level roles (from {@code realm_access}) and
- * client/resource-level roles (from {@code resource_access}) contained in the
- * JWT claims. All extracted roles are normalized by:
+ * This converter reads client roles only from the configured client's entry in
+ * {@code resource_access}. Realm roles and roles belonging to any other client
+ * are deliberately ignored. Extracted roles are normalized by:
  * <ul>
  * <li>Trimming whitespace</li>
  * <li>Filtering out blank values</li>
@@ -54,41 +54,31 @@ public class KeycloakJwtRolesConverter {
 	}
 
 	/**
-	 * Extracts all roles from the given {@link Jwt} and converts them into a
+	 * Extracts the configured client's roles from the given {@link Jwt} and converts them into a
 	 * collection of {@link GrantedAuthority}.
 	 *
 	 * <p>
-	 * This method combines roles from both realm and resource access sections of
-	 * the token. The resulting collection contains distinct authorities.
-	 *
 	 * @param jwt the JWT token from which roles are extracted. Can't be
 	 *            {@code null}.
+	 * @param clientId the resource client whose roles are trusted. Can't be
+	 *                 {@code null}.
 	 * @return a collection of unique {@link GrantedAuthority} derived from the
 	 *         token.
 	 */
-	public static Collection<GrantedAuthority> extract(final Jwt jwt) {
-		return Stream.concat(extractRealmRoles(jwt), extractResourceRoles(jwt)) //
-				.distinct() //
-				.toList();
-	}
-
-	private static Stream<GrantedAuthority> extractRealmRoles(final Jwt jwt) {
-		final Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
-		if (realmAccess == null) {
-			return Stream.empty();
-		}
-
-		return getRolesFromMap(realmAccess);
-	}
-
-	private static Stream<GrantedAuthority> extractResourceRoles(final Jwt jwt) {
+	public static Collection<GrantedAuthority> extract(final Jwt jwt, final String clientId) {
 		final Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
 		if (resourceAccess == null) {
-			return Stream.empty();
+			return java.util.List.of();
 		}
 
-		return resourceAccess.values().stream().filter(Map.class::isInstance).map(Map.class::cast)
-				.flatMap(KeycloakJwtRolesConverter::getRolesFromMap);
+		final Object clientAccess = resourceAccess.get(clientId);
+		if (!(clientAccess instanceof final Map<?, ?> clientRoles)) {
+			return java.util.List.of();
+		}
+
+		@SuppressWarnings("unchecked")
+		final Map<String, Object> roles = (Map<String, Object>) clientRoles;
+		return getRolesFromMap(roles).distinct().toList();
 	}
 
 	private static Stream<GrantedAuthority> getRolesFromMap(final Map<String, Object> source) {

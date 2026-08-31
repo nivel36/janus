@@ -42,6 +42,7 @@ backend:
     springProfilesActive: prod
     jwtIssuerUrl: "http://janus.local/auth/realms/Nivel36"
     springJwtIssuerUri: "http://janus.local/auth/realms/Nivel36"
+    securityClientId: janus-api
     corsAllowedOrigins: "http://janus.local"
 
 postgres:

@@ -47,5 +47,7 @@ logging:
     es.nivel36.janus: INFO
 
 janus:
+  security:
+    client-id: ${JANUS_SECURITY_CLIENT_ID}
   cors:
     allowed-origins: ${JANUS_CORS_ALLOWED_ORIGINS:http://localhost}

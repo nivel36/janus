@@ -29,14 +29,24 @@ import org.springframework.security.oauth2.jwt.Jwt;
 class KeycloakJwtRolesConverterTest {
 
 	@Test
-	void jwtAuthenticationConverterShouldMapRealmAndResourceRolesToAuthorities() {
+	void shouldMapOnlyConfiguredClientRolesToAuthorities() {
 		final Jwt jwt = this.buildJwt(Map.of("realm_access", Map.of("roles", List.of("JANUS_EMPLOYEE", "JANUS_ADMIN")),
-				"resource_access", Map.of("janus-api", Map.of("roles", List.of("JANUS_USER")))));
+				"resource_access", Map.of("janus-api", Map.of("roles", List.of("JANUS_USER")), "other-client",
+						Map.of("roles", List.of("JANUS_ADMIN")))));
 
-		final Collection<GrantedAuthority> authorities = KeycloakJwtRolesConverter.extract(jwt);
+		final Collection<GrantedAuthority> authorities = KeycloakJwtRolesConverter.extract(jwt, "janus-api");
 
-		assertThat(authorities).extracting("authority").contains("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN",
-				"ROLE_JANUS_USER");
+		assertThat(authorities).extracting("authority").containsExactly("ROLE_JANUS_USER");
+	}
+
+	@Test
+	void shouldNotGrantAdminWhenAdminRoleBelongsToAnotherClient() {
+		final Jwt jwt = this.buildJwt(Map.of("resource_access",
+				Map.of("other-client", Map.of("roles", List.of("JANUS_ADMIN")))));
+
+		final Collection<GrantedAuthority> authorities = KeycloakJwtRolesConverter.extract(jwt, "janus-api");
+
+		assertThat(authorities).isEmpty();
 	}
 
 	private Jwt buildJwt(final Map<String, Object> claims) {
