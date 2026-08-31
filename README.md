@@ -181,12 +181,15 @@ defaults):
 
 - `JANUS_DATASOURCE_USERNAME`
 - `JANUS_DATASOURCE_PASSWORD` (provided as `APP_DB_PASSWORD` by the Docker/Helm manifests)
-- `JWT_ISSUER_URL` (the canonical issuer; Spring discovers JWKS from its OIDC metadata)
+- `JWT_ISSUER_URL` (the canonical issuer used to validate the token's `iss` claim)
 - `JANUS_SECURITY_CLIENT_ID`
 
-Do not configure a separate issuer/JWKS variable. In particular, `SPRING_JWT_ISSUER_URI` is no
-longer used. This prevents token issuer validation and key discovery from pointing at different
-realms.
+Do not configure alternative issuer/JWKS variables in the production environment. In particular,
+`SPRING_JWT_ISSUER_URI` and `JWT_JWK_SET_URI` are no longer used. The bundled Compose manifest sets
+Spring's JWKS property directly to Keycloak's internal service URL so the backend can fetch signing
+keys from inside its container; token issuer validation still uses the canonical `JWT_ISSUER_URL`.
+This internal transport setting is fixed by the manifest rather than exposed as a second realm
+configuration.
 
 The containerized deployment also supports overriding these values:
 
