@@ -43,6 +43,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -204,9 +205,11 @@ public class SecurityConfig {
 
 	@Bean
 	@ConditionalOnMissingBean(JwtDecoder.class)
-	JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") final String jwkSetUri,
+	JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String issuer,
+			@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}") final String jwkSetUri,
 			final OAuth2TokenValidator<Jwt> jwtValidator) {
-		final NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+		final NimbusJwtDecoder decoder = StringUtils.hasText(jwkSetUri) ? NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
+				: NimbusJwtDecoder.withIssuerLocation(issuer).build();
 		decoder.setJwtValidator(jwtValidator);
 		return decoder;
 	}
