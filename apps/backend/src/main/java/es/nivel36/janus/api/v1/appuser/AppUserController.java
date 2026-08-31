@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.config.AuthenticatedIdentity;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
 import es.nivel36.janus.util.Roles;
@@ -85,10 +86,9 @@ public class AppUserController {
 			final Authentication authentication) {
 		logger.debug("Find app user ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
 		final boolean employeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
 
-		if (employeeRole && !authenticatedEmail.equals(username)) {
+		if (employeeRole && !AuthenticatedIdentity.appUserUsername(authentication).equals(username)) {
 			throw new AccessDeniedException("Employees can only search his own user");
 		}
 		final AppUser appUser = this.appUserService.findAppUserByUsername(username);
@@ -133,16 +133,11 @@ public class AppUserController {
 			final Authentication authentication) {
 		logger.debug("Update app user ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
-		
 		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(username)) {
-			throw new AccessDeniedException("Employees can only update his own user");
-		}
-		
 		final boolean hasOnlyUserRole = Roles.hasOnlyUserRole(authentication.getAuthorities());
-		if (hasOnlyUserRole && !authenticatedEmail.equals(username)) {
-			throw new AccessDeniedException("Users can only update his own user");
+		if ((hasOnlyEmployeeRole || hasOnlyUserRole)
+				&& !AuthenticatedIdentity.appUserUsername(authentication).equals(username)) {
+			throw new AccessDeniedException("Employees can only update his own user");
 		}
 
 		final Locale locale = Locale.forLanguageTag(request.locale());

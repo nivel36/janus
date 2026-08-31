@@ -21,8 +21,10 @@ import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 class SecurityConfigTest {
 
@@ -44,9 +46,66 @@ class SecurityConfigTest {
 		assertThat(validator.validate(jwt).hasErrors()).isFalse();
 	}
 
+	@Test
+	void shouldUseVerifiedEmailRatherThanPreferredUsername() {
+		final Jwt jwt = this.jwt(List.of("janus-api"), "person@example.test", true, "old-login");
+		final JwtAuthenticationToken authentication = (JwtAuthenticationToken) new SecurityConfig()
+				.jwtAuthenticationConverter("janus-api").convert(jwt);
+
+		assertThat(authentication.getName()).isEqualTo("person@example.test");
+		assertThat(AuthenticatedIdentity.email(authentication)).isEqualTo("person@example.test");
+	}
+
+	@Test
+	void shouldIgnoreAChangedPreferredUsername() {
+		final Jwt first = this.jwt(List.of("janus-api"), "person@example.test", true, "old-login");
+		final Jwt renamed = this.jwt(List.of("janus-api"), "person@example.test", true, "new-login");
+
+		assertThat(AuthenticatedIdentity.email(new JwtAuthenticationToken(first)))
+				.isEqualTo(AuthenticatedIdentity.email(new JwtAuthenticationToken(renamed)));
+	}
+
+	@Test
+	void shouldNormalizeEmailCase() {
+		final Jwt jwt = this.jwt(List.of("janus-api"), " Person@Example.TEST ", true, "person");
+
+		assertThat(AuthenticatedIdentity.matchesEmail(new JwtAuthenticationToken(jwt), "person@example.test")).isTrue();
+	}
+
+	@Test
+	void shouldRejectMissingEmailClaim() {
+		final Jwt jwt = this.jwt(List.of("janus-api"), null, true, "person");
+
+		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isTrue();
+		org.assertj.core.api.Assertions.assertThatThrownBy(
+				() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
+				.isInstanceOf(BadCredentialsException.class);
+	}
+
+	@Test
+	void shouldRejectUnverifiedEmail() {
+		final Jwt jwt = this.jwt(List.of("janus-api"), "person@example.test", false, "person");
+
+		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isTrue();
+		org.assertj.core.api.Assertions.assertThatThrownBy(
+				() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
+				.isInstanceOf(BadCredentialsException.class);
+	}
+
 	private Jwt jwt(final List<String> audience) {
+		return this.jwt(audience, "person@example.test", true, "person");
+	}
+
+	private Jwt jwt(final List<String> audience, final String email, final boolean emailVerified,
+			final String preferredUsername) {
 		final Instant now = Instant.now();
-		return Jwt.withTokenValue("token").header("alg", "none").issuer(ISSUER).audience(audience)
-				.issuedAt(now).notBefore(now.minusSeconds(1)).expiresAt(now.plusSeconds(300)).build();
+		final Jwt.Builder builder = Jwt.withTokenValue("token").header("alg", "none").issuer(ISSUER).audience(audience)
+				.subject("immutable-provider-id").claim("email_verified", emailVerified)
+				.claim("preferred_username", preferredUsername).issuedAt(now).notBefore(now.minusSeconds(1))
+				.expiresAt(now.plusSeconds(300));
+		if (email != null) {
+			builder.claim("email", email);
+		}
+		return builder.build();
 	}
 }

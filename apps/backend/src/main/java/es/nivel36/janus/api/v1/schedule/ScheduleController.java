@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.config.AuthenticatedIdentity;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
@@ -121,7 +122,7 @@ public class ScheduleController {
 			final @RequestParam(required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search schedules ACTION performed");
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
 		final String effectiveEmployeeEmail;
 		if (hasOnlyEmployeeRole) {
@@ -131,7 +132,7 @@ public class ScheduleController {
 			if (employeeEmail == null) {
 				throw new AccessDeniedException("Employees can only search schedules for themselves");
 			}
-			if (!employeeEmail.equalsIgnoreCase(authenticatedEmail)) {
+			if (!AuthenticatedIdentity.normalizeEmail(employeeEmail).equals(authenticatedEmail)) {
 				throw new AccessDeniedException("Employees can only search schedules for themselves");
 			}
 			effectiveEmployeeEmail = authenticatedEmail;
@@ -165,7 +166,7 @@ public class ScheduleController {
 			final Authentication authentication) {
 		logger.debug("Find schedule ACTION performed");
 
-		final String authenticatedEmail = authentication.getName();
+		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
 		if (hasOnlyEmployeeRole && !this.employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
 			throw new AccessDeniedException("Employees can only search his own schedule");
