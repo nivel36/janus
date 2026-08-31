@@ -241,7 +241,7 @@ public class WorksiteController {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
 			}
 
-			if (!this.employeeService.isAssignedToWorksite(worksiteCode, authenticatedEmail)) {
+			if (!this.employeeService.isAssignedToWorksite(authenticatedEmail, worksiteCode)) {
 				throw new AccessDeniedException("Employees can only update their personal worksites");
 			}
 		}
