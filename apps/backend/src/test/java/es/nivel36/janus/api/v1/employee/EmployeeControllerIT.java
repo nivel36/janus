@@ -64,6 +64,20 @@ class EmployeeControllerIT {
 	}
 
 	@Test
+	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
+			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
+	})
+	void testElevatedRolesWithoutEmailClaimsCanFindEmployee() throws Exception {
+		this.mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt()
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk());
+		this.mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk());
+	}
+
+	@Test
 	void testFindByUnknownEmailShouldReturn404() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
@@ -80,15 +94,23 @@ class EmployeeControllerIT {
 	@Test
 	void testEmployeeWithScopeCannotFindAnotherEmployee() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
-				.jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es").claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read")))) //
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
+	void testEmployeeWithUnverifiedEmailCannotAccessEmployeeResource() throws Exception {
+		this.mvc.perform(get(BASE + "/by-email/{email}", "employee@nivel36.es").with(jwt() //
+				.jwt(jwt -> jwt.claim("email", "employee@nivel36.es").claim("email_verified", false)) //
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
 	void testEmployeeWithUnknownRoleCannotFindAnotherEmployee() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
-				.jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es").claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN")))) //
 				.andExpect(status().isForbidden());
 	}
@@ -100,7 +122,7 @@ class EmployeeControllerIT {
 	})
 	void testEmployeeWithUserRoleCanFindAnotherEmployee() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
-				.jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es").claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("other@nivel36.es"));
@@ -113,7 +135,7 @@ class EmployeeControllerIT {
 	})
 	void testEmployeeWithAdminRoleCanFindAnotherEmployee() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
-				.jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es").claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("other@nivel36.es"));
@@ -191,7 +213,7 @@ class EmployeeControllerIT {
 				{"name":"Other","surname":"Employee","scheduleCode":"STD-WH"}
 				""";
 		this.mvc.perform(put(BASE + "/{employeeEmail}", "other@nivel36.es").contentType(APPLICATION_JSON)
-				.content(body).with(jwt().jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.content(body).with(jwt().jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es").claim("email_verified", true)) //
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read")))) //
 				.andExpect(status().isForbidden());
 	}
@@ -202,7 +224,7 @@ class EmployeeControllerIT {
 				{"name":"Other","surname":"Employee","scheduleCode":"STD-WH"}
 				""";
 		this.mvc.perform(put(BASE + "/{employeeEmail}", "other@nivel36.es").contentType(APPLICATION_JSON)
-				.content(body).with(jwt().jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.content(body).with(jwt().jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es").claim("email_verified", true)) //
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN")))) //
 				.andExpect(status().isForbidden());
 	}

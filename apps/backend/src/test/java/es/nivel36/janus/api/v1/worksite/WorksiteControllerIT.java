@@ -51,6 +51,14 @@ class WorksiteControllerIT {
 	private static final String BASE = "/api/v1/worksites";
 
 	@Test
+	void testElevatedRolesWithoutEmailClaimsCanSearchWorksites() throws Exception {
+		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk());
+		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk());
+	}
+
+	@Test
 	@Sql(statements = {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
@@ -73,7 +81,7 @@ class WorksiteControllerIT {
 	void testListAsEmployeeShouldRejectSearchingOtherEmployee() throws Exception {
 		this.mvc.perform(get(BASE).param("employeeEmail", "bperson@nivel36.es").with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es"))
+				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());
 	}
@@ -86,7 +94,7 @@ class WorksiteControllerIT {
 		this.mvc.perform(get(BASE).with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
-				.andExpect(status().isForbidden());
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -197,14 +205,14 @@ class WorksiteControllerIT {
 
 		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.subject("aferrer@nivel36.es"))
+				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Barcelona Assigned"))
 				.andExpect(jsonPath("$.scope").value("ASSIGNED"));
 
 		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.subject("bperson@nivel36.es"))
+				.jwt(jwt -> jwt.subject("bperson@nivel36.es").claim("email", "bperson@nivel36.es").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());
 	}

@@ -137,11 +137,13 @@ public class TimeLogController {
 			final Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
-		if (employeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-			throw new AccessDeniedException("Employees can only create their own clock-in records");
+		if (employeeRole) {
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
+				throw new AccessDeniedException("Employees can only create their own clock-in records");
+			}
 		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -191,11 +193,13 @@ public class TimeLogController {
 			final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
-		if (employeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-			throw new AccessDeniedException("Employees can only create their own clock-out records");
+		if (employeeRole) {
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
+				throw new AccessDeniedException("Employees can only create their own clock-out records");
+			}
 		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -241,11 +245,13 @@ public class TimeLogController {
 
 		this.assertManualTimeEntryAllowed();
 		
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
-		if (employeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-			throw new AccessDeniedException("Employees can only create their own clock-in/clock-out records");
+		if (employeeRole) {
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
+				throw new AccessDeniedException("Employees can only create their own clock-in/clock-out records");
+			}
 		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -295,10 +301,12 @@ public class TimeLogController {
 		}
 		logger.debug("Search time logs by employee ACTION performed");
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-			throw new AccessDeniedException("Employees can only search their own time log records");
+		if (restrictedEmployee) {
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
+				throw new AccessDeniedException("Employees can only search their own time log records");
+			}
 		}
 
 		final Page<TimeLog> timeLogs;
@@ -358,10 +366,12 @@ public class TimeLogController {
 			final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-			throw new AccessDeniedException("Employees can only search their own time log records");
+		if (restrictedEmployee) {
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
+				throw new AccessDeniedException("Employees can only search their own time log records");
+			}
 		}
 
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employeeEmail, entryTime);

@@ -49,6 +49,14 @@ class ScheduleControllerIT {
 	private @Autowired MockMvc mvc;
 
 	@Test
+	void testElevatedRolesWithoutEmailClaimsCanSearchSchedules() throws Exception {
+		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk());
+		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk());
+	}
+
+	@Test
 	void testCreateScheduleShouldReturn201AndBody() throws Exception {
 		final String body = """
 				{

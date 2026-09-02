@@ -99,13 +99,10 @@ public class WorksiteController {
 			final @RequestParam(required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		final String effectiveEmployeeEmail;
 		if (restrictedEmployee) {
-			if (authenticatedEmail == null || authenticatedEmail.isBlank()) {
-				throw new AccessDeniedException("Employee email claim is required");
-			}
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 			if (employeeEmail == null) {
 				throw new AccessDeniedException("Employees can only search worksites for themselves");
 			}
@@ -151,12 +148,9 @@ public class WorksiteController {
 			throw new IllegalArgumentException("end must be greater than or equal to start");
 		}
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			if (authenticatedEmail == null || authenticatedEmail.isBlank()) {
-				throw new AccessDeniedException("Employee email claim is required");
-			}
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 			if (!this.employeeService.isAssignedToWorksite(authenticatedEmail, worksiteCode)) {
 				throw new AccessDeniedException("Employees can only view stats for their assigned worksites");
 			}
@@ -231,9 +225,9 @@ public class WorksiteController {
 			final Authentication authentication) {
 		logger.debug("Update worksite ACTION performed");
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 			if (request.scope() != WorksiteScope.ASSIGNED) {
 				throw new AccessDeniedException("Employees can only update assigned worksites");
 			}
