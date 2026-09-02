@@ -19,7 +19,7 @@ import { createKeycloakEventSignal, createKeycloakMock } from '../../../testing/
 import { apiBearerUrlPattern } from '../../app.config';
 import { CurrentUserFacade } from '../user/services/current-user.facade';
 import { UserProfileApiService } from '../user/services/user-profile-api.service';
-import { JANUS_REALM_ROLES } from './auth.models';
+import { JANUS_CLIENT_ROLES } from './auth.models';
 import { AuthService } from './auth.service';
 
 describe('Keycloak event integration with the current-user facade', () => {
@@ -67,8 +67,11 @@ describe('Keycloak event integration with the current-user facade', () => {
     keycloak.authenticated = true;
     keycloak.tokenParsed = {
       preferred_username: 'ada',
-      realm_access: { roles: [JANUS_REALM_ROLES.ADMIN, JANUS_REALM_ROLES.USER] },
-      resource_access: { janus: { roles: ['editor'] } },
+      realm_access: { roles: ['ignored-admin'] },
+      resource_access: {
+        'janus-api': { roles: [JANUS_CLIENT_ROLES.ADMIN, JANUS_CLIENT_ROLES.USER] },
+        janus: { roles: ['editor'] },
+      },
     };
     keycloakEvent.set({ type: KeycloakEventType.AuthSuccess });
     expectSelectors([true, true, false]);
@@ -76,8 +79,11 @@ describe('Keycloak event integration with the current-user facade', () => {
 
     keycloak.tokenParsed = {
       preferred_username: 'ada',
-      realm_access: { roles: [JANUS_REALM_ROLES.EMPLOYEE] },
-      resource_access: { janus: { roles: ['viewer'] } },
+      realm_access: { roles: ['ignored-employee'] },
+      resource_access: {
+        'janus-api': { roles: [JANUS_CLIENT_ROLES.EMPLOYEE] },
+        janus: { roles: ['viewer'] },
+      },
     };
     keycloakEvent.set({ type: KeycloakEventType.AuthRefreshSuccess });
     expectSelectors([false, false, true]);

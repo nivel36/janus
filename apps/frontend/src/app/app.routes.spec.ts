@@ -4,7 +4,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { authChildGuard } from './core/auth/auth.guard';
-import { JANUS_REALM_ROLES } from './core/auth/auth.models';
+import { JANUS_CLIENT_ROLES } from './core/auth/auth.models';
 import { appRoutes } from './app.routes';
 
 describe('application routes', () => {
@@ -17,7 +17,7 @@ describe('application routes', () => {
     expect(protectedParent).toMatchObject({
       canActivateChild: [authChildGuard],
       data: {
-        realmRole: [JANUS_REALM_ROLES.EMPLOYEE, JANUS_REALM_ROLES.USER, JANUS_REALM_ROLES.ADMIN],
+        clientRole: [JANUS_CLIENT_ROLES.EMPLOYEE, JANUS_CLIENT_ROLES.USER, JANUS_CLIENT_ROLES.ADMIN],
       },
     });
     expect(protectedParent?.component).toBeUndefined();

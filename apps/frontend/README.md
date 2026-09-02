@@ -1,5 +1,16 @@
 # Frontend
 
+## Testing
+
+Run the unit test suite through the Angular builder:
+
+```sh
+npm test -- --watch=false
+```
+
+The project uses Vitest as the runner, but Angular CLI prepares component
+templates, styles and Angular metadata before handing the tests to Vitest.
+
 ## Linting
 
 Run the Angular lint and the CSS custom-property validation together before submitting frontend changes:

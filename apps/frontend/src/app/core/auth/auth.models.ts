@@ -3,14 +3,20 @@
  */
 import type { KeycloakTokenParsed } from 'keycloak-js';
 
-/** Realm roles owned by Janus and assigned through Keycloak. */
-export const JANUS_REALM_ROLES = {
+/** Client roles owned by Janus and assigned through the Janus API resource client. */
+export const JANUS_CLIENT_ROLES = {
   ADMIN: 'JANUS_ADMIN',
   USER: 'JANUS_USER',
   EMPLOYEE: 'JANUS_EMPLOYEE',
 } as const;
 
-export type JanusRealmRole = (typeof JANUS_REALM_ROLES)[keyof typeof JANUS_REALM_ROLES];
+/** @deprecated Use JANUS_CLIENT_ROLES. */
+export const JANUS_REALM_ROLES = JANUS_CLIENT_ROLES;
+
+/** Keycloak resource client whose roles grant access to Janus. */
+export const JANUS_API_CLIENT_ID = 'janus-api';
+
+export type JanusClientRole = (typeof JANUS_CLIENT_ROLES)[keyof typeof JANUS_CLIENT_ROLES];
 
 export interface AuthTokenClaims
   extends Omit<KeycloakTokenParsed, 'realm_access' | 'resource_access'> {
@@ -47,5 +53,5 @@ export interface AuthPermissions {
 
 /** Authorization policy supported in an Angular route's `data`. */
 export interface AuthRouteData {
-  realmRole?: JanusRealmRole | readonly JanusRealmRole[];
+  clientRole?: JanusClientRole | readonly JanusClientRole[];
 }

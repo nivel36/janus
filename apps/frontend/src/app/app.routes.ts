@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Routes } from '@angular/router';
-import { JANUS_REALM_ROLES, type AuthRouteData } from './core/auth/auth.models';
+import { JANUS_CLIENT_ROLES, type AuthRouteData } from './core/auth/auth.models';
 import { authChildGuard } from './core/auth/auth.guard';
 
 export const appRoutes: Routes = [
@@ -15,7 +15,7 @@ export const appRoutes: Routes = [
     path: '',
     canActivateChild: [authChildGuard],
     data: {
-      realmRole: [JANUS_REALM_ROLES.EMPLOYEE, JANUS_REALM_ROLES.USER, JANUS_REALM_ROLES.ADMIN],
+      clientRole: [JANUS_CLIENT_ROLES.EMPLOYEE, JANUS_CLIENT_ROLES.USER, JANUS_CLIENT_ROLES.ADMIN],
     } satisfies AuthRouteData,
     children: [
       {

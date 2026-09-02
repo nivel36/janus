@@ -10,7 +10,7 @@ import {
   type UrlTree,
 } from '@angular/router';
 import { createAuthGuard, type AuthGuardData } from 'keycloak-angular';
-import type { AuthRouteData } from './auth.models';
+import { JANUS_API_CLIENT_ID, type AuthRouteData } from './auth.models';
 import { AuthService } from './auth.service';
 
 function asArray<T>(v: T | readonly T[] | null | undefined): readonly T[] {
@@ -21,7 +21,7 @@ function asArray<T>(v: T | readonly T[] | null | undefined): readonly T[] {
 export async function isAccessAllowed(
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot,
-  { authenticated, grantedRoles: { realmRoles } }: AuthGuardData,
+  { authenticated, grantedRoles: { resourceRoles } }: AuthGuardData,
 ): Promise<boolean | UrlTree> {
   const router = inject(Router);
   const auth = inject(AuthService);
@@ -37,9 +37,10 @@ export async function isAccessAllowed(
     return false;
   }
 
-  const requiredRealmRoles = asArray(roleData?.realmRole);
-  const hasAnyRealmRole = requiredRealmRoles.some((role) => realmRoles.includes(role));
-  const isAuthorized = requiredRealmRoles.length === 0 || hasAnyRealmRole;
+  const requiredClientRoles = asArray(roleData?.clientRole);
+  const janusClientRoles = resourceRoles[JANUS_API_CLIENT_ID] ?? [];
+  const hasAnyClientRole = requiredClientRoles.some((role) => janusClientRoles.includes(role));
+  const isAuthorized = requiredClientRoles.length === 0 || hasAnyClientRole;
 
   return isAuthorized ? true : router.parseUrl('/forbidden');
 }

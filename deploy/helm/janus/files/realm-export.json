@@ -3,16 +3,36 @@
   "enabled": true,
   "loginTheme": "janus",
   "internationalizationEnabled": true,
-  "supportedLocales": [
-    "es",
-    "ca",
-    "en"
-  ],
+  "supportedLocales": ["es", "ca", "en"],
   "defaultLocale": "es",
   "roles": {
-    "realm": []
+    "realm": [],
+    "client": {
+      "janus-api": [
+        {
+          "name": "JANUS_USER"
+        },
+        {
+          "name": "JANUS_EMPLOYEE"
+        },
+        {
+          "name": "JANUS_ADMIN"
+        }
+      ]
+    }
   },
   "clients": [
+    {
+      "clientId": "janus-api",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false
+    },
     {
       "clientId": "janus-spa",
       "enabled": true,
@@ -25,14 +45,8 @@
       "serviceAccountsEnabled": false,
       "consentRequired": false,
       "fullScopeAllowed": true,
-      "redirectUris": [
-        "http://localhost/*",
-        "http://localhost:4200/*"
-      ],
-      "webOrigins": [
-        "http://localhost",
-        "http://localhost:4200"
-      ],
+      "redirectUris": ["http://localhost/*", "http://localhost:4200/*"],
+      "webOrigins": ["http://localhost", "http://localhost:4200"],
       "protocolMappers": [
         {
           "name": "janus-api-audience",
@@ -45,28 +59,6 @@
             "access.token.claim": "true",
             "introspection.token.claim": "true"
           }
-        }
-      ]
-    },
-    {
-      "clientId": "janus-api",
-      "enabled": true,
-      "publicClient": false,
-      "bearerOnly": true,
-      "protocol": "openid-connect",
-      "standardFlowEnabled": false,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": false,
-      "roles": [
-        {
-          "name": "JANUS_USER"
-        },
-        {
-          "name": "JANUS_EMPLOYEE"
-        },
-        {
-          "name": "JANUS_ADMIN"
         }
       ]
     }
@@ -87,11 +79,7 @@
         }
       ],
       "clientRoles": {
-        "janus-api": [
-          "JANUS_EMPLOYEE",
-          "JANUS_USER",
-          "JANUS_ADMIN"
-        ]
+        "janus-api": ["JANUS_EMPLOYEE", "JANUS_USER", "JANUS_ADMIN"]
       }
     }
   ]

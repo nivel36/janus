@@ -8,7 +8,7 @@ import type { AuthGuardData } from 'keycloak-angular';
 import { describe, expect, it, vi } from 'vitest';
 
 import { isAccessAllowed } from './auth.guard';
-import { JANUS_REALM_ROLES } from './auth.models';
+import { JANUS_CLIENT_ROLES } from './auth.models';
 import { AuthService } from './auth.service';
 
 describe('isAccessAllowed', () => {
@@ -48,22 +48,39 @@ describe('isAccessAllowed', () => {
     );
   }
 
-  it('accepts a configured realm role', async () => {
+  it('accepts a configured Janus API client role', async () => {
     await expect(
-      evaluate({ realmRole: JANUS_REALM_ROLES.ADMIN }, authData([JANUS_REALM_ROLES.ADMIN], {})),
+      evaluate(
+        { clientRole: JANUS_CLIENT_ROLES.ADMIN },
+        authData([], { 'janus-api': [JANUS_CLIENT_ROLES.ADMIN] }),
+      ),
     ).resolves.toBe(true);
   });
 
   it('redirects an authenticated user without any required role to forbidden', async () => {
     await expect(
-      evaluate({}, authData([JANUS_REALM_ROLES.USER], {}), { realmRole: JANUS_REALM_ROLES.ADMIN }),
+      evaluate(
+        {},
+        authData([], { 'janus-api': [JANUS_CLIENT_ROLES.USER] }),
+        { clientRole: JANUS_CLIENT_ROLES.ADMIN },
+      ),
     ).resolves.toEqual({ redirectTo: '/forbidden' });
   });
 
   it('allows an authenticated user using the policy on the parent route', async () => {
     await expect(
-      evaluate({}, authData([JANUS_REALM_ROLES.ADMIN], {}), { realmRole: JANUS_REALM_ROLES.ADMIN }),
+      evaluate(
+        {},
+        authData([], { 'janus-api': [JANUS_CLIENT_ROLES.ADMIN] }),
+        { clientRole: JANUS_CLIENT_ROLES.ADMIN },
+      ),
     ).resolves.toBe(true);
+  });
+
+  it('ignores realm roles for authorization', async () => {
+    await expect(
+      evaluate({ clientRole: JANUS_CLIENT_ROLES.ADMIN }, authData([JANUS_CLIENT_ROLES.ADMIN], {})),
+    ).resolves.toEqual({ redirectTo: '/forbidden' });
   });
 
   it('redirects an unauthenticated user to login', async () => {
@@ -71,7 +88,7 @@ describe('isAccessAllowed', () => {
       evaluate(
         {},
         { ...authData([], {}), authenticated: false },
-        { realmRole: JANUS_REALM_ROLES.ADMIN },
+        { clientRole: JANUS_CLIENT_ROLES.ADMIN },
       ),
     ).resolves.toBe(false);
     expect(auth.login).toHaveBeenCalledWith('/protected');
