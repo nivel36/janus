@@ -95,10 +95,12 @@ public class EmployeeController {
 			final Authentication authentication) {
 		logger.debug("Find employee by email ACTION performed");
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-			throw new AccessDeniedException("Employees can only search his own user");
+		if (restrictedEmployee) {
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
+				throw new AccessDeniedException("Employees can only search his own user");
+			}
 		}
 		
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -147,10 +149,12 @@ public class EmployeeController {
 			final Authentication authentication) {
 		logger.debug("Update employee ACTION performed");
 
-		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-			throw new AccessDeniedException("Employees can only update his own employee");
+		if (restrictedEmployee) {
+			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
+				throw new AccessDeniedException("Employees can only update his own employee");
+			}
 		}
 		
 		final Schedule schedule = this.scheduleService.findScheduleByCode(request.scheduleCode());

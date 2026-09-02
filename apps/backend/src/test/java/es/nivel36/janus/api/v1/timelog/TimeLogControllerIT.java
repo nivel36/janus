@@ -55,6 +55,20 @@ class TimeLogControllerIT {
 	private @Autowired MockMvc mvc;
 	private static final String BASE = "/api/v1/employees/{employeeEmail}/timelogs";
 
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
+	})
+	void testElevatedRolesWithoutEmailClaimsCanSearchEmployeeTimeLogs() throws Exception {
+		this.mvc.perform(get(BASE + "/", "aferrer@nivel36.es")
+				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk());
+		this.mvc.perform(get(BASE + "/", "aferrer@nivel36.es")
+				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk());
+	}
+
 	@BeforeEach
 	void beforeTest() {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 8, 0, 0).toInstant(ZoneOffset.UTC);
@@ -74,7 +88,7 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -95,7 +109,7 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-PROJ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -115,7 +129,7 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-PROJ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isForbidden()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
@@ -135,7 +149,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", "2025-08-04T09:30:00Z")
-				.with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))
+				.with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isForbidden());
 	}
@@ -152,7 +166,7 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -172,13 +186,13 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isBadRequest()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
@@ -196,7 +210,7 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
@@ -206,7 +220,7 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -227,7 +241,7 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("exitTime", exit).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("exitTime", exit).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -252,7 +266,7 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -278,13 +292,13 @@ class TimeLogControllerIT {
 
 		this.mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isOk());
 
 		this.mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isBadRequest());
 	}
@@ -300,7 +314,7 @@ class TimeLogControllerIT {
 		// seed: one log //
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", "2025-08-06T08:00:00Z").with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", "2025-08-06T08:00:00Z").with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
@@ -343,7 +357,7 @@ class TimeLogControllerIT {
 		// seed //
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
@@ -368,7 +382,7 @@ class TimeLogControllerIT {
 		// seed //
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))//
+				.param("entryTime", entry).with(jwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
