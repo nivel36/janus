@@ -39,6 +39,17 @@ class SecurityConfigTest {
 	}
 
 	@Test
+	void shouldRejectTokenWithoutAudienceEvenWhenAuthorizedPartyIsTheSpa() {
+		final OAuth2TokenValidator<Jwt> validator = new SecurityConfig().jwtValidator(ISSUER, "janus-api");
+		final Instant now = Instant.now();
+		final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").issuer(ISSUER)
+				.subject("immutable-provider-id").claim("azp", "janus-spa").issuedAt(now)
+				.expiresAt(now.plusSeconds(300)).build();
+
+		assertThat(validator.validate(jwt).hasErrors()).isTrue();
+	}
+
+	@Test
 	void shouldAcceptTokenWithExpectedAudience() {
 		final OAuth2TokenValidator<Jwt> validator = new SecurityConfig().jwtValidator(ISSUER, "janus-api");
 		final Jwt jwt = this.jwt(List.of("other-client", "janus-api"));
