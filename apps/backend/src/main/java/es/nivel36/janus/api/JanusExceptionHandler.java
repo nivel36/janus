@@ -85,6 +85,9 @@ public class JanusExceptionHandler {
 	private static final URI TYPE_CONSTRAINT_VIOLATION = URI.create("urn:problem:constraint-violation");
 	private static final URI TYPE_INTERNAL_ERROR = URI.create("urn:problem:internal");
 	private static final URI TYPE_ACCESS_DENIED = URI.create("urn:problem:access-denied");
+	private static final String ACCESS_DENIED_DETAIL = "You are not authorized to perform this operation";
+	private static final String AUTHENTICATION_DETAIL = "Valid authentication credentials are required";
+	private static final String INTERNAL_ERROR_DETAIL = "An unexpected internal error occurred";
 
 	private final Clock clock;
 
@@ -238,7 +241,7 @@ public class JanusExceptionHandler {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
 		pd.setType(TYPE_ACCESS_DENIED);
 		pd.setTitle("Access denied");
-		pd.setDetail(ex.getMessage());
+		pd.setDetail(ACCESS_DENIED_DETAIL);
 		this.addCommonProps(pd, request);
 		logger.warn("AccessDeniedException error {}", pd);
 		return pd;
@@ -248,8 +251,8 @@ public class JanusExceptionHandler {
 	ProblemDetail handleAuthentication(final AuthenticationException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
 		pd.setType(TYPE_ACCESS_DENIED);
-		pd.setTitle("Invalid authentication identity");
-		pd.setDetail(ex.getMessage());
+		pd.setTitle("Authentication required");
+		pd.setDetail(AUTHENTICATION_DETAIL);
 		this.addCommonProps(pd, request);
 		logger.warn("AuthenticationException error {}", pd);
 		return pd;
@@ -389,7 +392,7 @@ public class JanusExceptionHandler {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
 		pd.setType(TYPE_ACCESS_DENIED);
 		pd.setTitle("Access denied");
-		pd.setDetail(ex.getMessage());
+		pd.setDetail(ACCESS_DENIED_DETAIL);
 		this.addCommonProps(pd, request);
 		logger.warn("AuthorizationDeniedException error {}", pd);
 		return pd;
@@ -398,11 +401,11 @@ public class JanusExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	ProblemDetail handleGeneric(final Exception ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-		pd.setType(TYPE_ACCESS_DENIED);
-		pd.setTitle("Access denied");
-		pd.setDetail(ex.getMessage());
+		pd.setType(TYPE_INTERNAL_ERROR);
+		pd.setTitle("Internal server error");
+		pd.setDetail(INTERNAL_ERROR_DETAIL);
 		this.addCommonProps(pd, request);
-		logger.warn("Exception error", ex);
+		logger.error("Unhandled exception", ex);
 		return pd;
 	}
 
