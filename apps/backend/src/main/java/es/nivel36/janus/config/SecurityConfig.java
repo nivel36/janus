@@ -198,7 +198,8 @@ public class SecurityConfig {
 	OAuth2TokenValidator<Jwt> jwtValidator(
 			@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String issuer,
 			@Value("${janus.security.client-id}") final String clientId) {
-		final OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience().contains(clientId)
+		final OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience() != null
+				&& jwt.getAudience().contains(clientId)
 				? OAuth2TokenValidatorResult.success()
 				: OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
 						"The token audience does not contain the Janus client", null));
