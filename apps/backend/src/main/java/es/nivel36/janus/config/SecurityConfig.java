@@ -188,9 +188,9 @@ public class SecurityConfig {
 		authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> Stream
 				.concat(scopesConverter.convert(jwt).stream(), KeycloakJwtRolesConverter.extract(jwt, clientId).stream())
 				.distinct().toList());
-		// AppUser and Employee currently use email as their natural identifier. Never
-		// use preferred_username here: it is mutable and may not be an email address.
-		authenticationConverter.setPrincipalClaimName("email");
+		// The principal is the provider-stable subject. AppUser authorization further
+		// scopes it by the validated issuer.
+		authenticationConverter.setPrincipalClaimName("sub");
 		return authenticationConverter;
 	}
 
@@ -202,13 +202,13 @@ public class SecurityConfig {
 				? OAuth2TokenValidatorResult.success()
 				: OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
 						"The token audience does not contain the Janus client", null));
-		final OAuth2TokenValidator<Jwt> verifiedEmailValidator = jwt -> StringUtils
-				.hasText(jwt.getClaimAsString("email")) && Boolean.TRUE.equals(jwt.getClaim("email_verified"))
+		final OAuth2TokenValidator<Jwt> identityValidator = jwt -> StringUtils
+				.hasText(jwt.getClaimAsString("iss")) && StringUtils.hasText(jwt.getSubject())
 						? OAuth2TokenValidatorResult.success()
 						: OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
-								"A verified email claim is required", null));
+								"Non-blank iss and sub claims are required", null));
 		return new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefaultWithIssuer(issuer), audienceValidator,
-				verifiedEmailValidator);
+				identityValidator);
 	}
 
 	@Bean

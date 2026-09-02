@@ -14,17 +14,26 @@ import org.springframework.util.StringUtils;
 import es.nivel36.janus.util.EmailAddresses;
 
 /**
- * Defines the link between an identity-provider account and Janus' email-based
- * {@code AppUser}/{@code Employee} records.
+ * Extracts security-relevant identity claims from an authenticated JWT.
  *
- * <p>The current domain model uses email as its natural identifier. Consequently,
- * only the provider's verified {@code email} claim is accepted; display-oriented
- * claims such as {@code preferred_username} are deliberately ignored. Email
- * comparisons are normalized here so every authorization decision has identical
- * semantics.</p>
+ * <p>An {@code AppUser} is identified only by {@code (iss, sub)}. Email remains a
+ * contact attribute and its use by Employee authorization is transitional until
+ * AppUser and Employee have an explicit relationship.</p>
  */
 @Component
 public final class AuthenticatedIdentity {
+
+	public static ExternalIdentity externalIdentity(final Authentication authentication) {
+		if (!(authentication instanceof JwtAuthenticationToken jwtAuthentication)) {
+			throw new BadCredentialsException("A JWT authentication is required");
+		}
+		final String issuer = jwtAuthentication.getToken().getClaimAsString("iss");
+		final String subject = jwtAuthentication.getToken().getSubject();
+		if (!StringUtils.hasText(issuer) || !StringUtils.hasText(subject)) {
+			throw new BadCredentialsException("Non-blank iss and sub claims are required");
+		}
+		return new ExternalIdentity(issuer.trim(), subject.trim());
+	}
 
 	public static String email(final Authentication authentication) {
 		if (!(authentication instanceof JwtAuthenticationToken jwtAuthentication)) {
@@ -40,22 +49,6 @@ public final class AuthenticatedIdentity {
 
 	public static boolean matchesEmail(final Authentication authentication, final String candidate) {
 		return email(authentication).equals(normalizeEmail(candidate));
-	}
-
-	/**
-	 * Returns the provider account name explicitly mapped to an {@code AppUser}.
-	 * Unlike employee identity, AppUser usernames are not necessarily emails and
-	 * remain case-sensitive.
-	 */
-	public static String appUserUsername(final Authentication authentication) {
-		// Also validate the verified email required of every accepted identity.
-		email(authentication);
-		final JwtAuthenticationToken jwtAuthentication = (JwtAuthenticationToken) authentication;
-		final String username = jwtAuthentication.getToken().getClaimAsString("preferred_username");
-		if (!StringUtils.hasText(username)) {
-			throw new BadCredentialsException("A provider username claim is required");
-		}
-		return username.trim();
 	}
 
 	public static String normalizeEmail(final String email) {

@@ -22,10 +22,13 @@ import es.nivel36.janus.service.appuser.AppUser;
  * Response DTO exposing the public representation of an {@link AppUser}.
  *
  * @param username        the unique username of the user
+ * @param identityIssuer  issuer of the linked identity
+ * @param identitySubject subject of the linked identity
  * @param locale          the user's preferred locale expressed as a BCP 47
  *                        language tag
  * @param timeFormat      the preferred {@link TimeFormat}
  * @param defaultTimezone the default timezone of the user
  */
-public record AppUserResponse(String username, String locale, TimeFormat timeFormat, String defaultTimezone) {
+public record AppUserResponse(String username, String identityIssuer, String identitySubject, String locale,
+		TimeFormat timeFormat, String defaultTimezone) {
 }

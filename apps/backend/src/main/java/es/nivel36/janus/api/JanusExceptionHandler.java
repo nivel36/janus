@@ -36,6 +36,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -243,6 +244,17 @@ public class JanusExceptionHandler {
 		return pd;
 	}
 
+	@ExceptionHandler(AuthenticationException.class)
+	ProblemDetail handleAuthentication(final AuthenticationException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+		pd.setType(TYPE_ACCESS_DENIED);
+		pd.setTitle("Invalid authentication identity");
+		pd.setDetail(ex.getMessage());
+		this.addCommonProps(pd, request);
+		logger.warn("AuthenticationException error {}", pd);
+		return pd;
+	}
+
 	@ExceptionHandler(IllegalArgumentException.class)
 	ProblemDetail handleIllegalArgument(final IllegalArgumentException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -374,12 +386,12 @@ public class JanusExceptionHandler {
 	@ExceptionHandler(AuthorizationDeniedException.class)
 	ProblemDetail handleAuthorizationDeniedException(final AuthorizationDeniedException ex,
 			final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-		pd.setType(TYPE_INTERNAL_ERROR);
-		pd.setTitle("Internal server error");
-		pd.setDetail("An unexpected error occurred");
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+		pd.setType(TYPE_ACCESS_DENIED);
+		pd.setTitle("Access denied");
+		pd.setDetail(ex.getMessage());
 		this.addCommonProps(pd, request);
-		logger.error("AuthorizationDeniedException error", ex);
+		logger.warn("AuthorizationDeniedException error {}", pd);
 		return pd;
 	}
 

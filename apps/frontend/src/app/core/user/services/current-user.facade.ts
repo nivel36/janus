@@ -98,26 +98,23 @@ export class CurrentUserFacade {
    *
    * Preferences are loaded reactively when:
    * - The authentication state changes
-   * - The username changes
    * - A manual reload is requested after a successful save
    *
-   * If the user is not authenticated or no username is available,
-   * null is emitted.
+   * If the user is not authenticated, null is emitted.
    *
    * Errors during loading are swallowed and mapped to null to avoid
    * breaking the user stream.
    */
   readonly preferences$ = combineLatest([
     this.isAuthenticated$,
-    this.username$,
     this.preferencesReload$.pipe(startWith(void 0)),
   ]).pipe(
-    switchMap(([isAuthenticated, username]) => {
-      if (!isAuthenticated || !username) {
+    switchMap(([isAuthenticated]) => {
+      if (!isAuthenticated) {
         return of(null);
       }
 
-      return this.userProfileApi.getPreferences(username).pipe(catchError(() => of(null)));
+      return this.userProfileApi.getPreferences().pipe(catchError(() => of(null)));
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -191,30 +188,11 @@ export class CurrentUserFacade {
    * @returns Observable emitting updated preferences
    */
   updatePreferences(payload: UserPreferences): Observable<UserPreferences> {
-    const username = this.resolveUsername();
-
-    return this.userProfileApi.updatePreferences(username, payload).pipe(
+    return this.userProfileApi.updatePreferences(payload).pipe(
       tap(() => {
         this.preferencesReload$.next();
       }),
     );
-  }
-
-  /**
-   * Resolves the username of the currently authenticated user
-   * from the authentication claims.
-   *
-   * @throws Error if no username can be resolved
-   */
-  private resolveUsername(): string {
-    const claims = this.authService.getClaims();
-    const username = claims?.email ?? claims?.preferred_username;
-
-    if (!username) {
-      throw new Error('Cannot resolve username for profile');
-    }
-
-    return username;
   }
 
   /**

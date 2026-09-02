@@ -21,9 +21,9 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,9 +37,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.config.AuthenticatedIdentity;
+import es.nivel36.janus.config.ExternalIdentity;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
-import es.nivel36.janus.util.Roles;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -47,13 +47,14 @@ import jakarta.validation.constraints.Pattern;
  * REST controller exposing CRUD operations for {@link AppUser} entities.
  */
 @RestController
-@RequestMapping("/api/v1/appusers")
+@RequestMapping({ "/api/v1/appusers", "/api/v1/app-users" })
 public class AppUserController {
 
 	private static final Logger logger = LoggerFactory.getLogger(AppUserController.class);
 
 	private final AppUserService appUserService;
 	private final Mapper<AppUser, AppUserResponse> appUserResponseMapper;
+	private final String identityIssuer;
 
 	/**
 	 * Creates a controller that exposes application user management endpoints.
@@ -65,10 +66,12 @@ public class AppUserController {
 	 *                              {@code null}
 	 */
 	public AppUserController(final AppUserService appUserService,
-			final Mapper<AppUser, AppUserResponse> appUserResponseMapper) {
+			final Mapper<AppUser, AppUserResponse> appUserResponseMapper,
+			@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String identityIssuer) {
 		this.appUserService = Objects.requireNonNull(appUserService, "appUserService can't be null");
 		this.appUserResponseMapper = Objects.requireNonNull(appUserResponseMapper,
 				"appUserResponseMapper can't be null");
+		this.identityIssuer = Objects.requireNonNull(identityIssuer, "identityIssuer can't be null");
 	}
 
 	/**
@@ -77,7 +80,7 @@ public class AppUserController {
 	 * @param username the unique username of the user; must not be {@code null}
 	 * @return the {@link AppUserResponse} matching the username
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@GetMapping("/{username}")
 	public ResponseEntity<AppUserResponse> findAppUser(final @PathVariable("username") //
 	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
@@ -86,11 +89,6 @@ public class AppUserController {
 			final Authentication authentication) {
 		logger.debug("Find app user ACTION performed");
 
-		final boolean employeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-
-		if (employeeRole && !AuthenticatedIdentity.appUserUsername(authentication).equals(username)) {
-			throw new AccessDeniedException("Employees can only search his own user");
-		}
 		final AppUser appUser = this.appUserService.findAppUserByUsername(username);
 		final AppUserResponse response = this.appUserResponseMapper.map(appUser);
 		return ResponseEntity.ok(response);
@@ -110,8 +108,8 @@ public class AppUserController {
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
 		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
-		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), locale,
-				request.timeFormat(), defaultTimezone);
+		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), this.identityIssuer,
+				request.identitySubject(), locale, request.timeFormat(), defaultTimezone);
 		final AppUserResponse response = this.appUserResponseMapper.map(createdAppUser);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -124,7 +122,7 @@ public class AppUserController {
 	 * @param request  the payload containing the new data; must not be {@code null}
 	 * @return the updated {@link AppUserResponse}
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@PutMapping("/{username}")
 	public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
 	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
@@ -133,19 +131,30 @@ public class AppUserController {
 			final Authentication authentication) {
 		logger.debug("Update app user ACTION performed");
 
-		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		final boolean hasOnlyUserRole = Roles.hasOnlyUserRole(authentication.getAuthorities());
-		if ((hasOnlyEmployeeRole || hasOnlyUserRole)
-				&& !AuthenticatedIdentity.appUserUsername(authentication).equals(username)) {
-			throw new AccessDeniedException("Employees can only update his own user");
-		}
-
 		final Locale locale = Locale.forLanguageTag(request.locale());
 		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
 		final AppUser updatedAppUser = this.appUserService.updateAppUser(username, locale, request.timeFormat(),
 				defaultTimezone);
 		final AppUserResponse response = this.appUserResponseMapper.map(updatedAppUser);
 		return ResponseEntity.ok(response);
+	}
+
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@GetMapping("/me")
+	public ResponseEntity<AppUserResponse> findCurrentAppUser(final Authentication authentication) {
+		final ExternalIdentity identity = AuthenticatedIdentity.externalIdentity(authentication);
+		return ResponseEntity.ok(this.appUserResponseMapper.map(this.appUserService.findAppUserByExternalIdentity(
+				identity.issuer(), identity.subject())));
+	}
+
+	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PutMapping("/me")
+	public ResponseEntity<AppUserResponse> updateCurrentAppUser(@Valid @RequestBody final UpdateAppUserRequest request,
+			final Authentication authentication) {
+		final ExternalIdentity identity = AuthenticatedIdentity.externalIdentity(authentication);
+		final AppUser updated = this.appUserService.updateAppUser(identity.issuer(), identity.subject(),
+				Locale.forLanguageTag(request.locale()), request.timeFormat(), ZoneId.of(request.defaultTimezone()));
+		return ResponseEntity.ok(this.appUserResponseMapper.map(updated));
 	}
 
 	/**
