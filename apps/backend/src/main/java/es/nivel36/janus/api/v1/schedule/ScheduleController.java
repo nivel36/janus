@@ -123,9 +123,9 @@ public class ScheduleController {
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search schedules ACTION performed");
 		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		final String effectiveEmployeeEmail;
-		if (hasOnlyEmployeeRole) {
+		if (restrictedEmployee) {
 			if (authenticatedEmail == null || authenticatedEmail.isBlank()) {
 				throw new AccessDeniedException("Employee email claim is required");
 			}
@@ -167,8 +167,8 @@ public class ScheduleController {
 		logger.debug("Find schedule ACTION performed");
 
 		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole && !this.employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
+		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
+		if (restrictedEmployee && !this.employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
 			throw new AccessDeniedException("Employees can only search his own schedule");
 		}
 

@@ -96,8 +96,8 @@ public class EmployeeController {
 		logger.debug("Find employee by email ACTION performed");
 
 		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
+		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
+		if (restrictedEmployee && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 			throw new AccessDeniedException("Employees can only search his own user");
 		}
 		
@@ -148,8 +148,8 @@ public class EmployeeController {
 		logger.debug("Update employee ACTION performed");
 
 		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
+		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
+		if (restrictedEmployee && !authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 			throw new AccessDeniedException("Employees can only update his own employee");
 		}
 		

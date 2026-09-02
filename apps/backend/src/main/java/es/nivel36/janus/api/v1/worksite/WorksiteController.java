@@ -100,9 +100,9 @@ public class WorksiteController {
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
 		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		final String effectiveEmployeeEmail;
-		if (hasOnlyEmployeeRole) {
+		if (restrictedEmployee) {
 			if (authenticatedEmail == null || authenticatedEmail.isBlank()) {
 				throw new AccessDeniedException("Employee email claim is required");
 			}
@@ -152,8 +152,8 @@ public class WorksiteController {
 		}
 
 		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole) {
+		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
+		if (restrictedEmployee) {
 			if (authenticatedEmail == null || authenticatedEmail.isBlank()) {
 				throw new AccessDeniedException("Employee email claim is required");
 			}
@@ -192,9 +192,9 @@ public class WorksiteController {
 			final Authentication authentication) {
 		logger.debug("Create worksite ACTION performed");
 
-		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
+		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 
-		if (hasOnlyEmployeeRole) {
+		if (restrictedEmployee) {
 			if (!this.applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
 			}
@@ -232,8 +232,8 @@ public class WorksiteController {
 		logger.debug("Update worksite ACTION performed");
 
 		final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-		final boolean hasOnlyEmployeeRole = Roles.hasOnlyEmployeeRole(authentication.getAuthorities());
-		if (hasOnlyEmployeeRole) {
+		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
+		if (restrictedEmployee) {
 			if (request.scope() != WorksiteScope.ASSIGNED) {
 				throw new AccessDeniedException("Employees can only update assigned worksites");
 			}
