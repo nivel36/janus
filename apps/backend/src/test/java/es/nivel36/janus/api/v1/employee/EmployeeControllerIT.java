@@ -86,6 +86,40 @@ class EmployeeControllerIT {
 	}
 
 	@Test
+	void testEmployeeWithUnknownRoleCannotFindAnotherEmployee() throws Exception {
+		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
+				.jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN")))) //
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
+			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Other','Employee','other@nivel36.es',1)" //
+	})
+	void testEmployeeWithUserRoleCanFindAnotherEmployee() throws Exception {
+		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
+				.jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER")))) //
+				.andExpect(status().isOk()) //
+				.andExpect(jsonPath("$.email").value("other@nivel36.es"));
+	}
+
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
+			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Other','Employee','other@nivel36.es',1)" //
+	})
+	void testEmployeeWithAdminRoleCanFindAnotherEmployee() throws Exception {
+		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
+				.jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN")))) //
+				.andExpect(status().isOk()) //
+				.andExpect(jsonPath("$.email").value("other@nivel36.es"));
+	}
+
+	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')" //
 	})
@@ -159,6 +193,17 @@ class EmployeeControllerIT {
 		this.mvc.perform(put(BASE + "/{employeeEmail}", "other@nivel36.es").contentType(APPLICATION_JSON)
 				.content(body).with(jwt().jwt(jwt -> jwt.subject("employee@nivel36.es")) //
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read")))) //
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void testEmployeeWithUnknownRoleCannotUpdateAnotherEmployee() throws Exception {
+		final String body = """
+				{"name":"Other","surname":"Employee","scheduleCode":"STD-WH"}
+				""";
+		this.mvc.perform(put(BASE + "/{employeeEmail}", "other@nivel36.es").contentType(APPLICATION_JSON)
+				.content(body).with(jwt().jwt(jwt -> jwt.subject("employee@nivel36.es")) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN")))) //
 				.andExpect(status().isForbidden());
 	}
 

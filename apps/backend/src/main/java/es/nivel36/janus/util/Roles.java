@@ -13,7 +13,7 @@ import es.nivel36.janus.service.appuser.Role;
  * <p>
  * This class centralizes role name definitions and provides helper methods
  * to check whether a given collection of {@link GrantedAuthority} contains
- * specific roles or only a specific role.
+ * specific roles and whether an employee remains restricted.
  * </p>
  * <p>
  * Role names follow the Spring Security convention: {@code ROLE_<NAME>}.
@@ -59,18 +59,19 @@ public final class Roles {
 	}
 
 	/**
-	 * Determines whether the given authorities contain exclusively the employee role.
+	 * Determines whether the given authorities identify a restricted employee.
 	 * <p>
-	 * This method returns {@code true} only if the set of {@code ROLE_}-prefixed
-	 * authorities contains exactly one role and that role is {@code EMPLOYEE}.
-	 * Non-role authorities, such as OAuth scopes, are ignored.
+	 * Employees are elevated only by the explicitly recognized {@code USER} and
+	 * {@code ADMIN} roles. Other authorities, including unknown {@code ROLE_}-prefixed
+	 * authorities and OAuth scopes, do not remove employee restrictions.
 	 * </p>
 	 *
 	 * @param authorities the authorities to inspect
-	 * @return {@code true} if the only role present is employee; {@code false} otherwise
+	 * @return {@code true} if employee is present without a recognized elevated role;
+	 *         {@code false} otherwise
 	 */
-	public static boolean hasOnlyEmployeeRole(Collection<? extends GrantedAuthority> authorities) {
-		return toRoleSet(authorities).equals(Set.of(EMPLOYEE));
+	public static boolean isRestrictedEmployee(Collection<? extends GrantedAuthority> authorities) {
+		return hasEmployeeRole(authorities) && !hasUserRole(authorities) && !hasAdminRole(authorities);
 	}
 
 	/**

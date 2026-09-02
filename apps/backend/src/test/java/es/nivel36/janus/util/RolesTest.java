@@ -23,15 +23,27 @@ import org.junit.jupiter.api.Test;
 class RolesTest {
 
 	@Test
-	void hasOnlyEmployeeRoleShouldIgnoreNonRoleAuthorities() {
-		assertThat(Roles.hasOnlyEmployeeRole(
+	void restrictedEmployeeShouldIgnoreNonRoleAuthorities() {
+		assertThat(Roles.isRestrictedEmployee(
 				createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read", "SCOPE_profile"))).isTrue();
 	}
 
 	@Test
-	void hasOnlyEmployeeRoleShouldRejectAnotherJanusRole() {
-		assertThat(Roles.hasOnlyEmployeeRole(
-				createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER", "SCOPE_read"))).isFalse();
+	void restrictedEmployeeShouldRemainRestrictedWithUnknownRole() {
+		assertThat(Roles.isRestrictedEmployee(
+				createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN", "SCOPE_read"))).isTrue();
+	}
+
+	@Test
+	void employeeWithUserRoleShouldNotBeRestricted() {
+		assertThat(Roles.isRestrictedEmployee(
+				createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER"))).isFalse();
+	}
+
+	@Test
+	void employeeWithAdminRoleShouldNotBeRestricted() {
+		assertThat(Roles.isRestrictedEmployee(
+				createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN"))).isFalse();
 	}
 
 	@Test
