@@ -12,8 +12,6 @@
 -- limitations under the License.
 INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (7, true, false, false, 'Europe/Madrid');
 
-INSERT INTO app_user (username, identity_issuer, identity_subject, locale, time_format, default_timezone) VALUES ('aferrer@nivel36.es', 'http://localhost:8081/auth/realms/Nivel36', '9a60b9f4-7436-4d93-9c25-08e08f3dfc58', 'es-ES', 'H24', 'Europe/Madrid');
-
 INSERT INTO schedule (code, name, entry_tolerance, exit_tolerance) VALUES ('STD-WH-AUG-VAR', 'Standard Work Hours with August Variation', 3600, 3600);
 
 INSERT INTO schedule_rule (schedule_id, start_date, end_date, name) VALUES (1, '2024-01-01', '2024-07-31', 'Regular Work Hours');
