@@ -14,6 +14,9 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,11 +25,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 
@@ -41,6 +49,8 @@ import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 class DeployedIssuerInitialUserIT {
 
 	private @Autowired MockMvc mvc;
+	private @Autowired JdbcClient jdbcClient;
+	private @Autowired @Qualifier("initialAppUserInitializer") ApplicationRunner initialAppUserInitializer;
 	private @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuer;
 
 	@Test
@@ -50,5 +60,32 @@ class DeployedIssuerInitialUserIT {
 			.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.username").value("aferrer@nivel36.es"));
+	}
+
+	@Test
+	@Transactional
+	void existingUsernameKeepsItsExternalIdentityWhenInitializerRunsAgain() throws Exception {
+		final String existingIssuer = "https://existing.example/realms/Existing";
+		final String existingSubject = "9423793d-786b-438b-a162-cfab4c324d9b";
+		this.jdbcClient.sql("""
+				UPDATE app_user
+				SET identity_issuer = :issuer, identity_subject = :subject
+				WHERE username = 'aferrer@nivel36.es'
+				""")
+			.param("issuer", existingIssuer)
+			.param("subject", existingSubject)
+			.update();
+
+		this.initialAppUserInitializer.run(new DefaultApplicationArguments());
+
+		final Map<String, Object> identity = this.jdbcClient.sql("""
+				SELECT identity_issuer, identity_subject
+				FROM app_user
+				WHERE username = 'aferrer@nivel36.es'
+				""")
+			.query()
+			.singleRow();
+		assertThat(identity).containsEntry("IDENTITY_ISSUER", existingIssuer)
+			.containsEntry("IDENTITY_SUBJECT", existingSubject);
 	}
 }

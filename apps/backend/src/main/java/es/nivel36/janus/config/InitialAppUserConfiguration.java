@@ -35,12 +35,6 @@ class InitialAppUserConfiguration {
 			@Value("${janus.bootstrap.initial-user.time-format}") final String timeFormat,
 			@Value("${janus.bootstrap.initial-user.default-timezone}") final String defaultTimezone) {
 		return arguments -> {
-			jdbcClient.sql("UPDATE app_user SET identity_issuer = :issuer, identity_subject = :subject "
-					+ "WHERE username = :username")
-				.param("username", username)
-				.param("issuer", issuer)
-				.param("subject", subject)
-				.update();
 			jdbcClient.sql("""
 					INSERT INTO app_user (username, identity_issuer, identity_subject, locale, time_format, default_timezone)
 					SELECT :username, :issuer, :subject, :locale, :timeFormat, :defaultTimezone
