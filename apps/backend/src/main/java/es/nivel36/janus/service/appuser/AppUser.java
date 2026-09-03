@@ -23,6 +23,8 @@ import java.util.Objects;
 import org.hibernate.annotations.NaturalId;
 
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.service.security.PrincipalType;
+import es.nivel36.janus.service.security.SecurityPrincipal;
 import es.nivel36.janus.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +33,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
@@ -63,6 +67,10 @@ public class AppUser implements Serializable {
 	@NotEmpty
 	@Column(name = "IDENTITY_SUBJECT", nullable = false, updatable = false)
 	private String identitySubject;
+
+	@OneToOne
+	@JoinColumn(name = "SECURITY_PRINCIPAL_ID", unique = true)
+	private SecurityPrincipal securityPrincipal;
 
 	@NotNull
 	private Locale locale;
@@ -111,6 +119,18 @@ public class AppUser implements Serializable {
 
 	public String getIdentitySubject() {
 		return this.identitySubject;
+	}
+
+	public SecurityPrincipal getSecurityPrincipal() {
+		return this.securityPrincipal;
+	}
+
+	/** Migration-only association setter; preferences can only belong to humans. */
+	public void linkSecurityPrincipal(final SecurityPrincipal principal) {
+		if (principal != null && principal.getType() != PrincipalType.HUMAN) {
+			throw new IllegalArgumentException("An AppUser can only be linked to a HUMAN principal");
+		}
+		this.securityPrincipal = principal;
 	}
 
 	public Locale getLocale() {

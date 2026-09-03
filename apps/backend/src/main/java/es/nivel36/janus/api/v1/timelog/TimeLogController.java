@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.config.AuthenticatedIdentity;
+import es.nivel36.janus.service.security.AuthenticatedEmployeeResolver;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
@@ -66,6 +67,8 @@ import jakarta.validation.constraints.Pattern;
 public class TimeLogController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TimeLogController.class);
+
+	private final AuthenticatedEmployeeResolver authenticatedEmployeeResolver;
 
 	private final TimeLogService timeLogService;
 	private final EmployeeService employeeService;
@@ -95,9 +98,11 @@ public class TimeLogController {
 			final ApplicationSettingsService applicationSettingsService, //
 			final WorksiteService worksiteService, //
 			final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper, //
-			final Clock clock //
+			final Clock clock, //
+			final AuthenticatedEmployeeResolver authenticatedEmployeeResolver //
 	) {
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService can't be null");
+		this.authenticatedEmployeeResolver = Objects.requireNonNull(authenticatedEmployeeResolver);
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
 				"applicationSettingsService can't be null");
@@ -140,7 +145,7 @@ public class TimeLogController {
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
 		if (employeeRole) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			final String authenticatedEmail = this.authenticatedEmployeeResolver.resolve(authentication).getEmail();
 			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 				throw new AccessDeniedException("Employees can only create their own clock-in records");
 			}
@@ -196,7 +201,7 @@ public class TimeLogController {
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
 		if (employeeRole) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			final String authenticatedEmail = this.authenticatedEmployeeResolver.resolve(authentication).getEmail();
 			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 				throw new AccessDeniedException("Employees can only create their own clock-out records");
 			}
@@ -248,7 +253,7 @@ public class TimeLogController {
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
 		if (employeeRole) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			final String authenticatedEmail = this.authenticatedEmployeeResolver.resolve(authentication).getEmail();
 			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 				throw new AccessDeniedException("Employees can only create their own clock-in/clock-out records");
 			}
@@ -303,7 +308,7 @@ public class TimeLogController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			final String authenticatedEmail = this.authenticatedEmployeeResolver.resolve(authentication).getEmail();
 			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 				throw new AccessDeniedException("Employees can only search their own time log records");
 			}
@@ -368,7 +373,7 @@ public class TimeLogController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			final String authenticatedEmail = this.authenticatedEmployeeResolver.resolve(authentication).getEmail();
 			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
 				throw new AccessDeniedException("Employees can only search their own time log records");
 			}
