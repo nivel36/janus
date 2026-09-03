@@ -77,11 +77,14 @@ class WorksiteControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(2,'Berta','Person','bperson@nivel36.es',1)",
+			"INSERT INTO security_principal(id,type,issuer,subject,enabled,created_at) VALUES(1,'HUMAN','https://issuer.example.test','abel-subject',true,CURRENT_TIMESTAMP)",
+			"INSERT INTO employee_principal(employee_id,security_principal_id,relationship_type,enabled,valid_from,created_at) VALUES(1,1,'SELF',true,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testListAsEmployeeShouldRejectSearchingOtherEmployee() throws Exception {
 		this.mvc.perform(get(BASE).param("employeeEmail", "bperson@nivel36.es").with(jwt()//
-				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es").claim("email_verified", true))
+				.jwt(jwt -> jwt.claim("iss", "https://issuer.example.test").subject("abel-subject")
+						.claim("realm_access", Map.of("roles", List.of("janus_employee")))
+						.claim("email", "aferrer@nivel36.es").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());
 	}
@@ -134,6 +137,20 @@ class WorksiteControllerIT {
 
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')" })
+	void testUnprovisionedEmployeeCannotCreateAssignedWorksite() throws Exception {
+		final String body = """
+				  {"code":"HOME","name":"Home","timeZone":"Europe/Madrid","scope":"ASSIGNED"}
+				""";
+
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()
+				.jwt(jwt -> jwt.claim("iss", "https://issuer.example.test").subject("unprovisioned-subject"))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -196,6 +213,9 @@ class WorksiteControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(2,'Berta','Person','bperson@nivel36.es',1)",
+			"INSERT INTO security_principal(id,type,issuer,subject,enabled,created_at) VALUES(1,'HUMAN','https://issuer.example.test','abel-subject',true,CURRENT_TIMESTAMP)",
+			"INSERT INTO security_principal(id,type,issuer,subject,enabled,created_at) VALUES(2,'HUMAN','https://issuer.example.test','berta-subject',true,CURRENT_TIMESTAMP)",
+			"INSERT INTO employee_principal(employee_id,security_principal_id,relationship_type,enabled,valid_from,created_at) VALUES(1,1,'SELF',true,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','ASSIGNED')",
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" })
 	void testUpdateAssignedWorksiteAsEmployeeShouldAllowAssignedAndRejectUnassignedEmployee() throws Exception {
@@ -204,15 +224,17 @@ class WorksiteControllerIT {
 				""";
 
 		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))
+				.jwt(jwt -> jwt.claim("iss", "https://issuer.example.test").subject("abel-subject")
+						.claim("realm_access", Map.of("roles", List.of("janus_employee")))
+						.claim("email", "aferrer@nivel36.es").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Barcelona Assigned"))
 				.andExpect(jsonPath("$.scope").value("ASSIGNED"));
 
 		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
-				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.subject("bperson@nivel36.es").claim("email", "bperson@nivel36.es").claim("email_verified", true))
+				.jwt(jwt -> jwt.claim("iss", "https://issuer.example.test").subject("berta-subject")
+						.claim("realm_access", Map.of("roles", List.of("janus_employee")))
+						.claim("email", "bperson@nivel36.es").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());
 	}

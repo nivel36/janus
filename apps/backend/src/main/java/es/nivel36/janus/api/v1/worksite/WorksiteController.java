@@ -194,6 +194,10 @@ public class WorksiteController {
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 
 		if (restrictedEmployee) {
+			// Do not authorize employee-originated writes from the token role alone. A
+			// provisioned, active HUMAN principal with an active SELF relationship is
+			// required, just as it is for the other employee-scoped operations.
+			this.authenticatedEmployeeResolver.resolve(authentication);
 			if (!this.applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
 			}
