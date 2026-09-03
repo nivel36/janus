@@ -36,7 +36,7 @@ public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 		final String locale = appUser.getLocale().toLanguageTag();
 		final TimeFormat timeFormat = appUser.getTimeFormat();
 		final String defaultTimeZone = appUser.getDefaultTimezone().getId();
-		return new AppUserResponse(username, appUser.getIdentityIssuer(), appUser.getIdentitySubject(), locale,
+		return new AppUserResponse(username,  locale,
 				timeFormat, defaultTimeZone);
 	}
 }
