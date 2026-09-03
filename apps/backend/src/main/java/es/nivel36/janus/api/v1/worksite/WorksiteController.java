@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.config.AuthenticatedIdentity;
+import es.nivel36.janus.service.security.AuthenticatedEmployeeResolver;
 import es.nivel36.janus.api.v1.employee.EmployeeResponse;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
@@ -60,6 +61,8 @@ public class WorksiteController {
 
 	private static final Logger logger = LoggerFactory.getLogger(WorksiteController.class);
 
+	private final AuthenticatedEmployeeResolver authenticatedEmployeeResolver;
+
 	private final WorksiteService worksiteService;
 	private final EmployeeService employeeService;
 	private final ApplicationSettingsService applicationSettingsService;
@@ -76,9 +79,11 @@ public class WorksiteController {
 	 */
 	public WorksiteController(final WorksiteService worksiteService,
 			final ApplicationSettingsService applicationSettingsService, final EmployeeService employeeService,
-			final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
+			final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper,
+			final AuthenticatedEmployeeResolver authenticatedEmployeeResolver) {
 		this.worksiteService = //
 				Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
+		this.authenticatedEmployeeResolver = Objects.requireNonNull(authenticatedEmployeeResolver);
 		this.applicationSettingsService = //
 				Objects.requireNonNull(applicationSettingsService, "applicationSettingsService can't be null");
 		this.employeeService = //
@@ -102,7 +107,7 @@ public class WorksiteController {
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		final String effectiveEmployeeEmail;
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			final String authenticatedEmail = this.authenticatedEmployeeResolver.resolve(authentication).getEmail();
 			if (employeeEmail == null) {
 				throw new AccessDeniedException("Employees can only search worksites for themselves");
 			}
@@ -150,7 +155,7 @@ public class WorksiteController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			final String authenticatedEmail = this.authenticatedEmployeeResolver.resolve(authentication).getEmail();
 			if (!this.employeeService.isAssignedToWorksite(authenticatedEmail, worksiteCode)) {
 				throw new AccessDeniedException("Employees can only view stats for their assigned worksites");
 			}
@@ -227,7 +232,7 @@ public class WorksiteController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			final String authenticatedEmail = this.authenticatedEmployeeResolver.resolve(authentication).getEmail();
 			if (request.scope() != WorksiteScope.ASSIGNED) {
 				throw new AccessDeniedException("Employees can only update assigned worksites");
 			}
