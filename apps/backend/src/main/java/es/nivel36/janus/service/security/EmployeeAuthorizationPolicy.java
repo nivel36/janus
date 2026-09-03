@@ -3,13 +3,17 @@ package es.nivel36.janus.service.security;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import es.nivel36.janus.service.employee.Employee;
 
 @Service
 public class EmployeeAuthorizationPolicy {
 	private final EmployeePrincipalRepository relationships;
 	private final Clock clock;
+	@Autowired
 	public EmployeeAuthorizationPolicy(EmployeePrincipalRepository relationships) { this(relationships, Clock.systemUTC()); }
 	EmployeeAuthorizationPolicy(EmployeePrincipalRepository relationships, Clock clock) {
 		this.relationships = Objects.requireNonNull(relationships); this.clock = Objects.requireNonNull(clock);

@@ -41,6 +41,7 @@ import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 @SpringBootTest(properties = {
 		"spring.security.oauth2.resourceserver.jwt.issuer-uri=http://janus.local/auth/realms/Nivel36",
 		"janus.bootstrap.initial-user.enabled=true", "janus.bootstrap.initial-user.username=aferrer@nivel36.es",
+		"janus.bootstrap.initial-user.employee-email=aferrer@nivel36.es",
 		"janus.bootstrap.initial-user.subject=9a60b9f4-7436-4d93-9c25-08e08f3dfc58",
 		"janus.bootstrap.initial-user.locale=es-ES", "janus.bootstrap.initial-user.time-format=H24",
 		"janus.bootstrap.initial-user.default-timezone=Europe/Madrid" })
@@ -60,6 +61,49 @@ class DeployedIssuerInitialUserIT {
 			.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.username").value("aferrer@nivel36.es"));
+	}
+
+	@Test
+	void initializerProvisionsAndLinksTheInitialSecurityPrincipal() {
+		final Map<String, Object> principal = this.jdbcClient.sql("""
+				SELECT sp.issuer, sp.subject, sp.type, sp.enabled
+				FROM security_principal sp
+				JOIN app_user au ON au.security_principal_id = sp.id
+				WHERE au.username = 'aferrer@nivel36.es'
+				""").query().singleRow();
+
+		assertThat(principal).containsEntry("ISSUER", this.issuer)
+			.containsEntry("SUBJECT", "9a60b9f4-7436-4d93-9c25-08e08f3dfc58")
+			.containsEntry("TYPE", "HUMAN")
+			.containsEntry("ENABLED", true);
+	}
+
+	@Test
+	@Transactional
+	void initializerCreatesTheConfiguredSelfEmployeeRelationship() throws Exception {
+		this.jdbcClient.sql("""
+				INSERT INTO schedule (code, name, entry_tolerance, exit_tolerance)
+				VALUES ('BOOTSTRAP', 'Bootstrap schedule', 0, 0)
+				""").update();
+		this.jdbcClient.sql("""
+				INSERT INTO employee (name, surname, email, schedule_id)
+				SELECT 'Abel', 'Ferrer', 'aferrer@nivel36.es', id
+				FROM schedule WHERE code = 'BOOTSTRAP'
+				""").update();
+
+		this.initialAppUserInitializer.run(new DefaultApplicationArguments());
+
+		final Integer relationshipCount = this.jdbcClient.sql("""
+				SELECT COUNT(*)
+				FROM employee_principal ep
+				JOIN employee e ON e.id = ep.employee_id
+				JOIN app_user au ON au.security_principal_id = ep.security_principal_id
+				WHERE e.email = 'aferrer@nivel36.es'
+				  AND au.username = 'aferrer@nivel36.es'
+				  AND ep.relationship_type = 'SELF' AND ep.enabled = true
+				""").query(Integer.class).single();
+
+		assertThat(relationshipCount).isOne();
 	}
 
 	@Test

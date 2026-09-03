@@ -30,6 +30,7 @@ class InitialAppUserConfiguration {
 	ApplicationRunner initialAppUserInitializer(final JdbcClient jdbcClient,
 			@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String issuer,
 			@Value("${janus.bootstrap.initial-user.username}") final String username,
+			@Value("${janus.bootstrap.initial-user.employee-email}") final String employeeEmail,
 			@Value("${janus.bootstrap.initial-user.subject}") final String subject,
 			@Value("${janus.bootstrap.initial-user.locale}") final String locale,
 			@Value("${janus.bootstrap.initial-user.time-format}") final String timeFormat,
@@ -46,6 +47,50 @@ class InitialAppUserConfiguration {
 				.param("locale", locale)
 				.param("timeFormat", timeFormat)
 				.param("defaultTimezone", defaultTimezone)
+				.update();
+
+			// Provision every pre-existing application identity before secured endpoints
+			// start resolving actors. The external identity remains the authoritative key.
+			jdbcClient.sql("""
+					INSERT INTO security_principal (type, issuer, subject, enabled, created_at, display_name)
+					SELECT 'HUMAN', au.identity_issuer, au.identity_subject, true, CURRENT_TIMESTAMP, au.username
+					FROM app_user au
+					WHERE NOT EXISTS (
+						SELECT 1 FROM security_principal sp
+						WHERE sp.issuer = au.identity_issuer AND sp.subject = au.identity_subject
+					)
+					""").update();
+
+			jdbcClient.sql("""
+					UPDATE app_user
+					SET security_principal_id = (
+						SELECT sp.id FROM security_principal sp
+						WHERE sp.issuer = app_user.identity_issuer
+						  AND sp.subject = app_user.identity_subject
+					)
+					WHERE security_principal_id IS NULL
+					""").update();
+
+			// The initial employee association is explicit configuration rather than an
+			// ownership inference made from a JWT claim at request time.
+			jdbcClient.sql("""
+					INSERT INTO employee_principal
+						(employee_id, security_principal_id, relationship_type, enabled,
+						 valid_from, valid_until, created_at, created_by_principal_id)
+					SELECT e.id, au.security_principal_id, 'SELF', true,
+						CURRENT_TIMESTAMP, NULL, CURRENT_TIMESTAMP, au.security_principal_id
+					FROM employee e
+					JOIN app_user au ON au.username = :username
+					WHERE e.email = :employeeEmail
+					  AND NOT EXISTS (
+						SELECT 1 FROM employee_principal ep
+						WHERE ep.employee_id = e.id
+						  AND ep.security_principal_id = au.security_principal_id
+						  AND ep.relationship_type = 'SELF' AND ep.enabled = true
+					  )
+					""")
+				.param("username", username)
+				.param("employeeEmail", employeeEmail)
 				.update();
 		};
 	}
