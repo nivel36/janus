@@ -31,20 +31,17 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
  * Entity representing an application user within the Janus system.
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "UK_APP_USER_EXTERNAL_IDENTITY", columnNames = {
-		"IDENTITY_ISSUER", "IDENTITY_SUBJECT" }))
 public class AppUser implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
 	public static final ZoneId DEFAULT_TIMEZONE = ZoneId.of("UTC");
 
 	@Id
@@ -52,16 +49,16 @@ public class AppUser implements Serializable {
 	private Long id;
 
 	@NaturalId
-	@NotEmpty
+	@NotBlank
 	@Column(updatable = false, unique = true)
 	private String username;
 
-	@NotEmpty
-	@Column(name = "IDENTITY_ISSUER", nullable = false, updatable = false)
+	@NotBlank
+	@Column(name = "IDENTITY_ISSUER", updatable = false)
 	private String identityIssuer;
 
-	@NotEmpty
-	@Column(name = "IDENTITY_SUBJECT", nullable = false, updatable = false)
+	@NotBlank
+	@Column(name = "IDENTITY_SUBJECT", updatable = false)
 	private String identitySubject;
 
 	@NotNull

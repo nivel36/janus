@@ -32,7 +32,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -81,7 +81,7 @@ public class ScheduleRule implements Serializable {
 	 * This field is mandatory and must not be {@code null} or empty.
 	 * </p>
 	 */
-	@NotEmpty
+	@NotBlank
 	private String name;
 
 	/**

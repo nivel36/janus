@@ -40,7 +40,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -96,7 +96,7 @@ public class Employee implements Serializable {
 	 * This field is mandatory and must not be {@code null} or blank.
 	 * </p>
 	 */
-	@NotEmpty
+	@NotBlank
 	private String name;
 
 	/**
@@ -106,7 +106,7 @@ public class Employee implements Serializable {
 	 * This field is mandatory and must not be {@code null} or blank.
 	 * </p>
 	 */
-	@NotEmpty
+	@NotBlank
 	private String surname;
 
 	/**
@@ -118,7 +118,7 @@ public class Employee implements Serializable {
 	 * </p>
 	 */
 	@NaturalId
-	@NotEmpty
+	@NotBlank
 	@Email
 	@Column(updatable = false)
 	private String email;
@@ -181,7 +181,7 @@ public class Employee implements Serializable {
 	 *                 {@code null} or blank
 	 * @param schedule the work schedule assigned to the employee; must not be
 	 *                 {@code null}
-	 * 
+	 *
 	 * @throws NullPointerException     if name, surname, email or schedule is
 	 *                                  {@code null}
 	 * @throws IllegalArgumentException if name, surname, email is empty
@@ -314,7 +314,7 @@ public class Employee implements Serializable {
 	 *
 	 * @param timeLogs the set of {@link TimeLog} entries to assign; must not be
 	 *                 {@code null}
-	 * 
+	 *
 	 * @throws NullPointerException if timeLogs is {@code null}
 	 */
 	void setTimeLogs(final Set<TimeLog> timeLogs) {

@@ -28,7 +28,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.ZoneId;
@@ -100,7 +100,7 @@ public class Worksite implements Serializable {
      * This field is mandatory and must not be {@code null} or empty.
      * </p>
      */
-    @NotEmpty
+    @NotBlank
     private String name;
 
     /**
@@ -112,7 +112,7 @@ public class Worksite implements Serializable {
      * </p>
      */
     @NaturalId
-    @NotEmpty
+    @NotBlank
     @Column(updatable = false)
     private String code;
 
