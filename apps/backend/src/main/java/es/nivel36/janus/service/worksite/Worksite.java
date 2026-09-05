@@ -158,7 +158,6 @@ public class Worksite implements Serializable {
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "scope")
     private WorksiteScope scope;
 
     /**
