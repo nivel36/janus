@@ -169,7 +169,6 @@ public class Worksite implements Serializable {
      * the database for auditing and historical purposes.
      * </p>
      */
-    @NotNull
     private boolean deleted = false;
 
     /**
