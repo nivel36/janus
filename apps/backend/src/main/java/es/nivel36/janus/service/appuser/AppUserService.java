@@ -111,13 +111,11 @@ public class AppUserService {
 	 *                                        already exists
 	 */
 	@Transactional
-	public AppUser createAppUser(final String username, final String identityIssuer, final String identitySubject,
-			final Locale locale, final TimeFormat timeFormat,
-			final ZoneId defaultTimezone) {
+	public AppUser createAppUser(final String username, final String keycloakSubject, final Locale locale,
+			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
 
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
-		Strings.requireNonBlank(identityIssuer, "identityIssuer cannot be null or blank.");
-		Strings.requireNonBlank(identitySubject, "identitySubject cannot be null or blank.");
+		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 		Objects.requireNonNull(locale, "locale cannot be null.");
 		Objects.requireNonNull(timeFormat, "timeFormat cannot be null.");
 		Objects.requireNonNull(defaultTimezone, "defaultTimezone cannot be null.");
@@ -128,12 +126,12 @@ public class AppUserService {
 		if (usernameInUse) {
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
-		if (this.appUserRepository.existsByIdentityIssuerAndIdentitySubject(identityIssuer, identitySubject)) {
-			throw new ResourceAlreadyExistsException("External identity is already linked to an application user");
+		if (this.appUserRepository.existsByKeycloakSubject(keycloakSubject)) {
+			throw new ResourceAlreadyExistsException("Keycloak subject is already linked to an application user");
 		}
 
-		final AppUser appUser = new AppUser(username.trim(), identityIssuer.trim(), identitySubject.trim(), locale,
-				timeFormat, defaultTimezone);
+		final AppUser appUser = new AppUser(username.trim(), keycloakSubject.trim(), locale, timeFormat,
+				defaultTimezone);
 
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
@@ -182,18 +180,17 @@ public class AppUserService {
 	}
 
 	@Transactional(readOnly = true)
-	public AppUser findAppUserByExternalIdentity(final String identityIssuer, final String identitySubject) {
-		Strings.requireNonBlank(identityIssuer, "identityIssuer cannot be null or blank.");
-		Strings.requireNonBlank(identitySubject, "identitySubject cannot be null or blank.");
-		return this.appUserRepository.findByIdentityIssuerAndIdentitySubject(identityIssuer, identitySubject)
+	public AppUser findAppUserByKeycloakSubject(final String keycloakSubject) {
+		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
+		return this.appUserRepository.findByKeycloakSubject(keycloakSubject)
 				.orElseThrow(() -> new org.springframework.security.access.AccessDeniedException(
 						"The authenticated identity has not been provisioned"));
 	}
 
 	@Transactional
-	public AppUser updateAppUser(final String identityIssuer, final String identitySubject, final Locale newLocale,
-			final TimeFormat newTimeFormat, final ZoneId newDefaultTimezone) {
-		final AppUser appUser = findAppUserByExternalIdentity(identityIssuer, identitySubject);
+	public AppUser updateCurrentAppUser(final String keycloakSubject, final Locale newLocale, final TimeFormat newTimeFormat,
+			final ZoneId newDefaultTimezone) {
+		final AppUser appUser = findAppUserByKeycloakSubject(keycloakSubject);
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
 		appUser.setDefaultTimezone(newDefaultTimezone);

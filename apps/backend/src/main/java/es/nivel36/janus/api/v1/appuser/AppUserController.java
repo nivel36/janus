@@ -21,7 +21,6 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,7 +53,6 @@ public class AppUserController {
 
 	private final AppUserService appUserService;
 	private final Mapper<AppUser, AppUserResponse> appUserResponseMapper;
-	private final String identityIssuer;
 
 	/**
 	 * Creates a controller that exposes application user management endpoints.
@@ -66,12 +64,10 @@ public class AppUserController {
 	 *                              {@code null}
 	 */
 	public AppUserController(final AppUserService appUserService,
-			final Mapper<AppUser, AppUserResponse> appUserResponseMapper,
-			@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String identityIssuer) {
+			final Mapper<AppUser, AppUserResponse> appUserResponseMapper) {
 		this.appUserService = Objects.requireNonNull(appUserService, "appUserService can't be null");
 		this.appUserResponseMapper = Objects.requireNonNull(appUserResponseMapper,
 				"appUserResponseMapper can't be null");
-		this.identityIssuer = Objects.requireNonNull(identityIssuer, "identityIssuer can't be null");
 	}
 
 	/**
@@ -108,8 +104,8 @@ public class AppUserController {
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
 		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
-		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), this.identityIssuer,
-				request.identitySubject(), locale, request.timeFormat(), defaultTimezone);
+		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), request.keycloakSubject(),
+				locale, request.timeFormat(), defaultTimezone);
 		final AppUserResponse response = this.appUserResponseMapper.map(createdAppUser);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -143,8 +139,8 @@ public class AppUserController {
 	@GetMapping("/me")
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final Authentication authentication) {
 		final ExternalIdentity identity = AuthenticatedIdentity.externalIdentity(authentication);
-		return ResponseEntity.ok(this.appUserResponseMapper.map(this.appUserService.findAppUserByExternalIdentity(
-				identity.issuer(), identity.subject())));
+		return ResponseEntity.ok(
+				this.appUserResponseMapper.map(this.appUserService.findAppUserByKeycloakSubject(identity.subject())));
 	}
 
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
@@ -152,7 +148,7 @@ public class AppUserController {
 	public ResponseEntity<AppUserResponse> updateCurrentAppUser(@Valid @RequestBody final UpdateAppUserRequest request,
 			final Authentication authentication) {
 		final ExternalIdentity identity = AuthenticatedIdentity.externalIdentity(authentication);
-		final AppUser updated = this.appUserService.updateAppUser(identity.issuer(), identity.subject(),
+		final AppUser updated = this.appUserService.updateCurrentAppUser(identity.subject(),
 				Locale.forLanguageTag(request.locale()), request.timeFormat(), ZoneId.of(request.defaultTimezone()));
 		return ResponseEntity.ok(this.appUserResponseMapper.map(updated));
 	}

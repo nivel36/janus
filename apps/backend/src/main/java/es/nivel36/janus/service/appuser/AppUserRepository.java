@@ -44,7 +44,7 @@ interface AppUserRepository extends CrudRepository<AppUser, Long> {
 	 */
 	AppUser findByUsername(final String username);
 
-	Optional<AppUser> findByIdentityIssuerAndIdentitySubject(String identityIssuer, String identitySubject);
+	Optional<AppUser> findByKeycloakSubject(String keycloakSubject);
 
-	boolean existsByIdentityIssuerAndIdentitySubject(String identityIssuer, String identitySubject);
+	boolean existsByKeycloakSubject(String keycloakSubject);
 }

@@ -54,7 +54,8 @@ class AppUserServiceTest {
 		when(this.passwordEncoder.encode("raw-password")).thenReturn("hashed-password");
 		when(this.appUserRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		this.appUserService.createAppUser("aferrer", "https://issuer.test", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH, TimeFormat.H12, ZoneId.of("Europe/Madrid"));
+		this.appUserService.createAppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
+				TimeFormat.H12, ZoneId.of("Europe/Madrid"));
 
 		verify(this.appUserRepository).existsByUsername("aferrer");
 		final ArgumentCaptor<AppUser> savedAppUserCaptor = ArgumentCaptor.forClass(AppUser.class);
@@ -65,8 +66,9 @@ class AppUserServiceTest {
 
 	@Test
 	void testCreateAppUserThrowsWhenTimezoneIsInvalid() {
-		assertThrows(ZoneRulesException.class, () -> this.appUserService.createAppUser("aferrer", "https://issuer.test", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
-				TimeFormat.H24, ZoneId.of("Mars/Olympus")));
+		assertThrows(ZoneRulesException.class,
+				() -> this.appUserService.createAppUser("aferrer", "11111111-1111-4111-8111-111111111111",
+						Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Mars/Olympus")));
 	}
 
 	@Test
@@ -76,7 +78,8 @@ class AppUserServiceTest {
 		final ZoneId zoneId = ZoneId.of("Europe/Madrid");
 		
 		assertThrows(ResourceAlreadyExistsException.class, () -> {
-			this.appUserService.createAppUser("aferrer", "https://issuer.test", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH, TimeFormat.H24, zoneId);
+			this.appUserService.createAppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
+					TimeFormat.H24, zoneId);
 		});
 
 		verify(this.appUserRepository).existsByUsername("aferrer");
@@ -84,30 +87,28 @@ class AppUserServiceTest {
 
 	@Test
 	void testCreateAppUserRejectsAnAlreadyLinkedIdentity() {
-		when(this.appUserRepository.existsByIdentityIssuerAndIdentitySubject("https://issuer.test",
-				"11111111-1111-4111-8111-111111111111")).thenReturn(true);
+		when(this.appUserRepository.existsByKeycloakSubject("11111111-1111-4111-8111-111111111111")).thenReturn(true);
 
 		assertThrows(ResourceAlreadyExistsException.class,
-				() -> this.appUserService.createAppUser("aferrer", "https://issuer.test",
-						"11111111-1111-4111-8111-111111111111", Locale.ENGLISH, TimeFormat.H24,
+				() -> this.appUserService.createAppUser("aferrer", "11111111-1111-4111-8111-111111111111",
+						Locale.ENGLISH, TimeFormat.H24,
 						ZoneId.of("Europe/Madrid")));
 	}
 
 	@Test
-	void testFindAppUserByExternalIdentityUsesBothClaims() {
-		final AppUser appUser = new AppUser("aferrer", "https://issuer.test",
-				"11111111-1111-4111-8111-111111111111", Locale.ENGLISH, TimeFormat.H24,
-				ZoneId.of("Europe/Madrid"));
-		when(this.appUserRepository.findByIdentityIssuerAndIdentitySubject("https://issuer.test",
-				"11111111-1111-4111-8111-111111111111")).thenReturn(java.util.Optional.of(appUser));
+	void testFindAppUserByKeycloakSubjectUsesSubjectClaim() {
+		final AppUser appUser = new AppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
+				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
+		when(this.appUserRepository.findByKeycloakSubject("11111111-1111-4111-8111-111111111111"))
+			.thenReturn(java.util.Optional.of(appUser));
 
-		assertEquals(appUser, this.appUserService.findAppUserByExternalIdentity("https://issuer.test",
-				"11111111-1111-4111-8111-111111111111"));
+		assertEquals(appUser, this.appUserService.findAppUserByKeycloakSubject("11111111-1111-4111-8111-111111111111"));
 	}
 
 	@Test
 	void testFindAppUserByUsernameUsesAccountUsernameLookup() {
-		final AppUser appUser = new AppUser("aferrer", "https://issuer.test", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Europe/Madrid"));
+		final AppUser appUser = new AppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
+				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
 		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
 
 		final AppUser foundAppUser = this.appUserService.findAppUserByUsername("aferrer");
@@ -127,7 +128,8 @@ class AppUserServiceTest {
 
 	@Test
 	void testUpdateAppUserUpdatesTimezone() {
-		final AppUser appUser = new AppUser("aferrer", "https://issuer.test", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Europe/Madrid"));
+		final AppUser appUser = new AppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
+				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
 		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
 
 		final AppUser updatedAppUser = this.appUserService.updateAppUser("aferrer", Locale.CANADA, TimeFormat.H12,

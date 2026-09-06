@@ -16,9 +16,10 @@ import es.nivel36.janus.util.EmailAddresses;
 /**
  * Extracts security-relevant identity claims from an authenticated JWT.
  *
- * <p>An {@code AppUser} is identified only by {@code (iss, sub)}. Email remains a
- * contact attribute and its use by Employee authorization is transitional until
- * AppUser and Employee have an explicit relationship.</p>
+ * <p>An {@code AppUser} is identified by {@code sub}. The accepted {@code iss} is
+ * configured on the Spring resource server. Email remains a contact attribute and
+ * its use by Employee authorization is transitional until AppUser and Employee have
+ * an explicit relationship.</p>
  */
 @Component
 public final class AuthenticatedIdentity {

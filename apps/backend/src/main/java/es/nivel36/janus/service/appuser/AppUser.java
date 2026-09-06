@@ -54,12 +54,8 @@ public class AppUser implements Serializable {
 	private String username;
 
 	@NotBlank
-	@Column(name = "IDENTITY_ISSUER", updatable = false)
-	private String identityIssuer;
-
-	@NotBlank
-	@Column(name = "IDENTITY_SUBJECT", updatable = false)
-	private String identitySubject;
+	@Column(name = "KEYCLOAK_SUBJECT", updatable = false)
+	private String keycloakSubject;
 
 	@NotNull
 	private Locale locale;
@@ -74,17 +70,15 @@ public class AppUser implements Serializable {
 	AppUser() {
 	}
 
-	public AppUser(final String username, final String identityIssuer, final String identitySubject,
-			final Locale locale, final TimeFormat timeFormat) {
-		this(username, identityIssuer, identitySubject, locale, timeFormat, DEFAULT_TIMEZONE);
+	public AppUser(final String username, final String keycloakSubject, final Locale locale,
+			final TimeFormat timeFormat) {
+		this(username, keycloakSubject, locale, timeFormat, DEFAULT_TIMEZONE);
 	}
 
-	public AppUser(final String username, final String identityIssuer, final String identitySubject,
-			final Locale locale, final TimeFormat timeFormat,
+	public AppUser(final String username, final String keycloakSubject, final Locale locale, final TimeFormat timeFormat,
 			final ZoneId defaultTimezone) {
 		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
-		this.identityIssuer = Strings.requireNonBlank(identityIssuer, "identityIssuer can't be null or blank");
-		this.identitySubject = Strings.requireNonBlank(identitySubject, "identitySubject can't be null or blank");
+		this.keycloakSubject = Strings.requireNonBlank(keycloakSubject, "keycloakSubject can't be null or blank");
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null or blank");
@@ -102,12 +96,8 @@ public class AppUser implements Serializable {
 		return this.username;
 	}
 
-	public String getIdentityIssuer() {
-		return this.identityIssuer;
-	}
-
-	public String getIdentitySubject() {
-		return this.identitySubject;
+	public String getKeycloakSubject() {
+		return this.keycloakSubject;
 	}
 
 	public Locale getLocale() {

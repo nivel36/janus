@@ -65,27 +65,24 @@ class DeployedIssuerInitialUserIT {
 	@Test
 	@Transactional
 	void existingUsernameKeepsItsExternalIdentityWhenInitializerRunsAgain() throws Exception {
-		final String existingIssuer = "https://existing.example/realms/Existing";
 		final String existingSubject = "9423793d-786b-438b-a162-cfab4c324d9b";
 		this.jdbcClient.sql("""
 				UPDATE app_user
-				SET identity_issuer = :issuer, identity_subject = :subject
+				SET keycloak_subject = :subject
 				WHERE username = 'aferrer@nivel36.es'
 				""")
-			.param("issuer", existingIssuer)
 			.param("subject", existingSubject)
 			.update();
 
 		this.initialAppUserInitializer.run(new DefaultApplicationArguments());
 
 		final Map<String, Object> identity = this.jdbcClient.sql("""
-				SELECT identity_issuer, identity_subject
+				SELECT keycloak_subject
 				FROM app_user
 				WHERE username = 'aferrer@nivel36.es'
 				""")
 			.query()
 			.singleRow();
-		assertThat(identity).containsEntry("IDENTITY_ISSUER", existingIssuer)
-			.containsEntry("IDENTITY_SUBJECT", existingSubject);
+		assertThat(identity).containsEntry("KEYCLOAK_SUBJECT", existingSubject);
 	}
 }
