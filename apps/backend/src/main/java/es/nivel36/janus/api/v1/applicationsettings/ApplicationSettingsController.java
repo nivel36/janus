@@ -20,6 +20,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,12 +29,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import jakarta.validation.Valid;
 
 /**
- * REST controller exposing read and update operations for global application settings.
+ * REST controller exposing read and update operations for global application
+ * settings.
  */
 @RestController
 @RequestMapping("/api/v1/applicationsettings")
@@ -42,10 +45,14 @@ public class ApplicationSettingsController {
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationSettingsController.class);
 
 	private final ApplicationSettingsService applicationSettingsService;
+	private final Mapper<ApplicationSettings, ApplicationSettingsResponse> applicationSettingsResponseMapper;
 
-	public ApplicationSettingsController(final ApplicationSettingsService applicationSettingsService) {
+	public ApplicationSettingsController(final ApplicationSettingsService applicationSettingsService,
+			final @Qualifier("applicationSettingsResponseMapper") Mapper<ApplicationSettings, ApplicationSettingsResponse> applicationSettingsResponseMapper) {
 		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
 				"applicationSettingsService can't be null");
+		this.applicationSettingsResponseMapper = Objects.requireNonNull(applicationSettingsResponseMapper,
+				"applicationSettingsResponseMapper can't be null");
 	}
 
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
@@ -53,7 +60,7 @@ public class ApplicationSettingsController {
 	public ResponseEntity<ApplicationSettingsResponse> findApplicationSettings() {
 		logger.debug("Find application settings ACTION performed");
 		final ApplicationSettings applicationSettings = this.applicationSettingsService.findApplicationSettings();
-		return ResponseEntity.ok(this.toResponse(applicationSettings));
+		return ResponseEntity.ok(this.applicationSettingsResponseMapper.map(applicationSettings));
 	}
 
 	@PreAuthorize("hasRole('JANUS_ADMIN')")
@@ -63,16 +70,7 @@ public class ApplicationSettingsController {
 		logger.debug("Update application settings ACTION performed");
 		final ApplicationSettings updatedSettings = this.applicationSettingsService.update(request.daysUntilLocked(),
 				request.employeeWorkplaceCreationAllowed(), request.worksiteChangeDuringShiftAllowed(),
-				request.employeeManualTimelogEntryAllowed(),
-				ZoneId.of(request.defaultTimezone()));
-		return ResponseEntity.ok(this.toResponse(updatedSettings));
-	}
-
-	private ApplicationSettingsResponse toResponse(final ApplicationSettings applicationSettings) {
-		return new ApplicationSettingsResponse(applicationSettings.getDaysUntilLocked(),
-				applicationSettings.isEmployeeWorkplaceCreationAllowed(),
-				applicationSettings.isWorksiteChangeDuringShiftAllowed(),
-				applicationSettings.isEmployeeManualTimelogEntryAllowed(),
-				applicationSettings.getDefaultTimezone().getId());
+				request.employeeManualTimelogEntryAllowed(), ZoneId.of(request.defaultTimezone()));
+		return ResponseEntity.ok(this.applicationSettingsResponseMapper.map(updatedSettings));
 	}
 }
