@@ -23,14 +23,18 @@ import java.util.Objects;
 import org.hibernate.annotations.NaturalId;
 
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -66,6 +70,10 @@ public class AppUser implements Serializable {
 
 	@NotNull
 	private ZoneId defaultTimezone;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "employee_id", unique = true)
+	private Employee employee;
 
 	AppUser() {
 	}
@@ -122,6 +130,24 @@ public class AppUser implements Serializable {
 
 	public void setDefaultTimezone(final ZoneId defaultTimezone) {
 		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null or blank");
+	}
+
+	public Employee getEmployee() {
+		return this.employee;
+	}
+
+	public void setEmployee(final Employee employee) {
+		if (this.employee == employee) {
+			return;
+		}
+		final Employee previousEmployee = this.employee;
+		this.employee = employee;
+		if (previousEmployee != null && previousEmployee.getAppUser() == this) {
+			previousEmployee.setAppUser(null);
+		}
+		if (employee != null && employee.getAppUser() != this) {
+			employee.setAppUser(this);
+		}
 	}
 
 	@Override

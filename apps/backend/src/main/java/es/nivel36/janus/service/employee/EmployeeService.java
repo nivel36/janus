@@ -111,6 +111,16 @@ public class EmployeeService {
 		return this.findEmployee(canonicalEmail);
 	}
 
+	@Transactional(readOnly = true)
+	public Employee findEmployeeByKeycloakSubject(final String keycloakSubject) {
+		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
+		logger.debug("Finding Employee by keycloak subject {}", keycloakSubject);
+
+		return this.employeeRepository.findByKeycloakSubject(keycloakSubject.trim())
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"There is no employee linked to keycloak subject " + keycloakSubject));
+	}
+
 	/**
 	 * Finds the identifiers of employees who have at least one {@link TimeLog}
 	 * since the specified instant but have no associated {@link WorkShift}.

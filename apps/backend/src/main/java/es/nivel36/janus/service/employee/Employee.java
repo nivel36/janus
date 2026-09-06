@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.hibernate.annotations.NaturalId;
 
+import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
@@ -39,6 +40,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -159,6 +161,9 @@ public class Employee implements Serializable {
 	@OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
 	private Set<TimeLog> timeLogs = new HashSet<>();
 
+	@OneToOne(mappedBy = "employee", fetch = FetchType.LAZY)
+	private AppUser appUser;
+
 	/**
 	 * Protected no-argument constructor required by persistence frameworks.
 	 *
@@ -262,6 +267,24 @@ public class Employee implements Serializable {
 	 */
 	public Set<Worksite> getWorksites() {
 		return Collections.unmodifiableSet(this.worksites);
+	}
+
+	public AppUser getAppUser() {
+		return this.appUser;
+	}
+
+	public void setAppUser(final AppUser appUser) {
+		if (this.appUser == appUser) {
+			return;
+		}
+		final AppUser previousAppUser = this.appUser;
+		this.appUser = appUser;
+		if (previousAppUser != null && previousAppUser.getEmployee() == this) {
+			previousAppUser.setEmployee(null);
+		}
+		if (appUser != null && appUser.getEmployee() != this) {
+			appUser.setEmployee(this);
+		}
 	}
 
 	/**

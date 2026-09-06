@@ -17,6 +17,7 @@ package es.nivel36.janus.service.employee;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
@@ -98,6 +99,15 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 */
 	@EntityGraph(attributePaths = "schedule")
 	Employee findByEmail(final String email);
+
+	@EntityGraph(attributePaths = "schedule")
+	@Query("""
+			SELECT e
+			FROM Employee e
+			JOIN e.appUser u
+			WHERE u.keycloakSubject = :keycloakSubject
+			""")
+	Optional<Employee> findByKeycloakSubject(String keycloakSubject);
 
 	/**
 	 * Finds the IDs of employees who have at least one {@link TimeLog} entry since
