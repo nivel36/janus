@@ -24,18 +24,6 @@ import es.nivel36.janus.util.EmailAddresses;
 @Component
 public final class AuthenticatedIdentity {
 
-	public static ExternalIdentity externalIdentity(final Authentication authentication) {
-		if (!(authentication instanceof JwtAuthenticationToken jwtAuthentication)) {
-			throw new BadCredentialsException("A JWT authentication is required");
-		}
-		final String issuer = jwtAuthentication.getToken().getClaimAsString("iss");
-		final String subject = jwtAuthentication.getToken().getSubject();
-		if (!StringUtils.hasText(issuer) || !StringUtils.hasText(subject)) {
-			throw new BadCredentialsException("Non-blank iss and sub claims are required");
-		}
-		return new ExternalIdentity(issuer.trim(), subject.trim());
-	}
-
 	public static String email(final Authentication authentication) {
 		if (!(authentication instanceof JwtAuthenticationToken jwtAuthentication)) {
 			throw new BadCredentialsException("A JWT authentication is required");
