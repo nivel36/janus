@@ -22,7 +22,7 @@ import es.nivel36.janus.service.appuser.Role;
 
 /** Converts the trusted Spring Security authentication into a domain actor. */
 @Component
-public final class ActorResolver {
+public class ActorResolver {
 
 	private static final String ROLE_PREFIX = "ROLE_";
 
