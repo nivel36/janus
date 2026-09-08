@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.config.AuthenticatedIdentity;
+import es.nivel36.janus.config.AuthenticatedEmployee;
 import es.nivel36.janus.api.v1.employee.EmployeeResponse;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
@@ -62,6 +62,7 @@ public class WorksiteController {
 
 	private final WorksiteService worksiteService;
 	private final EmployeeService employeeService;
+	private final AuthenticatedEmployee authenticatedEmployee;
 	private final ApplicationSettingsService applicationSettingsService;
 	private final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper;
 
@@ -76,6 +77,7 @@ public class WorksiteController {
 	 */
 	public WorksiteController(final WorksiteService worksiteService,
 			final ApplicationSettingsService applicationSettingsService, final EmployeeService employeeService,
+			final AuthenticatedEmployee authenticatedEmployee,
 			final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
 		this.worksiteService = //
 				Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
@@ -83,6 +85,7 @@ public class WorksiteController {
 				Objects.requireNonNull(applicationSettingsService, "applicationSettingsService can't be null");
 		this.employeeService = //
 				Objects.requireNonNull(employeeService, "EmployeeService can't be null");
+		this.authenticatedEmployee = Objects.requireNonNull(authenticatedEmployee, "authenticatedEmployee can't be null");
 		this.worksiteResponseMapper = //
 				Objects.requireNonNull(worksiteResponseMapper, "WorksiteResponseMapper can't be null");
 	}
@@ -102,14 +105,11 @@ public class WorksiteController {
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		final String effectiveEmployeeEmail;
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 			if (employeeEmail == null) {
 				throw new AccessDeniedException("Employees can only search worksites for themselves");
 			}
-			if (employeeEmail != null && !AuthenticatedIdentity.normalizeEmail(employeeEmail).equals(authenticatedEmail)) {
-				throw new AccessDeniedException("Employees can only search worksites for themselves");
-			}
-			effectiveEmployeeEmail = authenticatedEmail;
+			final Employee employee = this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
+			effectiveEmployeeEmail = employee.getEmail();
 		} else {
 			effectiveEmployeeEmail = employeeEmail;
 		}
@@ -150,8 +150,8 @@ public class WorksiteController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-			if (!this.employeeService.isAssignedToWorksite(authenticatedEmail, worksiteCode)) {
+			final Employee employee = this.authenticatedEmployee.resolve(authentication);
+			if (!this.employeeService.isAssignedToWorksite(employee.getEmail(), worksiteCode)) {
 				throw new AccessDeniedException("Employees can only view stats for their assigned worksites");
 			}
 		}
@@ -227,7 +227,7 @@ public class WorksiteController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
+			final Employee employee = this.authenticatedEmployee.resolve(authentication);
 			if (request.scope() != WorksiteScope.ASSIGNED) {
 				throw new AccessDeniedException("Employees can only update assigned worksites");
 			}
@@ -236,7 +236,7 @@ public class WorksiteController {
 				throw new AccessDeniedException("Employee workplace creation is disabled");
 			}
 
-			if (!this.employeeService.isAssignedToWorksite(authenticatedEmail, worksiteCode)) {
+			if (!this.employeeService.isAssignedToWorksite(employee.getEmail(), worksiteCode)) {
 				throw new AccessDeniedException("Employees can only update their personal worksites");
 			}
 		}

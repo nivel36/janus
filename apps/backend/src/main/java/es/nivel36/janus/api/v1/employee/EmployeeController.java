@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.config.AuthenticatedIdentity;
+import es.nivel36.janus.config.AuthenticatedEmployee;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
@@ -54,6 +54,7 @@ public class EmployeeController {
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
 	private final EmployeeService employeeService;
+	private final AuthenticatedEmployee authenticatedEmployee;
 	private final ScheduleService scheduleService;
 	private final Mapper<Employee, EmployeeResponse> employeeResponseMapper;
 
@@ -68,9 +69,10 @@ public class EmployeeController {
 	 *                               {@link EmployeeResponse} DTOs; must not be
 	 *                               {@code null}
 	 */
-	public EmployeeController(final EmployeeService employeeService, 
+	public EmployeeController(final EmployeeService employeeService, final AuthenticatedEmployee authenticatedEmployee,
 			final ScheduleService scheduleService, final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.authenticatedEmployee = Objects.requireNonNull(authenticatedEmployee, "authenticatedEmployee can't be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.employeeResponseMapper = Objects.requireNonNull(employeeResponseMapper,
 				"employeeResponseMapper can't be null");
@@ -97,10 +99,7 @@ public class EmployeeController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-				throw new AccessDeniedException("Employees can only search his own user");
-			}
+			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
 		}
 		
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -151,10 +150,7 @@ public class EmployeeController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-				throw new AccessDeniedException("Employees can only update his own employee");
-			}
+			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
 		}
 		
 		final Schedule schedule = this.scheduleService.findScheduleByCode(request.scheduleCode());

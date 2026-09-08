@@ -32,7 +32,18 @@ The checked-in schemas rebuild databases and therefore declare the columns as
 required immediately. Deployments that retain data must perform the staged backfill
 above before applying those final constraints.
 
-Employee authorization still resolves verified email claims in some controllers.
-That is transitional technical debt, not an immutable identity mapping. A future
-change should link `AppUser` explicitly to `Employee`; email canonicalization remains
-only a domain consistency and case-insensitive uniqueness rule.
+## Employee authorization
+
+Administrative creation and update payloads accept `employeeId`. Janus resolves
+that database identifier and persists the one-to-one association with
+`AppUser.setEmployee`; omitting `employeeId` on update preserves the current association. Both the
+subject and employee foreign key are protected by `UK_APP_USER_KEYCLOAK_SUBJECT`
+and `UK_APP_USER_EMPLOYEE`, and the service rejects an already-linked value before
+the database constraint is reached.
+
+Requests made with the restricted `JANUS_EMPLOYEE` role resolve the employee from
+`Authentication.getName()` (the validated OIDC `sub`) and the persisted `AppUser`
+association. Authorization compares the employee database identity; token email,
+username and other mutable claims are ignored. A provisioned account without an
+employee association receives `403 Forbidden` with a generic message that does not
+disclose subjects or internal email addresses.

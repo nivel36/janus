@@ -38,6 +38,8 @@ import es.nivel36.janus.api.Mapper;
 
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
+import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.employee.EmployeeService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -52,6 +54,7 @@ public class AppUserController {
 
 	private final AppUserService appUserService;
 	private final Mapper<AppUser, AppUserResponse> appUserResponseMapper;
+	private final EmployeeService employeeService;
 
 	/**
 	 * Creates a controller that exposes application user management endpoints.
@@ -62,9 +65,10 @@ public class AppUserController {
 	 *                              {@link AppUserResponse} DTOs; must not be
 	 *                              {@code null}
 	 */
-	public AppUserController(final AppUserService appUserService,
+	public AppUserController(final AppUserService appUserService, final EmployeeService employeeService,
 			final Mapper<AppUser, AppUserResponse> appUserResponseMapper) {
 		this.appUserService = Objects.requireNonNull(appUserService, "appUserService can't be null");
+		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.appUserResponseMapper = Objects.requireNonNull(appUserResponseMapper,
 				"appUserResponseMapper can't be null");
 	}
@@ -103,8 +107,9 @@ public class AppUserController {
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
 		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
+		final Employee employee = request.employeeId() == null ? null : this.employeeService.findEmployeeById(request.employeeId());
 		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), request.keycloakSubject(),
-				locale, request.timeFormat(), defaultTimezone);
+				locale, request.timeFormat(), defaultTimezone, employee);
 		final AppUserResponse response = this.appUserResponseMapper.map(createdAppUser);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -128,8 +133,9 @@ public class AppUserController {
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
 		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
+		final Employee employee = request.employeeId() == null ? null : this.employeeService.findEmployeeById(request.employeeId());
 		final AppUser updatedAppUser = this.appUserService.updateAppUser(username, locale, request.timeFormat(),
-				defaultTimezone);
+				defaultTimezone, employee, request.employeeId() != null);
 		final AppUserResponse response = this.appUserResponseMapper.map(updatedAppUser);
 		return ResponseEntity.ok(response);
 	}
