@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,6 +105,7 @@ public class EmployeeService {
 	 * @throws ResourceNotFoundException if no employee exists with the given email
 	 */
 	@Transactional(readOnly = true)
+	@PreAuthorize("@employeeAuthorization.canView(authentication, #email)")
 	public Employee findEmployeeByEmail(final String email) {
 		final String canonicalEmail = EmailAddresses.canonicalize(email);
 		logger.debug("Finding Employee by email {}", email);
@@ -207,6 +209,7 @@ public class EmployeeService {
 	 * @throws ResourceNotFoundException if no employee exists with the given email
 	 */
 	@Transactional
+	@PreAuthorize("@employeeAuthorization.canUpdate(authentication, #email)")
 	public Employee updateEmployee(final String email, final String newName, final String newSurname,
 			final Schedule newSchedule) {
 
