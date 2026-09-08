@@ -193,13 +193,21 @@ public class AppUserService {
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
 		appUser.setDefaultTimezone(newDefaultTimezone);
-		if (updateEmployee && employee != appUser.getEmployee()) {
+		if (updateEmployee && !samePersistentEmployee(employee, appUser.getEmployee())) {
 			if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
 				throw new ResourceAlreadyExistsException("Employee is already linked to an application user");
 			}
 			appUser.setEmployee(employee);
 		}
 		return appUser;
+	}
+
+	private static boolean samePersistentEmployee(final Employee first, final Employee second) {
+		if (first == second) {
+			return true;
+		}
+		return first != null && second != null && first.getId() != null
+				&& Objects.equals(first.getId(), second.getId());
 	}
 
 	@Transactional(readOnly = true)

@@ -16,8 +16,10 @@
 package es.nivel36.janus.service.appuser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +38,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.service.employee.Employee;
 
 class AppUserServiceTest {
 
@@ -138,5 +141,23 @@ class AppUserServiceTest {
 		assertEquals(Locale.CANADA, updatedAppUser.getLocale());
 		assertEquals(TimeFormat.H12, updatedAppUser.getTimeFormat());
 		assertEquals("America/Toronto", updatedAppUser.getDefaultTimezone().getId());
+	}
+
+	@Test
+	void testUpdateAppUserKeepsSameEmployeeWhenLoadedAsDifferentEntityInstance() {
+		final Employee currentlyLinkedEmployee = org.mockito.Mockito.mock(Employee.class);
+		final Employee requestedEmployee = org.mockito.Mockito.mock(Employee.class);
+		when(currentlyLinkedEmployee.getId()).thenReturn(42L);
+		when(requestedEmployee.getId()).thenReturn(42L);
+		final AppUser appUser = new AppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
+				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
+		appUser.setEmployee(currentlyLinkedEmployee);
+		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
+
+		final AppUser updated = this.appUserService.updateAppUser("aferrer", Locale.CANADA, TimeFormat.H12,
+				ZoneId.of("America/Toronto"), requestedEmployee, true);
+
+		assertSame(currentlyLinkedEmployee, updated.getEmployee());
+		verify(this.appUserRepository, never()).existsByEmployee(any(Employee.class));
 	}
 }
