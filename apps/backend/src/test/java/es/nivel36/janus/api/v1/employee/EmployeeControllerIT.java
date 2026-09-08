@@ -71,6 +71,13 @@ class EmployeeControllerIT {
 				.subject("11111111-1111-4111-8111-111111111111"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isForbidden());
+
+		// A nonexistent email produces the same generic denial and cannot be enumerated.
+		this.mvc.perform(get(BASE + "/by-email/{email}", "unknown@internal.test").with(jwt().jwt(jwt -> jwt
+				.subject("11111111-1111-4111-8111-111111111111"))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.detail").value("You are not authorized to perform this operation"));
 	}
 
 	@Test

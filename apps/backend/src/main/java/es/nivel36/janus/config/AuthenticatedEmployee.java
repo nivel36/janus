@@ -36,7 +36,12 @@ public class AuthenticatedEmployee {
 	/** Resolves the caller before the requested resource to avoid disclosing its existence. */
 	public Employee assertOwnsEmail(final Authentication authentication, final String requestedEmail) {
 		final Employee authenticated = this.resolve(authentication);
-		final Employee requested = this.employeeService.findEmployeeByEmail(requestedEmail);
+		final Employee requested;
+		try {
+			requested = this.employeeService.findEmployeeByEmail(requestedEmail);
+		} catch (ResourceNotFoundException exception) {
+			throw new AccessDeniedException("Employees can only access their own resources");
+		}
 		if (!Objects.equals(authenticated.getId(), requested.getId())) {
 			throw new AccessDeniedException("Employees can only access their own resources");
 		}
