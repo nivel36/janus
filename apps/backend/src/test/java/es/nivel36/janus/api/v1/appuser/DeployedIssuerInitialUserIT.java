@@ -64,7 +64,7 @@ class DeployedIssuerInitialUserIT {
 
 	@Test
 	@Transactional
-	void existingUsernameKeepsItsExternalIdentityWhenInitializerRunsAgain() throws Exception {
+	void existingUsernameKeepsItsKeycloakSubjectWhenInitializerRunsAgain() throws Exception {
 		final String existingSubject = "9423793d-786b-438b-a162-cfab4c324d9b";
 		this.jdbcClient.sql("""
 				UPDATE app_user

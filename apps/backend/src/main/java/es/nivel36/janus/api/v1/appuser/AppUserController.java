@@ -35,8 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.config.AuthenticatedIdentity;
-import es.nivel36.janus.config.ExternalIdentity;
+
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
 import jakarta.validation.Valid;
@@ -138,17 +137,15 @@ public class AppUserController {
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	@GetMapping("/me")
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final Authentication authentication) {
-		final ExternalIdentity identity = AuthenticatedIdentity.externalIdentity(authentication);
 		return ResponseEntity.ok(
-				this.appUserResponseMapper.map(this.appUserService.findAppUserByKeycloakSubject(identity.subject())));
+				this.appUserResponseMapper.map(this.appUserService.findAppUserByKeycloakSubject(authentication.getName())));
 	}
 
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	@PutMapping("/me")
 	public ResponseEntity<AppUserResponse> updateCurrentAppUser(@Valid @RequestBody final UpdateAppUserRequest request,
 			final Authentication authentication) {
-		final ExternalIdentity identity = AuthenticatedIdentity.externalIdentity(authentication);
-		final AppUser updated = this.appUserService.updateCurrentAppUser(identity.subject(),
+		final AppUser updated = this.appUserService.updateCurrentAppUser(authentication.getName(),
 				Locale.forLanguageTag(request.locale()), request.timeFormat(), ZoneId.of(request.defaultTimezone()));
 		return ResponseEntity.ok(this.appUserResponseMapper.map(updated));
 	}

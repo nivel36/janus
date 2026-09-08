@@ -64,17 +64,19 @@ class SecurityConfigTest {
 				.jwtAuthenticationConverter("janus-api").convert(jwt);
 
 		assertThat(authentication.getName()).isEqualTo("immutable-provider-id");
-		assertThat(AuthenticatedIdentity.externalIdentity(authentication))
-				.isEqualTo(new ExternalIdentity(ISSUER, "immutable-provider-id"));
 	}
 
 	@Test
-	void shouldIgnoreChangedPreferredUsernameAndEmailForExternalIdentity() {
+	void shouldIgnoreChangedPreferredUsernameAndEmailForSubjectPrincipal() {
 		final Jwt first = this.jwt(List.of("janus-api"), "person@example.test", true, "old-login");
 		final Jwt renamed = this.jwt(List.of("janus-api"), "renamed@example.test", true, "new-login");
 
-		assertThat(AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(first)))
-				.isEqualTo(AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(renamed)));
+		final JwtAuthenticationToken firstAuthentication = (JwtAuthenticationToken) new SecurityConfig()
+				.jwtAuthenticationConverter("janus-api").convert(first);
+		final JwtAuthenticationToken renamedAuthentication = (JwtAuthenticationToken) new SecurityConfig()
+				.jwtAuthenticationConverter("janus-api").convert(renamed);
+
+		assertThat(firstAuthentication.getName()).isEqualTo(renamedAuthentication.getName());
 	}
 
 	@Test
@@ -105,33 +107,12 @@ class SecurityConfigTest {
 	}
 
 	@Test
-	void shouldRejectExternalIdentityWithoutIssuer() {
+	void shouldRejectTokenWithoutSubject() {
 		final Instant now = Instant.now();
-		final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject("subject").issuedAt(now)
-				.expiresAt(now.plusSeconds(60)).build();
-		org.assertj.core.api.Assertions.assertThatThrownBy(
-				() -> AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(jwt)))
-				.isInstanceOf(BadCredentialsException.class);
-	}
+		final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").issuer(ISSUER).audience(List.of("janus-api"))
+				.issuedAt(now).expiresAt(now.plusSeconds(60)).build();
 
-	@Test
-	void shouldRejectExternalIdentityWithoutSubject() {
-		final Instant now = Instant.now();
-		final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").issuer(ISSUER).issuedAt(now)
-				.expiresAt(now.plusSeconds(60)).build();
-		org.assertj.core.api.Assertions.assertThatThrownBy(
-				() -> AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(jwt)))
-				.isInstanceOf(BadCredentialsException.class);
-	}
-
-	@Test
-	void shouldScopeSameSubjectByIssuer() {
-		final Jwt first = this.jwt(List.of("janus-api"));
-		final Instant now = Instant.now();
-		final Jwt second = Jwt.withTokenValue("token").header("alg", "none").issuer("https://other.test")
-				.subject("immutable-provider-id").issuedAt(now).expiresAt(now.plusSeconds(60)).build();
-		assertThat(AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(first)))
-				.isNotEqualTo(AuthenticatedIdentity.externalIdentity(new JwtAuthenticationToken(second)));
+		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isTrue();
 	}
 
 	private Jwt jwt(final List<String> audience) {
