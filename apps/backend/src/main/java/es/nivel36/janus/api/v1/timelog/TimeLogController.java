@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.config.AuthenticatedIdentity;
+import es.nivel36.janus.config.AuthenticatedEmployee;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
@@ -69,6 +69,7 @@ public class TimeLogController {
 
 	private final TimeLogService timeLogService;
 	private final EmployeeService employeeService;
+	private final AuthenticatedEmployee authenticatedEmployee;
 	private final ApplicationSettingsService applicationSettingsService;
 	private final WorksiteService worksiteService;
 	private final Clock clock;
@@ -92,6 +93,7 @@ public class TimeLogController {
 	public TimeLogController( //
 			final TimeLogService timeLogService, //
 			final EmployeeService employeeService, //
+			final AuthenticatedEmployee authenticatedEmployee, //
 			final ApplicationSettingsService applicationSettingsService, //
 			final WorksiteService worksiteService, //
 			final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper, //
@@ -99,6 +101,7 @@ public class TimeLogController {
 	) {
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.authenticatedEmployee = Objects.requireNonNull(authenticatedEmployee, "authenticatedEmployee can't be null");
 		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
 				"applicationSettingsService can't be null");
 		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
@@ -140,10 +143,7 @@ public class TimeLogController {
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
 		if (employeeRole) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-				throw new AccessDeniedException("Employees can only create their own clock-in records");
-			}
+			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
 		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -196,10 +196,7 @@ public class TimeLogController {
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
 		if (employeeRole) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-				throw new AccessDeniedException("Employees can only create their own clock-out records");
-			}
+			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
 		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -248,10 +245,7 @@ public class TimeLogController {
 		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
 
 		if (employeeRole) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-				throw new AccessDeniedException("Employees can only create their own clock-in/clock-out records");
-			}
+			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
 		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -303,10 +297,7 @@ public class TimeLogController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-				throw new AccessDeniedException("Employees can only search their own time log records");
-			}
+			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
 		}
 
 		final Page<TimeLog> timeLogs;
@@ -368,10 +359,7 @@ public class TimeLogController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-			if (!authenticatedEmail.equals(AuthenticatedIdentity.normalizeEmail(employeeEmail))) {
-				throw new AccessDeniedException("Employees can only search their own time log records");
-			}
+			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
 		}
 
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employeeEmail, entryTime);

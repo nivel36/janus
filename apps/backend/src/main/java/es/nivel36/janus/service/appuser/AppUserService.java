@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -113,6 +114,12 @@ public class AppUserService {
 	@Transactional
 	public AppUser createAppUser(final String username, final String keycloakSubject, final Locale locale,
 			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
+		return createAppUser(username, keycloakSubject, locale, timeFormat, defaultTimezone, null);
+	}
+
+	@Transactional
+	public AppUser createAppUser(final String username, final String keycloakSubject, final Locale locale,
+			final TimeFormat timeFormat, final ZoneId defaultTimezone, final Employee employee) {
 
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
@@ -129,9 +136,13 @@ public class AppUserService {
 		if (this.appUserRepository.existsByKeycloakSubject(keycloakSubject)) {
 			throw new ResourceAlreadyExistsException("Keycloak subject is already linked to an application user");
 		}
+		if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
+			throw new ResourceAlreadyExistsException("Employee is already linked to an application user");
+		}
 
 		final AppUser appUser = new AppUser(username.trim(), keycloakSubject.trim(), locale, timeFormat,
 				defaultTimezone);
+		appUser.setEmployee(employee);
 
 		final AppUser savedAppUser = this.appUserRepository.save(appUser);
 		logger.trace("Application user {} created successfully", savedAppUser);
@@ -166,6 +177,12 @@ public class AppUserService {
 	@Transactional
 	public AppUser updateAppUser(final String username, final Locale newLocale, final TimeFormat newTimeFormat,
 			final ZoneId newDefaultTimezone) {
+		return updateAppUser(username, newLocale, newTimeFormat, newDefaultTimezone, null, false);
+	}
+
+	@Transactional
+	public AppUser updateAppUser(final String username, final Locale newLocale, final TimeFormat newTimeFormat,
+			final ZoneId newDefaultTimezone, final Employee employee, final boolean updateEmployee) {
 		Strings.requireNonBlank(username, "username cannot be null or blank.");
 		Objects.requireNonNull(newLocale, "newLocale cannot be null.");
 		Objects.requireNonNull(newTimeFormat, "newTimeFormat cannot be null.");
@@ -176,7 +193,21 @@ public class AppUserService {
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
 		appUser.setDefaultTimezone(newDefaultTimezone);
+		if (updateEmployee && !samePersistentEmployee(employee, appUser.getEmployee())) {
+			if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
+				throw new ResourceAlreadyExistsException("Employee is already linked to an application user");
+			}
+			appUser.setEmployee(employee);
+		}
 		return appUser;
+	}
+
+	private static boolean samePersistentEmployee(final Employee first, final Employee second) {
+		if (first == second) {
+			return true;
+		}
+		return first != null && second != null && first.getId() != null
+				&& Objects.equals(first.getId(), second.getId());
 	}
 
 	@Transactional(readOnly = true)

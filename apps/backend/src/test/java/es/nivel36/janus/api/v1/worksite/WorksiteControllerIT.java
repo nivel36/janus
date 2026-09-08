@@ -35,15 +35,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
+import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Import(SecurityTestConfiguration.class)
 @Transactional
+@TestExecutionListeners(listeners = EmployeeIdentityTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 class WorksiteControllerIT {
 
 	private @Autowired MockMvc mvc;
@@ -94,7 +97,7 @@ class WorksiteControllerIT {
 		this.mvc.perform(get(BASE).with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
-				.andExpect(status().isUnauthorized());
+				.andExpect(status().isForbidden());
 	}
 
 	@Test

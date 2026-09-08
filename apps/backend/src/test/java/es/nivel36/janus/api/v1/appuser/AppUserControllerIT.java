@@ -49,6 +49,26 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = {
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD','Standard')",
+			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(10,'Alice','One','alice@example.test',1)" })
+	void adminCanProvisionEmployeeAndEmployeeCannotBeLinkedTwice() throws Exception {
+		final String first = """
+				{"username":"alice","keycloakSubject":"11111111-1111-4111-8111-111111111111","locale":"en-US","timeFormat":"H24","defaultTimezone":"UTC","employeeId":10}
+				""";
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(first).with(jwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isCreated());
+
+		final String duplicate = """
+				{"username":"alice2","keycloakSubject":"22222222-2222-4222-8222-222222222222","locale":"en-US","timeFormat":"H24","defaultTimezone":"UTC","employeeId":10}
+				""";
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(duplicate).with(jwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	@Sql(statements = {
 			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('jdoe','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testFindByUsernameShouldReturnUser() throws Exception {
 		this.mvc.perform(get(BASE + "/{username}", "jdoe").with(jwt()//

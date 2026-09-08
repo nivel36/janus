@@ -38,7 +38,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.config.AuthenticatedIdentity;
+import es.nivel36.janus.config.AuthenticatedEmployee;
+import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
@@ -73,6 +74,7 @@ public class ScheduleController {
 
 	private final ScheduleService scheduleService;
 	private final EmployeeService employeeService;
+	private final AuthenticatedEmployee authenticatedEmployee;
 	private final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper;
 	private final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper;
 
@@ -89,10 +91,12 @@ public class ScheduleController {
 	 *                                     can't be {@code null}
 	 */
 	public ScheduleController(final ScheduleService scheduleService, final EmployeeService employeeService,
+			final AuthenticatedEmployee authenticatedEmployee,
 			final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper,
 			final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper) {
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.authenticatedEmployee = Objects.requireNonNull(authenticatedEmployee, "authenticatedEmployee can't be null");
 		this.scheduleResponseMapper = Objects.requireNonNull(scheduleResponseMapper,
 				"scheduleResponseMapper can't be null");
 		this.scheduleRuleDefinitionMapper = Objects.requireNonNull(scheduleRuleDefinitionMapper,
@@ -125,14 +129,11 @@ public class ScheduleController {
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		final String effectiveEmployeeEmail;
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
 			if (employeeEmail == null) {
 				throw new AccessDeniedException("Employees can only search schedules for themselves");
 			}
-			if (!AuthenticatedIdentity.normalizeEmail(employeeEmail).equals(authenticatedEmail)) {
-				throw new AccessDeniedException("Employees can only search schedules for themselves");
-			}
-			effectiveEmployeeEmail = authenticatedEmail;
+			final Employee employee = this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
+			effectiveEmployeeEmail = employee.getEmail();
 		} else {
 			effectiveEmployeeEmail = employeeEmail;
 		}
@@ -165,8 +166,8 @@ public class ScheduleController {
 
 		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
 		if (restrictedEmployee) {
-			final String authenticatedEmail = AuthenticatedIdentity.email(authentication);
-			if (!this.employeeService.isAssignedToSchedule(authenticatedEmail, scheduleCode)) {
+			final Employee employee = this.authenticatedEmployee.resolve(authentication);
+			if (!this.employeeService.isAssignedToSchedule(employee.getEmail(), scheduleCode)) {
 				throw new AccessDeniedException("Employees can only search his own schedule");
 			}
 		}

@@ -47,4 +47,6 @@ interface AppUserRepository extends CrudRepository<AppUser, Long> {
 	Optional<AppUser> findByKeycloakSubject(String keycloakSubject);
 
 	boolean existsByKeycloakSubject(String keycloakSubject);
+
+	boolean existsByEmployee(es.nivel36.janus.service.employee.Employee employee);
 }
