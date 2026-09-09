@@ -7,16 +7,41 @@ so `AppUser` stores only the stable Keycloak account UUID as `keycloakSubject`.
 is used to link or authorize an `AppUser`. A verified email only proves current
 control of that address.
 
-## Administrative provisioning
+## Identity and profile lifecycle
 
-`POST /api/v1/appusers` is restricted to `JANUS_ADMIN`. The administrator obtains
-the account UUID from Keycloak and sends it as `keycloakSubject`. Janus validates it
-as a UUID. The subject may only be linked once. Personal `GET` and `PUT` operations
-use `/api/v1/appusers/me` and never accept an identity selector.
+A Keycloak account and a local `AppUser` are different records with different
+responsibilities:
 
-The development realm assigns the example account the known UUID
-`9a60b9f4-7436-4d93-9c25-08e08f3dfc58`. Keycloak's standard `iss` and `sub` claims
-must remain unchanged; in particular, no mapper may replace `sub` with email.
+* Keycloak owns credentials, login, account status, and client-role assignments.
+* Janus owns the local profile (`AppUser`), including preferences and the optional
+  employee association. It does not store credentials or use this profile to
+  authenticate the request.
+
+Creating an account in Keycloak does not immediately insert an `AppUser`. On the
+first authenticated `GET /api/v1/appusers/me`, Janus accepts only a validated JWT
+with at least one supported Janus client role. It looks up the profile by `sub` and,
+when none exists, creates it with `preferred_username` as its initial display name
+and the configured `janus.user-provisioning.defaults`. The response returns that
+new profile. Later requests find the same profile by `sub`; changes to
+`preferred_username` do not rename or relink it. Concurrent first requests converge
+on the single profile protected by the unique subject constraint.
+
+The development realm still contains the example Keycloak account with the stable
+UUID `9a60b9f4-7436-4d93-9c25-08e08f3dfc58` and its `janus-api` client roles. Its
+local `AppUser` is deliberately absent at startup and is created by the first
+authorized request. Keycloak's standard `iss` and `sub` claims must remain
+unchanged; in particular, no mapper may replace `sub` with email.
+
+`POST /api/v1/appusers` remains restricted to `JANUS_ADMIN` for explicit profile
+management, for example associating an employee before that person first accesses
+Janus. It is not a required bootstrap step. An administrator must obtain the
+account UUID from Keycloak and send it as `keycloakSubject`; Janus validates it as
+a UUID and permits each subject to be linked only once. Personal `GET` and `PUT`
+operations use `/api/v1/appusers/me` and never accept an identity selector.
+
+Disabling or deleting either record does not automatically modify the other:
+Keycloak controls whether future tokens can be issued, while retention or deletion
+of the `AppUser` follows Janus's application-data policy.
 
 ## Existing installations
 
