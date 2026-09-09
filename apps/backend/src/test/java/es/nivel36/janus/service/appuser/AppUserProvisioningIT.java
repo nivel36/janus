@@ -37,6 +37,15 @@ class AppUserProvisioningIT {
 	}
 
 	@Test
+	void firstRequestUsesConfiguredDefaults() {
+		final AppUser provisioned = this.appUserService.findOrCreateAppUser(SUBJECT, "defaulted-user");
+
+		assertEquals("en-US", provisioned.getLocale().toLanguageTag());
+		assertEquals("H24", provisioned.getTimeFormat().name());
+		assertEquals("UTC", provisioned.getDefaultTimezone().getId());
+	}
+
+	@Test
 	void concurrentFirstRequestsReturnTheSameRow() throws Exception {
 		final CountDownLatch start = new CountDownLatch(1);
 		try (var executor = Executors.newFixedThreadPool(2)) {

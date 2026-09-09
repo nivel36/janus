@@ -42,8 +42,8 @@ import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 		"spring.security.oauth2.resourceserver.jwt.issuer-uri=http://janus.local/auth/realms/Nivel36",
 		"janus.bootstrap.initial-user.enabled=true", "janus.bootstrap.initial-user.username=aferrer@nivel36.es",
 		"janus.bootstrap.initial-user.subject=9a60b9f4-7436-4d93-9c25-08e08f3dfc58",
-		"janus.bootstrap.initial-user.locale=es-ES", "janus.bootstrap.initial-user.time-format=H24",
-		"janus.bootstrap.initial-user.default-timezone=Europe/Madrid" })
+		"janus.user-provisioning.defaults.locale=es-ES", "janus.user-provisioning.defaults.time-format=H24",
+		"janus.user-provisioning.defaults.default-timezone=Europe/Madrid" })
 @AutoConfigureMockMvc
 @Import(SecurityTestConfiguration.class)
 class DeployedIssuerInitialUserIT {

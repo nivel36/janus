@@ -36,6 +36,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
+import es.nivel36.janus.config.UserProvisioningProperties;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
@@ -44,6 +45,7 @@ class AppUserServiceTest {
 
 	private @Mock AppUserRepository appUserRepository;
 	private @Mock AppUserCreator appUserCreator;
+	private @Mock UserProvisioningProperties provisioningDefaults;
 	private @Mock PasswordEncoder passwordEncoder;
 	private @InjectMocks AppUserService appUserService;
 
