@@ -14,8 +14,6 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -23,66 +21,62 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 
 @SpringBootTest(properties = {
 		"spring.security.oauth2.resourceserver.jwt.issuer-uri=http://janus.local/auth/realms/Nivel36",
-		"janus.bootstrap.initial-user.enabled=true", "janus.bootstrap.initial-user.username=aferrer@nivel36.es",
-		"janus.bootstrap.initial-user.subject=9a60b9f4-7436-4d93-9c25-08e08f3dfc58",
 		"janus.user-provisioning.defaults.locale=es-ES", "janus.user-provisioning.defaults.time-format=H24",
 		"janus.user-provisioning.defaults.default-timezone=Europe/Madrid" })
 @AutoConfigureMockMvc
 @Import(SecurityTestConfiguration.class)
-class DeployedIssuerInitialUserIT {
+class FirstRequestProvisioningIT {
+
+	private static final String SUBJECT = "9a60b9f4-7436-4d93-9c25-08e08f3dfc58";
+	private static final String USERNAME = "aferrer@nivel36.es";
 
 	private @Autowired MockMvc mvc;
 	private @Autowired JdbcClient jdbcClient;
-	private @Autowired @Qualifier("initialAppUserInitializer") ApplicationRunner initialAppUserInitializer;
 	private @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuer;
 
-	@Test
-	void configuredDeploymentIssuerFindsInitialUser() throws Exception {
-		this.mvc.perform(get("/api/v1/appusers/me").with(jwt().jwt(token -> token.issuer(this.issuer)
-			.subject("9a60b9f4-7436-4d93-9c25-08e08f3dfc58"))
-			.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.username").value("aferrer@nivel36.es"));
+	@BeforeEach
+	@AfterEach
+	void removeLocalProfile() {
+		this.jdbcClient.sql("DELETE FROM app_user WHERE keycloak_subject = :subject")
+			.param("subject", SUBJECT)
+			.update();
 	}
 
 	@Test
-	@Transactional
-	void existingUsernameKeepsItsKeycloakSubjectWhenInitializerRunsAgain() throws Exception {
-		final String existingSubject = "9423793d-786b-438b-a162-cfab4c324d9b";
-		this.jdbcClient.sql("""
-				UPDATE app_user
-				SET keycloak_subject = :subject
-				WHERE username = 'aferrer@nivel36.es'
-				""")
-			.param("subject", existingSubject)
-			.update();
+	void firstAuthenticatedRequestProvisionsLocalProfile() throws Exception {
+		assertThat(countProfiles()).isZero();
 
-		this.initialAppUserInitializer.run(new DefaultApplicationArguments());
+		this.mvc.perform(get("/api/v1/appusers/me").with(jwt().jwt(token -> token.issuer(this.issuer)
+			.subject(SUBJECT).claim("preferred_username", USERNAME))
+			.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.username").value(USERNAME))
+			.andExpect(jsonPath("$.locale").value("es-ES"))
+			.andExpect(jsonPath("$.timeFormat").value("H24"))
+			.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
 
-		final Map<String, Object> identity = this.jdbcClient.sql("""
-				SELECT keycloak_subject
-				FROM app_user
-				WHERE username = 'aferrer@nivel36.es'
-				""")
-			.query()
-			.singleRow();
-		assertThat(identity).containsEntry("KEYCLOAK_SUBJECT", existingSubject);
+		assertThat(countProfiles()).isOne();
+	}
+
+	private long countProfiles() {
+		return this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject")
+			.param("subject", SUBJECT)
+			.query(Long.class)
+			.single();
 	}
 }
