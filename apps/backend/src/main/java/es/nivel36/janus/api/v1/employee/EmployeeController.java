@@ -21,9 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,12 +32,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.config.AuthenticatedEmployee;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
-import es.nivel36.janus.util.Roles;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -54,7 +50,6 @@ public class EmployeeController {
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
 	private final EmployeeService employeeService;
-	private final AuthenticatedEmployee authenticatedEmployee;
 	private final ScheduleService scheduleService;
 	private final Mapper<Employee, EmployeeResponse> employeeResponseMapper;
 
@@ -69,10 +64,9 @@ public class EmployeeController {
 	 *                               {@link EmployeeResponse} DTOs; must not be
 	 *                               {@code null}
 	 */
-	public EmployeeController(final EmployeeService employeeService, final AuthenticatedEmployee authenticatedEmployee,
+	public EmployeeController(final EmployeeService employeeService,
 			final ScheduleService scheduleService, final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
-		this.authenticatedEmployee = Objects.requireNonNull(authenticatedEmployee, "authenticatedEmployee can't be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.employeeResponseMapper = Objects.requireNonNull(employeeResponseMapper,
 				"employeeResponseMapper can't be null");
@@ -93,15 +87,9 @@ public class EmployeeController {
 					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
 					message = "must be a valid and safe email address (max 254)" //
 			) //
-			String employeeEmail, // 
-			final Authentication authentication) {
+			String employeeEmail) {
 		logger.debug("Find employee by email ACTION performed");
 
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee) {
-			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
-		}
-		
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
 		return ResponseEntity.ok(response);
@@ -144,18 +132,11 @@ public class EmployeeController {
 					message = "must be a valid and safe email address (max 254)" //
 			) //
 			String employeeEmail, //
-			@Valid @RequestBody final UpdateEmployeeRequest request, //
-			final Authentication authentication) {
+			@Valid @RequestBody final UpdateEmployeeRequest request) {
 		logger.debug("Update employee ACTION performed");
 
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee) {
-			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
-		}
-		
-		final Schedule schedule = this.scheduleService.findScheduleByCode(request.scheduleCode());
 		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, request.name(),
-				request.surname(), schedule);
+				request.surname(), request.scheduleCode());
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
 		return ResponseEntity.ok(response);
 	}

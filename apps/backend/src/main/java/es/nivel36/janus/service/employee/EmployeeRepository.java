@@ -35,6 +35,9 @@ import es.nivel36.janus.service.workshift.WorkShift;
 @Repository
 interface EmployeeRepository extends CrudRepository<Employee, Long> {
 
+	@Query("SELECT e.id FROM Employee e WHERE e.email = :email")
+	Optional<Long> findIdByEmail(String email);
+
 	@Query("""
 			SELECT COUNT(DISTINCT e.id)
 			FROM Employee e
