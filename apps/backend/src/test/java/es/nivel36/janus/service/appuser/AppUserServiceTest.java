@@ -43,6 +43,7 @@ import es.nivel36.janus.service.employee.Employee;
 class AppUserServiceTest {
 
 	private @Mock AppUserRepository appUserRepository;
+	private @Mock AppUserCreator appUserCreator;
 	private @Mock PasswordEncoder passwordEncoder;
 	private @InjectMocks AppUserService appUserService;
 

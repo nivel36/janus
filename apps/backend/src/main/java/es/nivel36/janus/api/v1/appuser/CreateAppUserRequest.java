@@ -37,8 +37,7 @@ import jakarta.validation.constraints.Pattern;
  */
 public record CreateAppUserRequest( //
 		@NotBlank(message = "username must not be blank") //
-		@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-				message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+		@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
 		String username, //
 
 		@NotBlank(message = "keycloakSubject must not be blank") //

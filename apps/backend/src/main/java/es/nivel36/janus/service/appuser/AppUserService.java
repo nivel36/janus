@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +54,11 @@ public class AppUserService {
 	 * Repository used to access {@link AppUser} persistence operations.
 	 */
 	private final AppUserRepository appUserRepository;
+	private final AppUserCreator appUserCreator;
+
+	private static final Locale INITIAL_LOCALE = Locale.ENGLISH;
+	private static final TimeFormat INITIAL_TIME_FORMAT = TimeFormat.H24;
+	private static final ZoneId INITIAL_TIMEZONE = AppUser.DEFAULT_TIMEZONE;
 
 	/**
 	 * Creates a new {@code AppUserService}.
@@ -62,8 +68,53 @@ public class AppUserService {
 	 *
 	 * @throws NullPointerException if {@code appUserRepository} is {@code null}
 	 */
-	public AppUserService(final AppUserRepository appUserRepository) {
+	public AppUserService(final AppUserRepository appUserRepository, final AppUserCreator appUserCreator) {
 		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
+		this.appUserCreator = Objects.requireNonNull(appUserCreator, "AppUserCreator cannot be null.");
+	}
+
+	/**
+	 * Finds the account linked to a Keycloak subject or provisions it on first
+	 * access. The subject is the sole identity-linking key; the preferred username
+	 * is used only as the new account's visible name.
+	 *
+	 * <p>The initial preferences are English, 24-hour time and UTC. When an
+	 * account must be created, {@code preferred_username} must satisfy the same
+	 * rule as usernames accepted by the administration API.</p>
+	 */
+	@Transactional
+	public AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername) {
+		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
+
+		final var existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject.trim());
+		if (existing.isPresent()) {
+			return existing.get();
+		}
+
+		final String username = validatePreferredUsername(preferredUsername);
+		try {
+			return this.appUserCreator.create(username, keycloakSubject.trim(), INITIAL_LOCALE,
+					INITIAL_TIME_FORMAT, INITIAL_TIMEZONE);
+		} catch (final DataIntegrityViolationException raceOrDuplicate) {
+			// Another request may have committed the same subject while this request was
+			// provisioning it. The failed insert ran in REQUIRES_NEW, so this transaction
+			// remains usable and can read the winning row.
+			return this.appUserRepository.findByKeycloakSubject(keycloakSubject.trim())
+					.orElseThrow(() -> new ResourceAlreadyExistsException(
+							"Application user with username " + username + " already exists"));
+		}
+	}
+
+	private static String validatePreferredUsername(final String preferredUsername) {
+		if (preferredUsername == null) {
+			throw new IllegalArgumentException("preferred_username claim is required");
+		}
+		final String username = preferredUsername.trim();
+		if (!username.matches(AppUser.USERNAME_PATTERN)) {
+			throw new IllegalArgumentException("preferred_username claim is invalid: "
+					+ AppUser.USERNAME_VALIDATION_MESSAGE);
+		}
+		return username;
 	}
 
 	/**

@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -82,8 +83,7 @@ public class AppUserController {
 	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@GetMapping("/{username}")
 	public ResponseEntity<AppUserResponse> findAppUser(final @PathVariable("username") //
-	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
 	String username, //
 			final Authentication authentication) {
 		logger.debug("Find app user ACTION performed");
@@ -125,8 +125,7 @@ public class AppUserController {
 	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@PutMapping("/{username}")
 	public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
-	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
 	String username, @Valid @RequestBody final UpdateAppUserRequest request, //
 			final Authentication authentication) {
 		logger.debug("Update app user ACTION performed");
@@ -142,9 +141,11 @@ public class AppUserController {
 
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	@GetMapping("/me")
-	public ResponseEntity<AppUserResponse> findCurrentAppUser(final Authentication authentication) {
-		return ResponseEntity.ok(
-				this.appUserResponseMapper.map(this.appUserService.findAppUserByKeycloakSubject(authentication.getName())));
+	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
+		final Object preferredUsernameClaim = authentication.getToken().getClaims().get("preferred_username");
+		final String preferredUsername = preferredUsernameClaim instanceof String value ? value : null;
+		return ResponseEntity.ok(this.appUserResponseMapper.map(this.appUserService.findOrCreateAppUser(
+				authentication.getToken().getSubject(), preferredUsername)));
 	}
 
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
@@ -165,8 +166,7 @@ public class AppUserController {
 	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@DeleteMapping("/{username}")
 	public ResponseEntity<Void> deleteAppUser(final @PathVariable("username") //
-	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
 	String username) {
 		logger.debug("Delete app user ACTION performed");
 

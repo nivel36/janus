@@ -17,14 +17,14 @@ package es.nivel36.janus.service.appuser;
 
 import java.util.Optional;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
  * Repository class for managing {@link AppUser} entities.
  */
 @Repository
-interface AppUserRepository extends CrudRepository<AppUser, Long> {
+interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
 	/**
 	 * Checks whether a {@link AppUser} exists for the specified username.
