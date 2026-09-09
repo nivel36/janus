@@ -83,8 +83,7 @@ public class AppUserController {
 	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@GetMapping("/{username}")
 	public ResponseEntity<AppUserResponse> findAppUser(final @PathVariable("username") //
-	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
 	String username, //
 			final Authentication authentication) {
 		logger.debug("Find app user ACTION performed");
@@ -126,8 +125,7 @@ public class AppUserController {
 	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@PutMapping("/{username}")
 	public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
-	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
 	String username, @Valid @RequestBody final UpdateAppUserRequest request, //
 			final Authentication authentication) {
 		logger.debug("Update app user ACTION performed");
@@ -168,8 +166,7 @@ public class AppUserController {
 	@PreAuthorize("hasRole('JANUS_ADMIN')")
 	@DeleteMapping("/{username}")
 	public ResponseEntity<Void> deleteAppUser(final @PathVariable("username") //
-	@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", //
-			message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
 	String username) {
 		logger.debug("Delete app user ACTION performed");
 

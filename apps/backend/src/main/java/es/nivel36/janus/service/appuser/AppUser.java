@@ -47,6 +47,9 @@ public class AppUser implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static final ZoneId DEFAULT_TIMEZONE = ZoneId.of("UTC");
+	public static final String USERNAME_PATTERN = "[A-Za-z0-9_.@-]{3,50}";
+	public static final String USERNAME_VALIDATION_MESSAGE =
+			"username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

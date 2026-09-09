@@ -215,7 +215,7 @@ class AppUserControllerIT {
 	}
 
 	@Test
-	void testMeRejectsMissingOrOversizedPreferredUsernameOnFirstAccess() throws Exception {
+	void testMeRejectsPreferredUsernameThatAdminEndpointsCannotAddress() throws Exception {
 		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(jwt -> jwt
 				.subject("77777777-7777-4777-8777-777777777777"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
@@ -224,6 +224,16 @@ class AppUserControllerIT {
 		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(jwt -> jwt
 				.subject("88888888-8888-4888-8888-888888888888")
 				.claim("preferred_username", "x".repeat(51)))
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isBadRequest());
+
+		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(jwt -> jwt
+				.subject("66666666-6666-4666-8666-666666666666").claim("preferred_username", "ab"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isBadRequest());
+
+		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(jwt -> jwt
+				.subject("55555555-5555-4555-8555-555555555555").claim("preferred_username", "john/doe"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isBadRequest());
 	}

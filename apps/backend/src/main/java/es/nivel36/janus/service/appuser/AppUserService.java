@@ -78,9 +78,9 @@ public class AppUserService {
 	 * access. The subject is the sole identity-linking key; the preferred username
 	 * is used only as the new account's visible name.
 	 *
-	 * <p>The initial preferences are English, 24-hour time and UTC. A missing,
-	 * blank, or longer-than-50-character preferred username is rejected when an
-	 * account must be created.</p>
+	 * <p>The initial preferences are English, 24-hour time and UTC. When an
+	 * account must be created, {@code preferred_username} must satisfy the same
+	 * rule as usernames accepted by the administration API.</p>
 	 */
 	@Transactional
 	public AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername) {
@@ -110,8 +110,9 @@ public class AppUserService {
 			throw new IllegalArgumentException("preferred_username claim is required");
 		}
 		final String username = preferredUsername.trim();
-		if (username.isEmpty() || username.length() > 50) {
-			throw new IllegalArgumentException("preferred_username claim must contain between 1 and 50 characters");
+		if (!username.matches(AppUser.USERNAME_PATTERN)) {
+			throw new IllegalArgumentException("preferred_username claim is invalid: "
+					+ AppUser.USERNAME_VALIDATION_MESSAGE);
 		}
 		return username;
 	}
