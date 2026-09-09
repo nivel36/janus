@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.schedule.Schedule;
+import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
@@ -56,17 +57,20 @@ public class EmployeeService {
 	 * Repository used to access {@link Employee} persistence operations.
 	 */
 	private final EmployeeRepository employeeRepository;
+	private final ScheduleService scheduleService;
 
 	/**
 	 * Creates a new {@code EmployeeService}.
 	 *
-	 * @param employeeRepository repository used to manage {@link Employee}
-	 *                           entities. Can't be {@code null}.
+	 * @param employeeRepository repository used to manage {@link Employee} entities
+	 * @param scheduleService    service used to resolve schedules inside secured
+	 *                           employee operations
 	 *
-	 * @throws NullPointerException if {@code employeeRepository} is {@code null}
+	 * @throws NullPointerException if either dependency is {@code null}
 	 */
-	public EmployeeService(final EmployeeRepository employeeRepository) {
+	public EmployeeService(final EmployeeRepository employeeRepository, final ScheduleService scheduleService) {
 		this.employeeRepository = Objects.requireNonNull(employeeRepository, "employeeRepository cannot be null.");
+		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService cannot be null.");
 	}
 
 	/**
@@ -200,26 +204,28 @@ public class EmployeeService {
 	 *                    {@code null} or blank.
 	 * @param newName     the new first name. Can't be {@code null} or blank.
 	 * @param newSurname  the new surname. Can't be {@code null} or blank.
-	 * @param newSchedule the new {@link Schedule}. Can't be {@code null}.
+	 * @param scheduleCode code of the new {@link Schedule}. Can't be {@code null}.
 	 *
 	 * @return the updated {@link Employee}
 	 *
 	 * @throws NullPointerException      if any parameter is {@code null}
 	 * @throws IllegalArgumentException  if any string parameter is blank
 	 * @throws ResourceNotFoundException if no employee exists with the given email
+	 *                                   or no schedule exists with the given code
 	 */
 	@Transactional
 	@PreAuthorize("@employeeAuthorization.canUpdate(authentication, #email)")
 	public Employee updateEmployee(final String email, final String newName, final String newSurname,
-			final Schedule newSchedule) {
+			final String scheduleCode) {
 
 		final String canonicalEmail = EmailAddresses.canonicalize(email);
 		Strings.requireNonBlank(newName, "newName cannot be null or blank.");
 		Strings.requireNonBlank(newSurname, "newSurname cannot be null or blank.");
-		Objects.requireNonNull(newSchedule, "newSchedule cannot be null.");
+		Strings.requireNonBlank(scheduleCode, "scheduleCode cannot be null or blank.");
 
 		logger.debug("Updating employee {}", email);
 
+		final Schedule newSchedule = this.scheduleService.findScheduleByCode(scheduleCode);
 		final Employee employee = this.findEmployee(canonicalEmail);
 		employee.setFullName(newName.trim(), newSurname.trim());
 		employee.setSchedule(newSchedule);

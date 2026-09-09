@@ -31,10 +31,12 @@ import org.mockito.MockitoAnnotations;
 
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.schedule.Schedule;
+import es.nivel36.janus.service.schedule.ScheduleService;
 
 class EmployeeServiceTest {
 
 	private @Mock EmployeeRepository employeeRepository;
+	private @Mock ScheduleService scheduleService;
 	private @InjectMocks EmployeeService employeeService;
 
 	@BeforeEach

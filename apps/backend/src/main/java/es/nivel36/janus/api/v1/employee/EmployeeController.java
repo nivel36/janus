@@ -135,9 +135,8 @@ public class EmployeeController {
 			@Valid @RequestBody final UpdateEmployeeRequest request) {
 		logger.debug("Update employee ACTION performed");
 
-		final Schedule schedule = this.scheduleService.findScheduleByCode(request.scheduleCode());
 		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, request.name(),
-				request.surname(), schedule);
+				request.surname(), request.scheduleCode());
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
 		return ResponseEntity.ok(response);
 	}
