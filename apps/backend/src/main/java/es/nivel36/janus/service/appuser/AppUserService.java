@@ -117,10 +117,20 @@ public class AppUserService {
 			}
 			if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
 				logEmployeeConflict(employee, keycloakSubject.trim());
-				return this.appUserCreator.create(username, keycloakSubject.trim(), this.provisioningDefaults.locale(),
-						this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), null);
+				return createWithoutEmployeeAfterConflict(username, keycloakSubject.trim());
 			}
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
+		}
+	}
+
+	private AppUser createWithoutEmployeeAfterConflict(final String username, final String keycloakSubject) {
+		try {
+			return this.appUserCreator.create(username, keycloakSubject, this.provisioningDefaults.locale(),
+					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), null);
+		} catch (final DataIntegrityViolationException raceOrDuplicate) {
+			return this.appUserRepository.findByKeycloakSubject(keycloakSubject)
+					.orElseThrow(() -> new ResourceAlreadyExistsException(
+							"Application user with username " + username + " already exists"));
 		}
 	}
 

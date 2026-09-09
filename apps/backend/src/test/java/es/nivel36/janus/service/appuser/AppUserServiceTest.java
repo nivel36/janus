@@ -19,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.when;
 import java.time.ZoneId;
 import java.time.zone.ZoneRulesException;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,10 +36,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.config.UserProvisioningProperties;
+import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
@@ -111,6 +115,31 @@ class AppUserServiceTest {
 			.thenReturn(java.util.Optional.of(appUser));
 
 		assertEquals(appUser, this.appUserService.findAppUserByKeycloakSubject("11111111-1111-4111-8111-111111111111"));
+	}
+
+	@Test
+	void concurrentFallbackInsertReturnsTheProfileCreatedByTheWinningRequest() {
+		final String subject = "11111111-1111-4111-8111-111111111111";
+		final String username = "concurrent-user";
+		final ZoneId timezone = ZoneId.of("UTC");
+		final Employee employee = org.mockito.Mockito.mock(Employee.class);
+		final AppUser winner = new AppUser(username, subject, Locale.ENGLISH, TimeFormat.H24, timezone);
+		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
+		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
+		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
+		when(this.employeeService.findEmployeeForProvisioning("person@example.test"))
+			.thenReturn(Optional.of(employee));
+		when(this.appUserRepository.findByEmployee(employee)).thenReturn(Optional.empty());
+		when(this.appUserRepository.findByKeycloakSubject(subject))
+			.thenReturn(Optional.empty(), Optional.empty(), Optional.of(winner));
+		when(this.appUserRepository.existsByEmployee(employee)).thenReturn(true);
+		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24),
+				eq(timezone), eq(employee))).thenThrow(new DataIntegrityViolationException("employee claimed"));
+		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24),
+				eq(timezone), isNull())).thenThrow(new DataIntegrityViolationException("subject claimed"));
+
+		assertSame(winner,
+				this.appUserService.findOrCreateAppUser(subject, username, "person@example.test"));
 	}
 
 	@Test
