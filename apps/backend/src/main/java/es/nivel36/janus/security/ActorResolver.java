@@ -33,9 +33,10 @@ public class ActorResolver {
 	}
 
 	/**
-	 * Resolves a validated bearer JWT to its provisioned internal identity.
-	 * Unsupported, unauthenticated and unprovisioned identities are denied rather
-	 * than represented as anonymous or accepted from operation input.
+	 * Resolves a validated bearer JWT to an application actor. Employee-only
+	 * identities must be provisioned so ownership can be established. Trusted user
+	 * and administrator authorities retain their role-only access when the caller
+	 * does not yet have a local account.
 	 */
 	@Transactional(readOnly = true)
 	public Actor resolve(final Authentication authentication) {
@@ -49,12 +50,21 @@ public class ActorResolver {
 			throw new AccessDeniedException("The authenticated identity is invalid");
 		}
 
-		final AppUser appUser = this.appUserService.findAppUserByKeycloakSubject(subject);
+		final Set<Role> roles = recognizedRoles(authentication);
+		final AppUser appUser;
+		try {
+			appUser = this.appUserService.findAppUserByKeycloakSubject(subject);
+		} catch (final AccessDeniedException ex) {
+			if (roles.contains(Role.JANUS_ADMIN) || roles.contains(Role.JANUS_USER)) {
+				return new Actor(null, roles, null);
+			}
+			throw ex;
+		}
 		if (appUser.getId() == null) {
 			throw new AccessDeniedException("The authenticated identity has not been provisioned");
 		}
 		final Long employeeId = appUser.getEmployee() == null ? null : appUser.getEmployee().getId();
-		return new Actor(appUser.getId(), recognizedRoles(authentication), employeeId);
+		return new Actor(appUser.getId(), roles, employeeId);
 	}
 
 	private static Set<Role> recognizedRoles(final Authentication authentication) {
