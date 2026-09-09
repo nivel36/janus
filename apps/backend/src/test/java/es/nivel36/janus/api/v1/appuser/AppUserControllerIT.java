@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,7 @@ import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 class AppUserControllerIT {
 
 	private @Autowired MockMvc mvc;
+	private @Autowired JdbcTemplate jdbcTemplate;
 
 	private static final String BASE = "/api/v1/appusers";
 
@@ -212,6 +214,23 @@ class AppUserControllerIT {
 				.subject("99999999-9999-4999-8999-999999999999").claim("preferred_username", "renamed-user"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("new-user"));
+
+		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate.queryForObject(
+				"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?", Integer.class,
+				"99999999-9999-4999-8999-999999999999")).isEqualTo(1);
+	}
+
+	@Test
+	void testMeRejectsTokenWithoutJanusRolesWithoutCreatingAccount() throws Exception {
+		final String subject = "44444444-4444-4444-8444-444444444444";
+
+		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(jwt -> jwt.subject(subject)
+				.claim("preferred_username", "unauthorized-user"))
+				.authorities(createAuthorityList("SCOPE_openid", "ROLE_OTHER_CLIENT"))))
+				.andExpect(status().isForbidden());
+
+		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate.queryForObject(
+				"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?", Integer.class, subject)).isZero();
 	}
 
 	@Test

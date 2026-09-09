@@ -33,10 +33,9 @@ public class ActorResolver {
 	}
 
 	/**
-	 * Resolves a validated bearer JWT to an application actor. Employee-only
-	 * identities must be provisioned so ownership can be established. Trusted user
-	 * and administrator authorities retain their role-only access when the caller
-	 * does not yet have a local account.
+	 * Resolves a validated bearer JWT to a provisioned application actor. Automatic
+	 * provisioning is deliberately confined to the {@code GET /appusers/me}
+	 * endpoint; all operations that resolve an actor require a persistent account.
 	 */
 	@Transactional(readOnly = true)
 	public Actor resolve(final Authentication authentication) {
@@ -51,15 +50,7 @@ public class ActorResolver {
 		}
 
 		final Set<Role> roles = recognizedRoles(authentication);
-		final AppUser appUser;
-		try {
-			appUser = this.appUserService.findAppUserByKeycloakSubject(subject);
-		} catch (final AccessDeniedException ex) {
-			if (roles.contains(Role.JANUS_ADMIN) || roles.contains(Role.JANUS_USER)) {
-				return new Actor(null, roles, null);
-			}
-			throw ex;
-		}
+		final AppUser appUser = this.appUserService.findAppUserByKeycloakSubject(subject);
 		if (appUser.getId() == null) {
 			throw new AccessDeniedException("The authenticated identity has not been provisioned");
 		}
