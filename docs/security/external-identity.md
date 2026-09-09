@@ -4,8 +4,8 @@ Janus authenticates an application user by the OpenID Connect `sub` claim. The
 accepted issuer is fixed by `spring.security.oauth2.resourceserver.jwt.issuer-uri`,
 so `AppUser` stores only the stable Keycloak account UUID as `keycloakSubject`.
 `username` is a functional/display name and `email` is a contact attribute; neither
-is used to link or authorize an `AppUser`. A verified email only proves current
-control of that address.
+is the persistent identity key or used to authorize an `AppUser`. A verified email
+is considered only during first-access provisioning to suggest an employee link.
 
 ## Identity and profile lifecycle
 
@@ -22,7 +22,11 @@ first authenticated `GET /api/v1/appusers/me`, Janus accepts only a validated JW
 with at least one supported Janus client role. It looks up the profile by `sub` and,
 when none exists, creates it with `preferred_username` as its initial display name
 and the configured `janus.user-provisioning.defaults`. The response returns that
-new profile. Later requests find the same profile by `sub`; changes to
+new profile. If the token contains a verified email, Janus normalizes it and links
+the profile when exactly one matching employee exists and is not already linked.
+No employee is assigned when there is no match. If the employee belongs to another
+identity, Janus preserves that association, creates the new profile without an
+employee, and logs the conflict. Later requests find the same profile by `sub`; changes to
 `preferred_username` do not rename or relink it. Concurrent first requests converge
 on the single profile protected by the unique subject constraint.
 

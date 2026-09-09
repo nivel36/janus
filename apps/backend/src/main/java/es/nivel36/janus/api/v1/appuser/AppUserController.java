@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -144,8 +145,11 @@ public class AppUserController {
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
 		final Object preferredUsernameClaim = authentication.getToken().getClaims().get("preferred_username");
 		final String preferredUsername = preferredUsernameClaim instanceof String value ? value : null;
+		final Boolean emailVerified = authentication.getToken().getClaim("email_verified");
+		final String email = authentication.getToken().getClaimAsString("email");
+		final String verifiedEmail = Boolean.TRUE.equals(emailVerified) && StringUtils.hasText(email) ? email : null;
 		return ResponseEntity.ok(this.appUserResponseMapper.map(this.appUserService.findOrCreateAppUser(
-				authentication.getToken().getSubject(), preferredUsername)));
+				authentication.getToken().getSubject(), preferredUsername, verifiedEmail)));
 	}
 
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")

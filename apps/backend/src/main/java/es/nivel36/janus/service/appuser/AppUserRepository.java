@@ -49,4 +49,6 @@ interface AppUserRepository extends JpaRepository<AppUser, Long> {
 	boolean existsByKeycloakSubject(String keycloakSubject);
 
 	boolean existsByEmployee(es.nivel36.janus.service.employee.Employee employee);
+
+	Optional<AppUser> findByEmployee(es.nivel36.janus.service.employee.Employee employee);
 }
