@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -142,9 +143,11 @@ public class AppUserController {
 
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
 	@GetMapping("/me")
-	public ResponseEntity<AppUserResponse> findCurrentAppUser(final Authentication authentication) {
-		return ResponseEntity.ok(
-				this.appUserResponseMapper.map(this.appUserService.findAppUserByKeycloakSubject(authentication.getName())));
+	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
+		final Object preferredUsernameClaim = authentication.getToken().getClaims().get("preferred_username");
+		final String preferredUsername = preferredUsernameClaim instanceof String value ? value : null;
+		return ResponseEntity.ok(this.appUserResponseMapper.map(this.appUserService.findOrCreateAppUser(
+				authentication.getToken().getSubject(), preferredUsername)));
 	}
 
 	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
