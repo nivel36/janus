@@ -74,17 +74,14 @@ class ActorResolverTest {
 	}
 
 	@Test
-	void shouldResolveUnprovisionedElevatedIdentityFromTrustedAuthorities() {
+	void shouldRejectUnprovisionedElevatedIdentity() {
 		final AppUserService appUserService = mock(AppUserService.class);
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT))
 				.thenThrow(new AccessDeniedException("not provisioned"));
 
-		final Actor actor = new ActorResolver(appUserService).resolve(jwtAuthentication(
-				List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN"))));
-
-		assertThat(actor.id()).isNull();
-		assertThat(actor.employeeId()).isNull();
-		assertThat(actor.roles()).containsExactly(Role.JANUS_ADMIN);
+		assertThatThrownBy(() -> new ActorResolver(appUserService).resolve(jwtAuthentication(
+				List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN")))))
+				.isInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test

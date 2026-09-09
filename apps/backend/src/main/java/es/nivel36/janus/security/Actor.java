@@ -17,8 +17,7 @@ import es.nivel36.janus.service.appuser.Role;
  * use the persistent application-user identifier, the optional associated
  * employee identifier and the roles granted to the caller.</p>
  *
- * @param id persistent identifier of the application user, or {@code null} for
- *           an elevated identity that has not been provisioned locally
+ * @param id persistent identifier of the provisioned application user
  * @param roles recognized Janus roles granted by the identity provider
  * @param employeeId persistent employee identifier, or {@code null} when the user
  *                   is not associated with an employee
@@ -26,7 +25,8 @@ import es.nivel36.janus.service.appuser.Role;
 public record Actor(Long id, Set<Role> roles, Long employeeId) {
 
 	public Actor {
-		if (id != null && id <= 0) {
+		Objects.requireNonNull(id, "id can't be null");
+		if (id <= 0) {
 			throw new IllegalArgumentException("id must be a positive persistent identifier");
 		}
 		roles = Set.copyOf(Objects.requireNonNull(roles, "roles can't be null"));

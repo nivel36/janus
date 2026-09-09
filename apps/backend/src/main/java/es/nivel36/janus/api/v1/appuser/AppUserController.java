@@ -139,7 +139,7 @@ public class AppUserController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@appUserProvisioningPolicy.canProvision(authentication)")
 	@GetMapping("/me")
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
 		final Object preferredUsernameClaim = authentication.getToken().getClaims().get("preferred_username");
