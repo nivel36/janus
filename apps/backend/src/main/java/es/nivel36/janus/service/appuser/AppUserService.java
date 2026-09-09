@@ -25,6 +25,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.nivel36.janus.config.UserProvisioningProperties;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
@@ -55,10 +56,7 @@ public class AppUserService {
 	 */
 	private final AppUserRepository appUserRepository;
 	private final AppUserCreator appUserCreator;
-
-	private static final Locale INITIAL_LOCALE = Locale.ENGLISH;
-	private static final TimeFormat INITIAL_TIME_FORMAT = TimeFormat.H24;
-	private static final ZoneId INITIAL_TIMEZONE = AppUser.DEFAULT_TIMEZONE;
+	private final UserProvisioningProperties provisioningDefaults;
 
 	/**
 	 * Creates a new {@code AppUserService}.
@@ -68,9 +66,12 @@ public class AppUserService {
 	 *
 	 * @throws NullPointerException if {@code appUserRepository} is {@code null}
 	 */
-	public AppUserService(final AppUserRepository appUserRepository, final AppUserCreator appUserCreator) {
+	public AppUserService(final AppUserRepository appUserRepository, final AppUserCreator appUserCreator,
+			final UserProvisioningProperties provisioningDefaults) {
 		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
 		this.appUserCreator = Objects.requireNonNull(appUserCreator, "AppUserCreator cannot be null.");
+		this.provisioningDefaults = Objects.requireNonNull(provisioningDefaults,
+				"UserProvisioningProperties cannot be null.");
 	}
 
 	/**
@@ -78,7 +79,7 @@ public class AppUserService {
 	 * access. The subject is the sole identity-linking key; the preferred username
 	 * is used only as the new account's visible name.
 	 *
-	 * <p>The initial preferences are English, 24-hour time and UTC. When an
+	 * <p>The initial preferences come from the provisioning defaults. When an
 	 * account must be created, {@code preferred_username} must satisfy the same
 	 * rule as usernames accepted by the administration API.</p>
 	 */
@@ -93,8 +94,8 @@ public class AppUserService {
 
 		final String username = validatePreferredUsername(preferredUsername);
 		try {
-			return this.appUserCreator.create(username, keycloakSubject.trim(), INITIAL_LOCALE,
-					INITIAL_TIME_FORMAT, INITIAL_TIMEZONE);
+			return this.appUserCreator.create(username, keycloakSubject.trim(), this.provisioningDefaults.locale(),
+					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone());
 		} catch (final DataIntegrityViolationException raceOrDuplicate) {
 			// Another request may have committed the same subject while this request was
 			// provisioning it. The failed insert ran in REQUIRES_NEW, so this transaction

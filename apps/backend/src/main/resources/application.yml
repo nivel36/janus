@@ -57,5 +57,10 @@ logging:
 janus:
   api:
     base-path: /api/v1
+  user-provisioning:
+    defaults:
+      locale: en-US
+      time-format: H24
+      default-timezone: UTC
   cors:
     allowed-origins: ${JANUS_CORS_ALLOWED_ORIGINS:http://localhost:4200}

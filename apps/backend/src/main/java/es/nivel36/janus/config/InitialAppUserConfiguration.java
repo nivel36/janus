@@ -30,9 +30,7 @@ class InitialAppUserConfiguration {
 	ApplicationRunner initialAppUserInitializer(final JdbcClient jdbcClient,
 			@Value("${janus.bootstrap.initial-user.username}") final String username,
 			@Value("${janus.bootstrap.initial-user.subject}") final String subject,
-			@Value("${janus.bootstrap.initial-user.locale}") final String locale,
-			@Value("${janus.bootstrap.initial-user.time-format}") final String timeFormat,
-			@Value("${janus.bootstrap.initial-user.default-timezone}") final String defaultTimezone) {
+			final UserProvisioningProperties defaults) {
 		return arguments -> {
 			jdbcClient.sql("""
 					INSERT INTO app_user (username, keycloak_subject, locale, time_format, default_timezone)
@@ -41,9 +39,9 @@ class InitialAppUserConfiguration {
 					""")
 				.param("username", username)
 				.param("subject", subject)
-				.param("locale", locale)
-				.param("timeFormat", timeFormat)
-				.param("defaultTimezone", defaultTimezone)
+				.param("locale", defaults.locale().toLanguageTag())
+				.param("timeFormat", defaults.getTimeFormat().name())
+				.param("defaultTimezone", defaults.defaultTimezone().getId())
 				.update();
 		};
 	}
