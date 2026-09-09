@@ -18,6 +18,7 @@ package es.nivel36.janus.service.employee;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,6 +116,13 @@ public class EmployeeService {
 		logger.debug("Finding Employee by email {}", email);
 
 		return this.findEmployee(canonicalEmail);
+	}
+
+	/** Finds an employee by canonical email for first-access identity linking. */
+	@Transactional(readOnly = true)
+	public Optional<Employee> findEmployeeForProvisioning(final String email) {
+		final String canonicalEmail = EmailAddresses.canonicalize(email);
+		return Optional.ofNullable(this.employeeRepository.findByEmail(canonicalEmail));
 	}
 
 	@Transactional(readOnly = true)

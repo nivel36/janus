@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.service.employee.Employee;
 
 /** Persists an automatically provisioned user in an independent transaction. */
 @Service
@@ -27,8 +28,9 @@ class AppUserCreator {
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public AppUser create(final String username, final String keycloakSubject, final Locale locale,
-			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
-		return this.appUserRepository.saveAndFlush(
-				new AppUser(username, keycloakSubject, locale, timeFormat, defaultTimezone));
+			final TimeFormat timeFormat, final ZoneId defaultTimezone, final Employee employee) {
+		final AppUser appUser = new AppUser(username, keycloakSubject, locale, timeFormat, defaultTimezone);
+		appUser.setEmployee(employee);
+		return this.appUserRepository.saveAndFlush(appUser);
 	}
 }

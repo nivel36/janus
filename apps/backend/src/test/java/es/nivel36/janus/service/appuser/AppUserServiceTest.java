@@ -40,12 +40,14 @@ import es.nivel36.janus.config.UserProvisioningProperties;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.employee.EmployeeService;
 
 class AppUserServiceTest {
 
 	private @Mock AppUserRepository appUserRepository;
 	private @Mock AppUserCreator appUserCreator;
 	private @Mock UserProvisioningProperties provisioningDefaults;
+	private @Mock EmployeeService employeeService;
 	private @Mock PasswordEncoder passwordEncoder;
 	private @InjectMocks AppUserService appUserService;
 

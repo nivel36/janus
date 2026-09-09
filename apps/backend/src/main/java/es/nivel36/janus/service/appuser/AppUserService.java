@@ -30,6 +30,8 @@ import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.employee.EmployeeService;
+import es.nivel36.janus.util.EmailAddresses;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -57,6 +59,7 @@ public class AppUserService {
 	private final AppUserRepository appUserRepository;
 	private final AppUserCreator appUserCreator;
 	private final UserProvisioningProperties provisioningDefaults;
+	private final EmployeeService employeeService;
 
 	/**
 	 * Creates a new {@code AppUserService}.
@@ -67,11 +70,12 @@ public class AppUserService {
 	 * @throws NullPointerException if {@code appUserRepository} is {@code null}
 	 */
 	public AppUserService(final AppUserRepository appUserRepository, final AppUserCreator appUserCreator,
-			final UserProvisioningProperties provisioningDefaults) {
+			final UserProvisioningProperties provisioningDefaults, final EmployeeService employeeService) {
 		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
 		this.appUserCreator = Objects.requireNonNull(appUserCreator, "AppUserCreator cannot be null.");
 		this.provisioningDefaults = Objects.requireNonNull(provisioningDefaults,
 				"UserProvisioningProperties cannot be null.");
+		this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService cannot be null.");
 	}
 
 	/**
@@ -85,6 +89,12 @@ public class AppUserService {
 	 */
 	@Transactional
 	public AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername) {
+		return findOrCreateAppUser(keycloakSubject, preferredUsername, null);
+	}
+
+	@Transactional
+	public AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername,
+			final String verifiedEmail) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 
 		final var existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject.trim());
@@ -93,17 +103,46 @@ public class AppUserService {
 		}
 
 		final String username = validatePreferredUsername(preferredUsername);
+		final Employee employee = findUnlinkedEmployee(verifiedEmail, keycloakSubject.trim());
 		try {
 			return this.appUserCreator.create(username, keycloakSubject.trim(), this.provisioningDefaults.locale(),
-					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone());
+					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), employee);
 		} catch (final DataIntegrityViolationException raceOrDuplicate) {
 			// Another request may have committed the same subject while this request was
 			// provisioning it. The failed insert ran in REQUIRES_NEW, so this transaction
 			// remains usable and can read the winning row.
-			return this.appUserRepository.findByKeycloakSubject(keycloakSubject.trim())
-					.orElseThrow(() -> new ResourceAlreadyExistsException(
-							"Application user with username " + username + " already exists"));
+			final var concurrentlyCreated = this.appUserRepository.findByKeycloakSubject(keycloakSubject.trim());
+			if (concurrentlyCreated.isPresent()) {
+				return concurrentlyCreated.get();
+			}
+			if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
+				logEmployeeConflict(employee, keycloakSubject.trim());
+				return this.appUserCreator.create(username, keycloakSubject.trim(), this.provisioningDefaults.locale(),
+						this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), null);
+			}
+			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
+	}
+
+	private Employee findUnlinkedEmployee(final String verifiedEmail, final String keycloakSubject) {
+		if (verifiedEmail == null) {
+			return null;
+		}
+		return this.employeeService.findEmployeeForProvisioning(EmailAddresses.canonicalize(verifiedEmail))
+				.filter(employee -> {
+					final var linkedUser = this.appUserRepository.findByEmployee(employee);
+					if (linkedUser.isPresent()) {
+						logEmployeeConflict(employee, keycloakSubject);
+						return false;
+					}
+					return true;
+				})
+				.orElse(null);
+	}
+
+	private void logEmployeeConflict(final Employee employee, final String keycloakSubject) {
+		logger.warn("Employee identity link conflict for employeeId={} and keycloakSubject={}; keeping existing link",
+				employee.getId(), keycloakSubject);
 	}
 
 	private static String validatePreferredUsername(final String preferredUsername) {
