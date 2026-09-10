@@ -17,11 +17,28 @@ describe('application routes', () => {
     expect(protectedParent).toMatchObject({
       canActivateChild: [authChildGuard],
       data: {
-        clientRole: [JANUS_CLIENT_ROLES.EMPLOYEE, JANUS_CLIENT_ROLES.USER, JANUS_CLIENT_ROLES.ADMIN],
+        clientRole: [
+          JANUS_CLIENT_ROLES.EMPLOYEE,
+          JANUS_CLIENT_ROLES.USER,
+          JANUS_CLIENT_ROLES.ADMIN,
+        ],
       },
     });
     expect(protectedParent?.component).toBeUndefined();
     expect(protectedParent?.loadComponent).toBeUndefined();
-    expect(protectedParent?.children?.every((route) => route.data === undefined)).toBe(true);
+    const adminOnlyPaths = ['application-settings', 'worksites/new', 'worksites/:code/edit'];
+    const adminOnlyRoutes = protectedParent?.children?.filter((route) =>
+      adminOnlyPaths.includes(route.path ?? ''),
+    );
+
+    expect(adminOnlyRoutes).toHaveLength(adminOnlyPaths.length);
+    expect(
+      adminOnlyRoutes?.every((route) => route.data?.['clientRole'] === JANUS_CLIENT_ROLES.ADMIN),
+    ).toBe(true);
+    expect(
+      protectedParent?.children
+        ?.filter((route) => !adminOnlyPaths.includes(route.path ?? ''))
+        .every((route) => route.data === undefined),
+    ).toBe(true);
   });
 });
