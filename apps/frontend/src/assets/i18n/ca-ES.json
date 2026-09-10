@@ -5,7 +5,8 @@
     "applicationSettings": "Configuració",
     "userPreferences": "Preferències d'usuari",
     "worksites": "Llocs de treball",
-    "schedules": "Horaris"
+    "schedules": "Horaris",
+    "mainMenu": "Menú principal"
   },
   "locale": {
     "ca-ES": "Català",
@@ -18,7 +19,11 @@
     "cancel": "Cancel·la",
     "cleanSelection": "Neteja la sel·lecció",
     "new": "Nou",
-    "back": "Torna"
+    "back": "Torna",
+    "logout": "Surt"
+  },
+  "tabs": {
+    "navigation": "Navegació per pestanyes"
   },
   "paginator": {
     "of": "de",

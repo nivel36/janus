@@ -5,7 +5,8 @@
     "applicationSettings": "Application settings",
     "userPreferences": "User preferences",
     "worksites": "Worksites",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "mainMenu": "Main menu"
   },
   "locale": {
     "ca-ES": "Catalan",
@@ -18,7 +19,11 @@
     "cancel": "Cancel",
     "cleanSelection": "Clean selection",
     "new": "New",
-    "back": "Back"
+    "back": "Back",
+    "logout": "Sign out"
+  },
+  "tabs": {
+    "navigation": "Tabs navigation"
   },
   "paginator": {
     "of": "of",

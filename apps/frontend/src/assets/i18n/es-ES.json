@@ -5,7 +5,8 @@
     "applicationSettings": "Configuración",
     "userPreferences": "Preferencias de usuario",
     "worksites": "Puestos de trabajo",
-    "schedules": "Horarios"
+    "schedules": "Horarios",
+    "mainMenu": "Menú principal"
   },
   "locale": {
     "ca-ES": "Catalán",
@@ -18,7 +19,11 @@
     "cancel": "Cancela",
     "cleanSelection": "Limpia la selección",
     "new": "Nuevo",
-    "back": "Volver"
+    "back": "Volver",
+    "logout": "Salir"
+  },
+  "tabs": {
+    "navigation": "Navegación por pestañas"
   },
   "clock": {
     "currentTime": "Hora actual"
