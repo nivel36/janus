@@ -1,10 +1,10 @@
 <time
     class="clock__time"
-    [attr.datetime]="isoDateTime"
+    [attr.datetime]="isoDateTime()"
     role="timer"
     aria-live="off"
     aria-atomic="true"
     [attr.aria-label]="ariaLabel()"
 >
-    {{ time }}
+    {{ time() }}
 </time>

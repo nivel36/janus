@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -85,18 +85,18 @@ export class WorksiteEditPageComponent implements OnInit {
 
   readonly timezoneCatalog = createTimezoneCatalog();
 
-  loading = true;
+  readonly loading = signal(true);
 
-  saving = false;
+  readonly saving = signal(false);
 
-  errorMessage = '';
+  readonly errorMessage = signal('');
 
   ngOnInit(): void {
     this.worksiteApiService
       .findByCode(this.worksiteCode, ACTIVE_SCREEN_HTTP_RETRY_POLICY)
       .pipe(
         finalize(() => {
-          this.loading = false;
+          this.loading.set(false);
         }),
       )
       .subscribe({
@@ -112,21 +112,21 @@ export class WorksiteEditPageComponent implements OnInit {
           });
         },
         error: () => {
-          this.errorMessage = 'worksite.detailLoadError';
+          this.errorMessage.set('worksite.detailLoadError');
         },
       });
   }
 
   save(): void {
-    if (this.saving || this.loading || this.form.invalid || this.loadedWorksite === null) {
+    if (this.saving() || this.loading() || this.form.invalid || this.loadedWorksite === null) {
       this.form.markAllAsTouched();
       return;
     }
 
     const rawValue = this.form.getRawValue();
 
-    this.saving = true;
-    this.errorMessage = '';
+    this.saving.set(true);
+    this.errorMessage.set('');
 
     this.worksiteApiService
       .update(this.loadedWorksite.code, {
@@ -139,7 +139,7 @@ export class WorksiteEditPageComponent implements OnInit {
       })
       .pipe(
         finalize(() => {
-          this.saving = false;
+          this.saving.set(false);
         }),
       )
       .subscribe({
@@ -147,7 +147,7 @@ export class WorksiteEditPageComponent implements OnInit {
           this.router.navigate(['/worksites', worksite.code]);
         },
         error: () => {
-          this.errorMessage = 'worksite.errors.update';
+          this.errorMessage.set('worksite.errors.update');
         },
       });
   }

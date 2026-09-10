@@ -84,9 +84,9 @@
             />
           </app-field>
 
-          @if (errorMessage) {
+          @if (errorMessage()) {
             <app-message type="error" presentation="inline">
-              {{ errorMessage | translate }}
+              {{ errorMessage() | translate }}
             </app-message>
           }
 
@@ -96,7 +96,7 @@
             </app-button>
 
             @if (isAdmin) {
-              <app-button type="submit" [disabled]="form.invalid || saving" variant="main">
+              <app-button type="submit" [disabled]="form.invalid || saving()" variant="main">
                 {{ 'actions.save' | translate }}
               </app-button>
             }

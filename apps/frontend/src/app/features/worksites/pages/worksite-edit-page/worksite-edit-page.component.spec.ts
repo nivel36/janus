@@ -5,7 +5,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
@@ -116,5 +116,18 @@ describe('WorksiteEditPageComponent', () => {
       ownerEmployeeEmail: 'owner@example.com',
     });
     expect(router.navigate).toHaveBeenCalledWith(['/worksites', 'BCN-HQ']);
+  });
+
+  it('updates save feedback after an asynchronous RxJS callback without manual detection', async () => {
+    const update = new Subject<never>();
+    worksiteApiService.update.mockReturnValue(update);
+    component.form.patchValue({ name: 'Barcelona HQ' });
+
+    component.save();
+    update.error(new Error('request failed'));
+    await fixture.whenStable();
+
+    expect(component.saving()).toBe(false);
+    expect(fixture.nativeElement.textContent).toContain('worksite.errors.update');
   });
 });

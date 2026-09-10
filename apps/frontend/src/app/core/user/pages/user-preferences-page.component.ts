@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -105,17 +105,17 @@ export class UserPreferencesPageComponent implements OnInit {
   /**
    * Indicates whether the initial preference load is in progress.
    */
-  loading = true;
+  readonly loading = signal(true);
 
   /**
    * Indicates whether a save operation is in progress.
    */
-  saving = false;
+  readonly saving = signal(false);
 
   /**
    * Translation key of the current error message, if any.
    */
-  errorMessage = '';
+  readonly errorMessage = signal('');
 
   ngOnInit(): void {
     this.loadPreferences();
@@ -129,27 +129,27 @@ export class UserPreferencesPageComponent implements OnInit {
    * translation key is exposed to the template.
    */
   loadPreferences(): void {
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     this.currentUserFacade.preferences$
       .pipe(
         take(1),
         finalize(() => {
-          this.loading = false;
+          this.loading.set(false);
         }),
       )
       .subscribe({
         next: (preferences) => {
           if (!preferences) {
-            this.errorMessage = 'userPreferences.errors.load';
+            this.errorMessage.set('userPreferences.errors.load');
             return;
           }
 
           this.applyPreferences(preferences);
         },
         error: () => {
-          this.errorMessage = 'userPreferences.errors.load';
+          this.errorMessage.set('userPreferences.errors.load');
         },
       });
   }
@@ -165,7 +165,7 @@ export class UserPreferencesPageComponent implements OnInit {
    * returned by the backend and the page navigates back.
    */
   save(): void {
-    if (this.saving || this.form.invalid) {
+    if (this.saving() || this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -182,14 +182,14 @@ export class UserPreferencesPageComponent implements OnInit {
       defaultTimezone: rawValue.defaultTimezone!,
     };
 
-    this.saving = true;
-    this.errorMessage = '';
+    this.saving.set(true);
+    this.errorMessage.set('');
 
     this.currentUserFacade
       .updatePreferences(payload)
       .pipe(
         finalize(() => {
-          this.saving = false;
+          this.saving.set(false);
         }),
       )
       .subscribe({
@@ -198,7 +198,7 @@ export class UserPreferencesPageComponent implements OnInit {
           this.cancel();
         },
         error: () => {
-          this.errorMessage = 'userPreferences.errors.update';
+          this.errorMessage.set('userPreferences.errors.update');
         },
       });
   }

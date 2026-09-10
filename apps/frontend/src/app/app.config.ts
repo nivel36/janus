@@ -8,7 +8,7 @@ import {
   PLATFORM_ID,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
-  provideZoneChangeDetection,
+  provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
@@ -112,7 +112,7 @@ export const appConfig: ApplicationConfig = {
       ],
     },
     provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideZonelessChangeDetection(),
     provideHttpClient(
       withInterceptors([httpRetryInterceptor, includeBearerTokenInterceptor, authErrorInterceptor]),
     ),

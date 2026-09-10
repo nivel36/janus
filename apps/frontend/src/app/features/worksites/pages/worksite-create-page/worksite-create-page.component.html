@@ -174,9 +174,9 @@
             />
           </app-field>
 
-          @if (errorMessage) {
+          @if (errorMessage()) {
             <app-message type="error" presentation="inline">
-              {{ errorMessage | translate }}
+              {{ errorMessage() | translate }}
             </app-message>
           }
 
@@ -188,7 +188,7 @@
             <app-button
               type="submit"
               variant="main"
-              [disabled]="form.invalid || form.pending || saving"
+              [disabled]="form.invalid || form.pending || saving()"
             >
               {{ 'actions.save' | translate }}
             </app-button>

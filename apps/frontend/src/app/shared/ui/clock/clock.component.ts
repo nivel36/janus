@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { isPlatformBrowser } from '@angular/common';
-import { Component, DestroyRef, OnInit, PLATFORM_ID, inject, input } from '@angular/core';
+import { Component, DestroyRef, OnInit, PLATFORM_ID, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
 
@@ -38,18 +38,15 @@ export class ClockComponent implements OnInit {
   /**
    * Human-readable time shown in the UI (for example, `10:15:30`).
    */
-  time = '';
+  readonly time = signal('');
 
   /**
    * ISO-8601 datetime value bound to the `<time datetime>` attribute.
    */
-  isoDateTime = '';
+  readonly isoDateTime = signal('');
 
   private readonly platformId = inject(PLATFORM_ID);
 
-  /**
-   * Completes the browser timer subscription with the component lifecycle.
-   */
   private readonly destroyRef = inject(DestroyRef);
 
   /**
@@ -70,17 +67,10 @@ export class ClockComponent implements OnInit {
     }
   }
 
-  /**
-   * Recomputes the formatted and machine-readable current time values.
-   */
   private updateTime(): void {
     const currentLocale = this.locale() ?? globalThis.navigator?.language ?? 'en-US';
     const now = new Date();
-
-    this.time = now.toLocaleTimeString(currentLocale, {
-      hour12: this.use12Hour(),
-    });
-
-    this.isoDateTime = now.toISOString();
+    this.time.set(now.toLocaleTimeString(currentLocale, { hour12: this.use12Hour() }));
+    this.isoDateTime.set(now.toISOString());
   }
 }
