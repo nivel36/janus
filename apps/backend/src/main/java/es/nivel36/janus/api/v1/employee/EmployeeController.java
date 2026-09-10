@@ -79,7 +79,7 @@ public class EmployeeController {
 	 *                      {@code null}
 	 * @return the {@link EmployeeResponse} matching the email
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@employeeAuthorization.canView(authentication, #employeeEmail)")
 	@GetMapping("/by-email/{employeeEmail}")
 	public ResponseEntity<EmployeeResponse> findEmployeeByEmail( //
 			final @PathVariable("employeeEmail") //
@@ -102,7 +102,7 @@ public class EmployeeController {
 	 *                {@code null}
 	 * @return the created {@link EmployeeResponse}
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@employeeAuthorization.canCreate(authentication)")
 	@PostMapping
 	public ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody final CreateEmployeeRequest request) {
 		logger.debug("Create employee ACTION performed");
@@ -123,7 +123,7 @@ public class EmployeeController {
 	 *                      be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@employeeAuthorization.canUpdate(authentication, #employeeEmail)")
 	@PutMapping("/{employeeEmail}")
 	public ResponseEntity<EmployeeResponse> updateEmployee(//
 			final @PathVariable("employeeEmail") //
@@ -147,7 +147,7 @@ public class EmployeeController {
 	 * @param employeeEmail the email of the employee; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@employeeAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{employeeEmail}")
 	public ResponseEntity<Void> deleteEmployee(//
 			final @PathVariable("employeeEmail") //

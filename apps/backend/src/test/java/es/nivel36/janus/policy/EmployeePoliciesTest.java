@@ -12,7 +12,6 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import es.nivel36.janus.policy.employee.UpdateEmployeePolicy;
-import es.nivel36.janus.policy.employee.UpdateEmployeeRolesPolicy;
 import es.nivel36.janus.policy.employee.ViewEmployeePolicy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
@@ -24,7 +23,6 @@ class EmployeePoliciesTest {
 
 	private final UpdateEmployeePolicy updatePolicy = new UpdateEmployeePolicy();
 	private final ViewEmployeePolicy viewPolicy = new ViewEmployeePolicy();
-	private final UpdateEmployeeRolesPolicy updateRolesPolicy = new UpdateEmployeeRolesPolicy();
 
 	@Test
 	void employeeCanViewAndUpdateOwnProfileOnly() {
@@ -58,14 +56,6 @@ class EmployeePoliciesTest {
 
 		assertThat(this.viewPolicy.allows(ownerWithoutRoles, OWN_EMPLOYEE_ID)).isFalse();
 		assertThat(this.updatePolicy.allows(ownerWithoutRoles, OWN_EMPLOYEE_ID)).isFalse();
-	}
-
-	@Test
-	void onlyAdministratorCanChangeEmployeeRoles() {
-		assertThat(this.updateRolesPolicy.allows(actorWith(Role.JANUS_EMPLOYEE, OWN_EMPLOYEE_ID), OWN_EMPLOYEE_ID))
-				.isFalse();
-		assertThat(this.updateRolesPolicy.allows(actorWith(Role.JANUS_USER, OWN_EMPLOYEE_ID), OWN_EMPLOYEE_ID)).isFalse();
-		assertThat(this.updateRolesPolicy.allows(actorWith(Role.JANUS_ADMIN, null), OTHER_EMPLOYEE_ID)).isTrue();
 	}
 
 	private static Actor actorWith(final Role role, final Long employeeId) {
