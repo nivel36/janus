@@ -17,6 +17,7 @@ package es.nivel36.janus.api.v1.timelog;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -60,18 +61,68 @@ class ClockOutWithoutClockInEventControllerIT {
 	}
 
 	@Test
+	@Sql(statements = {
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('abel','employee-subject','en-US','H24','UTC',1)",
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','admin-subject','en-US','H24','UTC',NULL)",
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('outsider','outsider-subject','en-US','H24','UTC',NULL)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'OFFICE','Office','UTC','GLOBAL')",
+			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z','2025-08-04T16:00:00Z',false,false)",
+			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (2,1,1,'2025-08-05T16:00:00Z','2025-08-05T16:00:00Z',false,false)" })
+	void clockOutWithoutClockInAuthorizationHonorsEmployeeBoundaryAndJanusRoles() throws Exception {
+		final var employee = jwt().jwt(jwt -> jwt.subject("employee-subject"))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
+		final var admin = jwt().jwt(jwt -> jwt.subject("admin-subject"))
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"));
+		final var outsider = jwt().jwt(jwt -> jwt.subject("outsider-subject"));
+
+		this.mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").with(employee)).andExpect(status().isOk());
+		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON)
+				.content("{\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isOk());
+		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "aferrer@nivel36.es", "2025-08-05T16:00:00Z")
+				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON).content("{}").with(employee))
+				.andExpect(status().isOk());
+
+		this.mvc.perform(get(BASE + "/{exitTime}", "ada@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").with(employee)).andExpect(status().isForbidden());
+		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "ada@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON)
+				.content("{\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isForbidden());
+		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "ada@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON).content("{}").with(employee))
+				.andExpect(status().isForbidden());
+
+		this.mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").with(admin)).andExpect(status().isOk());
+		this.mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").with(outsider)).andExpect(status().isForbidden());
+		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON)
+				.content("{\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(outsider)).andExpect(status().isForbidden());
+		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "aferrer@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON).content("{}").with(outsider))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','provider-account-id','en-US','H24','UTC',NULL)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
 	void testFindClockOutWithoutClockInEventShouldAllowTransferredPersonalWorksite() throws Exception {
 		final String exit = "2025-08-04T16:00:00Z";
 
 		this.mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", exit) //
-				.param("worksiteCode", "HOME-AF").with(jwt())) //
+				.param("worksiteCode", "HOME-AF").with(jwt().jwt(jwt -> jwt.subject("provider-account-id")).authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.employeeEmail").value("aferrer@nivel36.es")) //
@@ -87,6 +138,7 @@ class ClockOutWithoutClockInEventControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','provider-account-id','en-US','H24','UTC',NULL)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
 	void testResolveClockOutWithoutClockInEventShouldAllowTransferredPersonalWorksite() throws Exception {
@@ -98,7 +150,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
-				.contentType(APPLICATION_JSON).content(body).with(jwt())) //
+				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("provider-account-id")).authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.resolved").value(true)) //
@@ -114,6 +166,7 @@ class ClockOutWithoutClockInEventControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','provider-account-id','en-US','H24','UTC',NULL)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
 	void testInvalidateClockOutWithoutClockInEventShouldAllowTransferredPersonalWorksite() throws Exception {
@@ -124,7 +177,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
-				.contentType(APPLICATION_JSON).content(body).with(jwt())) //
+				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("provider-account-id")).authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.resolved").value(false)) //
@@ -138,6 +191,7 @@ class ClockOutWithoutClockInEventControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','provider-account-id','en-US','H24','UTC',NULL)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
 	void testResolveClockOutWithoutClockInEventShouldReturnForbiddenWhenManualEntryDisabled() throws Exception {
@@ -149,7 +203,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
-				.contentType(APPLICATION_JSON).content(body).with(jwt())) //
+				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("provider-account-id")).authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isForbidden());
 	}
 }
