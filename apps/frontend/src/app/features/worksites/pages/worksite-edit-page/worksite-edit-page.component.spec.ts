@@ -5,7 +5,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, Subject, of } from 'rxjs';
+import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
@@ -129,6 +129,19 @@ describe('WorksiteEditPageComponent', () => {
 
     expect(component.saving()).toBe(false);
     expect(fixture.nativeElement.textContent).toContain('worksite.errors.update');
+  });
+
+  it('shows the load error without reading the resource value', async () => {
+    worksiteApiService.findByCode.mockReturnValue(
+      throwError(() => new Error('request failed')),
+    );
+
+    paramMap.next(convertToParamMap({ code: 'MISSING' }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('worksite.detailLoadError');
   });
 
   it('cancels the previous load and updates only the worksite for the latest route code', async () => {

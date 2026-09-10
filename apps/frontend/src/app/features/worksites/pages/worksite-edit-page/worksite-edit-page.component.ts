@@ -59,6 +59,10 @@ export class WorksiteEditPageComponent {
   });
 
   private readonly worksite = computed(() => {
+    if (!this.worksiteResource.hasValue()) {
+      return null;
+    }
+
     const worksite = this.worksiteResource.value();
     return worksite?.code === this.worksiteCode() ? worksite : null;
   });
