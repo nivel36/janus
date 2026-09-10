@@ -38,22 +38,14 @@ class TestHostComponent {
 @Component({
   standalone: true,
   imports: [ButtonComponent],
-  template: `
-    <app-button disabled>
-      Save
-    </app-button>
-  `,
+  template: ` <app-button disabled> Save </app-button> `,
 })
 class DisabledAttributeHostComponent {}
 
 @Component({
   standalone: true,
   imports: [ButtonComponent],
-  template: `
-    <app-button icon>
-      Save
-    </app-button>
-  `,
+  template: ` <app-button icon> Save </app-button> `,
 })
 class IconAttributeHostComponent {}
 
@@ -68,7 +60,8 @@ describe('ButtonComponent', () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
   });
 
   function getButton(): HTMLButtonElement {
@@ -88,9 +81,10 @@ describe('ButtonComponent', () => {
     expect(buttonEl.classList).toContain('app-button--default');
   });
 
-  it('should disable the button when disabled is true', () => {
+  it('should disable the button when disabled is true', async () => {
     host.disabled = true;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const buttonEl = getButton();
     expect(buttonEl.disabled).toBe(true);
@@ -112,9 +106,10 @@ describe('ButtonComponent', () => {
     expect(buttonEl.classList).toContain('app-button--icon');
   });
 
-  it('should expose aria-label when provided', () => {
+  it('should expose aria-label when provided', async () => {
     host.ariaLabel = 'Open menu';
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const buttonEl = getButton();
     expect(buttonEl.getAttribute('aria-label')).toBe('Open menu');

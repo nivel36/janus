@@ -62,15 +62,17 @@ describe('AsyncStateComponent', () => {
     expect(message()?.getAttribute('role')).toBe('alert');
   });
 
-  it('prioritizes loading over empty and renders nothing without an active state', () => {
+  it('prioritizes loading over empty and renders nothing without an active state', async () => {
     host.loading = true;
     host.empty = true;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
     expect(visibleStates()).toEqual(['loading']);
 
     host.loading = false;
     host.empty = false;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
     expect(visibleStates()).toEqual([]);
     expect(message()).toBeNull();
   });

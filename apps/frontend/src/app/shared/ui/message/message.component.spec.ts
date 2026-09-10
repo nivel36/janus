@@ -24,24 +24,31 @@ describe('MessageComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [TestHostComponent] }).compileComponents();
     fixture = TestBed.createComponent(TestHostComponent);
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
   });
 
-  it.each(['error', 'success', 'warning', 'info'] as const)('applies the %s variant', (type) => {
-    fixture.componentInstance.type = type;
-    fixture.detectChanges();
-    expect(message().classList).toContain(`message--${type}`);
-  });
+  it.each(['error', 'success', 'warning', 'info'] as const)(
+    'applies the %s variant',
+    async (type) => {
+      fixture.componentInstance.type = type;
+      fixture.changeDetectorRef.markForCheck();
+      await fixture.whenStable();
+      expect(message().classList).toContain(`message--${type}`);
+    },
+  );
 
-  it.each(['inline', 'panel'] as const)('applies the %s presentation', (presentation) => {
+  it.each(['inline', 'panel'] as const)('applies the %s presentation', async (presentation) => {
     fixture.componentInstance.presentation = presentation;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
     expect(message().classList).toContain(`message--${presentation}`);
   });
 
-  it('projects content and exposes errors as alerts', () => {
+  it('projects content and exposes errors as alerts', async () => {
     fixture.componentInstance.type = 'error';
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
     expect(message().textContent?.trim()).toBe('Translated text');
     expect(message().getAttribute('role')).toBe('alert');
     expect(message().getAttribute('aria-live')).toBe('assertive');

@@ -62,7 +62,8 @@ describe('SelectComponent (ControlValueAccessor)', () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
   });
 
   function getSelect(): HTMLSelectElement {
@@ -86,9 +87,10 @@ describe('SelectComponent (ControlValueAccessor)', () => {
     expect(host.form.controls.locale.value).toBe('en-GB');
   });
 
-  it('should update the view when the FormControl value changes', () => {
+  it('should update the view when the FormControl value changes', async () => {
     host.form.controls.locale.setValue('en-GB');
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(getSelect().value).toBe('en-GB');
   });

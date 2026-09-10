@@ -35,7 +35,8 @@ describe('ToggleButtonComponent (ControlValueAccessor)', () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
   });
 
   function getButton(): HTMLButtonElement {
@@ -47,9 +48,10 @@ describe('ToggleButtonComponent (ControlValueAccessor)', () => {
     expect(button.getAttribute('aria-checked')).toBe('false');
   });
 
-  it('should update the view when the FormControl value changes', () => {
+  it('should update the view when the FormControl value changes', async () => {
     host.form.get('flag')?.setValue(true);
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const button = getButton();
     expect(button.getAttribute('aria-checked')).toBe('true');
