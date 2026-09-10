@@ -32,7 +32,8 @@ describe('AvatarComponent', () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     hostComponent = fixture.componentInstance;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
   });
 
   it('should render the image with the default medium size', () => {
@@ -45,10 +46,11 @@ describe('AvatarComponent', () => {
     expect(avatarEl.classList).not.toContain('app-avatar--medium');
   });
 
-  it('should apply the selected size and extra classes', () => {
+  it('should apply the selected size and extra classes', async () => {
     hostComponent.size = 'large';
     hostComponent.styleClass = 'employee-card__avatar';
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const avatarHost: HTMLElement = fixture.nativeElement.querySelector('app-avatar');
 
@@ -56,19 +58,21 @@ describe('AvatarComponent', () => {
     expect(avatarHost.classList).toContain('employee-card__avatar');
   });
 
-  it('should update the size class on the host', () => {
+  it('should update the size class on the host', async () => {
     const avatarHost: HTMLElement = fixture.nativeElement.querySelector('app-avatar');
 
     hostComponent.size = 'small';
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(avatarHost.classList).toContain('app-avatar--small');
     expect(avatarHost.classList).not.toContain('app-avatar--medium');
   });
 
-  it('should use the fallback image when the requested image fails', () => {
+  it('should use the fallback image when the requested image fails', async () => {
     hostComponent.src = 'assets/images/missing-user.png';
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const avatarEl: HTMLImageElement = fixture.nativeElement.querySelector('.app-avatar');
     avatarEl.dispatchEvent(new Event('error'));
@@ -76,9 +80,10 @@ describe('AvatarComponent', () => {
     expect(avatarEl.getAttribute('src')).toBe('assets/images/user.png');
   });
 
-  it('should not retry the fallback image when it also fails', () => {
+  it('should not retry the fallback image when it also fails', async () => {
     hostComponent.src = 'assets/images/missing-user.png';
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const avatarEl: HTMLImageElement = fixture.nativeElement.querySelector('.app-avatar');
     const srcSetter = vi.spyOn(avatarEl, 'src', 'set');

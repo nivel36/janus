@@ -62,9 +62,9 @@
             />
           </app-field>
 
-          @if (errorMessage) {
+          @if (errorMessage()) {
             <app-message type="error" presentation="inline">
-              {{ errorMessage | translate }}
+              {{ errorMessage() | translate }}
             </app-message>
           }
 

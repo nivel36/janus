@@ -16,6 +16,7 @@ import {
   isDevMode,
   input,
   computed,
+  signal,
 } from '@angular/core';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { ActiveDescendantKeyManager, LiveAnnouncer } from '@angular/cdk/a11y';
@@ -165,7 +166,15 @@ export class AutocompleteTextboxComponent<T = unknown>
   /**
    * Current width, in pixels, applied to the overlay so it matches the input container.
    */
-  overlayWidth = 0;
+  private readonly overlayWidthState = signal(0);
+
+  get overlayWidth(): number {
+    return this.overlayWidthState();
+  }
+
+  private set overlayWidth(width: number) {
+    this.overlayWidthState.set(width);
+  }
 
   /**
    * Search function used to retrieve autocomplete candidates.
@@ -310,17 +319,38 @@ export class AutocompleteTextboxComponent<T = unknown>
   /**
    * Currently selected option, or {@code null} when no valid selection exists.
    */
-  selectedValue: T | null = null;
+  private readonly selectedValueState = signal<T | null>(null);
+
+  get selectedValue(): T | null {
+    return this.selectedValueState();
+  }
+
+  private set selectedValue(value: T | null) {
+    this.selectedValueState.set(value);
+  }
 
   /**
    * Whether the component is disabled.
    */
-  disabled = false;
+  private readonly disabledState = signal(false);
+
+  get disabled(): boolean {
+    return this.disabledState();
+  }
+
+  private set disabled(value: boolean) {
+    this.disabledState.set(value);
+  }
 
   /**
    * Current visual state of the floating panel.
    */
-  panel: PanelModel<T> = { kind: 'closed' };
+  private readonly panelState = signal<PanelModel<T>>({ kind: 'closed' });
+
+  /** Current panel model. Reading it also registers template reactivity. */
+  get panel(): PanelModel<T> {
+    return this.panelState();
+  }
 
   /**
    * Global counter used to generate unique identifiers for each component instance.
@@ -389,7 +419,7 @@ export class AutocompleteTextboxComponent<T = unknown>
    * previous resolution is cancelled by {@code switchMap} while a new one is
    * already in progress.
    */
-  private resolvingValueCount = 0;
+  private readonly resolvingValueCount = signal(0);
 
   /**
    * Translation service used to build localized messages.
@@ -516,7 +546,7 @@ export class AutocompleteTextboxComponent<T = unknown>
           /**
            * Loading state is exposed immediately before the search starts.
            */
-          this.panel = { kind: 'loading', query };
+          this.panelState.set({ kind: 'loading', query });
 
           return defer(() => this.toObservable(this.searchMethod()(query))).pipe(
             /**
@@ -548,7 +578,7 @@ export class AutocompleteTextboxComponent<T = unknown>
          * Each new result block resets active keyboard navigation.
          */
         this.clearActiveOption();
-        this.panel = panel;
+        this.panelState.set(panel);
       });
   }
 
@@ -643,7 +673,7 @@ export class AutocompleteTextboxComponent<T = unknown>
    * Closes the panel without emitting accessibility announcements.
    */
   private closePanelSilently(): void {
-    this.panel = { kind: 'closed' };
+    this.panelState.set({ kind: 'closed' });
     this.clearActiveOption();
     this.liveAnnouncer.clear();
   }
@@ -677,7 +707,7 @@ export class AutocompleteTextboxComponent<T = unknown>
             });
           }
 
-          this.resolvingValueCount++;
+          this.resolvingValueCount.update((count) => count + 1);
 
           return defer(() => this.toObservable(this.resolveByValue()(value))).pipe(
             take(1),
@@ -694,7 +724,7 @@ export class AutocompleteTextboxComponent<T = unknown>
               }),
             ),
             finalize(() => {
-              this.resolvingValueCount--;
+              this.resolvingValueCount.update((count) => count - 1);
             }),
           );
         }),
@@ -1106,7 +1136,7 @@ export class AutocompleteTextboxComponent<T = unknown>
    * @returns {@code true} if work is pending
    */
   get isLoading(): boolean {
-    return this.panel.kind === 'loading' || this.resolvingValueCount > 0;
+    return this.panel.kind === 'loading' || this.resolvingValueCount() > 0;
   }
 
   /**

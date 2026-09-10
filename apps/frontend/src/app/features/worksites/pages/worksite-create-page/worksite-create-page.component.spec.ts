@@ -4,7 +4,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { Subject, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -44,6 +44,7 @@ describe('WorksiteCreatePageComponent', () => {
 
     fixture = TestBed.createComponent(WorksiteCreatePageComponent);
     component = fixture.componentInstance;
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     fixture.detectChanges();
   });
 
@@ -152,5 +153,29 @@ describe('WorksiteCreatePageComponent', () => {
       description: 'Main office',
       address: 'Calle Mayor 1',
     });
+  });
+
+  it('updates save feedback after an asynchronous RxJS callback without manual detection', async () => {
+    worksiteApiService.findByCode.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 404 })),
+    );
+    const create = new Subject<never>();
+    worksiteApiService.create.mockReturnValue(create);
+    component.form.setValue({
+      code: 'MAD-HUB',
+      name: 'Madrid Hub',
+      timeZone: 'Europe/Madrid',
+      scope: 'GLOBAL',
+      description: null,
+      address: null,
+    });
+    await fixture.whenStable();
+
+    component.save();
+    create.error(new Error('request failed'));
+    await fixture.whenStable();
+
+    expect(component.saving()).toBe(false);
+    expect(fixture.nativeElement.textContent).toContain('worksite.errors.create');
   });
 });

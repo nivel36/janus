@@ -2,7 +2,7 @@
   <div pageContent class="app-page-content worksite-create-content">
     <section class="app-card worksites-card">
       <div class="app-card__body worksites-card__body">
-        @if (loading) {
+        @if (loading()) {
           <app-message type="info">{{ 'worksite.detailLoading' | translate }}</app-message>
         } @else {
           <form class="app-form worksite-form" [formGroup]="form" (ngSubmit)="save()">
@@ -151,9 +151,9 @@
               />
             </app-field>
 
-            @if (errorMessage) {
+            @if (errorMessage()) {
               <app-message type="error" presentation="inline">
-                {{ errorMessage | translate }}
+                {{ errorMessage() | translate }}
               </app-message>
             }
 
@@ -162,7 +162,7 @@
                 {{ 'actions.cancel' | translate }}
               </app-button>
 
-              <app-button type="submit" variant="main" [disabled]="form.invalid || saving">
+              <app-button type="submit" variant="main" [disabled]="form.invalid || saving()">
                 {{ 'actions.save' | translate }}
               </app-button>
             </div>

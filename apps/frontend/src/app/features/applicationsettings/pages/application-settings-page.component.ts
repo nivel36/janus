@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -67,17 +67,17 @@ export class ApplicationSettingsPageComponent implements OnInit {
   /**
    * Indicates whether the initial preference load is in progress.
    */
-  loading = true;
+  readonly loading = signal(true);
 
   /**
    * Indicates whether a save operation is in progress.
    */
-  saving = false;
+  readonly saving = signal(false);
 
   /**
    * Translation key of the current error message, if any.
    */
-  errorMessage = '';
+  readonly errorMessage = signal('');
 
   get isAdmin(): boolean {
     return this.currentUser.isAdmin();
@@ -98,20 +98,20 @@ export class ApplicationSettingsPageComponent implements OnInit {
    * translation key is exposed to the template.
    */
   loadSettings(): void {
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
 
     this.settingsApiService
       .find()
       .pipe(
         finalize(() => {
-          this.loading = false;
+          this.loading.set(false);
         }),
       )
       .subscribe({
         next: (settings) => {
           if (!settings) {
-            this.errorMessage = 'applicationSettings.errors.load';
+            this.errorMessage.set('applicationSettings.errors.load');
             return;
           }
 
@@ -124,7 +124,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
           }
         },
         error: () => {
-          this.errorMessage = 'applicationSettings.errors.load';
+          this.errorMessage.set('applicationSettings.errors.load');
         },
       });
   }
@@ -150,21 +150,21 @@ export class ApplicationSettingsPageComponent implements OnInit {
   }
 
   save(): void {
-    if (!this.isAdmin || this.saving || this.form.invalid) {
+    if (!this.isAdmin || this.saving() || this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
     const payload: ApplicationSettings = this.form.getRawValue();
 
-    this.saving = true;
-    this.errorMessage = '';
+    this.saving.set(true);
+    this.errorMessage.set('');
 
     this.settingsApiService
       .update(payload)
       .pipe(
         finalize(() => {
-          this.saving = false;
+          this.saving.set(false);
         }),
       )
       .subscribe({
@@ -173,7 +173,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
           this.cancel();
         },
         error: () => {
-          this.errorMessage = 'applicationSettings.errors.update';
+          this.errorMessage.set('applicationSettings.errors.update');
         },
       });
   }

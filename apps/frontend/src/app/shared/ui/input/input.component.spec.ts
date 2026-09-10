@@ -67,7 +67,8 @@ describe('InputComponent (ControlValueAccessor)', () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
   });
 
   function getInput(): HTMLInputElement {
@@ -137,11 +138,12 @@ describe('InputComponent (ControlValueAccessor)', () => {
     expect(input.getAttribute('spellcheck')).toBe('false');
   });
 
-  it('should update reflected combobox state without changing the CVA value', () => {
+  it('should update reflected combobox state without changing the CVA value', async () => {
     host.isExpanded = true;
     host.isBusy = false;
     host.isReadonly = true;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const input = getInput();
 

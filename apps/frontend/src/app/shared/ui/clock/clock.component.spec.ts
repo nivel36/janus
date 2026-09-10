@@ -31,12 +31,11 @@ describe('ClockComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render a time string after init', () => {
+  it('should render timer callbacks without manual detection', async () => {
     vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('10:15:30');
 
     fixture.detectChanges();
-    vi.advanceTimersByTime(0);
-    fixture.detectChanges();
+    await vi.advanceTimersByTimeAsync(1);
 
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('.clock__time')?.textContent?.trim()).toBe('10:15:30');

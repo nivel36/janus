@@ -38,7 +38,8 @@ describe('ChipComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
   });
 
   it('should render the label without an icon by default', () => {
@@ -48,9 +49,10 @@ describe('ChipComponent', () => {
     expect(chipEl.querySelector('.app-chip__icon')).toBeNull();
   });
 
-  it('should render the optional icon before the label', () => {
+  it('should render the optional icon before the label', async () => {
     fixture.componentInstance.icon = faCheck;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const chipEl: HTMLElement = fixture.nativeElement.querySelector('.app-chip');
     const children = Array.from(chipEl.children);
@@ -60,11 +62,12 @@ describe('ChipComponent', () => {
     expect(children[1].classList).toContain('app-chip__label');
   });
 
-  it('should apply type, size, and extra classes', () => {
+  it('should apply type, size, and extra classes', async () => {
     fixture.componentInstance.type = 'green';
     fixture.componentInstance.size = 'big';
     fixture.componentInstance.styleClass = 'custom-chip';
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const chipEl: HTMLElement = fixture.nativeElement.querySelector('.app-chip');
 

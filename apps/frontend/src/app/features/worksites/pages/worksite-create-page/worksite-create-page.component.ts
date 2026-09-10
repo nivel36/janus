@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -89,20 +89,20 @@ export class WorksiteCreatePageComponent {
 
   readonly timezoneCatalog = createTimezoneCatalog();
 
-  saving = false;
+  readonly saving = signal(false);
 
-  errorMessage = '';
+  readonly errorMessage = signal('');
 
   save(): void {
-    if (this.saving || this.form.pending || this.form.invalid) {
+    if (this.saving() || this.form.pending || this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
     const rawValue = this.form.getRawValue();
 
-    this.saving = true;
-    this.errorMessage = '';
+    this.saving.set(true);
+    this.errorMessage.set('');
 
     this.worksiteApiService
       .create({
@@ -115,7 +115,7 @@ export class WorksiteCreatePageComponent {
       })
       .pipe(
         finalize(() => {
-          this.saving = false;
+          this.saving.set(false);
         }),
       )
       .subscribe({
@@ -123,7 +123,7 @@ export class WorksiteCreatePageComponent {
           this.router.navigate(['/worksites']);
         },
         error: () => {
-          this.errorMessage = 'worksite.errors.create';
+          this.errorMessage.set('worksite.errors.create');
         },
       });
   }

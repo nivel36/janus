@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { booleanAttribute, Component, forwardRef, input, output } from '@angular/core';
+import { booleanAttribute, Component, forwardRef, input, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { createUuid } from '../../utils/uuid.utils';
@@ -54,8 +54,22 @@ export class InputComponent implements ControlValueAccessor {
 
   private readonly generatedInputId = `input-${createUuid()}`;
 
-  value = '';
-  disabled = false;
+  private readonly valueState = signal('');
+  private readonly disabledState = signal(false);
+
+  get value(): string {
+    return this.valueState();
+  }
+  private set value(value: string) {
+    this.valueState.set(value);
+  }
+
+  get disabled(): boolean {
+    return this.disabledState();
+  }
+  private set disabled(value: boolean) {
+    this.disabledState.set(value);
+  }
 
   private onChange: (value: string) => void = () => undefined;
   private onTouched: () => void = () => undefined;

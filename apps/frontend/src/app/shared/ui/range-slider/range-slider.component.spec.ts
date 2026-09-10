@@ -23,7 +23,8 @@ describe('RangeSliderComponent', () => {
     fixture.componentRef.setInput('max', 100);
     fixture.componentRef.setInput('step', 5);
 
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
   });
 
   it('should propagate input value through ControlValueAccessor onChange callback', () => {
@@ -55,9 +56,10 @@ describe('RangeSliderComponent', () => {
     expect(onTouchedSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should disable native input when setDisabledState is called', () => {
+  it('should disable native input when setDisabledState is called', async () => {
     component.setDisabledState(true);
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const slider: HTMLInputElement = fixture.debugElement.query(
       By.css('input[type="range"]'),

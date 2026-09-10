@@ -13,12 +13,7 @@ import { SummaryCardComponent } from './summary-card.component';
   standalone: true,
   imports: [SummaryCardComponent],
   template: `
-    <app-summary-card
-      [icon]="icon"
-      [label]="label"
-      [value]="value"
-      [styleClass]="styleClass"
-    />
+    <app-summary-card [icon]="icon" [label]="label" [value]="value" [styleClass]="styleClass" />
   `,
 })
 class TestHostComponent {
@@ -39,7 +34,8 @@ describe('SummaryCardComponent', () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     hostComponent = fixture.componentInstance;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
   });
 
   it('should create', () => {
@@ -60,9 +56,10 @@ describe('SummaryCardComponent', () => {
     expect(valueElement.textContent.trim()).toBe('24');
   });
 
-  it('should apply custom CSS classes to the card root', () => {
+  it('should apply custom CSS classes to the card root', async () => {
     hostComponent.styleClass = 'custom-summary-card';
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     const cardElement = fixture.nativeElement.querySelector('.summary-card');
 
