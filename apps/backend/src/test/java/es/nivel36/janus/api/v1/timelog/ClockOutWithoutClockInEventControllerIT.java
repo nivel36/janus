@@ -96,6 +96,15 @@ class ClockOutWithoutClockInEventControllerIT {
 		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "ada@nivel36.es", "2025-08-04T16:00:00Z")
 				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON).content("{}").with(employee))
 				.andExpect(status().isForbidden());
+		this.mvc.perform(get(BASE + "/{exitTime}", "unknown@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").with(employee)).andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.detail").value("You are not authorized to perform this operation"));
+		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "unknown@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON)
+				.content("{\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isForbidden());
+		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "unknown@nivel36.es", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON).content("{}").with(employee))
+				.andExpect(status().isForbidden());
 
 		this.mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", "2025-08-04T16:00:00Z")
 				.param("worksiteCode", "OFFICE").with(admin)).andExpect(status().isOk());

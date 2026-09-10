@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 
@@ -48,10 +49,11 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 	}
 
 	private long employeeId(final String employeeEmail) {
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		if (employee == null) {
-			throw new AccessDeniedException("The employee's email is invalid");
+		try {
+			final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+			return employee.getId();
+		} catch (final ResourceNotFoundException exception) {
+			throw new AccessDeniedException("The employee's email is invalid", exception);
 		}
-		return employee.getId();
 	}
 }
