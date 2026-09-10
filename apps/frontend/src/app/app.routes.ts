@@ -27,6 +27,7 @@ export const appRoutes: Routes = [
       },
       {
         path: 'application-settings',
+        data: { clientRole: JANUS_CLIENT_ROLES.ADMIN } satisfies AuthRouteData,
         loadComponent: () =>
           import('./features/applicationsettings/pages/application-settings-page.component').then(
             (m) => m.ApplicationSettingsPageComponent,
@@ -41,6 +42,7 @@ export const appRoutes: Routes = [
       },
       {
         path: 'worksites/new',
+        data: { clientRole: JANUS_CLIENT_ROLES.ADMIN } satisfies AuthRouteData,
         loadComponent: () =>
           import('./features/worksites/pages/worksite-create-page/worksite-create-page.component').then(
             (m) => m.WorksiteCreatePageComponent,
@@ -48,6 +50,7 @@ export const appRoutes: Routes = [
       },
       {
         path: 'worksites/:code/edit',
+        data: { clientRole: JANUS_CLIENT_ROLES.ADMIN } satisfies AuthRouteData,
         loadComponent: () =>
           import('./features/worksites/pages/worksite-edit-page/worksite-edit-page.component').then(
             (m) => m.WorksiteEditPageComponent,

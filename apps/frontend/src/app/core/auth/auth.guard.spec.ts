@@ -59,20 +59,51 @@ describe('isAccessAllowed', () => {
 
   it('redirects an authenticated user without any required role to forbidden', async () => {
     await expect(
-      evaluate(
-        {},
-        authData([], { 'janus-api': [JANUS_CLIENT_ROLES.USER] }),
-        { clientRole: JANUS_CLIENT_ROLES.ADMIN },
-      ),
+      evaluate({}, authData([], { 'janus-api': [JANUS_CLIENT_ROLES.USER] }), {
+        clientRole: JANUS_CLIENT_ROLES.ADMIN,
+      }),
     ).resolves.toEqual({ redirectTo: '/forbidden' });
   });
 
   it('allows an authenticated user using the policy on the parent route', async () => {
     await expect(
+      evaluate({}, authData([], { 'janus-api': [JANUS_CLIENT_ROLES.ADMIN] }), {
+        clientRole: JANUS_CLIENT_ROLES.ADMIN,
+      }),
+    ).resolves.toBe(true);
+  });
+
+  it.each([JANUS_CLIENT_ROLES.USER, JANUS_CLIENT_ROLES.EMPLOYEE])(
+    'redirects a %s client role when the child replaces the shared policy with admin-only access',
+    async (clientRole) => {
+      await expect(
+        evaluate(
+          { clientRole: JANUS_CLIENT_ROLES.ADMIN },
+          authData([], { 'janus-api': [clientRole] }),
+          {
+            clientRole: [
+              JANUS_CLIENT_ROLES.EMPLOYEE,
+              JANUS_CLIENT_ROLES.USER,
+              JANUS_CLIENT_ROLES.ADMIN,
+            ],
+          },
+        ),
+      ).resolves.toEqual({ redirectTo: '/forbidden' });
+    },
+  );
+
+  it('allows an admin when the child replaces the shared policy with admin-only access', async () => {
+    await expect(
       evaluate(
-        {},
-        authData([], { 'janus-api': [JANUS_CLIENT_ROLES.ADMIN] }),
         { clientRole: JANUS_CLIENT_ROLES.ADMIN },
+        authData([], { 'janus-api': [JANUS_CLIENT_ROLES.ADMIN] }),
+        {
+          clientRole: [
+            JANUS_CLIENT_ROLES.EMPLOYEE,
+            JANUS_CLIENT_ROLES.USER,
+            JANUS_CLIENT_ROLES.ADMIN,
+          ],
+        },
       ),
     ).resolves.toBe(true);
   });
