@@ -54,21 +54,29 @@ class EmployeeControllerIT {
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(11,'Bob','Two','bob@internal.test',1)",
 			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('alice','11111111-1111-4111-8111-111111111111','en-US','H24','UTC',10)",
 			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('bob','22222222-2222-4222-8222-222222222222','en-US','H24','UTC',11)" })
-	void employeeAuthorizationUsesSubjectLinkAndNotEmailClaim() throws Exception {
+	void employeeCanAccessOwnProfileButNotAnotherEmployeesProfile() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "alice@internal.test").with(jwt().jwt(jwt -> jwt
 				.subject("11111111-1111-4111-8111-111111111111").claim("email", "different@token.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isOk());
 
+		this.mvc.perform(get(BASE + "/by-email/{email}", "bob@internal.test").with(jwt().jwt(jwt -> jwt
+				.subject("11111111-1111-4111-8111-111111111111"))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@Sql(statements = {
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard')",
+			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(10,'Alice','One','alice@internal.test',1)",
+			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(11,'Bob','Two','bob@internal.test',1)",
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('alice','11111111-1111-4111-8111-111111111111','en-US','H24','UTC',10)",
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('bob','22222222-2222-4222-8222-222222222222','en-US','H24','UTC',11)" })
+	void employeeAuthorizationUsesSubjectLinkAndNotEmailClaim() throws Exception {
 		// A matching mutable email cannot grant access when the immutable subject belongs to Bob.
 		this.mvc.perform(get(BASE + "/by-email/{email}", "alice@internal.test").with(jwt().jwt(jwt -> jwt
 				.subject("22222222-2222-4222-8222-222222222222").claim("email", "alice@internal.test"))
-				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
-				.andExpect(status().isForbidden());
-
-		// Nor may one linked employee cross the persisted identity boundary.
-		this.mvc.perform(get(BASE + "/by-email/{email}", "bob@internal.test").with(jwt().jwt(jwt -> jwt
-				.subject("11111111-1111-4111-8111-111111111111"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isForbidden());
 
