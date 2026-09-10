@@ -131,6 +131,71 @@ describe('WorksiteEditPageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('worksite.errors.update');
   });
 
+  it('clears an update error when loading the worksite for a new route code', async () => {
+    const secondLoad = new Subject<{
+      code: string;
+      name: string;
+      timeZone: string;
+      scope: 'ASSIGNED';
+      description: string;
+      address: string;
+      ownerEmployeeEmail: string;
+      active: boolean;
+    }>();
+    worksiteApiService.findByCode.mockImplementation((code: string) =>
+      code === 'BCN-HQ'
+        ? of({
+            code: 'BCN-HQ',
+            name: 'Barcelona Headquarters',
+            timeZone: 'Europe/Madrid',
+            scope: 'GLOBAL',
+            description: 'Main office',
+            address: 'Carrer de la Marina',
+            ownerEmployeeEmail: 'owner@example.com',
+            active: true,
+          })
+        : secondLoad,
+    );
+    worksiteApiService.update.mockReturnValue(
+      throwError(() => new Error('update failed')),
+    );
+    await fixture.whenStable();
+
+    component.save();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('worksite.errors.update');
+
+    paramMap.next(convertToParamMap({ code: 'MAD-HUB' }));
+    fixture.detectChanges();
+
+    expect(component.errorMessage()).not.toBe('worksite.errors.update');
+
+    secondLoad.next({
+      code: 'MAD-HUB',
+      name: 'Madrid Hub',
+      timeZone: 'Europe/Madrid',
+      scope: 'ASSIGNED',
+      description: 'Madrid office',
+      address: 'Calle de Alcala',
+      ownerEmployeeEmail: 'madrid-owner@example.com',
+      active: true,
+    });
+    secondLoad.complete();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.form.getRawValue()).toEqual({
+      code: 'MAD-HUB',
+      name: 'Madrid Hub',
+      timeZone: 'Europe/Madrid',
+      scope: 'ASSIGNED',
+      description: 'Madrid office',
+      address: 'Calle de Alcala',
+    });
+    expect(fixture.nativeElement.textContent).not.toContain('worksite.errors.update');
+  });
+
   it('shows the load error without reading the resource value', async () => {
     worksiteApiService.findByCode.mockReturnValue(
       throwError(() => new Error('request failed')),

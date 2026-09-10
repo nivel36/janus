@@ -112,6 +112,11 @@ export class WorksiteEditPageComponent {
     this.worksiteResource.error() ? 'worksite.detailLoadError' : this.saveErrorMessage(),
   );
 
+  private readonly clearSaveErrorOnWorksiteChangeEffect = effect(() => {
+    this.worksiteCode();
+    this.saveErrorMessage.set('');
+  });
+
   private readonly populateFormEffect = effect(() => {
     const worksite = this.worksite();
     if (worksite) {
