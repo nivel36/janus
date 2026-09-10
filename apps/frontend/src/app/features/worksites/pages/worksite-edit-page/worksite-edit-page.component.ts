@@ -6,7 +6,7 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { map, Observable, finalize, of } from 'rxjs';
+import { filter, finalize, map, Observable, of, takeUntil } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
@@ -153,6 +153,12 @@ export class WorksiteEditPageComponent {
         ownerEmployeeEmail: worksite.ownerEmployeeEmail,
       })
       .pipe(
+        takeUntil(
+          this.route.paramMap.pipe(
+            map((params) => params.get('code') ?? ''),
+            filter((code) => code !== worksite.code),
+          ),
+        ),
         finalize(() => {
           this.saving.set(false);
         }),

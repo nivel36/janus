@@ -166,9 +166,15 @@ describe('WorksiteEditPageComponent', () => {
 
     expect(fixture.nativeElement.textContent).toContain('worksite.errors.update');
 
+    const lateUpdate = new Subject<never>();
+    worksiteApiService.update.mockReturnValue(lateUpdate);
+    component.save();
+
     paramMap.next(convertToParamMap({ code: 'MAD-HUB' }));
     fixture.detectChanges();
 
+    expect(lateUpdate.observed).toBe(false);
+    lateUpdate.error(new Error('late update failure'));
     expect(component.errorMessage()).not.toBe('worksite.errors.update');
 
     secondLoad.next({
