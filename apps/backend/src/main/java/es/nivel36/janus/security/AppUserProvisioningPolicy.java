@@ -6,6 +6,7 @@
  */
 package es.nivel36.janus.security;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,17 +21,15 @@ import es.nivel36.janus.service.appuser.Role;
 public class AppUserProvisioningPolicy {
 
 	private static final String ROLE_PREFIX = "ROLE_";
-	private static final Set<String> JANUS_AUTHORITIES = java.util.Arrays.stream(Role.values())
-			.map(role -> ROLE_PREFIX + role.name())
-			.collect(Collectors.toUnmodifiableSet());
+	private static final Set<String> JANUS_AUTHORITIES = Arrays.stream(Role.values())
+			.map(role -> ROLE_PREFIX + role.name()).collect(Collectors.toUnmodifiableSet());
 
 	/**
 	 * Allows provisioning only for a validated resource-server JWT carrying at
 	 * least one authority corresponding to a role supported by Janus.
 	 */
 	public boolean canProvision(final Authentication authentication) {
-		return authentication instanceof JwtAuthenticationToken && authentication.isAuthenticated()
-				&& authentication.getAuthorities().stream()
-						.anyMatch(authority -> JANUS_AUTHORITIES.contains(authority.getAuthority()));
+		return authentication instanceof JwtAuthenticationToken && authentication.isAuthenticated() && authentication
+				.getAuthorities().stream().anyMatch(authority -> JANUS_AUTHORITIES.contains(authority.getAuthority()));
 	}
 }

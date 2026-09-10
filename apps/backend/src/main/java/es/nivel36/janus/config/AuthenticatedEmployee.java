@@ -9,6 +9,7 @@ import java.util.Objects;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
@@ -24,22 +25,27 @@ public class AuthenticatedEmployee {
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 	}
 
+	@Transactional(readOnly = true)
 	public Employee resolve(final Authentication authentication) {
 		Objects.requireNonNull(authentication, "authentication can't be null");
 		try {
 			return this.employeeService.findEmployeeByKeycloakSubject(authentication.getName());
-		} catch (ResourceNotFoundException exception) {
+		} catch (final ResourceNotFoundException exception) {
 			throw new AccessDeniedException("The authenticated account has no employee assigned");
 		}
 	}
 
-	/** Resolves the caller before the requested resource to avoid disclosing its existence. */
+	/**
+	 * Resolves the caller before the requested resource to avoid disclosing its
+	 * existence.
+	 */
+	@Transactional(readOnly = true)
 	public Employee assertOwnsEmail(final Authentication authentication, final String requestedEmail) {
 		final Employee authenticated = this.resolve(authentication);
 		final Employee requested;
 		try {
 			requested = this.employeeService.findEmployeeByEmail(requestedEmail);
-		} catch (ResourceNotFoundException exception) {
+		} catch (final ResourceNotFoundException exception) {
 			throw new AccessDeniedException("Employees can only access their own resources");
 		}
 		if (!Objects.equals(authenticated.getId(), requested.getId())) {
