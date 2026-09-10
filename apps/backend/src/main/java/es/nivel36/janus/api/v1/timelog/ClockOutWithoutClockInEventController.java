@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -109,6 +110,7 @@ public class ClockOutWithoutClockInEventController {
 	 * @return the resolved {@link ClockOutWithoutClockInEventResponse}
 	 */
 	@PostMapping("/{exitTime}/resolve")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #employeeEmail)")
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEvent( //
 			final @PathVariable("employeeEmail") //
 			@Pattern( //
@@ -151,6 +153,7 @@ public class ClockOutWithoutClockInEventController {
 	 * @return the invalidated {@link ClockOutWithoutClockInEventResponse}
 	 */
 	@PostMapping("/{exitTime}/invalidate")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #employeeEmail)")
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEvent( //
 			final @PathVariable("employeeEmail") //
 			@Pattern( //
@@ -190,6 +193,7 @@ public class ClockOutWithoutClockInEventController {
 	 * @return the requested {@link ClockOutWithoutClockInEventResponse}
 	 */
 	@GetMapping("/{exitTime}")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canView(authentication, #employeeEmail)")
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEvent( //
 			final @PathVariable("employeeEmail") //
 			@Pattern( //
