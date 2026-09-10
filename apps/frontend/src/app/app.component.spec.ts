@@ -73,6 +73,10 @@ describe('AppComponent', () => {
     });
 
     expect(useSpy).toHaveBeenCalledWith('ca-ES');
+    expect(document.documentElement.lang).toBe('es-ES');
+
+    onLangChange.next({ lang: 'ca-ES', translations: {} });
+
     expect(document.documentElement.lang).toBe('ca-ES');
 
     preferences$.next({
@@ -82,6 +86,10 @@ describe('AppComponent', () => {
     });
 
     expect(useSpy).toHaveBeenLastCalledWith('en-GB');
+    expect(document.documentElement.lang).toBe('ca-ES');
+
+    onLangChange.next({ lang: 'en-GB', translations: {} });
+
     expect(document.documentElement.lang).toBe('en-GB');
   });
 });

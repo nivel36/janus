@@ -53,7 +53,6 @@ export class AppComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((language) => {
-        this.updateDocumentLanguage(language);
         this.translateService.use(language);
       });
   }
