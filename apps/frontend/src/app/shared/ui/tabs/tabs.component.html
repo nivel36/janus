@@ -1,4 +1,4 @@
-<div class="tabs" role="tablist" aria-label="Tabs navigation">
+<div class="tabs" role="tablist" [attr.aria-label]="ariaLabel() | translate">
   @for (tabItem of tabItems(); track $index; let index = $index) {
     <button
       appTabTrigger

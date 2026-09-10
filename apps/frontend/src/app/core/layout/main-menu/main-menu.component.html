@@ -1,5 +1,5 @@
 @if (currentUser$ | async; as user) {
-    <nav class="main-menu" aria-label="Menú principal">
+    <nav class="main-menu" [attr.aria-label]="'navigation.mainMenu' | translate">
         <div class="main-menu__identity">
             <button
                 type="button"
@@ -48,8 +48,8 @@
             <button
                 type="button"
                 class="main-menu__icon-button main-menu__icon-button--logout"
-                aria-label="Salir"
-                title="Salir"
+                [attr.aria-label]="'actions.logout' | translate"
+                [attr.title]="'actions.logout' | translate"
                 (click)="logout()"
             >
                 <span aria-hidden="true"><fa-icon [icon]="faPowerOff"></fa-icon></span>

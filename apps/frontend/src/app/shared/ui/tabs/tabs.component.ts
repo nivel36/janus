@@ -2,7 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChildren, signal, viewChildren } from '@angular/core';
+import { Component, contentChildren, input, signal, viewChildren } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { createUuid } from '../../utils/uuid.utils';
 import { TabItemDirective } from './tab-item.directive';
 import { TabTriggerDirective } from './tab-trigger.directive';
@@ -16,11 +17,13 @@ import { TabTriggerDirective } from './tab-trigger.directive';
 @Component({
   selector: 'app-tabs',
   standalone: true,
-  imports: [NgTemplateOutlet, TabTriggerDirective],
+  imports: [NgTemplateOutlet, TabTriggerDirective, TranslatePipe],
   templateUrl: './tabs.component.html',
   styleUrl: './tabs.component.css',
 })
 export class TabsComponent {
+  readonly ariaLabel = input('tabs.navigation');
+
   readonly tabItems = contentChildren(TabItemDirective);
 
   private readonly tabTriggers = viewChildren(TabTriggerDirective);

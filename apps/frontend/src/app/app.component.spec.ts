@@ -3,7 +3,7 @@
  */
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 
 import { AppComponent } from './app.component';
@@ -37,19 +37,19 @@ describe('AppComponent', () => {
 
   it('should apply app language from user locale preferences', async () => {
     const useSpy = vi.fn();
+    const preferences$ = new Subject<{
+      locale: string;
+      timeFormat: string;
+      defaultTimezone: string;
+    }>();
+    const onLangChange = new Subject<{ lang: string; translations: object }>();
 
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
         {
           provide: CurrentUserFacade,
-          useValue: {
-            preferences$: of({
-              locale: 'ca-ES',
-              timeFormat: 'H24',
-              defaultTimezone: 'Europe/Madrid',
-            }),
-          },
+          useValue: { preferences$ },
         },
         {
           provide: TranslateService,
@@ -57,6 +57,7 @@ describe('AppComponent', () => {
             currentLang: 'es-ES',
             getCurrentLang: () => 'es-ES',
             use: useSpy,
+            onLangChange,
           },
         },
       ],
@@ -65,6 +66,30 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
+    preferences$.next({
+      locale: 'ca-ES',
+      timeFormat: 'H24',
+      defaultTimezone: 'Europe/Madrid',
+    });
+
     expect(useSpy).toHaveBeenCalledWith('ca-ES');
+    expect(document.documentElement.lang).toBe('es-ES');
+
+    onLangChange.next({ lang: 'ca-ES', translations: {} });
+
+    expect(document.documentElement.lang).toBe('ca-ES');
+
+    preferences$.next({
+      locale: 'en-GB',
+      timeFormat: 'H24',
+      defaultTimezone: 'Europe/London',
+    });
+
+    expect(useSpy).toHaveBeenLastCalledWith('en-GB');
+    expect(document.documentElement.lang).toBe('ca-ES');
+
+    onLangChange.next({ lang: 'en-GB', translations: {} });
+
+    expect(document.documentElement.lang).toBe('en-GB');
   });
 });

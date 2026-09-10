@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
@@ -25,9 +26,21 @@ export class AppComponent implements OnInit {
   private readonly currentUserFacade = inject(CurrentUserFacade);
   private readonly translateService = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
 
   ngOnInit(): void {
+    this.bindDocumentLanguage();
     this.bindUserLanguage();
+  }
+
+  private bindDocumentLanguage(): void {
+    this.updateDocumentLanguage(
+      findSupportedLanguage(this.translateService.getCurrentLang()) ?? FALLBACK_LANGUAGE,
+    );
+
+    this.translateService.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ lang }) => this.updateDocumentLanguage(resolveSupportedLanguage(lang)));
   }
 
   private bindUserLanguage(): void {
@@ -42,6 +55,10 @@ export class AppComponent implements OnInit {
       .subscribe((language) => {
         this.translateService.use(language);
       });
+  }
+
+  private updateDocumentLanguage(language: (typeof supportedLanguages)[number]): void {
+    this.document.documentElement.lang = language;
   }
 
   /**
