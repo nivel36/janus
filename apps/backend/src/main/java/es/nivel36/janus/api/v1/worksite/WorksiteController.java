@@ -25,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,15 +38,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.config.AuthenticatedEmployee;
+import es.nivel36.janus.policy.worksite.WorksiteAuthorizationAdapter;
 import es.nivel36.janus.api.v1.employee.EmployeeResponse;
-import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteScope;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import es.nivel36.janus.util.Roles;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -62,8 +59,7 @@ public class WorksiteController {
 
 	private final WorksiteService worksiteService;
 	private final EmployeeService employeeService;
-	private final AuthenticatedEmployee authenticatedEmployee;
-	private final ApplicationSettingsService applicationSettingsService;
+	private final WorksiteAuthorizationAdapter authorization;
 	private final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper;
 
 	/**
@@ -76,16 +72,13 @@ public class WorksiteController {
 	 *                               {@code null}
 	 */
 	public WorksiteController(final WorksiteService worksiteService,
-			final ApplicationSettingsService applicationSettingsService, final EmployeeService employeeService,
-			final AuthenticatedEmployee authenticatedEmployee,
+			final EmployeeService employeeService, final WorksiteAuthorizationAdapter authorization,
 			final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
 		this.worksiteService = //
 				Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
-		this.applicationSettingsService = //
-				Objects.requireNonNull(applicationSettingsService, "applicationSettingsService can't be null");
 		this.employeeService = //
 				Objects.requireNonNull(employeeService, "EmployeeService can't be null");
-		this.authenticatedEmployee = Objects.requireNonNull(authenticatedEmployee, "authenticatedEmployee can't be null");
+		this.authorization = Objects.requireNonNull(authorization, "authorization can't be null");
 		this.worksiteResponseMapper = //
 				Objects.requireNonNull(worksiteResponseMapper, "WorksiteResponseMapper can't be null");
 	}
@@ -96,23 +89,13 @@ public class WorksiteController {
 	 * @return a {@link ResponseEntity} containing the list of worksites
 	 */
 	@GetMapping
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeEmail)")
 	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(
 			final @RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "query must contain only letters, digits, underscores or hyphens (max 50)") String query,
 			final @RequestParam(required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		final String effectiveEmployeeEmail;
-		if (restrictedEmployee) {
-			if (employeeEmail == null) {
-				throw new AccessDeniedException("Employees can only search worksites for themselves");
-			}
-			final Employee employee = this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
-			effectiveEmployeeEmail = employee.getEmail();
-		} else {
-			effectiveEmployeeEmail = employeeEmail;
-		}
+		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, employeeEmail);
 
 		final Page<WorksiteResponse> worksites = this.worksiteService
 				.searchWorksites(query, effectiveEmployeeEmail, pageable).map(this.worksiteResponseMapper::map);
@@ -126,7 +109,7 @@ public class WorksiteController {
 	 * @return a {@link ResponseEntity} containing the requested worksite
 	 */
 	@GetMapping("/{worksiteCode}")
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@worksiteAuthorization.canView(authentication)")
 	public ResponseEntity<WorksiteResponse> findWorksite(
 			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode) {
 		logger.debug("Find worksite ACTION performed");
@@ -138,7 +121,7 @@ public class WorksiteController {
 
 
 	@GetMapping("/{worksiteCode}/stats")
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@worksiteAuthorization.canViewStats(authentication, #worksiteCode)")
 	public ResponseEntity<WorksiteStatsResponse> stats(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
 			@RequestParam("start") final Instant start,
@@ -146,14 +129,6 @@ public class WorksiteController {
 			final Authentication authentication) {
 		if (end.isBefore(start)) {
 			throw new IllegalArgumentException("end must be greater than or equal to start");
-		}
-
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee) {
-			final Employee employee = this.authenticatedEmployee.resolve(authentication);
-			if (!this.employeeService.isAssignedToWorksite(employee.getEmail(), worksiteCode)) {
-				throw new AccessDeniedException("Employees can only view stats for their assigned worksites");
-			}
 		}
 
 		this.worksiteService.findWorksiteByCode(worksiteCode);
@@ -181,21 +156,10 @@ public class WorksiteController {
 	 * @return a {@link ResponseEntity} containing the created worksite
 	 */
 	@PostMapping
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@worksiteAuthorization.canCreate(authentication, #request.scope())")
 	public ResponseEntity<WorksiteResponse> createWorksite(@Valid @RequestBody final CreateWorksiteRequest request,
 			final Authentication authentication) {
 		logger.debug("Create worksite ACTION performed");
-
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-
-		if (restrictedEmployee) {
-			if (!this.applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
-				throw new AccessDeniedException("Employee workplace creation is disabled");
-			}
-			if (request.scope() != WorksiteScope.ASSIGNED) {
-				throw new AccessDeniedException("Employees can only create assigned worksites");
-			}
-		}
 
 		final String code = request.code();
 		final String name = request.name();
@@ -217,7 +181,7 @@ public class WorksiteController {
 	 *                     {@code null}
 	 * @return a {@link ResponseEntity} containing the updated worksite
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@worksiteAuthorization.canUpdate(authentication, #worksiteCode, #request.scope())")
 	@PutMapping("/{worksiteCode}")
 	public ResponseEntity<WorksiteResponse> updateWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
@@ -225,21 +189,6 @@ public class WorksiteController {
 			final Authentication authentication) {
 		logger.debug("Update worksite ACTION performed");
 
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee) {
-			final Employee employee = this.authenticatedEmployee.resolve(authentication);
-			if (request.scope() != WorksiteScope.ASSIGNED) {
-				throw new AccessDeniedException("Employees can only update assigned worksites");
-			}
-
-			if (!this.applicationSettingsService.isEmployeeWorkplaceCreationAllowed()) {
-				throw new AccessDeniedException("Employee workplace creation is disabled");
-			}
-
-			if (!this.employeeService.isAssignedToWorksite(employee.getEmail(), worksiteCode)) {
-				throw new AccessDeniedException("Employees can only update their personal worksites");
-			}
-		}
 		final String name = request.name();
 		final ZoneId zoneId = ZoneId.of(request.timeZone());
 		final WorksiteScope scope = request.scope();
@@ -256,7 +205,7 @@ public class WorksiteController {
 	 * @param worksiteCode the unique code of the worksite; must not be {@code null}
 	 * @return a {@link ResponseEntity} with an empty body and HTTP 204 status
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@worksiteAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{worksiteCode}")
 	public ResponseEntity<Void> deleteWorksite(
 			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode) {
@@ -275,7 +224,7 @@ public class WorksiteController {
 	 * 
 	 * @return the updated {@link EmployeeResponse}
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
 	@PutMapping("/{worksiteCode}/employees/{employeeEmail}")
 	public ResponseEntity<Void> assignEmployeeToWorksite(
 			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
@@ -300,7 +249,7 @@ public class WorksiteController {
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
 	@DeleteMapping("/{worksiteCode}/employees/{employeeEmail}")
 	public ResponseEntity<EmployeeResponse> removeEmployeeFromWorksite( //
 			final @PathVariable("worksiteCode") //

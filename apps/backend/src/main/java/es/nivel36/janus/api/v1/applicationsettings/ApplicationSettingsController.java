@@ -55,7 +55,7 @@ public class ApplicationSettingsController {
 				"applicationSettingsResponseMapper can't be null");
 	}
 
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@applicationSettingsAuthorization.canView(authentication)")
 	@GetMapping
 	public ResponseEntity<ApplicationSettingsResponse> findApplicationSettings() {
 		logger.debug("Find application settings ACTION performed");
@@ -63,7 +63,7 @@ public class ApplicationSettingsController {
 		return ResponseEntity.ok(this.applicationSettingsResponseMapper.map(applicationSettings));
 	}
 
-	@PreAuthorize("hasRole('JANUS_ADMIN')")
+	@PreAuthorize("@applicationSettingsAuthorization.canUpdate(authentication)")
 	@PutMapping
 	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
 			@Valid @RequestBody final UpdateApplicationSettingsRequest request) {

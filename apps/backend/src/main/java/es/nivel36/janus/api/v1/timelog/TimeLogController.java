@@ -27,7 +27,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,8 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.config.AuthenticatedEmployee;
-import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
@@ -50,7 +47,6 @@ import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import es.nivel36.janus.util.Roles;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -69,8 +65,6 @@ public class TimeLogController {
 
 	private final TimeLogService timeLogService;
 	private final EmployeeService employeeService;
-	private final AuthenticatedEmployee authenticatedEmployee;
-	private final ApplicationSettingsService applicationSettingsService;
 	private final WorksiteService worksiteService;
 	private final Clock clock;
 	private final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper;
@@ -93,17 +87,12 @@ public class TimeLogController {
 	public TimeLogController( //
 			final TimeLogService timeLogService, //
 			final EmployeeService employeeService, //
-			final AuthenticatedEmployee authenticatedEmployee, //
-			final ApplicationSettingsService applicationSettingsService, //
 			final WorksiteService worksiteService, //
 			final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper, //
 			final Clock clock //
 	) {
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
-		this.authenticatedEmployee = Objects.requireNonNull(authenticatedEmployee, "authenticatedEmployee can't be null");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
-				"applicationSettingsService can't be null");
 		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
 		this.timeLogResponseMapper = Objects.requireNonNull(timeLogResponseMapper,
 				"timeLogResponseMapper can't be null");
@@ -122,7 +111,7 @@ public class TimeLogController {
 	 *                      must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
-	@PreAuthorize("hasRole('JANUS_EMPLOYEE')")
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, #entryTime != null)")
 	@PostMapping("/clock-in")
 	public ResponseEntity<TimeLogResponse> clockIn( //
 			final @PathVariable("employeeEmail") //
@@ -140,17 +129,11 @@ public class TimeLogController {
 			final Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
 
-		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
-
-		if (employeeRole) {
-			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
-		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForNewRecord(employeeEmail, worksiteCode);
 		final TimeLog clockIn;
 		if (entryTime != null) {
-			this.assertManualTimeEntryAllowed();
 			clockIn = this.timeLogService.clockIn(employee, worksite, entryTime);
 		} else {
 			clockIn = this.timeLogService.clockIn(employee, worksite, this.clock.instant());
@@ -175,7 +158,7 @@ public class TimeLogController {
 	 *                                         closed because it does not have an
 	 *                                         entry time
 	 */
-	@PreAuthorize("hasRole('JANUS_EMPLOYEE')")
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, #exitTime != null)")
 	@PostMapping("/clock-out")
 	public ResponseEntity<TimeLogResponse> clockOut( //
 			final @PathVariable("employeeEmail") //
@@ -193,17 +176,11 @@ public class TimeLogController {
 			final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
-		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
-
-		if (employeeRole) {
-			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
-		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForClockOut(employeeEmail, worksiteCode);
 		final TimeLog clockOut;
 		if (exitTime != null) {
-			this.assertManualTimeEntryAllowed();
 			clockOut = this.timeLogService.clockOut(employee, worksite, exitTime);
 		} else {
 			clockOut = this.timeLogService.clockOut(employee, worksite, this.clock.instant());
@@ -222,7 +199,7 @@ public class TimeLogController {
 	 *                      entry and exit times; must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
-	@PreAuthorize("hasRole('JANUS_EMPLOYEE')")
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, true)")
 	@PostMapping("/")
 	public ResponseEntity<TimeLogResponse> createTimeLog( //
 			final @PathVariable("employeeEmail") //
@@ -240,13 +217,7 @@ public class TimeLogController {
 			final Authentication authentication) {
 		logger.debug("Create time log ACTION performed");
 
-		this.assertManualTimeEntryAllowed();
 		
-		final boolean employeeRole = Roles.hasEmployeeRole(authentication.getAuthorities());
-
-		if (employeeRole) {
-			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
-		}
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForNewRecord(employeeEmail, worksiteCode);
@@ -274,7 +245,7 @@ public class TimeLogController {
 	 * @throws IllegalArgumentException if only one of {@code fromInstant} or
 	 *                                  {@code toInstant} is provided
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeEmail)")
 	@GetMapping("/")
 	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee( //
 			final @PathVariable("employeeEmail") //
@@ -295,10 +266,6 @@ public class TimeLogController {
 		}
 		logger.debug("Search time logs by employee ACTION performed");
 
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee) {
-			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
-		}
 
 		final Page<TimeLog> timeLogs;
 		if (fromInstant == null) {
@@ -331,11 +298,6 @@ public class TimeLogController {
 		return worksite;
 	}
 
-	private void assertManualTimeEntryAllowed() {
-		if (!this.applicationSettingsService.isEmployeeManualTimelogEntryAllowed()) {
-			throw new AccessDeniedException("Manual timelog entry is disabled by application settings");
-		}
-	}
 
 	/**
 	 * Finds a specific time log for an employee by its entry time.
@@ -344,7 +306,7 @@ public class TimeLogController {
 	 * @param entryTime     the entry time of the time log; must not be {@code null}
 	 * @return the {@link TimeLogResponse} entry
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeEmail)")
 	@GetMapping("/{entryTime}")
 	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(//
 			final @PathVariable("employeeEmail") //
@@ -357,10 +319,6 @@ public class TimeLogController {
 			final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee) {
-			this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
-		}
 
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employeeEmail, entryTime);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
@@ -376,7 +334,7 @@ public class TimeLogController {
 	 * @return a {@link ResponseEntity} with no content (HTTP 204) if the deletion
 	 *         succeeds
 	 */
-	@PreAuthorize("hasRole('JANUS_ADMIN')")
+	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{entryTime}")
 	public ResponseEntity<Void> deleteTimeLog(//
 			final @PathVariable("employeeEmail") //

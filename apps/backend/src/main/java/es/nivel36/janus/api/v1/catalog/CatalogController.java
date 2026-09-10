@@ -59,7 +59,7 @@ public class CatalogController {
 	 * @param pageable Spring pagination information
 	 * @return a page with matching time zone catalog items
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@catalogAuthorization.canView(authentication)")
 	@GetMapping("/time-zones")
 	public ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones(
 			@RequestParam(value = "search", required = false) final String search,

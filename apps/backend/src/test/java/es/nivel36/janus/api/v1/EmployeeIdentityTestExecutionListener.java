@@ -12,10 +12,16 @@ public class EmployeeIdentityTestExecutionListener extends AbstractTestExecution
 
 	@Override
 	public void beforeTestMethod(final TestContext testContext) {
-		testContext.getApplicationContext().getBean(JdbcTemplate.class).update("""
+		final JdbcTemplate jdbc = testContext.getApplicationContext().getBean(JdbcTemplate.class);
+		jdbc.update("""
 				INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id)
 				SELECT email,email,'en-US','H24','UTC',id FROM employee e
 				WHERE NOT EXISTS (SELECT 1 FROM app_user u WHERE u.employee_id=e.id)
+				""");
+		jdbc.update("""
+				INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id)
+				SELECT 'mock-actor','user','en-US','H24','UTC',NULL
+				WHERE NOT EXISTS (SELECT 1 FROM app_user WHERE keycloak_subject='user')
 				""");
 	}
 }
