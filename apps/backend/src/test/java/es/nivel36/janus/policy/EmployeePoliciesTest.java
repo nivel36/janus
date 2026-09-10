@@ -11,6 +11,9 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import es.nivel36.janus.policy.employee.UpdateEmployeePolicy;
+import es.nivel36.janus.policy.employee.UpdateEmployeeRolesPolicy;
+import es.nivel36.janus.policy.employee.ViewEmployeePolicy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 

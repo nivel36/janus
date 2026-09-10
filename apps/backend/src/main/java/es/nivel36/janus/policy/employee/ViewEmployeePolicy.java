@@ -3,15 +3,16 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
-package es.nivel36.janus.policy;
+package es.nivel36.janus.policy.employee;
 
 import java.util.Objects;
 
+import es.nivel36.janus.policy.Policy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 
-/** Authorizes changes to an employee's profile. */
-public final class UpdateEmployeePolicy implements Policy<Long> {
+/** Authorizes access to an employee's profile. */
+public final class ViewEmployeePolicy implements Policy<Long> {
 
 	@Override
 	public boolean allows(final Actor actor, final Long employeeId) {

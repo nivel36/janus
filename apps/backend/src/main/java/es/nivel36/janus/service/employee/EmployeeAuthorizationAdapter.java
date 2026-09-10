@@ -9,8 +9,8 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import es.nivel36.janus.policy.UpdateEmployeePolicy;
-import es.nivel36.janus.policy.ViewEmployeePolicy;
+import es.nivel36.janus.policy.employee.UpdateEmployeePolicy;
+import es.nivel36.janus.policy.employee.ViewEmployeePolicy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.util.EmailAddresses;
