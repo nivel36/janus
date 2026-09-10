@@ -1,11 +1,12 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Observable, finalize, of } from 'rxjs';
+import { map, Observable, finalize, of } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
@@ -40,15 +41,31 @@ import { MessageComponent } from '../../../../shared/ui/message/message.componen
   ],
   templateUrl: './worksite-edit-page.component.html',
 })
-export class WorksiteEditPageComponent implements OnInit {
+export class WorksiteEditPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly worksiteApiService = inject(WorksiteApiService);
 
-  private loadedWorksite: Worksite | null = null;
+  readonly worksiteCode = toSignal(
+    this.route.paramMap.pipe(map((params) => params.get('code') ?? '')),
+    { initialValue: '' },
+  );
 
-  readonly worksiteCode = this.route.snapshot.paramMap.get('code') ?? '';
+  private readonly worksiteResource = rxResource<Worksite, { code: string }>({
+    params: () => ({ code: this.worksiteCode() }),
+    stream: ({ params }) =>
+      this.worksiteApiService.findByCode(params.code, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
+  });
+
+  private readonly worksite = computed(() => {
+    if (!this.worksiteResource.hasValue()) {
+      return null;
+    }
+
+    const worksite = this.worksiteResource.value();
+    return worksite?.code === this.worksiteCode() ? worksite : null;
+  });
 
   readonly form = this.fb.group({
     code: this.fb.nonNullable.control({ value: '', disabled: true }),
@@ -85,40 +102,33 @@ export class WorksiteEditPageComponent implements OnInit {
 
   readonly timezoneCatalog = createTimezoneCatalog();
 
-  readonly loading = signal(true);
+  readonly loading = computed(() => this.worksiteResource.isLoading());
 
   readonly saving = signal(false);
 
-  readonly errorMessage = signal('');
+  private readonly saveErrorMessage = signal('');
 
-  ngOnInit(): void {
-    this.worksiteApiService
-      .findByCode(this.worksiteCode, ACTIVE_SCREEN_HTTP_RETRY_POLICY)
-      .pipe(
-        finalize(() => {
-          this.loading.set(false);
-        }),
-      )
-      .subscribe({
-        next: (worksite) => {
-          this.loadedWorksite = worksite;
-          this.form.reset({
-            code: worksite.code,
-            name: worksite.name,
-            timeZone: worksite.timeZone,
-            scope: worksite.scope,
-            description: worksite.description,
-            address: worksite.address,
-          });
-        },
-        error: () => {
-          this.errorMessage.set('worksite.detailLoadError');
-        },
+  readonly errorMessage = computed(() =>
+    this.worksiteResource.error() ? 'worksite.detailLoadError' : this.saveErrorMessage(),
+  );
+
+  private readonly populateFormEffect = effect(() => {
+    const worksite = this.worksite();
+    if (worksite) {
+      this.form.reset({
+        code: worksite.code,
+        name: worksite.name,
+        timeZone: worksite.timeZone,
+        scope: worksite.scope,
+        description: worksite.description,
+        address: worksite.address,
       });
-  }
+    }
+  });
 
   save(): void {
-    if (this.saving() || this.loading() || this.form.invalid || this.loadedWorksite === null) {
+    const worksite = this.worksite();
+    if (this.saving() || this.loading() || this.form.invalid || worksite === null) {
       this.form.markAllAsTouched();
       return;
     }
@@ -126,16 +136,16 @@ export class WorksiteEditPageComponent implements OnInit {
     const rawValue = this.form.getRawValue();
 
     this.saving.set(true);
-    this.errorMessage.set('');
+    this.saveErrorMessage.set('');
 
     this.worksiteApiService
-      .update(this.loadedWorksite.code, {
+      .update(worksite.code, {
         name: rawValue.name.trim(),
         timeZone: rawValue.timeZone!,
         scope: rawValue.scope,
         description: rawValue.description?.trim() || null,
         address: rawValue.address?.trim() || null,
-        ownerEmployeeEmail: this.loadedWorksite.ownerEmployeeEmail,
+        ownerEmployeeEmail: worksite.ownerEmployeeEmail,
       })
       .pipe(
         finalize(() => {
@@ -147,13 +157,13 @@ export class WorksiteEditPageComponent implements OnInit {
           this.router.navigate(['/worksites', worksite.code]);
         },
         error: () => {
-          this.errorMessage.set('worksite.errors.update');
+          this.saveErrorMessage.set('worksite.errors.update');
         },
       });
   }
 
   cancel(): void {
-    this.router.navigate(['/worksites', this.worksiteCode]);
+    this.router.navigate(['/worksites', this.worksiteCode()]);
   }
 
   readonly timezoneDisplayWith = (option: TimezoneOption): string => option.literal;
