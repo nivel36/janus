@@ -81,7 +81,7 @@ public class AppUserController {
 	 * @param username the unique username of the user; must not be {@code null}
 	 * @return the {@link AppUserResponse} matching the username
 	 */
-	@PreAuthorize("hasRole('JANUS_ADMIN')")
+	@PreAuthorize("@appUserAuthorization.canView(authentication)")
 	@GetMapping("/{username}")
 	public ResponseEntity<AppUserResponse> findAppUser(final @PathVariable("username") //
 	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
@@ -101,7 +101,7 @@ public class AppUserController {
 	 *                {@code null}
 	 * @return the created {@link AppUserResponse}
 	 */
-	@PreAuthorize("hasRole('JANUS_ADMIN')")
+	@PreAuthorize("@appUserAuthorization.canCreate(authentication)")
 	@PostMapping
 	public ResponseEntity<AppUserResponse> createAppUser(@Valid @RequestBody final CreateAppUserRequest request) {
 		logger.debug("Create app user ACTION performed");
@@ -123,7 +123,7 @@ public class AppUserController {
 	 * @param request  the payload containing the new data; must not be {@code null}
 	 * @return the updated {@link AppUserResponse}
 	 */
-	@PreAuthorize("hasRole('JANUS_ADMIN')")
+	@PreAuthorize("@appUserAuthorization.canUpdate(authentication)")
 	@PutMapping("/{username}")
 	public ResponseEntity<AppUserResponse> updateAppUser(final @PathVariable("username") //
 	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
@@ -152,7 +152,7 @@ public class AppUserController {
 				authentication.getToken().getSubject(), preferredUsername, verifiedEmail)));
 	}
 
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@appUserAuthorization.canUpdateCurrent(authentication)")
 	@PutMapping("/me")
 	public ResponseEntity<AppUserResponse> updateCurrentAppUser(@Valid @RequestBody final UpdateAppUserRequest request,
 			final Authentication authentication) {
@@ -167,7 +167,7 @@ public class AppUserController {
 	 * @param username the username of the app user; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
-	@PreAuthorize("hasRole('JANUS_ADMIN')")
+	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{username}")
 	public ResponseEntity<Void> deleteAppUser(final @PathVariable("username") //
 	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //

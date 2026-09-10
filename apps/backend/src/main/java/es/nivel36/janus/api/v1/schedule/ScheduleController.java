@@ -24,7 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,13 +37,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.config.AuthenticatedEmployee;
-import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.policy.schedule.ScheduleAuthorizationAdapter;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
 import es.nivel36.janus.service.schedule.ScheduleService;
-import es.nivel36.janus.util.Roles;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -74,7 +71,7 @@ public class ScheduleController {
 
 	private final ScheduleService scheduleService;
 	private final EmployeeService employeeService;
-	private final AuthenticatedEmployee authenticatedEmployee;
+	private final ScheduleAuthorizationAdapter authorization;
 	private final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper;
 	private final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper;
 
@@ -91,12 +88,12 @@ public class ScheduleController {
 	 *                                     can't be {@code null}
 	 */
 	public ScheduleController(final ScheduleService scheduleService, final EmployeeService employeeService,
-			final AuthenticatedEmployee authenticatedEmployee,
+			final ScheduleAuthorizationAdapter authorization,
 			final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper,
 			final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper) {
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
-		this.authenticatedEmployee = Objects.requireNonNull(authenticatedEmployee, "authenticatedEmployee can't be null");
+		this.authorization = Objects.requireNonNull(authorization, "authorization can't be null");
 		this.scheduleResponseMapper = Objects.requireNonNull(scheduleResponseMapper,
 				"scheduleResponseMapper can't be null");
 		this.scheduleRuleDefinitionMapper = Objects.requireNonNull(scheduleRuleDefinitionMapper,
@@ -120,23 +117,13 @@ public class ScheduleController {
 	 *                               perform the search
 	 */
 	@GetMapping
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE', 'JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@scheduleAuthorization.canSearch(authentication, #employeeEmail)")
 	public ResponseEntity<Page<ScheduleResponse>> searchSchedules(
 			final @RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "query must contain only letters, digits, underscores or hyphens (max 50)") String query,
 			final @RequestParam(required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search schedules ACTION performed");
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		final String effectiveEmployeeEmail;
-		if (restrictedEmployee) {
-			if (employeeEmail == null) {
-				throw new AccessDeniedException("Employees can only search schedules for themselves");
-			}
-			final Employee employee = this.authenticatedEmployee.assertOwnsEmail(authentication, employeeEmail);
-			effectiveEmployeeEmail = employee.getEmail();
-		} else {
-			effectiveEmployeeEmail = employeeEmail;
-		}
+		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, employeeEmail);
 
 		final Page<ScheduleResponse> schedules = this.scheduleService
 				.searchSchedules(query, effectiveEmployeeEmail, pageable).map(this.scheduleResponseMapper::map);
@@ -157,20 +144,12 @@ public class ScheduleController {
 	 * @throws AccessDeniedException if the authenticated user is not allowed to
 	 *                               access the schedule
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_EMPLOYEE','JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@scheduleAuthorization.canView(authentication, #scheduleCode)")
 	@GetMapping("/{scheduleCode}")
 	public ResponseEntity<ScheduleResponse> findSchedule(
 			final @PathVariable("scheduleCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode,
 			final Authentication authentication) {
 		logger.debug("Find schedule ACTION performed");
-
-		final boolean restrictedEmployee = Roles.isRestrictedEmployee(authentication.getAuthorities());
-		if (restrictedEmployee) {
-			final Employee employee = this.authenticatedEmployee.resolve(authentication);
-			if (!this.employeeService.isAssignedToSchedule(employee.getEmail(), scheduleCode)) {
-				throw new AccessDeniedException("Employees can only search his own schedule");
-			}
-		}
 
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
 		final ScheduleResponse response = this.scheduleResponseMapper.map(schedule);
@@ -185,7 +164,7 @@ public class ScheduleController {
 	 * @return a {@link ResponseEntity} containing the created schedule with HTTP
 	 *         status {@code 201 CREATED}
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@scheduleAuthorization.canCreate(authentication)")
 	@PostMapping
 	public ResponseEntity<ScheduleResponse> createSchedule(@Valid @RequestBody final CreateScheduleRequest request) {
 		logger.debug("Create schedule ACTION performed");
@@ -214,7 +193,7 @@ public class ScheduleController {
 	 *                     {@code null}
 	 * @return a {@link ResponseEntity} containing the updated schedule
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@scheduleAuthorization.canUpdate(authentication)")
 	@PutMapping("/{scheduleCode}")
 	public ResponseEntity<ScheduleResponse> updateSchedule(
 			final @PathVariable("scheduleCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode,
@@ -234,7 +213,7 @@ public class ScheduleController {
 	 * @return a {@link ResponseEntity} with an empty body and HTTP status
 	 *         {@code 204 NO CONTENT}
 	 */
-	@PreAuthorize("hasAnyRole('JANUS_USER', 'JANUS_ADMIN')")
+	@PreAuthorize("@scheduleAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{scheduleCode}")
 	public ResponseEntity<Void> deleteSchedule(
 			final @PathVariable("scheduleCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode) {
