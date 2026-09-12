@@ -3,6 +3,7 @@ package es.nivel36.janus.api.v1.schedule;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
@@ -15,7 +16,7 @@ public class ScheduleRuleDefinitionMapper implements Mapper<ScheduleRuleRequest,
 	private final Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper;
 
 	public ScheduleRuleDefinitionMapper(
-			final Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper) {
+			final @Qualifier("scheduleRuleTimeRangeDefinitionMapper") Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper) {
 		this.scheduleRuleTimeRangeDefinitionMapper = Objects.requireNonNull(scheduleRuleTimeRangeDefinitionMapper,
 				"scheduleRuleTimeRangeDefinitionMapper can't be null");
 	}

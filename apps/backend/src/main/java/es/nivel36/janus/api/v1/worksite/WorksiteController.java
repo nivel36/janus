@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -73,7 +74,7 @@ public class WorksiteController {
 	 */
 	public WorksiteController(final WorksiteService worksiteService, final EmployeeService employeeService,
 			final WorksiteAuthorizationAdapter authorization,
-			final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
+			final @Qualifier("worksiteResponseMapper") Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
 		this.worksiteService = //
 				Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
 		this.employeeService = //

@@ -20,6 +20,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -86,8 +87,8 @@ public class ScheduleController {
 	 *                                     can't be {@code null}
 	 */
 	public ScheduleController(final ScheduleService scheduleService, final ScheduleAuthorizationAdapter authorization,
-			final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper,
-			final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper) {
+			final @Qualifier("scheduleResponseMapper") Mapper<Schedule, ScheduleResponse> scheduleResponseMapper,
+			final @Qualifier("scheduleRuleDefinitionMapper") Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper) {
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.authorization = Objects.requireNonNull(authorization, "authorization can't be null");
 		this.scheduleResponseMapper = Objects.requireNonNull(scheduleResponseMapper,

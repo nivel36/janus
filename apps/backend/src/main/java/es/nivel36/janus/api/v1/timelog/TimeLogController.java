@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -88,7 +89,7 @@ public class TimeLogController {
 			final TimeLogService timeLogService, //
 			final EmployeeService employeeService, //
 			final WorksiteService worksiteService, //
-			final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper, //
+			final @Qualifier("timeLogResponseMapper") Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper, //
 			final Clock clock //
 	) {
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService can't be null");

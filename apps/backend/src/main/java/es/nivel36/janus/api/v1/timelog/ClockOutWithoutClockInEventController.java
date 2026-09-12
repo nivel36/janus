@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -85,7 +86,7 @@ public class ClockOutWithoutClockInEventController {
 			final ClockOutWithoutClockInEventService clockOutWithoutClockInEventService,
 			final EmployeeService employeeService, final ApplicationSettingsService applicationSettingsService,
 			final WorksiteService worksiteService,
-			final Mapper<ClockOutWithoutClockInEvent, ClockOutWithoutClockInEventResponse> clockOutWithoutClockInEventResponseMapper) {
+			final @Qualifier("clockOutWithoutClockInEventResponseMapper") Mapper<ClockOutWithoutClockInEvent, ClockOutWithoutClockInEventResponse> clockOutWithoutClockInEventResponseMapper) {
 		this.clockOutWithoutClockInEventService = Objects.requireNonNull(clockOutWithoutClockInEventService,
 				"clockOutWithoutClockInEventService can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");

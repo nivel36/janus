@@ -17,6 +17,7 @@ package es.nivel36.janus.api.v1.catalog;
 
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -48,7 +49,7 @@ public class CatalogController {
 	 * @param timeZoneCatalogService service used to retrieve time zone catalog data
 	 */
 	public CatalogController(final TimeZoneCatalogService timeZoneCatalogService,
-			final Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper) {
+			final @Qualifier("timeZoneCatalogItemResponseMapper") Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper) {
 		this.timeZoneCatalogService = Objects.requireNonNull(timeZoneCatalogService,
 				"timeZoneCatalogService can't be null");
 		this.timeZoneCatalogItemResponseMapper = Objects.requireNonNull(timeZoneCatalogItemResponseMapper,

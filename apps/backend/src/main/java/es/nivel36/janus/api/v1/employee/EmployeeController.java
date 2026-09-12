@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -65,7 +66,7 @@ public class EmployeeController {
 	 *                               {@code null}
 	 */
 	public EmployeeController(final EmployeeService employeeService, final ScheduleService scheduleService,
-			final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
+			final @Qualifier("employeeResponseMapper") Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.employeeResponseMapper = Objects.requireNonNull(employeeResponseMapper,

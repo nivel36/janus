@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
@@ -36,7 +37,8 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 
 	private final Mapper<Duration, DurationResponse> durationResponseMapper;
 
-	public TimeLogResponseMapper(final Mapper<Duration, DurationResponse> durationResponseMapper) {
+	public TimeLogResponseMapper(
+			final @Qualifier("durationResponseMapper") Mapper<Duration, DurationResponse> durationResponseMapper) {
 		this.durationResponseMapper = Objects.requireNonNull(durationResponseMapper,
 				"durationResponseMapper can't be null");
 	}
