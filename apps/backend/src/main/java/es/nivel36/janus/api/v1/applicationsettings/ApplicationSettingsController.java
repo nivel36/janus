@@ -68,9 +68,17 @@ public class ApplicationSettingsController {
 	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
 			@Valid @RequestBody final UpdateApplicationSettingsRequest request) {
 		logger.debug("Update application settings ACTION performed");
-		final ApplicationSettings updatedSettings = this.applicationSettingsService.update(request.daysUntilLocked(),
-				request.employeeWorkplaceCreationAllowed(), request.worksiteChangeDuringShiftAllowed(),
-				request.employeeManualTimelogEntryAllowed(), ZoneId.of(request.defaultTimezone()));
+		final int daysUntilLocked = request.daysUntilLocked();
+		final boolean employeeWorkplaceCreationAllowed = request.employeeWorkplaceCreationAllowed();
+		final boolean worksiteChangeDuringShiftAllowed = request.worksiteChangeDuringShiftAllowed();
+		final boolean employeeManualTimelogEntryAllowed = request.employeeManualTimelogEntryAllowed();
+		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
+		final ApplicationSettings updatedSettings = this.applicationSettingsService.update(
+				daysUntilLocked,
+				employeeWorkplaceCreationAllowed, 
+				worksiteChangeDuringShiftAllowed, 
+				employeeManualTimelogEntryAllowed,
+				zoneId);
 		return ResponseEntity.ok(this.applicationSettingsResponseMapper.map(updatedSettings));
 	}
 }

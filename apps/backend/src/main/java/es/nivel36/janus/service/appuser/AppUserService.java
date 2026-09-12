@@ -31,7 +31,6 @@ import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
-import es.nivel36.janus.util.EmailAddresses;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -140,7 +139,7 @@ public class AppUserService {
 		if (verifiedEmail == null) {
 			return null;
 		}
-		return this.employeeService.findEmployeeForProvisioning(EmailAddresses.canonicalize(verifiedEmail))
+		return this.employeeService.findEmployeeForProvisioning(verifiedEmail)
 				.filter(employee -> {
 					final var linkedUser = this.appUserRepository.findByEmployee(employee);
 					if (linkedUser.isPresent()) {

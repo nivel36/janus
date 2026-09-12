@@ -32,7 +32,6 @@ import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
-import es.nivel36.janus.util.EmailAddresses;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -110,17 +109,17 @@ public class EmployeeService {
 	 */
 	@Transactional(readOnly = true)
 	public Employee findEmployeeByEmail(final String email) {
-		final String canonicalEmail = EmailAddresses.canonicalize(email);
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		logger.debug("Finding Employee by email {}", email);
 
-		return this.findEmployee(canonicalEmail);
+		return this.findEmployee(email);
 	}
 
 	/** Finds an employee by canonical email for first-access identity linking. */
 	@Transactional(readOnly = true)
 	public Optional<Employee> findEmployeeForProvisioning(final String email) {
-		final String canonicalEmail = EmailAddresses.canonicalize(email);
-		return Optional.ofNullable(this.employeeRepository.findByEmail(canonicalEmail));
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
+		return Optional.ofNullable(this.employeeRepository.findByEmail(email));
 	}
 
 	@Transactional(readOnly = true)
@@ -180,21 +179,20 @@ public class EmployeeService {
 	@Transactional
 	public Employee createEmployee(final String name, final String surname, final String email,
 			final Schedule schedule) {
-
 		Strings.requireNonBlank(name, "name cannot be null or blank.");
 		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
-		final String canonicalEmail = EmailAddresses.canonicalize(email);
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		Objects.requireNonNull(schedule, "schedule cannot be null.");
 
 		logger.debug("Creating new employee {}", email);
 
-		final boolean emailInUse = this.employeeRepository.existsByEmail(canonicalEmail);
+		final boolean emailInUse = this.employeeRepository.existsByEmail(email);
 		if (emailInUse) {
 			logger.warn("Employee with email {} already exists", email);
 			throw new ResourceAlreadyExistsException("Employee with email " + email + " already exists");
 		}
 
-		final Employee employee = new Employee(name, surname, canonicalEmail, schedule);
+		final Employee employee = new Employee(name, surname, email, schedule);
 
 		return this.employeeRepository.save(employee);
 	}
@@ -222,8 +220,7 @@ public class EmployeeService {
 	@Transactional
 	public Employee updateEmployee(final String email, final String newName, final String newSurname,
 			final String scheduleCode) {
-
-		final String canonicalEmail = EmailAddresses.canonicalize(email);
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		Strings.requireNonBlank(newName, "newName cannot be null or blank.");
 		Strings.requireNonBlank(newSurname, "newSurname cannot be null or blank.");
 		Strings.requireNonBlank(scheduleCode, "scheduleCode cannot be null or blank.");
@@ -231,7 +228,7 @@ public class EmployeeService {
 		logger.debug("Updating employee {}", email);
 
 		final Schedule newSchedule = this.scheduleService.findScheduleByCode(scheduleCode);
-		final Employee employee = this.findEmployee(canonicalEmail);
+		final Employee employee = this.findEmployee(email);
 		employee.setFullName(newName, newSurname);
 		employee.setSchedule(newSchedule);
 

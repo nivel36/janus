@@ -20,6 +20,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import es.nivel36.janus.service.employee.Employee;
+
 /**
  * Repository class for managing {@link AppUser} entities.
  */
@@ -48,7 +50,7 @@ interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
 	boolean existsByKeycloakSubject(String keycloakSubject);
 
-	boolean existsByEmployee(es.nivel36.janus.service.employee.Employee employee);
+	boolean existsByEmployee(Employee employee);
 
-	Optional<AppUser> findByEmployee(es.nivel36.janus.service.employee.Employee employee);
+	Optional<AppUser> findByEmployee(Employee employee);
 }

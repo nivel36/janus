@@ -39,7 +39,7 @@ public final class AuthenticatedIdentity {
 	}
 
 	public static boolean matchesEmail(final Authentication authentication, final String candidate) {
-		return email(authentication).equals(normalizeEmail(candidate));
+		return email(authentication).equals(candidate);
 	}
 
 	public static String normalizeEmail(final String email) {
