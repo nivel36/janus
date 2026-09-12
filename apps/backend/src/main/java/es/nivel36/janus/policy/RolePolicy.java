@@ -6,7 +6,9 @@ import java.util.Set;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 
-/** Pure policy for operations whose complete context is a set of accepted roles. */
+/**
+ * Pure policy for operations whose complete context is a set of accepted roles.
+ */
 public class RolePolicy implements Policy<Void> {
 	private final Set<Role> roles;
 

@@ -83,13 +83,15 @@ public class AppUserService {
 	 * access. The subject is the sole identity-linking key; the preferred username
 	 * is used only as the new account's visible name.
 	 *
-	 * <p>The initial preferences come from the provisioning defaults. When an
-	 * account must be created, {@code preferred_username} must satisfy the same
-	 * rule as usernames accepted by the administration API.</p>
+	 * <p>
+	 * The initial preferences come from the provisioning defaults. When an account
+	 * must be created, {@code preferred_username} must satisfy the same rule as
+	 * usernames accepted by the administration API.
+	 * </p>
 	 */
 	@Transactional
 	public AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername) {
-		return findOrCreateAppUser(keycloakSubject, preferredUsername, null);
+		return this.findOrCreateAppUser(keycloakSubject, preferredUsername, null);
 	}
 
 	@Transactional
@@ -103,7 +105,7 @@ public class AppUserService {
 		}
 
 		final String username = validatePreferredUsername(preferredUsername);
-		final Employee employee = findUnlinkedEmployee(verifiedEmail, keycloakSubject.trim());
+		final Employee employee = this.findUnlinkedEmployee(verifiedEmail, keycloakSubject.trim());
 		try {
 			return this.appUserCreator.create(username, keycloakSubject.trim(), this.provisioningDefaults.locale(),
 					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), employee);
@@ -116,8 +118,8 @@ public class AppUserService {
 				return concurrentlyCreated.get();
 			}
 			if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
-				logEmployeeConflict(employee, keycloakSubject.trim());
-				return createWithoutEmployeeAfterConflict(username, keycloakSubject.trim());
+				this.logEmployeeConflict(employee, keycloakSubject.trim());
+				return this.createWithoutEmployeeAfterConflict(username, keycloakSubject.trim());
 			}
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
@@ -142,12 +144,11 @@ public class AppUserService {
 				.filter(employee -> {
 					final var linkedUser = this.appUserRepository.findByEmployee(employee);
 					if (linkedUser.isPresent()) {
-						logEmployeeConflict(employee, keycloakSubject);
+						this.logEmployeeConflict(employee, keycloakSubject);
 						return false;
 					}
 					return true;
-				})
-				.orElse(null);
+				}).orElse(null);
 	}
 
 	private void logEmployeeConflict(final Employee employee, final String keycloakSubject) {
@@ -161,8 +162,8 @@ public class AppUserService {
 		}
 		final String username = preferredUsername.trim();
 		if (!username.matches(AppUser.USERNAME_PATTERN)) {
-			throw new IllegalArgumentException("preferred_username claim is invalid: "
-					+ AppUser.USERNAME_VALIDATION_MESSAGE);
+			throw new IllegalArgumentException(
+					"preferred_username claim is invalid: " + AppUser.USERNAME_VALIDATION_MESSAGE);
 		}
 		return username;
 	}
@@ -215,7 +216,7 @@ public class AppUserService {
 	@Transactional
 	public AppUser createAppUser(final String username, final String keycloakSubject, final Locale locale,
 			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
-		return createAppUser(username, keycloakSubject, locale, timeFormat, defaultTimezone, null);
+		return this.createAppUser(username, keycloakSubject, locale, timeFormat, defaultTimezone, null);
 	}
 
 	@Transactional
@@ -278,7 +279,7 @@ public class AppUserService {
 	@Transactional
 	public AppUser updateAppUser(final String username, final Locale newLocale, final TimeFormat newTimeFormat,
 			final ZoneId newDefaultTimezone) {
-		return updateAppUser(username, newLocale, newTimeFormat, newDefaultTimezone, null, false);
+		return this.updateAppUser(username, newLocale, newTimeFormat, newDefaultTimezone, null, false);
 	}
 
 	@Transactional
@@ -320,9 +321,9 @@ public class AppUserService {
 	}
 
 	@Transactional
-	public AppUser updateCurrentAppUser(final String keycloakSubject, final Locale newLocale, final TimeFormat newTimeFormat,
-			final ZoneId newDefaultTimezone) {
-		final AppUser appUser = findAppUserByKeycloakSubject(keycloakSubject);
+	public AppUser updateCurrentAppUser(final String keycloakSubject, final Locale newLocale,
+			final TimeFormat newTimeFormat, final ZoneId newDefaultTimezone) {
+		final AppUser appUser = this.findAppUserByKeycloakSubject(keycloakSubject);
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
 		appUser.setDefaultTimezone(newDefaultTimezone);

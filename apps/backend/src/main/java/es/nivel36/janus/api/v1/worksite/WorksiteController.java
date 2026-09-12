@@ -38,8 +38,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.policy.worksite.WorksiteAuthorizationAdapter;
 import es.nivel36.janus.api.v1.employee.EmployeeResponse;
+import es.nivel36.janus.policy.worksite.WorksiteAuthorizationAdapter;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.worksite.Worksite;
@@ -71,8 +71,8 @@ public class WorksiteController {
 	 *                               into {@link WorksiteResponse} DTOs; must not be
 	 *                               {@code null}
 	 */
-	public WorksiteController(final WorksiteService worksiteService,
-			final EmployeeService employeeService, final WorksiteAuthorizationAdapter authorization,
+	public WorksiteController(final WorksiteService worksiteService, final EmployeeService employeeService,
+			final WorksiteAuthorizationAdapter authorization,
 			final Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
 		this.worksiteService = //
 				Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
@@ -119,13 +119,11 @@ public class WorksiteController {
 		return ResponseEntity.ok(response);
 	}
 
-
 	@GetMapping("/{worksiteCode}/stats")
 	@PreAuthorize("@worksiteAuthorization.canViewStats(authentication, #worksiteCode)")
 	public ResponseEntity<WorksiteStatsResponse> stats(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
-			@RequestParam("start") final Instant start,
-			@RequestParam("end") final Instant end,
+			@RequestParam("start") final Instant start, @RequestParam("end") final Instant end,
 			final Authentication authentication) {
 		if (end.isBefore(start)) {
 			throw new IllegalArgumentException("end must be greater than or equal to start");
@@ -221,7 +219,7 @@ public class WorksiteController {
 	 *
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @param employeeEmail the email of the employee; must not be {@code null}
-	 * 
+	 *
 	 * @return the updated {@link EmployeeResponse}
 	 */
 	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")

@@ -18,11 +18,12 @@ package es.nivel36.janus.service.catalog;
 /**
  * Internal projection representing a single time zone catalog row.
  *
- * @param zoneId  full Java zone id
- * @param literal full display value, for example {@code Europe/Madrid (UTC+2)}
- * @param level1  first segment of the zone id (before the first slash)
- * @param level2  remainder of the zone id after the first slash
- * @param utc     UTC offset string used in the literal
+ * @param zoneId        full Java zone id
+ * @param literal       full display value, for example
+ *                      {@code Europe/Madrid (UTC+2)}
+ * @param level1        first segment of the zone id (before the first slash)
+ * @param level2        remainder of the zone id after the first slash
+ * @param utc           UTC offset string used in the literal
  * @param offsetSeconds numeric UTC offset in seconds, used for sorting
  */
 public record TimeZoneCatalogItem(String zoneId, String literal, String level1, String level2, String utc,

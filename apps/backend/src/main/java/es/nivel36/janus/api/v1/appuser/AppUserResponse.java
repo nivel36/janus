@@ -27,6 +27,5 @@ import es.nivel36.janus.service.appuser.AppUser;
  * @param timeFormat      the preferred {@link TimeFormat}
  * @param defaultTimezone the default timezone of the user
  */
-public record AppUserResponse(String username, String locale,
-		TimeFormat timeFormat, String defaultTimezone) {
+public record AppUserResponse(String username, String locale, TimeFormat timeFormat, String defaultTimezone) {
 }

@@ -129,7 +129,6 @@ public class TimeLogController {
 			final Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
 
-
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForNewRecord(employeeEmail, worksiteCode);
 		final TimeLog clockIn;
@@ -176,7 +175,6 @@ public class TimeLogController {
 			final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
-
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForClockOut(employeeEmail, worksiteCode);
 		final TimeLog clockOut;
@@ -213,11 +211,9 @@ public class TimeLogController {
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
 			String worksiteCode, //
-			final @Valid @RequestBody CreateTimeLogRequest timeLog, // 
+			final @Valid @RequestBody CreateTimeLogRequest timeLog, //
 			final Authentication authentication) {
 		logger.debug("Create time log ACTION performed");
-
-		
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
 		final Worksite worksite = this.findWorksiteForNewRecord(employeeEmail, worksiteCode);
@@ -266,7 +262,6 @@ public class TimeLogController {
 		}
 		logger.debug("Search time logs by employee ACTION performed");
 
-
 		final Page<TimeLog> timeLogs;
 		if (fromInstant == null) {
 			timeLogs = this.timeLogService.searchTimeLogsByEmployee(employeeEmail, pageable);
@@ -298,7 +293,6 @@ public class TimeLogController {
 		return worksite;
 	}
 
-
 	/**
 	 * Finds a specific time log for an employee by its entry time.
 	 *
@@ -318,7 +312,6 @@ public class TimeLogController {
 			final @PathVariable("entryTime") Instant entryTime, //
 			final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
-
 
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employeeEmail, entryTime);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);

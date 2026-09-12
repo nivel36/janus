@@ -38,9 +38,9 @@ class ActorResolverTest {
 		when(appUser.getId()).thenReturn(42L);
 		when(appUser.getEmployee()).thenReturn(employee);
 		when(employee.getId()).thenReturn(84L);
-		final JwtAuthenticationToken authentication = jwtAuthentication(List.of(
-				new SimpleGrantedAuthority("ROLE_JANUS_ADMIN"), new SimpleGrantedAuthority("ROLE_UNKNOWN"),
-				new SimpleGrantedAuthority("SCOPE_openid")));
+		final JwtAuthenticationToken authentication = jwtAuthentication(
+				List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN"), new SimpleGrantedAuthority("ROLE_UNKNOWN"),
+						new SimpleGrantedAuthority("SCOPE_openid")));
 
 		final Actor actor = new ActorResolver(appUserService).resolve(authentication);
 
@@ -79,8 +79,8 @@ class ActorResolverTest {
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT))
 				.thenThrow(new AccessDeniedException("not provisioned"));
 
-		assertThatThrownBy(() -> new ActorResolver(appUserService).resolve(jwtAuthentication(
-				List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN")))))
+		assertThatThrownBy(() -> new ActorResolver(appUserService)
+				.resolve(jwtAuthentication(List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN")))))
 				.isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -102,8 +102,7 @@ class ActorResolverTest {
 				.isInstanceOf(AccessDeniedException.class);
 	}
 
-	private static JwtAuthenticationToken jwtAuthentication(
-			final List<SimpleGrantedAuthority> authorities) {
+	private static JwtAuthenticationToken jwtAuthentication(final List<SimpleGrantedAuthority> authorities) {
 		final Instant now = Instant.now();
 		final Jwt jwt = Jwt.withTokenValue("token").header("alg", "none").subject(SUBJECT).issuedAt(now)
 				.expiresAt(now.plusSeconds(300)).build();

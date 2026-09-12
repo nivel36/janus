@@ -206,10 +206,10 @@ public class EmployeeService {
 	 * Replaces the employee's personal information and schedule atomically.
 	 * </p>
 	 *
-	 * @param email       the unique email of the employee to update. Can't be
-	 *                    {@code null} or blank.
-	 * @param newName     the new first name. Can't be {@code null} or blank.
-	 * @param newSurname  the new surname. Can't be {@code null} or blank.
+	 * @param email        the unique email of the employee to update. Can't be
+	 *                     {@code null} or blank.
+	 * @param newName      the new first name. Can't be {@code null} or blank.
+	 * @param newSurname   the new surname. Can't be {@code null} or blank.
 	 * @param scheduleCode code of the new {@link Schedule}. Can't be {@code null}.
 	 *
 	 * @return the updated {@link Employee}

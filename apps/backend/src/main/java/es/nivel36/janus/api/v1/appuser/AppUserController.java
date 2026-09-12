@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
 import es.nivel36.janus.service.employee.Employee;
@@ -108,7 +107,8 @@ public class AppUserController {
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
 		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
-		final Employee employee = request.employeeId() == null ? null : this.employeeService.findEmployeeById(request.employeeId());
+		final Employee employee = request.employeeId() == null ? null
+				: this.employeeService.findEmployeeById(request.employeeId());
 		final AppUser createdAppUser = this.appUserService.createAppUser(request.username(), request.keycloakSubject(),
 				locale, request.timeFormat(), defaultTimezone, employee);
 		final AppUserResponse response = this.appUserResponseMapper.map(createdAppUser);
@@ -133,7 +133,8 @@ public class AppUserController {
 
 		final Locale locale = Locale.forLanguageTag(request.locale());
 		final ZoneId defaultTimezone = ZoneId.of(request.defaultTimezone());
-		final Employee employee = request.employeeId() == null ? null : this.employeeService.findEmployeeById(request.employeeId());
+		final Employee employee = request.employeeId() == null ? null
+				: this.employeeService.findEmployeeById(request.employeeId());
 		final AppUser updatedAppUser = this.appUserService.updateAppUser(username, locale, request.timeFormat(),
 				defaultTimezone, employee, request.employeeId() != null);
 		final AppUserResponse response = this.appUserResponseMapper.map(updatedAppUser);
@@ -144,12 +145,12 @@ public class AppUserController {
 	@GetMapping("/me")
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
 		final Object preferredUsernameClaim = authentication.getToken().getClaims().get("preferred_username");
-		final String preferredUsername = preferredUsernameClaim instanceof String value ? value : null;
+		final String preferredUsername = preferredUsernameClaim instanceof final String value ? value : null;
 		final Boolean emailVerified = authentication.getToken().getClaim("email_verified");
 		final String email = authentication.getToken().getClaimAsString("email");
 		final String verifiedEmail = Boolean.TRUE.equals(emailVerified) && StringUtils.hasText(email) ? email : null;
-		return ResponseEntity.ok(this.appUserResponseMapper.map(this.appUserService.findOrCreateAppUser(
-				authentication.getToken().getSubject(), preferredUsername, verifiedEmail)));
+		return ResponseEntity.ok(this.appUserResponseMapper.map(this.appUserService
+				.findOrCreateAppUser(authentication.getToken().getSubject(), preferredUsername, verifiedEmail)));
 	}
 
 	@PreAuthorize("@appUserAuthorization.canUpdateCurrent(authentication)")

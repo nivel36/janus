@@ -21,11 +21,17 @@ import jakarta.validation.constraints.PositiveOrZero;
 /**
  * Request payload used to update global application settings.
  *
- * @param daysUntilLocked                  number of days a time log remains editable
- * @param employeeWorkplaceCreationAllowed whether employees can create personal worksites
- * @param worksiteChangeDuringShiftAllowed whether changing worksite during a shift is allowed
- * @param employeeManualTimelogEntryAllowed whether employees can set custom entry/exit instants in timelog operations
- * @param defaultTimezone                  IANA time zone identifier used as default
+ * @param daysUntilLocked                   number of days a time log remains
+ *                                          editable
+ * @param employeeWorkplaceCreationAllowed  whether employees can create
+ *                                          personal worksites
+ * @param worksiteChangeDuringShiftAllowed  whether changing worksite during a
+ *                                          shift is allowed
+ * @param employeeManualTimelogEntryAllowed whether employees can set custom
+ *                                          entry/exit instants in timelog
+ *                                          operations
+ * @param defaultTimezone                   IANA time zone identifier used as
+ *                                          default
  */
 public record UpdateApplicationSettingsRequest(
 		@PositiveOrZero(message = "daysUntilLocked must be greater than or equal to 0") int daysUntilLocked,

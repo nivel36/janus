@@ -24,11 +24,11 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload for updating an existing {@link Worksite}.
  *
- * @param name               the new human readable name of the worksite; must
- *                           contain between 1 and 250 characters
- * @param timeZone           the new {@link java.time.ZoneId} identifier of the
- *                           worksite; must contain between 1 and 80 characters
- * @param scope              the new visibility scope of the worksite
+ * @param name     the new human readable name of the worksite; must contain
+ *                 between 1 and 250 characters
+ * @param timeZone the new {@link java.time.ZoneId} identifier of the worksite;
+ *                 must contain between 1 and 80 characters
+ * @param scope    the new visibility scope of the worksite
  */
 public record UpdateWorksiteRequest( //
 		@NotBlank(message = "name must not be blank") //

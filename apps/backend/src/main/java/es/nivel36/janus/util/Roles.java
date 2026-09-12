@@ -11,8 +11,8 @@ import es.nivel36.janus.service.appuser.Role;
 /**
  * Utility class for working with Spring Security authorities.
  * <p>
- * This class centralizes role name definitions and provides helper methods
- * to check whether a given collection of {@link GrantedAuthority} contains
+ * This class centralizes role name definitions and provides helper methods to
+ * check whether a given collection of {@link GrantedAuthority} contains
  * specific roles and whether an employee remains restricted.
  * </p>
  * <p>
@@ -32,9 +32,10 @@ public final class Roles {
 	 * Determines whether the given authorities contain the administrator role.
 	 *
 	 * @param authorities the authorities to inspect
-	 * @return {@code true} if the administrator role is present; {@code false} otherwise
+	 * @return {@code true} if the administrator role is present; {@code false}
+	 *         otherwise
 	 */
-	public static boolean hasAdminRole(Collection<? extends GrantedAuthority> authorities) {
+	public static boolean hasAdminRole(final Collection<? extends GrantedAuthority> authorities) {
 		return hasRole(authorities, ADMIN);
 	}
 
@@ -44,7 +45,7 @@ public final class Roles {
 	 * @param authorities the authorities to inspect
 	 * @return {@code true} if the user role is present; {@code false} otherwise
 	 */
-	public static boolean hasUserRole(Collection<? extends GrantedAuthority> authorities) {
+	public static boolean hasUserRole(final Collection<? extends GrantedAuthority> authorities) {
 		return hasRole(authorities, USER);
 	}
 
@@ -54,7 +55,7 @@ public final class Roles {
 	 * @param authorities the authorities to inspect
 	 * @return {@code true} if the employee role is present; {@code false} otherwise
 	 */
-	public static boolean hasEmployeeRole(Collection<? extends GrantedAuthority> authorities) {
+	public static boolean hasEmployeeRole(final Collection<? extends GrantedAuthority> authorities) {
 		return hasRole(authorities, EMPLOYEE);
 	}
 
@@ -62,15 +63,16 @@ public final class Roles {
 	 * Determines whether the given authorities identify a restricted employee.
 	 * <p>
 	 * Employees are elevated only by the explicitly recognized {@code USER} and
-	 * {@code ADMIN} roles. Other authorities, including unknown {@code ROLE_}-prefixed
-	 * authorities and OAuth scopes, do not remove employee restrictions.
+	 * {@code ADMIN} roles. Other authorities, including unknown
+	 * {@code ROLE_}-prefixed authorities and OAuth scopes, do not remove employee
+	 * restrictions.
 	 * </p>
 	 *
 	 * @param authorities the authorities to inspect
-	 * @return {@code true} if employee is present without a recognized elevated role;
-	 *         {@code false} otherwise
+	 * @return {@code true} if employee is present without a recognized elevated
+	 *         role; {@code false} otherwise
 	 */
-	public static boolean isRestrictedEmployee(Collection<? extends GrantedAuthority> authorities) {
+	public static boolean isRestrictedEmployee(final Collection<? extends GrantedAuthority> authorities) {
 		return hasEmployeeRole(authorities) && !hasUserRole(authorities) && !hasAdminRole(authorities);
 	}
 
@@ -78,29 +80,28 @@ public final class Roles {
 	 * Determines whether the given authorities contain exclusively the user role.
 	 * <p>
 	 * This method returns {@code true} only if the set of {@code ROLE_}-prefixed
-	 * authorities contains exactly one role and that role is {@code USER}.
-	 * Non-role authorities, such as OAuth scopes, are ignored.
+	 * authorities contains exactly one role and that role is {@code USER}. Non-role
+	 * authorities, such as OAuth scopes, are ignored.
 	 * </p>
 	 *
 	 * @param authorities the authorities to inspect
-	 * @return {@code true} if the only role present is user; {@code false} otherwise
+	 * @return {@code true} if the only role present is user; {@code false}
+	 *         otherwise
 	 */
-	public static boolean hasOnlyUserRole(Collection<? extends GrantedAuthority> authorities) {
+	public static boolean hasOnlyUserRole(final Collection<? extends GrantedAuthority> authorities) {
 		return toRoleSet(authorities).equals(Set.of(USER));
 	}
 
-	private static boolean hasRole(Collection<? extends GrantedAuthority> authorities, String role) {
+	private static boolean hasRole(final Collection<? extends GrantedAuthority> authorities, final String role) {
 		return authorities.stream().anyMatch(authority -> role.equals(authority.getAuthority()));
 	}
 
-	private static Set<String> toRoleSet(Collection<? extends GrantedAuthority> authorities) {
-		return authorities.stream()
-				.map(GrantedAuthority::getAuthority)
-				.filter(authority -> authority.startsWith("ROLE_"))
-				.collect(Collectors.toUnmodifiableSet());
+	private static Set<String> toRoleSet(final Collection<? extends GrantedAuthority> authorities) {
+		return authorities.stream().map(GrantedAuthority::getAuthority)
+				.filter(authority -> authority.startsWith("ROLE_")).collect(Collectors.toUnmodifiableSet());
 	}
 
-	private static String authority(Role role) {
+	private static String authority(final Role role) {
 		return "ROLE_" + role.name();
 	}
 

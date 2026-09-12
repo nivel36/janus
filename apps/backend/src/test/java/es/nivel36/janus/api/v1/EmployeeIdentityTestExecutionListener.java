@@ -8,7 +8,9 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 /** Provisions legacy controller fixtures after their per-test SQL has run. */
 public class EmployeeIdentityTestExecutionListener extends AbstractTestExecutionListener {
 	@Override
-	public int getOrder() { return Ordered.LOWEST_PRECEDENCE; }
+	public int getOrder() {
+		return Ordered.LOWEST_PRECEDENCE;
+	}
 
 	@Override
 	public void beforeTestMethod(final TestContext testContext) {

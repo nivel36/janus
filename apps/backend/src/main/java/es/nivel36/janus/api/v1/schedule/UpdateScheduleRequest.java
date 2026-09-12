@@ -27,14 +27,14 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload used to update an existing {@link Schedule} aggregate.
  *
- * @param name  new human readable name describing the schedule; must contain
- *              between 1 and 250 allowed characters
+ * @param name           new human readable name describing the schedule; must
+ *                       contain between 1 and 250 allowed characters
  * @param entryTolerance allowed tolerance for entry times; must not be
  *                       {@code null}
  * @param exitTolerance  allowed tolerance for exit times; must not be
  *                       {@code null}
- * @param rules          collection of rule definitions that replace the previous
- *                       ones; must not be {@code null}
+ * @param rules          collection of rule definitions that replace the
+ *                       previous ones; must not be {@code null}
  */
 public record UpdateScheduleRequest( //
 		@NotBlank(message = "name must not be blank") //

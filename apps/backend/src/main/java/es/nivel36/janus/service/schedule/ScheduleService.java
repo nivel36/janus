@@ -80,12 +80,12 @@ public class ScheduleService {
 	 * The schedule code must be unique in the system.
 	 * </p>
 	 *
-	 * @param code  unique schedule code; can't be {@code null} or blank
-	 * @param name  human-readable schedule name; can't be {@code null} or blank
+	 * @param code           unique schedule code; can't be {@code null} or blank
+	 * @param name           human-readable schedule name; can't be {@code null} or
+	 *                       blank
 	 * @param entryTolerance allowed tolerance for entry times; can't be
 	 *                       {@code null}
-	 * @param exitTolerance  allowed tolerance for exit times; can't be
-	 *                       {@code null}
+	 * @param exitTolerance  allowed tolerance for exit times; can't be {@code null}
 	 * @param rules          rule definitions associated with the schedule; can't be
 	 *                       {@code null}
 	 * @return the persisted {@link Schedule}
@@ -160,12 +160,12 @@ public class ScheduleService {
 	 * {@code orphanRemoval=true} configuration in {@link Schedule#getRules()}.
 	 * </p>
 	 *
-	 * @param code  code of the schedule to update; can't be {@code null} or blank
-	 * @param name  new schedule name; can't be {@code null} or blank
+	 * @param code           code of the schedule to update; can't be {@code null}
+	 *                       or blank
+	 * @param name           new schedule name; can't be {@code null} or blank
 	 * @param entryTolerance allowed tolerance for entry times; can't be
 	 *                       {@code null}
-	 * @param exitTolerance  allowed tolerance for exit times; can't be
-	 *                       {@code null}
+	 * @param exitTolerance  allowed tolerance for exit times; can't be {@code null}
 	 * @param rules          new rule definitions; can't be {@code null}
 	 * @return the updated {@link Schedule}
 	 * @throws NullPointerException      if {@code rules} is {@code null}
@@ -269,7 +269,7 @@ public class ScheduleService {
 		final DayOfWeek dayOfWeek = date.getDayOfWeek();
 		return this.scheduleRepository.findTimeRangeForDate(employeeEmail, date, dayOfWeek);
 	}
-	
+
 	/**
 	 * Searches {@link Schedule} entities using an optional query and employee
 	 * filter.

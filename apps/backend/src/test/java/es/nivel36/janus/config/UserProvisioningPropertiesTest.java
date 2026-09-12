@@ -15,9 +15,8 @@ import org.springframework.context.annotation.Configuration;
 class UserProvisioningPropertiesTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withUserConfiguration(PropertiesConfiguration.class)
-			.withPropertyValues("janus.user-provisioning.defaults.locale=en-US",
-					"janus.user-provisioning.defaults.time-format=H24",
+			.withUserConfiguration(PropertiesConfiguration.class).withPropertyValues(
+					"janus.user-provisioning.defaults.locale=en-US", "janus.user-provisioning.defaults.time-format=H24",
 					"janus.user-provisioning.defaults.default-timezone=UTC");
 
 	@Test

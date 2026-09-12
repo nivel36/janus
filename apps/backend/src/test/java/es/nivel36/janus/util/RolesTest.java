@@ -24,26 +24,26 @@ class RolesTest {
 
 	@Test
 	void restrictedEmployeeShouldIgnoreNonRoleAuthorities() {
-		assertThat(Roles.isRestrictedEmployee(
-				createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read", "SCOPE_profile"))).isTrue();
+		assertThat(
+				Roles.isRestrictedEmployee(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read", "SCOPE_profile")))
+				.isTrue();
 	}
 
 	@Test
 	void restrictedEmployeeShouldRemainRestrictedWithUnknownRole() {
-		assertThat(Roles.isRestrictedEmployee(
-				createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN", "SCOPE_read"))).isTrue();
+		assertThat(Roles.isRestrictedEmployee(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN", "SCOPE_read")))
+				.isTrue();
 	}
 
 	@Test
 	void employeeWithUserRoleShouldNotBeRestricted() {
-		assertThat(Roles.isRestrictedEmployee(
-				createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER"))).isFalse();
+		assertThat(Roles.isRestrictedEmployee(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER"))).isFalse();
 	}
 
 	@Test
 	void employeeWithAdminRoleShouldNotBeRestricted() {
-		assertThat(Roles.isRestrictedEmployee(
-				createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN"))).isFalse();
+		assertThat(Roles.isRestrictedEmployee(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN")))
+				.isFalse();
 	}
 
 	@Test
@@ -53,7 +53,7 @@ class RolesTest {
 
 	@Test
 	void hasOnlyUserRoleShouldRejectAnotherJanusRole() {
-		assertThat(Roles.hasOnlyUserRole(
-				createAuthorityList("ROLE_JANUS_USER", "ROLE_JANUS_ADMIN", "SCOPE_read"))).isFalse();
+		assertThat(Roles.hasOnlyUserRole(createAuthorityList("ROLE_JANUS_USER", "ROLE_JANUS_ADMIN", "SCOPE_read")))
+				.isFalse();
 	}
 }

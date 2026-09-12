@@ -55,74 +55,70 @@ class FirstRequestProvisioningIT {
 	@AfterEach
 	void removeLocalProfile() {
 		this.jdbcClient.sql("DELETE FROM app_user WHERE keycloak_subject IN (:subject, :otherSubject)")
-			.param("subject", SUBJECT).param("otherSubject", OTHER_SUBJECT)
-			.update();
+				.param("subject", SUBJECT).param("otherSubject", OTHER_SUBJECT).update();
 		this.jdbcClient.sql("DELETE FROM employee WHERE email = :email").param("email", LINK_EMAIL).update();
 	}
 
 	@Test
 	void verifiedEmailLinksTheOnlyUnlinkedEmployeeAfterNormalization() throws Exception {
-		final Long employeeId = insertEmployee();
+		final Long employeeId = this.insertEmployee();
 
-		this.mvc.perform(get("/api/v1/appusers/me").with(jwt().jwt(token -> token.issuer(this.issuer)
-			.subject(SUBJECT).claim("preferred_username", "linked-user")
-			.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ").claim("email_verified", true))
-			.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.employeeId").value(employeeId));
+		this.mvc.perform(get("/api/v1/appusers/me").with(jwt()
+				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", "linked-user")
+						.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ").claim("email_verified", true))
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.employeeId").value(employeeId));
 	}
 
 	@Test
 	void employeeLinkedToAnotherIdentityIsNotReassigned() throws Exception {
-		final Long employeeId = insertEmployee();
-		provision(SUBJECT, "first-identity");
+		final Long employeeId = this.insertEmployee();
+		this.provision(SUBJECT, "first-identity");
 
-		this.mvc.perform(get("/api/v1/appusers/me").with(jwt().jwt(token -> token.issuer(this.issuer)
-			.subject(OTHER_SUBJECT).claim("preferred_username", "second-identity")
-			.claim("email", LINK_EMAIL).claim("email_verified", true))
-			.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.employeeId").doesNotExist());
+		this.mvc.perform(
+				get("/api/v1/appusers/me")
+						.with(jwt()
+								.jwt(token -> token.issuer(this.issuer).subject(OTHER_SUBJECT)
+										.claim("preferred_username", "second-identity").claim("email", LINK_EMAIL)
+										.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.employeeId").doesNotExist());
 
 		assertThat(this.jdbcClient.sql("SELECT keycloak_subject FROM app_user WHERE employee_id = :employeeId")
-			.param("employeeId", employeeId).query(String.class).single()).isEqualTo(SUBJECT);
+				.param("employeeId", employeeId).query(String.class).single()).isEqualTo(SUBJECT);
 	}
 
 	private void provision(final String subject, final String username) throws Exception {
-		this.mvc.perform(get("/api/v1/appusers/me").with(jwt().jwt(token -> token.issuer(this.issuer)
-			.subject(subject).claim("preferred_username", username).claim("email", LINK_EMAIL)
-			.claim("email_verified", true)).authorities(createAuthorityList("ROLE_JANUS_USER"))))
-			.andExpect(status().isOk());
+		this.mvc.perform(get("/api/v1/appusers/me").with(jwt()
+				.jwt(token -> token.issuer(this.issuer).subject(subject).claim("preferred_username", username)
+						.claim("email", LINK_EMAIL).claim("email_verified", true))
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
 	}
 
 	private Long insertEmployee() {
 		return this.jdbcClient.sql("""
-			INSERT INTO employee (name, surname, email, schedule_id)
-			VALUES ('First', 'Access', :email, 1)
-			RETURNING id
-			""").param("email", LINK_EMAIL).query(Long.class).single();
+				INSERT INTO employee (name, surname, email, schedule_id)
+				VALUES ('First', 'Access', :email, 1)
+				RETURNING id
+				""").param("email", LINK_EMAIL).query(Long.class).single();
 	}
 
 	@Test
 	void firstAuthenticatedRequestProvisionsLocalProfile() throws Exception {
-		assertThat(countProfiles()).isZero();
+		assertThat(this.countProfiles()).isZero();
 
-		this.mvc.perform(get("/api/v1/appusers/me").with(jwt().jwt(token -> token.issuer(this.issuer)
-			.subject(SUBJECT).claim("preferred_username", USERNAME))
-			.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.username").value(USERNAME))
-			.andExpect(jsonPath("$.locale").value("es-ES"))
-			.andExpect(jsonPath("$.timeFormat").value("H24"))
-			.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
+		this.mvc.perform(get("/api/v1/appusers/me").with(
+				jwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", USERNAME))
+						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value(USERNAME))
+				.andExpect(jsonPath("$.locale").value("es-ES")).andExpect(jsonPath("$.timeFormat").value("H24"))
+				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
 
-		assertThat(countProfiles()).isOne();
+		assertThat(this.countProfiles()).isOne();
 	}
 
 	private long countProfiles() {
 		return this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject")
-			.param("subject", SUBJECT)
-			.query(Long.class)
-			.single();
+				.param("subject", SUBJECT).query(Long.class).single();
 	}
 }

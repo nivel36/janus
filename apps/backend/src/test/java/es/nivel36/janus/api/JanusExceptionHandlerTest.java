@@ -49,7 +49,8 @@ class JanusExceptionHandlerTest {
 
 	@Test
 	void accessDeniedDoesNotExposeExceptionMessage() {
-		final ProblemDetail problem = this.handler.handleAccessDenied(new AccessDeniedException(SENSITIVE_DETAIL), null);
+		final ProblemDetail problem = this.handler.handleAccessDenied(new AccessDeniedException(SENSITIVE_DETAIL),
+				null);
 
 		assertSafeProblem(problem, HttpStatus.FORBIDDEN, ACCESS_DENIED_TYPE,
 				"You are not authorized to perform this operation");

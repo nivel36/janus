@@ -41,8 +41,8 @@ class KeycloakJwtRolesConverterTest {
 
 	@Test
 	void shouldNotGrantAdminWhenAdminRoleBelongsToAnotherClient() {
-		final Jwt jwt = this.buildJwt(Map.of("resource_access",
-				Map.of("other-client", Map.of("roles", List.of("JANUS_ADMIN")))));
+		final Jwt jwt = this
+				.buildJwt(Map.of("resource_access", Map.of("other-client", Map.of("roles", List.of("JANUS_ADMIN")))));
 
 		final Collection<GrantedAuthority> authorities = KeycloakJwtRolesConverter.extract(jwt, "janus-api");
 

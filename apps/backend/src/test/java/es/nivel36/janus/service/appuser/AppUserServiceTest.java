@@ -78,9 +78,8 @@ class AppUserServiceTest {
 
 	@Test
 	void testCreateAppUserThrowsWhenTimezoneIsInvalid() {
-		assertThrows(ZoneRulesException.class,
-				() -> this.appUserService.createAppUser("aferrer", "11111111-1111-4111-8111-111111111111",
-						Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Mars/Olympus")));
+		assertThrows(ZoneRulesException.class, () -> this.appUserService.createAppUser("aferrer",
+				"11111111-1111-4111-8111-111111111111", Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Mars/Olympus")));
 	}
 
 	@Test
@@ -88,7 +87,7 @@ class AppUserServiceTest {
 		when(this.appUserRepository.existsByUsername("aferrer")).thenReturn(true);
 
 		final ZoneId zoneId = ZoneId.of("Europe/Madrid");
-		
+
 		assertThrows(ResourceAlreadyExistsException.class, () -> {
 			this.appUserService.createAppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
 					TimeFormat.H24, zoneId);
@@ -101,10 +100,8 @@ class AppUserServiceTest {
 	void testCreateAppUserRejectsAnAlreadyLinkedIdentity() {
 		when(this.appUserRepository.existsByKeycloakSubject("11111111-1111-4111-8111-111111111111")).thenReturn(true);
 
-		assertThrows(ResourceAlreadyExistsException.class,
-				() -> this.appUserService.createAppUser("aferrer", "11111111-1111-4111-8111-111111111111",
-						Locale.ENGLISH, TimeFormat.H24,
-						ZoneId.of("Europe/Madrid")));
+		assertThrows(ResourceAlreadyExistsException.class, () -> this.appUserService.createAppUser("aferrer",
+				"11111111-1111-4111-8111-111111111111", Locale.ENGLISH, TimeFormat.H24, ZoneId.of("Europe/Madrid")));
 	}
 
 	@Test
@@ -112,7 +109,7 @@ class AppUserServiceTest {
 		final AppUser appUser = new AppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
 				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
 		when(this.appUserRepository.findByKeycloakSubject("11111111-1111-4111-8111-111111111111"))
-			.thenReturn(java.util.Optional.of(appUser));
+				.thenReturn(java.util.Optional.of(appUser));
 
 		assertEquals(appUser, this.appUserService.findAppUserByKeycloakSubject("11111111-1111-4111-8111-111111111111"));
 	}
@@ -127,19 +124,17 @@ class AppUserServiceTest {
 		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
 		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
 		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
-		when(this.employeeService.findEmployeeForProvisioning("person@example.test"))
-			.thenReturn(Optional.of(employee));
+		when(this.employeeService.findEmployeeForProvisioning("person@example.test")).thenReturn(Optional.of(employee));
 		when(this.appUserRepository.findByEmployee(employee)).thenReturn(Optional.empty());
-		when(this.appUserRepository.findByKeycloakSubject(subject))
-			.thenReturn(Optional.empty(), Optional.empty(), Optional.of(winner));
+		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty(), Optional.empty(),
+				Optional.of(winner));
 		when(this.appUserRepository.existsByEmployee(employee)).thenReturn(true);
-		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24),
-				eq(timezone), eq(employee))).thenThrow(new DataIntegrityViolationException("employee claimed"));
-		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24),
-				eq(timezone), isNull())).thenThrow(new DataIntegrityViolationException("subject claimed"));
+		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
+				eq(employee))).thenThrow(new DataIntegrityViolationException("employee claimed"));
+		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
+				isNull())).thenThrow(new DataIntegrityViolationException("subject claimed"));
 
-		assertSame(winner,
-				this.appUserService.findOrCreateAppUser(subject, username, "person@example.test"));
+		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, username, "person@example.test"));
 	}
 
 	@Test

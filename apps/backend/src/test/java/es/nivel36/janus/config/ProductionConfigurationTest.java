@@ -30,13 +30,12 @@ import org.springframework.core.io.ClassPathResource;
 
 class ProductionConfigurationTest {
 
-	private static final Map<String, String> REQUIRED_CONFIGURATION = Map.of(
-			"JANUS_DATASOURCE_USERNAME", "janus", "JANUS_DATASOURCE_PASSWORD", "secret", "JWT_ISSUER_URL",
-			"https://identity.example/realms/janus", "JANUS_SECURITY_CLIENT_ID", "janus-api");
+	private static final Map<String, String> REQUIRED_CONFIGURATION = Map.of("JANUS_DATASOURCE_USERNAME", "janus",
+			"JANUS_DATASOURCE_PASSWORD", "secret", "JWT_ISSUER_URL", "https://identity.example/realms/janus",
+			"JANUS_SECURITY_CLIENT_ID", "janus-api");
 
-	private static final Map<String, String> CRITICAL_PROPERTIES = Map.of(
-			"JANUS_DATASOURCE_USERNAME", "spring.datasource.username", "JANUS_DATASOURCE_PASSWORD",
-			"spring.datasource.password", "JWT_ISSUER_URL",
+	private static final Map<String, String> CRITICAL_PROPERTIES = Map.of("JANUS_DATASOURCE_USERNAME",
+			"spring.datasource.username", "JANUS_DATASOURCE_PASSWORD", "spring.datasource.password", "JWT_ISSUER_URL",
 			"spring.security.oauth2.resourceserver.jwt.issuer-uri", "JANUS_SECURITY_CLIENT_ID",
 			"janus.security.client-id");
 
@@ -45,10 +44,10 @@ class ProductionConfigurationTest {
 		for (final Map.Entry<String, String> criticalProperty : CRITICAL_PROPERTIES.entrySet()) {
 			final Map<String, Object> supplied = new LinkedHashMap<>(REQUIRED_CONFIGURATION);
 			supplied.remove(criticalProperty.getKey());
-			final PropertySourcesPropertyResolver resolver = loadProdConfiguration(supplied);
+			final PropertySourcesPropertyResolver resolver = this.loadProdConfiguration(supplied);
 
 			assertThatThrownBy(() -> resolver.getRequiredProperty(criticalProperty.getValue()))
-				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining(criticalProperty.getKey());
+					.isInstanceOf(IllegalArgumentException.class).hasMessageContaining(criticalProperty.getKey());
 		}
 	}
 
@@ -57,10 +56,10 @@ class ProductionConfigurationTest {
 		final Map<String, Object> supplied = new LinkedHashMap<>(REQUIRED_CONFIGURATION);
 		supplied.put("SPRING_JWT_ISSUER_URI", "https://wrong.example/issuer");
 		supplied.put("JWT_JWK_SET_URI", "https://wrong.example/jwks");
-		final PropertySourcesPropertyResolver resolver = loadProdConfiguration(supplied);
+		final PropertySourcesPropertyResolver resolver = this.loadProdConfiguration(supplied);
 
 		assertThat(resolver.getRequiredProperty("spring.security.oauth2.resourceserver.jwt.issuer-uri"))
-			.isEqualTo("https://identity.example/realms/janus");
+				.isEqualTo("https://identity.example/realms/janus");
 		assertThat(resolver.getProperty("spring.security.oauth2.resourceserver.jwt.jwk-set-uri")).isNull();
 	}
 
@@ -69,7 +68,7 @@ class ProductionConfigurationTest {
 		final MutablePropertySources propertySources = new MutablePropertySources();
 		propertySources.addFirst(new MapPropertySource("production environment", supplied));
 		new YamlPropertySourceLoader().load("application-prod", new ClassPathResource("application-prod.yml"))
-			.forEach(propertySources::addLast);
+				.forEach(propertySources::addLast);
 		return new PropertySourcesPropertyResolver(propertySources);
 	}
 }

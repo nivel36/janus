@@ -29,13 +29,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
+import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -52,8 +52,7 @@ class ApplicationSettingsControllerIT {
 	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
 	void testFindShouldReturnCurrentSettingsForEmployeeRole() throws Exception {
 		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
-				.andExpect(status().isOk())
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.daysUntilLocked").isNumber())
 				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").isBoolean())
 				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").isBoolean())
@@ -80,8 +79,7 @@ class ApplicationSettingsControllerIT {
 				""";
 
 		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
-				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
-				.andExpect(status().isOk())
+				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.daysUntilLocked").value(3))
 				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").value(false))
 				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").value(true))

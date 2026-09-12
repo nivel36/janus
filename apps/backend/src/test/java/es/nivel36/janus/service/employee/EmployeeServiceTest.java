@@ -46,10 +46,9 @@ class EmployeeServiceTest {
 
 	@Test
 	void testFindEmployeeByKeycloakSubjectReturnsLinkedEmployee() {
-		final Employee employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es",
-				mock(Schedule.class));
+		final Employee employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", mock(Schedule.class));
 		when(this.employeeRepository.findByKeycloakSubject("11111111-1111-4111-8111-111111111111"))
-			.thenReturn(Optional.of(employee));
+				.thenReturn(Optional.of(employee));
 
 		assertEquals(employee,
 				this.employeeService.findEmployeeByKeycloakSubject("11111111-1111-4111-8111-111111111111"));
@@ -59,7 +58,7 @@ class EmployeeServiceTest {
 	@Test
 	void testFindEmployeeByKeycloakSubjectThrowsWhenNoEmployeeIsLinked() {
 		when(this.employeeRepository.findByKeycloakSubject("11111111-1111-4111-8111-111111111111"))
-			.thenReturn(Optional.empty());
+				.thenReturn(Optional.empty());
 
 		assertThrows(ResourceNotFoundException.class,
 				() -> this.employeeService.findEmployeeByKeycloakSubject("11111111-1111-4111-8111-111111111111"));

@@ -21,14 +21,14 @@ import es.nivel36.janus.service.worksite.WorksiteScope;
 /**
  * Response payload describing a {@link Worksite}.
  *
- * @param code     the unique business code of the worksite
- * @param name     the human readable name of the worksite
- * @param timeZone the {@link java.time.ZoneId} identifier assigned to the
- *                 worksite
- * @param scope    the visibility scope of the worksite
+ * @param code        the unique business code of the worksite
+ * @param name        the human readable name of the worksite
+ * @param timeZone    the {@link java.time.ZoneId} identifier assigned to the
+ *                    worksite
+ * @param scope       the visibility scope of the worksite
  * @param description optional worksite description
- * @param address optional worksite address
- * @param active {@code true} when the worksite is not logically deleted
+ * @param address     optional worksite address
+ * @param active      {@code true} when the worksite is not logically deleted
  */
 public record WorksiteResponse(String code, String name, String timeZone, WorksiteScope scope, String description,
 		String address, boolean active) {

@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service responsible for managing and retrieving global
  * {@link ApplicationSettings}.
- * 
+ *
  */
 @Service
 public class ApplicationSettingsService {
@@ -56,16 +56,16 @@ public class ApplicationSettingsService {
 	 * {@link ApplicationSettings#GLOBAL_SETTINGS_ID} and then updated with the
 	 * supplied parameters.
 	 *
-	 * @param daysUntilLocked                  number of days before an entity
-	 *                                         becomes locked.
-	 * @param employeeWorkplaceCreationAllowed whether employees are allowed to
-	 *                                         create workplaces.
-	 * @param worksiteChangeDuringShiftAllowed whether worksite changes are allowed
-	 *                                         during a shift.
-	 * @param employeeManualTimelogEntryAllowed whether employees are allowed to
-	 *                                          set custom entry/exit instants in
+	 * @param daysUntilLocked                   number of days before an entity
+	 *                                          becomes locked.
+	 * @param employeeWorkplaceCreationAllowed  whether employees are allowed to
+	 *                                          create workplaces.
+	 * @param worksiteChangeDuringShiftAllowed  whether worksite changes are allowed
+	 *                                          during a shift.
+	 * @param employeeManualTimelogEntryAllowed whether employees are allowed to set
+	 *                                          custom entry/exit instants in
 	 *                                          timelog operations.
-	 * @param defaultTimezone                  default application time zone.
+	 * @param defaultTimezone                   default application time zone.
 	 * @return the updated {@link ApplicationSettings} instance.
 	 * @throws IllegalStateException if the global application settings entry does
 	 *                               not exist.

@@ -91,8 +91,8 @@ class SecurityConfigTest {
 		final Jwt jwt = this.jwt(List.of("janus-api"), null, true, "person");
 
 		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isFalse();
-		org.assertj.core.api.Assertions.assertThatThrownBy(
-				() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
+		org.assertj.core.api.Assertions
+				.assertThatThrownBy(() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
 				.isInstanceOf(BadCredentialsException.class);
 	}
 
@@ -101,8 +101,8 @@ class SecurityConfigTest {
 		final Jwt jwt = this.jwt(List.of("janus-api"), "person@example.test", false, "person");
 
 		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isFalse();
-		org.assertj.core.api.Assertions.assertThatThrownBy(
-				() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
+		org.assertj.core.api.Assertions
+				.assertThatThrownBy(() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
 				.isInstanceOf(BadCredentialsException.class);
 	}
 

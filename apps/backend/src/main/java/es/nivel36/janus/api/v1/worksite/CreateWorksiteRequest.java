@@ -24,14 +24,13 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload for creating a new {@link Worksite}.
  *
- * @param code               the unique business code identifying the worksite;
- *                           must follow the {@code [A-Za-z0-9_-]{1,50}} pattern
- * @param name               the human readable name of the worksite; must
- *                           contain between 1 and 250 characters
- * @param timeZone           the {@link java.time.ZoneId} identifier associated
- *                           with the worksite; must contain between 1 and 80
- *                           characters
- * @param scope              the visibility scope of the worksite
+ * @param code     the unique business code identifying the worksite; must
+ *                 follow the {@code [A-Za-z0-9_-]{1,50}} pattern
+ * @param name     the human readable name of the worksite; must contain between
+ *                 1 and 250 characters
+ * @param timeZone the {@link java.time.ZoneId} identifier associated with the
+ *                 worksite; must contain between 1 and 80 characters
+ * @param scope    the visibility scope of the worksite
  */
 public record CreateWorksiteRequest(@NotBlank(message = "code must not be blank") //
 @Pattern( //

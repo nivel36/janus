@@ -34,8 +34,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -125,7 +125,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(ResourceAlreadyExistsException.class)
-	ProblemDetail handleResourceAlreadyExists(final ResourceAlreadyExistsException ex, final HttpServletRequest request) {
+	ProblemDetail handleResourceAlreadyExists(final ResourceAlreadyExistsException ex,
+			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Resource already exists");
@@ -181,7 +182,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(ClockOutWithoutClockInException.class)
-	ProblemDetail handleClockOutWithoutClockIn(final ClockOutWithoutClockInException ex, final HttpServletRequest request) {
+	ProblemDetail handleClockOutWithoutClockIn(final ClockOutWithoutClockInException ex,
+			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Invalid Clock out");
@@ -215,7 +217,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(EventAlreadyFinalizedException.class)
-	ProblemDetail handleEventAlreadyFinalized(final EventAlreadyFinalizedException ex, final HttpServletRequest request) {
+	ProblemDetail handleEventAlreadyFinalized(final EventAlreadyFinalizedException ex,
+			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Event already finalized");

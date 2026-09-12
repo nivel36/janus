@@ -33,8 +33,8 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
+import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc

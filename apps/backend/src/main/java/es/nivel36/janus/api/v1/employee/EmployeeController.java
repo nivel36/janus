@@ -64,8 +64,8 @@ public class EmployeeController {
 	 *                               {@link EmployeeResponse} DTOs; must not be
 	 *                               {@code null}
 	 */
-	public EmployeeController(final EmployeeService employeeService,
-			final ScheduleService scheduleService, final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
+	public EmployeeController(final EmployeeService employeeService, final ScheduleService scheduleService,
+			final Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.employeeResponseMapper = Objects.requireNonNull(employeeResponseMapper,

@@ -34,13 +34,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
+import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -96,8 +96,7 @@ class WorksiteControllerIT {
 	void testListAsEmployeeShouldRejectWhenJwtEmailClaimMissing() throws Exception {
 		this.mvc.perform(get(BASE).with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
-				.andExpect(status().isForbidden());
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))).andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -161,7 +160,6 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.content[?(@.code=='%s')]".formatted(code)).exists());
 	}
 
-
 	@Test
 	@Sql(statements = {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
@@ -208,14 +206,16 @@ class WorksiteControllerIT {
 
 		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es").claim("email_verified", true))
-				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Barcelona Assigned"))
+				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+						.claim("email_verified", true))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read")))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("Barcelona Assigned"))
 				.andExpect(jsonPath("$.scope").value("ASSIGNED"));
 
 		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-				.jwt(jwt -> jwt.subject("bperson@nivel36.es").claim("email", "bperson@nivel36.es").claim("email_verified", true))
+				.jwt(jwt -> jwt.subject("bperson@nivel36.es").claim("email", "bperson@nivel36.es")
+						.claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());
 	}

@@ -131,7 +131,9 @@ class ClockOutWithoutClockInEventControllerIT {
 		final String exit = "2025-08-04T16:00:00Z";
 
 		this.mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", exit) //
-				.param("worksiteCode", "HOME-AF").with(jwt().jwt(jwt -> jwt.subject("provider-account-id")).authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.param("worksiteCode", "HOME-AF")
+				.with(jwt().jwt(jwt -> jwt.subject("provider-account-id"))
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.employeeEmail").value("aferrer@nivel36.es")) //
@@ -159,7 +161,9 @@ class ClockOutWithoutClockInEventControllerIT {
 
 		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
-				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("provider-account-id")).authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.contentType(APPLICATION_JSON).content(body)
+				.with(jwt().jwt(jwt -> jwt.subject("provider-account-id"))
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.resolved").value(true)) //
@@ -186,7 +190,9 @@ class ClockOutWithoutClockInEventControllerIT {
 
 		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
-				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("provider-account-id")).authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.contentType(APPLICATION_JSON).content(body)
+				.with(jwt().jwt(jwt -> jwt.subject("provider-account-id"))
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.resolved").value(false)) //
@@ -212,7 +218,9 @@ class ClockOutWithoutClockInEventControllerIT {
 
 		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
-				.contentType(APPLICATION_JSON).content(body).with(jwt().jwt(jwt -> jwt.subject("provider-account-id")).authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.contentType(APPLICATION_JSON).content(body)
+				.with(jwt().jwt(jwt -> jwt.subject("provider-account-id"))
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isForbidden());
 	}
 }

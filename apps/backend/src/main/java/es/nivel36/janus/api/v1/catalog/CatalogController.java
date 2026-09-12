@@ -48,7 +48,7 @@ public class CatalogController {
 	 * @param timeZoneCatalogService service used to retrieve time zone catalog data
 	 */
 	public CatalogController(final TimeZoneCatalogService timeZoneCatalogService,
-			Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper) {
+			final Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper) {
 		this.timeZoneCatalogService = Objects.requireNonNull(timeZoneCatalogService,
 				"timeZoneCatalogService can't be null");
 		this.timeZoneCatalogItemResponseMapper = Objects.requireNonNull(timeZoneCatalogItemResponseMapper,
@@ -71,7 +71,7 @@ public class CatalogController {
 			@RequestParam(value = "sortBy", defaultValue = "LEVEL1") final TimeZoneSortBy sortBy,
 			final @PageableDefault(size = 25) Pageable pageable) {
 		final Page<TimeZoneCatalogItem> zones = this.timeZoneCatalogService.search(search, sortBy, pageable);
-		final Page<TimeZoneCatalogItemResponse> response = zones.map(timeZoneCatalogItemResponseMapper::map);
+		final Page<TimeZoneCatalogItemResponse> response = zones.map(this.timeZoneCatalogItemResponseMapper::map);
 		return ResponseEntity.ok(response);
 	}
 

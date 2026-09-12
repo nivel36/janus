@@ -67,8 +67,8 @@ public class UserProvisioningProperties {
 
 	@AssertTrue(message = "must identify a supported locale")
 	boolean isLocaleSupported() {
-		return this.locale == null || Locale.availableLocales()
-				.anyMatch(candidate -> candidate.toLanguageTag().equals(this.locale));
+		return this.locale == null
+				|| Locale.availableLocales().anyMatch(candidate -> candidate.toLanguageTag().equals(this.locale));
 	}
 
 	@AssertTrue(message = "must be a valid timezone identifier")

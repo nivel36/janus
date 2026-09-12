@@ -39,7 +39,7 @@ public class ActorResolver {
 	 */
 	@Transactional(readOnly = true)
 	public Actor resolve(final Authentication authentication) {
-		if (!(authentication instanceof JwtAuthenticationToken jwtAuthentication)
+		if (!(authentication instanceof final JwtAuthenticationToken jwtAuthentication)
 				|| !authentication.isAuthenticated()) {
 			throw new AccessDeniedException("The authenticated identity is not supported");
 		}

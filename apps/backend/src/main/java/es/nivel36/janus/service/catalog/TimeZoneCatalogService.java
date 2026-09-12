@@ -34,7 +34,8 @@ import org.springframework.stereotype.Service;
 public class TimeZoneCatalogService {
 
 	/**
-	 * Searches available Java {@link ZoneId} values and returns a paginated catalog.
+	 * Searches available Java {@link ZoneId} values and returns a paginated
+	 * catalog.
 	 * <p>
 	 * Search is a simple case-insensitive {@code contains} over the full zone id
 	 * string.
@@ -52,11 +53,11 @@ public class TimeZoneCatalogService {
 		final String normalizedSearch = search == null ? null : search.trim().toLowerCase(Locale.ROOT);
 		final ZonedDateTime now = ZonedDateTime.now();
 
-		final List<TimeZoneCatalogItem> filtered = ZoneId.getAvailableZoneIds().stream().sorted().map(zoneId -> map(zoneId, now))
+		final List<TimeZoneCatalogItem> filtered = ZoneId.getAvailableZoneIds().stream().sorted()
+				.map(zoneId -> this.map(zoneId, now))
 				.filter(item -> normalizedSearch == null || normalizedSearch.isBlank()
 						|| item.zoneId().toLowerCase(Locale.ROOT).contains(normalizedSearch))
-				.sorted(resolveSort(sortBy))
-				.toList();
+				.sorted(this.resolveSort(sortBy)).toList();
 
 		final int start = Math.toIntExact(pageable.getOffset());
 		if (start >= filtered.size()) {
@@ -70,7 +71,7 @@ public class TimeZoneCatalogService {
 	private TimeZoneCatalogItem map(final String zoneId, final ZonedDateTime referenceDateTime) {
 		final ZoneId parsedZoneId = ZoneId.of(zoneId);
 		final int offsetSeconds = referenceDateTime.withZoneSameInstant(parsedZoneId).getOffset().getTotalSeconds();
-		final String utc = formatUtcOffset(offsetSeconds);
+		final String utc = this.formatUtcOffset(offsetSeconds);
 		final int splitIndex = zoneId.indexOf('/');
 		final String level1 = splitIndex >= 0 ? zoneId.substring(0, splitIndex) : zoneId;
 		// Keep everything after the first slash as the second level, including
@@ -83,7 +84,7 @@ public class TimeZoneCatalogService {
 	private String formatUtcOffset(final int totalSeconds) {
 		final int absTotalSeconds = Math.abs(totalSeconds);
 		final int hours = absTotalSeconds / 3600;
-		final int minutes = (absTotalSeconds % 3600) / 60;
+		final int minutes = absTotalSeconds % 3600 / 60;
 		final String sign = totalSeconds >= 0 ? "+" : "-";
 		if (minutes == 0) {
 			return "UTC" + sign + hours;
@@ -93,10 +94,9 @@ public class TimeZoneCatalogService {
 
 	private Comparator<TimeZoneCatalogItem> resolveSort(final TimeZoneSortBy sortBy) {
 		return switch (sortBy) {
-		case LEVEL1 -> Comparator.comparing(TimeZoneCatalogItem::level1)
-				.thenComparing(TimeZoneCatalogItem::zoneId);
-		case UTC -> Comparator.comparingInt(TimeZoneCatalogItem::offsetSeconds)
-				.thenComparing(TimeZoneCatalogItem::zoneId);
+		case LEVEL1 -> Comparator.comparing(TimeZoneCatalogItem::level1).thenComparing(TimeZoneCatalogItem::zoneId);
+		case UTC ->
+			Comparator.comparingInt(TimeZoneCatalogItem::offsetSeconds).thenComparing(TimeZoneCatalogItem::zoneId);
 		};
 	}
 }

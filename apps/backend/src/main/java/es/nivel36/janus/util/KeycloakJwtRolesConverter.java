@@ -54,12 +54,13 @@ public class KeycloakJwtRolesConverter {
 	}
 
 	/**
-	 * Extracts the configured client's roles from the given {@link Jwt} and converts them into a
-	 * collection of {@link GrantedAuthority}.
+	 * Extracts the configured client's roles from the given {@link Jwt} and
+	 * converts them into a collection of {@link GrantedAuthority}.
 	 *
 	 * <p>
-	 * @param jwt the JWT token from which roles are extracted. Can't be
-	 *            {@code null}.
+	 *
+	 * @param jwt      the JWT token from which roles are extracted. Can't be
+	 *                 {@code null}.
 	 * @param clientId the resource client whose roles are trusted. Can't be
 	 *                 {@code null}.
 	 * @return a collection of unique {@link GrantedAuthority} derived from the

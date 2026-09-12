@@ -30,16 +30,16 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
@@ -180,14 +180,13 @@ public class SecurityConfig {
 	 *         authorities.
 	 */
 	@Bean
-	JwtAuthenticationConverter jwtAuthenticationConverter(
-			@Value("${janus.security.client-id}") final String clientId) {
+	JwtAuthenticationConverter jwtAuthenticationConverter(@Value("${janus.security.client-id}") final String clientId) {
 		final JwtGrantedAuthoritiesConverter scopesConverter = new JwtGrantedAuthoritiesConverter();
 
 		final JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
-		authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> Stream
-				.concat(scopesConverter.convert(jwt).stream(), KeycloakJwtRolesConverter.extract(jwt, clientId).stream())
-				.distinct().toList());
+		authenticationConverter
+				.setJwtGrantedAuthoritiesConverter(jwt -> Stream.concat(scopesConverter.convert(jwt).stream(),
+						KeycloakJwtRolesConverter.extract(jwt, clientId).stream()).distinct().toList());
 		// The principal is the provider-stable subject. AppUser authorization further
 		// scopes it by the validated issuer.
 		authenticationConverter.setPrincipalClaimName("sub");
@@ -199,15 +198,13 @@ public class SecurityConfig {
 			@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String issuer,
 			@Value("${janus.security.client-id}") final String clientId) {
 		final OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience() != null
-				&& jwt.getAudience().contains(clientId)
-				? OAuth2TokenValidatorResult.success()
-				: OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
-						"The token audience does not contain the Janus client", null));
-		final OAuth2TokenValidator<Jwt> identityValidator = jwt -> StringUtils
-				.hasText(jwt.getClaimAsString("iss")) && StringUtils.hasText(jwt.getSubject())
-						? OAuth2TokenValidatorResult.success()
+				&& jwt.getAudience().contains(clientId) ? OAuth2TokenValidatorResult.success()
 						: OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
-								"Non-blank iss and sub claims are required", null));
+								"The token audience does not contain the Janus client", null));
+		final OAuth2TokenValidator<Jwt> identityValidator = jwt -> StringUtils.hasText(jwt.getClaimAsString("iss"))
+				&& StringUtils.hasText(jwt.getSubject()) ? OAuth2TokenValidatorResult.success()
+						: OAuth2TokenValidatorResult.failure(
+								new OAuth2Error("invalid_token", "Non-blank iss and sub claims are required", null));
 		return new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefaultWithIssuer(issuer), audienceValidator,
 				identityValidator);
 	}
@@ -217,7 +214,8 @@ public class SecurityConfig {
 	JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String issuer,
 			@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}") final String jwkSetUri,
 			final OAuth2TokenValidator<Jwt> jwtValidator) {
-		final NimbusJwtDecoder decoder = StringUtils.hasText(jwkSetUri) ? NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
+		final NimbusJwtDecoder decoder = StringUtils.hasText(jwkSetUri)
+				? NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
 				: NimbusJwtDecoder.withIssuerLocation(issuer).build();
 		decoder.setJwtValidator(jwtValidator);
 		return decoder;

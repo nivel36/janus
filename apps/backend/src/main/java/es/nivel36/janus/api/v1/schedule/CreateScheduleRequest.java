@@ -27,10 +27,10 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload used to create a new {@link Schedule} aggregate.
  *
- * @param code  unique business identifier assigned to the schedule; must follow
- *              the {@code [A-Za-z0-9_-]{1,50}} pattern
- * @param name  human readable name describing the schedule; must contain
- *              between 1 and 250 allowed characters
+ * @param code           unique business identifier assigned to the schedule;
+ *                       must follow the {@code [A-Za-z0-9_-]{1,50}} pattern
+ * @param name           human readable name describing the schedule; must
+ *                       contain between 1 and 250 allowed characters
  * @param entryTolerance allowed tolerance for entry times; must not be
  *                       {@code null}
  * @param exitTolerance  allowed tolerance for exit times; must not be

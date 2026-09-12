@@ -50,19 +50,20 @@ class AppUserProvisioningIT {
 		final CountDownLatch start = new CountDownLatch(1);
 		try (var executor = Executors.newFixedThreadPool(2)) {
 			final List<Future<AppUser>> requests = List.of(
-					executor.submit(() -> provisionAfter(start, "concurrent-user-one")),
-					executor.submit(() -> provisionAfter(start, "concurrent-user-two")));
+					executor.submit(() -> this.provisionAfter(start, "concurrent-user-one")),
+					executor.submit(() -> this.provisionAfter(start, "concurrent-user-two")));
 			start.countDown();
 
 			final AppUser first = requests.get(0).get();
 			final AppUser second = requests.get(1).get();
 			assertEquals(first.getId(), second.getId());
-			assertEquals(1, this.jdbcTemplate.queryForObject(
-					"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?", Integer.class, SUBJECT));
+			assertEquals(1, this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?",
+					Integer.class, SUBJECT));
 		}
 	}
 
-	private AppUser provisionAfter(final CountDownLatch start, final String preferredUsername) throws InterruptedException {
+	private AppUser provisionAfter(final CountDownLatch start, final String preferredUsername)
+			throws InterruptedException {
 		start.await();
 		return this.appUserService.findOrCreateAppUser(SUBJECT, preferredUsername);
 	}

@@ -48,8 +48,7 @@ public class AppUser implements Serializable {
 
 	public static final ZoneId DEFAULT_TIMEZONE = ZoneId.of("UTC");
 	public static final String USERNAME_PATTERN = "[A-Za-z0-9_.@-]{3,50}";
-	public static final String USERNAME_VALIDATION_MESSAGE =
-			"username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)";
+	public static final String USERNAME_VALIDATION_MESSAGE = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -86,8 +85,8 @@ public class AppUser implements Serializable {
 		this(username, keycloakSubject, locale, timeFormat, DEFAULT_TIMEZONE);
 	}
 
-	public AppUser(final String username, final String keycloakSubject, final Locale locale, final TimeFormat timeFormat,
-			final ZoneId defaultTimezone) {
+	public AppUser(final String username, final String keycloakSubject, final Locale locale,
+			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
 		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
 		this.keycloakSubject = Strings.requireNonBlank(keycloakSubject, "keycloakSubject can't be null or blank");
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");

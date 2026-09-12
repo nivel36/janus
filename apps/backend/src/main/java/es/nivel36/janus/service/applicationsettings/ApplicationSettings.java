@@ -116,21 +116,21 @@ public class ApplicationSettings implements Serializable {
 	/**
 	 * Creates a new instance with the specified modification window.
 	 *
-	 * @param daysUntilLocked                  number of days a {@link TimeLog} can
-	 *                                         be modified; must be greater than or
-	 *                                         equal to {@code 0}
-	 * @param employeeWorkplaceCreationAllowed whether employees are allowed to
-	 *                                         create their own workplace
-	 * @param worksiteChangeDuringShiftAllowed whether employees are allowed to
-	 *                                         change their worksite during an
-	 *                                         active shift.
+	 * @param daysUntilLocked                   number of days a {@link TimeLog} can
+	 *                                          be modified; must be greater than or
+	 *                                          equal to {@code 0}
+	 * @param employeeWorkplaceCreationAllowed  whether employees are allowed to
+	 *                                          create their own workplace
+	 * @param worksiteChangeDuringShiftAllowed  whether employees are allowed to
+	 *                                          change their worksite during an
+	 *                                          active shift.
 	 * @param employeeManualTimelogEntryAllowed whether employees are allowed to
-	 *                                         create manual timelog entries with
-	 *                                         explicit timestamps.
-	 * @param defaultTimezone                  default application time zone.
-	 * 
+	 *                                          create manual timelog entries with
+	 *                                          explicit timestamps.
+	 * @param defaultTimezone                   default application time zone.
+	 *
 	 * @throws IllegalArgumentException if {@code daysUntilLocked} is negative
-	 * @throws NullPointerException if defaultTimezone is {@code null}
+	 * @throws NullPointerException     if defaultTimezone is {@code null}
 	 */
 	public ApplicationSettings(final int daysUntilLocked, final boolean employeeWorkplaceCreationAllowed,
 			final boolean worksiteChangeDuringShiftAllowed, final boolean employeeManualTimelogEntryAllowed,
@@ -260,8 +260,7 @@ public class ApplicationSettings implements Serializable {
 	 * Sets whether employees can provide manual entry/exit timestamps.
 	 *
 	 * @param employeeManualTimelogEntryAllowed {@code true} to allow manual
-	 *                                           timestamps; {@code false}
-	 *                                           otherwise
+	 *                                          timestamps; {@code false} otherwise
 	 */
 	public void setEmployeeManualTimelogEntryAllowed(final boolean employeeManualTimelogEntryAllowed) {
 		this.employeeManualTimelogEntryAllowed = employeeManualTimelogEntryAllowed;
@@ -269,9 +268,9 @@ public class ApplicationSettings implements Serializable {
 
 	/**
 	 * Sets the default time zone used by the application
-	 * 
+	 *
 	 * @param defaultTimezone default application time zone.
-	 * 
+	 *
 	 * @throws NullPointerException if defaultTimezone is {@code null}
 	 */
 	public void setDefaultTimezone(final ZoneId defaultTimezone) {

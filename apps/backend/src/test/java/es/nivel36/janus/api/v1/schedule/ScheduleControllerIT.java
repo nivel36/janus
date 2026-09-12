@@ -37,8 +37,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
+import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -162,14 +162,10 @@ class ScheduleControllerIT {
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(BASE).with(jwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
-				.andExpect(status().isOk())
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-				.andExpect(jsonPath("$.page.totalElements").value(1))
-				.andExpect(jsonPath("$.page.size").value(20))
-				.andExpect(jsonPath("$.page.number").value(0))
-				.andExpect(jsonPath("$.content[0].code").value("STD-WH"));
+		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.page.totalElements").value(1)).andExpect(jsonPath("$.page.size").value(20))
+				.andExpect(jsonPath("$.page.number").value(0)).andExpect(jsonPath("$.content[0].code").value("STD-WH"));
 	}
 
 	@Test
@@ -209,7 +205,7 @@ class ScheduleControllerIT {
 				.andExpect(jsonPath("$.name").value("Standard Work Hours")) //
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].dayOfWeek").value("MONDAY"));
 	}
-	
+
 	@Test
 	void testUpdateScheduleShouldReturn200AndBody() throws Exception {
 		final String createBody = """

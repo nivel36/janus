@@ -53,10 +53,10 @@ public class EmployeeAuthorizationAdapter {
 
 	private long employeeId(final String employeeEmail) {
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		if(employee == null) {
+		if (employee == null) {
 			throw new AccessDeniedException("The employee's email is invalid");
 		}
 		return employee.getId();
-		
+
 	}
 }
