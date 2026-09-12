@@ -99,27 +99,27 @@ public class AppUserService {
 			final String verifiedEmail) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 
-		final var existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject.trim());
+		final var existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 		if (existing.isPresent()) {
 			return existing.get();
 		}
 
 		final String username = validatePreferredUsername(preferredUsername);
-		final Employee employee = this.findUnlinkedEmployee(verifiedEmail, keycloakSubject.trim());
+		final Employee employee = this.findUnlinkedEmployee(verifiedEmail, keycloakSubject);
 		try {
-			return this.appUserCreator.create(username, keycloakSubject.trim(), this.provisioningDefaults.locale(),
+			return this.appUserCreator.create(username, keycloakSubject, this.provisioningDefaults.locale(),
 					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), employee);
 		} catch (final DataIntegrityViolationException raceOrDuplicate) {
 			// Another request may have committed the same subject while this request was
 			// provisioning it. The failed insert ran in REQUIRES_NEW, so this transaction
 			// remains usable and can read the winning row.
-			final var concurrentlyCreated = this.appUserRepository.findByKeycloakSubject(keycloakSubject.trim());
+			final var concurrentlyCreated = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 			if (concurrentlyCreated.isPresent()) {
 				return concurrentlyCreated.get();
 			}
 			if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
-				this.logEmployeeConflict(employee, keycloakSubject.trim());
-				return this.createWithoutEmployeeAfterConflict(username, keycloakSubject.trim());
+				this.logEmployeeConflict(employee, keycloakSubject);
+				return this.createWithoutEmployeeAfterConflict(username, keycloakSubject);
 			}
 			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
 		}
@@ -160,7 +160,7 @@ public class AppUserService {
 		if (preferredUsername == null) {
 			throw new IllegalArgumentException("preferred_username claim is required");
 		}
-		final String username = preferredUsername.trim();
+		final String username = preferredUsername;
 		if (!username.matches(AppUser.USERNAME_PATTERN)) {
 			throw new IllegalArgumentException(
 					"preferred_username claim is invalid: " + AppUser.USERNAME_VALIDATION_MESSAGE);
@@ -242,7 +242,7 @@ public class AppUserService {
 			throw new ResourceAlreadyExistsException("Employee is already linked to an application user");
 		}
 
-		final AppUser appUser = new AppUser(username.trim(), keycloakSubject.trim(), locale, timeFormat,
+		final AppUser appUser = new AppUser(username, keycloakSubject, locale, timeFormat,
 				defaultTimezone);
 		appUser.setEmployee(employee);
 

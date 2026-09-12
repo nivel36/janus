@@ -50,7 +50,7 @@ public class TimeZoneCatalogService {
 		Objects.requireNonNull(sortBy, "sortBy can't be null");
 		Objects.requireNonNull(pageable, "pageable can't be null");
 
-		final String normalizedSearch = search == null ? null : search.trim().toLowerCase(Locale.ROOT);
+		final String normalizedSearch = search == null ? null : search.toLowerCase(Locale.ROOT);
 		final ZonedDateTime now = ZonedDateTime.now();
 
 		final List<TimeZoneCatalogItem> filtered = ZoneId.getAvailableZoneIds().stream().sorted()

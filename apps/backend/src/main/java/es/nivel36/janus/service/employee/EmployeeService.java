@@ -128,7 +128,7 @@ public class EmployeeService {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 		logger.debug("Finding Employee by keycloak subject {}", keycloakSubject);
 
-		return this.employeeRepository.findByKeycloakSubject(keycloakSubject.trim())
+		return this.employeeRepository.findByKeycloakSubject(keycloakSubject)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"There is no employee linked to keycloak subject " + keycloakSubject));
 	}
@@ -194,7 +194,7 @@ public class EmployeeService {
 			throw new ResourceAlreadyExistsException("Employee with email " + email + " already exists");
 		}
 
-		final Employee employee = new Employee(name.trim(), surname.trim(), canonicalEmail, schedule);
+		final Employee employee = new Employee(name, surname, canonicalEmail, schedule);
 
 		return this.employeeRepository.save(employee);
 	}
@@ -232,7 +232,7 @@ public class EmployeeService {
 
 		final Schedule newSchedule = this.scheduleService.findScheduleByCode(scheduleCode);
 		final Employee employee = this.findEmployee(canonicalEmail);
-		employee.setFullName(newName.trim(), newSurname.trim());
+		employee.setFullName(newName, newSurname);
 		employee.setSchedule(newSchedule);
 
 		return employee;

@@ -14,6 +14,6 @@ public final class EmailAddresses {
 	}
 
 	public static String canonicalize(final String email) {
-		return Strings.requireNonBlank(email, "email cannot be null or blank").trim().toLowerCase(Locale.ROOT);
+		return Strings.requireNonBlank(email, "email cannot be null or blank").toLowerCase(Locale.ROOT);
 	}
 }
