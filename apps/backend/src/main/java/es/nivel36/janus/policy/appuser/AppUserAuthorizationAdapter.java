@@ -8,26 +8,11 @@ import es.nivel36.janus.security.ActorResolver;
 @Component("appUserAuthorization")
 public class AppUserAuthorizationAdapter {
 	private final ActorResolver actors;
-	private final ViewAppUserPolicy view = new ViewAppUserPolicy();
-	private final CreateAppUserPolicy create = new CreateAppUserPolicy();
-	private final UpdateAppUserPolicy update = new UpdateAppUserPolicy();
 	private final UpdateCurrentAppUserPolicy updateCurrent = new UpdateCurrentAppUserPolicy();
 	private final DeleteAppUserPolicy delete = new DeleteAppUserPolicy();
 
 	public AppUserAuthorizationAdapter(final ActorResolver actors) {
 		this.actors = actors;
-	}
-
-	public boolean canView(final Authentication a) {
-		return this.view.allows(this.actors.resolve(a), null);
-	}
-
-	public boolean canCreate(final Authentication a) {
-		return this.create.allows(this.actors.resolve(a), null);
-	}
-
-	public boolean canUpdate(final Authentication a) {
-		return this.update.allows(this.actors.resolve(a), null);
 	}
 
 	public boolean canUpdateCurrent(final Authentication a) {
