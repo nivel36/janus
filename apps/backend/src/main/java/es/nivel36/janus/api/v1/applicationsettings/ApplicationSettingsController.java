@@ -47,6 +47,18 @@ public class ApplicationSettingsController {
 	private final ApplicationSettingsService applicationSettingsService;
 	private final Mapper<ApplicationSettings, ApplicationSettingsResponse> applicationSettingsResponseMapper;
 
+	/**
+	 * Builds a controller for managing global {@link ApplicationSettings}.
+	 *
+	 * @param applicationSettingsService        service handling application
+	 *                                          settings operations; must not be
+	 *                                          {@code null}
+	 * @param applicationSettingsResponseMapper mapper translating
+	 *                                          {@link ApplicationSettings} entities
+	 *                                          into
+	 *                                          {@link ApplicationSettingsResponse}
+	 *                                          DTOs; must not be {@code null}
+	 */
 	public ApplicationSettingsController(final ApplicationSettingsService applicationSettingsService,
 			final @Qualifier("applicationSettingsResponseMapper") Mapper<ApplicationSettings, ApplicationSettingsResponse> applicationSettingsResponseMapper) {
 		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
@@ -55,6 +67,11 @@ public class ApplicationSettingsController {
 				"applicationSettingsResponseMapper can't be null");
 	}
 
+	/**
+	 * Retrieves the global application settings.
+	 *
+	 * @return a {@link ResponseEntity} containing the current application settings
+	 */
 	@PreAuthorize("@applicationSettingsAuthorization.canView(authentication)")
 	@GetMapping
 	public ResponseEntity<ApplicationSettingsResponse> findApplicationSettings() {
@@ -63,6 +80,13 @@ public class ApplicationSettingsController {
 		return ResponseEntity.ok(this.applicationSettingsResponseMapper.map(applicationSettings));
 	}
 
+	/**
+	 * Updates the global application settings.
+	 *
+	 * @param request the payload describing the new settings; must not be
+	 *                {@code null}
+	 * @return a {@link ResponseEntity} containing the updated application settings
+	 */
 	@PreAuthorize("@applicationSettingsAuthorization.canUpdate(authentication)")
 	@PutMapping
 	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
@@ -73,11 +97,8 @@ public class ApplicationSettingsController {
 		final boolean worksiteChangeDuringShiftAllowed = request.worksiteChangeDuringShiftAllowed();
 		final boolean employeeManualTimelogEntryAllowed = request.employeeManualTimelogEntryAllowed();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
-		final ApplicationSettings updatedSettings = this.applicationSettingsService.update(
-				daysUntilLocked,
-				employeeWorkplaceCreationAllowed, 
-				worksiteChangeDuringShiftAllowed, 
-				employeeManualTimelogEntryAllowed,
+		final ApplicationSettings updatedSettings = this.applicationSettingsService.update(daysUntilLocked,
+				employeeWorkplaceCreationAllowed, worksiteChangeDuringShiftAllowed, employeeManualTimelogEntryAllowed,
 				zoneId);
 		return ResponseEntity.ok(this.applicationSettingsResponseMapper.map(updatedSettings));
 	}

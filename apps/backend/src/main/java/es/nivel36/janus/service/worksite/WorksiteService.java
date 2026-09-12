@@ -94,15 +94,12 @@ public class WorksiteService {
 	 */
 	@Transactional(readOnly = true)
 	public Page<Worksite> searchWorksites(final String query, final String employeeEmail, final Pageable pageable) {
-		final String sanitizedQuery = query == null ? "" : query.strip();
-		final String sanitizedEmployeeEmail = employeeEmail == null || employeeEmail.isBlank() ? null
-				: employeeEmail.strip();
-		logger.debug("Searching worksites by query {} and employee email {}", sanitizedQuery, employeeEmail);
+		logger.debug("Searching worksites by query {} and employee email {}", query, employeeEmail);
 		final Page<Worksite> worksites;
-		if (sanitizedQuery.isEmpty() && sanitizedEmployeeEmail == null) {
+		if (query == null || query.isEmpty()) {
 			worksites = this.worksiteRepository.findAll(pageable);
 		} else {
-			worksites = this.worksiteRepository.search(sanitizedQuery, sanitizedEmployeeEmail, pageable);
+			worksites = this.worksiteRepository.search(query, employeeEmail, pageable);
 		}
 
 		logger.trace("Found {} worksites", worksites.getTotalElements());

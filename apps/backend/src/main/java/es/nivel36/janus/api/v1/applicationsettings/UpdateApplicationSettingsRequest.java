@@ -34,8 +34,14 @@ import jakarta.validation.constraints.PositiveOrZero;
  *                                          default
  */
 public record UpdateApplicationSettingsRequest(
-		@PositiveOrZero(message = "daysUntilLocked must be greater than or equal to 0") int daysUntilLocked,
-		boolean employeeWorkplaceCreationAllowed, boolean worksiteChangeDuringShiftAllowed,
-		boolean employeeManualTimelogEntryAllowed,
+		@PositiveOrZero(message = "daysUntilLocked must be greater than or equal to 0") //
+		int daysUntilLocked, //
+
+		boolean employeeWorkplaceCreationAllowed, //
+
+		boolean worksiteChangeDuringShiftAllowed, //
+
+		boolean employeeManualTimelogEntryAllowed, //
+
 		@NotBlank(message = "defaultTimezone is required") String defaultTimezone) {
 }

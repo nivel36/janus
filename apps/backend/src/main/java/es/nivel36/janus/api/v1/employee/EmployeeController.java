@@ -37,6 +37,7 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
+import es.nivel36.janus.util.EmailAddresses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -90,8 +91,8 @@ public class EmployeeController {
 			) //
 			String employeeEmail) {
 		logger.debug("Find employee by email ACTION performed");
-
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final String email = EmailAddresses.canonicalize(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(email);
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
 		return ResponseEntity.ok(response);
 	}
@@ -108,9 +109,12 @@ public class EmployeeController {
 	public ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody final CreateEmployeeRequest request) {
 		logger.debug("Create employee ACTION performed");
 
-		final Schedule schedule = this.scheduleService.findScheduleByCode(request.scheduleCode());
-		final Employee createdEmployee = this.employeeService.createEmployee(request.name(), request.surname(),
-				request.email(), schedule);
+		final String scheduleCode = request.scheduleCode().trim();
+		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
+		final String name = request.name().trim();
+		final String surname = request.surname().trim();
+		final String email = EmailAddresses.canonicalize(request.email());
+		final Employee createdEmployee = this.employeeService.createEmployee(name, surname, email, schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(createdEmployee);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -135,9 +139,11 @@ public class EmployeeController {
 			String employeeEmail, //
 			@Valid @RequestBody final UpdateEmployeeRequest request) {
 		logger.debug("Update employee ACTION performed");
-
-		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeEmail, request.name(),
-				request.surname(), request.scheduleCode());
+		final String email = EmailAddresses.canonicalize(employeeEmail);
+		final String name = request.name().trim();
+		final String surname = request.surname().trim();
+		final String scheduleCode = request.scheduleCode().trim();
+		final Employee updatedEmployee = this.employeeService.updateEmployee(email, name, surname, scheduleCode);
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
 		return ResponseEntity.ok(response);
 	}
@@ -158,8 +164,8 @@ public class EmployeeController {
 			) //
 			String employeeEmail) {
 		logger.debug("Delete employee ACTION performed");
-
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final String email = EmailAddresses.canonicalize(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(email);
 		this.employeeService.deleteEmployee(employee);
 		return ResponseEntity.noContent().build();
 	}

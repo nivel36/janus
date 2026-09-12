@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
@@ -165,8 +166,13 @@ public class ScheduleController {
 	@PostMapping
 	public ResponseEntity<ScheduleResponse> createSchedule(@Valid @RequestBody final CreateScheduleRequest request) {
 		logger.debug("Create schedule ACTION performed");
-		final Schedule createdSchedule = this.scheduleService.createSchedule(request.code(), request.name(),
-				request.entryTolerance(), request.exitTolerance(), this.map(request.rules()));
+		final String code = request.code().trim();
+		final String name = request.name().trim();
+		final Duration entryTolerance = request.entryTolerance();
+		final Duration exitTolerance = request.exitTolerance();
+		final List<ScheduleRuleDefinition> rules = this.map(request.rules());
+		final Schedule createdSchedule = this.scheduleService.createSchedule(code, name, entryTolerance, exitTolerance,
+				rules);
 		final ScheduleResponse response = this.scheduleResponseMapper.map(createdSchedule);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}

@@ -39,6 +39,7 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInEvent;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInEventService;
+import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
 import jakarta.validation.Valid;
@@ -99,7 +100,7 @@ public class ClockOutWithoutClockInEventController {
 
 	/**
 	 * Resolves a {@link ClockOutWithoutClockInEvent} by creating a corresponding
-	 * {@link es.nivel36.janus.service.timelog.TimeLog}.
+	 * {@link TimeLog}.
 	 *
 	 * @param employeeEmail the email of the employee; must not be {@code null}
 	 * @param worksiteCode  the code of the worksite where the event was recorded;

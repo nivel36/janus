@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
 import jakarta.validation.Valid;
@@ -70,6 +71,14 @@ public class AppUserController {
 				"appUserResponseMapper can't be null");
 	}
 
+	/**
+	 * Retrieves the current authenticated {@link AppUser}, creating it from JWT
+	 * claims when provisioning is allowed.
+	 *
+	 * @param authentication the JWT authentication containing the current user's
+	 *                       identity claims; must not be {@code null}
+	 * @return the current {@link AppUserResponse}
+	 */
 	@PreAuthorize("@appUserProvisioningPolicy.canProvision(authentication)")
 	@GetMapping("/me")
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
@@ -82,12 +91,24 @@ public class AppUserController {
 				.findOrCreateAppUser(authentication.getToken().getSubject(), preferredUsername, verifiedEmail)));
 	}
 
+	/**
+	 * Updates the preferences of the current authenticated {@link AppUser}.
+	 *
+	 * @param request        the payload containing the new user preferences; must
+	 *                       not be {@code null}
+	 * @param authentication the current authentication used to identify the user;
+	 *                       must not be {@code null}
+	 * @return the updated {@link AppUserResponse}
+	 */
 	@PreAuthorize("@appUserAuthorization.canUpdateCurrent(authentication)")
 	@PutMapping("/me")
 	public ResponseEntity<AppUserResponse> updateCurrentAppUser(@Valid @RequestBody final UpdateAppUserRequest request,
 			final Authentication authentication) {
-		final AppUser updated = this.appUserService.updateCurrentAppUser(authentication.getName(),
-				Locale.forLanguageTag(request.locale()), request.timeFormat(), ZoneId.of(request.defaultTimezone()));
+		final String name = authentication.getName().trim();
+		final Locale forLanguageTag = Locale.forLanguageTag(request.locale().trim());
+		final TimeFormat timeFormat = request.timeFormat();
+		final ZoneId of = ZoneId.of(request.defaultTimezone().trim());
+		final AppUser updated = this.appUserService.updateCurrentAppUser(name, forLanguageTag, timeFormat, of);
 		return ResponseEntity.ok(this.appUserResponseMapper.map(updated));
 	}
 
