@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,7 +71,6 @@ public class ScheduleController {
 	private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
 
 	private final ScheduleService scheduleService;
-	private final EmployeeService employeeService;
 	private final ScheduleAuthorizationAdapter authorization;
 	private final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper;
 	private final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper;
@@ -80,19 +80,15 @@ public class ScheduleController {
 	 *
 	 * @param scheduleService              service for schedule operations; can't be
 	 *                                     {@code null}
-	 * @param employeeService              service for employee operations; can't be
-	 *                                     {@code null}
 	 * @param scheduleResponseMapper       mapper for schedule responses; can't be
 	 *                                     {@code null}
 	 * @param scheduleRuleDefinitionMapper mapper for schedule rule definitions;
 	 *                                     can't be {@code null}
 	 */
-	public ScheduleController(final ScheduleService scheduleService, final EmployeeService employeeService,
-			final ScheduleAuthorizationAdapter authorization,
+	public ScheduleController(final ScheduleService scheduleService, final ScheduleAuthorizationAdapter authorization,
 			final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper,
 			final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper) {
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
-		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.authorization = Objects.requireNonNull(authorization, "authorization can't be null");
 		this.scheduleResponseMapper = Objects.requireNonNull(scheduleResponseMapper,
 				"scheduleResponseMapper can't be null");

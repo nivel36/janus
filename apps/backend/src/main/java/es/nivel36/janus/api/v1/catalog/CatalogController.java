@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.catalog.TimeZoneCatalogItem;
 import es.nivel36.janus.service.catalog.TimeZoneCatalogService;
 import es.nivel36.janus.service.catalog.TimeZoneSortBy;
@@ -39,15 +40,19 @@ import es.nivel36.janus.service.catalog.TimeZoneSortBy;
 public class CatalogController {
 
 	private final TimeZoneCatalogService timeZoneCatalogService;
+	private final Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper;
 
 	/**
 	 * Builds a controller with the required catalog service dependency.
 	 *
 	 * @param timeZoneCatalogService service used to retrieve time zone catalog data
 	 */
-	public CatalogController(final TimeZoneCatalogService timeZoneCatalogService) {
+	public CatalogController(final TimeZoneCatalogService timeZoneCatalogService,
+			Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper) {
 		this.timeZoneCatalogService = Objects.requireNonNull(timeZoneCatalogService,
 				"timeZoneCatalogService can't be null");
+		this.timeZoneCatalogItemResponseMapper = Objects.requireNonNull(timeZoneCatalogItemResponseMapper,
+				"timeZoneCatalogItemResponseMapper can't be null");
 	}
 
 	/**
@@ -66,12 +71,8 @@ public class CatalogController {
 			@RequestParam(value = "sortBy", defaultValue = "LEVEL1") final TimeZoneSortBy sortBy,
 			final @PageableDefault(size = 25) Pageable pageable) {
 		final Page<TimeZoneCatalogItem> zones = this.timeZoneCatalogService.search(search, sortBy, pageable);
-		final Page<TimeZoneCatalogItemResponse> response = zones.map(this::map);
+		final Page<TimeZoneCatalogItemResponse> response = zones.map(timeZoneCatalogItemResponseMapper::map);
 		return ResponseEntity.ok(response);
 	}
 
-	private TimeZoneCatalogItemResponse map(final TimeZoneCatalogItem timeZoneCatalogItem) {
-		return new TimeZoneCatalogItemResponse(timeZoneCatalogItem.literal(), timeZoneCatalogItem.level1(),
-				timeZoneCatalogItem.level2(), timeZoneCatalogItem.utc());
-	}
 }
