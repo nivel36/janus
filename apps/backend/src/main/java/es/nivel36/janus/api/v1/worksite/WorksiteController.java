@@ -160,12 +160,13 @@ public class WorksiteController {
 			final Authentication authentication) {
 		logger.debug("Create worksite ACTION performed");
 
-		final String code = request.code();
-		final String name = request.name();
-		final ZoneId zoneId = ZoneId.of(request.timeZone());
+		final String code = request.code().trim();
+		final String name = request.name().trim();
+		final ZoneId zoneId = ZoneId.of(request.timeZone().trim());
 		final WorksiteScope scope = request.scope();
-		final Worksite worksite = this.worksiteService.createWorksite(code, name, zoneId, scope, request.description(),
-				request.address());
+		final String description = request.description().trim();
+		final String address = request.address().trim();
+		final Worksite worksite = this.worksiteService.createWorksite(code, name, zoneId, scope, description, address);
 
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -188,11 +189,13 @@ public class WorksiteController {
 			final Authentication authentication) {
 		logger.debug("Update worksite ACTION performed");
 
-		final String name = request.name();
-		final ZoneId zoneId = ZoneId.of(request.timeZone());
+		final String name = request.name().trim();
+		final ZoneId zoneId = ZoneId.of(request.timeZone().trim());
 		final WorksiteScope scope = request.scope();
-		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, name, zoneId, scope,
-				request.description(), request.address());
+		final String description = request.description().trim();
+		final String address = request.address().trim();
+		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, name, zoneId, scope, description,
+				address);
 
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
 		return ResponseEntity.ok(response);
@@ -256,7 +259,8 @@ public class WorksiteController {
 					regexp = "[A-Za-z0-9_-]{1,50}", //
 					message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
 			) //
-			String worksiteCode, final @PathVariable("employeeEmail") //
+			String worksiteCode, // 
+			final @PathVariable("employeeEmail") //
 			@Pattern( //
 					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
 					message = "must be a valid and safe email address (max 254)" //
