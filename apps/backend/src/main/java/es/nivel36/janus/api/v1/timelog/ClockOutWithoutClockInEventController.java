@@ -35,6 +35,7 @@ import es.nivel36.janus.service.timelog.ClockOutWithoutClockInEventService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
+import es.nivel36.janus.util.EmailAddresses;
 
 /**
  * REST controller responsible for exposing operations related to
@@ -109,8 +110,8 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 			final ResolveClockOutWithoutClockInEventRequest request) {
 		logger.debug("Resolve clock-out-without-clock-in event ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findRecordedWorksite(worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
+		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 
@@ -142,11 +143,11 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 			final InvalidateClockOutWithoutClockInEventRequest request) {
 		logger.debug("Invalidate clock-out-without-clock-in event ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findRecordedWorksite(worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
+		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
-		final Optional<String> reason = request == null ? Optional.empty() : this.toOptionalReason(request.reason());
+		final Optional<String> reason = request == null ? Optional.empty() : this.toOptionalReason(request.reason().trim());
 		final ClockOutWithoutClockInEvent invalidatedClockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.invalidate(clockOutWithoutClockInEvent, reason);
 		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper
@@ -171,8 +172,8 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 			final Instant exitTime) {
 		logger.debug("Find clock-out-without-clock-in event ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findRecordedWorksite(worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
+		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
 		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper

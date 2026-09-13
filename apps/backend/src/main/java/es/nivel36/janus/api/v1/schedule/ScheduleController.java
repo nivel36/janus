@@ -36,6 +36,7 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
 import es.nivel36.janus.service.schedule.ScheduleService;
+import es.nivel36.janus.util.EmailAddresses;
 
 /**
  * REST controller responsible for exposing CRUD operations for {@link Schedule}
@@ -108,7 +109,7 @@ public class ScheduleController implements ScheduleResource {
 			final String employeeEmail,
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search schedules ACTION performed");
-		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, employeeEmail);
+		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, EmailAddresses.canonicalize(employeeEmail));
 
 		final Page<ScheduleResponse> schedules = this.scheduleService
 				.searchSchedules(query, effectiveEmployeeEmail, pageable).map(this.scheduleResponseMapper::map);

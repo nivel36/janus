@@ -38,6 +38,7 @@ import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import es.nivel36.janus.service.worksite.WorksiteService;
+import es.nivel36.janus.util.EmailAddresses;
 
 /**
  * REST controller responsible for exposing operations related to employee time
@@ -107,8 +108,8 @@ public class TimeLogController implements TimeLogResource {
 			final Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findWorksiteForNewRecord(employeeEmail, worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
+		final Worksite worksite = this.findWorksiteForNewRecord(EmailAddresses.canonicalize(employeeEmail), worksiteCode.trim());
 		final TimeLog clockIn;
 		if (entryTime != null) {
 			clockIn = this.timeLogService.clockIn(employee, worksite, entryTime);
@@ -143,8 +144,8 @@ public class TimeLogController implements TimeLogResource {
 			final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findWorksiteForClockOut(employeeEmail, worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
+		final Worksite worksite = this.findWorksiteForClockOut(EmailAddresses.canonicalize(employeeEmail), worksiteCode);
 		final TimeLog clockOut;
 		if (exitTime != null) {
 			clockOut = this.timeLogService.clockOut(employee, worksite, exitTime);
@@ -173,8 +174,8 @@ public class TimeLogController implements TimeLogResource {
 			final Authentication authentication) {
 		logger.debug("Create time log ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
-		final Worksite worksite = this.findWorksiteForNewRecord(employeeEmail, worksiteCode);
+		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
+		final Worksite worksite = this.findWorksiteForNewRecord(EmailAddresses.canonicalize(employeeEmail), worksiteCode.trim());
 		final Instant entryTime = timeLog.entryTime();
 		final Instant exitTime = timeLog.exitTime();
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
@@ -216,9 +217,9 @@ public class TimeLogController implements TimeLogResource {
 
 		final Page<TimeLog> timeLogs;
 		if (fromInstant == null) {
-			timeLogs = this.timeLogService.searchTimeLogsByEmployee(employeeEmail, pageable);
+			timeLogs = this.timeLogService.searchTimeLogsByEmployee(EmailAddresses.canonicalize(employeeEmail), pageable);
 		} else {
-			timeLogs = this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(employeeEmail, fromInstant,
+			timeLogs = this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(EmailAddresses.canonicalize(employeeEmail), fromInstant,
 					toInstant, pageable);
 		}
 		final Page<TimeLogResponse> timeLogResponse = timeLogs.map(this.timeLogResponseMapper::map);
@@ -259,7 +260,7 @@ public class TimeLogController implements TimeLogResource {
 			final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
-		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employeeEmail, entryTime);
+		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(EmailAddresses.canonicalize(employeeEmail), entryTime);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
 		return ResponseEntity.ok(timeLogResponse);
 	}
@@ -279,7 +280,7 @@ public class TimeLogController implements TimeLogResource {
 			final Instant entryTime) {
 		logger.debug("Delete time log ACTION performed");
 
-		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employeeEmail, entryTime);
+		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(EmailAddresses.canonicalize(employeeEmail), entryTime);
 		this.timeLogService.deleteTimeLog(timeLog);
 		return ResponseEntity.noContent().build();
 	}
