@@ -24,31 +24,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 
 /**
  * REST controller exposing CRUD operations for {@link AppUser} entities.
  */
 @RestController
-@RequestMapping({ "/api/v1/appusers", "/api/v1/app-users" })
-public class AppUserController {
+public class AppUserController implements AppUserResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(AppUserController.class);
 
@@ -79,8 +69,7 @@ public class AppUserController {
 	 *                       identity claims; must not be {@code null}
 	 * @return the current {@link AppUserResponse}
 	 */
-	@PreAuthorize("@appUserProvisioningPolicy.canProvision(authentication)")
-	@GetMapping("/me")
+	@Override
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
 		final Object preferredUsernameClaim = authentication.getToken().getClaims().get("preferred_username");
 		final String preferredUsername = preferredUsernameClaim instanceof final String value ? value : null;
@@ -100,9 +89,8 @@ public class AppUserController {
 	 *                       must not be {@code null}
 	 * @return the updated {@link AppUserResponse}
 	 */
-	@PreAuthorize("@appUserAuthorization.canUpdateCurrent(authentication)")
-	@PutMapping("/me")
-	public ResponseEntity<AppUserResponse> updateCurrentAppUser(@Valid @RequestBody final UpdateAppUserRequest request,
+	@Override
+	public ResponseEntity<AppUserResponse> updateCurrentAppUser(final UpdateAppUserRequest request,
 			final Authentication authentication) {
 		final String name = authentication.getName().trim();
 		final Locale forLanguageTag = Locale.forLanguageTag(request.locale().trim());
@@ -118,11 +106,8 @@ public class AppUserController {
 	 * @param username the username of the app user; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
-	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
-	@DeleteMapping("/{username}")
-	public ResponseEntity<Void> deleteAppUser(final @PathVariable("username") //
-	@Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) //
-	String username) {
+	@Override
+	public ResponseEntity<Void> deleteAppUser(final String username) {
 		logger.debug("Delete app user ACTION performed");
 
 		final AppUser appUser = this.appUserService.findAppUserByUsername(username);

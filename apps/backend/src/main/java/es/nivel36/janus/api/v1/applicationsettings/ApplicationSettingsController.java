@@ -22,25 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
-import jakarta.validation.Valid;
 
 /**
  * REST controller exposing read and update operations for global application
  * settings.
  */
 @RestController
-@RequestMapping("/api/v1/applicationsettings")
-public class ApplicationSettingsController {
+public class ApplicationSettingsController implements ApplicationSettingsResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationSettingsController.class);
 
@@ -72,8 +65,7 @@ public class ApplicationSettingsController {
 	 *
 	 * @return a {@link ResponseEntity} containing the current application settings
 	 */
-	@PreAuthorize("@applicationSettingsAuthorization.canView(authentication)")
-	@GetMapping
+	@Override
 	public ResponseEntity<ApplicationSettingsResponse> findApplicationSettings() {
 		logger.debug("Find application settings ACTION performed");
 		final ApplicationSettings applicationSettings = this.applicationSettingsService.findApplicationSettings();
@@ -87,10 +79,8 @@ public class ApplicationSettingsController {
 	 *                {@code null}
 	 * @return a {@link ResponseEntity} containing the updated application settings
 	 */
-	@PreAuthorize("@applicationSettingsAuthorization.canUpdate(authentication)")
-	@PutMapping
-	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
-			@Valid @RequestBody final UpdateApplicationSettingsRequest request) {
+	@Override
+	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(final UpdateApplicationSettingsRequest request) {
 		logger.debug("Update application settings ACTION performed");
 		final int daysUntilLocked = request.daysUntilLocked();
 		final boolean employeeWorkplaceCreationAllowed = request.employeeWorkplaceCreationAllowed();

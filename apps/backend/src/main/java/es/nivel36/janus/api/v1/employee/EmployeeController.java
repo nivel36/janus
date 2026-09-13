@@ -22,14 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
@@ -38,16 +30,13 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.util.EmailAddresses;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 
 /**
  * REST controller exposing CRUD operations and ancillary actions for
  * {@link Employee} entities.
  */
 @RestController
-@RequestMapping("/api/v1/employees")
-public class EmployeeController {
+public class EmployeeController implements EmployeeResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
@@ -81,15 +70,9 @@ public class EmployeeController {
 	 *                      {@code null}
 	 * @return the {@link EmployeeResponse} matching the email
 	 */
-	@PreAuthorize("@employeeAuthorization.canView(authentication, #employeeEmail)")
-	@GetMapping("/by-email/{employeeEmail}")
+	@Override
 	public ResponseEntity<EmployeeResponse> findEmployeeByEmail( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail) {
+			final String employeeEmail) {
 		logger.debug("Find employee by email ACTION performed");
 		final String email = EmailAddresses.canonicalize(employeeEmail);
 		final Employee employee = this.employeeService.findEmployeeByEmail(email);
@@ -104,9 +87,8 @@ public class EmployeeController {
 	 *                {@code null}
 	 * @return the created {@link EmployeeResponse}
 	 */
-	@PreAuthorize("@employeeAuthorization.canCreate(authentication)")
-	@PostMapping
-	public ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody final CreateEmployeeRequest request) {
+	@Override
+	public ResponseEntity<EmployeeResponse> createEmployee(final CreateEmployeeRequest request) {
 		logger.debug("Create employee ACTION performed");
 
 		final String scheduleCode = request.scheduleCode().trim();
@@ -128,16 +110,10 @@ public class EmployeeController {
 	 *                      be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
-	@PreAuthorize("@employeeAuthorization.canUpdate(authentication, #employeeEmail)")
-	@PutMapping("/{employeeEmail}")
+	@Override
 	public ResponseEntity<EmployeeResponse> updateEmployee(//
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			@Valid @RequestBody final UpdateEmployeeRequest request) {
+			final String employeeEmail, //
+			final UpdateEmployeeRequest request) {
 		logger.debug("Update employee ACTION performed");
 		final String email = EmailAddresses.canonicalize(employeeEmail);
 		final String name = request.name().trim();
@@ -154,15 +130,9 @@ public class EmployeeController {
 	 * @param employeeEmail the email of the employee; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
-	@PreAuthorize("@employeeAuthorization.canDelete(authentication)")
-	@DeleteMapping("/{employeeEmail}")
+	@Override
 	public ResponseEntity<Void> deleteEmployee(//
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail) {
+			final String employeeEmail) {
 		logger.debug("Delete employee ACTION performed");
 		final String email = EmailAddresses.canonicalize(employeeEmail);
 		final Employee employee = this.employeeService.findEmployeeByEmail(email);

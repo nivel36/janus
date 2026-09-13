@@ -24,19 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
@@ -48,8 +38,6 @@ import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 
 /**
  * REST controller responsible for exposing operations related to employee time
@@ -59,8 +47,7 @@ import jakarta.validation.constraints.Pattern;
  * entries, as well as clock-in/clock-out operations and duration calculations.
  */
 @RestController
-@RequestMapping("/api/v1/employees/{employeeEmail}/timelogs")
-public class TimeLogController {
+public class TimeLogController implements TimeLogResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(TimeLogController.class);
 
@@ -112,21 +99,11 @@ public class TimeLogController {
 	 *                      must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, #entryTime != null)")
-	@PostMapping("/clock-in")
+	@Override
 	public ResponseEntity<TimeLogResponse> clockIn( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @RequestParam(value = "entryTime", required = false) Instant entryTime, //
-			final @RequestParam("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, //
+			final String employeeEmail, //
+			final Instant entryTime, //
+			final String worksiteCode, //
 			final Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
 
@@ -158,21 +135,11 @@ public class TimeLogController {
 	 *                                         closed because it does not have an
 	 *                                         entry time
 	 */
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, #exitTime != null)")
-	@PostMapping("/clock-out")
+	@Override
 	public ResponseEntity<TimeLogResponse> clockOut( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @RequestParam(value = "exitTime", required = false) Instant exitTime, //
-			final @RequestParam("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, //
+			final String employeeEmail, //
+			final Instant exitTime, //
+			final String worksiteCode, //
 			final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
@@ -198,21 +165,11 @@ public class TimeLogController {
 	 *                      entry and exit times; must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, true)")
-	@PostMapping("/")
+	@Override
 	public ResponseEntity<TimeLogResponse> createTimeLog( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @RequestParam("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, //
-			final @Valid @RequestBody CreateTimeLogRequest timeLog, //
+			final String employeeEmail, //
+			final String worksiteCode, //
+			final CreateTimeLogRequest timeLog, //
 			final Authentication authentication) {
 		logger.debug("Create time log ACTION performed");
 
@@ -242,18 +199,12 @@ public class TimeLogController {
 	 * @throws IllegalArgumentException if only one of {@code fromInstant} or
 	 *                                  {@code toInstant} is provided
 	 */
-	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeEmail)")
-	@GetMapping("/")
+	@Override
 	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @RequestParam(value = "fromInstant", required = false) Instant fromInstant, //
-			final @RequestParam(value = "toInstant", required = false) Instant toInstant, //
-			final @PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable, //
+			final String employeeEmail, //
+			final Instant fromInstant, //
+			final Instant toInstant, //
+			final Pageable pageable, //
 			final Authentication authentication) {
 		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
 			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
@@ -301,16 +252,10 @@ public class TimeLogController {
 	 * @param entryTime     the entry time of the time log; must not be {@code null}
 	 * @return the {@link TimeLogResponse} entry
 	 */
-	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeEmail)")
-	@GetMapping("/{entryTime}")
+	@Override
 	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(//
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @PathVariable("entryTime") Instant entryTime, //
+			final String employeeEmail, //
+			final Instant entryTime, //
 			final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
@@ -328,16 +273,10 @@ public class TimeLogController {
 	 * @return a {@link ResponseEntity} with no content (HTTP 204) if the deletion
 	 *         succeeds
 	 */
-	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
-	@DeleteMapping("/{entryTime}")
+	@Override
 	public ResponseEntity<Void> deleteTimeLog(//
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @PathVariable("entryTime") Instant entryTime) {
+			final String employeeEmail, //
+			final Instant entryTime) {
 		logger.debug("Delete time log ACTION performed");
 
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employeeEmail, entryTime);

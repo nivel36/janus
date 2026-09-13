@@ -24,13 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
@@ -42,16 +35,13 @@ import es.nivel36.janus.service.timelog.ClockOutWithoutClockInEventService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 
 /**
  * REST controller responsible for exposing operations related to
  * {@link ClockOutWithoutClockInEvent} resolution and invalidation.
  */
 @RestController
-@RequestMapping("/api/v1/employees/{employeeEmail}/clock-out-without-clock-in-events")
-public class ClockOutWithoutClockInEventController {
+public class ClockOutWithoutClockInEventController implements ClockOutWithoutClockInEventResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClockOutWithoutClockInEventController.class);
 
@@ -111,22 +101,12 @@ public class ClockOutWithoutClockInEventController {
 	 *                      event and an optional reason; must not be {@code null}
 	 * @return the resolved {@link ClockOutWithoutClockInEventResponse}
 	 */
-	@PostMapping("/{exitTime}/resolve")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #employeeEmail)")
+	@Override
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEvent( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @RequestParam("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, //
-			final @PathVariable("exitTime") Instant exitTime, //
-			final @Valid @RequestBody ResolveClockOutWithoutClockInEventRequest request) {
+			final String employeeEmail, //
+			final String worksiteCode, //
+			final Instant exitTime, //
+			final ResolveClockOutWithoutClockInEventRequest request) {
 		logger.debug("Resolve clock-out-without-clock-in event ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -154,22 +134,12 @@ public class ClockOutWithoutClockInEventController {
 	 *                      invalidated; may be {@code null}
 	 * @return the invalidated {@link ClockOutWithoutClockInEventResponse}
 	 */
-	@PostMapping("/{exitTime}/invalidate")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #employeeEmail)")
+	@Override
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEvent( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @RequestParam("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, //
-			final @PathVariable("exitTime") Instant exitTime, //
-			final @RequestBody(required = false) InvalidateClockOutWithoutClockInEventRequest request) {
+			final String employeeEmail, //
+			final String worksiteCode, //
+			final Instant exitTime, //
+			final InvalidateClockOutWithoutClockInEventRequest request) {
 		logger.debug("Invalidate clock-out-without-clock-in event ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -194,21 +164,11 @@ public class ClockOutWithoutClockInEventController {
 	 * @param exitTime      the exit time of the event; must not be {@code null}
 	 * @return the requested {@link ClockOutWithoutClockInEventResponse}
 	 */
-	@GetMapping("/{exitTime}")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canView(authentication, #employeeEmail)")
+	@Override
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEvent( //
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail, //
-			final @RequestParam("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
-			String worksiteCode, //
-			final @PathVariable("exitTime") Instant exitTime) {
+			final String employeeEmail, //
+			final String worksiteCode, //
+			final Instant exitTime) {
 		logger.debug("Find clock-out-without-clock-in event ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);

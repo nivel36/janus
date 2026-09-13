@@ -26,16 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
@@ -46,15 +37,12 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteScope;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 
 /**
  * REST controller responsible for exposing worksite operations.
  */
 @RestController
-@RequestMapping("/api/v1/worksites")
-public class WorksiteController {
+public class WorksiteController implements WorksiteResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(WorksiteController.class);
 
@@ -89,11 +77,10 @@ public class WorksiteController {
 	 *
 	 * @return a {@link ResponseEntity} containing the list of worksites
 	 */
-	@GetMapping
-	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeEmail)")
+	@Override
 	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(
-			final @RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "query must contain only letters, digits, underscores or hyphens (max 50)") String query,
-			final @RequestParam(required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
+			final String query,
+			final String employeeEmail,
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
 		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, employeeEmail);
@@ -109,10 +96,9 @@ public class WorksiteController {
 	 * @param worksiteCode the unique code of the worksite; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the requested worksite
 	 */
-	@GetMapping("/{worksiteCode}")
-	@PreAuthorize("@worksiteAuthorization.canView(authentication)")
+	@Override
 	public ResponseEntity<WorksiteResponse> findWorksite(
-			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode) {
+			final String worksiteCode) {
 		logger.debug("Find worksite ACTION performed");
 
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
@@ -120,11 +106,10 @@ public class WorksiteController {
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("/{worksiteCode}/stats")
-	@PreAuthorize("@worksiteAuthorization.canViewStats(authentication, #worksiteCode)")
+	@Override
 	public ResponseEntity<WorksiteStatsResponse> stats(
-			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
-			@RequestParam("start") final Instant start, @RequestParam("end") final Instant end,
+			final String worksiteCode,
+			final Instant start, final Instant end,
 			final Authentication authentication) {
 		if (end.isBefore(start)) {
 			throw new IllegalArgumentException("end must be greater than or equal to start");
@@ -154,9 +139,8 @@ public class WorksiteController {
 	 *                {@code null}
 	 * @return a {@link ResponseEntity} containing the created worksite
 	 */
-	@PostMapping
-	@PreAuthorize("@worksiteAuthorization.canCreate(authentication, #request.scope())")
-	public ResponseEntity<WorksiteResponse> createWorksite(@Valid @RequestBody final CreateWorksiteRequest request,
+	@Override
+	public ResponseEntity<WorksiteResponse> createWorksite(final CreateWorksiteRequest request,
 			final Authentication authentication) {
 		logger.debug("Create worksite ACTION performed");
 
@@ -181,11 +165,10 @@ public class WorksiteController {
 	 *                     {@code null}
 	 * @return a {@link ResponseEntity} containing the updated worksite
 	 */
-	@PreAuthorize("@worksiteAuthorization.canUpdate(authentication, #worksiteCode, #request.scope())")
-	@PutMapping("/{worksiteCode}")
+	@Override
 	public ResponseEntity<WorksiteResponse> updateWorksite(
-			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
-			@Valid @RequestBody final UpdateWorksiteRequest request, //
+			final String worksiteCode,
+			final UpdateWorksiteRequest request, //
 			final Authentication authentication) {
 		logger.debug("Update worksite ACTION performed");
 
@@ -207,10 +190,9 @@ public class WorksiteController {
 	 * @param worksiteCode the unique code of the worksite; must not be {@code null}
 	 * @return a {@link ResponseEntity} with an empty body and HTTP 204 status
 	 */
-	@PreAuthorize("@worksiteAuthorization.canDelete(authentication)")
-	@DeleteMapping("/{worksiteCode}")
+	@Override
 	public ResponseEntity<Void> deleteWorksite(
-			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode) {
+			final String worksiteCode) {
 		logger.debug("Delete worksite ACTION performed");
 
 		final Worksite workiste = this.worksiteService.findWorksiteByCode(worksiteCode);
@@ -226,11 +208,10 @@ public class WorksiteController {
 	 *
 	 * @return the updated {@link EmployeeResponse}
 	 */
-	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
-	@PutMapping("/{worksiteCode}/employees/{employeeEmail}")
+	@Override
 	public ResponseEntity<Void> assignEmployeeToWorksite(
-			final @PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			final @PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail) {
+			final String worksiteCode,
+			final String employeeEmail) {
 		logger.debug("Add worksite to employee ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
@@ -251,21 +232,10 @@ public class WorksiteController {
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @return the updated {@link EmployeeResponse}
 	 */
-	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
-	@DeleteMapping("/{worksiteCode}/employees/{employeeEmail}")
+	@Override
 	public ResponseEntity<EmployeeResponse> removeEmployeeFromWorksite( //
-			final @PathVariable("worksiteCode") //
-			@Pattern( //
-					regexp = "[A-Za-z0-9_-]{1,50}", //
-					message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
-			) //
-			String worksiteCode, // 
-			final @PathVariable("employeeEmail") //
-			@Pattern( //
-					regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-					message = "must be a valid and safe email address (max 254)" //
-			) //
-			String employeeEmail) {
+			final String worksiteCode, //
+			final String employeeEmail) {
 		logger.debug("Remove worksite from employee ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);

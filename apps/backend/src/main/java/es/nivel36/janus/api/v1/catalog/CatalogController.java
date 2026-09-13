@@ -20,12 +20,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
@@ -37,8 +32,7 @@ import es.nivel36.janus.service.catalog.TimeZoneSortBy;
  * REST controller exposing catalog endpoints.
  */
 @RestController
-@RequestMapping("/api/v1/catalogs")
-public class CatalogController {
+public class CatalogController implements CatalogResource {
 
 	private final TimeZoneCatalogService timeZoneCatalogService;
 	private final Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper;
@@ -65,12 +59,11 @@ public class CatalogController {
 	 * @param pageable Spring pagination information
 	 * @return a page with matching time zone catalog items
 	 */
-	@PreAuthorize("@catalogAuthorization.canView(authentication)")
-	@GetMapping("/time-zones")
+	@Override
 	public ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones(
-			@RequestParam(value = "search", required = false) final String search,
-			@RequestParam(value = "sortBy", defaultValue = "LEVEL1") final TimeZoneSortBy sortBy,
-			final @PageableDefault(size = 25) Pageable pageable) {
+			final String search,
+			final TimeZoneSortBy sortBy,
+			final Pageable pageable) {
 		final Page<TimeZoneCatalogItem> zones = this.timeZoneCatalogService.search(search, sortBy, pageable);
 		final Page<TimeZoneCatalogItemResponse> response = zones.map(this.timeZoneCatalogItemResponseMapper::map);
 		return ResponseEntity.ok(response);
