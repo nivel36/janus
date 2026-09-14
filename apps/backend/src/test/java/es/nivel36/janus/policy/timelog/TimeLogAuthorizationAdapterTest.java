@@ -21,6 +21,7 @@ import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
+import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 
@@ -65,5 +66,29 @@ class TimeLogAuthorizationAdapterTest {
 
 		assertThat(this.adapter.canSearch(this.authentication)).isTrue();
 		assertThat(this.adapter.searchScope(this.authentication)).isEqualTo(new TimeLogSearchScope.None());
+	}
+
+	@Test
+	void ownerRemainsAuthorizedWhenRequestedEmailHasMixedCapitalization() {
+		final Employee employee = mock(Employee.class);
+		when(this.actors.resolve(this.authentication))
+				.thenReturn(new Actor(1L, Set.of(Role.JANUS_EMPLOYEE), 84L));
+		when(this.employees.findEmployeeByEmail("employee@internal.test")).thenReturn(employee);
+		when(employee.getId()).thenReturn(84L);
+
+		assertThat(this.adapter.canView(this.authentication, "Employee@Internal.Test")).isTrue();
+		verify(this.employees).findEmployeeByEmail("employee@internal.test");
+	}
+
+	@Test
+	void otherEmployeeRemainsDeniedWhenRequestedEmailHasMixedCapitalization() {
+		final Employee employee = mock(Employee.class);
+		when(this.actors.resolve(this.authentication))
+				.thenReturn(new Actor(1L, Set.of(Role.JANUS_EMPLOYEE), 84L));
+		when(this.employees.findEmployeeByEmail("other@internal.test")).thenReturn(employee);
+		when(employee.getId()).thenReturn(85L);
+
+		assertThat(this.adapter.canView(this.authentication, "OtHeR@Internal.Test")).isFalse();
+		verify(this.employees).findEmployeeByEmail("other@internal.test");
 	}
 }

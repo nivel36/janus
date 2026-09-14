@@ -16,6 +16,7 @@ import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
+import es.nivel36.janus.util.EmailAddresses;
 
 /** Spring method-security adapter for clock-out-without-clock-in policies. */
 @Component("clockOutWithoutClockInEventAuthorization")
@@ -50,7 +51,8 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 
 	private long employeeId(final String employeeEmail) {
 		try {
-			final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+			final Employee employee = this.employeeService
+					.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
 			return employee.getId();
 		} catch (final ResourceNotFoundException exception) {
 			throw new AccessDeniedException("The employee's email is invalid", exception);
