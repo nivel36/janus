@@ -57,6 +57,7 @@ class FirstRequestProvisioningIT {
 		this.jdbcClient.sql("DELETE FROM app_user WHERE keycloak_subject IN (:subject, :otherSubject)")
 				.param("subject", SUBJECT).param("otherSubject", OTHER_SUBJECT).update();
 		this.jdbcClient.sql("DELETE FROM employee WHERE email = :email").param("email", LINK_EMAIL).update();
+		this.jdbcClient.sql("DELETE FROM schedule WHERE id = 901").update();
 	}
 
 	@Test
@@ -66,8 +67,9 @@ class FirstRequestProvisioningIT {
 		this.mvc.perform(get("/api/v1/appusers/me").with(jwt()
 				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", "linked-user")
 						.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ").claim("email_verified", true))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.employeeId").value(employeeId));
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
+		assertThat(this.jdbcClient.sql("SELECT employee_id FROM app_user WHERE keycloak_subject = :subject")
+				.param("subject", SUBJECT).query(Long.class).single()).isEqualTo(employeeId);
 	}
 
 	@Test
@@ -82,7 +84,9 @@ class FirstRequestProvisioningIT {
 										.claim("preferred_username", "second-identity").claim("email", LINK_EMAIL)
 										.claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.employeeId").doesNotExist());
+				.andExpect(status().isOk());
+		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject AND employee_id IS NULL")
+				.param("subject", OTHER_SUBJECT).query(Long.class).single()).isOne();
 
 		assertThat(this.jdbcClient.sql("SELECT keycloak_subject FROM app_user WHERE employee_id = :employeeId")
 				.param("employeeId", employeeId).query(String.class).single()).isEqualTo(SUBJECT);
@@ -95,12 +99,28 @@ class FirstRequestProvisioningIT {
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
 	}
 
+	@Test
+	void firstEmployeeVisitCanSearchTimeLogsAfterLoadingProfile() throws Exception {
+		this.insertEmployee();
+		final var authentication = jwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT)
+				.claim("preferred_username", "first-employee").claim("email", LINK_EMAIL)
+				.claim("email_verified", true)).authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
+
+		this.mvc.perform(get("/api/v1/timelogs").with(authentication)).andExpect(status().isForbidden());
+		assertThat(this.countProfiles()).isZero();
+		this.mvc.perform(get("/api/v1/appusers/me").with(authentication)).andExpect(status().isOk());
+		this.mvc.perform(get("/api/v1/timelogs").with(authentication))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(0));
+	}
+
 	private Long insertEmployee() {
-		return this.jdbcClient.sql("""
+		this.jdbcClient.sql("INSERT INTO schedule(id, code, name) VALUES (901, 'FIRST-ACCESS', 'First access')").update();
+		this.jdbcClient.sql("""
 				INSERT INTO employee (name, surname, email, schedule_id)
-				VALUES ('First', 'Access', :email, 1)
-				RETURNING id
-				""").param("email", LINK_EMAIL).query(Long.class).single();
+				VALUES ('First', 'Access', :email, 901)
+				""").param("email", LINK_EMAIL).update();
+		return this.jdbcClient.sql("SELECT id FROM employee WHERE email = :email")
+				.param("email", LINK_EMAIL).query(Long.class).single();
 	}
 
 	@Test

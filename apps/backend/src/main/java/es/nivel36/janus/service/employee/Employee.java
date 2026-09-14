@@ -195,7 +195,7 @@ public class Employee implements Serializable {
 	public Employee(final String name, final String surname, final String email, final Schedule schedule) {
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
-		this.email = Strings.requireNonBlank(surname, "eamil can't be null or blank");
+		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
 		this.schedule = Objects.requireNonNull(schedule, "schedule can't be null");
 	}
 

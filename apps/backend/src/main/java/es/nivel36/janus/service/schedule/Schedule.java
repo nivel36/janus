@@ -117,7 +117,7 @@ public class Schedule implements Serializable {
 	 * </p>
 	 */
 	@OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-	private final Set<ScheduleRule> rules = new HashSet<>();
+	private Set<ScheduleRule> rules = new HashSet<>();
 
 	/**
 	 * Set of employees assigned to this schedule.

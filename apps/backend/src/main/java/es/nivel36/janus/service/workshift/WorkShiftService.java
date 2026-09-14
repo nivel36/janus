@@ -35,6 +35,8 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.timelog.TimeLogSearchCriteria;
+import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.worksite.Worksite;
@@ -165,7 +167,7 @@ public class WorkShiftService {
 		final Instant to = startOfDay.plus(2, ChronoUnit.DAYS); // We add two days to ensure that we cover the 24-hour
 																// shifts of certain professions.
 		final Pageable unpaged = Pageable.unpaged();
-		return this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(employee.getEmail(), from, to,
-				unpaged);
+		return this.timeLogService.searchTimeLogs(new TimeLogSearchCriteria(employee.getEmail(), from, to),
+				new TimeLogSearchScope.Employee(employee.getId()), unpaged);
 	}
 }

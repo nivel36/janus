@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
@@ -51,6 +52,8 @@ import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.schedule.TimeRange;
 import es.nivel36.janus.service.timelog.TimeLog;
+import es.nivel36.janus.service.timelog.TimeLogSearchCriteria;
+import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 
@@ -72,6 +75,7 @@ class WorkShiftServiceTest {
 		MockitoAnnotations.openMocks(this);
 		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es",
 				new Schedule("CODE", "Name", Duration.ofMinutes(5), Duration.ofMinutes(5)));
+		ReflectionTestUtils.setField(this.employee, "id", 1L);
 		final ZoneId utcZone = ZoneId.of("UTC");
 		this.worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
 		this.worksite.assignEmployee(this.employee);
@@ -367,8 +371,10 @@ class WorkShiftServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(this.employee.getEmail(), fromInstant,
-				toInstant, page)).thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
+		when(this.timeLogService.searchTimeLogs(
+				new TimeLogSearchCriteria(this.employee.getEmail(), fromInstant, toInstant),
+				new TimeLogSearchScope.Employee(this.employee.getId()), page))
+				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee.getEmail(), date))
 				.thenReturn(Optional.of(timeRange));
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
@@ -399,8 +405,10 @@ class WorkShiftServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(this.employee.getEmail(), fromInstant,
-				toInstant, page)).thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
+		when(this.timeLogService.searchTimeLogs(
+				new TimeLogSearchCriteria(this.employee.getEmail(), fromInstant, toInstant),
+				new TimeLogSearchScope.Employee(this.employee.getId()), page))
+				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee.getEmail(), date))
 				.thenReturn(Optional.empty());
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(7);

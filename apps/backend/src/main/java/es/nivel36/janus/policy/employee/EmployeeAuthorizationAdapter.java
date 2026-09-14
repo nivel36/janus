@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
+import es.nivel36.janus.service.ResourceNotFoundException;
+import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 
@@ -33,7 +35,7 @@ public class EmployeeAuthorizationAdapter {
 
 	public boolean canView(final Authentication authentication, final String employeeEmail) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.viewPolicy.allows(actor, this.employeeId(employeeEmail));
+		return this.viewPolicy.allows(actor, this.employeeId(actor, employeeEmail));
 	}
 
 	public boolean canCreate(final Authentication authentication) {
@@ -43,7 +45,7 @@ public class EmployeeAuthorizationAdapter {
 
 	public boolean canUpdate(final Authentication authentication, final String employeeEmail) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.updatePolicy.allows(actor, this.employeeId(employeeEmail));
+		return this.updatePolicy.allows(actor, this.employeeId(actor, employeeEmail));
 	}
 
 	public boolean canDelete(final Authentication authentication) {
@@ -51,8 +53,16 @@ public class EmployeeAuthorizationAdapter {
 		return this.deletePolicy.allows(actor, null);
 	}
 
-	private long employeeId(final String employeeEmail) {
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+	private long employeeId(final Actor actor, final String employeeEmail) {
+		final Employee employee;
+		try {
+			employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		} catch (final ResourceNotFoundException exception) {
+			if (actor.hasRole(Role.JANUS_ADMIN) || actor.hasRole(Role.JANUS_USER)) {
+				throw exception;
+			}
+			throw new AccessDeniedException("Employees can only access their own resources");
+		}
 		if (employee == null) {
 			throw new AccessDeniedException("The employee's email is invalid");
 		}

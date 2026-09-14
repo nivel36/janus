@@ -74,19 +74,27 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 *                                            {@link ClockOutWithoutClockInEventResponse}
 	 *                                            DTOs; must not be {@code null}
 	 */
-	public ClockOutWithoutClockInEventController(
-			final ClockOutWithoutClockInEventService clockOutWithoutClockInEventService,
-			final EmployeeService employeeService, final ApplicationSettingsService applicationSettingsService,
-			final WorksiteService worksiteService,
+	public ClockOutWithoutClockInEventController( //
+			final ClockOutWithoutClockInEventService clockOutWithoutClockInEventService, //
+			final EmployeeService employeeService, //
+			final ApplicationSettingsService applicationSettingsService, //
+			final WorksiteService worksiteService, //
 			final @Qualifier("clockOutWithoutClockInEventResponseMapper") Mapper<ClockOutWithoutClockInEvent, ClockOutWithoutClockInEventResponse> clockOutWithoutClockInEventResponseMapper) {
-		this.clockOutWithoutClockInEventService = Objects.requireNonNull(clockOutWithoutClockInEventService,
-				"clockOutWithoutClockInEventService can't be null");
-		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
-				"applicationSettingsService can't be null");
-		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
-		this.clockOutWithoutClockInEventResponseMapper = Objects.requireNonNull(
-				clockOutWithoutClockInEventResponseMapper, "clockOutWithoutClockInEventResponseMapper can't be null");
+		this.clockOutWithoutClockInEventService = Objects.requireNonNull( //
+				clockOutWithoutClockInEventService, //
+				"clockOutWithoutClockInEventService can't be null"); //
+		this.employeeService = Objects.requireNonNull( //
+				employeeService, //
+				"employeeService can't be null"); //
+		this.applicationSettingsService = Objects.requireNonNull( //
+				applicationSettingsService, //
+				"applicationSettingsService can't be null"); //
+		this.worksiteService = Objects.requireNonNull( //
+				worksiteService, //
+				"worksiteService can't be null"); //
+		this.clockOutWithoutClockInEventResponseMapper = Objects.requireNonNull( //
+				clockOutWithoutClockInEventResponseMapper, //
+				"clockOutWithoutClockInEventResponseMapper can't be null");
 	}
 
 	/**
@@ -147,7 +155,8 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
-		final Optional<String> reason = request == null ? Optional.empty() : this.toOptionalReason(request.reason().trim());
+		final Optional<String> reason = request == null ? Optional.empty()
+				: this.toOptionalReason(request.reason());
 		final ClockOutWithoutClockInEvent invalidatedClockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.invalidate(clockOutWithoutClockInEvent, reason);
 		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper
@@ -192,6 +201,6 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	}
 
 	private Optional<String> toOptionalReason(final String reason) {
-		return Optional.ofNullable(reason).filter(str -> !str.isBlank());
+		return Optional.ofNullable(reason).map(String::trim).filter(str -> !str.isBlank());
 	}
 }

@@ -68,7 +68,7 @@ class ApplicationSettingsControllerIT {
 				""";
 
 		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
-				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isUnauthorized());
+				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isForbidden());
 	}
 
 	@Test

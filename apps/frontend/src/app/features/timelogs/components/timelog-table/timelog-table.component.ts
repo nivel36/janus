@@ -48,7 +48,6 @@ export class TimelogTableComponent {
   private readonly timeLogService = inject(TimeLogService);
   private readonly currentUser = inject(CurrentUserFacade);
 
-  readonly employeeEmail = input.required<string>();
   readonly refreshToken = input(0);
 
   private readonly currentUserSignal = toSignal(this.currentUser.currentUser$, {
@@ -83,16 +82,14 @@ export class TimelogTableComponent {
 
   protected readonly timelogsResource = rxResource<
     TimeLogPage,
-    { employeeEmail: string; refreshToken: number; page: number }
+    { refreshToken: number; page: number }
   >({
     params: () => ({
-      employeeEmail: this.employeeEmail(),
       refreshToken: this.refreshToken(),
       page: this.currentPage(),
     }),
     stream: ({ params }) =>
-      this.timeLogService.searchByEmployee(
-        params.employeeEmail,
+      this.timeLogService.search(
         params.page - 1,
         TimelogTableComponent.PAGE_SIZE,
       ),

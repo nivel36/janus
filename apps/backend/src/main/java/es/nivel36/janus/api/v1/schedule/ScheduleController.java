@@ -109,7 +109,7 @@ public class ScheduleController implements ScheduleResource {
 			final String employeeEmail,
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search schedules ACTION performed");
-		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, EmailAddresses.canonicalize(employeeEmail));
+		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, employeeEmail == null ? null : EmailAddresses.canonicalize(employeeEmail));
 
 		final Page<ScheduleResponse> schedules = this.scheduleService
 				.searchSchedules(query, effectiveEmployeeEmail, pageable).map(this.scheduleResponseMapper::map);

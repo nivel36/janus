@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -354,52 +355,26 @@ public class TimeLogService {
 	}
 
 	/**
-	 * Searches {@link TimeLog} instances for a given employee using pagination.
+	 * Searches time logs within the mandatory authorized scope and optional client
+	 * criteria. Their intersection is applied to both results and the total in the
+	 * database, before pagination.
 	 *
-	 * @param employeeEmail email of the employee whose time logs are searched.
-	 *                      Can't be {@code null}.
-	 * @param page          pagination information. Can't be {@code null}.
-	 * @return a {@link Page} of {@link TimeLog} instances.
-	 * @throws NullPointerException if any argument is {@code null}.
+	 * @param criteria optional filters; must not be {@code null}
+	 * @param scope    authorized records; must not be {@code null}
+	 * @param page     pagination and sorting; must not be {@code null}
+	 * @return a page containing only matching, authorized time logs
 	 */
 	@Transactional(readOnly = true)
-	public Page<TimeLog> searchTimeLogsByEmployee(final String employeeEmail, final Pageable page) {
-		Objects.requireNonNull(employeeEmail, "employeeEmail can't be null.");
-		Objects.requireNonNull(page, "page can't be null.");
-		logger.debug("Finding time logs for employee {} with offset {} and page size {}", employeeEmail,
-				page.getOffset(), page.getPageSize());
+	public Page<TimeLog> searchTimeLogs(final TimeLogSearchCriteria criteria, final TimeLogSearchScope scope,
+			final Pageable page) {
+		Objects.requireNonNull(criteria, "criteria can't be null");
+		Objects.requireNonNull(scope, "scope can't be null");
+		Objects.requireNonNull(page, "page can't be null");
 
-		final Page<TimeLog> timeLogs = this.timeLogRepository.searchTimeLogsByEmployee(employeeEmail, page);
-		logger.trace("Found {} time logs", timeLogs.getTotalElements());
-		return timeLogs;
-	}
-
-	/**
-	 * Searches {@link TimeLog} instances for a given employee whose entry time
-	 * falls within the specified range.
-	 *
-	 * @param employeeEmail email of the employee whose time logs are searched.
-	 *                      Can't be {@code null}.
-	 * @param fromInstant   inclusive lower bound of the entry time range. Can't be
-	 *                      {@code null}.
-	 * @param toInstant     exclusive upper bound of the entry time range. Can't be
-	 *                      {@code null}.
-	 * @param page          pagination information. Can't be {@code null}.
-	 * @return a {@link Page} of {@link TimeLog} instances within the given range.
-	 * @throws NullPointerException if any argument is {@code null}.
-	 */
-	@Transactional(readOnly = true)
-	public Page<TimeLog> searchTimeLogsByEmployeeEmailAndEntryTimeInRange(final String employeeEmail,
-			final Instant fromInstant, final Instant toInstant, final Pageable page) {
-		Objects.requireNonNull(employeeEmail, "employeeEmail cannot be null.");
-		Objects.requireNonNull(fromInstant, "fromInstant cannot be null.");
-		Objects.requireNonNull(toInstant, "toInstant cannot be null.");
-		Objects.requireNonNull(page, "page cannot be null.");
-		logger.debug("Finding time logs for employee {} in range [{}, {})", employeeEmail, fromInstant, toInstant);
-
-		final Page<TimeLog> timeLogs = this.timeLogRepository.searchByEmployeeAndEntryTimeInRange(employeeEmail,
-				fromInstant, toInstant, page);
-		logger.trace("Found {} time logs", timeLogs.getTotalElements());
-		return timeLogs;
+		final Specification<TimeLog> searchCriteria = TimeLogSearchSpecifications.matching(criteria);
+		final Specification<TimeLog> searchCriteriaWithScope = TimeLogSearchSpecifications //
+				.within(scope) //
+				.and(searchCriteria);
+		return this.timeLogRepository.findAll(searchCriteriaWithScope, page);
 	}
 }

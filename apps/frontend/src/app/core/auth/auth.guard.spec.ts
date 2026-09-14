@@ -6,10 +6,13 @@ import { Router, type ActivatedRouteSnapshot, type RouterStateSnapshot } from '@
 import Keycloak from 'keycloak-js';
 import type { AuthGuardData } from 'keycloak-angular';
 import { describe, expect, it, vi } from 'vitest';
+import { of, Subject } from 'rxjs';
 
 import { isAccessAllowed } from './auth.guard';
 import { JANUS_CLIENT_ROLES } from './auth.models';
 import { AuthService } from './auth.service';
+import { CurrentUserFacade } from '../user/services/current-user.facade';
+import { UserPreferences } from '../user/models/user-preferences';
 
 describe('isAccessAllowed', () => {
   const route = (data: Record<string, unknown>, parentData?: Record<string, unknown>) =>
@@ -21,6 +24,7 @@ describe('isAccessAllowed', () => {
   const keycloak = { login: vi.fn().mockResolvedValue(undefined) };
   const router = { parseUrl: vi.fn((url: string) => ({ redirectTo: url })) };
   const auth = { login: vi.fn().mockResolvedValue(undefined) };
+  const preferences: UserPreferences = { locale: 'es-ES', timeFormat: 'H24', defaultTimezone: 'Europe/Madrid' };
 
   const authData = (
     realmRoles: string[],
@@ -36,11 +40,13 @@ describe('isAccessAllowed', () => {
     authentication: AuthGuardData,
     parentData?: Record<string, unknown>,
     routerState = state,
+    preferences$ = of<UserPreferences | null>(preferences),
   ) {
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: router },
         { provide: AuthService, useValue: auth },
+        { provide: CurrentUserFacade, useValue: { preferences$ } },
       ],
     });
     return TestBed.runInInjectionContext(() =>
@@ -55,6 +61,24 @@ describe('isAccessAllowed', () => {
         authData([], { 'janus-api': [JANUS_CLIENT_ROLES.ADMIN] }),
       ),
     ).resolves.toBe(true);
+  });
+
+  it('waits for the provisioned account before activating a protected page', async () => {
+    const profile = new Subject<UserPreferences | null>();
+    let activated = false;
+    const result = evaluate({}, authData([], {}), undefined, state, profile).then((value) => {
+      activated = value === true;
+      return value;
+    });
+    await Promise.resolve();
+    expect(activated).toBe(false);
+    profile.next(preferences);
+    await expect(result).resolves.toBe(true);
+  });
+
+  it('does not activate the page when provisioning fails', async () => {
+    await expect(evaluate({}, authData([], {}), undefined, state, of(null)))
+      .resolves.toEqual({ redirectTo: '/forbidden' });
   });
 
   it('redirects an authenticated user without any required role to forbidden', async () => {

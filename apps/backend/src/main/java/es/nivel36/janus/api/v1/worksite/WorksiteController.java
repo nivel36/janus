@@ -148,8 +148,8 @@ public class WorksiteController implements WorksiteResource {
 		final String name = request.name().trim();
 		final ZoneId zoneId = ZoneId.of(request.timeZone().trim());
 		final WorksiteScope scope = request.scope();
-		final String description = request.description().trim();
-		final String address = request.address().trim();
+		final String description = request.description() == null ? null : request.description().trim();
+		final String address = request.address() == null ? null : request.address().trim();
 		final Worksite worksite = this.worksiteService.createWorksite(code, name, zoneId, scope, description, address);
 
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
@@ -175,8 +175,8 @@ public class WorksiteController implements WorksiteResource {
 		final String name = request.name().trim();
 		final ZoneId zoneId = ZoneId.of(request.timeZone().trim());
 		final WorksiteScope scope = request.scope();
-		final String description = request.description().trim();
-		final String address = request.address().trim();
+		final String description = request.description() == null ? null : request.description().trim();
+		final String address = request.address() == null ? null : request.address().trim();
 		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, name, zoneId, scope, description,
 				address);
 

@@ -34,6 +34,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 
@@ -46,6 +48,15 @@ class EmployeeControllerIT {
 	private static final String BASE = "/api/v1/employees";
 
 	private @Autowired MockMvc mvc;
+	private @Autowired JdbcTemplate jdbc;
+
+	@BeforeEach
+	void provisionActor() {
+		this.jdbc.update("""
+				INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone)
+				VALUES ('mock-actor','user','en-US','H24','UTC')
+				""");
+	}
 
 	@Test
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard')",
@@ -140,7 +151,7 @@ class EmployeeControllerIT {
 	@Test
 	void testEmployeeWithScopeCannotFindAnotherEmployee() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
-				.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es")
+				.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 						.claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read")))) //
 				.andExpect(status().isForbidden());
@@ -157,7 +168,7 @@ class EmployeeControllerIT {
 	@Test
 	void testEmployeeWithUnknownRoleCannotFindAnotherEmployee() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
-				.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es")
+				.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 						.claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN")))) //
 				.andExpect(status().isForbidden());
@@ -170,7 +181,7 @@ class EmployeeControllerIT {
 	})
 	void testEmployeeWithUserRoleCanFindAnotherEmployee() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
-				.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es")
+				.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 						.claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER")))) //
 				.andExpect(status().isOk()) //
@@ -184,7 +195,7 @@ class EmployeeControllerIT {
 	})
 	void testEmployeeWithAdminRoleCanFindAnotherEmployee() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(jwt() //
-				.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es")
+				.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 						.claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
@@ -264,7 +275,7 @@ class EmployeeControllerIT {
 				""";
 		this.mvc.perform(put(BASE + "/{employeeEmail}", "other@nivel36.es").contentType(APPLICATION_JSON).content(body)
 				.with(jwt()
-						.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es")
+						.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 								.claim("email_verified", true)) //
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read")))) //
 				.andExpect(status().isForbidden());
@@ -277,7 +288,7 @@ class EmployeeControllerIT {
 				""";
 		this.mvc.perform(put(BASE + "/{employeeEmail}", "other@nivel36.es").contentType(APPLICATION_JSON).content(body)
 				.with(jwt()
-						.jwt(jwt -> jwt.subject("employee@nivel36.es").claim("email", "employee@nivel36.es")
+						.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 								.claim("email_verified", true)) //
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN")))) //
 				.andExpect(status().isForbidden());

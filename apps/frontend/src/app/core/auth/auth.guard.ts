@@ -12,6 +12,8 @@ import {
 import { createAuthGuard, type AuthGuardData } from 'keycloak-angular';
 import { JANUS_API_CLIENT_ID, type AuthRouteData } from './auth.models';
 import { AuthService } from './auth.service';
+import { firstValueFrom } from 'rxjs';
+import { CurrentUserFacade } from '../user/services/current-user.facade';
 
 function asArray<T>(v: T | readonly T[] | null | undefined): readonly T[] {
   if (v == null) return [];
@@ -25,6 +27,7 @@ export async function isAccessAllowed(
 ): Promise<boolean | UrlTree> {
   const router = inject(Router);
   const auth = inject(AuthService);
+  const currentUser = inject(CurrentUserFacade);
   // A canActivateChild guard receives the child snapshot. Resolve the policy from
   // the complete route explicitly instead of relying on paramsInheritanceStrategy.
   const roleData = route.pathFromRoot.reduce<AuthRouteData>(
@@ -42,7 +45,14 @@ export async function isAccessAllowed(
   const hasAnyClientRole = requiredClientRoles.some((role) => janusClientRoles.includes(role));
   const isAuthorized = requiredClientRoles.length === 0 || hasAnyClientRole;
 
-  return isAuthorized ? true : router.parseUrl('/forbidden');
+  if (!isAuthorized) {
+    return router.parseUrl('/forbidden');
+  }
+
+  // GET /appusers/me provisions the local account. Protected pages must wait
+  // for it before issuing requests whose policies resolve that account.
+  const preferences = await firstValueFrom(currentUser.preferences$);
+  return preferences !== null ? true : router.parseUrl('/forbidden');
 }
 
 export const authChildGuard = createAuthGuard<CanActivateChildFn>(isAccessAllowed);

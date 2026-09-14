@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
+import es.nivel36.janus.util.EmailAddresses;
 import es.nivel36.janus.service.appuser.AppUserService;
 
 /**
@@ -75,7 +76,8 @@ public class AppUserController implements AppUserResource {
 		final String preferredUsername = preferredUsernameClaim instanceof final String value ? value : null;
 		final Boolean emailVerified = authentication.getToken().getClaim("email_verified");
 		final String email = authentication.getToken().getClaimAsString("email");
-		final String verifiedEmail = Boolean.TRUE.equals(emailVerified) && StringUtils.hasText(email) ? email : null;
+		final String verifiedEmail = Boolean.TRUE.equals(emailVerified) && StringUtils.hasText(email)
+				? EmailAddresses.canonicalize(email) : null;
 		return ResponseEntity.ok(this.appUserResponseMapper.map(this.appUserService
 				.findOrCreateAppUser(authentication.getToken().getSubject(), preferredUsername, verifiedEmail)));
 	}

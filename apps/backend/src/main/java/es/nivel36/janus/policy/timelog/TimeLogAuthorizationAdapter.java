@@ -10,6 +10,7 @@ import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.EmployeeService;
+import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 
 @Component("timeLogAuthorization")
 public class TimeLogAuthorizationAdapter {
@@ -18,6 +19,7 @@ public class TimeLogAuthorizationAdapter {
 	private final ApplicationSettingsService settings;
 	private final OperateTimeLogPolicy operate = new OperateTimeLogPolicy();
 	private final ViewTimeLogPolicy view = new ViewTimeLogPolicy();
+	private final SearchTimeLogPolicy search = new SearchTimeLogPolicy();
 	private final DeleteTimeLogPolicy delete = new DeleteTimeLogPolicy();
 
 	public TimeLogAuthorizationAdapter(final ActorResolver a, final EmployeeService e, final ApplicationSettingsService s) {
@@ -39,6 +41,15 @@ public class TimeLogAuthorizationAdapter {
 
 	public boolean canDelete(final Authentication auth) {
 		return this.delete.allows(this.actors.resolve(auth), null);
+	}
+
+	public boolean canSearch(final Authentication auth) {
+		final Actor actor = this.actors.resolve(auth);
+		return actor.hasRole(Role.JANUS_EMPLOYEE) || actor.hasRole(Role.JANUS_USER) || actor.hasRole(Role.JANUS_ADMIN);
+	}
+
+	public TimeLogSearchScope searchScope(final Authentication auth) {
+		return this.search.scope(this.actors.resolve(auth));
 	}
 
 	private boolean owns(final Actor a, final String email) {

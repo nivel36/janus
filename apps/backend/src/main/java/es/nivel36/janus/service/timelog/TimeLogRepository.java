@@ -21,8 +21,10 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -34,66 +36,12 @@ import es.nivel36.janus.service.worksite.Worksite;
  * Repository class for managing {@link TimeLog} entities.
  */
 @Repository
-interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
+interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificationExecutor<TimeLog> {
 
-	/**
-	 * Retrieves a paginated list of {@link TimeLog} records for the specified
-	 * employee and work site whose {@code entryTime} falls within the given time
-	 * range.
-	 * <p>
-	 * The {@code start} parameter is inclusive; records with
-	 * {@code entryTime &gt;= start} are included.<br>
-	 * The {@code end} parameter is exclusive; records with
-	 * {@code entryTime &lt; end} are included.
-	 *
-	 * @param employeeEmail the email of the employee whose time logs are to be
-	 *                      retrieved; must not be {@code null}
-	 * @param worksiteCode  the code of the work site where the time log was
-	 *                      recorded; must not be {@code null}
-	 * @param fromInstant   the inclusive lower bound of the time range; must not be
-	 *                      {@code null}
-	 * @param toInstant     the exclusive upper bound of the time range; must not be
-	 *                      {@code null}
-	 * @param page          pagination parameters including offset, size, and sort
-	 *                      order; must not be {@code null}
-	 */
+	/** Applies one specification to both the records and their total, before pagination. */
+	@Override
 	@EntityGraph(attributePaths = { "employee", "worksite" })
-	@Query("""
-			SELECT t FROM TimeLog t
-			WHERE t.employee.email = :employeeEmail
-			AND t.worksite.code = :worksiteCode
-			AND t.entryTime >= :start AND t.entryTime < :end
-			""")
-	Page<TimeLog> searchByEmployeeAndWorksiteAndEntryTimeInRange(String employeeEmail, String worksiteCode,
-			Instant start, Instant end, Pageable page);
-
-	/**
-	 * Retrieves time logs for an {@link Employee} {@link TimeLog} records for the
-	 * specified employee whose {@code entryTime} falls within the given time range.
-	 * <p>
-	 * The {@code start} parameter is inclusive; records with
-	 * {@code entryTime &gt;= start} are included.<br>
-	 * The {@code end} parameter is exclusive; records with
-	 * {@code entryTime &lt; end} are included.
-	 *
-	 * @param employeeEmail the email of the employee whose time logs are to be
-	 *                      retrieved (required)
-	 * @param fromInstant   the inclusive lower bound of the time range; must not be
-	 *                      {@code null}
-	 * @param toInstant     the exclusive upper bound of the time range; must not be
-	 *                      {@code null}
-	 * @param page          pagination parameters including offset, size, and sort
-	 *                      order; must not be {@code null}
-	 * @return a {@link Page} of {@link TimeLog} entries in the range for the given
-	 *         employee
-	 */
-	@EntityGraph(attributePaths = { "employee", "worksite" })
-	@Query("""
-			SELECT t FROM TimeLog t
-			WHERE t.employee.email = :employeeEmail
-			AND t.entryTime >= :start AND t.entryTime < :end
-			""")
-	Page<TimeLog> searchByEmployeeAndEntryTimeInRange(String employeeEmail, Instant start, Instant end, Pageable page);
+	Page<TimeLog> findAll(Specification<TimeLog> specification, Pageable page);
 
 	/**
 	 * Finds the most recent {@link TimeLog} for the specified employee that has not
@@ -105,27 +53,6 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
 	TimeLog findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(String employeeEmail);
-
-	/**
-	 * Retrieves all {@link TimeLog} records for a given employee, with pagination.
-	 * <p>
-	 * The {@link Pageable} parameter defines offset, size, and sort order. Use this
-	 * method to efficiently browse an employee’s full history of recorded time
-	 * logs.
-	 *
-	 * @param employeeEmail the email of the employee whose time logs are to be
-	 *                      retrieved
-	 * @param page          pagination parameters including offset, size, and sort
-	 *                      order
-	 * @return a {@link Page} of time logs belonging to the specified employee
-	 */
-	@EntityGraph(attributePaths = { "employee", "worksite" })
-	@Query("""
-			SELECT t
-			FROM TimeLog t
-			WHERE t.employee.email = :employeeEmail
-			""")
-	Page<TimeLog> searchTimeLogsByEmployee(String employeeEmail, Pageable page);
 
 	/**
 	 * Retrieves a single {@link TimeLog} for the specified employee that exactly

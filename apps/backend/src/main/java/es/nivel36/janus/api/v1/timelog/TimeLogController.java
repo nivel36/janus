@@ -22,8 +22,6 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -80,12 +78,16 @@ public class TimeLogController implements TimeLogResource {
 			final @Qualifier("timeLogResponseMapper") Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper, //
 			final Clock clock //
 	) {
-		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService can't be null");
-		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
-		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
-		this.timeLogResponseMapper = Objects.requireNonNull(timeLogResponseMapper,
-				"timeLogResponseMapper can't be null");
-		this.clock = Objects.requireNonNull(clock, "clock can't be null");
+		this.timeLogService = Objects.requireNonNull( //
+				timeLogService, "timeLogService can't be null");
+		this.employeeService = Objects.requireNonNull( //
+				employeeService, "employeeService can't be null");
+		this.worksiteService = Objects.requireNonNull( //
+				worksiteService, "worksiteService can't be null");
+		this.timeLogResponseMapper = Objects.requireNonNull( //
+				timeLogResponseMapper, "timeLogResponseMapper can't be null");
+		this.clock = Objects.requireNonNull( //
+				clock, "clock can't be null");
 	}
 
 	/**
@@ -108,17 +110,23 @@ public class TimeLogController implements TimeLogResource {
 			final Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
-		final Worksite worksite = this.findWorksiteForNewRecord(EmailAddresses.canonicalize(employeeEmail), worksiteCode.trim());
+		final String email = EmailAddresses.canonicalize(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(email);
+		final Worksite worksite = this.findWorksiteForNewRecord(email, worksiteCode.trim());
 		final TimeLog clockIn;
 		if (entryTime != null) {
 			clockIn = this.timeLogService.clockIn(employee, worksite, entryTime);
 		} else {
 			clockIn = this.timeLogService.clockIn(employee, worksite, this.clock.instant());
 		}
-
 		final TimeLogResponse timeLog = this.timeLogResponseMapper.map(clockIn);
 		return ResponseEntity.status(HttpStatus.CREATED).body(timeLog);
+	}
+
+	private Worksite findWorksiteForNewRecord(final String employeeEmail, final String worksiteCode) {
+		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
+		this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite);
+		return worksite;
 	}
 
 	/**
@@ -145,7 +153,8 @@ public class TimeLogController implements TimeLogResource {
 		logger.debug("Clock-out ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
-		final Worksite worksite = this.findWorksiteForClockOut(EmailAddresses.canonicalize(employeeEmail), worksiteCode);
+		final Worksite worksite = this.findWorksiteForClockOut(EmailAddresses.canonicalize(employeeEmail),
+				worksiteCode);
 		final TimeLog clockOut;
 		if (exitTime != null) {
 			clockOut = this.timeLogService.clockOut(employee, worksite, exitTime);
@@ -154,6 +163,20 @@ public class TimeLogController implements TimeLogResource {
 		}
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(clockOut);
 		return ResponseEntity.ok(timeLogResponse);
+	}
+
+	private Worksite findWorksiteForClockOut(final String employeeEmail, final String worksiteCode) {
+		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
+		try {
+			this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite);
+		} catch (final WorksiteAccessDeniedException ex) {
+			// The worksite may have changed between clock-in and clock-out, so we allow the
+			// clock-out.
+			if (!this.timeLogService.hasOpenTimeLog(employeeEmail)) {
+				throw ex;
+			}
+		}
+		return worksite;
 	}
 
 	/**
@@ -174,76 +197,14 @@ public class TimeLogController implements TimeLogResource {
 			final Authentication authentication) {
 		logger.debug("Create time log ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
-		final Worksite worksite = this.findWorksiteForNewRecord(EmailAddresses.canonicalize(employeeEmail), worksiteCode.trim());
+		final String email = EmailAddresses.canonicalize(employeeEmail);
+		final Employee employee = this.employeeService.findEmployeeByEmail(email);
+		final Worksite worksite = this.findWorksiteForNewRecord(email, worksiteCode.trim());
 		final Instant entryTime = timeLog.entryTime();
 		final Instant exitTime = timeLog.exitTime();
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
-		final TimeLogResponse updatedTimeLogResponse = this.timeLogResponseMapper.map(createdTimeLog);
-		return ResponseEntity.ok(updatedTimeLogResponse);
-	}
-
-	/**
-	 * Searches time logs for a given employee, optionally restricted to a date-time
-	 * range.
-	 * <p>
-	 * If {@code fromInstant} and {@code toInstant} are omitted, all time logs are
-	 * returned. Both must be provided together when filtering by range.
-	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
-	 * @param fromInstant   the start of the date-time range (inclusive); may be
-	 *                      {@code null}
-	 * @param toInstant     the end of the date-time range (inclusive); may be
-	 *                      {@code null}
-	 * @param pageable      pagination information; must not be {@code null}
-	 * @return a page of {@link TimeLogResponse} entries
-	 * @throws IllegalArgumentException if only one of {@code fromInstant} or
-	 *                                  {@code toInstant} is provided
-	 */
-	@Override
-	public ResponseEntity<Page<TimeLogResponse>> searchByEmployee( //
-			final String employeeEmail, //
-			final Instant fromInstant, //
-			final Instant toInstant, //
-			final Pageable pageable, //
-			final Authentication authentication) {
-		if (Objects.isNull(fromInstant) ^ Objects.isNull(toInstant)) {
-			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
-		}
-		if (fromInstant != null && toInstant != null && fromInstant.isAfter(toInstant)) {
-			throw new IllegalArgumentException("toInstant must be after fromInstant");
-		}
-		logger.debug("Search time logs by employee ACTION performed");
-
-		final Page<TimeLog> timeLogs;
-		if (fromInstant == null) {
-			timeLogs = this.timeLogService.searchTimeLogsByEmployee(EmailAddresses.canonicalize(employeeEmail), pageable);
-		} else {
-			timeLogs = this.timeLogService.searchTimeLogsByEmployeeEmailAndEntryTimeInRange(EmailAddresses.canonicalize(employeeEmail), fromInstant,
-					toInstant, pageable);
-		}
-		final Page<TimeLogResponse> timeLogResponse = timeLogs.map(this.timeLogResponseMapper::map);
-		return ResponseEntity.ok(timeLogResponse);
-	}
-
-	private Worksite findWorksiteForNewRecord(final String employeeEmail, final String worksiteCode) {
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite);
-		return worksite;
-	}
-
-	private Worksite findWorksiteForClockOut(final String employeeEmail, final String worksiteCode) {
-		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		try {
-			this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite);
-		} catch (final WorksiteAccessDeniedException ex) {
-			// The worksite may have changed between clock-in and clock-out, so we allow the
-			// clock-out.
-			if (!this.timeLogService.hasOpenTimeLog(employeeEmail)) {
-				throw ex;
-			}
-		}
-		return worksite;
+		final TimeLogResponse createdTimeLogResponse = this.timeLogResponseMapper.map(createdTimeLog);
+		return ResponseEntity.ok(createdTimeLogResponse);
 	}
 
 	/**
@@ -260,7 +221,8 @@ public class TimeLogController implements TimeLogResource {
 			final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
-		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(EmailAddresses.canonicalize(employeeEmail), entryTime);
+		final String email = EmailAddresses.canonicalize(employeeEmail);
+		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(email, entryTime);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
 		return ResponseEntity.ok(timeLogResponse);
 	}
@@ -280,7 +242,8 @@ public class TimeLogController implements TimeLogResource {
 			final Instant entryTime) {
 		logger.debug("Delete time log ACTION performed");
 
-		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(EmailAddresses.canonicalize(employeeEmail), entryTime);
+		final String email = EmailAddresses.canonicalize(employeeEmail);
+		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(email, entryTime);
 		this.timeLogService.deleteTimeLog(timeLog);
 		return ResponseEntity.noContent().build();
 	}
