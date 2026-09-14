@@ -418,6 +418,26 @@ class TimeLogControllerIT {
 
 	@Test
 	@Sql(statements = { //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')",
+			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES(1,1,'2025-08-07T07:45:00Z'::timestamp)" })
+	void employeeAuthorizationCanonicalizesRequestedEmail() throws Exception {
+		final String entry = "2025-08-07T07:45:00Z";
+		final var employee = jwt()
+				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+						.claim("email_verified", true))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
+
+		this.mvc.perform(get(BASE + "/{entryTime}", "AFerrer@Nivel36.ES", entry).with(employee))
+				.andExpect(status().isOk());
+		this.mvc.perform(get(BASE + "/{entryTime}", "AdA@Nivel36.ES", entry).with(employee))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
