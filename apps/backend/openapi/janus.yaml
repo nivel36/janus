@@ -148,7 +148,6 @@ components:
         scope: { $ref: '#/components/schemas/WorksiteScope' }
         description: { type: string, nullable: true }
         address: { type: string, nullable: true }
-        ownerEmployeeEmail: { type: string, nullable: true }
     ScheduleResponse:
       type: object
       required: [code, name, entryTolerance, exitTolerance]

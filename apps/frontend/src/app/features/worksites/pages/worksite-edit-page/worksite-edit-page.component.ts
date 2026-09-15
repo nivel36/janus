@@ -148,7 +148,6 @@ export class WorksiteEditPageComponent {
         scope: rawValue.scope,
         description: rawValue.description?.trim() || null,
         address: rawValue.address?.trim() || null,
-        ownerEmployeeEmail: worksite.ownerEmployeeEmail,
       })
       .pipe(
         takeUntil(

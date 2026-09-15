@@ -16,7 +16,6 @@ export interface UpdateWorksiteRequest {
     scope: WorksiteScope;
     description?: string | null;
     address?: string | null;
-    ownerEmployeeEmail?: string | null;
 }
 
 

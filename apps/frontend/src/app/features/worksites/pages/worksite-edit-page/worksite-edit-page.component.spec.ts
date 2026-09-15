@@ -113,7 +113,6 @@ describe('WorksiteEditPageComponent', () => {
       scope: 'ASSIGNED',
       description: null,
       address: null,
-      ownerEmployeeEmail: 'owner@example.com',
     });
     expect(router.navigate).toHaveBeenCalledWith(['/worksites', 'BCN-HQ']);
   });
@@ -294,7 +293,6 @@ describe('WorksiteEditPageComponent', () => {
       scope: 'ASSIGNED',
       description: null,
       address: null,
-      ownerEmployeeEmail: 'second@example.com',
     });
   });
 });
