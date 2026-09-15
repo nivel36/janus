@@ -15,6 +15,6 @@ export interface TimeLogResponse {
     worksiteZoneId: string;
     entryTime: string;
     exitTime?: string | null;
-    workTime: { [key: string]: any; };
+    workTime: { [key: string]: any; } | null;
 }
 

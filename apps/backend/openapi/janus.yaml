@@ -170,7 +170,10 @@ components:
         worksiteZoneId: { type: string }
         entryTime: { type: string, format: date-time }
         exitTime: { type: string, format: date-time, nullable: true }
-        workTime: { $ref: '#/components/schemas/DurationResponse' }
+        workTime:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/DurationResponse'
     WorksitePage:
       type: object
       required: [content, page]
