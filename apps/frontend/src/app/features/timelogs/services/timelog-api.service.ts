@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { HttpContext } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { TimeLog } from '../models/timelog';
-import { environment } from '../../../../environments/environment';
-import { Page } from '../../../shared/models/page.model';
+import { TimeLogsService } from '../../../api/generated/api/timeLogs.service';
+import { TimeLogResponse } from '../../../api/generated/model/timeLogResponse';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
   HTTP_RETRY_POLICY,
@@ -19,25 +19,18 @@ export interface TimeLogPage {
 
 @Injectable({ providedIn: 'root' })
 export class TimeLogService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiBaseUrl;
+  private readonly api = inject(TimeLogsService);
 
   /**
    * The `page` parameter follows Spring Data pagination (0-based index).
    */
   search(page = 0, size = 10): Observable<TimeLogPage> {
-    const params = new HttpParams()
-      .set('sort', 'entryTime,desc')
-      .set('page', String(page))
-      .set('size', String(size));
-    return this.http
-      .get<Page<TimeLog>>(`${this.baseUrl}/timelogs/`, {
-        params,
-        context: new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
-      })
+    const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+    return this.api
+      .searchTimeLogs(undefined, undefined, undefined, page, size, ['entryTime,desc'], 'body', false, { context })
       .pipe(
         map((r) => ({
-          items: r.content,
+          items: r.content.map((item) => this.mapTimeLog(item)),
           totalItems: r.page.totalElements,
           page: r.page.number,
           pageSize: r.page.size,
@@ -47,33 +40,21 @@ export class TimeLogService {
   }
 
   searchLatestByEmployee(email: string): Observable<TimeLog | undefined> {
-    const params = new HttpParams()
-      .set('employeeEmail', email)
-      .set('page', '0')
-      .set('size', '1')
-      .set('sort', 'entryTime,desc');
-
-    return this.http
-      .get<Page<TimeLog>>(`${this.baseUrl}/timelogs/`, {
-        params,
-        context: new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
-      })
-      .pipe(map((r) => r.content[0]));
+    const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+    return this.api
+      .searchTimeLogs(email, undefined, undefined, 0, 1, ['entryTime,desc'], 'body', false, { context })
+      .pipe(map((r) => r.content[0] ? this.mapTimeLog(r.content[0]) : undefined));
   }
 
   clockIn(email: string, worksiteCode: string): Observable<TimeLog> {
-    const encodedEmail = encodeURIComponent(email);
-    const url = `${this.baseUrl}/employees/${encodedEmail}/timelogs/clock-in`;
-    return this.http.post<TimeLog>(url, null, {
-      params: { worksiteCode },
-    });
+    return this.api.clockIn(email, worksiteCode).pipe(map((item) => this.mapTimeLog(item)));
   }
 
   clockOut(email: string, worksiteCode: string): Observable<TimeLog> {
-    const encodedEmail = encodeURIComponent(email);
-    const url = `${this.baseUrl}/employees/${encodedEmail}/timelogs/clock-out`;
-    return this.http.post<TimeLog>(url, null, {
-      params: { worksiteCode },
-    });
+    return this.api.clockOut(email, worksiteCode).pipe(map((item) => this.mapTimeLog(item)));
+  }
+
+  private mapTimeLog(response: TimeLogResponse): TimeLog {
+    return response as TimeLog;
   }
 }

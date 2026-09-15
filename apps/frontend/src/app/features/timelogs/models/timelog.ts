@@ -9,5 +9,5 @@ export interface TimeLog {
   worksiteZoneId: string;
   entryTime: string;
   exitTime?: string | null;
-  workTime: Duration;
+  workTime: Duration | null;
 }

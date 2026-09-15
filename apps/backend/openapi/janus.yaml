@@ -1,0 +1,193 @@
+openapi: 3.0.3
+info:
+  title: Janus API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /worksites:
+    get:
+      tags: [worksites]
+      operationId: searchWorksites
+      parameters:
+        - { name: query, in: query, schema: { type: string } }
+        - { name: employeeEmail, in: query, schema: { type: string } }
+        - { name: page, in: query, schema: { type: integer, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, default: 20 } }
+        - { name: sort, in: query, schema: { type: array, items: { type: string } }, style: form, explode: true }
+      responses:
+        '200':
+          description: Paginated worksites
+          content: { application/json: { schema: { $ref: '#/components/schemas/WorksitePage' } } }
+    post:
+      tags: [worksites]
+      operationId: createWorksite
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateWorksiteRequest' } } }
+      responses:
+        '201':
+          description: Created
+          content: { application/json: { schema: { $ref: '#/components/schemas/WorksiteResponse' } } }
+  /worksites/{worksiteCode}:
+    parameters:
+      - { name: worksiteCode, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [worksites]
+      operationId: findWorksite
+      responses:
+        '200':
+          description: Worksite
+          content: { application/json: { schema: { $ref: '#/components/schemas/WorksiteResponse' } } }
+    put:
+      tags: [worksites]
+      operationId: updateWorksite
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateWorksiteRequest' } } }
+      responses:
+        '200':
+          description: Updated
+          content: { application/json: { schema: { $ref: '#/components/schemas/WorksiteResponse' } } }
+    delete:
+      tags: [worksites]
+      operationId: deleteWorksite
+      responses: { '204': { description: Deleted } }
+  /schedules:
+    get:
+      tags: [schedules]
+      operationId: searchSchedules
+      parameters:
+        - { name: query, in: query, schema: { type: string } }
+        - { name: employeeEmail, in: query, schema: { type: string } }
+        - { name: page, in: query, schema: { type: integer, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, default: 20 } }
+        - { name: sort, in: query, schema: { type: array, items: { type: string } }, style: form, explode: true }
+      responses:
+        '200':
+          description: Paginated schedules
+          content: { application/json: { schema: { $ref: '#/components/schemas/SchedulePage' } } }
+  /timelogs/:
+    get:
+      tags: [time-logs]
+      operationId: searchTimeLogs
+      parameters:
+        - { name: employeeEmail, in: query, schema: { type: string } }
+        - { name: fromInstant, in: query, schema: { type: string, format: date-time } }
+        - { name: toInstant, in: query, schema: { type: string, format: date-time } }
+        - { name: page, in: query, schema: { type: integer, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, default: 20 } }
+        - { name: sort, in: query, schema: { type: array, items: { type: string } }, style: form, explode: true }
+      responses:
+        '200':
+          description: Paginated time logs
+          content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogPage' } } }
+  /employees/{employeeEmail}/timelogs/clock-in:
+    post:
+      tags: [time-logs]
+      operationId: clockIn
+      parameters:
+        - { name: employeeEmail, in: path, required: true, schema: { type: string } }
+        - { name: worksiteCode, in: query, required: true, schema: { type: string } }
+        - { name: entryTime, in: query, schema: { type: string, format: date-time } }
+      responses:
+        '201':
+          description: Clocked in
+          content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } }
+  /employees/{employeeEmail}/timelogs/clock-out:
+    post:
+      tags: [time-logs]
+      operationId: clockOut
+      parameters:
+        - { name: employeeEmail, in: path, required: true, schema: { type: string } }
+        - { name: worksiteCode, in: query, required: true, schema: { type: string } }
+        - { name: exitTime, in: query, schema: { type: string, format: date-time } }
+      responses:
+        '200':
+          description: Clocked out
+          content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } }
+components:
+  schemas:
+    PageMetadata:
+      type: object
+      required: [size, number, totalElements, totalPages]
+      properties:
+        size: { type: integer }
+        number: { type: integer }
+        totalElements: { type: integer, format: int64 }
+        totalPages: { type: integer }
+    WorksiteScope: { type: string, enum: [GLOBAL, ASSIGNED] }
+    WorksiteResponse:
+      type: object
+      required: [code, name, timeZone, scope, active]
+      properties:
+        code: { type: string }
+        name: { type: string }
+        timeZone: { type: string }
+        scope: { $ref: '#/components/schemas/WorksiteScope' }
+        description: { type: string, nullable: true }
+        address: { type: string, nullable: true }
+        ownerEmployeeEmail: { type: string, nullable: true }
+        active: { type: boolean }
+    CreateWorksiteRequest:
+      type: object
+      required: [code, name, timeZone, scope]
+      properties:
+        code: { type: string }
+        name: { type: string }
+        timeZone: { type: string }
+        scope: { $ref: '#/components/schemas/WorksiteScope' }
+        description: { type: string, nullable: true }
+        address: { type: string, nullable: true }
+    UpdateWorksiteRequest:
+      type: object
+      required: [name, timeZone, scope]
+      properties:
+        name: { type: string }
+        timeZone: { type: string }
+        scope: { $ref: '#/components/schemas/WorksiteScope' }
+        description: { type: string, nullable: true }
+        address: { type: string, nullable: true }
+    ScheduleResponse:
+      type: object
+      required: [code, name, entryTolerance, exitTolerance]
+      properties:
+        code: { type: string }
+        name: { type: string }
+        entryTolerance: { type: string }
+        exitTolerance: { type: string }
+        rules: { type: array, items: { type: object, additionalProperties: true } }
+    DurationResponse:
+      type: object
+      additionalProperties: true
+    TimeLogResponse:
+      type: object
+      required: [employeeEmail, worksiteCode, worksiteZoneId, entryTime, workTime]
+      properties:
+        employeeEmail: { type: string }
+        worksiteCode: { type: string }
+        worksiteZoneId: { type: string }
+        entryTime: { type: string, format: date-time }
+        exitTime: { type: string, format: date-time, nullable: true }
+        workTime:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/DurationResponse'
+    WorksitePage:
+      type: object
+      required: [content, page]
+      properties:
+        content: { type: array, items: { $ref: '#/components/schemas/WorksiteResponse' } }
+        page: { $ref: '#/components/schemas/PageMetadata' }
+    SchedulePage:
+      type: object
+      required: [content, page]
+      properties:
+        content: { type: array, items: { $ref: '#/components/schemas/ScheduleResponse' } }
+        page: { $ref: '#/components/schemas/PageMetadata' }
+    TimeLogPage:
+      type: object
+      required: [content, page]
+      properties:
+        content: { type: array, items: { $ref: '#/components/schemas/TimeLogResponse' } }
+        page: { $ref: '#/components/schemas/PageMetadata' }

@@ -29,5 +29,4 @@ export interface UpdateWorksitePayload {
   scope: WorksiteScope;
   description: string | null;
   address: string | null;
-  ownerEmployeeEmail: string | null;
 }
