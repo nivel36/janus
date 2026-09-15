@@ -52,12 +52,16 @@ export class TimezoneCatalog {
       this.options
         .filter(
           (option) =>
-            this.contains(option.zoneId, normalizedQuery) ||
+            this.containsIanaIdentifier(option.zoneId, normalizedQuery) ||
             this.contains(option.literal, normalizedQuery),
         )
         .slice(0, MAX_SEARCH_RESULTS),
     );
   };
+
+  private containsIanaIdentifier(zoneId: string, query: string): boolean {
+    return zoneId.toLowerCase().includes(query.toLowerCase());
+  }
 
   private contains(value: string, query: string): boolean {
     if (query.length > value.length) {

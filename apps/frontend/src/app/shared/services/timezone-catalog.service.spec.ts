@@ -39,6 +39,19 @@ describe('TimezoneCatalog', () => {
     );
   });
 
+  it('matches IANA identifiers independently of the browser locale', async () => {
+    const catalogWithTurkishCollation = catalog as unknown as { collator: Intl.Collator };
+    catalogWithTurkishCollation.collator = new Intl.Collator('tr', {
+      usage: 'search',
+      sensitivity: 'base',
+    });
+
+    const istanbul = catalog.resolve('Europe/Istanbul');
+
+    expect(istanbul).not.toBeNull();
+    await expect(firstValueFrom(catalog.search('istanbul'))).resolves.toContain(istanbul);
+  });
+
   it('returns no results for a blank query', async () => {
     await expect(firstValueFrom(catalog.search('   '))).resolves.toEqual([]);
   });
