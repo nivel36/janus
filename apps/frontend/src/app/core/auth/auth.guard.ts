@@ -12,7 +12,7 @@ import {
 import { createAuthGuard, type AuthGuardData } from 'keycloak-angular';
 import { JANUS_API_CLIENT_ID, type AuthRouteData } from './auth.models';
 import { AuthService } from './auth.service';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, of } from 'rxjs';
 import { CurrentUserFacade } from '../user/services/current-user.facade';
 
 function asArray<T>(v: T | readonly T[] | null | undefined): readonly T[] {
@@ -51,7 +51,9 @@ export async function isAccessAllowed(
 
   // GET /appusers/me provisions the local account. Protected pages must wait
   // for it before issuing requests whose policies resolve that account.
-  const preferences = await firstValueFrom(currentUser.preferences$);
+  const preferences = await firstValueFrom(
+    currentUser.preferences$.pipe(catchError(() => of(null))),
+  );
   return preferences !== null ? true : router.parseUrl('/forbidden');
 }
 

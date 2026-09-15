@@ -6,7 +6,7 @@ import { Router, type ActivatedRouteSnapshot, type RouterStateSnapshot } from '@
 import Keycloak from 'keycloak-js';
 import type { AuthGuardData } from 'keycloak-angular';
 import { describe, expect, it, vi } from 'vitest';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 
 import { isAccessAllowed } from './auth.guard';
 import { JANUS_CLIENT_ROLES } from './auth.models';
@@ -24,7 +24,11 @@ describe('isAccessAllowed', () => {
   const keycloak = { login: vi.fn().mockResolvedValue(undefined) };
   const router = { parseUrl: vi.fn((url: string) => ({ redirectTo: url })) };
   const auth = { login: vi.fn().mockResolvedValue(undefined) };
-  const preferences: UserPreferences = { locale: 'es-ES', timeFormat: 'H24', defaultTimezone: 'Europe/Madrid' };
+  const preferences: UserPreferences = {
+    locale: 'es-ES',
+    timeFormat: 'H24',
+    defaultTimezone: 'Europe/Madrid',
+  };
 
   const authData = (
     realmRoles: string[],
@@ -77,8 +81,21 @@ describe('isAccessAllowed', () => {
   });
 
   it('does not activate the page when provisioning fails', async () => {
-    await expect(evaluate({}, authData([], {}), undefined, state, of(null)))
-      .resolves.toEqual({ redirectTo: '/forbidden' });
+    await expect(evaluate({}, authData([], {}), undefined, state, of(null))).resolves.toEqual({
+      redirectTo: '/forbidden',
+    });
+  });
+
+  it('does not activate the page when provisioning returns a network error', async () => {
+    await expect(
+      evaluate(
+        {},
+        authData([], {}),
+        undefined,
+        state,
+        throwError(() => new Error('request failed')),
+      ),
+    ).resolves.toEqual({ redirectTo: '/forbidden' });
   });
 
   it('redirects an authenticated user without any required role to forbidden', async () => {

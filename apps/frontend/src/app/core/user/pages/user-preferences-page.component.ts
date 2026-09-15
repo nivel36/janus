@@ -1,11 +1,11 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Observable, finalize, of, take } from 'rxjs';
+import { Observable, finalize, of } from 'rxjs';
 
 import { resolveSupportedLanguage, supportedLanguages } from '../../i18n/language.util';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
@@ -56,7 +56,7 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
   ],
   templateUrl: './user-preferences-page.component.html',
 })
-export class UserPreferencesPageComponent implements OnInit {
+export class UserPreferencesPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly currentUserFacade = inject(CurrentUserFacade);
   private readonly router = inject(Router);
@@ -105,7 +105,7 @@ export class UserPreferencesPageComponent implements OnInit {
   /**
    * Indicates whether the initial preference load is in progress.
    */
-  readonly loading = signal(true);
+  readonly loading = this.currentUserFacade.preferencesLoading;
 
   /**
    * Indicates whether a save operation is in progress.
@@ -115,11 +115,20 @@ export class UserPreferencesPageComponent implements OnInit {
   /**
    * Translation key of the current error message, if any.
    */
-  readonly errorMessage = signal('');
+  private readonly saveErrorMessage = signal('');
 
-  ngOnInit(): void {
-    this.loadPreferences();
-  }
+  readonly errorMessage = computed(() =>
+    this.currentUserFacade.preferencesError()
+      ? 'userPreferences.errors.load'
+      : this.saveErrorMessage(),
+  );
+
+  private readonly populateFormEffect = effect(() => {
+    const preferences = this.currentUserFacade.preferences();
+    if (preferences) {
+      this.applyPreferences(preferences);
+    }
+  });
 
   /**
    * Loads the preferences of the current authenticated user and
@@ -129,29 +138,8 @@ export class UserPreferencesPageComponent implements OnInit {
    * translation key is exposed to the template.
    */
   loadPreferences(): void {
-    this.loading.set(true);
-    this.errorMessage.set('');
-
-    this.currentUserFacade.preferences$
-      .pipe(
-        take(1),
-        finalize(() => {
-          this.loading.set(false);
-        }),
-      )
-      .subscribe({
-        next: (preferences) => {
-          if (!preferences) {
-            this.errorMessage.set('userPreferences.errors.load');
-            return;
-          }
-
-          this.applyPreferences(preferences);
-        },
-        error: () => {
-          this.errorMessage.set('userPreferences.errors.load');
-        },
-      });
+    this.saveErrorMessage.set('');
+    this.currentUserFacade.reloadPreferences();
   }
 
   /**
@@ -183,7 +171,7 @@ export class UserPreferencesPageComponent implements OnInit {
     };
 
     this.saving.set(true);
-    this.errorMessage.set('');
+    this.saveErrorMessage.set('');
 
     this.currentUserFacade
       .updatePreferences(payload)
@@ -198,7 +186,7 @@ export class UserPreferencesPageComponent implements OnInit {
           this.cancel();
         },
         error: () => {
-          this.errorMessage.set('userPreferences.errors.update');
+          this.saveErrorMessage.set('userPreferences.errors.update');
         },
       });
   }
