@@ -21,6 +21,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +36,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 
@@ -58,6 +64,80 @@ class FirstRequestProvisioningIT {
 				.param("subject", SUBJECT).param("otherSubject", OTHER_SUBJECT).update();
 		this.jdbcClient.sql("DELETE FROM employee WHERE email = :email").param("email", LINK_EMAIL).update();
 		this.jdbcClient.sql("DELETE FROM schedule WHERE id = 901").update();
+	}
+
+	@Test
+	void concurrentRequestsForSameSubjectAndUsernameAreIdempotent() throws Exception {
+		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "same-name", null, SUBJECT, "same-name", null);
+
+		assertThat(results).allMatch(result -> result.getResponse().getStatus() == 200);
+		assertThat(this.countProfiles()).isOne();
+	}
+
+	@Test
+	void concurrentRequestsForSameSubjectAndDifferentUsernamesReturnTheSubjectWinner() throws Exception {
+		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "first-name", null, SUBJECT, "second-name", null);
+
+		assertThat(results).allMatch(result -> result.getResponse().getStatus() == 200);
+		assertThat(this.countProfiles()).isOne();
+		assertThat(results).extracting(result -> result.getResponse().getContentAsString())
+				.allMatch(body -> body.contains(this.usernameForSubject(SUBJECT)));
+	}
+
+	@Test
+	void concurrentRequestsForSameEmployeeAndDifferentSubjectsOnlyLinkOneProfile() throws Exception {
+		final Long employeeId = this.insertEmployee();
+		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "employee-one", LINK_EMAIL,
+				OTHER_SUBJECT, "employee-two", LINK_EMAIL);
+
+		assertThat(results).allMatch(result -> result.getResponse().getStatus() == 200);
+		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE employee_id = :employeeId")
+				.param("employeeId", employeeId).query(Long.class).single()).isOne();
+		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject IN (:one, :two)")
+				.param("one", SUBJECT).param("two", OTHER_SUBJECT).query(Long.class).single()).isEqualTo(2L);
+	}
+
+	@Test
+	void concurrentRequestsForSameUsernameAndDifferentSubjectsRejectOneIdentity() throws Exception {
+		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "occupied-name", null,
+				OTHER_SUBJECT, "occupied-name", null);
+
+		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsExactlyInAnyOrder(200, 400);
+		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE username = 'occupied-name'")
+				.query(Long.class).single()).isOne();
+	}
+
+	private List<MvcResult> provisionConcurrently(final String firstSubject, final String firstUsername,
+			final String firstEmail, final String secondSubject, final String secondUsername, final String secondEmail)
+			throws Exception {
+		final CountDownLatch ready = new CountDownLatch(2);
+		final CountDownLatch start = new CountDownLatch(1);
+		try (var executor = Executors.newFixedThreadPool(2)) {
+			final Future<MvcResult> first = executor.submit(() -> this.performProvisioning(firstSubject, firstUsername,
+					firstEmail, ready, start));
+			final Future<MvcResult> second = executor.submit(() -> this.performProvisioning(secondSubject, secondUsername,
+					secondEmail, ready, start));
+			ready.await();
+			start.countDown();
+			return List.of(first.get(), second.get());
+		}
+	}
+
+	private MvcResult performProvisioning(final String subject, final String username, final String email,
+			final CountDownLatch ready, final CountDownLatch start) throws Exception {
+		ready.countDown();
+		start.await();
+		return this.mvc.perform(get("/api/v1/appusers/me").with(jwt().jwt(token -> {
+			token.issuer(this.issuer).subject(subject).claim("preferred_username", username);
+			if (email != null) {
+				token.claim("email", email).claim("email_verified", true);
+			}
+		}).authorities(createAuthorityList("ROLE_JANUS_USER")))).andReturn();
+	}
+
+	private String usernameForSubject(final String subject) {
+		return this.jdbcClient.sql("SELECT username FROM app_user WHERE keycloak_subject = :subject")
+				.param("subject", subject).query(String.class).single();
 	}
 
 	@Test

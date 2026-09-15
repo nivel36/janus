@@ -22,7 +22,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,34 +100,43 @@ public class AppUserService {
 
 		final String username = validatePreferredUsername(preferredUsername);
 		final Employee employee = this.findUnlinkedEmployee(verifiedEmail, keycloakSubject);
+		return this.insertAndReconcile(username, keycloakSubject, employee);
+	}
+
+	private AppUser insertAndReconcile(final String username, final String keycloakSubject, final Employee employee) {
 		try {
 			return this.appUserCreator.create(username, keycloakSubject, this.provisioningDefaults.locale(),
 					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), employee);
-		} catch (final DataIntegrityViolationException raceOrDuplicate) {
-			// Another request may have committed the same subject while this request was
-			// provisioning it. The failed insert ran in REQUIRES_NEW, so this transaction
-			// remains usable and can read the winning row.
-			final Optional<AppUser> concurrentlyCreated = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
-			if (concurrentlyCreated.isPresent()) {
-				return concurrentlyCreated.get();
+		} catch (final AppUserCreationConflict conflict) {
+			// Subject reconciliation always comes first: it makes repeated requests
+			// idempotent even if a driver did not expose the violated constraint name.
+			final Optional<AppUser> subjectWinner = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
+			if (subjectWinner.isPresent()) {
+				return requireRequestedSubject(subjectWinner.get(), keycloakSubject);
 			}
-			if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
+			if (employee != null && (conflict.key() == AppUserCreationConflict.Key.EMPLOYEE
+					|| conflict.key() == AppUserCreationConflict.Key.UNKNOWN)
+					&& this.appUserRepository.existsByEmployee(employee)) {
 				this.logEmployeeConflict(employee, keycloakSubject);
-				return this.createWithoutEmployeeAfterConflict(username, keycloakSubject);
+				return this.insertAndReconcile(username, keycloakSubject, null);
 			}
-			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
+			if (conflict.key() == AppUserCreationConflict.Key.USERNAME
+					|| this.appUserRepository.existsByUsername(username)) {
+				throw usernameConflict(username, conflict);
+			}
+			throw conflict;
 		}
 	}
 
-	private AppUser createWithoutEmployeeAfterConflict(final String username, final String keycloakSubject) {
-		try {
-			return this.appUserCreator.create(username, keycloakSubject, this.provisioningDefaults.locale(),
-					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), null);
-		} catch (final DataIntegrityViolationException raceOrDuplicate) {
-			return this.appUserRepository.findByKeycloakSubject(keycloakSubject)
-					.orElseThrow(() -> new ResourceAlreadyExistsException(
-							"Application user with username " + username + " already exists"));
+	private static AppUser requireRequestedSubject(final AppUser appUser, final String keycloakSubject) {
+		if (!keycloakSubject.equals(appUser.getKeycloakSubject())) {
+			throw new IllegalStateException("Subject lookup returned a profile for a different identity");
 		}
+		return appUser;
+	}
+
+	private static ResourceAlreadyExistsException usernameConflict(final String username, final Throwable cause) {
+		return new ResourceAlreadyExistsException("Application user with username " + username + " already exists", cause);
 	}
 
 	private Employee findUnlinkedEmployee(final String verifiedEmail, final String keycloakSubject) {
