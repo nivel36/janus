@@ -1,20 +1,14 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { ScheduleApiService, SchedulePage } from '../../services/schedule-api.service';
 import { Schedule } from '../../models/schedule';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import {
   DEFAULT_LIST_PAGE,
   DEFAULT_LIST_PAGE_SIZE,
@@ -35,6 +29,7 @@ import {
   selector: 'app-schedule-table',
   standalone: true,
   imports: [
+    ButtonComponent,
     AsyncStateComponent,
     AsyncLoadingDirective,
     AsyncErrorDirective,
@@ -65,11 +60,7 @@ export class ScheduleTableComponent {
       query: this.query(),
     }),
     stream: ({ params }) =>
-      this.scheduleApiService.search(
-        params.page - 1,
-        DEFAULT_LIST_PAGE_SIZE,
-        params.query,
-      ),
+      this.scheduleApiService.search(params.page - 1, DEFAULT_LIST_PAGE_SIZE, params.query),
     defaultValue: emptyListPage<Schedule>(),
   });
 

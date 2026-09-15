@@ -14,6 +14,7 @@
     "en-GB": "English"
   },
   "actions": {
+    "retry": "Retry",
     "save": "Save",
     "edit": "Edit",
     "cancel": "Cancel",

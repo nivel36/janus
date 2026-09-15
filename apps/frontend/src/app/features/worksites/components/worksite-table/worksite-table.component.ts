@@ -1,14 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -16,6 +9,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { WorksiteApiService, WorksitePage } from '../../services/worksite-api.service';
 import { Worksite } from '../../models/worksite';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
 import {
   DEFAULT_LIST_PAGE,
@@ -37,6 +31,7 @@ import {
   selector: 'app-worksite-table',
   standalone: true,
   imports: [
+    ButtonComponent,
     AsyncStateComponent,
     AsyncLoadingDirective,
     AsyncErrorDirective,
@@ -70,11 +65,7 @@ export class WorksiteTableComponent {
       query: this.query(),
     }),
     stream: ({ params }) =>
-      this.worksiteApiService.search(
-        params.page - 1,
-        DEFAULT_LIST_PAGE_SIZE,
-        params.query,
-      ),
+      this.worksiteApiService.search(params.page - 1, DEFAULT_LIST_PAGE_SIZE, params.query),
     defaultValue: emptyListPage<Worksite>(),
   });
 

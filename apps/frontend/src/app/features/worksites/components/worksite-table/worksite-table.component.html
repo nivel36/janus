@@ -23,7 +23,12 @@
     [empty]="isEmpty()"
   >
     <ng-template appAsyncLoading>{{ 'worksite.loading' | translate }}</ng-template>
-    <ng-template appAsyncError>{{ 'worksite.loadError' | translate }}</ng-template>
+    <ng-template appAsyncError>
+      {{ 'worksite.loadError' | translate }}
+      <app-button variant="secondary" (clicked)="worksitesResource.reload()">
+        {{ 'actions.retry' | translate }}
+      </app-button>
+    </ng-template>
     <ng-template appAsyncEmpty>{{ 'worksite.empty' | translate }}</ng-template>
   </app-async-state>
 
