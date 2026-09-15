@@ -1,46 +1,53 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { of } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { environment } from '../../../../environments/environment';
+import { AppUsersService } from '../../../api/generated/api/appUsers.service';
+import { HTTP_RETRY_POLICY } from '../../http/http-retry.interceptor';
 import { UserPreferences } from '../models/user-preferences';
 import { UserProfileApiService } from './user-profile-api.service';
 
 describe('UserProfileApiService', () => {
   let service: UserProfileApiService;
-  let httpTesting: HttpTestingController;
+  let transport: {
+    findCurrentAppUser: ReturnType<typeof vi.fn>;
+    updateCurrentAppUser: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
+    transport = {
+      findCurrentAppUser: vi.fn().mockReturnValue(of({ username: 'mutable-name', ...PREFERENCES })),
+      updateCurrentAppUser: vi
+        .fn()
+        .mockReturnValue(of({ username: 'mutable-name', ...PREFERENCES })),
+    };
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [UserProfileApiService, { provide: AppUsersService, useValue: transport }],
     });
     service = TestBed.inject(UserProfileApiService);
-    httpTesting = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => httpTesting.verify());
+  it('loads preferences through the generated transport with its retry policy', () => {
+    let result: UserPreferences | undefined;
+    service.getPreferences().subscribe((preferences) => (result = preferences));
 
-  it('loads preferences through the current-user endpoint', () => {
-    service.getPreferences().subscribe((preferences) => expect(preferences).toEqual(PREFERENCES));
-
-    const request = httpTesting.expectOne(`${environment.apiBaseUrl}/appusers/me`);
-    expect(request.request.method).toBe('GET');
-    request.flush({ username: 'mutable-name', ...PREFERENCES });
+    expect(result).toEqual(PREFERENCES);
+    const [, , options] = transport.findCurrentAppUser.mock.calls[0];
+    expect(options.context.get(HTTP_RETRY_POLICY)).toEqual({
+      retries: 10,
+      baseDelayMs: 1_000,
+    });
   });
 
-  it('updates preferences through the current-user endpoint', () => {
-    service
-      .updatePreferences(PREFERENCES)
-      .subscribe((preferences) => expect(preferences).toEqual(PREFERENCES));
+  it('updates preferences through the generated transport', () => {
+    let result: UserPreferences | undefined;
+    service.updatePreferences(PREFERENCES).subscribe((preferences) => (result = preferences));
 
-    const request = httpTesting.expectOne(`${environment.apiBaseUrl}/appusers/me`);
-    expect(request.request.method).toBe('PUT');
-    expect(request.request.body).toEqual(PREFERENCES);
-    request.flush({ username: 'mutable-name', ...PREFERENCES });
+    expect(transport.updateCurrentAppUser).toHaveBeenCalledWith(PREFERENCES);
+    expect(result).toEqual(PREFERENCES);
   });
 });
 

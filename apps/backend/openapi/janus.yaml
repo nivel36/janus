@@ -5,6 +5,24 @@ info:
 servers:
   - url: /api/v1
 paths:
+  /appusers/me:
+    get:
+      tags: [app-users]
+      operationId: findCurrentAppUser
+      responses:
+        '200':
+          description: Current application user
+          content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } }
+    put:
+      tags: [app-users]
+      operationId: updateCurrentAppUser
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateAppUserRequest' } } }
+      responses:
+        '200':
+          description: Updated application user
+          content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } }
   /applicationsettings:
     get:
       tags: [application-settings]
@@ -126,6 +144,22 @@ paths:
           content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } }
 components:
   schemas:
+    TimeFormat: { type: string, enum: [H12, H24] }
+    AppUserResponse:
+      type: object
+      required: [username, locale, timeFormat, defaultTimezone]
+      properties:
+        username: { type: string }
+        locale: { type: string }
+        timeFormat: { $ref: '#/components/schemas/TimeFormat' }
+        defaultTimezone: { type: string }
+    UpdateAppUserRequest:
+      type: object
+      required: [locale, timeFormat, defaultTimezone]
+      properties:
+        locale: { type: string, pattern: '^[a-z]{2,3}-[A-Z]{2}$' }
+        timeFormat: { $ref: '#/components/schemas/TimeFormat' }
+        defaultTimezone: { type: string, minLength: 1 }
     ApplicationSettingsResponse:
       type: object
       required: [daysUntilLocked, employeeWorkplaceCreationAllowed, worksiteChangeDuringShiftAllowed, employeeManualTimelogEntryAllowed, defaultTimezone]

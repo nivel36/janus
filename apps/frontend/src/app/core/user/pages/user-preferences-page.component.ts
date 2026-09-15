@@ -17,7 +17,7 @@ import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { UserPreferences } from '../models/user-preferences';
 import { CurrentUserFacade } from '../services/current-user.facade';
-import { TimeFormat } from '../services/user-profile-api.service';
+import { TimeFormat } from '../models/user-preferences';
 
 /**
  * Page responsible for displaying and updating the preferences
