@@ -3,9 +3,9 @@
  */
 
 import { computed, Injectable, inject } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest, Observable, of, ReplaySubject } from 'rxjs';
-import { catchError, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
+import { rxResource, toObservable } from '@angular/core/rxjs-interop';
+import { filter, mergeMap, Observable, of, throwError } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { AuthService } from '../../auth/auth.service';
 import { JANUS_API_CLIENT_ID, JANUS_CLIENT_ROLES } from '../../auth/auth.models';
@@ -38,17 +38,6 @@ import { UserPreferences } from '../models/user-preferences';
 export class CurrentUserFacade {
   private readonly authService = inject(AuthService);
   private readonly userProfileApi = inject(UserProfileApiService);
-  private readonly authentication$ = toObservable(this.authService.isAuthenticated);
-
-  /**
-   * Trigger used to force a reload of the current user preferences.
-   *
-   * A value is emitted:
-   * - After application start (via startWith)
-   * - After a successful preference update
-   */
-  private readonly preferencesReload$ = new ReplaySubject<void>(1);
-
   /**
    * Whether the user is authenticated.
    */
@@ -78,33 +67,42 @@ export class CurrentUserFacade {
   readonly username = this.authService.username;
 
   /**
-   * Emits the user preferences for the current authenticated user.
-   *
-   * Preferences are loaded reactively when:
-   * - The authentication state changes
-   * - A manual reload is requested after a successful save
-   *
-   * If the user is not authenticated, null is emitted.
-   *
-   * Errors during loading are swallowed and mapped to null to avoid
-   * breaking the user stream.
+   * Remote preferences query. An undefined request keeps the resource idle while
+   * there is no authenticated user; authentication changes cancel stale loads.
+   * Resource errors remain available to consumers instead of being confused with
+   * the valid "no value" state.
    */
-  readonly preferences$ = combineLatest([
-    this.authentication$,
-    this.preferencesReload$.pipe(startWith(void 0)),
-  ]).pipe(
-    switchMap(([isAuthenticated]) => {
-      if (!isAuthenticated) {
-        return of(null);
-      }
+  readonly preferencesResource = rxResource<UserPreferences, true | undefined>({
+    params: () => (this.authService.isAuthenticated() ? true : undefined),
+    stream: () => this.userProfileApi.getPreferences(),
+  });
 
-      return this.userProfileApi.getPreferences().pipe(catchError(() => of(null)));
-    }),
-    shareReplay({ bufferSize: 1, refCount: true }),
+  /** The latest successfully loaded preferences, or null before a value exists. */
+  readonly preferences = computed(() =>
+    this.preferencesResource.hasValue() ? this.preferencesResource.value() : null,
   );
 
-  /** The latest remotely loaded preferences, adapted once for local signal consumers. */
-  readonly preferences = toSignal(this.preferences$, { initialValue: null });
+  private readonly preferencesQuery = computed(() => ({
+    authenticated: this.isAuthenticated(),
+    error: this.preferencesResource.error(),
+    hasValue: this.preferencesResource.hasValue(),
+    value: this.preferences(),
+  }));
+
+  /**
+   * Observable compatibility adapter. It waits for the resource to settle and
+   * preserves query failures on the error channel.
+   */
+  readonly preferences$ = toObservable(this.preferencesQuery).pipe(
+    filter((query) => !query.authenticated || query.hasValue || query.error !== undefined),
+    mergeMap((query) =>
+      query.error === undefined ? of(query.value) : throwError(() => query.error),
+    ),
+  );
+
+  /** Explicit query state exposed to screens that need loading and error feedback. */
+  readonly preferencesLoading = computed(() => this.preferencesResource.isLoading());
+  readonly preferencesError = computed(() => this.preferencesResource.error());
 
   /**
    * Whether the current user has the ADMIN role.
@@ -151,9 +149,13 @@ export class CurrentUserFacade {
   updatePreferences(payload: UserPreferences): Observable<UserPreferences> {
     return this.userProfileApi.updatePreferences(payload).pipe(
       tap(() => {
-        this.preferencesReload$.next();
+        this.preferencesResource.reload();
       }),
     );
+  }
+
+  reloadPreferences(): boolean {
+    return this.preferencesResource.reload();
   }
 
   private hasClientRole(role: string): boolean {
