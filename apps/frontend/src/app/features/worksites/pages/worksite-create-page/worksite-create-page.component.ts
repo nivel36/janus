@@ -5,14 +5,10 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Observable, finalize, of } from 'rxjs';
+import { finalize } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
-import { TimezoneOption } from '../../../../shared/models/timezone-option.model';
-import {
-  createTimezoneCatalog,
-  resolveTimezoneByZoneId,
-} from '../../../../shared/utils/timezone-catalog.util';
+import { TimezoneCatalog } from '../../../../shared/services/timezone-catalog.service';
 import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
@@ -43,6 +39,7 @@ import { MessageComponent } from '../../../../shared/ui/message/message.componen
 export class WorksiteCreatePageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  readonly timezoneCatalog = inject(TimezoneCatalog);
   private readonly worksiteApiService = inject(WorksiteApiService);
   private readonly uniqueWorksiteCodeValidator = inject(UniqueWorksiteCodeValidator);
 
@@ -87,8 +84,6 @@ export class WorksiteCreatePageComponent {
     labelKey: `worksite.scopes.${scope}`,
   }));
 
-  readonly timezoneCatalog = createTimezoneCatalog();
-
   readonly saving = signal(false);
 
   readonly errorMessage = signal('');
@@ -131,29 +126,4 @@ export class WorksiteCreatePageComponent {
   cancel(): void {
     this.router.navigate(['/worksites']);
   }
-
-  readonly timezoneDisplayWith = (option: TimezoneOption): string => option.literal;
-
-  readonly timezoneValueWith = (option: TimezoneOption): string => option.zoneId;
-
-  readonly resolveTimezoneByValue = (zoneId: string): TimezoneOption | null =>
-    resolveTimezoneByZoneId(this.timezoneCatalog, zoneId);
-
-  readonly searchMethod = (query: string): Observable<TimezoneOption[]> => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-      return of([]);
-    }
-
-    return of(
-      this.timezoneCatalog
-        .filter(
-          (option) =>
-            option.zoneId.toLowerCase().includes(normalizedQuery) ||
-            option.literal.toLowerCase().includes(normalizedQuery),
-        )
-        .slice(0, 50),
-    );
-  };
 }

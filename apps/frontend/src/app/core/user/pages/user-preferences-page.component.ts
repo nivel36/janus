@@ -5,15 +5,11 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Observable, finalize, of } from 'rxjs';
+import { finalize } from 'rxjs';
 
 import { resolveSupportedLanguage, supportedLanguages } from '../../i18n/language.util';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
-import { TimezoneOption } from '../../../shared/models/timezone-option.model';
-import {
-  createTimezoneCatalog,
-  resolveTimezoneByZoneId,
-} from '../../../shared/utils/timezone-catalog.util';
+import { TimezoneCatalog } from '../../../shared/services/timezone-catalog.service';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { FieldComponent } from '../../../shared/ui/field/field.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
@@ -60,6 +56,7 @@ export class UserPreferencesPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly currentUserFacade = inject(CurrentUserFacade);
   private readonly router = inject(Router);
+  readonly timezoneCatalog = inject(TimezoneCatalog);
 
   /**
    * Main form containing editable user preferences.
@@ -96,11 +93,6 @@ export class UserPreferencesPageComponent {
       labelKey: `userPreferences.timeFormat.${timeFormat}`,
     }),
   );
-
-  /**
-   * Full timezone catalog used by the autocomplete search.
-   */
-  readonly timezoneCatalog = createTimezoneCatalog();
 
   /**
    * Indicates whether the initial preference load is in progress.
@@ -197,59 +189,6 @@ export class UserPreferencesPageComponent {
   cancel(): void {
     this.router.navigate(['/']);
   }
-
-  /**
-   * Display function used by the autocomplete component.
-   *
-   * @param option Timezone option to render
-   * @returns Human-readable label shown in the input and result list
-   */
-  readonly timezoneDisplayWith = (option: TimezoneOption): string => option.literal;
-
-  /**
-   * Value mapper used by the autocomplete component.
-   *
-   * It converts the selected option into the string value stored in
-   * the reactive form.
-   *
-   * @param option Selected timezone option
-   * @returns IANA timezone identifier
-   */
-  readonly timezoneValueWith = (option: TimezoneOption): string => option.zoneId;
-
-  /**
-   * Resolver used by the autocomplete component when Angular writes
-   * an existing form value back into the control.
-   *
-   * @param zoneId Stored IANA timezone identifier
-   * @returns Matching timezone option or null when not found
-   */
-  readonly resolveTimezoneByValue = (zoneId: string): TimezoneOption | null =>
-    resolveTimezoneByZoneId(this.timezoneCatalog, zoneId);
-
-  /**
-   * Search function used by the autocomplete component.
-   *
-   * @param query Raw user query
-   * @returns Matching timezone options
-   */
-  readonly searchMethod = (query: string): Observable<TimezoneOption[]> => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-      return of([]);
-    }
-
-    return of(
-      this.timezoneCatalog
-        .filter(
-          (option) =>
-            option.zoneId.toLowerCase().includes(normalizedQuery) ||
-            option.literal.toLowerCase().includes(normalizedQuery),
-        )
-        .slice(0, 50),
-    );
-  };
 
   /**
    * Applies loaded or updated preferences to the form and resets
