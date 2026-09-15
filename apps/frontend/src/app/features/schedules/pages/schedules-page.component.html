@@ -7,7 +7,7 @@
                 [query]="query()"
                 (queryChange)="onQueryChange($event)"
             />
-            @if (isAdmin | async) {
+            @if (isAdmin()) {
                 <app-button variant="main" (clicked)="createSchedule()">
                     {{ 'actions.new' | translate }}
                 </app-button>

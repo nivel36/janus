@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthService } from '../../auth/auth.service';
@@ -25,9 +25,7 @@ describe('MainMenuComponent', () => {
         {
           provide: CurrentUserFacade,
           useValue: {
-            currentUser$: of(null),
-            fullName$: of(null),
-            isAdmin$: of(false),
+            currentUser: signal(null),
           },
         },
         { provide: Router, useValue: { navigate } },

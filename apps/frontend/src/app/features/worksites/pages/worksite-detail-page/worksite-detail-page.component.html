@@ -29,7 +29,7 @@
             <app-button type="button" variant="secondary" (clicked)="goBack()">
               {{ 'actions.cancel' | translate }}
             </app-button>
-            @if (isAdmin | async) {
+            @if (isAdmin()) {
               <app-button type="button" variant="main" (clicked)="editWorksite(worksite)">
                 {{ 'actions.edit' | translate }}
               </app-button>

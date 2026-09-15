@@ -103,10 +103,7 @@ export class TimelogClockCardComponent {
 
   readonly titleElementId = `clock-in-card-${createUuid()}-title`;
 
-  readonly userPreferences$ = this.currentUser.currentUser$.pipe(
-    map((user) => user.preferences),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  readonly userPreferences$ = toObservable(this.currentUser.preferences);
 
   /**
    * Email of the employee for whom the card is displayed.
@@ -135,7 +132,7 @@ export class TimelogClockCardComponent {
   /**
    * Indicates whether the user has permission to clock in/out.
    */
-  readonly hasClockInOutPermission$ = this.currentUser.isEmployee$;
+  readonly hasClockInOutPermission$ = toObservable(this.currentUser.isEmployee);
 
   /**
    * Employee's latest known time log.

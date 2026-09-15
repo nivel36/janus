@@ -10,10 +10,8 @@ import {
   type Signal,
   type WritableSignal,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import Keycloak, { type KeycloakLoginOptions } from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
-import type { Observable } from 'rxjs';
 import { AuthRedirectService } from './auth-redirect.service';
 import type { AuthPermissions, AuthTokenClaims, ClientRolesByClient } from './auth.models';
 
@@ -46,11 +44,6 @@ export class AuthService {
   readonly permissions: Signal<AuthPermissions> = computed(() =>
     this.extractPermissions(this.claims()),
   );
-
-  readonly isAuthenticated$: Observable<boolean> = toObservable(this.isAuthenticated);
-  readonly username$: Observable<string | null> = toObservable(this.username);
-  readonly claims$: Observable<AuthTokenClaims | null> = toObservable(this.claims);
-  readonly permissions$: Observable<AuthPermissions> = toObservable(this.permissions);
 
   constructor() {
     effect(() => {

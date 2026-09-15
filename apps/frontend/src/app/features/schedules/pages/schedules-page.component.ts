@@ -1,7 +1,6 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { AsyncPipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -22,7 +21,6 @@ import {
   selector: 'app-schedules-page',
   standalone: true,
   imports: [
-    AsyncPipe,
     ButtonComponent,
     PageTemplateComponent,
     ScheduleTableComponent,
@@ -38,7 +36,7 @@ export class SchedulesPageComponent {
 
   protected readonly query = input('', { transform: normalizeListQuery });
   protected readonly page = input(DEFAULT_LIST_PAGE, { transform: normalizeListPage });
-  protected readonly isAdmin = this.currentUser.isAdmin$;
+  protected readonly isAdmin = this.currentUser.isAdmin;
 
   protected onQueryChange(query: string): void {
     this.navigateTo(query, DEFAULT_LIST_PAGE);
