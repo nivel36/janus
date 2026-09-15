@@ -2,17 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Injectable, inject } from '@angular/core';
+import { computed, Injectable, inject } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, Observable, of, ReplaySubject } from 'rxjs';
-import {
-  map,
-  distinctUntilChanged,
-  shareReplay,
-  switchMap,
-  catchError,
-  startWith,
-  tap,
-} from 'rxjs/operators';
+import { catchError, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 
 import { AuthService } from '../../auth/auth.service';
 import { JANUS_API_CLIENT_ID, JANUS_CLIENT_ROLES } from '../../auth/auth.models';
@@ -31,10 +24,10 @@ import { UserPreferences } from '../models/user-preferences';
  * - User preferences (via UserProfileApiService)
  *
  * Responsibilities:
- * - Provide reactive streams representing the current user state
+ * - Provide signals representing the current user state
  * - Derive high-level flags (e.g., roles)
  * - Orchestrate loading of user-related data (e.g., preferences)
- * - Expose a single source of truth (`currentUser$`) for the UI
+ * - Expose a single source of truth (`currentUser`) for the UI
  *
  * This class does NOT:
  * - Perform direct HTTP mapping (delegated to API services)
@@ -45,6 +38,7 @@ import { UserPreferences } from '../models/user-preferences';
 export class CurrentUserFacade {
   private readonly authService = inject(AuthService);
   private readonly userProfileApi = inject(UserProfileApiService);
+  private readonly authentication$ = toObservable(this.authService.isAuthenticated);
 
   /**
    * Trigger used to force a reload of the current user preferences.
@@ -56,42 +50,32 @@ export class CurrentUserFacade {
   private readonly preferencesReload$ = new ReplaySubject<void>(1);
 
   /**
-   * Emits whether the user is authenticated.
+   * Whether the user is authenticated.
    */
-  readonly isAuthenticated$ = this.authService.isAuthenticated$;
+  readonly isAuthenticated = this.authService.isAuthenticated;
 
   /**
-   * Emits the user's email extracted from claims.
+   * The user's email extracted from claims.
    */
-  readonly email$ = this.authService.claims$.pipe(
-    map((claims) => claims?.email ?? null),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  readonly email = computed(() => this.authService.claims()?.email ?? null);
 
   /**
-   * Emits the user's full name derived from claims.
+   * The user's full name derived from claims.
    */
-  readonly fullName$ = this.authService.claims$.pipe(
-    map((claims) => `${claims?.given_name ?? ''} ${claims?.family_name ?? ''}`.trim()),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  readonly fullName = computed(() => {
+    const claims = this.authService.claims();
+    return `${claims?.given_name ?? ''} ${claims?.family_name ?? ''}`.trim();
+  });
 
   /**
-   * Emits the raw permissions object.
+   * The raw permissions object.
    */
-  readonly permissions$ = this.authService.permissions$.pipe(
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  readonly permissions = this.authService.permissions;
 
   /**
-   * Emits the resolved username of the current user.
+   * The resolved username of the current user.
    */
-  readonly username$ = this.authService.username$.pipe(
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  readonly username = this.authService.username;
 
   /**
    * Emits the user preferences for the current authenticated user.
@@ -106,7 +90,7 @@ export class CurrentUserFacade {
    * breaking the user stream.
    */
   readonly preferences$ = combineLatest([
-    this.isAuthenticated$,
+    this.authentication$,
     this.preferencesReload$.pipe(startWith(void 0)),
   ]).pipe(
     switchMap(([isAuthenticated]) => {
@@ -119,70 +103,47 @@ export class CurrentUserFacade {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  /**
-   * Emits whether the current user has the ADMIN role.
-   */
-  readonly isAdmin$ = this.permissions$.pipe(
-    map((p) => p.clientRoles[JANUS_API_CLIENT_ID]?.includes(JANUS_CLIENT_ROLES.ADMIN) ?? false),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  /** The latest remotely loaded preferences, adapted once for local signal consumers. */
+  readonly preferences = toSignal(this.preferences$, { initialValue: null });
 
   /**
-   * Emits whether the current user has the USER role.
+   * Whether the current user has the ADMIN role.
    */
-  readonly isUser$ = this.permissions$.pipe(
-    map((p) => p.clientRoles[JANUS_API_CLIENT_ID]?.includes(JANUS_CLIENT_ROLES.USER) ?? false),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  readonly isAdmin = computed(() => this.hasClientRole(JANUS_CLIENT_ROLES.ADMIN));
 
   /**
-   * Emits whether the current user has the EMPLOYEE role.
+   * Whether the current user has the USER role.
    */
-  readonly isEmployee$ = this.permissions$.pipe(
-    map((p) => p.clientRoles[JANUS_API_CLIENT_ID]?.includes(JANUS_CLIENT_ROLES.EMPLOYEE) ?? false),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  readonly isUser = computed(() => this.hasClientRole(JANUS_CLIENT_ROLES.USER));
 
   /**
-   * Emits a fully composed User model representing the current user.
+   * Whether the current user has the EMPLOYEE role.
+   */
+  readonly isEmployee = computed(() => this.hasClientRole(JANUS_CLIENT_ROLES.EMPLOYEE));
+
+  /**
+   * A fully composed User model representing the current user.
    *
    * This is the main entry point for UI consumption.
    * It combines authentication state, identity, roles and preferences
    * into a single immutable object.
    */
-  readonly currentUser$: Observable<User> = combineLatest([
-    this.isAuthenticated$,
-    this.username$,
-    this.email$,
-    this.fullName$,
-    this.isAdmin$,
-    this.isUser$,
-    this.isEmployee$,
-    this.preferences$,
-  ]).pipe(
-    map(
-      ([isAuthenticated, username, email, fullName, isAdmin, isUser, isEmployee, preferences]) => ({
-        username,
-        email,
-        fullName,
-        isAuthenticated,
-        isAdmin,
-        isUser,
-        isEmployee,
-        preferences,
-      }),
-    ),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  readonly currentUser = computed<User>(() => ({
+    username: this.username(),
+    email: this.email(),
+    fullName: this.fullName(),
+    isAuthenticated: this.isAuthenticated(),
+    isAdmin: this.isAdmin(),
+    isUser: this.isUser(),
+    isEmployee: this.isEmployee(),
+    preferences: this.preferences(),
+  }));
 
   /**
    * Updates preferences for the current authenticated user.
    *
    * After a successful update, a reload event is emitted so every consumer
-   * of `preferences$` and `currentUser$` receives the persisted values.
+   * of `preferences$` and `currentUser` receives the persisted values.
    *
    * @param payload - New preferences to persist
    * @returns Observable emitting updated preferences
@@ -195,33 +156,7 @@ export class CurrentUserFacade {
     );
   }
 
-  /**
-   * Returns whether the current user has the ADMIN role.
-   *
-   * This synchronous helper is useful in imperative code paths
-   * where a reactive stream is not convenient.
-   *
-   * @returns True when the current user has the ADMIN role
-   */
-  isAdmin(): boolean {
-    return this.authService.hasClientRole(JANUS_API_CLIENT_ID, JANUS_CLIENT_ROLES.ADMIN);
-  }
-
-  /**
-   * Returns whether the current user has the USER role.
-   *
-   * @returns True when the current user has the USER role
-   */
-  isUser(): boolean {
-    return this.authService.hasClientRole(JANUS_API_CLIENT_ID, JANUS_CLIENT_ROLES.USER);
-  }
-
-  /**
-   * Returns whether the current user has the EMPLOYEE role.
-   *
-   * @returns True when the current user has the EMPLOYEE role
-   */
-  isEmployee(): boolean {
-    return this.authService.hasClientRole(JANUS_API_CLIENT_ID, JANUS_CLIENT_ROLES.EMPLOYEE);
+  private hasClientRole(role: string): boolean {
+    return this.permissions().clientRoles[JANUS_API_CLIENT_ID]?.includes(role) ?? false;
   }
 }

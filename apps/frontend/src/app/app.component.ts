@@ -2,11 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { distinctUntilChanged, filter, map } from 'rxjs/operators';
 
 import { CurrentUserFacade } from './core/user/services/current-user.facade';
 import {
@@ -28,9 +27,17 @@ export class AppComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
 
+  constructor() {
+    effect(() => {
+      const locale = this.currentUserFacade.preferences()?.locale;
+      if (locale) {
+        this.translateService.use(this.resolveLanguage(locale));
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.bindDocumentLanguage();
-    this.bindUserLanguage();
   }
 
   private bindDocumentLanguage(): void {
@@ -43,32 +50,8 @@ export class AppComponent implements OnInit {
       .subscribe(({ lang }) => this.updateDocumentLanguage(resolveSupportedLanguage(lang)));
   }
 
-  private bindUserLanguage(): void {
-    this.currentUserFacade.preferences$
-      .pipe(
-        map((preferences) => preferences?.locale),
-        filter(this.hasLocale),
-        map((locale) => this.resolveLanguage(locale)),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((language) => {
-        this.translateService.use(language);
-      });
-  }
-
   private updateDocumentLanguage(language: (typeof supportedLanguages)[number]): void {
     this.document.documentElement.lang = language;
-  }
-
-  /**
-   * Checks whether the provided locale is a non-empty string.
-   *
-   * @param locale Locale value extracted from user preferences.
-   * @returns {@code true} when the locale is a valid non-empty string.
-   */
-  private hasLocale(locale: string | null | undefined): locale is string {
-    return !!locale;
   }
 
   private resolveLanguage(locale: string): (typeof supportedLanguages)[number] {

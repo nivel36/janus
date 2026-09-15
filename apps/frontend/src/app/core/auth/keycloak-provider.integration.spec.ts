@@ -12,7 +12,7 @@ import {
   includeBearerTokenInterceptor,
   type IncludeBearerTokenCondition,
 } from 'keycloak-angular';
-import { combineLatest, firstValueFrom, of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createKeycloakEventSignal, createKeycloakMock } from '../../../testing/auth-mocks';
@@ -47,15 +47,8 @@ describe('Keycloak event integration with the current-user facade', () => {
     });
     const auth = TestBed.inject(AuthService);
     const currentUser = TestBed.inject(CurrentUserFacade);
-    const reactiveRoles: boolean[][] = [];
-    const subscription = combineLatest([
-      currentUser.isAdmin$,
-      currentUser.isUser$,
-      currentUser.isEmployee$,
-    ]).subscribe((roles) => reactiveRoles.push(roles));
     const expectSelectors = (expected: boolean[]) => {
       TestBed.tick();
-      expect(reactiveRoles.at(-1)).toEqual(expected);
       expect([currentUser.isAdmin(), currentUser.isUser(), currentUser.isEmployee()]).toEqual(
         expected,
       );
@@ -97,7 +90,6 @@ describe('Keycloak event integration with the current-user facade', () => {
     expect(auth.hasClientRole('janus', 'viewer')).toBe(false);
     expect(keycloak.hasRealmRole).not.toHaveBeenCalled();
     expect(keycloak.hasResourceRole).not.toHaveBeenCalled();
-    subscription.unsubscribe();
   });
 });
 

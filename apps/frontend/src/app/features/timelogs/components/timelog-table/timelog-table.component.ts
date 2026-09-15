@@ -8,7 +8,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -50,29 +50,16 @@ export class TimelogTableComponent {
 
   readonly refreshToken = input(0);
 
-  private readonly currentUserSignal = toSignal(this.currentUser.currentUser$, {
-    initialValue: {
-      username: null,
-      email: null,
-      fullName: '',
-      isAuthenticated: false,
-      isAdmin: false,
-      isUser: false,
-      isEmployee: false,
-      preferences: null,
-    },
-  });
-
   protected readonly userLocale = computed(
-    () => this.currentUserSignal().preferences?.locale ?? FALLBACK_LANGUAGE,
+    () => this.currentUser.preferences()?.locale ?? FALLBACK_LANGUAGE,
   );
 
   protected readonly userTimezone = computed(
-    () => this.currentUserSignal().preferences?.defaultTimezone ?? undefined,
+    () => this.currentUser.preferences()?.defaultTimezone ?? undefined,
   );
 
   protected readonly timeFormat = computed(() =>
-    this.currentUserSignal().preferences?.timeFormat === 'H12' ? 'hh:mm a' : 'HH:mm',
+    this.currentUser.preferences()?.timeFormat === 'H12' ? 'hh:mm a' : 'HH:mm',
   );
 
   /**

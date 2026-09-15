@@ -1,4 +1,4 @@
-@if (currentUser$ | async; as user) {
+@if (user(); as user) {
     <nav class="main-menu" [attr.aria-label]="'navigation.mainMenu' | translate">
         <div class="main-menu__identity">
             <button

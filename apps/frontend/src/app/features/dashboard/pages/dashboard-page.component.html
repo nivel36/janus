@@ -1,13 +1,13 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.dashboard">
     <div pageContent class="app-page-content dashboard-page__content">
-        @if (employeeEmail$ | async; as employeeEmail) {
+        @if (employeeEmail(); as employeeEmail) {
             <app-timelog-clock-card
                 id="clock"
                 [employeeEmail]="employeeEmail"
                 (clockActionDone)="onClockActionDone()"
             />
 
-            <app-employee-card id="employee" [fullName]="fullName$ | async" />
+            <app-employee-card id="employee" [fullName]="fullName()" />
 
             <app-timelog-table
                 id="records"

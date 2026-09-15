@@ -1,7 +1,6 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -37,7 +36,6 @@ import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retr
     CardComponent,
     PageTemplateComponent,
     TranslatePipe,
-    AsyncPipe,
     TabsComponent,
     TabItemDirective,
     WorksiteDetailHeaderComponent,
@@ -66,7 +64,7 @@ export class WorksiteDetailPageComponent {
   });
 
   protected readonly worksite = computed(() => this.worksiteResource.value());
-  protected readonly isAdmin = this.currentUser.isAdmin$;
+  protected readonly isAdmin = this.currentUser.isAdmin;
 
   protected goBack(): void {
     this.router.navigate(['/worksites']);

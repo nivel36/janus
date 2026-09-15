@@ -1,9 +1,10 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject, of } from 'rxjs';
+import { Subject } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 
 import { AppComponent } from './app.component';
@@ -16,7 +17,7 @@ describe('AppComponent', () => {
       providers: [
         {
           provide: CurrentUserFacade,
-          useValue: { preferences$: of(null) },
+          useValue: { preferences: signal(null) },
         },
         {
           provide: TranslateService,
@@ -37,11 +38,11 @@ describe('AppComponent', () => {
 
   it('should apply app language from user locale preferences', async () => {
     const useSpy = vi.fn();
-    const preferences$ = new Subject<{
+    const preferences = signal<{
       locale: string;
       timeFormat: string;
       defaultTimezone: string;
-    }>();
+    } | null>(null);
     const onLangChange = new Subject<{ lang: string; translations: object }>();
 
     await TestBed.configureTestingModule({
@@ -49,7 +50,7 @@ describe('AppComponent', () => {
       providers: [
         {
           provide: CurrentUserFacade,
-          useValue: { preferences$ },
+          useValue: { preferences },
         },
         {
           provide: TranslateService,
@@ -66,11 +67,12 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
-    preferences$.next({
+    preferences.set({
       locale: 'ca-ES',
       timeFormat: 'H24',
       defaultTimezone: 'Europe/Madrid',
     });
+    fixture.detectChanges();
 
     expect(useSpy).toHaveBeenCalledWith('ca-ES');
     expect(document.documentElement.lang).toBe('es-ES');
@@ -79,11 +81,12 @@ describe('AppComponent', () => {
 
     expect(document.documentElement.lang).toBe('ca-ES');
 
-    preferences$.next({
+    preferences.set({
       locale: 'en-GB',
       timeFormat: 'H24',
       defaultTimezone: 'Europe/London',
     });
+    fixture.detectChanges();
 
     expect(useSpy).toHaveBeenLastCalledWith('en-GB');
     expect(document.documentElement.lang).toBe('ca-ES');

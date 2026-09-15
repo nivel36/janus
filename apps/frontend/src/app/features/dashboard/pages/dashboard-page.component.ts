@@ -1,7 +1,6 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -15,7 +14,6 @@ import { EmployeeCardComponent } from '../../employees/components/employee-card/
   selector: 'app-dashboard-page',
   standalone: true,
   imports: [
-    AsyncPipe,
     FormsModule,
     PageTemplateComponent,
     EmployeeCardComponent,
@@ -30,11 +28,8 @@ export class DashboardPageComponent {
 
   tableRefreshToken = 0;
 
-  readonly currentUser$ = this.currentUser.currentUser$;
-  readonly isAuthenticated$ = this.currentUser.isAuthenticated$;
-  readonly employeeEmail$ = this.currentUser.email$;
-  readonly fullName$ = this.currentUser.fullName$;
-  readonly canClockInOut$ = this.currentUser.isUser$;
+  readonly employeeEmail = this.currentUser.email;
+  readonly fullName = this.currentUser.fullName;
 
   onClockActionDone(): void {
     this.tableRefreshToken += 1;

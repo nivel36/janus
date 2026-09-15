@@ -20,9 +20,7 @@ export class MainMenuComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly currentUser$ = this.currentUser.currentUser$;
-  readonly fullName$ = this.currentUser.fullName$;
-  readonly isAdmin$ = this.currentUser.isAdmin$;
+  readonly user = this.currentUser.currentUser;
 
   readonly faPowerOff = faPowerOff;
   readonly faGear = faGear;

@@ -2,7 +2,7 @@
     <div pageContent class="app-page-content app-list-page">
         <div class="app-list-page__toolbar">
             <app-search-bar [query]="query()" (queryChange)="onQueryChange($event)" />
-            @if (isAdmin | async) {
+            @if (isAdmin()) {
                 <app-button variant="main" (clicked)="createWorksite()">
                     {{ 'actions.new' | translate }}
                 </app-button>

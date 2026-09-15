@@ -5,7 +5,6 @@ import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
-import { combineLatest } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -16,7 +15,7 @@ import {
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
-  it('updates all signal-derived observable values from the same event snapshot', () => {
+  it('updates all derived signal values from the same event snapshot', () => {
     const keycloak = createKeycloakMock();
     const keycloakEvent = createKeycloakEventSignal();
     TestBed.configureTestingModule({
@@ -27,16 +26,15 @@ describe('AuthService', () => {
       ],
     });
     const service = TestBed.inject(AuthService);
-    const observedStates: unknown[][] = [];
-    const subscription = combineLatest([
-      service.isAuthenticated$,
-      service.username$,
-      service.claims$,
-      service.permissions$,
-    ]).subscribe((state) => observedStates.push(state));
+    const state = () => [
+      service.isAuthenticated(),
+      service.username(),
+      service.claims(),
+      service.permissions(),
+    ];
 
     TestBed.tick();
-    expect(observedStates.at(-1)).toEqual([false, null, null, { realmRoles: [], clientRoles: {} }]);
+    expect(state()).toEqual([false, null, null, { realmRoles: [], clientRoles: {} }]);
 
     const authenticatedClaims = {
       preferred_username: 'ada',
@@ -47,7 +45,7 @@ describe('AuthService', () => {
     keycloak.tokenParsed = authenticatedClaims;
     keycloakEvent.set({ type: KeycloakEventType.AuthSuccess });
     TestBed.tick();
-    expect(observedStates.at(-1)).toEqual([
+    expect(state()).toEqual([
       true,
       'ada',
       authenticatedClaims,
@@ -62,7 +60,7 @@ describe('AuthService', () => {
     keycloak.tokenParsed = refreshedClaims;
     keycloakEvent.set({ type: KeycloakEventType.AuthRefreshSuccess });
     TestBed.tick();
-    expect(observedStates.at(-1)).toEqual([
+    expect(state()).toEqual([
       true,
       'ada@example.com',
       refreshedClaims,
@@ -73,8 +71,7 @@ describe('AuthService', () => {
     keycloak.tokenParsed = undefined;
     keycloakEvent.set({ type: KeycloakEventType.AuthLogout });
     TestBed.tick();
-    expect(observedStates.at(-1)).toEqual([false, null, null, { realmRoles: [], clientRoles: {} }]);
-    subscription.unsubscribe();
+    expect(state()).toEqual([false, null, null, { realmRoles: [], clientRoles: {} }]);
   });
 
   it('delegates supported login options without altering their values', async () => {
