@@ -11,6 +11,7 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.TimeLogSearchScope;
+import es.nivel36.janus.util.EmailAddresses;
 
 @Component("timeLogAuthorization")
 public class TimeLogAuthorizationAdapter {
@@ -57,7 +58,8 @@ public class TimeLogAuthorizationAdapter {
 			return false;
 		}
 		try {
-			return Objects.equals(a.employeeId(), this.employees.findEmployeeByEmail(email).getId());
+			return Objects.equals(a.employeeId(),
+					this.employees.findEmployeeByEmail(EmailAddresses.canonicalize(email)).getId());
 		} catch (final RuntimeException e) {
 			return false;
 		}

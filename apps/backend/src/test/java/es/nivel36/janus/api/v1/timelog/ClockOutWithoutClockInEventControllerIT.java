@@ -79,7 +79,7 @@ class ClockOutWithoutClockInEventControllerIT {
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"));
 		final var outsider = jwt().jwt(jwt -> jwt.subject("outsider-subject"));
 
-		this.mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", "2025-08-04T16:00:00Z")
+		this.mvc.perform(get(BASE + "/{exitTime}", "AFerrer@Nivel36.ES", "2025-08-04T16:00:00Z")
 				.param("worksiteCode", "OFFICE").with(employee)).andExpect(status().isOk());
 		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", "2025-08-04T16:00:00Z")
 				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON)
@@ -88,7 +88,7 @@ class ClockOutWithoutClockInEventControllerIT {
 				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON).content("{}").with(employee))
 				.andExpect(status().isOk());
 
-		this.mvc.perform(get(BASE + "/{exitTime}", "ada@nivel36.es", "2025-08-04T16:00:00Z")
+		this.mvc.perform(get(BASE + "/{exitTime}", "AdA@Nivel36.ES", "2025-08-04T16:00:00Z")
 				.param("worksiteCode", "OFFICE").with(employee)).andExpect(status().isForbidden());
 		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "ada@nivel36.es", "2025-08-04T16:00:00Z")
 				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON)
