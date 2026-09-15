@@ -2,34 +2,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpContext } from '@angular/common/http';
+import { HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { environment } from '../../../../environments/environment';
-import { UserPreferences } from '../models/user-preferences';
+import { TimeFormat as ApiTimeFormat } from '../../../api/generated/model/timeFormat';
+import { UserPreferences, type TimeFormat } from '../models/user-preferences';
+import { AppUsersService } from '../../../api/generated/api/appUsers.service';
+import { AppUserResponse } from '../../../api/generated/model/appUserResponse';
 import { HTTP_RETRY_POLICY } from '../../http/http-retry.interceptor';
-
-/**
- * Supported time formats for user preferences.
- */
-export type TimeFormat = 'H12' | 'H24';
-
-/**
- * Internal DTO representing the user profile as returned by the backend API.
- *
- * This type is intentionally kept private to this file to avoid leaking
- * backend-specific structures into the rest of the application.
- *
- * The service is responsible for mapping this DTO into domain-level models
- * (e.g., UserPreferences) consumed by the UI and other layers.
- */
-interface AppUserProfile {
-  username: string;
-  locale: string;
-  timeFormat: TimeFormat;
-  defaultTimezone: string;
-}
 
 /**
  * Service responsible exclusively for communication with the user profile API.
@@ -50,12 +31,7 @@ interface AppUserProfile {
  */
 @Injectable({ providedIn: 'root' })
 export class UserProfileApiService {
-  private readonly http = inject(HttpClient);
-
-  /**
-   * Base endpoint for user profile resources.
-   */
-  private readonly baseUrl = `${environment.apiBaseUrl}/appusers`;
+  private readonly api = inject(AppUsersService);
 
   /**
    * Retrieves the full user profile from the backend.
@@ -65,8 +41,8 @@ export class UserProfileApiService {
    *
    * @returns Observable emitting the raw AppUserProfile DTO
    */
-  private getProfile(): Observable<AppUserProfile> {
-    return this.http.get<AppUserProfile>(`${this.baseUrl}/me`, {
+  private getProfile(): Observable<AppUserResponse> {
+    return this.api.findCurrentAppUser('body', false, {
       context: new HttpContext().set(HTTP_RETRY_POLICY, {
         retries: 10,
         baseDelayMs: 1_000,
@@ -96,8 +72,11 @@ export class UserProfileApiService {
    * @returns Observable emitting the updated preferences
    */
   updatePreferences(payload: UserPreferences): Observable<UserPreferences> {
-    return this.http
-      .put<AppUserProfile>(`${this.baseUrl}/me`, payload)
+    return this.api
+      .updateCurrentAppUser({
+        ...payload,
+        timeFormat: payload.timeFormat as ApiTimeFormat,
+      })
       .pipe(map((response) => this.toPreferences(response)));
   }
 
@@ -110,10 +89,10 @@ export class UserProfileApiService {
    * @param response - Raw backend profile DTO
    * @returns UserPreferences domain model
    */
-  private toPreferences(response: AppUserProfile): UserPreferences {
+  private toPreferences(response: AppUserResponse): UserPreferences {
     return {
       locale: response.locale,
-      timeFormat: response.timeFormat,
+      timeFormat: response.timeFormat as TimeFormat,
       defaultTimezone: response.defaultTimezone,
     };
   }

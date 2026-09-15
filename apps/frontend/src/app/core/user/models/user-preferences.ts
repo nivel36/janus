@@ -1,4 +1,4 @@
-import { TimeFormat } from '../services/user-profile-api.service';
+export type TimeFormat = 'H12' | 'H24';
 
 export interface UserPreferences {
   locale: string;
