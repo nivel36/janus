@@ -6,20 +6,16 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { filter, finalize, map, Observable, of, takeUntil } from 'rxjs';
+import { filter, finalize, map, takeUntil } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
-import { TimezoneOption } from '../../../../shared/models/timezone-option.model';
 import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
 import { InputComponent } from '../../../../shared/ui/input/input.component';
 import { SelectComponent, SelectOption } from '../../../../shared/ui/select/select.component';
-import {
-  createTimezoneCatalog,
-  resolveTimezoneByZoneId,
-} from '../../../../shared/utils/timezone-catalog.util';
+import { TimezoneCatalog } from '../../../../shared/services/timezone-catalog.service';
 import { Worksite, WorksiteScope } from '../../models/worksite';
 import { WorksiteApiService } from '../../services/worksite-api.service';
 
@@ -45,6 +41,7 @@ export class WorksiteEditPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  readonly timezoneCatalog = inject(TimezoneCatalog);
   private readonly worksiteApiService = inject(WorksiteApiService);
 
   readonly worksiteCode = toSignal(
@@ -99,8 +96,6 @@ export class WorksiteEditPageComponent {
     value: scope,
     labelKey: `worksite.scopes.${scope}`,
   }));
-
-  readonly timezoneCatalog = createTimezoneCatalog();
 
   readonly loading = computed(() => this.worksiteResource.isLoading());
 
@@ -176,29 +171,4 @@ export class WorksiteEditPageComponent {
   cancel(): void {
     this.router.navigate(['/worksites', this.worksiteCode()]);
   }
-
-  readonly timezoneDisplayWith = (option: TimezoneOption): string => option.literal;
-
-  readonly timezoneValueWith = (option: TimezoneOption): string => option.zoneId;
-
-  readonly resolveTimezoneByValue = (zoneId: string): TimezoneOption | null =>
-    resolveTimezoneByZoneId(this.timezoneCatalog, zoneId);
-
-  readonly searchMethod = (query: string): Observable<TimezoneOption[]> => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-      return of([]);
-    }
-
-    return of(
-      this.timezoneCatalog
-        .filter(
-          (option) =>
-            option.zoneId.toLowerCase().includes(normalizedQuery) ||
-            option.literal.toLowerCase().includes(normalizedQuery),
-        )
-        .slice(0, 50),
-    );
-  };
 }
