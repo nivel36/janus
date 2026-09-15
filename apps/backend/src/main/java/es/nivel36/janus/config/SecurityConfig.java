@@ -139,8 +139,9 @@ public class SecurityConfig {
 	 *
 	 * <p>
 	 * The resulting configuration restricts cross-origin requests to the provided
-	 * origins, allows a fixed set of HTTP methods and headers, disables credential
-	 * sharing, and caches preflight responses for {@code 3600} seconds.
+	 * origins, allows a fixed set of HTTP methods and headers, exposes retry timing
+	 * guidance, disables credential sharing, and caches preflight responses for
+	 * {@code 3600} seconds.
 	 *
 	 * <p>
 	 * The CORS configuration is applied only to requests matching {@code /api/**}.
@@ -157,6 +158,7 @@ public class SecurityConfig {
 		config.setAllowedOrigins(allowedOrigins);
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin"));
+		config.setExposedHeaders(List.of("Retry-After"));
 		config.setAllowCredentials(false);
 		config.setMaxAge(3600L);
 
