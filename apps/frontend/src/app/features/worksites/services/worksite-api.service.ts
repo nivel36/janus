@@ -57,6 +57,26 @@ export class WorksiteApiService {
   }
 
   /**
+   * Retrieves the active assigned worksites available to an employee.
+   *
+   * Global worksites are intentionally excluded: this query is used when a
+   * clock action needs an explicitly assigned worksite.
+   */
+  searchAssignedToEmployee(employeeEmail: string): Observable<Worksite[]> {
+    const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+
+    return this.api
+      .searchWorksites('', employeeEmail, 0, 100, ['code,desc'], 'body', false, { context })
+      .pipe(
+        map((response) =>
+          (response.content ?? [])
+            .map((worksite) => this.mapWorksite(worksite))
+            .filter((worksite) => worksite.scope === 'ASSIGNED' && worksite.active),
+        ),
+      );
+  }
+
+  /**
    * Retrieves a single worksite by its unique code.
    *
    * @param worksiteCode Unique worksite business identifier.

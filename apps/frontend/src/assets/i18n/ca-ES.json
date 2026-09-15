@@ -62,7 +62,8 @@
     "timelogs": "Fixatges",
     "timeTracking": "Registre de jornada",
     "clockActionPermissionDenied": "No tens permisos per fitxar.",
-    "clockActionNetworkError": "No s'ha pogut registrar el fitxatge en aquest moment. Torna-ho a provar."
+    "clockActionNetworkError": "No s'ha pogut registrar el fitxatge en aquest moment. Torna-ho a provar.",
+    "clockActionWorksiteUnavailable": "No tens un únic lloc de treball assignat per fitxar."
   },
   "employee": {
     "employee": "Empleat",

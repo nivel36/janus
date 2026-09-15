@@ -29,6 +29,7 @@ import { ClockComponent } from '../../../../shared/ui/clock/clock.component';
 import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
 import { TimeLog } from '../../models/timelog';
 import { TimeLogService } from '../../services/timelog-api.service';
+import { WorksiteApiService } from '../../../worksites/services/worksite-api.service';
 import { createUuid } from '../../../../shared/utils/uuid.utils';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 
@@ -43,6 +44,7 @@ type ClockActionMode = 'auto' | 'force-opposite';
 type ClockActionResult =
   | { type: 'success'; employeeEmail: string; timeLog: TimeLog }
   | { type: 'permissionDenied'; feedbackKey: string }
+  | { type: 'worksiteUnavailable'; feedbackKey: string }
   | { type: 'networkError'; feedbackKey: string };
 
 /**
@@ -72,7 +74,7 @@ interface TimelogClockCardViewModel {
  */
 interface ResolvedClockAction {
   shouldClockOut: boolean;
-  worksiteCode: string;
+  worksiteCode: string | undefined;
 }
 
 /**
@@ -95,11 +97,10 @@ interface ResolvedClockAction {
 export class TimelogClockCardComponent {
   private readonly currentUser = inject(CurrentUserFacade);
   private readonly timeLogService = inject(TimeLogService);
+  private readonly worksiteApiService = inject(WorksiteApiService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly faAngleRight = faAngleRight;
-
-  private readonly defaultWorksiteCode = 'BCN-HQ';
 
   readonly titleElementId = `clock-in-card-${createUuid()}-title`;
 
@@ -155,13 +156,34 @@ export class TimelogClockCardComponent {
   );
 
   /**
+   * The assigned worksite to use for a new clock action when the employee has
+   * exactly one active assigned worksite. The selection UI for other cases is
+   * intentionally deferred.
+   */
+  readonly assignedWorksiteCode$: Observable<string | undefined> = this.employeeEmail$.pipe(
+    switchMap((employeeEmail) =>
+      this.worksiteApiService.searchAssignedToEmployee(employeeEmail).pipe(
+        map((worksites) => (worksites.length === 1 ? worksites[0].code : undefined)),
+        catchError(() => of(undefined)),
+      ),
+    ),
+    startWith(undefined),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
    * Main execution state flow for the clocking action.
    *
    * exhaustMap is used to ignore repeated clicks while an action is already in progress.
    */
   readonly clockActionState$: Observable<ClockActionState> = this.clockActionRequests$.pipe(
-    withLatestFrom(this.employeeEmail$, this.latestTimeLog$, this.hasClockInOutPermission$),
-    exhaustMap(([mode, employeeEmail, latestTimeLog, canClockInOut]) => {
+    withLatestFrom(
+      this.employeeEmail$,
+      this.latestTimeLog$,
+      this.hasClockInOutPermission$,
+      this.assignedWorksiteCode$,
+    ),
+    exhaustMap(([mode, employeeEmail, latestTimeLog, canClockInOut, assignedWorksiteCode]) => {
       if (!canClockInOut) {
         return of<ClockActionState>({
           status: 'result',
@@ -172,7 +194,21 @@ export class TimelogClockCardComponent {
         });
       }
 
-      const { shouldClockOut, worksiteCode } = this.resolveClockAction(mode, latestTimeLog);
+      const { shouldClockOut, worksiteCode } = this.resolveClockAction(
+        mode,
+        latestTimeLog,
+        assignedWorksiteCode,
+      );
+
+      if (!worksiteCode) {
+        return of<ClockActionState>({
+          status: 'result',
+          result: {
+            type: 'worksiteUnavailable',
+            feedbackKey: 'timelog.clockActionWorksiteUnavailable',
+          },
+        });
+      }
 
       const action$ = shouldClockOut
         ? this.timeLogService.clockOut(employeeEmail, worksiteCode)
@@ -333,12 +369,13 @@ export class TimelogClockCardComponent {
   private resolveClockAction(
     mode: ClockActionMode,
     latestTimeLog: TimeLog | undefined,
+    assignedWorksiteCode: string | undefined,
   ): ResolvedClockAction {
     const hasOpenTimeLog = this.isOpenTimeLog(latestTimeLog);
 
     return {
       shouldClockOut: mode === 'force-opposite' ? !hasOpenTimeLog : hasOpenTimeLog,
-      worksiteCode: latestTimeLog?.worksiteCode ?? this.defaultWorksiteCode,
+      worksiteCode: latestTimeLog?.worksiteCode ?? assignedWorksiteCode,
     };
   }
 

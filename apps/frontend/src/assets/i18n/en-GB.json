@@ -62,7 +62,8 @@
     "timelogs": "Time logs",
     "timeTracking": "Time tracking",
     "clockActionPermissionDenied": "You do not have permission to clock in or out.",
-    "clockActionNetworkError": "Unable to register your time action right now. Please try again."
+    "clockActionNetworkError": "Unable to register your time action right now. Please try again.",
+    "clockActionWorksiteUnavailable": "You do not have exactly one assigned worksite for clocking."
   },
   "employee": {
     "employee": "Employee",

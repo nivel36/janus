@@ -41,16 +41,35 @@ describe('WorksiteApiService', () => {
     expect(request.request.context.get(HTTP_RETRY_POLICY)).toBe(ACTIVE_SCREEN_HTTP_RETRY_POLICY);
     request.flush(worksiteResponse('MAD'));
   });
+
+  it('returns only active worksites assigned to the employee', () => {
+    let worksites: unknown;
+    service.searchAssignedToEmployee('employee@example.com').subscribe((result) => (worksites = result));
+
+    const request = httpTesting.expectOne((candidate) => candidate.url.endsWith('/worksites'));
+    expect(request.request.params.get('employeeEmail')).toBe('employee@example.com');
+    expect(request.request.params.get('size')).toBe('100');
+    request.flush({
+      content: [
+        worksiteResponse('ASSIGNED', 'ASSIGNED', true),
+        worksiteResponse('GLOBAL', 'GLOBAL', true),
+        worksiteResponse('INACTIVE', 'ASSIGNED', false),
+      ],
+      page: { totalElements: 3, number: 0, size: 100, totalPages: 1 },
+    });
+
+    expect(worksites).toMatchObject([{ code: 'ASSIGNED' }]);
+  });
 });
 
-function worksiteResponse(code: string) {
+function worksiteResponse(code: string, scope = 'ASSIGNED', active = true) {
   return {
     code,
     name: code,
     timeZone: 'Europe/Madrid',
-    scope: 'OFFICE',
+    scope,
     description: null,
     address: null,
-    active: true,
+    active,
   };
 }
