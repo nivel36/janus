@@ -253,6 +253,68 @@ describe('httpRetryInterceptor', () => {
     ).rejects.toBe(error);
     expect(attempts).toBe(1);
   });
+
+  it('charges only scheduled delays to the delay budget', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    let attempts = 0;
+    const request = new HttpRequest('GET', '/api/example', null, {
+      context: new HttpContext().set(HTTP_RETRY_POLICY, {
+        retries: 1,
+        baseDelayMs: 100,
+        maxDelayBudgetMs: 30_000,
+      }),
+    });
+    const result = firstValueFrom(
+      httpRetryInterceptor(request, () => {
+        attempts += 1;
+        if (attempts === 1) {
+          vi.setSystemTime(new Date('2026-01-01T00:01:00Z'));
+          return throwError(
+            () =>
+              new HttpErrorResponse({
+                status: 503,
+                headers: new HttpHeaders({ 'Retry-After': '0' }),
+              }),
+          );
+        }
+        return of(new HttpResponse({ status: 200 }));
+      }),
+    );
+
+    await vi.runAllTimersAsync();
+
+    expect(await result).toBeInstanceOf(HttpResponse);
+    expect(attempts).toBe(2);
+  });
+
+  it('accumulates scheduled delays when enforcing the delay budget', async () => {
+    vi.useFakeTimers();
+    const error = new HttpErrorResponse({
+      status: 503,
+      headers: new HttpHeaders({ 'Retry-After': '20' }),
+    });
+    let attempts = 0;
+    const request = new HttpRequest('GET', '/api/example', null, {
+      context: new HttpContext().set(HTTP_RETRY_POLICY, {
+        retries: 2,
+        baseDelayMs: 100,
+        maxDelayBudgetMs: 30_000,
+      }),
+    });
+    const result = firstValueFrom(
+      httpRetryInterceptor(request, () => {
+        attempts += 1;
+        return throwError(() => error);
+      }),
+    );
+
+    const rejection = expect(result).rejects.toBe(error);
+    await vi.runAllTimersAsync();
+    await rejection;
+
+    expect(attempts).toBe(2);
+  });
 });
 
 function retryingRequest(method: string, retries: number): HttpRequest<unknown> {

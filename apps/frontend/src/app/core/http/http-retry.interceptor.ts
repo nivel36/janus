@@ -41,7 +41,7 @@ export const httpRetryInterceptor: HttpInterceptorFn = (request, next) => {
   // Re-enter the downstream interceptor chain for every subscription so retries
   // can obtain a freshly refreshed bearer token instead of reusing a cloned request.
   return defer(() => {
-    const startedAt = Date.now();
+    let scheduledDelayMs = 0;
 
     return defer(() => next(request)).pipe(
       retry({
@@ -53,9 +53,10 @@ export const httpRetryInterceptor: HttpInterceptorFn = (request, next) => {
 
           const delayMs = retryDelay(error, policy.baseDelayMs, retryCount);
           const budgetMs = policy.maxDelayBudgetMs;
-          if (budgetMs !== undefined && Date.now() - startedAt + delayMs > budgetMs) {
+          if (budgetMs !== undefined && scheduledDelayMs + delayMs > budgetMs) {
             return throwError(() => error);
           }
+          scheduledDelayMs += delayMs;
 
           return timer(delayMs);
         },
