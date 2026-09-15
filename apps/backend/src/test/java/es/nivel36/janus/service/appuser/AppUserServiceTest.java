@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import es.nivel36.janus.config.UserProvisioningProperties;
@@ -81,9 +80,9 @@ class AppUserServiceTest {
 				Optional.of(winner));
 		when(this.appUserRepository.existsByEmployee(employee)).thenReturn(true);
 		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
-				eq(employee))).thenThrow(new DataIntegrityViolationException("employee claimed"));
+				eq(employee))).thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.EMPLOYEE, new RuntimeException("employee claimed")));
 		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
-				isNull())).thenThrow(new DataIntegrityViolationException("subject claimed"));
+				isNull())).thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.KEYCLOAK_SUBJECT, new RuntimeException("subject claimed")));
 
 		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, username, "person@example.test"));
 	}

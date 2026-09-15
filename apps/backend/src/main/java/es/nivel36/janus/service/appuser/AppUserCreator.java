@@ -9,6 +9,8 @@ package es.nivel36.janus.service.appuser;
 import java.time.ZoneId;
 import java.util.Locale;
 
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,38 @@ class AppUserCreator {
 			final TimeFormat timeFormat, final ZoneId defaultTimezone, final Employee employee) {
 		final AppUser appUser = new AppUser(username, keycloakSubject, locale, timeFormat, defaultTimezone);
 		appUser.setEmployee(employee);
-		return this.appUserRepository.saveAndFlush(appUser);
+		try {
+			return this.appUserRepository.saveAndFlush(appUser);
+		} catch (final DataIntegrityViolationException failure) {
+			throw new AppUserCreationConflict(constraintKey(failure), failure);
+		}
+	}
+
+	private static AppUserCreationConflict.Key constraintKey(final DataIntegrityViolationException failure) {
+		Throwable cause = failure;
+		while (cause != null) {
+			if (cause instanceof ConstraintViolationException violation) {
+				return constraintKey(violation.getConstraintName());
+			}
+			cause = cause.getCause();
+		}
+		return constraintKey(failure.getMessage());
+	}
+
+	private static AppUserCreationConflict.Key constraintKey(final String constraintName) {
+		if (constraintName == null) {
+			return AppUserCreationConflict.Key.UNKNOWN;
+		}
+		final String normalized = constraintName.toUpperCase(Locale.ROOT);
+		if (normalized.contains("UK_APP_USER_KEYCLOAK_SUBJECT")) {
+			return AppUserCreationConflict.Key.KEYCLOAK_SUBJECT;
+		}
+		if (normalized.contains("UK_APP_USER_EMPLOYEE")) {
+			return AppUserCreationConflict.Key.EMPLOYEE;
+		}
+		if (normalized.contains("UK_APP_USER_USERNAME")) {
+			return AppUserCreationConflict.Key.USERNAME;
+		}
+		return AppUserCreationConflict.Key.UNKNOWN;
 	}
 }
