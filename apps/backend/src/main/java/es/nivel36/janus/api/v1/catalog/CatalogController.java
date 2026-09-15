@@ -44,9 +44,11 @@ public class CatalogController implements CatalogResource {
 	 */
 	public CatalogController(final TimeZoneCatalogService timeZoneCatalogService,
 			final @Qualifier("timeZoneCatalogItemResponseMapper") Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper) {
-		this.timeZoneCatalogService = Objects.requireNonNull(timeZoneCatalogService,
+		this.timeZoneCatalogService = Objects.requireNonNull( //
+				timeZoneCatalogService, //
 				"timeZoneCatalogService can't be null");
-		this.timeZoneCatalogItemResponseMapper = Objects.requireNonNull(timeZoneCatalogItemResponseMapper,
+		this.timeZoneCatalogItemResponseMapper = Objects.requireNonNull( //
+				timeZoneCatalogItemResponseMapper, //
 				"timeZoneCatalogItemResponseMapper can't be null");
 	}
 
@@ -60,13 +62,12 @@ public class CatalogController implements CatalogResource {
 	 * @return a page with matching time zone catalog items
 	 */
 	@Override
-	public ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones(
-			final String search,
-			final TimeZoneSortBy sortBy,
+	public ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones( //
+			final String search, //
+			final TimeZoneSortBy sortBy, // 
 			final Pageable pageable) {
-		final Page<TimeZoneCatalogItem> zones = this.timeZoneCatalogService.search(search, sortBy, pageable);
-		final Page<TimeZoneCatalogItemResponse> response = zones.map(this.timeZoneCatalogItemResponseMapper::map);
-		return ResponseEntity.ok(response);
+		final Page<TimeZoneCatalogItemResponse> zones = this.timeZoneCatalogService.search(search, sortBy, pageable)
+				.map(timeZoneCatalogItemResponseMapper::map);
+		return ResponseEntity.ok(zones);
 	}
-
 }

@@ -42,7 +42,5 @@ public record UpdateAppUserRequest( //
 		TimeFormat timeFormat, //
 
 		@NotBlank(message = "defaultTimezone must not be blank") //
-		String defaultTimezone,
-
-		Long employeeId) {
+		String defaultTimezone) {
 }

@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import es.nivel36.janus.service.appuser.AppUser;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -39,11 +38,14 @@ public interface AppUserResource {
 
 	@PreAuthorize("@appUserAuthorization.canUpdateCurrent(authentication)")
 	@PutMapping("/me")
-	ResponseEntity<AppUserResponse> updateCurrentAppUser(@Valid @RequestBody UpdateAppUserRequest request,
+	ResponseEntity<AppUserResponse> updateCurrentAppUser( //
+			@Valid @RequestBody UpdateAppUserRequest request, //
 			Authentication authentication);
 
 	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{username}")
-	ResponseEntity<Void> deleteAppUser(
-			@PathVariable("username") @Pattern(regexp = AppUser.USERNAME_PATTERN, message = AppUser.USERNAME_VALIDATION_MESSAGE) String username);
+	ResponseEntity<Void> deleteAppUser( //
+			@PathVariable("username") //
+			@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
+			String username);
 }

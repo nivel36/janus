@@ -32,6 +32,10 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
  * @param defaultTimezone                   IANA time zone identifier used as
  *                                          default
  */
-public record ApplicationSettingsResponse(int daysUntilLocked, boolean employeeWorkplaceCreationAllowed,
-		boolean worksiteChangeDuringShiftAllowed, boolean employeeManualTimelogEntryAllowed, String defaultTimezone) {
+public record ApplicationSettingsResponse( //
+		int daysUntilLocked, //
+		boolean employeeWorkplaceCreationAllowed, //
+		boolean worksiteChangeDuringShiftAllowed, //
+		boolean employeeManualTimelogEntryAllowed, //
+		String defaultTimezone) {
 }

@@ -38,26 +38,27 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationSettingsController.class);
 
 	private final ApplicationSettingsService applicationSettingsService;
-	private final Mapper<ApplicationSettings, ApplicationSettingsResponse> applicationSettingsResponseMapper;
+	private final Mapper<ApplicationSettings, ApplicationSettingsResponse> appSettingsResponseMapper;
 
 	/**
 	 * Builds a controller for managing global {@link ApplicationSettings}.
 	 *
-	 * @param applicationSettingsService        service handling application
-	 *                                          settings operations; must not be
-	 *                                          {@code null}
-	 * @param applicationSettingsResponseMapper mapper translating
-	 *                                          {@link ApplicationSettings} entities
-	 *                                          into
-	 *                                          {@link ApplicationSettingsResponse}
-	 *                                          DTOs; must not be {@code null}
+	 * @param applicationSettingsService service handling application settings
+	 *                                   operations; must not be {@code null}
+	 * @param appSettingsResponseMapper  mapper translating
+	 *                                   {@link ApplicationSettings} entities into
+	 *                                   {@link ApplicationSettingsResponse} DTOs;
+	 *                                   must not be {@code null}
 	 */
-	public ApplicationSettingsController(final ApplicationSettingsService applicationSettingsService,
-			final @Qualifier("applicationSettingsResponseMapper") Mapper<ApplicationSettings, ApplicationSettingsResponse> applicationSettingsResponseMapper) {
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
+	public ApplicationSettingsController( //
+			final ApplicationSettingsService applicationSettingsService, //
+			final @Qualifier("appSettingsResponseMapper") Mapper<ApplicationSettings, ApplicationSettingsResponse> appSettingsResponseMapper) {
+		this.applicationSettingsService = Objects.requireNonNull( //
+				applicationSettingsService, //
 				"applicationSettingsService can't be null");
-		this.applicationSettingsResponseMapper = Objects.requireNonNull(applicationSettingsResponseMapper,
-				"applicationSettingsResponseMapper can't be null");
+		this.appSettingsResponseMapper = Objects.requireNonNull( //
+				appSettingsResponseMapper, //
+				"appSettingsResponseMapper can't be null");
 	}
 
 	/**
@@ -69,7 +70,8 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	public ResponseEntity<ApplicationSettingsResponse> findApplicationSettings() {
 		logger.debug("Find application settings ACTION performed");
 		final ApplicationSettings applicationSettings = this.applicationSettingsService.findApplicationSettings();
-		return ResponseEntity.ok(this.applicationSettingsResponseMapper.map(applicationSettings));
+		final ApplicationSettingsResponse appSettingsResponse = this.appSettingsResponseMapper.map(applicationSettings);
+		return ResponseEntity.ok(appSettingsResponse);
 	}
 
 	/**
@@ -80,16 +82,21 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	 * @return a {@link ResponseEntity} containing the updated application settings
 	 */
 	@Override
-	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(final UpdateApplicationSettingsRequest request) {
+	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
+			final UpdateApplicationSettingsRequest request) {
 		logger.debug("Update application settings ACTION performed");
 		final int daysUntilLocked = request.daysUntilLocked();
 		final boolean employeeWorkplaceCreationAllowed = request.employeeWorkplaceCreationAllowed();
 		final boolean worksiteChangeDuringShiftAllowed = request.worksiteChangeDuringShiftAllowed();
 		final boolean employeeManualTimelogEntryAllowed = request.employeeManualTimelogEntryAllowed();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
-		final ApplicationSettings updatedSettings = this.applicationSettingsService.update(daysUntilLocked,
-				employeeWorkplaceCreationAllowed, worksiteChangeDuringShiftAllowed, employeeManualTimelogEntryAllowed,
+		final ApplicationSettings updatedSettings = this.applicationSettingsService.update( //
+				daysUntilLocked, //
+				employeeWorkplaceCreationAllowed, //
+				worksiteChangeDuringShiftAllowed, //
+				employeeManualTimelogEntryAllowed, //
 				zoneId);
-		return ResponseEntity.ok(this.applicationSettingsResponseMapper.map(updatedSettings));
+		final ApplicationSettingsResponse appSettingsResponse = this.appSettingsResponseMapper.map(updatedSettings);
+		return ResponseEntity.ok(appSettingsResponse);
 	}
 }

@@ -77,9 +77,12 @@ public class AppUserController implements AppUserResource {
 		final Boolean emailVerified = authentication.getToken().getClaim("email_verified");
 		final String email = authentication.getToken().getClaimAsString("email");
 		final String verifiedEmail = Boolean.TRUE.equals(emailVerified) && StringUtils.hasText(email)
-				? EmailAddresses.canonicalize(email) : null;
-		return ResponseEntity.ok(this.appUserResponseMapper.map(this.appUserService
-				.findOrCreateAppUser(authentication.getToken().getSubject(), preferredUsername, verifiedEmail)));
+				? EmailAddresses.canonicalize(email)
+				: null;
+		final String subject = authentication.getToken().getSubject();
+		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, preferredUsername, verifiedEmail);
+		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(appUser);
+		return ResponseEntity.ok(appUserResponse);
 	}
 
 	/**
@@ -92,14 +95,16 @@ public class AppUserController implements AppUserResource {
 	 * @return the updated {@link AppUserResponse}
 	 */
 	@Override
-	public ResponseEntity<AppUserResponse> updateCurrentAppUser(final UpdateAppUserRequest request,
+	public ResponseEntity<AppUserResponse> updateCurrentAppUser(
+			final UpdateAppUserRequest request, //
 			final Authentication authentication) {
 		final String name = authentication.getName().trim();
 		final Locale forLanguageTag = Locale.forLanguageTag(request.locale().trim());
 		final TimeFormat timeFormat = request.timeFormat();
-		final ZoneId of = ZoneId.of(request.defaultTimezone().trim());
-		final AppUser updated = this.appUserService.updateCurrentAppUser(name, forLanguageTag, timeFormat, of);
-		return ResponseEntity.ok(this.appUserResponseMapper.map(updated));
+		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
+		final AppUser updated = this.appUserService.updateCurrentAppUser(name, forLanguageTag, timeFormat, zoneId);
+		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(updated);
+		return ResponseEntity.ok(appUserResponse);
 	}
 
 	/**

@@ -18,6 +18,7 @@ package es.nivel36.janus.service.appuser;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,11 +90,6 @@ public class AppUserService {
 	 * </p>
 	 */
 	@Transactional
-	public AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername) {
-		return this.findOrCreateAppUser(keycloakSubject, preferredUsername, null);
-	}
-
-	@Transactional
 	public AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername,
 			final String verifiedEmail) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
@@ -112,7 +108,7 @@ public class AppUserService {
 			// Another request may have committed the same subject while this request was
 			// provisioning it. The failed insert ran in REQUIRES_NEW, so this transaction
 			// remains usable and can read the winning row.
-			final var concurrentlyCreated = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
+			final Optional<AppUser> concurrentlyCreated = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 			if (concurrentlyCreated.isPresent()) {
 				return concurrentlyCreated.get();
 			}
@@ -160,9 +156,9 @@ public class AppUserService {
 			throw new IllegalArgumentException("preferred_username claim is required");
 		}
 		final String username = preferredUsername;
-		if (!username.matches(AppUser.USERNAME_PATTERN)) {
+		if (!username.matches("[A-Za-z0-9_.@-]{3,50}")) {
 			throw new IllegalArgumentException(
-					"preferred_username claim is invalid: " + AppUser.USERNAME_VALIDATION_MESSAGE);
+					"preferred_username claim is invalid: " + "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)");
 		}
 		return username;
 	}
@@ -185,130 +181,6 @@ public class AppUserService {
 		logger.debug("Finding AppUser by username {}", username);
 
 		return this.findAppUser(username);
-	}
-
-	/**
-	 * Creates and persists a new {@link AppUser}.
-	 *
-	 * <p>
-	 * The username must be unique. If a user with the same username already exists,
-	 * the operation will fail.
-	 * </p>
-	 *
-	 * @param username        the unique username of the user. Can't be {@code null}
-	 *                        or blank.
-	 * @param locale          the preferred {@link Locale} of the user. Can't be
-	 *                        {@code null}.
-	 * @param timeFormat      the preferred {@link TimeFormat} of the user. Can't be
-	 *                        {@code null}.
-	 * @param defaultTimezone the preferred default timezone of the user. Can't be
-	 *                        {@code null} or blank.
-	 *
-	 * @return the newly created {@link AppUser}
-	 *
-	 * @throws NullPointerException           if any parameter is {@code null}
-	 * @throws IllegalArgumentException       if any string parameter is blank or if
-	 *                                        {@code defaultTimezone} is invalid
-	 * @throws ResourceAlreadyExistsException if a user with the given username
-	 *                                        already exists
-	 */
-	@Transactional
-	public AppUser createAppUser(final String username, final String keycloakSubject, final Locale locale,
-			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
-		return this.createAppUser(username, keycloakSubject, locale, timeFormat, defaultTimezone, null);
-	}
-
-	@Transactional
-	public AppUser createAppUser(final String username, final String keycloakSubject, final Locale locale,
-			final TimeFormat timeFormat, final ZoneId defaultTimezone, final Employee employee) {
-
-		Strings.requireNonBlank(username, "username cannot be null or blank.");
-		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
-		Objects.requireNonNull(locale, "locale cannot be null.");
-		Objects.requireNonNull(timeFormat, "timeFormat cannot be null.");
-		Objects.requireNonNull(defaultTimezone, "defaultTimezone cannot be null.");
-
-		logger.debug("Creating new application user {}", username);
-
-		final boolean usernameInUse = this.appUserRepository.existsByUsername(username);
-		if (usernameInUse) {
-			throw new ResourceAlreadyExistsException("Application user with username " + username + " already exists");
-		}
-		if (this.appUserRepository.existsByKeycloakSubject(keycloakSubject)) {
-			throw new ResourceAlreadyExistsException("Keycloak subject is already linked to an application user");
-		}
-		if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
-			throw new ResourceAlreadyExistsException("Employee is already linked to an application user");
-		}
-
-		final AppUser appUser = new AppUser(username, keycloakSubject, locale, timeFormat,
-				defaultTimezone);
-		appUser.setEmployee(employee);
-
-		final AppUser savedAppUser = this.appUserRepository.save(appUser);
-		logger.trace("Application user {} created successfully", savedAppUser);
-
-		return savedAppUser;
-	}
-
-	/**
-	 * Updates an existing {@link AppUser}.
-	 *
-	 * <p>
-	 * Replaces the user's personal data and preferences atomically. The username is
-	 * used as the immutable identifier of the user.
-	 * </p>
-	 *
-	 * @param username           the unique username of the user to update. Can't be
-	 *                           {@code null} or blank.
-	 * @param newLocale          the new preferred {@link Locale}. Can't be
-	 *                           {@code null}.
-	 * @param newTimeFormat      the new preferred {@link TimeFormat}. Can't be
-	 *                           {@code null}.
-	 * @param newDefaultTimezone the new preferred default timezone. Can't be
-	 *                           {@code null} or blank.
-	 *
-	 * @return the updated {@link AppUser}
-	 *
-	 * @throws NullPointerException      if any parameter is {@code null}
-	 * @throws IllegalArgumentException  if any string parameter is blank or if
-	 *                                   {@code newDefaultTimezone} is invalid
-	 * @throws ResourceNotFoundException if no user exists with the given username
-	 */
-	@Transactional
-	public AppUser updateAppUser(final String username, final Locale newLocale, final TimeFormat newTimeFormat,
-			final ZoneId newDefaultTimezone) {
-		return this.updateAppUser(username, newLocale, newTimeFormat, newDefaultTimezone, null, false);
-	}
-
-	@Transactional
-	public AppUser updateAppUser(final String username, final Locale newLocale, final TimeFormat newTimeFormat,
-			final ZoneId newDefaultTimezone, final Employee employee, final boolean updateEmployee) {
-		Strings.requireNonBlank(username, "username cannot be null or blank.");
-		Objects.requireNonNull(newLocale, "newLocale cannot be null.");
-		Objects.requireNonNull(newTimeFormat, "newTimeFormat cannot be null.");
-		Objects.requireNonNull(newDefaultTimezone, "newDefaultTimezone cannot be null.");
-		logger.debug("Updating AppUser {}", username);
-
-		final AppUser appUser = this.findAppUser(username);
-		appUser.setLocale(newLocale);
-		appUser.setTimeFormat(newTimeFormat);
-		appUser.setDefaultTimezone(newDefaultTimezone);
-		if (updateEmployee && !samePersistentEmployee(employee, appUser.getEmployee())) {
-			if (employee != null && this.appUserRepository.existsByEmployee(employee)) {
-				throw new ResourceAlreadyExistsException("Employee is already linked to an application user");
-			}
-			appUser.setEmployee(employee);
-		}
-		return appUser;
-	}
-
-	private static boolean samePersistentEmployee(final Employee first, final Employee second) {
-		if (first == second) {
-			return true;
-		}
-		return first != null && second != null && first.getId() != null
-				&& Objects.equals(first.getId(), second.getId());
 	}
 
 	@Transactional(readOnly = true)

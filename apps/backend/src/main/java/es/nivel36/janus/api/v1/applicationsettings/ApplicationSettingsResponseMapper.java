@@ -37,7 +37,11 @@ public class ApplicationSettingsResponseMapper implements Mapper<ApplicationSett
 		final boolean worksiteChangeDuringShiftAllowed = applicationSettings.isWorksiteChangeDuringShiftAllowed();
 		final boolean employeeManualTimelogEntryAllowed = applicationSettings.isEmployeeManualTimelogEntryAllowed();
 		final String zoneId = applicationSettings.getDefaultTimezone().getId();
-		return new ApplicationSettingsResponse(daysUntilLocked, employeeWorkplaceCreationAllowed,
-				worksiteChangeDuringShiftAllowed, employeeManualTimelogEntryAllowed, zoneId);
+		return new ApplicationSettingsResponse( //
+				daysUntilLocked, //
+				employeeWorkplaceCreationAllowed, //
+				worksiteChangeDuringShiftAllowed, //
+				employeeManualTimelogEntryAllowed, //
+				zoneId);
 	}
 }
