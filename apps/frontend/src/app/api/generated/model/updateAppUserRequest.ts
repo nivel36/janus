@@ -14,7 +14,6 @@ export interface UpdateAppUserRequest {
     locale: string;
     timeFormat: TimeFormat;
     defaultTimezone: string;
-    employeeId?: number | null;
 }
 
 
