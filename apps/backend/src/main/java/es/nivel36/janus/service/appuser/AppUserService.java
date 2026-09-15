@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.config.UserProvisioningProperties;
-import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
@@ -135,8 +134,21 @@ public class AppUserService {
 		return appUser;
 	}
 
-	private static ResourceAlreadyExistsException usernameConflict(final String username, final Throwable cause) {
-		return new ResourceAlreadyExistsException("Application user with username " + username + " already exists", cause);
+	private static PreferredUsernameConflictException usernameConflict(final String username, final Throwable cause) {
+		return new PreferredUsernameConflictException(username, cause);
+	}
+
+	/** Replaces the subject after an administrator verifies the new identity. */
+	@Transactional
+	public AppUser replaceKeycloakSubject(final String username, final String newKeycloakSubject) {
+		Strings.requireNonBlank(newKeycloakSubject, "newKeycloakSubject cannot be null or blank.");
+		final AppUser appUser = this.findAppUserByUsername(username);
+		this.appUserRepository.findByKeycloakSubject(newKeycloakSubject).filter(other -> other != appUser)
+				.ifPresent(other -> {
+					throw new KeycloakSubjectConflictException(newKeycloakSubject);
+				});
+		appUser.replaceKeycloakSubject(newKeycloakSubject);
+		return appUser;
 	}
 
 	private Employee findUnlinkedEmployee(final String verifiedEmail, final String keycloakSubject) {
