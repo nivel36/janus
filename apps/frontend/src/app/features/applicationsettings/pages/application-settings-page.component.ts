@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { CurrentUserFacade } from '../../../core/user/services/current-user.faca
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { TimezoneCatalog } from '../../../shared/services/timezone-catalog.service';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { AutocompleteValueAccessorDirective } from '../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../shared/ui/field/field.component';
 import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
@@ -26,6 +27,7 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,
+    AutocompleteValueAccessorDirective,
     FieldComponent,
     RangeSliderComponent,
     ToggleButtonComponent,
@@ -41,6 +43,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
   private readonly location = inject(Location);
   private readonly router = inject(Router);
   readonly timezoneCatalog = inject(TimezoneCatalog);
+  readonly timezoneSearch = this.timezoneCatalog.createSearchState(inject(DestroyRef));
 
   /**
    * Main form containing editable application settings.

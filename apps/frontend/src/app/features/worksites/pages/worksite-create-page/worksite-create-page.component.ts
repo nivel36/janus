@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -10,6 +10,7 @@ import { finalize } from 'rxjs';
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { TimezoneCatalog } from '../../../../shared/services/timezone-catalog.service';
 import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { AutocompleteValueAccessorDirective } from '../../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
 import { SelectComponent, SelectOption } from '../../../../shared/ui/select/select.component';
@@ -28,6 +29,7 @@ import { MessageComponent } from '../../../../shared/ui/message/message.componen
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,
+    AutocompleteValueAccessorDirective,
     ButtonComponent,
     FieldComponent,
     SelectComponent,
@@ -40,6 +42,7 @@ export class WorksiteCreatePageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   readonly timezoneCatalog = inject(TimezoneCatalog);
+  readonly timezoneSearch = this.timezoneCatalog.createSearchState(inject(DestroyRef));
   private readonly worksiteApiService = inject(WorksiteApiService);
   private readonly uniqueWorksiteCodeValidator = inject(UniqueWorksiteCodeValidator);
 

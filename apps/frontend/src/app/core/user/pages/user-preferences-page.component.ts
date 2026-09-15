@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -11,6 +11,7 @@ import { resolveSupportedLanguage, supportedLanguages } from '../../i18n/languag
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { TimezoneCatalog } from '../../../shared/services/timezone-catalog.service';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { AutocompleteValueAccessorDirective } from '../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
 import { FieldComponent } from '../../../shared/ui/field/field.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
@@ -45,6 +46,7 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,
+    AutocompleteValueAccessorDirective,
     ButtonComponent,
     FieldComponent,
     SelectComponent,
@@ -57,6 +59,7 @@ export class UserPreferencesPageComponent {
   private readonly currentUserFacade = inject(CurrentUserFacade);
   private readonly router = inject(Router);
   readonly timezoneCatalog = inject(TimezoneCatalog);
+  readonly timezoneSearch = this.timezoneCatalog.createSearchState(inject(DestroyRef));
 
   /**
    * Main form containing editable user preferences.

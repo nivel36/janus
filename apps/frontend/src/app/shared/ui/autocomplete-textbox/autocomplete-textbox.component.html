@@ -69,8 +69,8 @@
   >
     <div class="autocomplete__results-panel" [style.min-width.px]="overlayWidth">
       <ul class="autocomplete__results" [id]="resultsListId" role="listbox">
-        @if (panel.kind === 'results') {
-          @for (result of panel.items; track trackByValue()(result); let i = $index) {
+        @if (panelKind === 'results') {
+          @for (result of items(); track trackByValue()(result); let i = $index) {
             <li
               appAutocompleteOption
               class="autocomplete__option"
@@ -86,11 +86,11 @@
               {{ displayWith()(result) }}
             </li>
           }
-        } @else if (panel.kind === 'loading') {
+        } @else if (panelKind === 'loading') {
           <li role="presentation" class="autocomplete__message">
             {{ 'autocomplete.loadingResults' | translate }}
           </li>
-        } @else if (panel.kind === 'empty') {
+        } @else {
           <li role="presentation" class="autocomplete__message">
             {{ 'autocomplete.noResultsFound' | translate }}
           </li>
