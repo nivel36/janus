@@ -102,7 +102,7 @@ class FirstRequestProvisioningIT {
 		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "occupied-name", null,
 				OTHER_SUBJECT, "occupied-name", null);
 
-		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsExactlyInAnyOrder(200, 400);
+		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsExactlyInAnyOrder(200, 409);
 		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE username = 'occupied-name'")
 				.query(Long.class).single()).isOne();
 	}

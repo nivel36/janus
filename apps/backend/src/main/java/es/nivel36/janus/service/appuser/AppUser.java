@@ -58,7 +58,7 @@ public class AppUser implements Serializable {
 	private String username;
 
 	@NotBlank
-	@Column(name = "KEYCLOAK_SUBJECT", updatable = false)
+	@Column(name = "KEYCLOAK_SUBJECT")
 	private String keycloakSubject;
 
 	@NotNull
@@ -106,6 +106,10 @@ public class AppUser implements Serializable {
 
 	public String getKeycloakSubject() {
 		return this.keycloakSubject;
+	}
+
+	void replaceKeycloakSubject(final String keycloakSubject) {
+		this.keycloakSubject = Strings.requireNonBlank(keycloakSubject, "keycloakSubject can't be null or blank");
 	}
 
 	public Locale getLocale() {

@@ -47,6 +47,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
+import es.nivel36.janus.service.appuser.KeycloakSubjectConflictException;
+import es.nivel36.janus.service.appuser.PreferredUsernameConflictException;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.service.timelog.EventAlreadyFinalizedException;
 import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
@@ -76,6 +78,7 @@ public class JanusExceptionHandler {
 	private static final URI TYPE_NOT_FOUND = URI.create("urn:problem:resource-not-found");
 	private static final URI TYPE_INVALID_ARGUMENT = URI.create("urn:problem:invalid-argument");
 	private static final URI TYPE_OPERATION_CONFLICT = URI.create("urn:problem:operation-conflict");
+	private static final URI TYPE_IDENTITY_CONFLICT = URI.create("urn:problem:external-identity-conflict");
 	private static final URI TYPE_INVALID_DATE_TIME = URI.create("urn:problem:invalid-date-time-format");
 	private static final URI TYPE_MALFORMED_REQUEST = URI.create("urn:problem:malformed-request");
 	private static final URI TYPE_MISSING_PARAMETER = URI.create("urn:problem:missing-parameter");
@@ -133,6 +136,17 @@ public class JanusExceptionHandler {
 		pd.setDetail(ex.getMessage());
 		this.addCommonProps(pd, request);
 		logger.warn("ResourceAlreadyExistsException error {}", pd);
+		return pd;
+	}
+
+	@ExceptionHandler({ PreferredUsernameConflictException.class, KeycloakSubjectConflictException.class })
+	ProblemDetail handleExternalIdentityConflict(final RuntimeException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+		pd.setType(TYPE_IDENTITY_CONFLICT);
+		pd.setTitle("External identity conflict");
+		pd.setDetail(ex.getMessage());
+		this.addCommonProps(pd, request);
+		logger.warn("External identity conflict {}", pd);
 		return pd;
 	}
 

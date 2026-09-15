@@ -121,4 +121,11 @@ public class AppUserController implements AppUserResource {
 		this.appUserService.deleteAppUser(appUser);
 		return ResponseEntity.noContent().build();
 	}
+
+	@Override
+	public ResponseEntity<AppUserResponse> replaceKeycloakSubject(final String username,
+			final ReplaceKeycloakSubjectRequest request) {
+		final AppUser updated = this.appUserService.replaceKeycloakSubject(username, request.keycloakSubject());
+		return ResponseEntity.ok(this.appUserResponseMapper.map(updated));
+	}
 }
