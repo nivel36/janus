@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,6 +11,7 @@ import { filter, finalize, map, takeUntil } from 'rxjs';
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
 import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
+import { AutocompleteValueAccessorDirective } from '../../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
 import { InputComponent } from '../../../../shared/ui/input/input.component';
@@ -29,6 +30,7 @@ import { MessageComponent } from '../../../../shared/ui/message/message.componen
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,
+    AutocompleteValueAccessorDirective,
     ButtonComponent,
     FieldComponent,
     InputComponent,
@@ -42,6 +44,7 @@ export class WorksiteEditPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly timezoneCatalog = inject(TimezoneCatalog);
+  readonly timezoneSearch = this.timezoneCatalog.createSearchState(inject(DestroyRef));
   private readonly worksiteApiService = inject(WorksiteApiService);
 
   readonly worksiteCode = toSignal(

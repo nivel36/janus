@@ -65,9 +65,13 @@
             required
           >
             <app-autocomplete-textbox
+              appAutocompleteValueAccessor
               inputId="default-timezone"
               formControlName="defaultTimezone"
-              [searchMethod]="timezoneCatalog.search"
+              [items]="timezoneSearch.items()"
+              [loading]="timezoneSearch.loading()"
+              [error]="timezoneSearch.error()"
+              (queryChange)="timezoneSearch.search($event)"
               [displayWith]="timezoneCatalog.displayWith"
               [valueWith]="timezoneCatalog.valueWith"
               [resolveByValue]="timezoneCatalog.resolve"

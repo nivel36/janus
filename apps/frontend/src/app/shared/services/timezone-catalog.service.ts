@@ -1,10 +1,11 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Injectable } from '@angular/core';
+import { DestroyRef, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
 import { TimezoneOption } from '../models/timezone-option.model';
+import { AutocompleteSearchState } from '../state/autocomplete-search.state';
 
 const MAX_SEARCH_RESULTS = 50;
 
@@ -58,6 +59,10 @@ export class TimezoneCatalog {
         .slice(0, MAX_SEARCH_RESULTS),
     );
   };
+
+  createSearchState(destroyRef: DestroyRef): AutocompleteSearchState<TimezoneOption> {
+    return new AutocompleteSearchState(this.search, destroyRef);
+  }
 
   private containsIanaIdentifier(zoneId: string, query: string): boolean {
     return zoneId.toLowerCase().includes(query.toLowerCase());
