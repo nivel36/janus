@@ -3,6 +3,7 @@ README.md
 api.base.service.ts
 api.module.ts
 api/api.ts
+api/applicationSettings.service.ts
 api/schedules.service.ts
 api/timeLogs.service.ts
 api/worksites.service.ts
@@ -10,6 +11,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/applicationSettingsResponse.ts
 model/createWorksiteRequest.ts
 model/models.ts
 model/pageMetadata.ts
@@ -17,6 +19,7 @@ model/schedulePage.ts
 model/scheduleResponse.ts
 model/timeLogPage.ts
 model/timeLogResponse.ts
+model/updateApplicationSettingsRequest.ts
 model/updateWorksiteRequest.ts
 model/worksitePage.ts
 model/worksiteResponse.ts

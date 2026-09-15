@@ -5,6 +5,24 @@ info:
 servers:
   - url: /api/v1
 paths:
+  /applicationsettings:
+    get:
+      tags: [application-settings]
+      operationId: findApplicationSettings
+      responses:
+        '200':
+          description: Current application settings
+          content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSettingsResponse' } } }
+    put:
+      tags: [application-settings]
+      operationId: updateApplicationSettings
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateApplicationSettingsRequest' } } }
+      responses:
+        '200':
+          description: Updated application settings
+          content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSettingsResponse' } } }
   /worksites:
     get:
       tags: [worksites]
@@ -108,6 +126,24 @@ paths:
           content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } }
 components:
   schemas:
+    ApplicationSettingsResponse:
+      type: object
+      required: [daysUntilLocked, employeeWorkplaceCreationAllowed, worksiteChangeDuringShiftAllowed, employeeManualTimelogEntryAllowed, defaultTimezone]
+      properties:
+        daysUntilLocked: { type: integer, minimum: 0 }
+        employeeWorkplaceCreationAllowed: { type: boolean }
+        worksiteChangeDuringShiftAllowed: { type: boolean }
+        employeeManualTimelogEntryAllowed: { type: boolean }
+        defaultTimezone: { type: string }
+    UpdateApplicationSettingsRequest:
+      type: object
+      required: [daysUntilLocked, employeeWorkplaceCreationAllowed, worksiteChangeDuringShiftAllowed, employeeManualTimelogEntryAllowed, defaultTimezone]
+      properties:
+        daysUntilLocked: { type: integer, minimum: 0 }
+        employeeWorkplaceCreationAllowed: { type: boolean }
+        worksiteChangeDuringShiftAllowed: { type: boolean }
+        employeeManualTimelogEntryAllowed: { type: boolean }
+        defaultTimezone: { type: string, minLength: 1 }
     PageMetadata:
       type: object
       required: [size, number, totalElements, totalPages]

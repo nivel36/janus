@@ -1,7 +1,7 @@
+import { HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { ApplicationSettingsService as ApplicationSettingsTransportService } from '../../../api/generated/api/applicationSettings.service';
 import { ApplicationSettings } from '../models/application-settings';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
@@ -10,17 +10,14 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class ApplicationSettingsApiService {
-  private readonly http = inject(HttpClient);
-
-  private readonly baseUrl = `${environment.apiBaseUrl}/applicationsettings`;
+  private readonly api = inject(ApplicationSettingsTransportService);
 
   find(): Observable<ApplicationSettings> {
-    return this.http.get<ApplicationSettings>(this.baseUrl, {
-      context: new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
-    });
+    const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+    return this.api.findApplicationSettings('body', false, { context });
   }
 
   update(payload: ApplicationSettings): Observable<ApplicationSettings> {
-    return this.http.put<ApplicationSettings>(this.baseUrl, payload);
+    return this.api.updateApplicationSettings(payload);
   }
 }

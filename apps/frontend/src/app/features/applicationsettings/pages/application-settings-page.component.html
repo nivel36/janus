@@ -2,7 +2,10 @@
   <div pageContent class="app-page-content application-settings__content">
     <section class="app-card settings-card">
       <div class="app-card__body settings-card__body">
-        <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
+        @if (loading()) {
+          <app-message type="info">{{ 'applicationSettings.messages.loading' | translate }}</app-message>
+        } @else {
+          <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
           <app-field
             controlId="daysUntilLocked"
             [label]="'applicationSettings.fields.daysUntilLocked' | translate"
@@ -106,7 +109,8 @@
               </app-button>
             }
           </div>
-        </form>
+          </form>
+        }
       </div>
     </section>
   </div>
