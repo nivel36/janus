@@ -5,10 +5,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   input,
-  signal,
+  output,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -18,6 +17,14 @@ import { WorksiteApiService, WorksitePage } from '../../services/worksite-api.se
 import { Worksite } from '../../models/worksite';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
+import {
+  DEFAULT_LIST_PAGE,
+  DEFAULT_LIST_PAGE_SIZE,
+  emptyListPage,
+  normalizeListPage,
+  normalizeListQuery,
+  synchronizeListPage,
+} from '../../../../shared/utils/list-query-params.util';
 
 import {
   AsyncEmptyDirective,
@@ -43,17 +50,15 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorksiteTableComponent {
-  private static readonly PAGE_SIZE = 5;
-
   private readonly worksiteApiService = inject(WorksiteApiService);
   private readonly router = inject(Router);
 
-  readonly query = input('');
+  readonly query = input('', { transform: normalizeListQuery });
+  readonly page = input(DEFAULT_LIST_PAGE, { transform: normalizeListPage });
   readonly refreshToken = input(0);
+  readonly pageChange = output<number>();
 
-  protected readonly currentPage = signal(1);
-
-  protected readonly normalizedQuery = computed(() => this.query().trim());
+  protected readonly currentPage = this.page;
 
   protected readonly worksitesResource = rxResource<
     WorksitePage,
@@ -62,21 +67,15 @@ export class WorksiteTableComponent {
     params: () => ({
       refreshToken: this.refreshToken(),
       page: this.currentPage(),
-      query: this.normalizedQuery(),
+      query: this.query(),
     }),
     stream: ({ params }) =>
       this.worksiteApiService.search(
         params.page - 1,
-        WorksiteTableComponent.PAGE_SIZE,
+        DEFAULT_LIST_PAGE_SIZE,
         params.query,
       ),
-    defaultValue: {
-      items: [],
-      totalItems: 0,
-      page: 0,
-      pageSize: WorksiteTableComponent.PAGE_SIZE,
-      totalPages: 0,
-    },
+    defaultValue: emptyListPage<Worksite>(),
   });
 
   protected readonly worksites = computed(() => this.worksitesResource.value().items);
@@ -85,22 +84,12 @@ export class WorksiteTableComponent {
 
   protected readonly pagedWorksites = computed(() => this.worksites());
 
-  private readonly resetPageOnQueryChangeEffect = effect(() => {
-    this.normalizedQuery();
-    this.currentPage.set(1);
-  });
-
-  private readonly pageSyncEffect = effect(() => {
-    if (this.worksitesResource.isLoading()) {
-      return;
-    }
-
-    const maxPage = Math.max(1, Math.ceil(this.totalItems() / WorksiteTableComponent.PAGE_SIZE));
-
-    if (this.currentPage() > maxPage) {
-      this.currentPage.set(maxPage);
-    }
-  });
+  private readonly pageSyncEffect = synchronizeListPage(
+    this.currentPage,
+    this.totalItems,
+    this.worksitesResource.isLoading,
+    (page) => this.pageChange.emit(page),
+  );
 
   protected readonly isEmpty = computed(
     () =>
@@ -110,7 +99,7 @@ export class WorksiteTableComponent {
   );
 
   protected onPageChange(page: number): void {
-    this.currentPage.set(page);
+    this.pageChange.emit(page);
   }
 
   protected openWorksite(worksite: Worksite): void {
@@ -118,6 +107,6 @@ export class WorksiteTableComponent {
   }
 
   protected get pageSize(): number {
-    return WorksiteTableComponent.PAGE_SIZE;
+    return DEFAULT_LIST_PAGE_SIZE;
   }
 }

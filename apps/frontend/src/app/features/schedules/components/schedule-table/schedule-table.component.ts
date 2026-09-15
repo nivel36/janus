@@ -5,16 +5,24 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   input,
-  signal,
+  output,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { ScheduleApiService, SchedulePage } from '../../services/schedule-api.service';
+import { Schedule } from '../../models/schedule';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
+import {
+  DEFAULT_LIST_PAGE,
+  DEFAULT_LIST_PAGE_SIZE,
+  emptyListPage,
+  normalizeListPage,
+  normalizeListQuery,
+  synchronizeListPage,
+} from '../../../../shared/utils/list-query-params.util';
 
 import {
   AsyncEmptyDirective,
@@ -38,16 +46,14 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleTableComponent {
-  private static readonly PAGE_SIZE = 5;
-
   private readonly scheduleApiService = inject(ScheduleApiService);
 
-  readonly query = input('');
+  readonly query = input('', { transform: normalizeListQuery });
+  readonly page = input(DEFAULT_LIST_PAGE, { transform: normalizeListPage });
   readonly refreshToken = input(0);
+  readonly pageChange = output<number>();
 
-  protected readonly currentPage = signal(1);
-
-  protected readonly normalizedQuery = computed(() => this.query().trim());
+  protected readonly currentPage = this.page;
 
   protected readonly schedulesResource = rxResource<
     SchedulePage,
@@ -56,21 +62,15 @@ export class ScheduleTableComponent {
     params: () => ({
       refreshToken: this.refreshToken(),
       page: this.currentPage(),
-      query: this.normalizedQuery(),
+      query: this.query(),
     }),
     stream: ({ params }) =>
       this.scheduleApiService.search(
         params.page - 1,
-        ScheduleTableComponent.PAGE_SIZE,
+        DEFAULT_LIST_PAGE_SIZE,
         params.query,
       ),
-    defaultValue: {
-      items: [],
-      totalItems: 0,
-      page: 0,
-      pageSize: ScheduleTableComponent.PAGE_SIZE,
-      totalPages: 0,
-    },
+    defaultValue: emptyListPage<Schedule>(),
   });
 
   protected readonly schedules = computed(() => this.schedulesResource.value().items);
@@ -79,22 +79,12 @@ export class ScheduleTableComponent {
 
   protected readonly pagedSchedules = computed(() => this.schedules());
 
-  private readonly resetPageOnQueryChangeEffect = effect(() => {
-    this.normalizedQuery();
-    this.currentPage.set(1);
-  });
-
-  private readonly pageSyncEffect = effect(() => {
-    if (this.schedulesResource.isLoading()) {
-      return;
-    }
-
-    const maxPage = Math.max(1, Math.ceil(this.totalItems() / ScheduleTableComponent.PAGE_SIZE));
-
-    if (this.currentPage() > maxPage) {
-      this.currentPage.set(maxPage);
-    }
-  });
+  private readonly pageSyncEffect = synchronizeListPage(
+    this.currentPage,
+    this.totalItems,
+    this.schedulesResource.isLoading,
+    (page) => this.pageChange.emit(page),
+  );
 
   protected readonly isEmpty = computed(
     () =>
@@ -104,10 +94,10 @@ export class ScheduleTableComponent {
   );
 
   protected onPageChange(page: number): void {
-    this.currentPage.set(page);
+    this.pageChange.emit(page);
   }
 
   protected get pageSize(): number {
-    return ScheduleTableComponent.PAGE_SIZE;
+    return DEFAULT_LIST_PAGE_SIZE;
   }
 }

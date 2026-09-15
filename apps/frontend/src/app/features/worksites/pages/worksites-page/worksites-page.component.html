@@ -1,13 +1,18 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.worksites">
     <div pageContent class="app-page-content app-list-page">
         <div class="app-list-page__toolbar">
-            <app-search-bar (queryChange)="onQueryChange($event)" />
+            <app-search-bar [query]="query()" (queryChange)="onQueryChange($event)" />
             @if (isAdmin | async) {
                 <app-button variant="main" (clicked)="createWorksite()">
                     {{ 'actions.new' | translate }}
                 </app-button>
             }
         </div>
-        <app-worksite-table class="app-list-page__results" [query]="searchQuery()" />
+        <app-worksite-table
+            class="app-list-page__results"
+            [query]="query()"
+            [page]="page()"
+            (pageChange)="onPageChange($event)"
+        />
     </div>
 </app-page-template>

@@ -23,7 +23,7 @@ import {
 import Keycloak, { type KeycloakInitOptions } from 'keycloak-js';
 import { provideTranslateService, TRANSLATE_SERVICE_CONFIG } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { authErrorInterceptor } from './core/auth/auth-error.interceptor';
 import { httpRetryInterceptor } from './core/http/http-retry.interceptor';
@@ -116,7 +116,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([httpRetryInterceptor, includeBearerTokenInterceptor, authErrorInterceptor]),
     ),
-    provideRouter(appRoutes),
+    provideRouter(appRoutes, withComponentInputBinding()),
     provideTranslateService({
       fallbackLang: FALLBACK_LANGUAGE,
       loader: provideTranslateHttpLoader({

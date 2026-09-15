@@ -4,6 +4,7 @@
             <app-search-bar
                 placeholderKey="schedule.search.placeholder"
                 helpTextKey="schedule.search.helpText"
+                [query]="query()"
                 (queryChange)="onQueryChange($event)"
             />
             @if (isAdmin | async) {
@@ -12,6 +13,11 @@
                 </app-button>
             }
         </div>
-        <app-schedule-table class="app-list-page__results" [query]="searchQuery()" />
+        <app-schedule-table
+            class="app-list-page__results"
+            [query]="query()"
+            [page]="page()"
+            (pageChange)="onPageChange($event)"
+        />
     </div>
 </app-page-template>

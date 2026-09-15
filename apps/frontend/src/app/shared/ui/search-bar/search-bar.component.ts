@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, DestroyRef, OnInit, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, OnInit, effect, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -47,6 +47,11 @@ export class SearchBarComponent implements OnInit {
   readonly minChars = input(3);
 
   /**
+   * Current effective query. It is kept in sync when browser navigation changes it.
+   */
+  readonly query = input('');
+
+  /**
    * Translation key used for the input placeholder.
    */
   readonly placeholderKey = input('searchBar.placeholder');
@@ -80,6 +85,10 @@ export class SearchBarComponent implements OnInit {
    * Reactive control bound to the visible search input.
    */
   protected readonly queryControl = new FormControl('', { nonNullable: true });
+
+  private readonly syncQueryEffect = effect(() => {
+    this.queryControl.setValue(this.query(), { emitEvent: false });
+  });
 
   ngOnInit(): void {
     this.validateInputs();
