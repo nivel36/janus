@@ -246,7 +246,7 @@ export class AutocompleteTextboxComponent<T = unknown>
     this.selectionState.set(option);
     this.panelDismissed.set(true);
     this.clearActiveOption();
-    this.textControl.setValue(option ? this.displayWith()(option) : fallbackText, {
+    this.textControl.setValue(option !== null ? this.displayWith()(option) : fallbackText, {
       emitEvent: false,
     });
   }

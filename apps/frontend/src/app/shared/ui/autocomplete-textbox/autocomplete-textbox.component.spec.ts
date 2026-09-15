@@ -74,6 +74,22 @@ describe('AutocompleteTextboxComponent', () => {
     expect(input.value).toBe('España');
   });
 
+  it.each([0, false, ''])('renders the display label for the falsy option %j', (option) => {
+    const controlFixture = TestBed.createComponent(AutocompleteTextboxComponent<unknown>);
+    controlFixture.componentRef.setInput(
+      'displayWith',
+      (value: unknown) => `label:${String(value)}`,
+    );
+    controlFixture.componentRef.setInput('ariaLabel', 'Falsy values');
+    controlFixture.detectChanges();
+
+    controlFixture.componentInstance.setSelection(option);
+
+    expect(controlFixture.componentInstance.hasSelection).toBe(true);
+    expect(controlFixture.componentInstance.textControl.value).toBe(`label:${String(option)}`);
+    controlFixture.destroy();
+  });
+
   it('emits queries without owning debounce or data fetching', () => {
     const input: HTMLInputElement = fixture.debugElement.query(By.css('input')).nativeElement;
     fixture.componentInstance.control.setValue(null);
