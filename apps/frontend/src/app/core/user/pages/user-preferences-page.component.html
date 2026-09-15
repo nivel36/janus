@@ -49,6 +49,7 @@
               [items]="timezoneSearch.items()"
               [loading]="timezoneSearch.loading()"
               [error]="timezoneSearch.error()"
+              [panelOpen]="timezoneSearch.panelOpen()"
               (queryChange)="timezoneSearch.search($event)"
               [displayWith]="timezoneCatalog.displayWith"
               [valueWith]="timezoneCatalog.valueWith"

@@ -67,6 +67,8 @@ export class AutocompleteTextboxComponent<T = unknown>
   readonly items = input<readonly T[]>([]);
   readonly loading = input(false);
   readonly error = input<unknown | null>(null);
+  /** Whether the data owner has reached the point at which feedback may be displayed. */
+  readonly panelOpen = input(true);
   readonly displayWith = input<(option: T) => string>((option) => String(option));
   readonly trackByValueInput = input<(option: T) => string | number>();
   readonly trackByValue = computed<(option: T) => string | number>(
@@ -150,7 +152,7 @@ export class AutocompleteTextboxComponent<T = unknown>
     return this.loading();
   }
   get isOverlayOpen(): boolean {
-    return !this.panelDismissed() && !this.disabled && !this.hasSelection;
+    return this.panelOpen() && !this.panelDismissed() && !this.disabled && !this.hasSelection;
   }
   get hasResults(): boolean {
     return this.items().length > 0;

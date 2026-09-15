@@ -16,11 +16,14 @@ describe('AutocompleteSearchState', () => {
     const search = vi.fn((query: string) => of([query]));
     const state = new AutocompleteSearchState(search, destroyRef, 100, 3);
     state.search('ab');
+    expect(state.panelOpen()).toBe(false);
     vi.advanceTimersByTime(100);
     expect(search).not.toHaveBeenCalled();
     state.search('abc');
+    expect(state.panelOpen()).toBe(false);
     vi.advanceTimersByTime(100);
     expect(search).toHaveBeenCalledWith('abc');
+    expect(state.panelOpen()).toBe(true);
     expect(state.items()).toEqual(['abc']);
   });
 
@@ -34,5 +37,18 @@ describe('AutocompleteSearchState', () => {
     vi.runAllTimers();
     first.next(['stale']);
     expect(state.items()).toEqual(['second']);
+  });
+
+  it('closes immediately and cancels an active request below the minimum length', () => {
+    const request = new Subject<readonly string[]>();
+    const state = new AutocompleteSearchState(() => request, destroyRef, 0, 3);
+    state.search('first');
+    vi.runAllTimers();
+    expect(state.panelOpen()).toBe(true);
+    state.search('ab');
+    expect(state.panelOpen()).toBe(false);
+    request.next(['stale']);
+    expect(state.items()).toEqual([]);
+    expect(state.panelOpen()).toBe(false);
   });
 });

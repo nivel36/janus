@@ -27,6 +27,7 @@ interface Option {
       [formControl]="control"
       [items]="items"
       [loading]="loading"
+      [panelOpen]="panelOpen"
       [displayWith]="displayWith"
       [valueWith]="valueWith"
       [resolveByValue]="resolveByValue"
@@ -42,6 +43,7 @@ class HostComponent {
     { code: 'fr', label: 'Francia' },
   ];
   loading = false;
+  panelOpen = true;
   readonly queries: string[] = [];
   readonly displayWith = (option: Option): string => option.label;
   readonly valueWith = (option: Option): string => option.code;
@@ -80,6 +82,18 @@ describe('AutocompleteTextboxComponent', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance.queries).toContain('fra');
     expect(overlay.querySelectorAll('[role="option"]')).toHaveLength(2);
+  });
+
+  it('keeps the panel closed when the data owner has not enabled it', () => {
+    fixture.componentInstance.control.setValue(null);
+    fixture.componentInstance.panelOpen = false;
+    const input: HTMLInputElement = fixture.debugElement.query(By.css('input')).nativeElement;
+    input.value = 'ab';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.queries).toContain('ab');
+    expect(overlay.querySelector('[role="listbox"]')).toBeNull();
+    expect(input.getAttribute('aria-expanded')).toBe('false');
   });
 
   it('serializes selection to the generic form value', () => {
