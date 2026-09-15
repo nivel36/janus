@@ -33,6 +33,7 @@ import { DOCUMENT, isPlatformBrowser, registerLocaleData } from '@angular/common
 
 import localeEs from '@angular/common/locales/es';
 import localeCa from '@angular/common/locales/ca';
+import { provideApi } from './api/generated/provide-api';
 
 registerLocaleData(localeEs);
 registerLocaleData(localeCa);
@@ -116,6 +117,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([httpRetryInterceptor, includeBearerTokenInterceptor, authErrorInterceptor]),
     ),
+    provideApi(environment.apiBaseUrl),
     provideRouter(appRoutes, withComponentInputBinding()),
     provideTranslateService({
       fallbackLang: FALLBACK_LANGUAGE,

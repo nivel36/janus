@@ -1,12 +1,11 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { environment } from '../../../../environments/environment';
-import { Page } from '../../../shared/models/page.model';
+import { SchedulesService } from '../../../api/generated/api/schedules.service';
 import { Schedule } from '../models/schedule';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
@@ -23,22 +22,12 @@ export interface SchedulePage {
 
 @Injectable({ providedIn: 'root' })
 export class ScheduleApiService {
-  private readonly baseUrl = `${environment.apiBaseUrl}/schedules`;
-  private readonly http = inject(HttpClient);
+  private readonly api = inject(SchedulesService);
 
   search(page = 0, size = 10, query = ''): Observable<SchedulePage> {
-    let params = new HttpParams()
-      .set('sort', 'code,desc')
-      .set('page', String(page))
-      .set('size', String(size));
-
     const normalizedQuery = query.trim();
-    if (normalizedQuery !== '') {
-      params = params.set('query', normalizedQuery);
-    }
-
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
-    return this.http.get<Page<Schedule>>(this.baseUrl, { params, context }).pipe(
+    return this.api.searchSchedules(normalizedQuery || undefined, undefined, page, size, ['code,desc'], 'body', false, { context }).pipe(
       map((r) => ({
         items: r.content ?? [],
         totalItems: r.page?.totalElements ?? 0,

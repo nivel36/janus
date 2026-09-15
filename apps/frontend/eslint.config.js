@@ -6,7 +6,7 @@ const angular = require("angular-eslint");
 
 module.exports = defineConfig([
   {
-    ignores: ["dist/**", ".angular/**", "coverage/**", "node_modules/**"],
+    ignores: ["dist/**", ".angular/**", "coverage/**", "node_modules/**", "src/app/api/generated/**"],
   },
   {
     files: ["**/*.ts"],

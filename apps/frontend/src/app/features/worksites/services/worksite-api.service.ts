@@ -1,34 +1,23 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { environment } from '../../../../environments/environment';
+import { WorksitesService } from '../../../api/generated/api/worksites.service';
+import { WorksiteResponse } from '../../../api/generated/model/worksiteResponse';
+import { WorksiteScope as ApiWorksiteScope } from '../../../api/generated/model/worksiteScope';
 import {
   CreateWorksitePayload,
   UpdateWorksitePayload,
   Worksite,
-  WorksiteScope,
 } from '../models/worksite';
-import { Page } from '../../../shared/models/page.model';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
   HTTP_RETRY_POLICY,
   type HttpRetryPolicy,
 } from '../../../core/http/http-retry.interceptor';
-
-interface WorksiteResponse {
-  code: string;
-  name: string;
-  timeZone: string;
-  scope: WorksiteScope;
-  description: string | null;
-  address: string | null;
-  ownerEmployeeEmail?: string | null;
-  active: boolean;
-}
 
 export interface WorksitePage {
   items: Worksite[];
@@ -46,8 +35,7 @@ export interface WorksitePage {
  */
 @Injectable({ providedIn: 'root' })
 export class WorksiteApiService {
-  private readonly baseUrl = `${environment.apiBaseUrl}/worksites`;
-  private readonly http = inject(HttpClient);
+  private readonly api = inject(WorksitesService);
 
   /**
    * Retrieves all worksites visible to the authenticated user.
@@ -55,18 +43,9 @@ export class WorksiteApiService {
    * @returns Observable emitting the complete list of worksites.
    */
   search(page = 0, size = 10, query = ''): Observable<WorksitePage> {
-    let params = new HttpParams()
-      .set('sort', 'code,desc')
-      .set('page', String(page))
-      .set('size', String(size));
-
     const normalizedQuery = query.trim();
-    if (normalizedQuery !== '') {
-      params = params.set('query', normalizedQuery);
-    }
-
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
-    return this.http.get<Page<WorksiteResponse>>(this.baseUrl, { params, context }).pipe(
+    return this.api.searchWorksites(normalizedQuery || undefined, undefined, page, size, ['code,desc'], 'body', false, { context }).pipe(
       map((r) => ({
         items: (r.content ?? []).map((worksite) => this.mapWorksite(worksite)),
         totalItems: r.page?.totalElements ?? 0,
@@ -88,10 +67,8 @@ export class WorksiteApiService {
     worksiteCode: string,
     retryPolicy: HttpRetryPolicy | null = null,
   ): Observable<Worksite> {
-    return this.http
-      .get<WorksiteResponse>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`, {
-        context: new HttpContext().set(HTTP_RETRY_POLICY, retryPolicy),
-      })
+    return this.api
+      .findWorksite(worksiteCode, 'body', false, { context: new HttpContext().set(HTTP_RETRY_POLICY, retryPolicy) })
       .pipe(map((worksite) => this.mapWorksite(worksite)));
   }
 
@@ -102,8 +79,7 @@ export class WorksiteApiService {
    * @returns Observable emitting the created worksite.
    */
   create(payload: CreateWorksitePayload): Observable<Worksite> {
-    return this.http
-      .post<WorksiteResponse>(this.baseUrl, payload)
+    return this.api.createWorksite({ ...payload, scope: payload.scope as ApiWorksiteScope })
       .pipe(map((worksite) => this.mapWorksite(worksite)));
   }
 
@@ -115,8 +91,10 @@ export class WorksiteApiService {
    * @returns Observable emitting the updated worksite.
    */
   update(worksiteCode: string, payload: UpdateWorksitePayload): Observable<Worksite> {
-    return this.http
-      .put<WorksiteResponse>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`, payload)
+    return this.api.updateWorksite(worksiteCode, {
+      ...payload,
+      scope: payload.scope as ApiWorksiteScope,
+    })
       .pipe(map((worksite) => this.mapWorksite(worksite)));
   }
 
@@ -127,7 +105,7 @@ export class WorksiteApiService {
    * @returns Observable completing when deletion succeeds.
    */
   delete(worksiteCode: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${encodeURIComponent(worksiteCode)}`);
+    return this.api.deleteWorksite(worksiteCode);
   }
 
   private mapWorksite(response: WorksiteResponse): Worksite {
@@ -136,8 +114,8 @@ export class WorksiteApiService {
       name: response.name,
       timeZone: response.timeZone,
       scope: response.scope,
-      description: response.description,
-      address: response.address,
+      description: response.description ?? null,
+      address: response.address ?? null,
       ownerEmployeeEmail: response.ownerEmployeeEmail ?? null,
       active: response.active,
     };
