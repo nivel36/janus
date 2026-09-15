@@ -23,7 +23,12 @@
     [empty]="isEmpty()"
   >
     <ng-template appAsyncLoading>{{ 'schedule.loading' | translate }}</ng-template>
-    <ng-template appAsyncError>{{ 'schedule.loadError' | translate }}</ng-template>
+    <ng-template appAsyncError>
+      {{ 'schedule.loadError' | translate }}
+      <app-button variant="secondary" (clicked)="schedulesResource.reload()">
+        {{ 'actions.retry' | translate }}
+      </app-button>
+    </ng-template>
     <ng-template appAsyncEmpty>{{ 'schedule.empty' | translate }}</ng-template>
   </app-async-state>
 

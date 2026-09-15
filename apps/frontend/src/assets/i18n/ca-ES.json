@@ -14,6 +14,7 @@
     "en-GB": "Anglés"
   },
   "actions": {
+    "retry": "Torna-ho a provar",
     "save": "Desa",
     "edit": "Edita",
     "cancel": "Cancel·la",

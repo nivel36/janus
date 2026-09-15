@@ -18,6 +18,7 @@ import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
 import { TimeLogService, TimeLogPage } from '../../services/timelog-api.service';
 import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 
 import {
   AsyncEmptyDirective,
@@ -30,6 +31,7 @@ import {
   selector: 'app-timelog-table',
   standalone: true,
   imports: [
+    ButtonComponent,
     AsyncStateComponent,
     AsyncLoadingDirective,
     AsyncErrorDirective,
@@ -76,10 +78,7 @@ export class TimelogTableComponent {
       page: this.currentPage(),
     }),
     stream: ({ params }) =>
-      this.timeLogService.search(
-        params.page - 1,
-        TimelogTableComponent.PAGE_SIZE,
-      ),
+      this.timeLogService.search(params.page - 1, TimelogTableComponent.PAGE_SIZE),
     defaultValue: {
       items: [],
       totalItems: 0,

@@ -25,10 +25,24 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 class SecurityConfigTest {
 
 	private static final String ISSUER = "https://issuer.example.test";
+
+	@Test
+	void shouldExposeRetryAfterHeaderForCrossOriginApiRequests() {
+		final CorsConfigurationSource source = new SecurityConfig()
+				.corsConfigurationSource(List.of("http://localhost:4200"));
+		final CorsConfiguration configuration = source
+				.getCorsConfiguration(new MockHttpServletRequest("GET", "/api/worksites"));
+
+		assertThat(configuration).isNotNull();
+		assertThat(configuration.getExposedHeaders()).containsExactly("Retry-After");
+	}
 
 	@Test
 	void shouldRejectTokenWithIncorrectAudience() {

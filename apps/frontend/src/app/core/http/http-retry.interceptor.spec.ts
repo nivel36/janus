@@ -1,7 +1,13 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { HttpContext, HttpErrorResponse, HttpRequest, HttpResponse } from '@angular/common/http';
+import {
+  HttpContext,
+  HttpErrorResponse,
+  HttpHeaders,
+  HttpRequest,
+  HttpResponse,
+} from '@angular/common/http';
 import { firstValueFrom, defer, of, throwError } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -17,7 +23,7 @@ describe('httpRetryInterceptor', () => {
     vi.restoreAllMocks();
   });
 
-  it.each([0, 408, 500, 502, 503, 504])(
+  it.each([0, 502, 503, 504])(
     'retries transient HTTP status %i when the request opts in',
     async (status) => {
       vi.useFakeTimers();
@@ -41,9 +47,9 @@ describe('httpRetryInterceptor', () => {
     },
   );
 
-  it('does not retry a non-transient HTTP error', async () => {
+  it.each([408, 500])('does not retry HTTP status %i', async (status) => {
     let attempts = 0;
-    const error = new HttpErrorResponse({ status: 404 });
+    const error = new HttpErrorResponse({ status });
 
     await expect(
       firstValueFrom(
@@ -58,7 +64,7 @@ describe('httpRetryInterceptor', () => {
     expect(attempts).toBe(1);
   });
 
-  it('preserves the retry count migrated from active-screen consumers', async () => {
+  it('keeps active-screen retries deliberately small and time-bounded', async () => {
     vi.useFakeTimers();
     let attempts = 0;
     const error = new HttpErrorResponse({ status: 503 });
@@ -78,8 +84,12 @@ describe('httpRetryInterceptor', () => {
     await vi.runAllTimersAsync();
     await rejection;
 
-    expect(ACTIVE_SCREEN_HTTP_RETRY_POLICY).toEqual({ retries: 10, baseDelayMs: 1_000 });
-    expect(attempts).toBe(11);
+    expect(ACTIVE_SCREEN_HTTP_RETRY_POLICY).toEqual({
+      retries: 2,
+      baseDelayMs: 1_000,
+      maxDelayBudgetMs: 30_000,
+    });
+    expect(attempts).toBe(3);
   });
 
   it('does not retry a request without the opt-in context', async () => {
@@ -190,6 +200,119 @@ describe('httpRetryInterceptor', () => {
 
     await vi.advanceTimersByTimeAsync(1);
     expect(await result).toBeInstanceOf(HttpResponse);
+    expect(attempts).toBe(2);
+  });
+
+  it('honours Retry-After seconds instead of the exponential delay', async () => {
+    vi.useFakeTimers();
+    let attempts = 0;
+    const result = firstValueFrom(
+      httpRetryInterceptor(retryingRequest('GET', 1), () => {
+        attempts += 1;
+        return attempts === 1
+          ? throwError(
+              () =>
+                new HttpErrorResponse({
+                  status: 503,
+                  headers: new HttpHeaders({ 'Retry-After': '2' }),
+                }),
+            )
+          : of(new HttpResponse({ status: 200 }));
+      }),
+    );
+
+    await vi.advanceTimersByTimeAsync(1_999);
+    expect(attempts).toBe(1);
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(await result).toBeInstanceOf(HttpResponse);
+    expect(attempts).toBe(2);
+  });
+
+  it('does not schedule a retry beyond the total delay budget', async () => {
+    const error = new HttpErrorResponse({
+      status: 503,
+      headers: new HttpHeaders({ 'Retry-After': '120' }),
+    });
+    let attempts = 0;
+    const request = new HttpRequest('GET', '/api/example', null, {
+      context: new HttpContext().set(HTTP_RETRY_POLICY, {
+        retries: 2,
+        baseDelayMs: 100,
+        maxDelayBudgetMs: 30_000,
+      }),
+    });
+
+    await expect(
+      firstValueFrom(
+        httpRetryInterceptor(request, () => {
+          attempts += 1;
+          return throwError(() => error);
+        }),
+      ),
+    ).rejects.toBe(error);
+    expect(attempts).toBe(1);
+  });
+
+  it('charges only scheduled delays to the delay budget', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    let attempts = 0;
+    const request = new HttpRequest('GET', '/api/example', null, {
+      context: new HttpContext().set(HTTP_RETRY_POLICY, {
+        retries: 1,
+        baseDelayMs: 100,
+        maxDelayBudgetMs: 30_000,
+      }),
+    });
+    const result = firstValueFrom(
+      httpRetryInterceptor(request, () => {
+        attempts += 1;
+        if (attempts === 1) {
+          vi.setSystemTime(new Date('2026-01-01T00:01:00Z'));
+          return throwError(
+            () =>
+              new HttpErrorResponse({
+                status: 503,
+                headers: new HttpHeaders({ 'Retry-After': '0' }),
+              }),
+          );
+        }
+        return of(new HttpResponse({ status: 200 }));
+      }),
+    );
+
+    await vi.runAllTimersAsync();
+
+    expect(await result).toBeInstanceOf(HttpResponse);
+    expect(attempts).toBe(2);
+  });
+
+  it('accumulates scheduled delays when enforcing the delay budget', async () => {
+    vi.useFakeTimers();
+    const error = new HttpErrorResponse({
+      status: 503,
+      headers: new HttpHeaders({ 'Retry-After': '20' }),
+    });
+    let attempts = 0;
+    const request = new HttpRequest('GET', '/api/example', null, {
+      context: new HttpContext().set(HTTP_RETRY_POLICY, {
+        retries: 2,
+        baseDelayMs: 100,
+        maxDelayBudgetMs: 30_000,
+      }),
+    });
+    const result = firstValueFrom(
+      httpRetryInterceptor(request, () => {
+        attempts += 1;
+        return throwError(() => error);
+      }),
+    );
+
+    const rejection = expect(result).rejects.toBe(error);
+    await vi.runAllTimersAsync();
+    await rejection;
+
     expect(attempts).toBe(2);
   });
 });

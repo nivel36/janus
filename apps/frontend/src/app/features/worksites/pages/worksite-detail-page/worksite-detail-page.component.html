@@ -5,7 +5,12 @@
       [error]="worksiteResource.error() !== undefined"
     >
       <ng-template appAsyncLoading>{{ 'worksite.detailLoading' | translate }}</ng-template>
-      <ng-template appAsyncError>{{ 'worksite.detailLoadError' | translate }}</ng-template>
+      <ng-template appAsyncError>
+        {{ 'worksite.detailLoadError' | translate }}
+        <app-button variant="secondary" (clicked)="worksiteResource.reload()">
+          {{ 'actions.retry' | translate }}
+        </app-button>
+      </ng-template>
     </app-async-state>
 
     @if (!worksiteResource.isLoading() && worksite(); as worksite) {
