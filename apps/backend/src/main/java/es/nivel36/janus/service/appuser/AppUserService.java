@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -148,7 +149,15 @@ public class AppUserService {
 					throw new KeycloakSubjectConflictException(newKeycloakSubject);
 				});
 		appUser.replaceKeycloakSubject(newKeycloakSubject);
-		return appUser;
+		try {
+			// Flush inside the exception boundary. Otherwise a concurrent winner can make
+			// the unique-subject violation surface only while committing the transaction,
+			// after this method has returned and it can no longer be mapped to a domain
+			// conflict.
+			return this.appUserRepository.saveAndFlush(appUser);
+		} catch (final DataIntegrityViolationException conflict) {
+			throw new KeycloakSubjectConflictException(newKeycloakSubject, conflict);
+		}
 	}
 
 	private Employee findUnlinkedEmployee(final String verifiedEmail, final String keycloakSubject) {

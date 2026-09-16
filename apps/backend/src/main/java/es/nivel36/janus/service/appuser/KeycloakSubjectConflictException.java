@@ -6,6 +6,10 @@ public final class KeycloakSubjectConflictException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	public KeycloakSubjectConflictException(final String keycloakSubject) {
-		super("Keycloak subject '" + keycloakSubject + "' is already linked to another application user");
+		this(keycloakSubject, null);
+	}
+
+	public KeycloakSubjectConflictException(final String keycloakSubject, final Throwable cause) {
+		super("Keycloak subject '" + keycloakSubject + "' is already linked to another application user", cause);
 	}
 }

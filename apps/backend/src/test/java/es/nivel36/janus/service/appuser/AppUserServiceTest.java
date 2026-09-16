@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import es.nivel36.janus.config.UserProvisioningProperties;
@@ -106,5 +107,23 @@ class AppUserServiceTest {
 		assertThrows(ResourceNotFoundException.class, () -> this.appUserService.findAppUserByUsername("missing-user"));
 
 		verify(this.appUserRepository).findByUsername("missing-user");
+	}
+
+	@Test
+	void concurrentSubjectReplacementTranslatesUniqueConstraintFailure() {
+		final String replacement = "22222222-2222-4222-8222-222222222222";
+		final AppUser appUser = new AppUser("first-admin-target", "11111111-1111-4111-8111-111111111111",
+				Locale.ENGLISH, TimeFormat.H24, ZoneId.of("UTC"));
+		final DataIntegrityViolationException databaseConflict = new DataIntegrityViolationException(
+				"UK_APP_USER_KEYCLOAK_SUBJECT");
+		when(this.appUserRepository.findByUsername("first-admin-target")).thenReturn(appUser);
+		when(this.appUserRepository.findByKeycloakSubject(replacement)).thenReturn(Optional.empty());
+		when(this.appUserRepository.saveAndFlush(appUser)).thenThrow(databaseConflict);
+
+		final KeycloakSubjectConflictException conflict = assertThrows(KeycloakSubjectConflictException.class,
+				() -> this.appUserService.replaceKeycloakSubject("first-admin-target", replacement));
+
+		assertSame(databaseConflict, conflict.getCause());
+		verify(this.appUserRepository).saveAndFlush(appUser);
 	}
 }
