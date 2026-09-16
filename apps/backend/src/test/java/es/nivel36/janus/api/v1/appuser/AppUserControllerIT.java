@@ -124,7 +124,7 @@ class AppUserControllerIT {
 	@Sql(statements = {
 			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('recreated-user','11111111-1111-4111-8111-111111111111','en-US','H24','UTC')" })
 	void recreatedAccountRequiresAdministrativeSubjectReplacement() throws Exception {
-		final String replacement = "22222222-2222-4222-8222-222222222222";
+		final String replacement = "opaque-provider|tenant:customers|recreated-user:replacement-identity";
 		final var replacementIdentity = jwt().jwt(token -> token.subject(replacement)
 				.claim("preferred_username", "recreated-user")).authorities(createAuthorityList("ROLE_JANUS_USER"));
 

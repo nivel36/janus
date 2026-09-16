@@ -52,6 +52,7 @@ class FirstRequestProvisioningIT {
 
 	private static final String SUBJECT = "9a60b9f4-7436-4d93-9c25-08e08f3dfc58";
 	private static final String OTHER_SUBJECT = "b9b0c670-b030-4ce2-8a48-516a86cb80e2";
+	private static final String OPAQUE_SUBJECT = "oidc-provider|tenant:customers|user:aferrer:opaque-identity";
 	private static final String USERNAME = "aferrer@nivel36.es";
 	private static final String LINK_EMAIL = "first-access-link@example.test";
 
@@ -62,11 +63,29 @@ class FirstRequestProvisioningIT {
 	@BeforeEach
 	@AfterEach
 	void removeLocalProfile() {
-		this.jdbcClient.sql("DELETE FROM app_user WHERE keycloak_subject IN (:subject, :otherSubject)")
-				.param("subject", SUBJECT).param("otherSubject", OTHER_SUBJECT).update();
+		this.jdbcClient.sql("DELETE FROM app_user WHERE keycloak_subject IN (:subject, :otherSubject, :opaqueSubject)")
+				.param("subject", SUBJECT).param("otherSubject", OTHER_SUBJECT).param("opaqueSubject", OPAQUE_SUBJECT)
+				.update();
 		this.jdbcClient.sql("DELETE FROM app_user WHERE username IN ('subject-target-one', 'subject-target-two')").update();
 		this.jdbcClient.sql("DELETE FROM employee WHERE email = :email").param("email", LINK_EMAIL).update();
 		this.jdbcClient.sql("DELETE FROM schedule WHERE id = 901").update();
+	}
+
+	@Test
+	void provisionsAndRetrievesUserWithLongOpaqueSubject() throws Exception {
+		this.mvc.perform(get("/api/v1/appusers/me").with(jwt()
+				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
+						.claim("preferred_username", "opaque-subject-user"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
+
+		this.mvc.perform(get("/api/v1/appusers/me").with(jwt()
+				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
+						.claim("preferred_username", "ignored-on-retrieval"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("opaque-subject-user"));
+
+		assertThat(this.jdbcClient.sql("SELECT keycloak_subject FROM app_user WHERE username = 'opaque-subject-user'")
+				.query(String.class).single()).isEqualTo(OPAQUE_SUBJECT);
 	}
 
 	@Test

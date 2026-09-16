@@ -57,12 +57,12 @@ class AppUserServiceTest {
 
 	@Test
 	void testFindAppUserByKeycloakSubjectUsesSubjectClaim() {
-		final AppUser appUser = new AppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
+		final String subject = "oidc-provider|tenant:customers|user:aferrer:opaque-identity";
+		final AppUser appUser = new AppUser("aferrer", subject, Locale.ENGLISH,
 				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
-		when(this.appUserRepository.findByKeycloakSubject("11111111-1111-4111-8111-111111111111"))
-				.thenReturn(java.util.Optional.of(appUser));
+		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(java.util.Optional.of(appUser));
 
-		assertEquals(appUser, this.appUserService.findAppUserByKeycloakSubject("11111111-1111-4111-8111-111111111111"));
+		assertEquals(appUser, this.appUserService.findAppUserByKeycloakSubject(subject));
 	}
 
 	@Test
@@ -110,6 +110,28 @@ class AppUserServiceTest {
 	}
 
 	@Test
+	void subjectReplacementUsesExplicitRecoveryUpdateAndReloadsUser() {
+		final String replacement = "opaque-provider|replacement-identity-that-is-longer-than-a-uuid";
+		final AppUser existing = new AppUser("recreated-user", "old-subject", Locale.ENGLISH, TimeFormat.H24);
+		existing.setId(42L);
+		final AppUser updated = new AppUser("recreated-user", replacement, Locale.ENGLISH, TimeFormat.H24);
+		updated.setId(42L);
+		when(this.appUserRepository.findByUsername("recreated-user")).thenReturn(existing);
+		when(this.appUserRepository.findByKeycloakSubject(replacement)).thenReturn(Optional.empty());
+		when(this.appUserRepository.replaceKeycloakSubject(42L, replacement)).thenReturn(1);
+		when(this.appUserRepository.findById(42L)).thenReturn(Optional.of(updated));
+
+		assertSame(updated, this.appUserService.replaceKeycloakSubject("recreated-user", replacement));
+		verify(this.appUserRepository).replaceKeycloakSubject(42L, replacement);
+	}
+
+	@Test
+	void rejectsSubjectLongerThanDatabaseColumnBeforePersistence() {
+		assertThrows(IllegalArgumentException.class,
+				() -> new AppUser("oversized-subject", "x".repeat(256), Locale.ENGLISH, TimeFormat.H24));
+	}
+
+	@Test
 	void concurrentSubjectReplacementTranslatesUniqueConstraintFailure() {
 		final String replacement = "22222222-2222-4222-8222-222222222222";
 		final AppUser appUser = new AppUser("first-admin-target", "11111111-1111-4111-8111-111111111111",
@@ -118,12 +140,12 @@ class AppUserServiceTest {
 				"UK_APP_USER_KEYCLOAK_SUBJECT");
 		when(this.appUserRepository.findByUsername("first-admin-target")).thenReturn(appUser);
 		when(this.appUserRepository.findByKeycloakSubject(replacement)).thenReturn(Optional.empty());
-		when(this.appUserRepository.saveAndFlush(appUser)).thenThrow(databaseConflict);
+		when(this.appUserRepository.replaceKeycloakSubject(appUser.getId(), replacement)).thenThrow(databaseConflict);
 
 		final KeycloakSubjectConflictException conflict = assertThrows(KeycloakSubjectConflictException.class,
 				() -> this.appUserService.replaceKeycloakSubject("first-admin-target", replacement));
 
 		assertSame(databaseConflict, conflict.getCause());
-		verify(this.appUserRepository).saveAndFlush(appUser);
+		verify(this.appUserRepository).replaceKeycloakSubject(appUser.getId(), replacement);
 	}
 }

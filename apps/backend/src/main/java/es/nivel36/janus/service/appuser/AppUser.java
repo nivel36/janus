@@ -37,6 +37,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * Entity representing an application user within the Janus system.
@@ -47,6 +48,7 @@ public class AppUser implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static final ZoneId DEFAULT_TIMEZONE = ZoneId.of("UTC");
+	static final int MAX_KEYCLOAK_SUBJECT_LENGTH = 255;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,7 +60,8 @@ public class AppUser implements Serializable {
 	private String username;
 
 	@NotBlank
-	@Column(name = "KEYCLOAK_SUBJECT")
+	@Size(max = MAX_KEYCLOAK_SUBJECT_LENGTH)
+	@Column(name = "KEYCLOAK_SUBJECT", updatable = false, unique = true, length = 255)
 	private String keycloakSubject;
 
 	@NotNull
@@ -86,7 +89,7 @@ public class AppUser implements Serializable {
 	public AppUser(final String username, final String keycloakSubject, final Locale locale,
 			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
 		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
-		this.keycloakSubject = Strings.requireNonBlank(keycloakSubject, "keycloakSubject can't be null or blank");
+		this.keycloakSubject = validateKeycloakSubject(keycloakSubject);
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null or blank");
@@ -108,8 +111,12 @@ public class AppUser implements Serializable {
 		return this.keycloakSubject;
 	}
 
-	void replaceKeycloakSubject(final String keycloakSubject) {
-		this.keycloakSubject = Strings.requireNonBlank(keycloakSubject, "keycloakSubject can't be null or blank");
+	static String validateKeycloakSubject(final String keycloakSubject) {
+		final String subject = Strings.requireNonBlank(keycloakSubject, "keycloakSubject can't be null or blank");
+		if (subject.length() > MAX_KEYCLOAK_SUBJECT_LENGTH) {
+			throw new IllegalArgumentException("keycloakSubject can't exceed 255 characters");
+		}
+		return subject;
 	}
 
 	public Locale getLocale() {
