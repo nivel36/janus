@@ -24,7 +24,7 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
  * Maps {@link ApplicationSettings} entities into
  * {@link ApplicationSettingsResponse} DTOs.
  */
-@Component
+@Component("appSettingsResponseMapper")
 public class ApplicationSettingsResponseMapper implements Mapper<ApplicationSettings, ApplicationSettingsResponse> {
 
 	@Override

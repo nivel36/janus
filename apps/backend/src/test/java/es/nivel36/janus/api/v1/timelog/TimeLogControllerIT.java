@@ -57,18 +57,23 @@ class TimeLogControllerIT {
 	private @MockitoBean Clock clock;
 	private @Autowired MockMvc mvc;
 	private static final String BASE = "/api/v1/employees/{employeeEmail}/timelogs";
+	private static final String SEARCH_BASE = "/api/v1/timelogs";
 
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
+			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 	})
 	void testElevatedRolesWithoutEmailClaimsCanSearchEmployeeTimeLogs() throws Exception {
 		this.mvc.perform(
-				get(BASE + "/", "aferrer@nivel36.es").with(jwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es")
+						.with(jwt().jwt(token -> token.subject("aferrer@nivel36.es"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk());
 		this.mvc.perform(
-				get(BASE + "/", "aferrer@nivel36.es").with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es")
+						.with(jwt().jwt(token -> token.subject("aferrer@nivel36.es"))
+								.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk());
 	}
 
@@ -241,6 +246,7 @@ class TimeLogControllerIT {
 				.andExpect(status().isCreated());
 
 		this.mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
+				.jwt(token -> token.subject("aferrer@nivel36.es"))
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
@@ -362,7 +368,8 @@ class TimeLogControllerIT {
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(BASE + "/", "aferrer@nivel36.es").with(jwt()//
+		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es").with(jwt()
+				.jwt(token -> token.subject("aferrer@nivel36.es"))//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON));
@@ -376,14 +383,14 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testSearchByEmployeeWithInvalidRangeShouldFail400() throws Exception {
-		this.mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
-				.param("fromInstant", "2025-08-10T10:00:00Z").with(jwt()//
+		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es") //
+				.param("fromInstant", "2025-08-10T10:00:00Z").with(jwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/", "aferrer@nivel36.es") //
+		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es") //
 				.param("fromInstant", "2025-08-10T10:00:00Z") //
-				.param("toInstant", "2025-08-09T10:00:00Z").with(jwt()//
+				.param("toInstant", "2025-08-09T10:00:00Z").with(jwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}

@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.Locale;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,8 +36,11 @@ class AppUserCreator {
 		appUser.setEmployee(employee);
 		try {
 			return this.appUserRepository.saveAndFlush(appUser);
-		} catch (final DataIntegrityViolationException failure) {
-			throw new AppUserCreationConflict(constraintKey(failure), failure);
+		} catch (final DataAccessException failure) {
+			final AppUserCreationConflict.Key key = failure instanceof DataIntegrityViolationException integrity
+					? constraintKey(integrity)
+					: AppUserCreationConflict.Key.UNKNOWN;
+			throw new AppUserCreationConflict(key, failure);
 		}
 	}
 

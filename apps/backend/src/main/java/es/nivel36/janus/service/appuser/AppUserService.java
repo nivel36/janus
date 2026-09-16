@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,7 +90,7 @@ public class AppUserService {
 	 * </p>
 	 */
 	@Transactional
-	public AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername,
+	public synchronized AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername,
 			final String verifiedEmail) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 
@@ -99,6 +100,10 @@ public class AppUserService {
 		}
 
 		final String username = validatePreferredUsername(preferredUsername);
+		final AppUser existingUsername = this.appUserRepository.findByUsername(username);
+		if (existingUsername != null && !keycloakSubject.equals(existingUsername.getKeycloakSubject())) {
+			throw usernameConflict(username, null);
+		}
 		final Employee employee = this.findUnlinkedEmployee(verifiedEmail, keycloakSubject);
 		return this.insertAndReconcile(username, keycloakSubject, employee);
 	}
@@ -108,14 +113,19 @@ public class AppUserService {
 			return this.appUserCreator.create(username, keycloakSubject, this.provisioningDefaults.locale(),
 					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), employee);
 		} catch (final AppUserCreationConflict conflict) {
+			if (employee != null && conflict.key() == AppUserCreationConflict.Key.UNKNOWN) {
+				// The failed transaction may still contain the competing transient
+				// association, so do not issue another query before retrying without it.
+				this.logEmployeeConflict(employee, keycloakSubject);
+				return this.insertAndReconcile(username, keycloakSubject, null);
+			}
 			// Subject reconciliation always comes first: it makes repeated requests
 			// idempotent even if a driver did not expose the violated constraint name.
 			final Optional<AppUser> subjectWinner = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 			if (subjectWinner.isPresent()) {
 				return requireRequestedSubject(subjectWinner.get(), keycloakSubject);
 			}
-			if (employee != null && (conflict.key() == AppUserCreationConflict.Key.EMPLOYEE
-					|| conflict.key() == AppUserCreationConflict.Key.UNKNOWN)
+			if (employee != null && conflict.key() == AppUserCreationConflict.Key.EMPLOYEE
 					&& this.appUserRepository.existsByEmployee(employee)) {
 				this.logEmployeeConflict(employee, keycloakSubject);
 				return this.insertAndReconcile(username, keycloakSubject, null);
@@ -141,7 +151,7 @@ public class AppUserService {
 
 	/** Replaces the subject after an administrator verifies the new identity. */
 	@Transactional
-	public AppUser replaceKeycloakSubject(final String username, final String newKeycloakSubject) {
+	public synchronized AppUser replaceKeycloakSubject(final String username, final String newKeycloakSubject) {
 		AppUser.validateKeycloakSubject(newKeycloakSubject);
 		final AppUser appUser = this.findAppUserByUsername(username);
 		this.appUserRepository.findByKeycloakSubject(newKeycloakSubject).filter(other -> other != appUser)
@@ -155,7 +165,7 @@ public class AppUserService {
 			this.appUserRepository.replaceKeycloakSubject(appUser.getId(), newKeycloakSubject);
 			return this.appUserRepository.findById(appUser.getId())
 					.orElseThrow(() -> new IllegalStateException("Application user disappeared during subject replacement"));
-		} catch (final DataIntegrityViolationException conflict) {
+		} catch (final DataIntegrityViolationException | CannotAcquireLockException conflict) {
 			throw new KeycloakSubjectConflictException(newKeycloakSubject, conflict);
 		}
 	}

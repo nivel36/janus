@@ -48,7 +48,6 @@ public class AppUser implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static final ZoneId DEFAULT_TIMEZONE = ZoneId.of("UTC");
-	static final int MAX_KEYCLOAK_SUBJECT_LENGTH = 255;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,12 +55,12 @@ public class AppUser implements Serializable {
 
 	@NaturalId
 	@NotBlank
-	@Column(updatable = false, unique = true)
+	@Column(updatable = false)
 	private String username;
 
 	@NotBlank
-	@Size(max = MAX_KEYCLOAK_SUBJECT_LENGTH)
-	@Column(name = "KEYCLOAK_SUBJECT", updatable = false, unique = true, length = 255)
+	@Size(max = 255)
+	@Column(updatable = false)
 	private String keycloakSubject;
 
 	@NotNull
@@ -75,7 +74,7 @@ public class AppUser implements Serializable {
 	private ZoneId defaultTimezone;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "employee_id", unique = true)
+	@JoinColumn(name = "employee_id")
 	private Employee employee;
 
 	AppUser() {
@@ -113,7 +112,7 @@ public class AppUser implements Serializable {
 
 	static String validateKeycloakSubject(final String keycloakSubject) {
 		final String subject = Strings.requireNonBlank(keycloakSubject, "keycloakSubject can't be null or blank");
-		if (subject.length() > MAX_KEYCLOAK_SUBJECT_LENGTH) {
+		if (subject.length() > 255) {
 			throw new IllegalArgumentException("keycloakSubject can't exceed 255 characters");
 		}
 		return subject;

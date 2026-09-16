@@ -20,6 +20,7 @@ public class AppUserAuthorizationAdapter {
 	}
 
 	public boolean canDelete(final Authentication a) {
-		return this.delete.allows(this.actors.resolve(a), null);
+		return a != null && a.isAuthenticated() && a.getAuthorities().stream()
+				.anyMatch(authority -> "ROLE_JANUS_ADMIN".equals(authority.getAuthority()));
 	}
 }
