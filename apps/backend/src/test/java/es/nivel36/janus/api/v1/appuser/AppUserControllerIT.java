@@ -121,6 +121,27 @@ class AppUserControllerIT {
 	}
 
 	@Test
+	@Sql(statements = {
+			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('recreated-user','11111111-1111-4111-8111-111111111111','en-US','H24','UTC')" })
+	void recreatedAccountRequiresAdministrativeSubjectReplacement() throws Exception {
+		final String replacement = "22222222-2222-4222-8222-222222222222";
+		final var replacementIdentity = jwt().jwt(token -> token.subject(replacement)
+				.claim("preferred_username", "recreated-user")).authorities(createAuthorityList("ROLE_JANUS_USER"));
+
+		this.mvc.perform(get(BASE + "/me").with(replacementIdentity)).andExpect(status().isConflict())
+				.andExpect(jsonPath("$.type").value("urn:problem:external-identity-conflict"));
+
+		this.mvc.perform(put(BASE + "/{username}/keycloak-subject", "recreated-user")
+				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))).contentType(APPLICATION_JSON)
+				.content("{\"keycloakSubject\":\"" + replacement + "\"}"))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("recreated-user"));
+
+		this.entityManager.flush();
+		this.mvc.perform(get(BASE + "/me").with(replacementIdentity)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("recreated-user"));
+	}
+
+	@Test
 	void testMeRejectsTokenWithoutJanusRolesWithoutCreatingAccount() throws Exception {
 		final String subject = "44444444-4444-4444-8444-444444444444";
 

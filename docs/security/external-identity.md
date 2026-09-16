@@ -47,6 +47,31 @@ Disabling or deleting either record does not automatically modify the other:
 Keycloak controls whether future tokens can be issued, while retention or deletion
 of the `AppUser` follows Janus's application-data policy.
 
+## Recovering a recreated Keycloak account
+
+`username` remains unique. Consequently, if Keycloak deletes and recreates an
+account, its new `sub` is **not** linked automatically even when
+`preferred_username` or verified email matches the old profile. First access with
+the new token returns `409 Conflict` with problem type
+`urn:problem:external-identity-conflict`; the old profile and employee link remain
+unchanged.
+
+Recovery is an explicit administrative procedure:
+
+1. Disable the old Keycloak account and verify, outside Janus, that the owner of
+   the new account is the same person (using the organization's authoritative
+   identity records, not username or email alone).
+2. Verify that the new Keycloak UUID is not assigned to any other Janus profile.
+3. As an authenticated `JANUS_ADMIN`, send
+   `PUT /api/v1/appusers/{username}/keycloak-subject` with
+   `{"keycloakSubject":"<new Keycloak UUID>"}`.
+4. Ask the user to retry `GET /api/v1/appusers/me` with a token issued for the new
+   account, and audit the administrative change according to local policy.
+
+The endpoint rejects a subject already owned by another profile with the same
+identity-conflict `409`. It changes only `keycloakSubject`; preferences and the
+employee association are preserved. A normal user cannot invoke this endpoint.
+
 ## Existing installations
 
 Do not backfill identities by matching email or username. For every existing row:
