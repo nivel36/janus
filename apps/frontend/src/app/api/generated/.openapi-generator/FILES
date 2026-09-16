@@ -17,6 +17,7 @@ model/applicationSettingsResponse.ts
 model/createWorksiteRequest.ts
 model/models.ts
 model/pageMetadata.ts
+model/replaceKeycloakSubjectRequest.ts
 model/schedulePage.ts
 model/scheduleResponse.ts
 model/timeFormat.ts

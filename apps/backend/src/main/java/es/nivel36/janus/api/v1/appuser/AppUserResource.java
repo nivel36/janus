@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
-@RequestMapping({ "/api/v1/appusers", "/api/v1/app-users" })
+@RequestMapping("/api/v1/appusers")
 public interface AppUserResource {
 
 	@PreAuthorize("@appUserProvisioningPolicy.canProvision(authentication)")
