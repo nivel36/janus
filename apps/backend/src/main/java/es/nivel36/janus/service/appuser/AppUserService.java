@@ -142,19 +142,19 @@ public class AppUserService {
 	/** Replaces the subject after an administrator verifies the new identity. */
 	@Transactional
 	public AppUser replaceKeycloakSubject(final String username, final String newKeycloakSubject) {
-		Strings.requireNonBlank(newKeycloakSubject, "newKeycloakSubject cannot be null or blank.");
+		AppUser.validateKeycloakSubject(newKeycloakSubject);
 		final AppUser appUser = this.findAppUserByUsername(username);
 		this.appUserRepository.findByKeycloakSubject(newKeycloakSubject).filter(other -> other != appUser)
 				.ifPresent(other -> {
 					throw new KeycloakSubjectConflictException(newKeycloakSubject);
 				});
-		appUser.replaceKeycloakSubject(newKeycloakSubject);
 		try {
-			// Flush inside the exception boundary. Otherwise a concurrent winner can make
-			// the unique-subject violation surface only while committing the transaction,
-			// after this method has returned and it can no longer be mapped to a domain
-			// conflict.
-			return this.appUserRepository.saveAndFlush(appUser);
+			// KEYCLOAK_SUBJECT is immutable for ordinary entity updates. This explicit
+			// recovery operation updates it atomically and forces any unique constraint
+			// violation to surface inside the domain exception boundary.
+			this.appUserRepository.replaceKeycloakSubject(appUser.getId(), newKeycloakSubject);
+			return this.appUserRepository.findById(appUser.getId())
+					.orElseThrow(() -> new IllegalStateException("Application user disappeared during subject replacement"));
 		} catch (final DataIntegrityViolationException conflict) {
 			throw new KeycloakSubjectConflictException(newKeycloakSubject, conflict);
 		}

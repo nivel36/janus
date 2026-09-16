@@ -18,6 +18,9 @@ package es.nivel36.janus.service.appuser;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import es.nivel36.janus.service.employee.Employee;
@@ -53,4 +56,8 @@ interface AppUserRepository extends JpaRepository<AppUser, Long> {
 	boolean existsByEmployee(Employee employee);
 
 	Optional<AppUser> findByEmployee(Employee employee);
+
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query(value = "UPDATE APP_USER SET KEYCLOAK_SUBJECT = :keycloakSubject WHERE ID = :id", nativeQuery = true)
+	int replaceKeycloakSubject(@Param("id") Long id, @Param("keycloakSubject") String keycloakSubject);
 }
