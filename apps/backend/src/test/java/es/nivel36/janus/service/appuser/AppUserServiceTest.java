@@ -57,12 +57,12 @@ class AppUserServiceTest {
 
 	@Test
 	void testFindAppUserByKeycloakSubjectUsesSubjectClaim() {
-		final AppUser appUser = new AppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
+		final String subject = "oidc-provider|tenant:customers|user:aferrer:opaque-identity";
+		final AppUser appUser = new AppUser("aferrer", subject, Locale.ENGLISH,
 				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
-		when(this.appUserRepository.findByKeycloakSubject("11111111-1111-4111-8111-111111111111"))
-				.thenReturn(java.util.Optional.of(appUser));
+		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(java.util.Optional.of(appUser));
 
-		assertEquals(appUser, this.appUserService.findAppUserByKeycloakSubject("11111111-1111-4111-8111-111111111111"));
+		assertEquals(appUser, this.appUserService.findAppUserByKeycloakSubject(subject));
 	}
 
 	@Test

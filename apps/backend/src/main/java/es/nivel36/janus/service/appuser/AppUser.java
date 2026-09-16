@@ -37,6 +37,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * Entity representing an application user within the Janus system.
@@ -58,7 +59,8 @@ public class AppUser implements Serializable {
 	private String username;
 
 	@NotBlank
-	@Column(name = "KEYCLOAK_SUBJECT")
+	@Size(max = 255)
+	@Column(name = "KEYCLOAK_SUBJECT", updatable = false, unique = true, length = 255)
 	private String keycloakSubject;
 
 	@NotNull
