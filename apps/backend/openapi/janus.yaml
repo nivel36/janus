@@ -23,6 +23,44 @@ paths:
         '200':
           description: Updated application user
           content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } }
+  /appusers/{username}:
+    delete:
+      tags: [app-users]
+      operationId: deleteAppUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[A-Za-z0-9_.@-]{3,50}$'
+      responses:
+        '204': { description: Application user deleted }
+        '400': { description: Invalid username }
+        '403': { description: Insufficient permissions }
+        '404': { description: Application user not found }
+  /appusers/{username}/keycloak-subject:
+    put:
+      tags: [app-users]
+      operationId: replaceKeycloakSubject
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[A-Za-z0-9_.@-]{3,50}$'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ReplaceKeycloakSubjectRequest' } } }
+      responses:
+        '200':
+          description: Application user with its replaced external identity
+          content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } }
   /applicationsettings:
     get:
       tags: [application-settings]
@@ -143,6 +181,11 @@ paths:
           description: Clocked out
           content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } }
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     TimeFormat: { type: string, enum: [H12, H24] }
     AppUserResponse:
@@ -160,6 +203,11 @@ components:
         locale: { type: string, pattern: '^[a-z]{2,3}-[A-Z]{2}$' }
         timeFormat: { $ref: '#/components/schemas/TimeFormat' }
         defaultTimezone: { type: string, minLength: 1 }
+    ReplaceKeycloakSubjectRequest:
+      type: object
+      required: [keycloakSubject]
+      properties:
+        keycloakSubject: { type: string, minLength: 1, maxLength: 255 }
     ApplicationSettingsResponse:
       type: object
       required: [daysUntilLocked, employeeWorkplaceCreationAllowed, worksiteChangeDuringShiftAllowed, employeeManualTimelogEntryAllowed, defaultTimezone]
