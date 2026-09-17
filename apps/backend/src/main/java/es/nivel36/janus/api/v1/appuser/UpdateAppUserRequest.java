@@ -66,8 +66,7 @@ public record UpdateAppUserRequest( //
 		if (this.locale == null || this.locale.isBlank() || !isLocaleValid()) {
 			return true;
 		}
-		final String languageTag = new Locale.Builder().setLanguageTag(this.locale.trim()).build()
-				.toLanguageTag();
+		final String languageTag = new Locale.Builder().setLanguageTag(this.locale.trim()).build().toLanguageTag();
 		return Locale.availableLocales().anyMatch(candidate -> candidate.toLanguageTag().equals(languageTag));
 	}
 

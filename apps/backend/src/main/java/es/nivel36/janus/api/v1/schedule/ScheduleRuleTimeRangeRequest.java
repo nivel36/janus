@@ -18,6 +18,7 @@ package es.nivel36.janus.api.v1.schedule;
 import java.time.DayOfWeek;
 import java.time.Duration;
 
+import es.nivel36.janus.api.validation.NonNegativeDuration;
 import es.nivel36.janus.service.schedule.DayOfWeekTimeRange;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
@@ -40,16 +41,12 @@ public record ScheduleRuleTimeRangeRequest( //
 		DayOfWeek dayOfWeek, //
 
 		@NotNull(message = "effectiveWorkHours must not be null") //
+		@NonNegativeDuration //
 		Duration effectiveWorkHours, //
 
 		@NotNull(message = "timeRange must not be null") //
 		@Valid ScheduleTimeRangeRequest timeRange //
 ) {
-
-	@AssertTrue(message = "effectiveWorkHours must be greater than or equal to 0")
-	public boolean isEffectiveWorkHoursValid() {
-		return this.effectiveWorkHours == null || !this.effectiveWorkHours.isNegative();
-	}
 
 	@AssertTrue(message = "effectiveWorkHours must not exceed the time range duration")
 	public boolean isEffectiveWorkHoursWithinTimeRange() {

@@ -18,9 +18,9 @@ package es.nivel36.janus.api.v1.schedule;
 import java.time.Duration;
 import java.util.List;
 
+import es.nivel36.janus.api.validation.NonNegativeDuration;
 import es.nivel36.janus.service.schedule.Schedule;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -53,22 +53,14 @@ public record CreateScheduleRequest( //
 		String name, //
 
 		@NotNull(message = "entryTolerance must not be null") //
+		@NonNegativeDuration //
 		Duration entryTolerance, //
 
 		@NotNull(message = "exitTolerance must not be null") //
+		@NonNegativeDuration //
 		Duration exitTolerance, //
 
 		@NotNull(message = "rules must not be null") //
 		List<@Valid ScheduleRuleRequest> rules //
 ) {
-
-	@AssertTrue(message = "entryTolerance must be greater than or equal to 0")
-	public boolean isEntryToleranceValid() {
-		return this.entryTolerance == null || !this.entryTolerance.isNegative();
-	}
-
-	@AssertTrue(message = "exitTolerance must be greater than or equal to 0")
-	public boolean isExitToleranceValid() {
-		return this.exitTolerance == null || !this.exitTolerance.isNegative();
-	}
 }
