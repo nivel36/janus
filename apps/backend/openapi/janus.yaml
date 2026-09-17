@@ -205,7 +205,9 @@ components:
       type: object
       required: [locale, timeFormat, defaultTimezone]
       properties:
-        locale: { type: string, pattern: '^[a-z]{2,3}-[A-Z]{2}$' }
+        locale:
+          type: string
+          description: Supported BCP 47 language tag, such as en-US or en
         timeFormat: { $ref: '#/components/schemas/TimeFormat' }
         defaultTimezone: { type: string, minLength: 1 }
     ReplaceKeycloakSubjectRequest:
