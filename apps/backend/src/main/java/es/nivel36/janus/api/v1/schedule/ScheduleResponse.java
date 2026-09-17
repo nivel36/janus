@@ -53,19 +53,22 @@ public record ScheduleResponse(String code, String name, Duration entryTolerance
 	 * Response fragment describing the time range allowed for a specific day of the
 	 * week.
 	 *
-	 * @param dayOfWeek          day when the shift starts
+	 * @param dayOfWeek          day to which the time range is assigned; the range
+	 *                           may cross midnight
 	 * @param effectiveWorkHours effective working duration expected for the shift
-	 * @param timeRange          allowed start and end times for the shift
+	 * @param timeRange          start-inclusive and end-exclusive time range for
+	 *                           the shift, or {@code null} when no range is set
 	 */
 	public record DayOfWeekTimeRangeResponse(DayOfWeek dayOfWeek, Duration effectiveWorkHours,
 			TimeRangeResponse timeRange) {
 	}
 
 	/**
-	 * Response fragment representing the start and end times of a shift.
+	 * Response fragment representing the start and end times of a shift. The end
+	 * time may fall on the following day when it precedes the start time.
 	 *
-	 * @param startTime lower bound for the shift
-	 * @param endTime   upper bound for the shift
+	 * @param startTime inclusive start time for the shift
+	 * @param endTime   exclusive end time for the shift
 	 */
 	public record TimeRangeResponse(LocalTime startTime, LocalTime endTime) {
 	}

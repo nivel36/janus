@@ -40,6 +40,8 @@ import es.nivel36.janus.service.worksite.Worksite;
  *                       {@code null}
  * @param exitTime       the timestamp when the employee clocked out; may be
  *                       absent if the employee is still working;
+ * @param workTime       the elapsed work duration, represented in multiple
+ *                       formats; absent if the time log is still open
  */
 public record TimeLogResponse(String employeeEmail, String worksiteCode, ZoneId worksiteZoneId, Instant entryTime,
 		Instant exitTime, DurationResponse workTime) {
