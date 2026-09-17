@@ -61,6 +61,11 @@ paths:
         '200':
           description: Application user with its replaced external identity
           content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } }
+        '400': { description: Invalid username or replacement request }
+        '401': { description: Authentication required }
+        '403': { description: Insufficient permissions }
+        '404': { description: Application user not found }
+        '409': { description: Keycloak subject already belongs to another application user }
   /applicationsettings:
     get:
       tags: [application-settings]
@@ -207,7 +212,7 @@ components:
       type: object
       required: [keycloakSubject]
       properties:
-        keycloakSubject: { type: string, minLength: 1, maxLength: 255 }
+        keycloakSubject: { type: string, minLength: 1, maxLength: 255, pattern: '.*\\S.*' }
     ApplicationSettingsResponse:
       type: object
       required: [daysUntilLocked, employeeWorkplaceCreationAllowed, worksiteChangeDuringShiftAllowed, employeeManualTimelogEntryAllowed, defaultTimezone]
