@@ -32,17 +32,18 @@ import jakarta.validation.constraints.NotNull;
  * <p>
  * The entry time must be before the exit time.
  *
- * @param entryTime the entry instant in UTC (ISO-8601); can't be {@code null}
- * @param exitTime  the exit instant in UTC (ISO-8601); must be after entryTime
- *                  and can't be {@code null}
+ * @param entryTime the entry instant in UTC (ISO-8601); must not be {@code null}
+ * @param exitTime  the exit instant in UTC (ISO-8601); must not be {@code null}
+ *                  and must be after {@code entryTime}
  */
-public record CreateTimeLogRequest(@NotNull Instant entryTime, @NotNull Instant exitTime) {
+public record CreateTimeLogRequest(@NotNull(message = "entryTime must not be null") Instant entryTime,
+		@NotNull(message = "exitTime must not be null") Instant exitTime) {
 
 	/**
-	 * Validates that {@code exitTime} is not before {@code entryTime} when both are
+	 * Validates that {@code exitTime} is after {@code entryTime} when both are
 	 * provided.
 	 *
-	 * @return {@code true} if the date range is valid or incomplete, {@code false}
+	 * @return {@code true} if the time range is valid or incomplete, {@code false}
 	 *         otherwise
 	 */
 	@JsonIgnore

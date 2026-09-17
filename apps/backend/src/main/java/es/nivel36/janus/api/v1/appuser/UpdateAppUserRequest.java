@@ -24,6 +24,8 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import es.nivel36.janus.api.validation.ValidTimeZone;
+
 /**
  * Request payload for updating an existing {@link AppUser}.
  *
@@ -32,7 +34,7 @@ import jakarta.validation.constraints.NotNull;
  *                        and must identify a supported locale
  * @param timeFormat      the preferred {@link TimeFormat} of the user; must not
  *                        be {@code null}
- * @param defaultTimezone the default timezone identifier of the user (for
+ * @param defaultTimezone the valid IANA time-zone identifier of the user (for
  *                        example {@code "Europe/Madrid"}); must not be blank
  */
 public record UpdateAppUserRequest( //
@@ -43,6 +45,7 @@ public record UpdateAppUserRequest( //
 		TimeFormat timeFormat, //
 
 		@NotBlank(message = "defaultTimezone must not be blank") //
+		@ValidTimeZone(message = "defaultTimezone must be a valid time-zone identifier") //
 		String defaultTimezone) {
 
 	@AssertTrue(message = "locale must be a valid BCP 47 language tag")
@@ -67,4 +70,5 @@ public record UpdateAppUserRequest( //
 				.toLanguageTag();
 		return Locale.availableLocales().anyMatch(candidate -> candidate.toLanguageTag().equals(languageTag));
 	}
+
 }

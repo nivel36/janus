@@ -22,12 +22,12 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload for updating an existing {@link Employee}.
  *
- * @param name         the new first name of the employee; must not be
- *                     {@code null} and must be between 1 and 255 characters
- * @param surname      the new surname of the employee; must not be {@code null}
- *                     and must be between 1 and 255 characters
+ * @param name         the new first name of the employee; must not be blank and
+ *                     must be between 1 and 255 characters using the allowed characters
+ * @param surname      the new surname of the employee; must not be blank and
+ *                     must be between 1 and 255 characters using the allowed characters
  * @param scheduleCode the code of the new schedule of the employee; must not be
- *                     {@code null}
+ *                     blank and must be at most 50 characters
  */
 public record UpdateEmployeeRequest(//
 		@NotBlank(message = "name must not be blank") //

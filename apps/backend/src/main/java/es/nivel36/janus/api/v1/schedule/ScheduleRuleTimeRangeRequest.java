@@ -20,6 +20,7 @@ import java.time.Duration;
 
 import es.nivel36.janus.service.schedule.DayOfWeekTimeRange;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -29,7 +30,8 @@ import jakarta.validation.constraints.NotNull;
  * @param dayOfWeek          day of the week when the shift starts; must not be
  *                           {@code null}
  * @param effectiveWorkHours effective working duration for the range as an
- *                           ISO-8601 {@link Duration}; must not be {@code null}
+ *                           ISO-8601 {@link Duration}; must not be {@code null}, negative, or
+ *                           greater than the time-range duration
  * @param timeRange          allowed clock-in and clock-out bounds; must not be
  *                           {@code null}
  */
@@ -43,4 +45,15 @@ public record ScheduleRuleTimeRangeRequest( //
 		@NotNull(message = "timeRange must not be null") //
 		@Valid ScheduleTimeRangeRequest timeRange //
 ) {
+
+	@AssertTrue(message = "effectiveWorkHours must be greater than or equal to 0")
+	public boolean isEffectiveWorkHoursValid() {
+		return this.effectiveWorkHours == null || !this.effectiveWorkHours.isNegative();
+	}
+
+	@AssertTrue(message = "effectiveWorkHours must not exceed the time range duration")
+	public boolean isEffectiveWorkHoursWithinTimeRange() {
+		return this.effectiveWorkHours == null || this.timeRange == null
+				|| this.effectiveWorkHours.compareTo(this.timeRange.duration()) <= 0;
+	}
 }

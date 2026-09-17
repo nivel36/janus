@@ -20,6 +20,7 @@ import java.util.List;
 
 import es.nivel36.janus.service.schedule.Schedule;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -27,14 +28,12 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload used to create a new {@link Schedule} aggregate.
  *
- * @param code           unique business identifier assigned to the schedule;
- *                       must follow the {@code [A-Za-z0-9_-]{1,50}} pattern
- * @param name           human readable name describing the schedule; must
+ * @param code           unique business identifier assigned to the schedule; must not be blank
+ *                       and must follow the {@code [A-Za-z0-9_-]{1,50}} pattern
+ * @param name           human-readable name describing the schedule; must not be blank and must
  *                       contain between 1 and 250 allowed characters
- * @param entryTolerance allowed tolerance for entry times; must not be
- *                       {@code null}
- * @param exitTolerance  allowed tolerance for exit times; must not be
- *                       {@code null}
+ * @param entryTolerance allowed tolerance for entry times; must not be {@code null} or negative
+ * @param exitTolerance  allowed tolerance for exit times; must not be {@code null} or negative
  * @param rules          collection of rule definitions associated with the
  *                       schedule; must not be {@code null}
  */
@@ -62,4 +61,14 @@ public record CreateScheduleRequest( //
 		@NotNull(message = "rules must not be null") //
 		List<@Valid ScheduleRuleRequest> rules //
 ) {
+
+	@AssertTrue(message = "entryTolerance must be greater than or equal to 0")
+	public boolean isEntryToleranceValid() {
+		return this.entryTolerance == null || !this.entryTolerance.isNegative();
+	}
+
+	@AssertTrue(message = "exitTolerance must be greater than or equal to 0")
+	public boolean isExitToleranceValid() {
+		return this.exitTolerance == null || !this.exitTolerance.isNegative();
+	}
 }

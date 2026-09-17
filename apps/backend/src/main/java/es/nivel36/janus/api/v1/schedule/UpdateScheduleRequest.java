@@ -20,6 +20,7 @@ import java.util.List;
 
 import es.nivel36.janus.service.schedule.Schedule;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -27,12 +28,10 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload used to update an existing {@link Schedule} aggregate.
  *
- * @param name           new human readable name describing the schedule; must
- *                       contain between 1 and 250 allowed characters
- * @param entryTolerance allowed tolerance for entry times; must not be
- *                       {@code null}
- * @param exitTolerance  allowed tolerance for exit times; must not be
- *                       {@code null}
+ * @param name           new human-readable name describing the schedule; must not be blank and
+ *                       must contain between 1 and 250 allowed characters
+ * @param entryTolerance allowed tolerance for entry times; must not be {@code null} or negative
+ * @param exitTolerance  allowed tolerance for exit times; must not be {@code null} or negative
  * @param rules          collection of rule definitions that replace the
  *                       previous ones; must not be {@code null}
  */
@@ -53,4 +52,14 @@ public record UpdateScheduleRequest( //
 		@NotNull(message = "rules must not be null") //
 		List<@Valid ScheduleRuleRequest> rules //
 ) {
+
+	@AssertTrue(message = "entryTolerance must be greater than or equal to 0")
+	public boolean isEntryToleranceValid() {
+		return this.entryTolerance == null || !this.entryTolerance.isNegative();
+	}
+
+	@AssertTrue(message = "exitTolerance must be greater than or equal to 0")
+	public boolean isExitToleranceValid() {
+		return this.exitTolerance == null || !this.exitTolerance.isNegative();
+	}
 }

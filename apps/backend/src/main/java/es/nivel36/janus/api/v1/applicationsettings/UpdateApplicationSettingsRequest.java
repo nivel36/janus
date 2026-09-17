@@ -18,11 +18,13 @@ package es.nivel36.janus.api.v1.applicationsettings;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import es.nivel36.janus.api.validation.ValidTimeZone;
+
 /**
  * Request payload used to update global application settings.
  *
- * @param daysUntilLocked                   number of days a time log remains
- *                                          editable
+ * @param daysUntilLocked                   number of days a time log remains editable; must be
+ *                                          greater than or equal to zero
  * @param employeeWorkplaceCreationAllowed  whether employees can create
  *                                          personal worksites
  * @param worksiteChangeDuringShiftAllowed  whether changing worksite during a
@@ -30,8 +32,8 @@ import jakarta.validation.constraints.PositiveOrZero;
  * @param employeeManualTimelogEntryAllowed whether employees can set custom
  *                                          entry/exit instants in timelog
  *                                          operations
- * @param defaultTimezone                   IANA time zone identifier used as
- *                                          default
+ * @param defaultTimezone                   valid IANA time-zone identifier used as default; must
+ *                                          not be blank
  */
 public record UpdateApplicationSettingsRequest(
 		@PositiveOrZero(message = "daysUntilLocked must be greater than or equal to 0") //
@@ -43,5 +45,6 @@ public record UpdateApplicationSettingsRequest(
 
 		boolean employeeManualTimelogEntryAllowed, //
 
-		@NotBlank(message = "defaultTimezone is required") String defaultTimezone) {
+		@NotBlank(message = "defaultTimezone is required")
+		@ValidTimeZone(message = "defaultTimezone must be a valid time-zone identifier") String defaultTimezone) {
 }

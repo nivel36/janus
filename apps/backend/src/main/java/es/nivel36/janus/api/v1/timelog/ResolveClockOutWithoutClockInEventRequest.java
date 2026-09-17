@@ -18,13 +18,16 @@ package es.nivel36.janus.api.v1.timelog;
 import java.time.Instant;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * Request payload used to resolve a {@code ClockOutWithoutClockInEvent}.
  *
- * @param entryTime mandatory entry time that will be used to build the
- *                  resolving time log
- * @param reason    optional reason explaining why the event is being resolved
+ * @param entryTime mandatory entry time used to build the resolving time log;
+ *                  must not be {@code null}
+ * @param reason    optional reason explaining why the event is being resolved,
+ *                  limited to 255 characters
  */
-public record ResolveClockOutWithoutClockInEventRequest(@NotNull Instant entryTime, String reason) {
+public record ResolveClockOutWithoutClockInEventRequest(@NotNull(message = "entryTime must not be null") Instant entryTime,
+		@Size(max = 255, message = "reason must not exceed 255 characters") String reason) {
 }

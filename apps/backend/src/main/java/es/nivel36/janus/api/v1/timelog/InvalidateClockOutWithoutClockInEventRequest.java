@@ -15,10 +15,14 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
+import jakarta.validation.constraints.Size;
+
 /**
  * Request payload used to invalidate a {@code ClockOutWithoutClockInEvent}.
  *
- * @param reason optional reason explaining why the event is being invalidated
+ * @param reason optional reason explaining why the event is being invalidated,
+ *               limited to 255 characters
  */
-public record InvalidateClockOutWithoutClockInEventRequest(String reason) {
+public record InvalidateClockOutWithoutClockInEventRequest(
+		@Size(max = 255, message = "reason must not exceed 255 characters") String reason) {
 }

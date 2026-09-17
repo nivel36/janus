@@ -17,18 +17,22 @@ package es.nivel36.janus.api.v1.worksite;
 
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteScope;
+import es.nivel36.janus.api.validation.ValidTimeZone;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 /**
  * Request payload for updating an existing {@link Worksite}.
  *
- * @param name     the new human readable name of the worksite; must contain
- *                 between 1 and 250 characters
- * @param timeZone the new {@link java.time.ZoneId} identifier of the worksite;
- *                 must contain between 1 and 80 characters
- * @param scope    the new visibility scope of the worksite
+ * @param name        the new human-readable name of the worksite; must not be blank and must
+ *                    contain between 1 and 250 allowed characters
+ * @param timeZone    valid new {@link java.time.ZoneId} identifier of the worksite; must not be
+ *                    blank and must contain at most 64 characters
+ * @param scope       the new visibility scope of the worksite; must not be {@code null}
+ * @param description optional worksite description of at most 500 characters
+ * @param address     optional worksite address of at most 500 characters
  */
 public record UpdateWorksiteRequest( //
 		@NotBlank(message = "name must not be blank") //
@@ -39,15 +43,17 @@ public record UpdateWorksiteRequest( //
 
 		@NotBlank(message = "timeZone must not be blank") //
 		@Pattern( //
-				regexp = "^[A-Za-z0-9_./+:-]{1,80}$", //
-				message = "timeZone must contain only letters, digits, underscores, dots, slashes, plus, minus, or colons (max 80)") //
+				 regexp = "^[A-Za-z0-9_./+:-]{1,64}$", //
+		message = "timeZone must contain only letters, digits, underscores, dots, slashes, plus, minus, or colons (max 64)") //
+		@Size(max = 64, message = "timeZone must not exceed 64 characters") //
+		@ValidTimeZone(message = "timeZone must be a valid time-zone identifier") //
 		String timeZone, //
 
 		@NotNull(message = "scope must not be null") //
 		WorksiteScope scope, //
 
-		String description, //
+		@Size(max = 500, message = "description must not exceed 500 characters") String description, //
 
-		String address) {
+		@Size(max = 500, message = "address must not exceed 500 characters") String address) {
 
 }

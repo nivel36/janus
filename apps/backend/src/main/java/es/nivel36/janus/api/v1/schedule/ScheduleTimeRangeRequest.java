@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
+import java.time.Duration;
 import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,10 +27,9 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Defines the bounds of a {@link TimeRange} in schedule requests.
  *
- * @param startTime lower bound for the allowed time window; must not be
- *                  {@code null}
- * @param endTime   upper bound for the allowed time window; must not be
- *                  {@code null}
+ * @param startTime lower bound for the allowed time window; must not be {@code null}
+ * @param endTime   upper bound for the allowed time window; must not be {@code null} and must be
+ *                  after {@code startTime}
  */
 public record ScheduleTimeRangeRequest( //
 		@NotNull(message = "startTime must not be null") //
@@ -40,18 +40,27 @@ public record ScheduleTimeRangeRequest( //
 ) {
 
 	/**
-	 * Validates that {@code endTime} is not before {@code startTime} when both are
+	 * Validates that {@code endTime} is after {@code startTime} when both are
 	 * provided.
 	 *
-	 * @return {@code true} if the date range is valid or incomplete, {@code false}
+	 * @return {@code true} if the time range is valid or incomplete, {@code false}
 	 *         otherwise
 	 */
 	@JsonIgnore
-	@AssertTrue(message = "endTime must be on or after startTime")
-	public boolean isDateRangeValid() {
+	@AssertTrue(message = "endTime must be after startTime")
+	public boolean isTimeRangeValid() {
 		if (this.startTime == null || this.endTime == null) {
 			return true;
 		}
-		return !this.endTime.isBefore(this.startTime);
+		return this.endTime.isAfter(this.startTime);
+	}
+
+	/** Returns the duration represented by this request. */
+	@JsonIgnore
+	public Duration duration() {
+		if (this.startTime == null || this.endTime == null || !isTimeRangeValid()) {
+			return Duration.ZERO;
+		}
+		return Duration.between(this.startTime, this.endTime);
 	}
 }

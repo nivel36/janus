@@ -30,14 +30,14 @@ import jakarta.validation.constraints.Pattern;
  * Defines the structure of a rule contained in {@link CreateScheduleRequest} or
  * {@link UpdateScheduleRequest}.
  *
- * @param name            human readable name of the rule; must contain between
- *                        1 and 250 allowed characters
+ * @param name            human-readable name of the rule; must not be blank and
+ *                        must contain between 1 and 250 allowed characters
  * @param startDate       optional start date delimiting when the rule becomes
  *                        active
  * @param endDate         optional end date delimiting when the rule stops being
  *                        active
- * @param dayOfWeekRanges day specific working ranges that compose the rule;
- *                        must not be {@code null}
+ * @param dayOfWeekRanges day-specific working ranges that compose the rule;
+ *                        must not be {@code null}; each item must be valid
  */
 public record ScheduleRuleRequest( //
 		@NotBlank(message = "name must not be blank") //
@@ -59,7 +59,7 @@ public record ScheduleRuleRequest( //
 	 * Validates that {@code endDate} is not before {@code startDate} when both are
 	 * provided.
 	 *
-	 * @return {@code true} if the date range is valid or incomplete, {@code false}
+	 * @return {@code true} if the validity period is valid or incomplete, {@code false}
 	 *         otherwise
 	 */
 	@JsonIgnore
