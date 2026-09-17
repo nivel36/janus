@@ -53,6 +53,8 @@ class FirstRequestProvisioningIT {
 	private static final String SUBJECT = "9a60b9f4-7436-4d93-9c25-08e08f3dfc58";
 	private static final String OTHER_SUBJECT = "b9b0c670-b030-4ce2-8a48-516a86cb80e2";
 	private static final String OPAQUE_SUBJECT = "oidc-provider|tenant:customers|user:aferrer:opaque-identity";
+	private static final String ADMIN_SUBJECT = "admin-subject-for-concurrency-test";
+	private static final String ADMIN_USERNAME = "concurrency-test-admin";
 	private static final String USERNAME = "aferrer@nivel36.es";
 	private static final String LINK_EMAIL = "first-access-link@example.test";
 
@@ -66,7 +68,8 @@ class FirstRequestProvisioningIT {
 		this.jdbcClient.sql("DELETE FROM app_user WHERE keycloak_subject IN (:subject, :otherSubject, :opaqueSubject)")
 				.param("subject", SUBJECT).param("otherSubject", OTHER_SUBJECT).param("opaqueSubject", OPAQUE_SUBJECT)
 				.update();
-		this.jdbcClient.sql("DELETE FROM app_user WHERE username IN ('subject-target-one', 'subject-target-two')").update();
+		this.jdbcClient.sql("DELETE FROM app_user WHERE username IN ('subject-target-one', 'subject-target-two', :adminUsername)")
+				.param("adminUsername", ADMIN_USERNAME).update();
 		this.jdbcClient.sql("DELETE FROM employee WHERE email = :email").param("email", LINK_EMAIL).update();
 		this.jdbcClient.sql("DELETE FROM schedule WHERE id = 901").update();
 	}
@@ -134,7 +137,8 @@ class FirstRequestProvisioningIT {
 		this.jdbcClient.sql("""
 				INSERT INTO app_user(username, keycloak_subject, locale, time_format, default_timezone)
 				VALUES ('subject-target-one', '11111111-1111-4111-8111-111111111111', 'en-US', 'H24', 'UTC'),
-				       ('subject-target-two', '22222222-2222-4222-8222-222222222222', 'en-US', 'H24', 'UTC')
+				       ('subject-target-two', '22222222-2222-4222-8222-222222222222', 'en-US', 'H24', 'UTC'),
+				       ('concurrency-test-admin', 'admin-subject-for-concurrency-test', 'en-US', 'H24', 'UTC')
 				""").update();
 		final String replacement = "33333333-3333-4333-8333-333333333333";
 		final CountDownLatch ready = new CountDownLatch(2);
@@ -160,7 +164,8 @@ class FirstRequestProvisioningIT {
 		ready.countDown();
 		start.await();
 		return this.mvc.perform(put("/api/v1/appusers/{username}/keycloak-subject", username)
-				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))).contentType(APPLICATION_JSON)
+				.with(jwt().jwt(token -> token.subject(ADMIN_SUBJECT))
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))).contentType(APPLICATION_JSON)
 				.content("{\"keycloakSubject\":\"" + subject + "\"}")).andReturn();
 	}
 
