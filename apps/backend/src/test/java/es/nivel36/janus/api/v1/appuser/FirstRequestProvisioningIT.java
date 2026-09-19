@@ -95,8 +95,7 @@ class FirstRequestProvisioningIT {
 	void concurrentRequestsForSameSubjectAndUsernameAreIdempotent() throws Exception {
 		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "same-name", null, SUBJECT, "same-name", null);
 
-		assertThat(results).isNotEmpty();
-		assertThat(results).allMatch(result -> result.getResponse().getStatus() == 200);
+		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
 		assertThat(this.countProfiles()).isOne();
 	}
 
@@ -104,8 +103,7 @@ class FirstRequestProvisioningIT {
 	void concurrentRequestsForSameSubjectAndDifferentUsernamesReturnTheSubjectWinner() throws Exception {
 		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "first-name", null, SUBJECT, "second-name", null);
 
-		assertThat(results).isNotEmpty();
-		assertThat(results).allMatch(result -> result.getResponse().getStatus() == 200);
+		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
 		assertThat(this.countProfiles()).isOne();
 		assertThat(results).extracting(result -> result.getResponse().getContentAsString()).isNotEmpty()
 				.allMatch(body -> body.contains(this.usernameForSubject(SUBJECT)));
@@ -117,8 +115,7 @@ class FirstRequestProvisioningIT {
 		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "employee-one", LINK_EMAIL,
 				OTHER_SUBJECT, "employee-two", LINK_EMAIL);
 
-		assertThat(results).isNotEmpty();
-		assertThat(results).allMatch(result -> result.getResponse().getStatus() == 200);
+		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
 		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE employee_id = :employeeId")
 				.param("employeeId", employeeId).query(Long.class).single()).isOne();
 		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject IN (:one, :two)")
