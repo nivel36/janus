@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.service.catalog;
 
+import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
@@ -32,6 +33,18 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TimeZoneCatalogService {
+
+	private final Clock clock;
+
+	/**
+	 * Creates a time zone catalog service.
+	 *
+	 * @param clock clock used to determine the current instant; must not be
+	 *              {@code null}
+	 */
+	public TimeZoneCatalogService(final Clock clock) {
+		this.clock = Objects.requireNonNull(clock, "clock can't be null");
+	}
 
 	/**
 	 * Searches available Java {@link ZoneId} values and returns a paginated
@@ -51,7 +64,7 @@ public class TimeZoneCatalogService {
 		Objects.requireNonNull(pageable, "pageable can't be null");
 
 		final String normalizedSearch = search == null ? null : search.toLowerCase(Locale.ROOT);
-		final ZonedDateTime now = ZonedDateTime.now();
+		final ZonedDateTime now = ZonedDateTime.now(this.clock);
 
 		final List<TimeZoneCatalogItem> filtered = ZoneId.getAvailableZoneIds().stream().sorted()
 				.map(zoneId -> this.map(zoneId, now))
