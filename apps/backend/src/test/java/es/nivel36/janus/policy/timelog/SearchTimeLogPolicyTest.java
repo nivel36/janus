@@ -60,9 +60,9 @@ class SearchTimeLogPolicyTest {
 		final TimeLogSearchScope scope = this.policy.scope(actor);
 		for (final Long employeeId : new Long[] { 84L, 85L }) {
 			final boolean visible = switch (scope) {
-				case TimeLogSearchScope.All ignored -> true;
+				case TimeLogSearchScope.All _ -> true;
 				case TimeLogSearchScope.Employee employee -> employee.employeeId().equals(employeeId);
-				case TimeLogSearchScope.None ignored -> false;
+				case TimeLogSearchScope.None _ -> false;
 			};
 			assertThat(visible).as("actor %s viewing employee %s", actor, employeeId)
 					.isEqualTo(view.allows(actor, employeeId.equals(actor.employeeId())));

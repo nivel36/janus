@@ -17,10 +17,10 @@ final class TimeLogSearchSpecifications {
 
 	static Specification<TimeLog> within(final TimeLogSearchScope scope) {
 		return switch (scope) {
-		case final TimeLogSearchScope.All ignored -> (root, query, builder) -> builder.conjunction();
+		case final TimeLogSearchScope.All _ -> (root, query, builder) -> builder.conjunction();
 		case final TimeLogSearchScope.Employee employee ->
 			(root, query, builder) -> builder.equal(root.get("employee").get("id"), employee.employeeId());
-		case final TimeLogSearchScope.None ignored -> (root, query, builder) -> builder.disjunction();
+		case final TimeLogSearchScope.None _ -> (root, query, builder) -> builder.disjunction();
 		};
 	}
 
