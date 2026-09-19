@@ -71,6 +71,8 @@ public class ScheduleController implements ScheduleResource {
 	 *
 	 * @param scheduleService              service for schedule operations; can't be
 	 *                                     {@code null}
+	 * @param authorization                component that determines the authenticated
+	 *                                     user's schedule access; can't be {@code null}
 	 * @param scheduleResponseMapper       mapper for schedule responses; can't be
 	 *                                     {@code null}
 	 * @param scheduleRuleDefinitionMapper mapper for schedule rule definitions;

@@ -41,6 +41,8 @@ public class CatalogController implements CatalogResource {
 	 * Builds a controller with the required catalog service dependency.
 	 *
 	 * @param timeZoneCatalogService service used to retrieve time zone catalog data
+	 * @param timeZoneCatalogItemResponseMapper mapper converting catalog items to
+	 *                                         API responses; must not be {@code null}
 	 */
 	public CatalogController(final TimeZoneCatalogService timeZoneCatalogService,
 			final @Qualifier("timeZoneCatalogItemResponseMapper") Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper) {

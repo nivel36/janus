@@ -100,6 +100,7 @@ public class TimeLogController implements TimeLogResource {
 	 *                      system time will be used
 	 * @param worksiteCode  the code of the worksite where the time log is created;
 	 *                      must not be {@code null}
+	 * @param authentication current authentication; must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
 	@Override
@@ -139,6 +140,7 @@ public class TimeLogController implements TimeLogResource {
 	 *                      system time will be used
 	 * @param worksiteCode  the code of the worksite where the time log is updated;
 	 *                      must not be {@code null}
+	 * @param authentication current authentication; must not be {@code null}
 	 * @return the updated {@link TimeLogResponse}
 	 * @throws ClockOutWithoutClockInException if the TimeLog record cannot be
 	 *                                         closed because it does not have an
@@ -187,6 +189,7 @@ public class TimeLogController implements TimeLogResource {
 	 *                      must not be {@code null}
 	 * @param timeLog       the {@link CreateTimeLogRequest} payload containing the
 	 *                      entry and exit times; must not be {@code null}
+	 * @param authentication the current authentication; must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
 	@Override
@@ -212,6 +215,7 @@ public class TimeLogController implements TimeLogResource {
 	 *
 	 * @param employeeEmail the email of the employee; must not be {@code null}
 	 * @param entryTime     the entry time of the time log; must not be {@code null}
+	 * @param authentication the current authentication; must not be {@code null}
 	 * @return the {@link TimeLogResponse} entry
 	 */
 	@Override

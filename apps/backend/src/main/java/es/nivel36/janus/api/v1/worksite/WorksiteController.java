@@ -56,6 +56,11 @@ public class WorksiteController implements WorksiteResource {
 	 *
 	 * @param worksiteService        application service that provides worksite
 	 *                               operations; must not be {@code null}
+	 * @param employeeService        service used to resolve employees and calculate
+	 *                               worksite statistics; must not be {@code null}
+	 * @param authorization          component that determines the authenticated
+	 *                               user's effective employee scope; must not be
+	 *                               {@code null}
 	 * @param worksiteResponseMapper mapper translating {@link Worksite} entities
 	 *                               into {@link WorksiteResponse} DTOs; must not be
 	 *                               {@code null}
@@ -75,6 +80,11 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Retrieves all worksites registered in the system.
 	 *
+	 * @param query          optional worksite search query
+	 * @param employeeEmail optional employee email filter
+	 * @param pageable       pagination and sorting information; must not be
+	 *                       {@code null}
+	 * @param authentication current authentication; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the list of worksites
 	 */
 	@Override
@@ -106,6 +116,17 @@ public class WorksiteController implements WorksiteResource {
 		return ResponseEntity.ok(response);
 	}
 
+	/**
+	 * Retrieves statistics for a worksite over the requested time range.
+	 *
+	 * @param worksiteCode   the unique code of the worksite; must not be {@code null}
+	 * @param start          start of the time range; must not be {@code null}
+	 * @param end            end of the time range; must not be {@code null} and must
+	 *                       not precede {@code start}
+	 * @param authentication current authentication; must not be {@code null}
+	 * @return the requested worksite statistics
+	 * @throws IllegalArgumentException if {@code end} precedes {@code start}
+	 */
 	@Override
 	public ResponseEntity<WorksiteStatsResponse> stats(
 			final String worksiteCode,
@@ -130,13 +151,13 @@ public class WorksiteController implements WorksiteResource {
 	 * Creates a new worksite.
 	 *
 	 * <p>
-	 * The request may describe either a global worksite or a personal one. For
-	 * personal worksites, the owner employee id is forwarded to the service layer
-	 * so it can resolve and validate the owner relation.
+	 * The request defines the worksite scope together with its identifying and
+	 * descriptive data.
 	 * </p>
 	 *
 	 * @param request the payload describing the worksite to create; must not be
 	 *                {@code null}
+	 * @param authentication the current authentication; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the created worksite
 	 */
 	@Override
@@ -163,6 +184,7 @@ public class WorksiteController implements WorksiteResource {
 	 *                     {@code null}
 	 * @param request      the payload describing the new worksite data; must not be
 	 *                     {@code null}
+	 * @param authentication the current authentication; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the updated worksite
 	 */
 	@Override
@@ -206,7 +228,7 @@ public class WorksiteController implements WorksiteResource {
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @param employeeEmail the email of the employee; must not be {@code null}
 	 *
-	 * @return the updated {@link EmployeeResponse}
+	 * @return an empty response with HTTP 204 status
 	 */
 	@Override
 	public ResponseEntity<Void> assignEmployeeToWorksite(
@@ -230,7 +252,7 @@ public class WorksiteController implements WorksiteResource {
 	 *
 	 * @param employeeEmail the email of the employee; must not be {@code null}
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
-	 * @return the updated {@link EmployeeResponse}
+	 * @return an empty response with HTTP 204 status
 	 */
 	@Override
 	public ResponseEntity<EmployeeResponse> removeEmployeeFromWorksite( //
