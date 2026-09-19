@@ -71,8 +71,9 @@ public class ScheduleController implements ScheduleResource {
 	 *
 	 * @param scheduleService              service for schedule operations; can't be
 	 *                                     {@code null}
-	 * @param authorization                component that determines the authenticated
-	 *                                     user's schedule access; can't be {@code null}
+	 * @param authorization                component that determines the
+	 *                                     authenticated user's schedule access;
+	 *                                     can't be {@code null}
 	 * @param scheduleResponseMapper       mapper for schedule responses; can't be
 	 *                                     {@code null}
 	 * @param scheduleRuleDefinitionMapper mapper for schedule rule definitions;
@@ -106,12 +107,11 @@ public class ScheduleController implements ScheduleResource {
 	 *                               perform the search
 	 */
 	@Override
-	public ResponseEntity<Page<ScheduleResponse>> searchSchedules(
-			final String query,
-			final String employeeEmail,
+	public ResponseEntity<Page<ScheduleResponse>> searchSchedules(final String query, final String employeeEmail,
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search schedules ACTION performed");
-		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, employeeEmail == null ? null : EmailAddresses.canonicalize(employeeEmail));
+		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication,
+				employeeEmail == null ? null : EmailAddresses.canonicalize(employeeEmail));
 
 		final Page<ScheduleResponse> schedules = this.scheduleService
 				.searchSchedules(query, effectiveEmployeeEmail, pageable).map(this.scheduleResponseMapper::map);
@@ -125,17 +125,13 @@ public class ScheduleController implements ScheduleResource {
 	 * Employees with only the {@code JANUS_EMPLOYEE} role can only access schedules
 	 * they are assigned to.
 	 *
-	 * @param scheduleCode   the unique code of the schedule; must not be
-	 *                       {@code null}
-	 * @param authentication current authentication context; can't be {@code null}
+	 * @param scheduleCode the unique code of the schedule; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the requested schedule
 	 * @throws AccessDeniedException if the authenticated user is not allowed to
 	 *                               access the schedule
 	 */
 	@Override
-	public ResponseEntity<ScheduleResponse> findSchedule(
-			final String scheduleCode,
-			final Authentication authentication) {
+	public ResponseEntity<ScheduleResponse> findSchedule(final String scheduleCode) {
 		logger.debug("Find schedule ACTION performed");
 
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
@@ -185,8 +181,7 @@ public class ScheduleController implements ScheduleResource {
 	 * @return a {@link ResponseEntity} containing the updated schedule
 	 */
 	@Override
-	public ResponseEntity<ScheduleResponse> updateSchedule(
-			final String scheduleCode,
+	public ResponseEntity<ScheduleResponse> updateSchedule(final String scheduleCode,
 			final UpdateScheduleRequest request) {
 		logger.debug("Update schedule ACTION performed");
 
@@ -204,8 +199,7 @@ public class ScheduleController implements ScheduleResource {
 	 *         {@code 204 NO CONTENT}
 	 */
 	@Override
-	public ResponseEntity<Void> deleteSchedule(
-			final String scheduleCode) {
+	public ResponseEntity<Void> deleteSchedule(final String scheduleCode) {
 		logger.debug("Delete schedule ACTION performed");
 
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);

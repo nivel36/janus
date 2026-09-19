@@ -54,18 +54,17 @@ public interface WorksiteResource {
 	@PreAuthorize("@worksiteAuthorization.canViewStats(authentication, #worksiteCode)")
 	ResponseEntity<WorksiteStatsResponse> stats(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@RequestParam("start") Instant start, @RequestParam("end") Instant end, Authentication authentication);
+			@RequestParam("start") Instant start, @RequestParam("end") Instant end);
 
 	@PostMapping
 	@PreAuthorize("@worksiteAuthorization.canCreate(authentication, #request.scope())")
-	ResponseEntity<WorksiteResponse> createWorksite(@Valid @RequestBody CreateWorksiteRequest request,
-			Authentication authentication);
+	ResponseEntity<WorksiteResponse> createWorksite(@Valid @RequestBody CreateWorksiteRequest request);
 
 	@PreAuthorize("@worksiteAuthorization.canUpdate(authentication, #worksiteCode, #request.scope())")
 	@PutMapping("/{worksiteCode}")
 	ResponseEntity<WorksiteResponse> updateWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@Valid @RequestBody UpdateWorksiteRequest request, Authentication authentication);
+			@Valid @RequestBody UpdateWorksiteRequest request);
 
 	@PreAuthorize("@worksiteAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{worksiteCode}")

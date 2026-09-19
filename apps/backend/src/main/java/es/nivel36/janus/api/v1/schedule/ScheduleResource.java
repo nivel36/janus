@@ -45,8 +45,7 @@ public interface ScheduleResource {
 	@PreAuthorize("@scheduleAuthorization.canView(authentication, #scheduleCode)")
 	@GetMapping("/{scheduleCode}")
 	ResponseEntity<ScheduleResponse> findSchedule(
-			@PathVariable("scheduleCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode,
-			Authentication authentication);
+			@PathVariable("scheduleCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode);
 
 	@PreAuthorize("@scheduleAuthorization.canCreate(authentication)")
 	@PostMapping

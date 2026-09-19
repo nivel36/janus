@@ -81,17 +81,18 @@ public class WorksiteController implements WorksiteResource {
 	 * Retrieves all worksites registered in the system.
 	 *
 	 * @param query          optional worksite search query
-	 * @param employeeEmail optional employee email filter
+	 * @param employeeEmail  optional employee email filter
 	 * @param pageable       pagination and sorting information; must not be
 	 *                       {@code null}
 	 * @param authentication current authentication; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the list of worksites
 	 */
 	@Override
-	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(
-			final String query,
-			final String employeeEmail,
-			final Pageable pageable, final Authentication authentication) {
+	public ResponseEntity<Page<WorksiteResponse>> searchWorksites( //
+			final String query, //
+			final String employeeEmail, //
+			final Pageable pageable, //
+			final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
 		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, employeeEmail);
 
@@ -107,8 +108,7 @@ public class WorksiteController implements WorksiteResource {
 	 * @return a {@link ResponseEntity} containing the requested worksite
 	 */
 	@Override
-	public ResponseEntity<WorksiteResponse> findWorksite(
-			final String worksiteCode) {
+	public ResponseEntity<WorksiteResponse> findWorksite(final String worksiteCode) {
 		logger.debug("Find worksite ACTION performed");
 
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
@@ -119,19 +119,18 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Retrieves statistics for a worksite over the requested time range.
 	 *
-	 * @param worksiteCode   the unique code of the worksite; must not be {@code null}
-	 * @param start          start of the time range; must not be {@code null}
-	 * @param end            end of the time range; must not be {@code null} and must
-	 *                       not precede {@code start}
-	 * @param authentication current authentication; must not be {@code null}
+	 * @param worksiteCode the unique code of the worksite; must not be {@code null}
+	 * @param start        start of the time range; must not be {@code null}
+	 * @param end          end of the time range; must not be {@code null} and must
+	 *                     not precede {@code start}
 	 * @return the requested worksite statistics
 	 * @throws IllegalArgumentException if {@code end} precedes {@code start}
 	 */
 	@Override
-	public ResponseEntity<WorksiteStatsResponse> stats(
-			final String worksiteCode,
-			final Instant start, final Instant end,
-			final Authentication authentication) {
+	public ResponseEntity<WorksiteStatsResponse> stats( //
+			final String worksiteCode, //
+			final Instant start, //
+			final Instant end) {
 		if (end.isBefore(start)) {
 			throw new IllegalArgumentException("end must be greater than or equal to start");
 		}
@@ -157,12 +156,10 @@ public class WorksiteController implements WorksiteResource {
 	 *
 	 * @param request the payload describing the worksite to create; must not be
 	 *                {@code null}
-	 * @param authentication the current authentication; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the created worksite
 	 */
 	@Override
-	public ResponseEntity<WorksiteResponse> createWorksite(final CreateWorksiteRequest request,
-			final Authentication authentication) {
+	public ResponseEntity<WorksiteResponse> createWorksite(final CreateWorksiteRequest request) {
 		logger.debug("Create worksite ACTION performed");
 
 		final String code = request.code().trim();
@@ -184,14 +181,11 @@ public class WorksiteController implements WorksiteResource {
 	 *                     {@code null}
 	 * @param request      the payload describing the new worksite data; must not be
 	 *                     {@code null}
-	 * @param authentication the current authentication; must not be {@code null}
 	 * @return a {@link ResponseEntity} containing the updated worksite
 	 */
 	@Override
-	public ResponseEntity<WorksiteResponse> updateWorksite(
-			final String worksiteCode,
-			final UpdateWorksiteRequest request, //
-			final Authentication authentication) {
+	public ResponseEntity<WorksiteResponse> updateWorksite(final String worksiteCode,
+			final UpdateWorksiteRequest request) {
 		logger.debug("Update worksite ACTION performed");
 
 		final String name = request.name().trim();
@@ -213,8 +207,7 @@ public class WorksiteController implements WorksiteResource {
 	 * @return a {@link ResponseEntity} with an empty body and HTTP 204 status
 	 */
 	@Override
-	public ResponseEntity<Void> deleteWorksite(
-			final String worksiteCode) {
+	public ResponseEntity<Void> deleteWorksite(final String worksiteCode) {
 		logger.debug("Delete worksite ACTION performed");
 
 		final Worksite workiste = this.worksiteService.findWorksiteByCode(worksiteCode);
@@ -231,9 +224,7 @@ public class WorksiteController implements WorksiteResource {
 	 * @return an empty response with HTTP 204 status
 	 */
 	@Override
-	public ResponseEntity<Void> assignEmployeeToWorksite(
-			final String worksiteCode,
-			final String employeeEmail) {
+	public ResponseEntity<Void> assignEmployeeToWorksite(final String worksiteCode, final String employeeEmail) {
 		logger.debug("Add worksite to employee ACTION performed");
 
 		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
