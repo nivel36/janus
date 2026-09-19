@@ -58,8 +58,8 @@ class AppUserServiceTest {
 	@Test
 	void testFindAppUserByKeycloakSubjectUsesSubjectClaim() {
 		final String subject = "oidc-provider|tenant:customers|user:aferrer:opaque-identity";
-		final AppUser appUser = new AppUser("aferrer", subject, Locale.ENGLISH,
-				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
+		final AppUser appUser = new AppUser("aferrer", subject, Locale.ENGLISH, TimeFormat.H24,
+				ZoneId.of("Europe/Madrid"));
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(java.util.Optional.of(appUser));
 
 		assertEquals(appUser, this.appUserService.findAppUserByKeycloakSubject(subject));
@@ -77,13 +77,17 @@ class AppUserServiceTest {
 		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
 		when(this.employeeService.findEmployeeForProvisioning("person@example.test")).thenReturn(Optional.of(employee));
 		when(this.appUserRepository.findByEmployee(employee)).thenReturn(Optional.empty());
-		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty(), Optional.empty(),
-				Optional.of(winner));
+		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty())
+				.thenReturn(Optional.empty()).thenReturn(Optional.of(winner));
 		when(this.appUserRepository.existsByEmployee(employee)).thenReturn(true);
 		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
-				eq(employee))).thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.EMPLOYEE, new RuntimeException("employee claimed")));
+				eq(employee)))
+				.thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.EMPLOYEE,
+						new RuntimeException("employee claimed")));
 		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
-				isNull())).thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.KEYCLOAK_SUBJECT, new RuntimeException("subject claimed")));
+				isNull()))
+				.thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.KEYCLOAK_SUBJECT,
+						new RuntimeException("subject claimed")));
 
 		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, username, "person@example.test"));
 	}

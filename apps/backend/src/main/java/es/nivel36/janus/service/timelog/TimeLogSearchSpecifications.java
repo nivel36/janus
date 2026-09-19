@@ -17,15 +17,15 @@ final class TimeLogSearchSpecifications {
 
 	static Specification<TimeLog> within(final TimeLogSearchScope scope) {
 		return switch (scope) {
-		case final TimeLogSearchScope.All _ -> (root, query, builder) -> builder.conjunction();
+		case final TimeLogSearchScope.All _ -> (_, _, builder) -> builder.conjunction();
 		case final TimeLogSearchScope.Employee employee ->
-			(root, query, builder) -> builder.equal(root.get("employee").get("id"), employee.employeeId());
-		case final TimeLogSearchScope.None _ -> (root, query, builder) -> builder.disjunction();
+			(root, _, builder) -> builder.equal(root.get("employee").get("id"), employee.employeeId());
+		case final TimeLogSearchScope.None _ -> (_, _, builder) -> builder.disjunction();
 		};
 	}
 
 	static Specification<TimeLog> matching(final TimeLogSearchCriteria criteria) {
-		return (root, query, builder) -> {
+		return (root, _, builder) -> {
 			Predicate predicate = builder.conjunction();
 			if (criteria.employeeEmail() != null) {
 				predicate = builder.and(predicate,

@@ -160,7 +160,7 @@ public class AppUserService {
 		AppUser.validateKeycloakSubject(newKeycloakSubject);
 		final AppUser appUser = this.findAppUserByUsername(username);
 		this.appUserRepository.findByKeycloakSubject(newKeycloakSubject).filter(other -> other != appUser)
-				.ifPresent(other -> {
+				.ifPresent( _ -> {
 					throw new KeycloakSubjectConflictException(newKeycloakSubject);
 				});
 		try {
