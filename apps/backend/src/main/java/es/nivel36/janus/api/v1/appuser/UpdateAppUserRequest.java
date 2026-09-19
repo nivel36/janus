@@ -15,16 +15,12 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
-import java.util.IllformedLocaleException;
-import java.util.Locale;
-
+import es.nivel36.janus.api.validation.LanguageTag;
+import es.nivel36.janus.api.validation.ValidTimeZone;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import es.nivel36.janus.api.validation.ValidTimeZone;
 
 /**
  * Request payload for updating an existing {@link AppUser}.
@@ -38,7 +34,9 @@ import es.nivel36.janus.api.validation.ValidTimeZone;
  *                        example {@code "Europe/Madrid"}); must not be blank
  */
 public record UpdateAppUserRequest( //
+		
 		@NotBlank(message = "locale must not be blank") //
+		@LanguageTag
 		String locale, //
 
 		@NotNull(message = "timeFormat must not be null") //
@@ -47,27 +45,4 @@ public record UpdateAppUserRequest( //
 		@NotBlank(message = "defaultTimezone must not be blank") //
 		@ValidTimeZone(message = "defaultTimezone must be a valid time-zone identifier") //
 		String defaultTimezone) {
-
-	@AssertTrue(message = "locale must be a valid BCP 47 language tag")
-	boolean isLocaleValid() {
-		if (this.locale == null || this.locale.isBlank()) {
-			return true;
-		}
-		try {
-			new Locale.Builder().setLanguageTag(this.locale.trim()).build();
-			return true;
-		} catch (final IllformedLocaleException invalidLocale) {
-			return false;
-		}
-	}
-
-	@AssertTrue(message = "locale must identify a supported locale")
-	boolean isLocaleSupported() {
-		if (this.locale == null || this.locale.isBlank() || !isLocaleValid()) {
-			return true;
-		}
-		final String languageTag = new Locale.Builder().setLanguageTag(this.locale.trim()).build().toLanguageTag();
-		return Locale.availableLocales().anyMatch(candidate -> candidate.toLanguageTag().equals(languageTag));
-	}
-
 }

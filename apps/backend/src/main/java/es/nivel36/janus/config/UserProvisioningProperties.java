@@ -12,11 +12,11 @@ import java.util.Locale;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
+import es.nivel36.janus.api.validation.LanguageTag;
 import es.nivel36.janus.service.TimeFormat;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 
 /** Defaults applied whenever Janus provisions an application user. */
 @Validated
@@ -24,7 +24,7 @@ import jakarta.validation.constraints.Pattern;
 public class UserProvisioningProperties {
 
 	@NotBlank
-	@Pattern(regexp = "^[a-z]{2,3}-[A-Z]{2}$")
+	@LanguageTag
 	private String locale;
 
 	@NotNull

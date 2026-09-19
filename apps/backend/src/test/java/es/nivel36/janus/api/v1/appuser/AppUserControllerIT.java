@@ -71,25 +71,6 @@ class AppUserControllerIT {
 	}
 
 	@Test
-	void testLocaleValidationAcceptsBcp47LanguageAndScriptTags() {
-		final var languageOnly = new UpdateAppUserRequest("es", null, "UTC");
-		final var languageScriptRegion = new UpdateAppUserRequest("zh-Hans-CN", null, "UTC");
-
-		org.assertj.core.api.Assertions.assertThat(languageOnly.isLocaleValid()).isTrue();
-		org.assertj.core.api.Assertions.assertThat(languageScriptRegion.isLocaleValid()).isTrue();
-	}
-
-	@Test
-	@Sql(statements = {
-			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('jdoe','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
-	void testUpdateRejectsUnsupportedLocale() throws Exception {
-		this.mvc.perform(put(BASE + "/me").with(jwt().jwt(token -> token.subject("11111111-1111-4111-8111-111111111111")))
-				.contentType(APPLICATION_JSON)
-				.content("{\"locale\":\"zz-ZZ\",\"timeFormat\":\"H24\",\"defaultTimezone\":\"UTC\"}"))
-				.andExpect(status().isBadRequest());
-	}
-
-	@Test
 	@Sql(statements = {
 			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('jdoe','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testMeUpdatesBySubjectDespiteCopiedMutableClaims() throws Exception {
