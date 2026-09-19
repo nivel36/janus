@@ -32,7 +32,7 @@ public class ValidTimeZoneValidator implements ConstraintValidator<ValidTimeZone
 		try {
 			ZoneId.of(value.trim());
 			return true;
-		} catch (final DateTimeException invalidTimeZone) {
+		} catch (final DateTimeException _) {
 			return false;
 		}
 	}
