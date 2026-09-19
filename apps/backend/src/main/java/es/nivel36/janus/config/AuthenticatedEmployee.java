@@ -30,7 +30,7 @@ public class AuthenticatedEmployee {
 		Objects.requireNonNull(authentication, "authentication can't be null");
 		try {
 			return this.employeeService.findEmployeeByKeycloakSubject(authentication.getName());
-		} catch (final ResourceNotFoundException exception) {
+		} catch (final ResourceNotFoundException _) {
 			throw new AccessDeniedException("The authenticated account has no employee assigned");
 		}
 	}
@@ -45,7 +45,7 @@ public class AuthenticatedEmployee {
 		final Employee requested;
 		try {
 			requested = this.employeeService.findEmployeeByEmail(requestedEmail);
-		} catch (final ResourceNotFoundException exception) {
+		} catch (final ResourceNotFoundException _) {
 			throw new AccessDeniedException("Employees can only access their own resources");
 		}
 		if (!Objects.equals(authenticated.getId(), requested.getId())) {

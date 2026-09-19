@@ -57,23 +57,6 @@ import jakarta.validation.constraints.NotNull;
  *
  * @see TimeLog
  */
-/**
- * JPA entity representing an employee of the system.
- *
- * <p>
- * An {@code Employee} models a person who can register time logs at one or more
- * worksites and who operates under a specific {@link Schedule}. The entity is
- * identified internally by a surrogate primary key, while the {@code email}
- * field acts as a natural identifier with business meaning.
- * </p>
- *
- * <p>
- * Equality and hash code use the domain's normalized, unique email value. This
- * is a business-data rule and does not make email an immutable authentication
- * identity; security identity is the AppUser's OpenID Connect
- * {@code (iss, sub)}.
- * </p>
- */
 @Entity
 public class Employee implements Serializable {
 

@@ -59,7 +59,7 @@ public class ScheduleAuthorizationAdapter {
 		}
 		try {
 			return Objects.equals(a.employeeId(), this.employees.findEmployeeByEmail(email).getId());
-		} catch (final RuntimeException e) {
+		} catch (final RuntimeException _) {
 			return false;
 		}
 	}

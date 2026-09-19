@@ -23,7 +23,8 @@ public class TimeLogAuthorizationAdapter {
 	private final SearchTimeLogPolicy search = new SearchTimeLogPolicy();
 	private final DeleteTimeLogPolicy delete = new DeleteTimeLogPolicy();
 
-	public TimeLogAuthorizationAdapter(final ActorResolver a, final EmployeeService e, final ApplicationSettingsService s) {
+	public TimeLogAuthorizationAdapter(final ActorResolver a, final EmployeeService e,
+			final ApplicationSettingsService s) {
 		this.actors = Objects.requireNonNull(a);
 		this.employees = Objects.requireNonNull(e);
 		this.settings = Objects.requireNonNull(s);
@@ -60,7 +61,7 @@ public class TimeLogAuthorizationAdapter {
 		try {
 			return Objects.equals(a.employeeId(),
 					this.employees.findEmployeeByEmail(EmailAddresses.canonicalize(email)).getId());
-		} catch (final RuntimeException e) {
+		} catch (final RuntimeException _) {
 			return false;
 		}
 	}

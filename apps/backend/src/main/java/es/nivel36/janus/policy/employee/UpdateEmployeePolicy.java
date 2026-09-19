@@ -19,9 +19,6 @@ public final class UpdateEmployeePolicy implements Policy<Long> {
 		Objects.requireNonNull(actor, "actor can't be null");
 		Objects.requireNonNull(employeeId, "employeeId can't be null");
 
-		if (actor.hasRole(Role.JANUS_ADMIN) || actor.hasRole(Role.JANUS_USER)) {
-			return true;
-		}
-		return actor.hasRole(Role.JANUS_EMPLOYEE) && employeeId.equals(actor.employeeId());
+		return actor.hasRole(Role.JANUS_ADMIN) || actor.hasRole(Role.JANUS_USER);
 	}
 }

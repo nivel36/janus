@@ -16,12 +16,14 @@
 package es.nivel36.janus.service.appuser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import java.time.ZoneId;
 import java.util.Locale;
@@ -70,7 +72,7 @@ class AppUserServiceTest {
 		final String subject = "11111111-1111-4111-8111-111111111111";
 		final String username = "concurrent-user";
 		final ZoneId timezone = ZoneId.of("UTC");
-		final Employee employee = org.mockito.Mockito.mock(Employee.class);
+		final Employee employee = mock(Employee.class);
 		final AppUser winner = new AppUser(username, subject, Locale.ENGLISH, TimeFormat.H24, timezone);
 		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
 		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);

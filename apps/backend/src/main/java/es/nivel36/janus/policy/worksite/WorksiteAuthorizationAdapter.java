@@ -79,7 +79,7 @@ public class WorksiteAuthorizationAdapter {
 		}
 		try {
 			return Objects.equals(a.employeeId(), this.employees.findEmployeeByEmail(email).getId());
-		} catch (final RuntimeException ex) {
+		} catch (final RuntimeException _) {
 			return false;
 		}
 	}

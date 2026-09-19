@@ -79,7 +79,7 @@ public class UserProvisioningProperties {
 		try {
 			ZoneId.of(this.defaultTimezone);
 			return true;
-		} catch (final DateTimeException invalidTimezone) {
+		} catch (final DateTimeException _) {
 			return false;
 		}
 	}
