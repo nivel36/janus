@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,10 +56,14 @@ public class AppUserController implements AppUserResource {
 	 *                              {@link AppUserResponse} DTOs; must not be
 	 *                              {@code null}
 	 */
-	public AppUserController(final AppUserService appUserService,
+	public AppUserController( //
+			final AppUserService appUserService, //
 			final @Qualifier("appUserResponseMapper") Mapper<AppUser, AppUserResponse> appUserResponseMapper) {
-		this.appUserService = Objects.requireNonNull(appUserService, "appUserService can't be null");
-		this.appUserResponseMapper = Objects.requireNonNull(appUserResponseMapper,
+		this.appUserService = Objects.requireNonNull( //
+				appUserService, //
+				"appUserService can't be null");
+		this.appUserResponseMapper = Objects.requireNonNull( //
+				appUserResponseMapper, //
 				"appUserResponseMapper can't be null");
 	}
 
@@ -72,14 +77,19 @@ public class AppUserController implements AppUserResource {
 	 */
 	@Override
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
-		final Object preferredUsernameClaim = authentication.getToken().getClaims().get("preferred_username");
+		final Jwt token = authentication.getToken();
+		final Object preferredUsernameClaim = token.getClaims().get("preferred_username");
 		final String preferredUsername = preferredUsernameClaim instanceof final String value ? value : null;
-		final Boolean emailVerified = authentication.getToken().getClaim("email_verified");
-		final String email = authentication.getToken().getClaimAsString("email");
-		final String verifiedEmail = Boolean.TRUE.equals(emailVerified) && StringUtils.hasText(email)
-				? EmailAddresses.canonicalize(email)
-				: null;
-		final String subject = authentication.getToken().getSubject();
+		final Boolean emailVerified = token.getClaim("email_verified");
+		final boolean isEmailVerified = Boolean.TRUE.equals(emailVerified);
+		final String verifiedEmail;
+		final String email = token.getClaimAsString("email");
+		if (isEmailVerified && StringUtils.hasText(email)) {
+			verifiedEmail = EmailAddresses.canonicalize(email);
+		} else {
+			verifiedEmail = null;
+		}
+		final String subject = token.getSubject();
 		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, preferredUsername, verifiedEmail);
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(appUser);
 		return ResponseEntity.ok(appUserResponse);
@@ -95,7 +105,7 @@ public class AppUserController implements AppUserResource {
 	 * @return the updated {@link AppUserResponse}
 	 */
 	@Override
-	public ResponseEntity<AppUserResponse> updateCurrentAppUser(
+	public ResponseEntity<AppUserResponse> updateCurrentAppUser( //
 			final UpdateAppUserRequest request, //
 			final Authentication authentication) {
 		final String name = authentication.getName().trim();
@@ -123,7 +133,8 @@ public class AppUserController implements AppUserResource {
 	}
 
 	@Override
-	public ResponseEntity<AppUserResponse> replaceKeycloakSubject(final String username,
+	public ResponseEntity<AppUserResponse> replaceKeycloakSubject( //
+			final String username, //
 			final ReplaceKeycloakSubjectRequest request) {
 		final AppUser updated = this.appUserService.replaceKeycloakSubject(username, request.keycloakSubject());
 		return ResponseEntity.ok(this.appUserResponseMapper.map(updated));

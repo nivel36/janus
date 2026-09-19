@@ -132,8 +132,11 @@ public class ApplicationSettings implements Serializable {
 	 * @throws IllegalArgumentException if {@code daysUntilLocked} is negative
 	 * @throws NullPointerException     if defaultTimezone is {@code null}
 	 */
-	public ApplicationSettings(final int daysUntilLocked, final boolean employeeWorkplaceCreationAllowed,
-			final boolean worksiteChangeDuringShiftAllowed, final boolean employeeManualTimelogEntryAllowed,
+	public ApplicationSettings( //
+			final int daysUntilLocked, //
+			final boolean employeeWorkplaceCreationAllowed, //
+			final boolean worksiteChangeDuringShiftAllowed, //
+			final boolean employeeManualTimelogEntryAllowed, //
 			final ZoneId defaultTimezone) {
 		this.setDaysUntilLocked(daysUntilLocked);
 		this.employeeWorkplaceCreationAllowed = employeeWorkplaceCreationAllowed;

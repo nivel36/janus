@@ -69,8 +69,11 @@ public class AppUserService {
 	 *
 	 * @throws NullPointerException if {@code appUserRepository} is {@code null}
 	 */
-	public AppUserService(final AppUserRepository appUserRepository, final AppUserCreator appUserCreator,
-			final UserProvisioningProperties provisioningDefaults, final EmployeeService employeeService) {
+	public AppUserService( //
+			final AppUserRepository appUserRepository, //
+			final AppUserCreator appUserCreator, //
+			final UserProvisioningProperties provisioningDefaults, //
+			final EmployeeService employeeService) {
 		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
 		this.appUserCreator = Objects.requireNonNull(appUserCreator, "AppUserCreator cannot be null.");
 		this.provisioningDefaults = Objects.requireNonNull(provisioningDefaults,
@@ -90,11 +93,13 @@ public class AppUserService {
 	 * </p>
 	 */
 	@Transactional
-	public synchronized AppUser findOrCreateAppUser(final String keycloakSubject, final String preferredUsername,
+	public synchronized AppUser findOrCreateAppUser( //
+			final String keycloakSubject, //
+			final String preferredUsername, //
 			final String verifiedEmail) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 
-		final var existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
+		final Optional<AppUser> existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 		if (existing.isPresent()) {
 			return existing.get();
 		}
@@ -163,8 +168,8 @@ public class AppUserService {
 			// recovery operation updates it atomically and forces any unique constraint
 			// violation to surface inside the domain exception boundary.
 			this.appUserRepository.replaceKeycloakSubject(appUser.getId(), newKeycloakSubject);
-			return this.appUserRepository.findById(appUser.getId())
-					.orElseThrow(() -> new IllegalStateException("Application user disappeared during subject replacement"));
+			return this.appUserRepository.findById(appUser.getId()).orElseThrow(
+					() -> new IllegalStateException("Application user disappeared during subject replacement"));
 		} catch (final DataIntegrityViolationException | CannotAcquireLockException conflict) {
 			throw new KeycloakSubjectConflictException(newKeycloakSubject, conflict);
 		}
@@ -174,15 +179,14 @@ public class AppUserService {
 		if (verifiedEmail == null) {
 			return null;
 		}
-		return this.employeeService.findEmployeeForProvisioning(verifiedEmail)
-				.filter(employee -> {
-					final var linkedUser = this.appUserRepository.findByEmployee(employee);
-					if (linkedUser.isPresent()) {
-						this.logEmployeeConflict(employee, keycloakSubject);
-						return false;
-					}
-					return true;
-				}).orElse(null);
+		return this.employeeService.findEmployeeForProvisioning(verifiedEmail).filter(employee -> {
+			final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
+			if (linkedUser.isPresent()) {
+				this.logEmployeeConflict(employee, keycloakSubject);
+				return false;
+			}
+			return true;
+		}).orElse(null);
 	}
 
 	private void logEmployeeConflict(final Employee employee, final String keycloakSubject) {
@@ -196,8 +200,8 @@ public class AppUserService {
 		}
 		final String username = preferredUsername;
 		if (!username.matches("[A-Za-z0-9_.@-]{3,50}")) {
-			throw new IllegalArgumentException(
-					"preferred_username claim is invalid: " + "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)");
+			throw new IllegalArgumentException("preferred_username claim is invalid: "
+					+ "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)");
 		}
 		return username;
 	}

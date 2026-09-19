@@ -26,7 +26,12 @@ package es.nivel36.janus.service.catalog;
  * @param utc           UTC offset string used in the literal
  * @param offsetSeconds numeric UTC offset in seconds, used for sorting
  */
-public record TimeZoneCatalogItem(String zoneId, String literal, String level1, String level2, String utc,
+public record TimeZoneCatalogItem( //
+		String zoneId, //
+		String literal, //
+		String level1, //
+		String level2, //
+		String utc, //
 		int offsetSeconds) {
 
 }

@@ -37,6 +37,7 @@ import es.nivel36.janus.api.validation.ValidTimeZone;
  *                                          as default; must not be blank
  */
 public record UpdateApplicationSettingsRequest(
+		
 		@PositiveOrZero(message = "daysUntilLocked must be greater than or equal to 0") //
 		int daysUntilLocked, //
 

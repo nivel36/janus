@@ -44,7 +44,8 @@ public class ApplicationSettingsService {
 	 *                              {@code null}.
 	 */
 	public ApplicationSettingsService(final ApplicationSettingsRepository applicationSettingsRepository) {
-		this.applicationSettingsRepository = Objects.requireNonNull(applicationSettingsRepository,
+		this.applicationSettingsRepository = Objects.requireNonNull( //
+				applicationSettingsRepository, //
 				"applicationSettingsRepository cannot be null");
 	}
 
@@ -71,8 +72,11 @@ public class ApplicationSettingsService {
 	 *                               not exist.
 	 */
 	@Transactional
-	public ApplicationSettings update(final int daysUntilLocked, final boolean employeeWorkplaceCreationAllowed,
-			final boolean worksiteChangeDuringShiftAllowed, final boolean employeeManualTimelogEntryAllowed,
+	public ApplicationSettings update( //
+			final int daysUntilLocked, //
+			final boolean employeeWorkplaceCreationAllowed, //
+			final boolean worksiteChangeDuringShiftAllowed, //
+			final boolean employeeManualTimelogEntryAllowed, //
 			final ZoneId defaultTimezone) {
 		logger.debug("Updating application settings");
 		final ApplicationSettings applicationSettings = this.findById();

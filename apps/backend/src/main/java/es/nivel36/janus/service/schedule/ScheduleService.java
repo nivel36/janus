@@ -96,8 +96,12 @@ public class ScheduleService {
 	 *                                        already exists
 	 */
 	@Transactional
-	public Schedule createSchedule(final String code, final String name, final Duration entryTolerance,
-			final Duration exitTolerance, final List<ScheduleRuleDefinition> rules) {
+	public Schedule createSchedule( //
+			final String code, //
+			final String name, //
+			final Duration entryTolerance, //
+			final Duration exitTolerance, //
+			final List<ScheduleRuleDefinition> rules) {
 		Strings.requireNonBlank(code, "code can't be null or blank");
 		Strings.requireNonBlank(name, "name can't be null or blank");
 		Objects.requireNonNull(entryTolerance, "entryTolerance can't be null");
@@ -119,8 +123,12 @@ public class ScheduleService {
 		}
 	}
 
-	private Schedule buildSchedule(final String code, final String name, final Duration entryTolerance,
-			final Duration exitTolerance, final List<ScheduleRuleDefinition> rules) {
+	private Schedule buildSchedule( //
+			final String code, //
+			final String name, //
+			final Duration entryTolerance, //
+			final Duration exitTolerance, //
+			final List<ScheduleRuleDefinition> rules) {
 		final Schedule schedule = new Schedule(code, name, entryTolerance, exitTolerance);
 		for (final ScheduleRuleDefinition ruleDefinition : rules) {
 			final ScheduleRule rule = this.buildRule(schedule, ruleDefinition);
@@ -129,7 +137,9 @@ public class ScheduleService {
 		return schedule;
 	}
 
-	private ScheduleRule buildRule(final Schedule schedule, final ScheduleRuleDefinition ruleDefinition) {
+	private ScheduleRule buildRule( //
+			final Schedule schedule, //
+			final ScheduleRuleDefinition ruleDefinition) {
 		final ScheduleRule rule = new ScheduleRule(ruleDefinition.name(), schedule);
 		rule.setActivePeriod(ruleDefinition.startDate(), ruleDefinition.endDate());
 
@@ -141,7 +151,8 @@ public class ScheduleService {
 		return rule;
 	}
 
-	private DayOfWeekTimeRange buildDayOfWeekTimeRange(final ScheduleRule rule,
+	private DayOfWeekTimeRange buildDayOfWeekTimeRange( //
+			final ScheduleRule rule, //
 			final ScheduleRuleTimeRangeDefinition timeRangeDefinition) {
 		final DayOfWeek dayOfWeek = timeRangeDefinition.dayOfWeek();
 		final LocalTime startTime = timeRangeDefinition.startTime();
@@ -173,8 +184,12 @@ public class ScheduleService {
 	 * @throws ResourceNotFoundException if the schedule does not exist
 	 */
 	@Transactional
-	public Schedule updateSchedule(final String code, final String name, final Duration entryTolerance,
-			final Duration exitTolerance, final List<ScheduleRuleDefinition> rules) {
+	public Schedule updateSchedule( //
+			final String code, //
+			final String name, //
+			final Duration entryTolerance, //
+			final Duration exitTolerance, //
+			final List<ScheduleRuleDefinition> rules) {
 		Strings.requireNonBlank(code, "code can't be null or blank");
 		Strings.requireNonBlank(name, "name can't be null or blank");
 		Objects.requireNonNull(entryTolerance, "entryTolerance can't be null");
@@ -288,15 +303,12 @@ public class ScheduleService {
 	 */
 	@Transactional(readOnly = true)
 	public Page<Schedule> searchSchedules(final String query, final String employeeEmail, final Pageable pageable) {
-		final String sanitizedQuery = query == null ? "" : query.strip();
-		final String sanitizedEmployeeEmail = employeeEmail == null || employeeEmail.isBlank() ? null
-				: employeeEmail.strip();
-		logger.debug("Searching schedules by query {} and employee email {}", sanitizedQuery, employeeEmail);
+		logger.debug("Searching schedules by query {} and employee email {}", query, employeeEmail);
 		final Page<Schedule> schedules;
-		if (sanitizedQuery.isEmpty() && sanitizedEmployeeEmail == null) {
+		if (query == null || query.isEmpty()) {
 			schedules = this.scheduleRepository.findAll(pageable);
 		} else {
-			schedules = this.scheduleRepository.search(sanitizedQuery, sanitizedEmployeeEmail, pageable);
+			schedules = this.scheduleRepository.search(query, employeeEmail, pageable);
 		}
 
 		logger.trace("Found {} worksites", schedules.getTotalElements());
