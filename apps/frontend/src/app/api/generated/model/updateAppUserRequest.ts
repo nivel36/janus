@@ -11,6 +11,9 @@ import { TimeFormat } from './timeFormat';
 
 
 export interface UpdateAppUserRequest { 
+    /**
+     * Supported BCP 47 language tag, such as en-US or en
+     */
     locale: string;
     timeFormat: TimeFormat;
     defaultTimezone: string;
