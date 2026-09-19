@@ -17,7 +17,7 @@ public class LanguageTagValidator implements ConstraintValidator<LanguageTag, St
 		try {
 			new Locale.Builder().setLanguageTag(value.trim()).build();
 			return true;
-		} catch (final IllformedLocaleException e) {
+		} catch (final IllformedLocaleException _) {
 			return false;
 		}
 	}

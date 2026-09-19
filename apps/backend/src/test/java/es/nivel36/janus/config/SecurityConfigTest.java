@@ -103,20 +103,22 @@ class SecurityConfigTest {
 	@Test
 	void shouldAcceptMissingEmailAsIdentityDoesNotDependOnIt() {
 		final Jwt jwt = this.jwt(List.of("janus-api"), null, true, "person");
+		final JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
 
 		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isFalse();
 		org.assertj.core.api.Assertions
-				.assertThatThrownBy(() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
+				.assertThatThrownBy(() -> AuthenticatedIdentity.email(authentication))
 				.isInstanceOf(BadCredentialsException.class);
 	}
 
 	@Test
 	void shouldAcceptUnverifiedEmailForGlobalIdentityValidation() {
 		final Jwt jwt = this.jwt(List.of("janus-api"), "person@example.test", false, "person");
+		final JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
 
 		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isFalse();
 		org.assertj.core.api.Assertions
-				.assertThatThrownBy(() -> AuthenticatedIdentity.email(new JwtAuthenticationToken(jwt)))
+				.assertThatThrownBy(() -> AuthenticatedIdentity.email(authentication))
 				.isInstanceOf(BadCredentialsException.class);
 	}
 

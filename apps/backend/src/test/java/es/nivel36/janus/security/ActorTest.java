@@ -24,6 +24,7 @@ class ActorTest {
 		roles.clear();
 
 		assertThat(actor.roles()).containsExactly(Role.JANUS_USER);
-		assertThatThrownBy(() -> actor.roles().clear()).isInstanceOf(UnsupportedOperationException.class);
+		final Set<Role> actorRoles = actor.roles();
+		assertThatThrownBy(actorRoles::clear).isInstanceOf(UnsupportedOperationException.class);
 	}
 }

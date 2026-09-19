@@ -68,8 +68,10 @@ class ActorResolverTest {
 		final AppUserService appUserService = mock(AppUserService.class);
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT))
 				.thenThrow(new AccessDeniedException("not provisioned"));
+		final ActorResolver actorResolver = new ActorResolver(appUserService);
+		final JwtAuthenticationToken authentication = jwtAuthentication(List.of());
 
-		assertThatThrownBy(() -> new ActorResolver(appUserService).resolve(jwtAuthentication(List.of())))
+		assertThatThrownBy(() -> actorResolver.resolve(authentication))
 				.isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -78,9 +80,11 @@ class ActorResolverTest {
 		final AppUserService appUserService = mock(AppUserService.class);
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT))
 				.thenThrow(new AccessDeniedException("not provisioned"));
+		final ActorResolver actorResolver = new ActorResolver(appUserService);
+		final JwtAuthenticationToken authentication = jwtAuthentication(
+				List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN")));
 
-		assertThatThrownBy(() -> new ActorResolver(appUserService)
-				.resolve(jwtAuthentication(List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN")))))
+		assertThatThrownBy(() -> actorResolver.resolve(authentication))
 				.isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -88,8 +92,9 @@ class ActorResolverTest {
 	void shouldRejectAuthenticationTypesNotIssuedByTheResourceServer() {
 		final TestingAuthenticationToken authentication = new TestingAuthenticationToken("client-value", "password",
 				"ROLE_JANUS_ADMIN");
+		final ActorResolver actorResolver = new ActorResolver(mock(AppUserService.class));
 
-		assertThatThrownBy(() -> new ActorResolver(mock(AppUserService.class)).resolve(authentication))
+		assertThatThrownBy(() -> actorResolver.resolve(authentication))
 				.isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -97,8 +102,9 @@ class ActorResolverTest {
 	void shouldRejectUnauthenticatedJwt() {
 		final JwtAuthenticationToken authentication = jwtAuthentication(List.of());
 		authentication.setAuthenticated(false);
+		final ActorResolver actorResolver = new ActorResolver(mock(AppUserService.class));
 
-		assertThatThrownBy(() -> new ActorResolver(mock(AppUserService.class)).resolve(authentication))
+		assertThatThrownBy(() -> actorResolver.resolve(authentication))
 				.isInstanceOf(AccessDeniedException.class);
 	}
 

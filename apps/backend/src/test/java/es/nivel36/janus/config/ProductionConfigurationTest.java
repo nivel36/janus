@@ -45,8 +45,9 @@ class ProductionConfigurationTest {
 			final Map<String, Object> supplied = new LinkedHashMap<>(REQUIRED_CONFIGURATION);
 			supplied.remove(criticalProperty.getKey());
 			final PropertySourcesPropertyResolver resolver = this.loadProdConfiguration(supplied);
+			final String propertyName = criticalProperty.getValue();
 
-			assertThatThrownBy(() -> resolver.getRequiredProperty(criticalProperty.getValue()))
+			assertThatThrownBy(() -> resolver.getRequiredProperty(propertyName))
 					.isInstanceOf(IllegalArgumentException.class).hasMessageContaining(criticalProperty.getKey());
 		}
 	}

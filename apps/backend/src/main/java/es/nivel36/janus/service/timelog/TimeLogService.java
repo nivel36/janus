@@ -238,7 +238,7 @@ public class TimeLogService {
 	 * @throws TimeLogModificationNotAllowedException if the exit time is not
 	 *                                                editable.
 	 */
-	@Transactional
+	@Transactional(noRollbackFor = ClockOutWithoutClockInException.class)
 	public TimeLog clockOut(final Employee employee, final Worksite worksite, final Instant exitTime)
 			throws ClockOutWithoutClockInException {
 		Objects.requireNonNull(employee, "employee cannot be null.");

@@ -82,8 +82,7 @@ class AppUserServiceTest {
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty())
 				.thenReturn(Optional.empty()).thenReturn(Optional.of(winner));
 		when(this.appUserRepository.existsByEmployee(employee)).thenReturn(true);
-		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
-				eq(employee)))
+		when(this.appUserCreator.create(username, subject, Locale.ENGLISH, TimeFormat.H24, timezone, employee))
 				.thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.EMPLOYEE,
 						new RuntimeException("employee claimed")));
 		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
@@ -133,8 +132,10 @@ class AppUserServiceTest {
 
 	@Test
 	void rejectsSubjectLongerThanDatabaseColumnBeforePersistence() {
+		final String oversizedSubject = "x".repeat(256);
+
 		assertThrows(IllegalArgumentException.class,
-				() -> new AppUser("oversized-subject", "x".repeat(256), Locale.ENGLISH, TimeFormat.H24));
+				() -> new AppUser("oversized-subject", oversizedSubject, Locale.ENGLISH, TimeFormat.H24));
 	}
 
 	@Test
