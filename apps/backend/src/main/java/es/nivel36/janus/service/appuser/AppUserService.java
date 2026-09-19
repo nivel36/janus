@@ -158,7 +158,7 @@ public class AppUserService {
 	@Transactional
 	public synchronized AppUser replaceKeycloakSubject(final String username, final String newKeycloakSubject) {
 		AppUser.validateKeycloakSubject(newKeycloakSubject);
-		final AppUser appUser = this.findAppUserByUsername(username);
+		final AppUser appUser = this.findAppUser(username);
 		this.appUserRepository.findByKeycloakSubject(newKeycloakSubject).filter(other -> other != appUser)
 				.ifPresent( _ -> {
 					throw new KeycloakSubjectConflictException(newKeycloakSubject);

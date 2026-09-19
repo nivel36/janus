@@ -28,8 +28,12 @@ public class AuthenticatedEmployee {
 	@Transactional(readOnly = true)
 	public Employee resolve(final Authentication authentication) {
 		Objects.requireNonNull(authentication, "authentication can't be null");
+		return findEmployeeBySubject(authentication.getName());
+	}
+
+	private Employee findEmployeeBySubject(final String subject) {
 		try {
-			return this.employeeService.findEmployeeByKeycloakSubject(authentication.getName());
+			return this.employeeService.findEmployeeByKeycloakSubject(subject);
 		} catch (final ResourceNotFoundException _) {
 			throw new AccessDeniedException("The authenticated account has no employee assigned");
 		}
@@ -41,7 +45,7 @@ public class AuthenticatedEmployee {
 	 */
 	@Transactional(readOnly = true)
 	public Employee assertOwnsEmail(final Authentication authentication, final String requestedEmail) {
-		final Employee authenticated = this.resolve(authentication);
+		final Employee authenticated = findEmployeeBySubject(authentication.getName());
 		final Employee requested;
 		try {
 			requested = this.employeeService.findEmployeeByEmail(requestedEmail);
