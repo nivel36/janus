@@ -18,8 +18,7 @@ package es.nivel36.janus.api;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStreamReader;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -39,7 +38,8 @@ class OpenApiContractTest {
 	@Test
 	void appUserEndpointsArePresentInTheVersionedOpenApiContract() throws IOException {
 		final Map<String, Object> contract;
-		try (var reader = Files.newBufferedReader(Path.of("openapi/janus.yaml"))) {
+		try (var contractStream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
+				var reader = new InputStreamReader(contractStream)) {
 			contract = new Yaml().load(reader);
 		}
 

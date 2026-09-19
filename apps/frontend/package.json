@@ -10,7 +10,7 @@
     "test": "ng test",
     "lint": "ng lint && npm run lint:styles",
     "lint:styles": "node scripts/validate-css-vars.mjs",
-    "generate:api": "openapi-generator-cli generate -i ../backend/openapi/janus.yaml -g typescript-angular -o src/app/api/generated --additional-properties=providedInRoot=true,ngVersion=21.2.8,stringEnums=true,enumPropertyNaming=UPPERCASE --global-property=apiDocs=false,modelDocs=false,apiTests=false,modelTests=false",
+    "generate:api": "openapi-generator-cli generate -i ../backend/src/main/resources/janus.yaml -g typescript-angular -o src/app/api/generated --additional-properties=providedInRoot=true,ngVersion=21.2.8,stringEnums=true,enumPropertyNaming=UPPERCASE --global-property=apiDocs=false,modelDocs=false,apiTests=false,modelTests=false",
     "check:api": "npm run generate:api && git diff --exit-code -- src/app/api/generated"
   },
   "prettier": {
