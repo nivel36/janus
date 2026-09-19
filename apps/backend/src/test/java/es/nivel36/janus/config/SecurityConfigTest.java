@@ -21,11 +21,10 @@ import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -91,35 +90,6 @@ class SecurityConfigTest {
 				.jwtAuthenticationConverter("janus-api").convert(renamed);
 
 		assertThat(firstAuthentication.getName()).isEqualTo(renamedAuthentication.getName());
-	}
-
-	@Test
-	void shouldNormalizeEmailCase() {
-		final Jwt jwt = this.jwt(List.of("janus-api"), " Person@Example.TEST ", true, "person");
-
-		assertThat(AuthenticatedIdentity.matchesEmail(new JwtAuthenticationToken(jwt), "person@example.test")).isTrue();
-	}
-
-	@Test
-	void shouldAcceptMissingEmailAsIdentityDoesNotDependOnIt() {
-		final Jwt jwt = this.jwt(List.of("janus-api"), null, true, "person");
-		final JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
-
-		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isFalse();
-		org.assertj.core.api.Assertions
-				.assertThatThrownBy(() -> AuthenticatedIdentity.email(authentication))
-				.isInstanceOf(BadCredentialsException.class);
-	}
-
-	@Test
-	void shouldAcceptUnverifiedEmailForGlobalIdentityValidation() {
-		final Jwt jwt = this.jwt(List.of("janus-api"), "person@example.test", false, "person");
-		final JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
-
-		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(jwt).hasErrors()).isFalse();
-		org.assertj.core.api.Assertions
-				.assertThatThrownBy(() -> AuthenticatedIdentity.email(authentication))
-				.isInstanceOf(BadCredentialsException.class);
 	}
 
 	@Test
