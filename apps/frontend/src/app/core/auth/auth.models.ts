@@ -18,10 +18,13 @@ export const JANUS_API_CLIENT_ID = 'janus-api';
 
 export type JanusClientRole = (typeof JANUS_CLIENT_ROLES)[keyof typeof JANUS_CLIENT_ROLES];
 
-export interface AuthTokenClaims
-  extends Omit<KeycloakTokenParsed, 'realm_access' | 'resource_access'> {
+export interface AuthTokenClaims extends Omit<
+  KeycloakTokenParsed,
+  'realm_access' | 'resource_access'
+> {
   readonly preferred_username?: string;
   readonly email?: string;
+  readonly email_verified?: boolean;
   readonly given_name?: string;
   readonly family_name?: string;
   readonly locale?: string;

@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -64,17 +64,9 @@ class TimeLogControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
 	})
-	void testElevatedRolesWithoutEmailClaimsCanSearchEmployeeTimeLogs() throws Exception {
-		this.mvc.perform(
-				get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es")
-						.with(jwt().jwt(token -> token.subject("aferrer@nivel36.es"))
-								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk());
-		this.mvc.perform(
-				get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es")
-						.with(jwt().jwt(token -> token.subject("aferrer@nivel36.es"))
-								.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
-				.andExpect(status().isOk());
+	void testElevatedRolesWithoutVerifiedEmailAreUnauthorized() throws Exception {
+		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es").header("Authorization", "Bearer email-unverified")) //
+				.andExpect(status().isUnauthorized());
 	}
 
 	@BeforeEach
@@ -97,7 +89,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -121,7 +113,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-PROJ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -144,7 +136,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-PROJ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -166,7 +158,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", "2025-08-04T09:30:00Z")
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -186,7 +178,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -209,7 +201,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -218,7 +210,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -239,13 +231,13 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
+		this.mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(verifiedJwt()//
 				.jwt(token -> token.subject("aferrer@nivel36.es"))
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
@@ -253,7 +245,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -277,7 +269,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-out", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("exitTime", exit)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -305,7 +297,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -334,7 +326,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -343,7 +335,7 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
@@ -362,13 +354,13 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", "2025-08-06T08:00:00Z")
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es").with(jwt()
+		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es").with(verifiedJwt()
 				.jwt(token -> token.subject("aferrer@nivel36.es"))//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
@@ -384,13 +376,13 @@ class TimeLogControllerIT {
 	})
 	void testSearchByEmployeeWithInvalidRangeShouldFail400() throws Exception {
 		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es") //
-				.param("fromInstant", "2025-08-10T10:00:00Z").with(jwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
+				.param("fromInstant", "2025-08-10T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 
 		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es") //
 				.param("fromInstant", "2025-08-10T10:00:00Z") //
-				.param("toInstant", "2025-08-09T10:00:00Z").with(jwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
+				.param("toInstant", "2025-08-09T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
@@ -409,13 +401,13 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
+		this.mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -432,7 +424,7 @@ class TimeLogControllerIT {
 			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES(1,1,'2025-08-07T07:45:00Z'::timestamp)" })
 	void employeeAuthorizationCanonicalizesRequestedEmail() throws Exception {
 		final String entry = "2025-08-07T07:45:00Z";
-		final var employee = jwt()
+		final var employee = verifiedJwt()
 				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 						.claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
@@ -457,19 +449,19 @@ class TimeLogControllerIT {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
 				.param("worksiteCode", "BCN-HQ") //
 				.param("entryTime", entry)
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
 		// delete //
-		this.mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
+		this.mvc.perform(delete(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
 		// verify //
-		this.mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(jwt()//
+		this.mvc.perform(get(BASE + "/{entryTime}", "aferrer@nivel36.es", entry).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))//
 				.andExpect(status().isNotFound());
 	}
@@ -477,14 +469,14 @@ class TimeLogControllerIT {
 	@Test
 	void testClockInWithInvalidEmailShouldFail400() throws Exception {
 		this.mvc.perform(post(BASE + "/clock-in", "bad email") //
-				.param("worksiteCode", "BCN-HQ").with(jwt())) //
+				.param("worksiteCode", "BCN-HQ").with(verifiedJwt())) //
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testClockInWithInvalidWorksiteCodeShouldFail400() throws Exception {
 		this.mvc.perform(post(BASE + "/clock-in", "aferrer@nivel36.es") //
-				.param("worksiteCode", "BAD CODE").with(jwt())) //
+				.param("worksiteCode", "BAD CODE").with(verifiedJwt())) //
 				.andExpect(status().isBadRequest());
 	}
 }

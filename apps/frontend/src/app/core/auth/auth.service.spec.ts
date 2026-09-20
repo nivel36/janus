@@ -5,7 +5,7 @@ import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   createDocumentMock,
@@ -38,6 +38,7 @@ describe('AuthService', () => {
 
     const authenticatedClaims = {
       preferred_username: 'ada',
+      email_verified: true,
       realm_access: { roles: ['manager'] },
       resource_access: { janus: { roles: ['editor'] } },
     };
@@ -54,6 +55,7 @@ describe('AuthService', () => {
 
     const refreshedClaims = {
       email: 'ada@example.com',
+      email_verified: true,
       realm_access: { roles: ['admin'] },
       resource_access: { reporting: { roles: ['viewer'] } },
     };
@@ -87,6 +89,34 @@ describe('AuthService', () => {
       maxAge: 0,
       idpHint: 'corporate-sso',
     });
+  });
+
+  it('only treats the exact boolean email verification claim as usable', () => {
+    const keycloak = createKeycloakMock({
+      authenticated: true,
+      tokenParsed: { email_verified: false },
+    });
+    configureRedirectTest(keycloak, createDocumentMock());
+    const service = TestBed.inject(AuthService);
+
+    expect(service.isAuthenticated()).toBe(false);
+    expect(service.isUsableIdentity()).toBe(false);
+  });
+
+  it('forces a token refresh after verification before exposing the identity', async () => {
+    const keycloak = createKeycloakMock({
+      authenticated: true,
+      tokenParsed: { email_verified: false },
+    });
+    configureRedirectTest(keycloak, createDocumentMock());
+    const service = TestBed.inject(AuthService);
+    vi.mocked(keycloak.updateToken).mockImplementation(async () => {
+      keycloak.tokenParsed = { email_verified: true };
+      return true;
+    });
+
+    await expect(service.refreshAfterEmailVerification()).resolves.toBe(true);
+    expect(keycloak.updateToken).toHaveBeenCalledWith(-1);
   });
 
   it('builds login and logout URLs from the injected document', async () => {

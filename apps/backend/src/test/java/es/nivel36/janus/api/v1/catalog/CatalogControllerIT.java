@@ -17,7 +17,7 @@ package es.nivel36.janus.api.v1.catalog;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -49,7 +49,7 @@ class CatalogControllerIT {
 
 	@Test
 	void testSearchTimeZonesShouldReturn200AndPageData() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("search", "Europe/Madrid").with(jwt()//
+		this.mvc.perform(get(BASE).queryParam("search", "Europe/Madrid").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -61,7 +61,7 @@ class CatalogControllerIT {
 
 	@Test
 	void testSearchTimeZonesShouldBePaginated() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("page", "0").queryParam("size", "5").with(jwt()//
+		this.mvc.perform(get(BASE).queryParam("page", "0").queryParam("size", "5").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.content.length()").value(5)) //
@@ -71,14 +71,14 @@ class CatalogControllerIT {
 	@Test
 	void testSearchTimeZonesShouldSortByUtcWhenRequested() throws Exception {
 		this.mvc.perform(get(BASE).queryParam("sortBy", "UTC").queryParam("page", "0").queryParam("size", "20")
-				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.content[0].utc").value(Matchers.startsWith("UTC-")));
 	}
 
 	@Test
 	void testSearchTimeZonesShouldKeepRemainingSegmentsInSecondLevel() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("search", "America/Argentina/Buenos_Aires").with(jwt()//
+		this.mvc.perform(get(BASE).queryParam("search", "America/Argentina/Buenos_Aires").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.content[0].level1").value("America")) //

@@ -18,7 +18,7 @@ package es.nivel36.janus.api.v1.timelog;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -73,11 +73,11 @@ class ClockOutWithoutClockInEventControllerIT {
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z','2025-08-04T16:00:00Z',false,false)",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (2,1,1,'2025-08-05T16:00:00Z','2025-08-05T16:00:00Z',false,false)" })
 	void clockOutWithoutClockInAuthorizationHonorsEmployeeBoundaryAndJanusRoles() throws Exception {
-		final var employee = jwt().jwt(jwt -> jwt.subject("employee-subject"))
+		final var employee = verifiedJwt().jwt(jwt -> jwt.subject("employee-subject"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
-		final var admin = jwt().jwt(jwt -> jwt.subject("admin-subject"))
+		final var admin = verifiedJwt().jwt(jwt -> jwt.subject("admin-subject"))
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"));
-		final var outsider = jwt().jwt(jwt -> jwt.subject("outsider-subject"));
+		final var outsider = verifiedJwt().jwt(jwt -> jwt.subject("outsider-subject"));
 
 		this.mvc.perform(get(BASE + "/{exitTime}", "AFerrer@Nivel36.ES", "2025-08-04T16:00:00Z")
 				.param("worksiteCode", "OFFICE").with(employee)).andExpect(status().isOk());
@@ -132,7 +132,7 @@ class ClockOutWithoutClockInEventControllerIT {
 
 		this.mvc.perform(get(BASE + "/{exitTime}", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF")
-				.with(jwt().jwt(jwt -> jwt.subject("provider-account-id"))
+				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -162,7 +162,7 @@ class ClockOutWithoutClockInEventControllerIT {
 		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
 				.contentType(APPLICATION_JSON).content(body)
-				.with(jwt().jwt(jwt -> jwt.subject("provider-account-id"))
+				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -191,7 +191,7 @@ class ClockOutWithoutClockInEventControllerIT {
 		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
 				.contentType(APPLICATION_JSON).content(body)
-				.with(jwt().jwt(jwt -> jwt.subject("provider-account-id"))
+				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -219,7 +219,7 @@ class ClockOutWithoutClockInEventControllerIT {
 		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "aferrer@nivel36.es", exit) //
 				.param("worksiteCode", "HOME-AF") //
 				.contentType(APPLICATION_JSON).content(body)
-				.with(jwt().jwt(jwt -> jwt.subject("provider-account-id"))
+				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isForbidden());
 	}
