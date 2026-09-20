@@ -74,11 +74,18 @@ public class AppUserService {
 			final AppUserCreator appUserCreator, //
 			final UserProvisioningProperties provisioningDefaults, //
 			final EmployeeService employeeService) {
-		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
-		this.appUserCreator = Objects.requireNonNull(appUserCreator, "AppUserCreator cannot be null.");
-		this.provisioningDefaults = Objects.requireNonNull(provisioningDefaults,
+		this.appUserRepository = Objects.requireNonNull( //
+				appUserRepository, //
+				"AppUserRepository cannot be null.");
+		this.appUserCreator = Objects.requireNonNull( //
+				appUserCreator, //
+				"AppUserCreator cannot be null.");
+		this.provisioningDefaults = Objects.requireNonNull( //
+				provisioningDefaults, //
 				"UserProvisioningProperties cannot be null.");
-		this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService cannot be null.");
+		this.employeeService = Objects.requireNonNull( //
+				employeeService, //
+				"EmployeeService cannot be null.");
 	}
 
 	/**
@@ -160,7 +167,7 @@ public class AppUserService {
 		AppUser.validateKeycloakSubject(newKeycloakSubject);
 		final AppUser appUser = this.findAppUser(username);
 		this.appUserRepository.findByKeycloakSubject(newKeycloakSubject).filter(other -> other != appUser)
-				.ifPresent( _ -> {
+				.ifPresent(_ -> {
 					throw new KeycloakSubjectConflictException(newKeycloakSubject);
 				});
 		try {
@@ -235,8 +242,11 @@ public class AppUserService {
 	}
 
 	@Transactional
-	public AppUser updateCurrentAppUser(final String keycloakSubject, final Locale newLocale,
-			final TimeFormat newTimeFormat, final ZoneId newDefaultTimezone) {
+	public AppUser updateCurrentAppUser( //
+			final String keycloakSubject, //
+			final Locale newLocale, //
+			final TimeFormat newTimeFormat, //
+			final ZoneId newDefaultTimezone) {
 		final AppUser appUser = this.findAppUserByKeycloakSubject(keycloakSubject);
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
