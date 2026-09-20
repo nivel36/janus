@@ -161,7 +161,16 @@ Authentication is **Keycloak-only**:
 - The frontend handles login and logout against Keycloak.
 - The backend is configured as an **OAuth2 Resource Server**.
 - Protected `/api/**` endpoints require a valid bearer token.
+- Human access tokens must contain the exact boolean claim `email_verified: true`. Keycloak requires
+  email verification and the backend independently rejects missing, false, or incorrectly typed
+  claims; Janus roles, including `JANUS_ADMIN`, never bypass this check.
 - There is no backend logout REST endpoint.
+
+The bundled realm has no machine-to-machine exception: `janus-api` is bearer-only and both shipped
+clients have service accounts and direct-access grants disabled. If a non-human client is added in
+the future, it must use a separate confidential client and a dedicated audience or grant that the
+backend can validate explicitly. Do not model machine access by assigning an administrator role to
+a token without a verified email claim.
 
 ## Realm configuration
 

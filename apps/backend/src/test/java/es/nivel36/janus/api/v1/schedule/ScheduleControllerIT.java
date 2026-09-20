@@ -18,7 +18,7 @@ package es.nivel36.janus.api.v1.schedule;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -52,11 +52,9 @@ class ScheduleControllerIT {
 	private @Autowired MockMvc mvc;
 
 	@Test
-	void testElevatedRolesWithoutEmailClaimsCanSearchSchedules() throws Exception {
-		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk());
-		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
-				.andExpect(status().isOk());
+	void testElevatedRolesWithoutVerifiedEmailAreUnauthorized() throws Exception {
+		this.mvc.perform(get(BASE).header("Authorization", "Bearer email-unverified")) //
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -85,7 +83,7 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -122,11 +120,11 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
@@ -158,11 +156,11 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.page.totalElements").value(1)).andExpect(jsonPath("$.page.size").value(20))
 				.andExpect(jsonPath("$.page.number").value(0)).andExpect(jsonPath("$.content[0].code").value("STD-WH"));
@@ -194,11 +192,11 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(BASE + "/{code}", "STD-WH").with(jwt()//
+		this.mvc.perform(get(BASE + "/{code}", "STD-WH").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -232,7 +230,7 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(createBody).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(createBody).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
@@ -259,7 +257,7 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(put(BASE + "/{code}", "STD-WH").contentType(APPLICATION_JSON).content(updateBody).with(jwt()//
+		this.mvc.perform(put(BASE + "/{code}", "STD-WH").contentType(APPLICATION_JSON).content(updateBody).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -293,11 +291,11 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(delete(BASE + "/{code}", "STD-WH").with(jwt()//
+		this.mvc.perform(delete(BASE + "/{code}", "STD-WH").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 	}
@@ -306,7 +304,7 @@ class ScheduleControllerIT {
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES (1,'IN-USE','In Use Schedule')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES (1,'Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void testDeleteScheduleWithAssignedEmployeesShouldReturn409() throws Exception {
-		this.mvc.perform(delete(BASE + "/{code}", "IN-USE").with(jwt()//
+		this.mvc.perform(delete(BASE + "/{code}", "IN-USE").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isConflict()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));

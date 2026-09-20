@@ -71,6 +71,31 @@ class SecurityConfigTest {
 	}
 
 	@Test
+	void shouldAcceptTokenOnlyWhenEmailVerifiedIsBooleanTrue() {
+		final OAuth2TokenValidator<Jwt> validator = new SecurityConfig().jwtValidator(ISSUER, "janus-api");
+
+		assertThat(validator.validate(this.jwtWithEmailVerification(Boolean.TRUE)).hasErrors()).isFalse();
+	}
+
+	@Test
+	void shouldRejectTokenWhenEmailVerifiedIsBooleanFalse() {
+		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api")
+				.validate(this.jwtWithEmailVerification(Boolean.FALSE)).hasErrors()).isTrue();
+	}
+
+	@Test
+	void shouldRejectTokenWithoutEmailVerifiedClaim() {
+		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api")
+				.validate(this.jwtWithEmailVerification(null)).hasErrors()).isTrue();
+	}
+
+	@Test
+	void shouldRejectTokenWhenEmailVerifiedHasWrongType() {
+		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api")
+				.validate(this.jwtWithEmailVerification("true")).hasErrors()).isTrue();
+	}
+
+	@Test
 	void shouldUseSubjectAsPrincipal() {
 		final Jwt jwt = this.jwt(List.of("janus-api"), "person@example.test", true, "old-login");
 		final JwtAuthenticationToken authentication = (JwtAuthenticationToken) new SecurityConfig()
@@ -103,6 +128,17 @@ class SecurityConfigTest {
 
 	private Jwt jwt(final List<String> audience) {
 		return this.jwt(audience, "person@example.test", true, "person");
+	}
+
+	private Jwt jwtWithEmailVerification(final Object emailVerified) {
+		final Instant now = Instant.now();
+		final Jwt.Builder builder = Jwt.withTokenValue("token").header("alg", "none").issuer(ISSUER)
+				.audience(List.of("janus-api")).subject("immutable-provider-id").issuedAt(now)
+				.expiresAt(now.plusSeconds(300));
+		if (emailVerified != null) {
+			builder.claim("email_verified", emailVerified);
+		}
+		return builder.build();
 	}
 
 	private Jwt jwt(final List<String> audience, final String email, final boolean emailVerified,

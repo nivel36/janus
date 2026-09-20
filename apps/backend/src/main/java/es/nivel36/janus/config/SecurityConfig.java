@@ -207,8 +207,12 @@ public class SecurityConfig {
 				&& StringUtils.hasText(jwt.getSubject()) ? OAuth2TokenValidatorResult.success()
 						: OAuth2TokenValidatorResult.failure(
 								new OAuth2Error("invalid_token", "Non-blank iss and sub claims are required", null));
+		final OAuth2TokenValidator<Jwt> verifiedEmailValidator = jwt -> Boolean.TRUE
+				.equals(jwt.getClaim("email_verified")) ? OAuth2TokenValidatorResult.success()
+						: OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
+								"The token must contain email_verified=true", null));
 		return new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefaultWithIssuer(issuer), audienceValidator,
-				identityValidator);
+				identityValidator, verifiedEmailValidator);
 	}
 
 	@Bean

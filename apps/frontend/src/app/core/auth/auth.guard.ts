@@ -40,6 +40,12 @@ export async function isAccessAllowed(
     return false;
   }
 
+  if (!auth.isUsableIdentity()) {
+    return router.createUrlTree(['/verify-email'], {
+      queryParams: { returnUrl: state.url || '/' },
+    });
+  }
+
   const requiredClientRoles = asArray(roleData?.clientRole);
   const janusClientRoles = resourceRoles[JANUS_API_CLIENT_ID] ?? [];
   const hasAnyClientRole = requiredClientRoles.some((role) => janusClientRoles.includes(role));

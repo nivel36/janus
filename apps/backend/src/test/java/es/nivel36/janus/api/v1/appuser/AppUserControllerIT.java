@@ -17,7 +17,7 @@ package es.nivel36.janus.api.v1.appuser;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -60,7 +60,7 @@ class AppUserControllerIT {
 				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
 				""";
 
-		this.mvc.perform(put(BASE + "/me").with(jwt().jwt(token -> token.subject("11111111-1111-4111-8111-111111111111"))//
+		this.mvc.perform(put(BASE + "/me").with(verifiedJwt().jwt(token -> token.subject("11111111-1111-4111-8111-111111111111"))//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))) //
 				.contentType(APPLICATION_JSON).content(body)) //
 				.andExpect(status().isOk()) //
@@ -79,7 +79,7 @@ class AppUserControllerIT {
 				""";
 
 		this.mvc.perform(put(BASE + "/me")
-				.with(jwt()
+				.with(verifiedJwt()
 						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
 								.subject("11111111-1111-4111-8111-111111111111")
 								.claim("email", "someone-else@example.com").claim("preferred_username", "someone-else"))
@@ -93,7 +93,7 @@ class AppUserControllerIT {
 			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('jdoe','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testMeFindsProvisionedIdentity() throws Exception {
 		this.mvc.perform(
-				get(BASE + "/me").with(jwt()
+				get(BASE + "/me").with(verifiedJwt()
 						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
 								.subject("11111111-1111-4111-8111-111111111111").claim("preferred_username", "changed"))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
@@ -102,13 +102,13 @@ class AppUserControllerIT {
 
 	@Test
 	void testMeCreatesUnprovisionedIdentityWithInitialPreferences() throws Exception {
-		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
 				.subject("99999999-9999-4999-8999-999999999999").claim("preferred_username", "new-user"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value("new-user")).andExpect(jsonPath("$.locale").value("en-US"))
 				.andExpect(jsonPath("$.timeFormat").value("H24")).andExpect(jsonPath("$.defaultTimezone").value("UTC"));
 
-		this.mvc.perform(get(BASE + "/me").with(jwt()
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
 				.jwt(jwt -> jwt.issuer("https://issuer.example.test").subject("99999999-9999-4999-8999-999999999999")
 						.claim("preferred_username", "renamed-user"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
@@ -125,14 +125,14 @@ class AppUserControllerIT {
 			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('recreated-user','11111111-1111-4111-8111-111111111111','en-US','H24','UTC')" })
 	void recreatedAccountRequiresAdministrativeSubjectReplacement() throws Exception {
 		final String replacement = "opaque-provider|tenant:customers|recreated-user:replacement-identity";
-		final var replacementIdentity = jwt().jwt(token -> token.subject(replacement)
+		final var replacementIdentity = verifiedJwt().jwt(token -> token.subject(replacement)
 				.claim("preferred_username", "recreated-user")).authorities(createAuthorityList("ROLE_JANUS_USER"));
 
 		this.mvc.perform(get(BASE + "/me").with(replacementIdentity)).andExpect(status().isConflict())
 				.andExpect(jsonPath("$.type").value("urn:problem:external-identity-conflict"));
 
 		this.mvc.perform(put(BASE + "/{username}/keycloak-subject", "recreated-user")
-				.with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))).contentType(APPLICATION_JSON)
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))).contentType(APPLICATION_JSON)
 				.content("{\"keycloakSubject\":\"" + replacement + "\"}"))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("recreated-user"));
 
@@ -146,7 +146,7 @@ class AppUserControllerIT {
 		final String subject = "44444444-4444-4444-8444-444444444444";
 
 		this.mvc.perform(get(BASE + "/me")
-				.with(jwt().jwt(jwt -> jwt.subject(subject).claim("preferred_username", "unauthorized-user"))
+				.with(verifiedJwt().jwt(jwt -> jwt.subject(subject).claim("preferred_username", "unauthorized-user"))
 						.authorities(createAuthorityList("SCOPE_openid", "ROLE_OTHER_CLIENT"))))
 				.andExpect(status().isForbidden());
 
@@ -157,19 +157,19 @@ class AppUserControllerIT {
 
 	@Test
 	void testMeRejectsPreferredUsernameThatAdminEndpointsCannotAddress() throws Exception {
-		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/me").with(jwt().jwt(
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(
 				jwt -> jwt.subject("88888888-8888-4888-8888-888888888888").claim("preferred_username", "x".repeat(51)))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 
 		this.mvc.perform(get(BASE + "/me").with(
-				jwt().jwt(jwt -> jwt.subject("66666666-6666-4666-8666-666666666666").claim("preferred_username", "ab"))
+				verifiedJwt().jwt(jwt -> jwt.subject("66666666-6666-4666-8666-666666666666").claim("preferred_username", "ab"))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/me").with(jwt()
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
 				.jwt(jwt -> jwt.subject("55555555-5555-4555-8555-555555555555").claim("preferred_username", "john/doe"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 	}
@@ -178,7 +178,7 @@ class AppUserControllerIT {
 	@Sql(statements = {
 			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('jdoe','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testDeleteShouldReturn204AndRemoveAccount() throws Exception {
-		this.mvc.perform(delete(BASE + "/{username}", "jdoe").with(jwt()//
+		this.mvc.perform(delete(BASE + "/{username}", "jdoe").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 

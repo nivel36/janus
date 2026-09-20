@@ -30,8 +30,14 @@ export class AuthService {
   );
 
   readonly isAuthenticated: Signal<boolean> = computed(
-    () => this.keycloakSnapshot().isAuthenticated,
+    () =>
+      this.keycloakSnapshot().isAuthenticated &&
+      this.keycloakSnapshot().claims?.email_verified === true,
   );
+  readonly hasVerifiedEmail: Signal<boolean> = computed(
+    () => this.keycloakSnapshot().claims?.email_verified === true,
+  );
+  readonly isUsableIdentity: Signal<boolean> = computed(() => this.isAuthenticated());
   readonly claims: Signal<AuthTokenClaims | null> = computed(() => this.keycloakSnapshot().claims);
   readonly username: Signal<string | null> = computed(() => {
     if (!this.isAuthenticated()) {
@@ -68,6 +74,20 @@ export class AuthService {
 
   logout(): Promise<void> {
     return this.keycloak.logout({ redirectUri: this.redirects.logoutRedirectUri() });
+  }
+
+  requestEmailVerification(returnRoute = '/'): Promise<void> {
+    const redirectUri = this.redirects.loginRedirectUri(returnRoute);
+    return this.keycloak.login({
+      action: 'VERIFY_EMAIL',
+      ...(redirectUri !== undefined ? { redirectUri } : {}),
+    });
+  }
+
+  async refreshAfterEmailVerification(): Promise<boolean> {
+    await this.keycloak.updateToken(-1);
+    this.keycloakSnapshot.set(this.readKeycloakSnapshot());
+    return this.hasVerifiedEmail();
   }
 
   getToken(): string | null {

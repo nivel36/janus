@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -126,7 +126,7 @@ class TimeLogSearchControllerIT {
 		final String[] roles = alsoEmployee ? new String[] { role, "ROLE_JANUS_EMPLOYEE" }
 				: new String[] { role };
 		this.mvc.perform(get(BASE).param("size", "20").param("sort", "entryTime,asc")
-				.with(jwt().jwt(token -> token.subject(OWN_SUBJECT)).authorities(createAuthorityList(roles))))
+				.with(verifiedJwt().jwt(token -> token.subject(OWN_SUBJECT)).authorities(createAuthorityList(roles))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(11))
 				.andExpect(jsonPath("$.content[*].employeeEmail",
@@ -139,7 +139,7 @@ class TimeLogSearchControllerIT {
 	void elevatedScopeStillRespectsEmployeeFilterAndPagination(final String role) throws Exception {
 		this.mvc.perform(get(BASE).param("employeeEmail", OTHER_EMAIL).param("page", "1")
 				.param("size", "2").param("sort", "entryTime,asc")
-				.with(jwt().authorities(createAuthorityList(role))))
+				.with(verifiedJwt().authorities(createAuthorityList(role))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OTHER_EMAIL))))
 				.andExpect(jsonPath("$.content[*].entryTime", contains("2025-07-03T07:00:00Z",
@@ -153,7 +153,7 @@ class TimeLogSearchControllerIT {
 	void employeeWithoutPersistentEmployeeAssociationHasEmptyScope(final String endpoint) throws Exception {
 		for (int page : new int[] { 0, 3 }) {
 			assertEmpty(this.mvc.perform(get(endpoint).param("page", Integer.toString(page)).param("size", "2")
-					.with(jwt().jwt(token -> token.claim("email", OWN_EMAIL).claim("email_verified", true))
+					.with(verifiedJwt().jwt(token -> token.claim("email", OWN_EMAIL).claim("email_verified", true))
 							.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))));
 		}
 	}
@@ -172,7 +172,7 @@ class TimeLogSearchControllerIT {
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void actorWithoutSearchRoleIsForbidden(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).with(jwt().authorities(createAuthorityList())))
+		this.mvc.perform(get(endpoint).with(verifiedJwt().authorities(createAuthorityList())))
 				.andExpect(status().isForbidden());
 	}
 
@@ -219,7 +219,7 @@ class TimeLogSearchControllerIT {
 	}
 
 	private static JwtRequestPostProcessor employee() {
-		return jwt().jwt(token -> token.subject(OWN_SUBJECT))
+		return verifiedJwt().jwt(token -> token.subject(OWN_SUBJECT))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
 	}
 }

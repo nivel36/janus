@@ -22,8 +22,11 @@ describe('isAccessAllowed', () => {
     }) as unknown as ActivatedRouteSnapshot;
   const state = { url: '/protected' } as RouterStateSnapshot;
   const keycloak = { login: vi.fn().mockResolvedValue(undefined) };
-  const router = { parseUrl: vi.fn((url: string) => ({ redirectTo: url })) };
-  const auth = { login: vi.fn().mockResolvedValue(undefined) };
+  const router = {
+    parseUrl: vi.fn((url: string) => ({ redirectTo: url })),
+    createUrlTree: vi.fn((commands: string[], extras: unknown) => ({ commands, extras })),
+  };
+  const auth = { login: vi.fn().mockResolvedValue(undefined), isUsableIdentity: () => true };
   const preferences: UserPreferences = {
     locale: 'es-ES',
     timeFormat: 'H24',
@@ -164,6 +167,15 @@ describe('isAccessAllowed', () => {
       ),
     ).resolves.toBe(false);
     expect(auth.login).toHaveBeenCalledWith('/protected');
+  });
+
+  it('sends an authenticated identity without verified email to the verification flow', async () => {
+    auth.isUsableIdentity = () => false;
+    await expect(evaluate({}, authData([], {}))).resolves.toEqual({
+      commands: ['/verify-email'],
+      extras: { queryParams: { returnUrl: '/protected' } },
+    });
+    auth.isUsableIdentity = () => true;
   });
 
   it('uses the root route as the login return route when the router URL is empty', async () => {

@@ -17,7 +17,7 @@ package es.nivel36.janus.api.v1.appuser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -76,12 +76,12 @@ class FirstRequestProvisioningIT {
 
 	@Test
 	void provisionsAndRetrievesUserWithLongOpaqueSubject() throws Exception {
-		this.mvc.perform(get("/api/v1/appusers/me").with(jwt()
+		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
 						.claim("preferred_username", "opaque-subject-user"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
 
-		this.mvc.perform(get("/api/v1/appusers/me").with(jwt()
+		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
 						.claim("preferred_username", "ignored-on-retrieval"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
@@ -164,7 +164,7 @@ class FirstRequestProvisioningIT {
 		ready.countDown();
 		start.await();
 		return this.mvc.perform(put("/api/v1/appusers/{username}/keycloak-subject", username)
-				.with(jwt().jwt(token -> token.subject(ADMIN_SUBJECT))
+				.with(verifiedJwt().jwt(token -> token.subject(ADMIN_SUBJECT))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))).contentType(APPLICATION_JSON)
 				.content("{\"keycloakSubject\":\"" + subject + "\"}")).andReturn();
 	}
@@ -189,7 +189,7 @@ class FirstRequestProvisioningIT {
 			final CountDownLatch ready, final CountDownLatch start) throws Exception {
 		ready.countDown();
 		start.await();
-		return this.mvc.perform(get("/api/v1/appusers/me").with(jwt().jwt(token -> {
+		return this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt().jwt(token -> {
 			token.issuer(this.issuer).subject(subject).claim("preferred_username", username);
 			if (email != null) {
 				token.claim("email", email).claim("email_verified", true);
@@ -206,7 +206,7 @@ class FirstRequestProvisioningIT {
 	void verifiedEmailLinksTheOnlyUnlinkedEmployeeAfterNormalization() throws Exception {
 		final Long employeeId = this.insertEmployee();
 
-		this.mvc.perform(get("/api/v1/appusers/me").with(jwt()
+		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", "linked-user")
 						.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
@@ -221,7 +221,7 @@ class FirstRequestProvisioningIT {
 
 		this.mvc.perform(
 				get("/api/v1/appusers/me")
-						.with(jwt()
+						.with(verifiedJwt()
 								.jwt(token -> token.issuer(this.issuer).subject(OTHER_SUBJECT)
 										.claim("preferred_username", "second-identity").claim("email", LINK_EMAIL)
 										.claim("email_verified", true))
@@ -235,7 +235,7 @@ class FirstRequestProvisioningIT {
 	}
 
 	private void provision(final String subject, final String username) throws Exception {
-		this.mvc.perform(get("/api/v1/appusers/me").with(jwt()
+		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(subject).claim("preferred_username", username)
 						.claim("email", LINK_EMAIL).claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
@@ -244,7 +244,7 @@ class FirstRequestProvisioningIT {
 	@Test
 	void firstEmployeeVisitCanSearchTimeLogsAfterLoadingProfile() throws Exception {
 		this.insertEmployee();
-		final var authentication = jwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT)
+		final var authentication = verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT)
 				.claim("preferred_username", "first-employee").claim("email", LINK_EMAIL)
 				.claim("email_verified", true)).authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
 
@@ -270,7 +270,7 @@ class FirstRequestProvisioningIT {
 		assertThat(this.countProfiles()).isZero();
 
 		this.mvc.perform(get("/api/v1/appusers/me").with(
-				jwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", USERNAME))
+				verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", USERNAME))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value(USERNAME))
 				.andExpect(jsonPath("$.locale").value("es-ES")).andExpect(jsonPath("$.timeFormat").value("H24"))
