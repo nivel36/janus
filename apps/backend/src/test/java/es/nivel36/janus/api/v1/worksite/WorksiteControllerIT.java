@@ -17,7 +17,7 @@ package es.nivel36.janus.api.v1.worksite;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -54,11 +54,9 @@ class WorksiteControllerIT {
 	private static final String BASE = "/api/v1/worksites";
 
 	@Test
-	void testElevatedRolesWithoutEmailClaimsCanSearchWorksites() throws Exception {
-		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk());
-		this.mvc.perform(get(BASE).with(jwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
-				.andExpect(status().isOk());
+	void testElevatedRolesWithoutVerifiedEmailAreUnauthorized() throws Exception {
+		this.mvc.perform(get(BASE).header("Authorization", "Bearer email-unverified")) //
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -66,7 +64,7 @@ class WorksiteControllerIT {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testListShouldReturnSeededWorksite() throws Exception {
-		this.mvc.perform(get(BASE).with(jwt()//
+		this.mvc.perform(get(BASE).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ')]").exists())
@@ -82,7 +80,7 @@ class WorksiteControllerIT {
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(2,'Berta','Person','bperson@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testListAsEmployeeShouldRejectSearchingOtherEmployee() throws Exception {
-		this.mvc.perform(get(BASE).param("employeeEmail", "bperson@nivel36.es").with(jwt()//
+		this.mvc.perform(get(BASE).param("employeeEmail", "bperson@nivel36.es").with(verifiedJwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
@@ -94,7 +92,7 @@ class WorksiteControllerIT {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('GLOBAL-1','Global Worksite','UTC+2','GLOBAL')" })
 	void testListAsEmployeeShouldRejectWhenJwtEmailClaimMissing() throws Exception {
-		this.mvc.perform(get(BASE).with(jwt()//
+		this.mvc.perform(get(BASE).with(verifiedJwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))).andExpect(status().isForbidden());
 	}
@@ -104,7 +102,7 @@ class WorksiteControllerIT {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testFindByCodeShouldReturnWorksite() throws Exception {
-		this.mvc.perform(get(BASE + "/{code}", "BCN-HQ").with(jwt()//
+		this.mvc.perform(get(BASE + "/{code}", "BCN-HQ").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.code").value("BCN-HQ"))
@@ -115,13 +113,13 @@ class WorksiteControllerIT {
 
 	@Test
 	void testFindByUnknownCodeShouldReturn404() throws Exception {
-		this.mvc.perform(get(BASE + "/{code}", "BCN-HQ").with(jwt()//
+		this.mvc.perform(get(BASE + "/{code}", "BCN-HQ").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isNotFound());
 	}
 
 	@Test
 	void testFindByCodeWithInvalidPatternShouldFail400() throws Exception {
-		this.mvc.perform(get(BASE + "/{code}", "BAD CODE WITH SPACE").with(jwt())).andExpect(status().isBadRequest());
+		this.mvc.perform(get(BASE + "/{code}", "BAD CODE WITH SPACE").with(verifiedJwt())).andExpect(status().isBadRequest());
 	}
 
 	@Test
@@ -134,7 +132,7 @@ class WorksiteControllerIT {
 				  {"code":"%s","name":"Barcelona Headquarters","timeZone":"Europe/Madrid","scope":"GLOBAL"}
 				""".formatted(code);
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isBadRequest());
 	}
 
@@ -145,7 +143,7 @@ class WorksiteControllerIT {
 				  {"code":"%s","name":"Madrid Hub","timeZone":"Europe/Madrid","scope":"GLOBAL"}
 				""".formatted(code);
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -154,7 +152,7 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.timeZone").value("Europe/Madrid")) //
 				.andExpect(jsonPath("$.scope").value("GLOBAL"));
 
-		this.mvc.perform(get(BASE).with(jwt()//
+		this.mvc.perform(get(BASE).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.content[?(@.code=='%s')]".formatted(code)).exists());
@@ -169,7 +167,7 @@ class WorksiteControllerIT {
 				  {"name":"Barcelona","timeZone":"UTC+1","scope":"GLOBAL"}
 				""";
 
-		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.code").value("BCN-HQ")).andExpect(jsonPath("$.name").value("Barcelona"))
 				.andExpect(jsonPath("$.timeZone").value("UTC+01:00")).andExpect(jsonPath("$.scope").value("GLOBAL"));
@@ -186,7 +184,7 @@ class WorksiteControllerIT {
 				  {"name":"Barcelona Home","timeZone":"UTC+1","scope":"GLOBAL"}
 				""";
 
-		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.scope").value("GLOBAL"));
 	}
@@ -204,7 +202,7 @@ class WorksiteControllerIT {
 				  {"name":"Barcelona Assigned","timeZone":"UTC+1","scope":"ASSIGNED"}
 				""";
 
-		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 						.claim("email_verified", true))
@@ -212,7 +210,7 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.name").value("Barcelona Assigned"))
 				.andExpect(jsonPath("$.scope").value("ASSIGNED"));
 
-		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(jwt()//
+		this.mvc.perform(put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 				.jwt(jwt -> jwt.subject("bperson@nivel36.es").claim("email", "bperson@nivel36.es")
 						.claim("email_verified", true))
@@ -225,10 +223,10 @@ class WorksiteControllerIT {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
-		this.mvc.perform(delete(BASE + "/{code}", "BCN-HQ").with(jwt()//
+		this.mvc.perform(delete(BASE + "/{code}", "BCN-HQ").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isNoContent());
 
-		this.mvc.perform(get(BASE).with(jwt()//
+		this.mvc.perform(get(BASE).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ')]").doesNotExist());
 	}

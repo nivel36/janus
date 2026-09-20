@@ -16,6 +16,7 @@ export function createKeycloakMock(
     tokenParsed: undefined as AuthTokenClaims | undefined,
     login: vi.fn().mockResolvedValue(undefined),
     logout: vi.fn().mockResolvedValue(undefined),
+    updateToken: vi.fn().mockResolvedValue(true),
     clearToken: vi.fn(),
     hasRealmRole: vi.fn(),
     hasResourceRole: vi.fn(),

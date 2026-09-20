@@ -7,6 +7,11 @@ import { authChildGuard } from './core/auth/auth.guard';
 
 export const appRoutes: Routes = [
   {
+    path: 'verify-email',
+    loadComponent: () =>
+      import('./core/auth/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent),
+  },
+  {
     path: 'forbidden',
     loadComponent: () =>
       import('./core/error-pages/forbidden/forbidden.component').then((m) => m.ForbiddenComponent),
