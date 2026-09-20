@@ -27,14 +27,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
-import es.nivel36.janus.util.EmailAddresses;
 import es.nivel36.janus.service.appuser.AppUserService;
+import es.nivel36.janus.util.EmailAddresses;
 
 /**
  * REST controller exposing CRUD operations for {@link AppUser} entities.
@@ -80,17 +79,10 @@ public class AppUserController implements AppUserResource {
 		final Jwt token = authentication.getToken();
 		final Object preferredUsernameClaim = token.getClaims().get("preferred_username");
 		final String preferredUsername = preferredUsernameClaim instanceof final String value ? value : null;
-		final Boolean emailVerified = token.getClaim("email_verified");
-		final boolean isEmailVerified = Boolean.TRUE.equals(emailVerified);
-		final String verifiedEmail;
 		final String email = token.getClaimAsString("email");
-		if (isEmailVerified && StringUtils.hasText(email)) {
-			verifiedEmail = EmailAddresses.canonicalize(email);
-		} else {
-			verifiedEmail = null;
-		}
 		final String subject = token.getSubject();
-		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, preferredUsername, verifiedEmail);
+		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, preferredUsername,
+				EmailAddresses.canonicalize(email));
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(appUser);
 		return ResponseEntity.ok(appUserResponse);
 	}
@@ -144,7 +136,9 @@ public class AppUserController implements AppUserResource {
 	public ResponseEntity<AppUserResponse> replaceKeycloakSubject( //
 			final String username, //
 			final ReplaceKeycloakSubjectRequest request) {
-		final AppUser updated = this.appUserService.replaceKeycloakSubject(username, request.keycloakSubject());
-		return ResponseEntity.ok(this.appUserResponseMapper.map(updated));
+		final String keycloakSubject = request.keycloakSubject();
+		final AppUser updated = this.appUserService.replaceKeycloakSubject(username, keycloakSubject);
+		final AppUserResponse response = this.appUserResponseMapper.map(updated);
+		return ResponseEntity.ok(response);
 	}
 }
