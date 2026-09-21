@@ -52,13 +52,13 @@ class EmployeePoliciesTest {
 
 	@Test
 	void ownershipWithoutAnEmployeeRoleDoesNotGrantAccess() {
-		final Actor ownerWithoutRoles = new Actor(1L, Set.of(), OWN_EMPLOYEE_ID);
+		final Actor ownerWithoutRoles = new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(), OWN_EMPLOYEE_ID);
 
 		assertThat(this.viewPolicy.allows(ownerWithoutRoles, OWN_EMPLOYEE_ID)).isFalse();
 		assertThat(this.updatePolicy.allows(ownerWithoutRoles, OWN_EMPLOYEE_ID)).isFalse();
 	}
 
 	private static Actor actorWith(final Role role, final Long employeeId) {
-		return new Actor(1L, Set.of(role), employeeId);
+		return new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(role), employeeId);
 	}
 }

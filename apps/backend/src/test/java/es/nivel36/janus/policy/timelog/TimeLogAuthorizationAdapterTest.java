@@ -37,7 +37,7 @@ class TimeLogAuthorizationAdapterTest {
 	@ParameterizedTest
 	@EnumSource(Role.class)
 	void searchPermissionDoesNotRequireEmployeeAssociation(final Role role) {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(1L, Set.of(role), null));
+		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(role), null));
 
 		assertThat(this.adapter.canSearch(this.authentication)).isTrue();
 		verify(this.actors).resolve(this.authentication);
@@ -46,14 +46,14 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void actorsWithoutRolesCannotExecuteSearches() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(1L, Set.of(), 84L));
+		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(), 84L));
 
 		assertThat(this.adapter.canSearch(this.authentication)).isFalse();
 	}
 
 	@Test
 	void scopeUsesTheEmployeeAssociationOfTheResolvedActor() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(1L, Set.of(Role.JANUS_EMPLOYEE), 84L));
+		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
 
 		assertThat(this.adapter.searchScope(this.authentication)).isEqualTo(new TimeLogSearchScope.Employee(84L));
 		verify(this.actors).resolve(this.authentication);
@@ -62,7 +62,7 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void permittedEmployeeSearchCanHaveNoVisibleRows() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(1L, Set.of(Role.JANUS_EMPLOYEE), null));
+		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), null));
 
 		assertThat(this.adapter.canSearch(this.authentication)).isTrue();
 		assertThat(this.adapter.searchScope(this.authentication)).isEqualTo(new TimeLogSearchScope.None());
@@ -72,7 +72,7 @@ class TimeLogAuthorizationAdapterTest {
 	void ownerRemainsAuthorizedWhenRequestedEmailHasMixedCapitalization() {
 		final Employee employee = mock(Employee.class);
 		when(this.actors.resolve(this.authentication))
-				.thenReturn(new Actor(1L, Set.of(Role.JANUS_EMPLOYEE), 84L));
+				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
 		when(this.employees.findEmployeeByEmail("employee@internal.test")).thenReturn(employee);
 		when(employee.getId()).thenReturn(84L);
 
@@ -84,7 +84,7 @@ class TimeLogAuthorizationAdapterTest {
 	void otherEmployeeRemainsDeniedWhenRequestedEmailHasMixedCapitalization() {
 		final Employee employee = mock(Employee.class);
 		when(this.actors.resolve(this.authentication))
-				.thenReturn(new Actor(1L, Set.of(Role.JANUS_EMPLOYEE), 84L));
+				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
 		when(this.employees.findEmployeeByEmail("other@internal.test")).thenReturn(employee);
 		when(employee.getId()).thenReturn(85L);
 

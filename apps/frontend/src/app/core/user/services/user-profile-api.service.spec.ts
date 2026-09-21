@@ -14,15 +14,17 @@ describe('UserProfileApiService', () => {
   let service: UserProfileApiService;
   let transport: {
     findCurrentAppUser: ReturnType<typeof vi.fn>;
-    updateCurrentAppUser: ReturnType<typeof vi.fn>;
+    updateAppUser: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     transport = {
-      findCurrentAppUser: vi.fn().mockReturnValue(of({ username: 'mutable-name', ...PREFERENCES })),
-      updateCurrentAppUser: vi
+      findCurrentAppUser: vi
         .fn()
-        .mockReturnValue(of({ username: 'mutable-name', ...PREFERENCES })),
+        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', ...PREFERENCES })),
+      updateAppUser: vi
+        .fn()
+        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', ...PREFERENCES })),
     };
     TestBed.configureTestingModule({
       providers: [UserProfileApiService, { provide: AppUsersService, useValue: transport }],
@@ -46,7 +48,7 @@ describe('UserProfileApiService', () => {
     let result: UserPreferences | undefined;
     service.updatePreferences(PREFERENCES).subscribe((preferences) => (result = preferences));
 
-    expect(transport.updateCurrentAppUser).toHaveBeenCalledWith(PREFERENCES);
+    expect(transport.updateAppUser).toHaveBeenCalledWith(USER_ID, PREFERENCES);
     expect(result).toEqual(PREFERENCES);
   });
 });
@@ -56,3 +58,5 @@ const PREFERENCES: UserPreferences = {
   timeFormat: 'H24',
   defaultTimezone: 'Europe/Madrid',
 };
+
+const USER_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';

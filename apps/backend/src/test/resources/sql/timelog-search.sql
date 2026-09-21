@@ -9,7 +9,7 @@ INSERT INTO employee(id, name, surname, email, schedule_id) VALUES
     (102, 'Bob', 'Search', 'bob@example.test', 101),
     (103, 'Carol', 'Search', 'carol@example.test', 101);
 
-INSERT INTO app_user(username, keycloak_subject, locale, time_format, default_timezone, employee_id)
+INSERT INTO app_user(email, keycloak_subject, locale, time_format, default_timezone, employee_id)
 VALUES ('alice-account', '11111111-1111-4111-8111-111111111111', 'en-US', 'H24', 'UTC', 101);
 
 INSERT INTO worksite(id, code, name, time_zone, scope)

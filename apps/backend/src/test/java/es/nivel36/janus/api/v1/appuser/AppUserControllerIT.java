@@ -54,17 +54,17 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('jdoe','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
+			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		final String body = """
 				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
 				""";
 
-		this.mvc.perform(put(BASE + "/me").with(verifiedJwt().jwt(token -> token.subject("11111111-1111-4111-8111-111111111111"))//
+		this.mvc.perform(put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa").with(verifiedJwt().jwt(token -> token.subject("11111111-1111-4111-8111-111111111111"))//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))) //
 				.contentType(APPLICATION_JSON).content(body)) //
 				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$.username").value("jdoe")) //
+				.andExpect(jsonPath("$.email").value("jdoe@example.test")) //
 				.andExpect(jsonPath("$.locale").value("en-CA")) //
 				.andExpect(jsonPath("$.timeFormat").value("H12")) //
 				.andExpect(jsonPath("$.defaultTimezone").value("America/Toronto"));
@@ -72,47 +72,47 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('jdoe','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
+			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testMeUpdatesBySubjectDespiteCopiedMutableClaims() throws Exception {
 		final String body = """
 				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
 				""";
 
-		this.mvc.perform(put(BASE + "/me")
+		this.mvc.perform(put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
 				.with(verifiedJwt()
 						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
 								.subject("11111111-1111-4111-8111-111111111111")
 								.claim("email", "someone-else@example.com").claim("preferred_username", "someone-else"))
 						.authorities(createAuthorityList("ROLE_JANUS_USER")))
 				.contentType(APPLICATION_JSON).content(body)).andExpect(status().isOk())
-				.andExpect(jsonPath("$.username").value("jdoe"));
+				.andExpect(jsonPath("$.email").value("jdoe@example.test"));
 	}
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('jdoe','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
+			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testMeFindsProvisionedIdentity() throws Exception {
 		this.mvc.perform(
 				get(BASE + "/me").with(verifiedJwt()
 						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
-								.subject("11111111-1111-4111-8111-111111111111").claim("preferred_username", "changed"))
+								.subject("11111111-1111-4111-8111-111111111111").claim("email", "changed@example.test"))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("jdoe"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("jdoe@example.test"));
 	}
 
 	@Test
 	void testMeCreatesUnprovisionedIdentityWithInitialPreferences() throws Exception {
 		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
-				.subject("99999999-9999-4999-8999-999999999999").claim("preferred_username", "new-user"))
+				.subject("99999999-9999-4999-8999-999999999999").claim("email", "new-user@example.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.username").value("new-user")).andExpect(jsonPath("$.locale").value("en-US"))
+				.andExpect(jsonPath("$.email").value("new-user@example.test")).andExpect(jsonPath("$.locale").value("en-US"))
 				.andExpect(jsonPath("$.timeFormat").value("H24")).andExpect(jsonPath("$.defaultTimezone").value("UTC"));
 
 		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
 				.jwt(jwt -> jwt.issuer("https://issuer.example.test").subject("99999999-9999-4999-8999-999999999999")
-						.claim("preferred_username", "renamed-user"))
+						.claim("email", "renamed@example.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.username").value("new-user"));
+				.andExpect(jsonPath("$.email").value("new-user@example.test"));
 
 		org.assertj.core.api.Assertions
 				.assertThat(this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?",
@@ -135,7 +135,7 @@ class AppUserControllerIT {
 	}
 
 	@Test
-	void testMeRejectsPreferredUsernameThatAdminEndpointsCannotAddress() throws Exception {
+	void testMeRejectsMissingEmail() throws Exception {
 		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 
@@ -155,14 +155,14 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone) VALUES('jdoe','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
+			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testDeleteShouldReturn204AndRemoveAccount() throws Exception {
-		this.mvc.perform(delete(BASE + "/{username}", "jdoe").with(verifiedJwt()//
+		this.mvc.perform(delete(BASE + "/{id}", "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
 		this.entityManager.flush();
 		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate.queryForObject(
-				"SELECT COUNT(*) FROM app_user WHERE username = ?", Integer.class, "jdoe")).isZero();
+				"SELECT COUNT(*) FROM app_user WHERE email = ?", Integer.class, "jdoe@example.test")).isZero();
 	}
 }

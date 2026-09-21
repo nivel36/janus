@@ -11,7 +11,8 @@ import { TimeFormat } from './timeFormat';
 
 
 export interface AppUserResponse { 
-    username: string;
+    id: string;
+    email: string;
     locale: string;
     timeFormat: TimeFormat;
     defaultTimezone: string;

@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -27,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 
 @RequestMapping("/api/v1/appusers")
 public interface AppUserResource {
@@ -36,17 +37,16 @@ public interface AppUserResource {
 	@GetMapping("/me")
 	ResponseEntity<AppUserResponse> findCurrentAppUser(JwtAuthenticationToken authentication);
 
-	@PreAuthorize("@appUserAuthorization.canUpdateCurrent(authentication)")
-	@PutMapping("/me")
-	ResponseEntity<AppUserResponse> updateCurrentAppUser( //
+	@PreAuthorize("@appUserAuthorization.canUpdate(authentication, #id)")
+	@PutMapping("/{id}")
+	ResponseEntity<AppUserResponse> updateAppUser( //
+			@PathVariable UUID id, //
 			@Valid @RequestBody UpdateAppUserRequest request, //
 			Authentication authentication);
 
 	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
-	@DeleteMapping("/{username}")
+	@DeleteMapping("/{id}")
 	ResponseEntity<Void> deleteAppUser( //
-			@PathVariable("username") //
-			@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
-			String username);
+			@PathVariable UUID id);
 
 }

@@ -19,7 +19,9 @@ import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.annotations.NaturalId;
 
 import es.nivel36.janus.service.TimeFormat;
@@ -31,7 +33,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -50,17 +51,18 @@ public class AppUser implements Serializable {
 	public static final ZoneId DEFAULT_TIMEZONE = ZoneId.of("UTC");
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-
-	@NaturalId
-	@NotBlank
-	@Column(updatable = false)
-	private String username;
+	@GeneratedValue
+	@UuidGenerator
+	private UUID id;
 
 	@NotBlank
 	@Size(max = 255)
-	@Column(updatable = false)
+	private String email;
+
+	@NaturalId
+	@NotBlank
+	@Size(max = 255)
+	@Column(updatable = false, unique = true)
 	private String keycloakSubject;
 
 	@NotNull
@@ -80,30 +82,30 @@ public class AppUser implements Serializable {
 	AppUser() {
 	}
 
-	public AppUser(final String username, final String keycloakSubject, final Locale locale,
+	public AppUser(final String email, final String keycloakSubject, final Locale locale,
 			final TimeFormat timeFormat) {
-		this(username, keycloakSubject, locale, timeFormat, DEFAULT_TIMEZONE);
+		this(email, keycloakSubject, locale, timeFormat, DEFAULT_TIMEZONE);
 	}
 
-	public AppUser(final String username, final String keycloakSubject, final Locale locale,
+	public AppUser(final String email, final String keycloakSubject, final Locale locale,
 			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
-		this.username = Strings.requireNonBlank(username, "username can't be null or blank");
+		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
 		this.keycloakSubject = validateKeycloakSubject(keycloakSubject);
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
 		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null or blank");
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return this.id;
 	}
 
-	void setId(final Long id) {
+	void setId(final UUID id) {
 		this.id = id;
 	}
 
-	public String getUsername() {
-		return this.username;
+	public String getEmail() {
+		return this.email;
 	}
 
 	public String getKeycloakSubject() {
@@ -169,16 +171,16 @@ public class AppUser implements Serializable {
 			return false;
 		}
 		final AppUser other = (AppUser) obj;
-		return Objects.equals(this.username, other.username);
+		return this.id != null && Objects.equals(this.id, other.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.username);
+		return this.id == null ? System.identityHashCode(this) : this.id.hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return this.username;
+		return this.email;
 	}
 }

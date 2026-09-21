@@ -18,6 +18,7 @@ package es.nivel36.janus.api.v1.appuser;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,12 +78,12 @@ public class AppUserController implements AppUserResource {
 	@Override
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
 		final Jwt token = authentication.getToken();
-		final Object preferredUsernameClaim = token.getClaims().get("preferred_username");
-		final String preferredUsername = preferredUsernameClaim instanceof final String value ? value : null;
 		final String email = token.getClaimAsString("email");
+		if (email == null || email.isBlank()) {
+			throw new IllegalArgumentException("email claim is required");
+		}
 		final String subject = token.getSubject();
-		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, preferredUsername,
-				EmailAddresses.canonicalize(email));
+		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, EmailAddresses.canonicalize(email));
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(appUser);
 		return ResponseEntity.ok(appUserResponse);
 	}
@@ -97,14 +98,14 @@ public class AppUserController implements AppUserResource {
 	 * @return the updated {@link AppUserResponse}
 	 */
 	@Override
-	public ResponseEntity<AppUserResponse> updateCurrentAppUser( //
+	public ResponseEntity<AppUserResponse> updateAppUser( //
+			final UUID id, //
 			final UpdateAppUserRequest request, //
 			final Authentication authentication) {
-		final String name = authentication.getName().trim();
 		final Locale forLanguageTag = Locale.forLanguageTag(request.locale().trim());
 		final TimeFormat timeFormat = request.timeFormat();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
-		final AppUser updated = this.appUserService.updateCurrentAppUser(name, forLanguageTag, timeFormat, zoneId);
+		final AppUser updated = this.appUserService.updateAppUser(id, forLanguageTag, timeFormat, zoneId);
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(updated);
 		return ResponseEntity.ok(appUserResponse);
 	}
@@ -112,14 +113,14 @@ public class AppUserController implements AppUserResource {
 	/**
 	 * Deletes an existing {@link AppUser}.
 	 *
-	 * @param username the username of the app user; must not be {@code null}
+	 * @param id the UUID of the app user; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
 	@Override
-	public ResponseEntity<Void> deleteAppUser(final String username) {
+	public ResponseEntity<Void> deleteAppUser(final UUID id) {
 		logger.debug("Delete app user ACTION performed");
 
-		final AppUser appUser = this.appUserService.findAppUserByUsername(username);
+		final AppUser appUser = this.appUserService.findAppUserById(id);
 		this.appUserService.deleteAppUser(appUser);
 		return ResponseEntity.noContent().build();
 	}

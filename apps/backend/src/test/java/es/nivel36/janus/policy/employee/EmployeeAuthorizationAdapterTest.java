@@ -31,7 +31,7 @@ class EmployeeAuthorizationAdapterTest {
 		final ActorResolver actorResolver = mock(ActorResolver.class);
 		final EmployeeService employeeService = mock(EmployeeService.class);
 		final Employee employee = mock(Employee.class);
-		when(actorResolver.resolve(authentication)).thenReturn(new Actor(1L, Set.of(Role.JANUS_EMPLOYEE), EMPLOYEE_ID));
+		when(actorResolver.resolve(authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), EMPLOYEE_ID));
 		when(employeeService.findEmployeeByEmail(EMPLOYEE_EMAIL)).thenReturn(employee);
 		when(employee.getId()).thenReturn(EMPLOYEE_ID);
 
@@ -49,7 +49,7 @@ class EmployeeAuthorizationAdapterTest {
 		final ActorResolver actorResolver = mock(ActorResolver.class);
 		final EmployeeService employeeService = mock(EmployeeService.class);
 		final Employee employee = mock(Employee.class);
-		when(actorResolver.resolve(authentication)).thenReturn(new Actor(1L, Set.of(Role.JANUS_EMPLOYEE), EMPLOYEE_ID));
+		when(actorResolver.resolve(authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), EMPLOYEE_ID));
 		when(employeeService.findEmployeeByEmail(EMPLOYEE_EMAIL)).thenReturn(employee);
 		when(employee.getId()).thenReturn(12L);
 

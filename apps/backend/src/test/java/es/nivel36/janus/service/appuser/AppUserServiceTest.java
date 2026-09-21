@@ -28,6 +28,8 @@ import static org.mockito.Mockito.mock;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,10 +71,10 @@ class AppUserServiceTest {
 	@Test
 	void concurrentFallbackInsertReturnsTheProfileCreatedByTheWinningRequest() {
 		final String subject = "11111111-1111-4111-8111-111111111111";
-		final String username = "concurrent-user";
+		final String email = "person@example.test";
 		final ZoneId timezone = ZoneId.of("UTC");
 		final Employee employee = mock(Employee.class);
-		final AppUser winner = new AppUser(username, subject, Locale.ENGLISH, TimeFormat.H24, timezone);
+		final AppUser winner = new AppUser(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone);
 		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
 		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
 		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
@@ -81,36 +83,37 @@ class AppUserServiceTest {
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty())
 				.thenReturn(Optional.empty()).thenReturn(Optional.of(winner));
 		when(this.appUserRepository.existsByEmployee(employee)).thenReturn(true);
-		when(this.appUserCreator.create(username, subject, Locale.ENGLISH, TimeFormat.H24, timezone, employee))
+		when(this.appUserCreator.create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, employee))
 				.thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.EMPLOYEE,
 						new RuntimeException("employee claimed")));
-		when(this.appUserCreator.create(eq(username), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
+		when(this.appUserCreator.create(eq(email), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
 				isNull()))
 				.thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.KEYCLOAK_SUBJECT,
 						new RuntimeException("subject claimed")));
 
-		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, username, "person@example.test"));
+		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, email));
 	}
 
 	@Test
-	void testFindAppUserByUsernameUsesAccountUsernameLookup() {
-		final AppUser appUser = new AppUser("aferrer", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
+	void findAppUsersByEmailReturnsEveryMatchingAccount() {
+		final AppUser appUser = new AppUser("person@example.test", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
 				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
-		when(this.appUserRepository.findByUsername("aferrer")).thenReturn(appUser);
+		when(this.appUserRepository.findByEmail("person@example.test")).thenReturn(List.of(appUser));
 
-		final AppUser foundAppUser = this.appUserService.findAppUserByUsername("aferrer");
+		final List<AppUser> found = this.appUserService.findAppUsersByEmail("person@example.test");
 
-		assertEquals(appUser, foundAppUser);
-		verify(this.appUserRepository).findByUsername("aferrer");
+		assertEquals(List.of(appUser), found);
+		verify(this.appUserRepository).findByEmail("person@example.test");
 	}
 
 	@Test
-	void testFindAppUserByUsernameThrowsWhenAccountUsernameDoesNotExist() {
-		when(this.appUserRepository.findByUsername("missing-user")).thenReturn(null);
+	void findAppUserByIdThrowsWhenAccountDoesNotExist() {
+		final UUID id = UUID.fromString("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+		when(this.appUserRepository.findById(id)).thenReturn(Optional.empty());
 
-		assertThrows(ResourceNotFoundException.class, () -> this.appUserService.findAppUserByUsername("missing-user"));
+		assertThrows(ResourceNotFoundException.class, () -> this.appUserService.findAppUserById(id));
 
-		verify(this.appUserRepository).findByUsername("missing-user");
+		verify(this.appUserRepository).findById(id);
 	}
 
 	@Test

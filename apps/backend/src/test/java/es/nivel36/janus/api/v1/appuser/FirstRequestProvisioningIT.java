@@ -66,7 +66,7 @@ class FirstRequestProvisioningIT {
 		this.jdbcClient.sql("DELETE FROM app_user WHERE keycloak_subject IN (:subject, :otherSubject, :opaqueSubject)")
 				.param("subject", SUBJECT).param("otherSubject", OTHER_SUBJECT).param("opaqueSubject", OPAQUE_SUBJECT)
 				.update();
-		this.jdbcClient.sql("DELETE FROM app_user WHERE username IN ('subject-target-one', 'subject-target-two', :adminUsername)")
+		this.jdbcClient.sql("DELETE FROM app_user WHERE email IN ('subject-target-one', 'subject-target-two', :adminUsername)")
 				.param("adminUsername", ADMIN_USERNAME).update();
 		this.jdbcClient.sql("DELETE FROM employee WHERE email = :email").param("email", LINK_EMAIL).update();
 		this.jdbcClient.sql("DELETE FROM schedule WHERE id = 901").update();
@@ -76,16 +76,16 @@ class FirstRequestProvisioningIT {
 	void provisionsAndRetrievesUserWithLongOpaqueSubject() throws Exception {
 		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
-						.claim("preferred_username", "opaque-subject-user"))
+						.claim("email", "opaque-subject@example.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
 
 		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
-						.claim("preferred_username", "ignored-on-retrieval"))
+						.claim("email", "ignored@example.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("opaque-subject-user"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("opaque-subject@example.test"));
 
-		assertThat(this.jdbcClient.sql("SELECT keycloak_subject FROM app_user WHERE username = 'opaque-subject-user'")
+		assertThat(this.jdbcClient.sql("SELECT keycloak_subject FROM app_user WHERE email = 'opaque-subject@example.test'")
 				.query(String.class).single()).isEqualTo(OPAQUE_SUBJECT);
 	}
 
@@ -121,13 +121,13 @@ class FirstRequestProvisioningIT {
 	}
 
 	@Test
-	void concurrentRequestsForSameUsernameAndDifferentSubjectsRejectOneIdentity() throws Exception {
+	void concurrentRequestsForSameEmailAndDifferentSubjectsCreateBothIdentities() throws Exception {
 		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "occupied-name", null,
 				OTHER_SUBJECT, "occupied-name", null);
 
-		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsExactlyInAnyOrder(200, 409);
-		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE username = 'occupied-name'")
-				.query(Long.class).single()).isOne();
+		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsOnly(200);
+		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE email = 'occupied-name@example.test'")
+				.query(Long.class).single()).isEqualTo(2L);
 	}
 
 	private List<MvcResult> provisionConcurrently(final String firstSubject, final String firstUsername,
@@ -151,15 +151,13 @@ class FirstRequestProvisioningIT {
 		ready.countDown();
 		start.await();
 		return this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt().jwt(token -> {
-			token.issuer(this.issuer).subject(subject).claim("preferred_username", username);
-			if (email != null) {
-				token.claim("email", email).claim("email_verified", true);
-			}
+			token.issuer(this.issuer).subject(subject).claim("email", email == null ? username + "@example.test" : email)
+					.claim("email_verified", true);
 		}).authorities(createAuthorityList("ROLE_JANUS_USER")))).andReturn();
 	}
 
 	private String usernameForSubject(final String subject) {
-		return this.jdbcClient.sql("SELECT username FROM app_user WHERE keycloak_subject = :subject")
+		return this.jdbcClient.sql("SELECT email FROM app_user WHERE keycloak_subject = :subject")
 				.param("subject", subject).query(String.class).single();
 	}
 
@@ -231,9 +229,9 @@ class FirstRequestProvisioningIT {
 		assertThat(this.countProfiles()).isZero();
 
 		this.mvc.perform(get("/api/v1/appusers/me").with(
-				verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", USERNAME))
+				verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("email", USERNAME))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value(USERNAME))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value(USERNAME))
 				.andExpect(jsonPath("$.locale").value("es-ES")).andExpect(jsonPath("$.timeFormat").value("H24"))
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
 

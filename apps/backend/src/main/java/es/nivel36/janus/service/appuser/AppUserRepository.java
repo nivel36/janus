@@ -15,7 +15,9 @@
  */
 package es.nivel36.janus.service.appuser;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -26,25 +28,9 @@ import es.nivel36.janus.service.employee.Employee;
  * Repository class for managing {@link AppUser} entities.
  */
 @Repository
-interface AppUserRepository extends JpaRepository<AppUser, Long> {
+interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 
-	/**
-	 * Checks whether a {@link AppUser} exists for the specified username.
-	 *
-	 * @param usermane the username to check for
-	 * @return {@code true} if the application user with the specified username
-	 *         exists, {@code false} otherwise.
-	 */
-	boolean existsByUsername(final String username);
-
-	/**
-	 * Finds an {@link AppUser} by username.
-	 *
-	 * @param username the username of the employee to find
-	 * @return the application user with the specified username, or {@code null} if
-	 *         no user is found
-	 */
-	AppUser findByUsername(final String username);
+	List<AppUser> findByEmail(String email);
 
 	Optional<AppUser> findByKeycloakSubject(String keycloakSubject);
 

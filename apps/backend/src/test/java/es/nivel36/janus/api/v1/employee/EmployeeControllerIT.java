@@ -53,7 +53,7 @@ class EmployeeControllerIT {
 	@BeforeEach
 	void provisionActor() {
 		this.jdbc.update("""
-				INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone)
+				INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone)
 				VALUES ('mock-actor','user','en-US','H24','UTC')
 				""");
 	}
@@ -62,8 +62,8 @@ class EmployeeControllerIT {
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(10,'Alice','One','alice@internal.test',1)",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(11,'Bob','Two','bob@internal.test',1)",
-			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('alice','11111111-1111-4111-8111-111111111111','en-US','H24','UTC',10)",
-			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('bob','22222222-2222-4222-8222-222222222222','en-US','H24','UTC',11)" })
+			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('alice','11111111-1111-4111-8111-111111111111','en-US','H24','UTC',10)",
+			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('bob','22222222-2222-4222-8222-222222222222','en-US','H24','UTC',11)" })
 	void employeeCanAccessOwnProfileButNotAnotherEmployeesProfile() throws Exception {
 		this.mvc.perform(get(BASE + "/by-email/{email}", "alice@internal.test").with(verifiedJwt()
 				.jwt(jwt -> jwt.subject("11111111-1111-4111-8111-111111111111").claim("email", "different@token.test"))
@@ -79,8 +79,8 @@ class EmployeeControllerIT {
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard')",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(10,'Alice','One','alice@internal.test',1)",
 			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(11,'Bob','Two','bob@internal.test',1)",
-			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('alice','11111111-1111-4111-8111-111111111111','en-US','H24','UTC',10)",
-			"INSERT INTO app_user(username,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('bob','22222222-2222-4222-8222-222222222222','en-US','H24','UTC',11)" })
+			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('alice','11111111-1111-4111-8111-111111111111','en-US','H24','UTC',10)",
+			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('bob','22222222-2222-4222-8222-222222222222','en-US','H24','UTC',11)" })
 	void employeeAuthorizationUsesSubjectLinkAndNotEmailClaim() throws Exception {
 		// A matching mutable email cannot grant access when the immutable subject
 		// belongs to Bob.

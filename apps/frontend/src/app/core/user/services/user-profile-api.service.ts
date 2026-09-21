@@ -4,7 +4,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 import { TimeFormat as ApiTimeFormat } from '../../../api/generated/model/timeFormat';
 import { UserPreferences, type TimeFormat } from '../models/user-preferences';
@@ -72,11 +72,15 @@ export class UserProfileApiService {
    * @returns Observable emitting the updated preferences
    */
   updatePreferences(payload: UserPreferences): Observable<UserPreferences> {
-    return this.api
-      .updateCurrentAppUser({
-        ...payload,
-        timeFormat: payload.timeFormat as ApiTimeFormat,
-      })
+    return this.getProfile()
+      .pipe(
+        switchMap((profile) =>
+          this.api.updateAppUser(profile.id, {
+            ...payload,
+            timeFormat: payload.timeFormat as ApiTimeFormat,
+          }),
+        ),
+      )
       .pipe(map((response) => this.toPreferences(response)));
   }
 
