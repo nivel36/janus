@@ -47,7 +47,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
-import es.nivel36.janus.service.appuser.KeycloakSubjectConflictException;
 import es.nivel36.janus.service.appuser.PreferredUsernameConflictException;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.service.timelog.EventAlreadyFinalizedException;
@@ -139,7 +138,7 @@ public class JanusExceptionHandler {
 		return pd;
 	}
 
-	@ExceptionHandler({ PreferredUsernameConflictException.class, KeycloakSubjectConflictException.class })
+	@ExceptionHandler(PreferredUsernameConflictException.class)
 	ProblemDetail handleExternalIdentityConflict(final RuntimeException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
 		pd.setType(TYPE_IDENTITY_CONFLICT);

@@ -2,7 +2,6 @@ export * from './appUserResponse';
 export * from './applicationSettingsResponse';
 export * from './createWorksiteRequest';
 export * from './pageMetadata';
-export * from './replaceKeycloakSubjectRequest';
 export * from './schedulePage';
 export * from './scheduleResponse';
 export * from './timeFormat';

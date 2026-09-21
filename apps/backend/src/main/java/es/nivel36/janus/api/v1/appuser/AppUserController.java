@@ -124,21 +124,4 @@ public class AppUserController implements AppUserResource {
 		return ResponseEntity.noContent().build();
 	}
 
-	/**
-	 * Replaces the Keycloak subject associated with an application user.
-	 *
-	 * @param username the username of the app user; must not be {@code null}
-	 * @param request  payload containing the replacement Keycloak subject; must not
-	 *                 be {@code null}
-	 * @return the updated {@link AppUserResponse}
-	 */
-	@Override
-	public ResponseEntity<AppUserResponse> replaceKeycloakSubject( //
-			final String username, //
-			final ReplaceKeycloakSubjectRequest request) {
-		final String keycloakSubject = request.keycloakSubject();
-		final AppUser updated = this.appUserService.replaceKeycloakSubject(username, keycloakSubject);
-		final AppUserResponse response = this.appUserResponseMapper.map(updated);
-		return ResponseEntity.ok(response);
-	}
 }
