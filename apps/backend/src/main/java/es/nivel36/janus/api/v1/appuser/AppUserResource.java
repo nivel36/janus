@@ -49,9 +49,4 @@ public interface AppUserResource {
 			@Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}", message = "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)") //
 			String username);
 
-	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
-	@PutMapping("/{username}/keycloak-subject")
-	ResponseEntity<AppUserResponse> replaceKeycloakSubject(
-			@PathVariable("username") @Pattern(regexp = "[A-Za-z0-9_.@-]{3,50}") String username,
-			@Valid @RequestBody ReplaceKeycloakSubjectRequest request);
 }

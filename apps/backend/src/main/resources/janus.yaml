@@ -41,31 +41,6 @@ paths:
         '400': { description: Invalid username }
         '403': { description: Insufficient permissions }
         '404': { description: Application user not found }
-  /appusers/{username}/keycloak-subject:
-    put:
-      tags: [app-users]
-      operationId: replaceKeycloakSubject
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
-            pattern: '^[A-Za-z0-9_.@-]{3,50}$'
-      requestBody:
-        required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/ReplaceKeycloakSubjectRequest' } } }
-      responses:
-        '200':
-          description: Application user with its replaced external identity
-          content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } }
-        '400': { description: Invalid username or replacement request }
-        '401': { description: Authentication required }
-        '403': { description: Insufficient permissions }
-        '404': { description: Application user not found }
-        '409': { description: Keycloak subject already belongs to another application user }
   /applicationsettings:
     get:
       tags: [application-settings]
@@ -210,11 +185,6 @@ components:
           description: Supported BCP 47 language tag, such as en-US or en
         timeFormat: { $ref: '#/components/schemas/TimeFormat' }
         defaultTimezone: { type: string, minLength: 1 }
-    ReplaceKeycloakSubjectRequest:
-      type: object
-      required: [keycloakSubject]
-      properties:
-        keycloakSubject: { type: string, minLength: 1, maxLength: 255, pattern: '.*\\S.*' }
     ApplicationSettingsResponse:
       type: object
       required: [daysUntilLocked, employeeWorkplaceCreationAllowed, worksiteChangeDuringShiftAllowed, employeeManualTimelogEntryAllowed, defaultTimezone]

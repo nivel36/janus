@@ -15,11 +15,9 @@
 package es.nivel36.janus.api.v1.appuser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -130,43 +128,6 @@ class FirstRequestProvisioningIT {
 		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsExactlyInAnyOrder(200, 409);
 		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE username = 'occupied-name'")
 				.query(Long.class).single()).isOne();
-	}
-
-	@Test
-	void concurrentAdministrativeReplacementsOfTheSameSubjectReturnOneConflict() throws Exception {
-		this.jdbcClient.sql("""
-				INSERT INTO app_user(username, keycloak_subject, locale, time_format, default_timezone)
-				VALUES ('subject-target-one', '11111111-1111-4111-8111-111111111111', 'en-US', 'H24', 'UTC'),
-				       ('subject-target-two', '22222222-2222-4222-8222-222222222222', 'en-US', 'H24', 'UTC'),
-				       ('concurrency-test-admin', 'admin-subject-for-concurrency-test', 'en-US', 'H24', 'UTC')
-				""").update();
-		final String replacement = "33333333-3333-4333-8333-333333333333";
-		final CountDownLatch ready = new CountDownLatch(2);
-		final CountDownLatch start = new CountDownLatch(1);
-
-		try (var executor = Executors.newFixedThreadPool(2)) {
-			final Future<MvcResult> first = executor.submit(
-					() -> this.replaceSubject("subject-target-one", replacement, ready, start));
-			final Future<MvcResult> second = executor.submit(
-					() -> this.replaceSubject("subject-target-two", replacement, ready, start));
-			ready.await();
-			start.countDown();
-
-			assertThat(List.of(first.get(), second.get())).extracting(result -> result.getResponse().getStatus())
-					.containsExactlyInAnyOrder(200, 409);
-		}
-		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject")
-				.param("subject", replacement).query(Long.class).single()).isOne();
-	}
-
-	private MvcResult replaceSubject(final String username, final String subject, final CountDownLatch ready,
-			final CountDownLatch start) throws Exception {
-		ready.countDown();
-		start.await();
-		return this.mvc.perform(put("/api/v1/appusers/{username}/keycloak-subject", username)
-				.with(verifiedJwt().jwt(token -> token.subject(ADMIN_SUBJECT))
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))).contentType(APPLICATION_JSON)
-				.content("{\"keycloakSubject\":\"" + subject + "\"}")).andReturn();
 	}
 
 	private List<MvcResult> provisionConcurrently(final String firstSubject, final String firstUsername,

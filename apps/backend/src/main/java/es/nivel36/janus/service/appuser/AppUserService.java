@@ -22,8 +22,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -159,27 +157,6 @@ public class AppUserService {
 
 	private static PreferredUsernameConflictException usernameConflict(final String username, final Throwable cause) {
 		return new PreferredUsernameConflictException(username, cause);
-	}
-
-	/** Replaces the subject after an administrator verifies the new identity. */
-	@Transactional
-	public synchronized AppUser replaceKeycloakSubject(final String username, final String newKeycloakSubject) {
-		AppUser.validateKeycloakSubject(newKeycloakSubject);
-		final AppUser appUser = this.findAppUser(username);
-		this.appUserRepository.findByKeycloakSubject(newKeycloakSubject).filter(other -> other != appUser)
-				.ifPresent(_ -> {
-					throw new KeycloakSubjectConflictException(newKeycloakSubject);
-				});
-		try {
-			// KEYCLOAK_SUBJECT is immutable for ordinary entity updates. This explicit
-			// recovery operation updates it atomically and forces any unique constraint
-			// violation to surface inside the domain exception boundary.
-			this.appUserRepository.replaceKeycloakSubject(appUser.getId(), newKeycloakSubject);
-			return this.appUserRepository.findById(appUser.getId()).orElseThrow(
-					() -> new IllegalStateException("Application user disappeared during subject replacement"));
-		} catch (final DataIntegrityViolationException | CannotAcquireLockException conflict) {
-			throw new KeycloakSubjectConflictException(newKeycloakSubject, conflict);
-		}
 	}
 
 	private Employee findUnlinkedEmployee(final String verifiedEmail, final String keycloakSubject) {
