@@ -3,14 +3,23 @@
  */
 import { Injectable, inject } from '@angular/core';
 import { HttpContext } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
 
 import { TimeFormat as ApiTimeFormat } from '../../../api/generated/model/timeFormat';
 import { UserPreferences, type TimeFormat } from '../models/user-preferences';
 import { AppUsersService } from '../../../api/generated/api/appUsers.service';
 import { AppUserResponse } from '../../../api/generated/model/appUserResponse';
-import { HTTP_RETRY_POLICY } from '../../http/http-retry.interceptor';
+import {
+  ACTIVE_SCREEN_HTTP_RETRY_POLICY,
+  HTTP_RETRY_POLICY,
+  type HttpRetryPolicy,
+} from '../../http/http-retry.interceptor';
+
+const PROFILE_LOAD_RETRY_POLICY: HttpRetryPolicy = {
+  retries: 10,
+  baseDelayMs: 1_000,
+};
 
 /**
  * Service responsible exclusively for communication with the user profile API.
@@ -23,7 +32,7 @@ import { HTTP_RETRY_POLICY } from '../../http/http-retry.interceptor';
  * This service does NOT:
  * - Maintain any application state
  * - Know about the authenticated user
- * - Cache or store data
+ * - Maintain user preferences or authentication state
  * - React to authentication or session changes
  *
  * Those responsibilities belong to higher-level abstractions such as
@@ -32,6 +41,7 @@ import { HTTP_RETRY_POLICY } from '../../http/http-retry.interceptor';
 @Injectable({ providedIn: 'root' })
 export class UserProfileApiService {
   private readonly api = inject(AppUsersService);
+  private profileId: string | null = null;
 
   /**
    * Retrieves the full user profile from the backend.
@@ -41,12 +51,11 @@ export class UserProfileApiService {
    *
    * @returns Observable emitting the raw AppUserProfile DTO
    */
-  private getProfile(): Observable<AppUserResponse> {
+  private getProfile(
+    retryPolicy: HttpRetryPolicy = PROFILE_LOAD_RETRY_POLICY,
+  ): Observable<AppUserResponse> {
     return this.api.findCurrentAppUser('body', false, {
-      context: new HttpContext().set(HTTP_RETRY_POLICY, {
-        retries: 10,
-        baseDelayMs: 1_000,
-      }),
+      context: new HttpContext().set(HTTP_RETRY_POLICY, retryPolicy),
     });
   }
 
@@ -59,7 +68,10 @@ export class UserProfileApiService {
    * @returns Observable emitting the user's preferences
    */
   getPreferences(): Observable<UserPreferences> {
-    return this.getProfile().pipe(map((response) => this.toPreferences(response)));
+    return this.getProfile().pipe(
+      tap((response) => (this.profileId = response.id)),
+      map((response) => this.toPreferences(response)),
+    );
   }
 
   /**
@@ -72,16 +84,20 @@ export class UserProfileApiService {
    * @returns Observable emitting the updated preferences
    */
   updatePreferences(payload: UserPreferences): Observable<UserPreferences> {
-    return this.getProfile()
-      .pipe(
-        switchMap((profile) =>
-          this.api.updateAppUser(profile.id, {
-            ...payload,
-            timeFormat: payload.timeFormat as ApiTimeFormat,
-          }),
-        ),
-      )
-      .pipe(map((response) => this.toPreferences(response)));
+    const profileId$ = this.profileId
+      ? of(this.profileId)
+      : this.getProfile(ACTIVE_SCREEN_HTTP_RETRY_POLICY).pipe(map((profile) => profile.id));
+
+    return profileId$.pipe(
+      switchMap((profileId) =>
+        this.api.updateAppUser(profileId, {
+          ...payload,
+          timeFormat: payload.timeFormat as ApiTimeFormat,
+        }),
+      ),
+      tap((response) => (this.profileId = response.id)),
+      map((response) => this.toPreferences(response)),
+    );
   }
 
   /**

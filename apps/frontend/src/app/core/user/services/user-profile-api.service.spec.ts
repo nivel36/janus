@@ -6,7 +6,10 @@ import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AppUsersService } from '../../../api/generated/api/appUsers.service';
-import { HTTP_RETRY_POLICY } from '../../http/http-retry.interceptor';
+import {
+  ACTIVE_SCREEN_HTTP_RETRY_POLICY,
+  HTTP_RETRY_POLICY,
+} from '../../http/http-retry.interceptor';
 import { UserPreferences } from '../models/user-preferences';
 import { UserProfileApiService } from './user-profile-api.service';
 
@@ -44,12 +47,22 @@ describe('UserProfileApiService', () => {
     });
   });
 
-  it('updates preferences through the generated transport', () => {
+  it('reuses the UUID cached while loading preferences when saving', () => {
     let result: UserPreferences | undefined;
+    service.getPreferences().subscribe();
     service.updatePreferences(PREFERENCES).subscribe((preferences) => (result = preferences));
 
+    expect(transport.findCurrentAppUser).toHaveBeenCalledTimes(1);
     expect(transport.updateAppUser).toHaveBeenCalledWith(USER_ID, PREFERENCES);
     expect(result).toEqual(PREFERENCES);
+  });
+
+  it('uses the bounded active-screen retry policy when saving before a profile load', () => {
+    service.updatePreferences(PREFERENCES).subscribe();
+
+    const [, , options] = transport.findCurrentAppUser.mock.calls[0];
+    expect(options.context.get(HTTP_RETRY_POLICY)).toEqual(ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+    expect(transport.updateAppUser).toHaveBeenCalledWith(USER_ID, PREFERENCES);
   });
 });
 
