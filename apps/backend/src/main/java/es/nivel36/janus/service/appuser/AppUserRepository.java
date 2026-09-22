@@ -15,7 +15,6 @@
  */
 package es.nivel36.janus.service.appuser;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,13 +29,7 @@ import es.nivel36.janus.service.employee.Employee;
 @Repository
 interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 
-	List<AppUser> findByEmail(String email);
-
 	Optional<AppUser> findByKeycloakSubject(String keycloakSubject);
-
-	boolean existsByKeycloakSubject(String keycloakSubject);
-
-	boolean existsByEmployee(Employee employee);
 
 	Optional<AppUser> findByEmployee(Employee employee);
 

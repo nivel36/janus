@@ -93,7 +93,7 @@ public class AppUser implements Serializable {
 		this.keycloakSubject = validateKeycloakSubject(keycloakSubject);
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
-		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null or blank");
+		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null");
 	}
 
 	public UUID getId() {
