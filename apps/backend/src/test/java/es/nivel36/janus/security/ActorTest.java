@@ -19,7 +19,7 @@ class ActorTest {
 	@Test
 	void shouldDefensivelyCopyRoles() {
 		final Set<Role> roles = new HashSet<>(Set.of(Role.JANUS_USER));
-		final Actor actor = new Actor(7L, roles, null);
+		final Actor actor = new Actor(java.util.UUID.fromString("77777777-7777-4777-8777-777777777777"), roles, null);
 
 		roles.clear();
 

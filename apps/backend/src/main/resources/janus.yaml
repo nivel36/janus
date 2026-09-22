@@ -13,9 +13,12 @@ paths:
         '200':
           description: Current application user
           content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } }
+  /appusers/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
     put:
       tags: [app-users]
-      operationId: updateCurrentAppUser
+      operationId: updateAppUser
       requestBody:
         required: true
         content: { application/json: { schema: { $ref: '#/components/schemas/UpdateAppUserRequest' } } }
@@ -23,22 +26,14 @@ paths:
         '200':
           description: Updated application user
           content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } }
-  /appusers/{username}:
     delete:
       tags: [app-users]
       operationId: deleteAppUser
       security:
         - bearerAuth: []
-      parameters:
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
-            pattern: '^[A-Za-z0-9_.@-]{3,50}$'
       responses:
         '204': { description: Application user deleted }
-        '400': { description: Invalid username }
+        '400': { description: Invalid UUID }
         '403': { description: Insufficient permissions }
         '404': { description: Application user not found }
   /applicationsettings:
@@ -170,9 +165,10 @@ components:
     TimeFormat: { type: string, enum: [H12, H24] }
     AppUserResponse:
       type: object
-      required: [username, locale, timeFormat, defaultTimezone]
+      required: [id, email, locale, timeFormat, defaultTimezone]
       properties:
-        username: { type: string }
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
         locale: { type: string }
         timeFormat: { $ref: '#/components/schemas/TimeFormat' }
         defaultTimezone: { type: string }

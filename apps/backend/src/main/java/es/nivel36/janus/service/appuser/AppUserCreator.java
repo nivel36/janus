@@ -30,9 +30,9 @@ class AppUserCreator {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public AppUser create(final String username, final String keycloakSubject, final Locale locale,
+	public AppUser create(final String email, final String keycloakSubject, final Locale locale,
 			final TimeFormat timeFormat, final ZoneId defaultTimezone, final Employee employee) {
-		final AppUser appUser = new AppUser(username, keycloakSubject, locale, timeFormat, defaultTimezone);
+		final AppUser appUser = new AppUser(email, keycloakSubject, locale, timeFormat, defaultTimezone);
 		appUser.setEmployee(employee);
 		try {
 			return this.appUserRepository.saveAndFlush(appUser);
@@ -65,9 +65,6 @@ class AppUserCreator {
 		}
 		if (normalized.contains("UK_APP_USER_EMPLOYEE")) {
 			return AppUserCreationConflict.Key.EMPLOYEE;
-		}
-		if (normalized.contains("UK_APP_USER_USERNAME")) {
-			return AppUserCreationConflict.Key.USERNAME;
 		}
 		return AppUserCreationConflict.Key.UNKNOWN;
 	}

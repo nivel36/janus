@@ -15,17 +15,20 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
+import java.util.UUID;
+
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 
 /**
  * Response DTO exposing the public representation of an {@link AppUser}.
  *
- * @param username        the unique username of the user
+ * @param id              the public UUID of the user
+ * @param email           the user email (not necessarily unique)
  * @param locale          the user's preferred locale expressed as a BCP 47
  *                        language tag
  * @param timeFormat      the preferred {@link TimeFormat}
  * @param defaultTimezone the default timezone of the user
  */
-public record AppUserResponse(String username, String locale, TimeFormat timeFormat, String defaultTimezone) {
+public record AppUserResponse(UUID id, String email, String locale, TimeFormat timeFormat, String defaultTimezone) {
 }

@@ -16,9 +16,11 @@
 package es.nivel36.janus.service.appuser;
 
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,19 +90,12 @@ public class AppUserService {
 
 	/**
 	 * Finds the account linked to a Keycloak subject or provisions it on first
-	 * access. The subject is the sole identity-linking key; the preferred username
-	 * is used only as the new account's visible name.
-	 *
-	 * <p>
-	 * The initial preferences come from the provisioning defaults. When an account
-	 * must be created, {@code preferred_username} must satisfy the same rule as
-	 * usernames accepted by the administration API.
-	 * </p>
+	 * access. The subject is the sole identity-linking key and the verified email is
+	 * stored as contact information without being used as a unique identifier.
 	 */
 	@Transactional
 	public synchronized AppUser findOrCreateAppUser( //
 			final String keycloakSubject, //
-			final String preferredUsername, //
 			final String verifiedEmail) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 
@@ -109,25 +104,21 @@ public class AppUserService {
 			return existing.get();
 		}
 
-		final String username = validatePreferredUsername(preferredUsername);
-		final AppUser existingUsername = this.appUserRepository.findByUsername(username);
-		if (existingUsername != null && !keycloakSubject.equals(existingUsername.getKeycloakSubject())) {
-			throw usernameConflict(username, null);
-		}
-		final Employee employee = this.findUnlinkedEmployee(verifiedEmail, keycloakSubject);
-		return this.insertAndReconcile(username, keycloakSubject, employee);
+		final String canonicalEmail = Strings.requireNonBlank(verifiedEmail, "email cannot be null or blank.");
+		final Employee employee = this.findUnlinkedEmployee(canonicalEmail, keycloakSubject);
+		return this.insertAndReconcile(canonicalEmail, keycloakSubject, employee);
 	}
 
-	private AppUser insertAndReconcile(final String username, final String keycloakSubject, final Employee employee) {
+	private AppUser insertAndReconcile(final String email, final String keycloakSubject, final Employee employee) {
 		try {
-			return this.appUserCreator.create(username, keycloakSubject, this.provisioningDefaults.locale(),
+			return this.appUserCreator.create(email, keycloakSubject, this.provisioningDefaults.locale(),
 					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), employee);
 		} catch (final AppUserCreationConflict conflict) {
 			if (employee != null && conflict.key() == AppUserCreationConflict.Key.UNKNOWN) {
 				// The failed transaction may still contain the competing transient
 				// association, so do not issue another query before retrying without it.
 				this.logEmployeeConflict(employee, keycloakSubject);
-				return this.insertAndReconcile(username, keycloakSubject, null);
+				return this.insertAndReconcile(email, keycloakSubject, null);
 			}
 			// Subject reconciliation always comes first: it makes repeated requests
 			// idempotent even if a driver did not expose the violated constraint name.
@@ -138,11 +129,7 @@ public class AppUserService {
 			if (employee != null && conflict.key() == AppUserCreationConflict.Key.EMPLOYEE
 					&& this.appUserRepository.existsByEmployee(employee)) {
 				this.logEmployeeConflict(employee, keycloakSubject);
-				return this.insertAndReconcile(username, keycloakSubject, null);
-			}
-			if (conflict.key() == AppUserCreationConflict.Key.USERNAME
-					|| this.appUserRepository.existsByUsername(username)) {
-				throw usernameConflict(username, conflict);
+				return this.insertAndReconcile(email, keycloakSubject, null);
 			}
 			throw conflict;
 		}
@@ -153,10 +140,6 @@ public class AppUserService {
 			throw new IllegalStateException("Subject lookup returned a profile for a different identity");
 		}
 		return appUser;
-	}
-
-	private static PreferredUsernameConflictException usernameConflict(final String username, final Throwable cause) {
-		return new PreferredUsernameConflictException(username, cause);
 	}
 
 	private Employee findUnlinkedEmployee(final String verifiedEmail, final String keycloakSubject) {
@@ -178,36 +161,17 @@ public class AppUserService {
 				employee.getId(), keycloakSubject);
 	}
 
-	private static String validatePreferredUsername(final String preferredUsername) {
-		if (preferredUsername == null) {
-			throw new IllegalArgumentException("preferred_username claim is required");
-		}
-		final String username = preferredUsername;
-		if (!username.matches("[A-Za-z0-9_.@-]{3,50}")) {
-			throw new IllegalArgumentException("preferred_username claim is invalid: "
-					+ "username must contain only letters, digits, dots, underscores, hyphens or at signs (3-50 characters)");
-		}
-		return username;
+	@Transactional(readOnly = true)
+	public AppUser findAppUserById(final UUID id) {
+		Objects.requireNonNull(id, "id cannot be null.");
+		return this.appUserRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("There is no application user with id " + id));
 	}
 
-	/**
-	 * Retrieves an {@link AppUser} identified by the given username.
-	 *
-	 * @param username the unique username of the user to retrieve. Can't be
-	 *                 {@code null} or blank.
-	 *
-	 * @return the {@link AppUser} associated with the given username
-	 *
-	 * @throws NullPointerException      if {@code username} is {@code null}
-	 * @throws IllegalArgumentException  if {@code username} is blank
-	 * @throws ResourceNotFoundException if no user exists with the given username
-	 */
 	@Transactional(readOnly = true)
-	public AppUser findAppUserByUsername(final String username) {
-		Strings.requireNonBlank(username, "username cannot be null or blank.");
-		logger.debug("Finding AppUser by username {}", username);
-
-		return this.findAppUser(username);
+	public List<AppUser> findAppUsersByEmail(final String email) {
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
+		return this.appUserRepository.findByEmail(email);
 	}
 
 	@Transactional(readOnly = true)
@@ -219,12 +183,12 @@ public class AppUserService {
 	}
 
 	@Transactional
-	public AppUser updateCurrentAppUser( //
-			final String keycloakSubject, //
+	public AppUser updateAppUser( //
+			final UUID id, //
 			final Locale newLocale, //
 			final TimeFormat newTimeFormat, //
 			final ZoneId newDefaultTimezone) {
-		final AppUser appUser = this.findAppUserByKeycloakSubject(keycloakSubject);
+		final AppUser appUser = this.findAppUserById(id);
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
 		appUser.setDefaultTimezone(newDefaultTimezone);
@@ -247,11 +211,4 @@ public class AppUserService {
 		logger.trace("AppUser {} deleted successfully", appUser);
 	}
 
-	private AppUser findAppUser(final String username) {
-		final AppUser appUser = this.appUserRepository.findByUsername(username);
-		if (appUser == null) {
-			throw new ResourceNotFoundException("There is no application user with username " + username);
-		}
-		return appUser;
-	}
 }

@@ -32,10 +32,11 @@ public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 		if (appUser == null) {
 			return null;
 		}
-		final String username = appUser.getUsername();
+		final var id = appUser.getId();
+		final String email = appUser.getEmail();
 		final String locale = appUser.getLocale().toLanguageTag();
 		final TimeFormat timeFormat = appUser.getTimeFormat();
 		final String defaultTimeZone = appUser.getDefaultTimezone().getId();
-		return new AppUserResponse(username, locale, timeFormat, defaultTimeZone);
+		return new AppUserResponse(id, email, locale, timeFormat, defaultTimeZone);
 	}
 }

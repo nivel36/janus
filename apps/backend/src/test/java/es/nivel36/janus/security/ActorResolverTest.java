@@ -35,7 +35,7 @@ class ActorResolverTest {
 		final AppUser appUser = mock(AppUser.class);
 		final Employee employee = mock(Employee.class);
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT)).thenReturn(appUser);
-		when(appUser.getId()).thenReturn(42L);
+		when(appUser.getId()).thenReturn(java.util.UUID.fromString("42424242-4242-4242-8242-424242424242"));
 		when(appUser.getEmployee()).thenReturn(employee);
 		when(employee.getId()).thenReturn(84L);
 		final JwtAuthenticationToken authentication = jwtAuthentication(
@@ -44,7 +44,7 @@ class ActorResolverTest {
 
 		final Actor actor = new ActorResolver(appUserService).resolve(authentication);
 
-		assertThat(actor.id()).isEqualTo(42L);
+		assertThat(actor.id()).isEqualTo(java.util.UUID.fromString("42424242-4242-4242-8242-424242424242"));
 		assertThat(actor.employeeId()).isEqualTo(84L);
 		assertThat(actor.roles()).containsExactly(Role.JANUS_ADMIN);
 		verify(appUserService).findAppUserByKeycloakSubject(SUBJECT);
@@ -55,7 +55,7 @@ class ActorResolverTest {
 		final AppUserService appUserService = mock(AppUserService.class);
 		final AppUser appUser = mock(AppUser.class);
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT)).thenReturn(appUser);
-		when(appUser.getId()).thenReturn(12L);
+		when(appUser.getId()).thenReturn(java.util.UUID.fromString("12121212-1212-4212-8212-121212121212"));
 
 		final Actor actor = new ActorResolver(appUserService).resolve(jwtAuthentication(List.of()));
 

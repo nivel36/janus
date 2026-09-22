@@ -10,7 +10,7 @@ final class AppUserCreationConflict extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	enum Key {
-		KEYCLOAK_SUBJECT, EMPLOYEE, USERNAME, UNKNOWN
+		KEYCLOAK_SUBJECT, EMPLOYEE, UNKNOWN
 	}
 
 	private final Key key;

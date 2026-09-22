@@ -6,7 +6,10 @@ import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AppUsersService } from '../../../api/generated/api/appUsers.service';
-import { HTTP_RETRY_POLICY } from '../../http/http-retry.interceptor';
+import {
+  ACTIVE_SCREEN_HTTP_RETRY_POLICY,
+  HTTP_RETRY_POLICY,
+} from '../../http/http-retry.interceptor';
 import { UserPreferences } from '../models/user-preferences';
 import { UserProfileApiService } from './user-profile-api.service';
 
@@ -14,15 +17,17 @@ describe('UserProfileApiService', () => {
   let service: UserProfileApiService;
   let transport: {
     findCurrentAppUser: ReturnType<typeof vi.fn>;
-    updateCurrentAppUser: ReturnType<typeof vi.fn>;
+    updateAppUser: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     transport = {
-      findCurrentAppUser: vi.fn().mockReturnValue(of({ username: 'mutable-name', ...PREFERENCES })),
-      updateCurrentAppUser: vi
+      findCurrentAppUser: vi
         .fn()
-        .mockReturnValue(of({ username: 'mutable-name', ...PREFERENCES })),
+        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', ...PREFERENCES })),
+      updateAppUser: vi
+        .fn()
+        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', ...PREFERENCES })),
     };
     TestBed.configureTestingModule({
       providers: [UserProfileApiService, { provide: AppUsersService, useValue: transport }],
@@ -42,12 +47,22 @@ describe('UserProfileApiService', () => {
     });
   });
 
-  it('updates preferences through the generated transport', () => {
+  it('reuses the UUID cached while loading preferences when saving', () => {
     let result: UserPreferences | undefined;
+    service.getPreferences().subscribe();
     service.updatePreferences(PREFERENCES).subscribe((preferences) => (result = preferences));
 
-    expect(transport.updateCurrentAppUser).toHaveBeenCalledWith(PREFERENCES);
+    expect(transport.findCurrentAppUser).toHaveBeenCalledTimes(1);
+    expect(transport.updateAppUser).toHaveBeenCalledWith(USER_ID, PREFERENCES);
     expect(result).toEqual(PREFERENCES);
+  });
+
+  it('uses the bounded active-screen retry policy when saving before a profile load', () => {
+    service.updatePreferences(PREFERENCES).subscribe();
+
+    const [, , options] = transport.findCurrentAppUser.mock.calls[0];
+    expect(options.context.get(HTTP_RETRY_POLICY)).toEqual(ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+    expect(transport.updateAppUser).toHaveBeenCalledWith(USER_ID, PREFERENCES);
   });
 });
 
@@ -56,3 +71,5 @@ const PREFERENCES: UserPreferences = {
   timeFormat: 'H24',
   defaultTimezone: 'Europe/Madrid',
 };
+
+const USER_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
