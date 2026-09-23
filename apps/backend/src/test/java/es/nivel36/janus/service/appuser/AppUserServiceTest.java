@@ -16,19 +16,17 @@
 package es.nivel36.janus.service.appuser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
 
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -89,18 +87,6 @@ class AppUserServiceTest {
 				.thenThrow(new AppUserCreationConflict(new RuntimeException("subject claimed")));
 
 		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, email));
-	}
-
-	@Test
-	void findAppUsersByEmailReturnsEveryMatchingAccount() {
-		final AppUser appUser = new AppUser("person@example.test", "11111111-1111-4111-8111-111111111111", Locale.ENGLISH,
-				TimeFormat.H24, ZoneId.of("Europe/Madrid"));
-		when(this.appUserRepository.findByEmail("person@example.test")).thenReturn(List.of(appUser));
-
-		final List<AppUser> found = this.appUserService.findAppUsersByEmail("person@example.test");
-
-		assertEquals(List.of(appUser), found);
-		verify(this.appUserRepository).findByEmail("person@example.test");
 	}
 
 	@Test

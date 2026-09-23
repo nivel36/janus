@@ -16,7 +16,6 @@
 package es.nivel36.janus.service.appuser;
 
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -115,7 +114,11 @@ public class AppUserService {
 		} catch (final AppUserCreationConflict conflict) {
 			final Optional<AppUser> subjectWinner = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 			if (subjectWinner.isPresent()) {
-				return requireRequestedSubject(subjectWinner.get(), keycloakSubject);
+				final AppUser appUser = subjectWinner.get();
+				if (!keycloakSubject.equals(appUser.getKeycloakSubject())) {
+					throw new IllegalStateException("Subject lookup returned a profile for a different identity");
+				}
+				return appUser;
 			}
 			if (employee != null) {
 				this.logEmployeeConflict(employee, keycloakSubject);
@@ -123,13 +126,6 @@ public class AppUserService {
 			}
 			throw conflict;
 		}
-	}
-
-	private static AppUser requireRequestedSubject(final AppUser appUser, final String keycloakSubject) {
-		if (!keycloakSubject.equals(appUser.getKeycloakSubject())) {
-			throw new IllegalStateException("Subject lookup returned a profile for a different identity");
-		}
-		return appUser;
 	}
 
 	private Employee findUnlinkedEmployee(final String email, final String keycloakSubject) {
@@ -153,12 +149,6 @@ public class AppUserService {
 		Objects.requireNonNull(id, "id cannot be null.");
 		return this.appUserRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("There is no application user with id " + id));
-	}
-
-	@Transactional(readOnly = true)
-	public List<AppUser> findAppUsersByEmail(final String email) {
-		Strings.requireNonBlank(email, "email cannot be null or blank.");
-		return this.appUserRepository.findByEmail(email);
 	}
 
 	@Transactional(readOnly = true)
