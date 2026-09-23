@@ -36,8 +36,6 @@ interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 
 	boolean existsByKeycloakSubject(String keycloakSubject);
 
-	boolean existsByEmployee(Employee employee);
-
 	Optional<AppUser> findByEmployee(Employee employee);
 
 }
