@@ -78,19 +78,15 @@ class AppUserServiceTest {
 		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
 		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
 		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
-		when(this.employeeService.existsEmployeeByEmail("person@example.test")).thenReturn(true);
-		when(this.employeeService.findEmployeeByEmail("person@example.test")).thenReturn(employee);
+		when(this.employeeService.findEmployeeForProvisioning("person@example.test")).thenReturn(Optional.of(employee));
 		when(this.appUserRepository.findByEmployee(employee)).thenReturn(Optional.empty());
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty())
 				.thenReturn(Optional.empty()).thenReturn(Optional.of(winner));
-		when(this.appUserRepository.existsByEmployee(employee)).thenReturn(true);
 		when(this.appUserCreator.create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, employee))
-				.thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.EMPLOYEE,
-						new RuntimeException("employee claimed")));
+				.thenThrow(new AppUserCreationConflict(new RuntimeException("employee claimed")));
 		when(this.appUserCreator.create(eq(email), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
 				isNull()))
-				.thenThrow(new AppUserCreationConflict(AppUserCreationConflict.Key.KEYCLOAK_SUBJECT,
-						new RuntimeException("subject claimed")));
+				.thenThrow(new AppUserCreationConflict(new RuntimeException("subject claimed")));
 
 		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, email));
 	}

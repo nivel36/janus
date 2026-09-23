@@ -113,20 +113,11 @@ public class AppUserService {
 			return this.appUserCreator.create(email, keycloakSubject, this.provisioningDefaults.locale(),
 					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), employee);
 		} catch (final AppUserCreationConflict conflict) {
-			if (employee != null && conflict.key() == AppUserCreationConflict.Key.UNKNOWN) {
-				// The failed transaction may still contain the competing transient
-				// association, so do not issue another query before retrying without it.
-				this.logEmployeeConflict(employee, keycloakSubject);
-				return this.insertAndReconcile(email, keycloakSubject, null);
-			}
-			// Subject reconciliation always comes first: it makes repeated requests
-			// idempotent even if a driver did not expose the violated constraint name.
 			final Optional<AppUser> subjectWinner = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 			if (subjectWinner.isPresent()) {
 				return requireRequestedSubject(subjectWinner.get(), keycloakSubject);
 			}
-			if (employee != null && conflict.key() == AppUserCreationConflict.Key.EMPLOYEE
-					&& this.appUserRepository.existsByEmployee(employee)) {
+			if (employee != null) {
 				this.logEmployeeConflict(employee, keycloakSubject);
 				return this.insertAndReconcile(email, keycloakSubject, null);
 			}
@@ -142,16 +133,14 @@ public class AppUserService {
 	}
 
 	private Employee findUnlinkedEmployee(final String email, final String keycloakSubject) {
-		if (this.employeeService.existsEmployeeByEmail(email)) {
-			final Employee employee = employeeService.findEmployeeByEmail(email);
+		return this.employeeService.findEmployeeForProvisioning(email).filter(employee -> {
 			final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
 			if (linkedUser.isPresent()) {
 				this.logEmployeeConflict(employee, keycloakSubject);
-				return null;
+				return false;
 			}
-			return employee;
-		}
-		return null;
+			return true;
+		}).orElse(null);
 	}
 
 	private void logEmployeeConflict(final Employee employee, final String keycloakSubject) {
