@@ -49,7 +49,7 @@ class WorksiteServiceTest {
 	void assertEmployeeCanUseWorksiteShouldAllowAssignedScopeWhenEmployeeIsAssigned() {
 		final Schedule schedule = new Schedule("STD-WH", "Standard Work Hours", Duration.ofMinutes(5),
 				Duration.ofMinutes(5));
-		final Employee employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", schedule);
+		final Employee employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es", schedule);
 		final String employeeEmail = employee.getEmail();
 		final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
 				WorksiteScope.ASSIGNED);
@@ -63,7 +63,7 @@ class WorksiteServiceTest {
 	void assertEmployeeCanUseWorksiteShouldRejectAssignedScopeWhenEmployeeIsNotAssigned() {
 		final Schedule schedule = new Schedule("STD-WH", "Standard Work Hours", Duration.ofMinutes(5),
 				Duration.ofMinutes(5));
-		final Employee employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es", schedule);
+		final Employee employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es", schedule);
 		final String employeeEmail = employee.getEmail();
 		final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
 				WorksiteScope.ASSIGNED);

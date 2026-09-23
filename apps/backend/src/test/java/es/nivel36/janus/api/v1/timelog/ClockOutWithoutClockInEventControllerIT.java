@@ -64,8 +64,8 @@ class ClockOutWithoutClockInEventControllerIT {
 	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(2,'EMP-0002','Ada','Lovelace','ada@nivel36.es',1)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('abel','employee-subject','en-US','H24','UTC',1)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','admin-subject','en-US','H24','UTC',NULL)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('outsider','outsider-subject','en-US','H24','UTC',NULL)",
@@ -122,8 +122,8 @@ class ClockOutWithoutClockInEventControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(2,'EMP-0002','Ada','Lovelace','ada@nivel36.es',1)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','provider-account-id','en-US','H24','UTC',NULL)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
@@ -147,8 +147,8 @@ class ClockOutWithoutClockInEventControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(2,'EMP-0002','Ada','Lovelace','ada@nivel36.es',1)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','provider-account-id','en-US','H24','UTC',NULL)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
@@ -177,8 +177,8 @@ class ClockOutWithoutClockInEventControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(2,'EMP-0002','Ada','Lovelace','ada@nivel36.es',1)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','provider-account-id','en-US','H24','UTC',NULL)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })
@@ -204,8 +204,8 @@ class ClockOutWithoutClockInEventControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(2,'EMP-0002','Ada','Lovelace','ada@nivel36.es',1)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','provider-account-id','en-US','H24','UTC',NULL)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'HOME-AF','Home Office Abel','UTC+2','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z'::timestamp,'2025-08-04T16:00:00Z'::timestamp,false,false)" })

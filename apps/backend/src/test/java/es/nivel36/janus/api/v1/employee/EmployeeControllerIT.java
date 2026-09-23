@@ -60,16 +60,16 @@ class EmployeeControllerIT {
 
 	@Test
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard')",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(10,'Alice','One','alice@internal.test',1)",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(11,'Bob','Two','bob@internal.test',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(10,'EMP-0010','Alice','One','alice@internal.test',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(11,'EMP-0011','Bob','Two','bob@internal.test',1)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('alice','11111111-1111-4111-8111-111111111111','en-US','H24','UTC',10)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('bob','22222222-2222-4222-8222-222222222222','en-US','H24','UTC',11)" })
 	void employeeCanAccessOwnProfileButNotAnotherEmployeesProfile() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "alice@internal.test").with(verifiedJwt()
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0010").with(verifiedJwt()
 				.jwt(jwt -> jwt.subject("11111111-1111-4111-8111-111111111111").claim("email", "different@token.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))).andExpect(status().isOk());
 
-		this.mvc.perform(get(BASE + "/by-email/{email}", "bob@internal.test")
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0011")
 				.with(verifiedJwt().jwt(jwt -> jwt.subject("11111111-1111-4111-8111-111111111111"))
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isForbidden());
@@ -77,20 +77,20 @@ class EmployeeControllerIT {
 
 	@Test
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard')",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(10,'Alice','One','alice@internal.test',1)",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(11,'Bob','Two','bob@internal.test',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(10,'EMP-0010','Alice','One','alice@internal.test',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(11,'EMP-0011','Bob','Two','bob@internal.test',1)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('alice','11111111-1111-4111-8111-111111111111','en-US','H24','UTC',10)",
 			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('bob','22222222-2222-4222-8222-222222222222','en-US','H24','UTC',11)" })
 	void employeeAuthorizationUsesSubjectLinkAndNotEmailClaim() throws Exception {
 		// A matching mutable email cannot grant access when the immutable subject
 		// belongs to Bob.
-		this.mvc.perform(get(BASE + "/by-email/{email}", "alice@internal.test").with(verifiedJwt()
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0010").with(verifiedJwt()
 				.jwt(jwt -> jwt.subject("22222222-2222-4222-8222-222222222222").claim("email", "alice@internal.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))).andExpect(status().isForbidden());
 
 		// A nonexistent email produces the same generic denial and cannot be
 		// enumerated.
-		this.mvc.perform(get(BASE + "/by-email/{email}", "unknown@internal.test")
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "UNKNOWN")
 				.with(verifiedJwt().jwt(jwt -> jwt.subject("11111111-1111-4111-8111-111111111111"))
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isForbidden())
@@ -99,9 +99,9 @@ class EmployeeControllerIT {
 
 	@Test
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard')",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(10,'Alice','One','alice@internal.test',1)" })
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(10,'EMP-0010','Alice','One','alice@internal.test',1)" })
 	void employeeWithoutProvisionedLinkReceivesForbidden() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "alice@internal.test").with(verifiedJwt()
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0010").with(verifiedJwt()
 				.jwt(jwt -> jwt.subject("33333333-3333-4333-8333-333333333333").claim("email", "alice@internal.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))).andExpect(status().isForbidden());
 	}
@@ -109,15 +109,16 @@ class EmployeeControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
-			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
+			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" //
 	})
 	void testFindByEmailShouldReturn200() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(verifiedJwt()//
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.name").value("Abel")) //
 				.andExpect(jsonPath("$.surname").value("Ferrer")) //
+				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001")) //
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es")) //
 				.andExpect(jsonPath("$.scheduleCode").value("STD-WH"));
 	}
@@ -125,30 +126,30 @@ class EmployeeControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
-			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
+			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" //
 	})
 	void testElevatedRolesWithoutVerifiedEmailAreUnauthorized() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").header("Authorization", "Bearer email-unverified")) //
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").header("Authorization", "Bearer email-unverified")) //
 				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	void testFindByUnknownEmailShouldReturn404() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(verifiedJwt()//
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	void testFindByInvalidEmailShouldReturn400() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "not-an-email").with(verifiedJwt()//
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "not valid!").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testEmployeeWithScopeCannotFindAnotherEmployee() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(verifiedJwt() //
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt() //
 				.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 						.claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read")))) //
@@ -157,7 +158,7 @@ class EmployeeControllerIT {
 
 	@Test
 	void testEmployeeWithUnverifiedEmailCannotAccessEmployeeResource() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "employee@nivel36.es").with(verifiedJwt() //
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt() //
 				.jwt(jwt -> jwt.claim("email", "employee@nivel36.es").claim("email_verified", false)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isForbidden());
@@ -165,7 +166,7 @@ class EmployeeControllerIT {
 
 	@Test
 	void testEmployeeWithUnknownRoleCannotFindAnotherEmployee() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(verifiedJwt() //
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt() //
 				.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 						.claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_UNKNOWN")))) //
@@ -175,10 +176,10 @@ class EmployeeControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
-			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Other','Employee','other@nivel36.es',1)" //
+			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Other','Employee','other@nivel36.es',1)" //
 	})
 	void testEmployeeWithUserRoleCanFindAnotherEmployee() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(verifiedJwt() //
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt() //
 				.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 						.claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER")))) //
@@ -189,10 +190,10 @@ class EmployeeControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
-			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Other','Employee','other@nivel36.es',1)" //
+			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Other','Employee','other@nivel36.es',1)" //
 	})
 	void testEmployeeWithAdminRoleCanFindAnotherEmployee() throws Exception {
-		this.mvc.perform(get(BASE + "/by-email/{email}", "other@nivel36.es").with(verifiedJwt() //
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt() //
 				.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 						.claim("email_verified", true)) //
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_ADMIN")))) //
@@ -206,7 +207,7 @@ class EmployeeControllerIT {
 	})
 	void testCreateShouldReturn201AndPersist() throws Exception {
 		final String body = """
-				{"name":"Abel","surname":"Ferrer","email":"aferrer@nivel36.es","scheduleCode":"STD-WH"}
+				{"employeeNumber":"EMP-0001","name":"Abel","surname":"Ferrer","email":"aferrer@nivel36.es","scheduleCode":"STD-WH"}
 				""";
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
@@ -217,7 +218,7 @@ class EmployeeControllerIT {
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es")) //
 				.andExpect(jsonPath("$.scheduleCode").value("STD-WH"));
 
-		this.mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(verifiedJwt() //
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt() //
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"));
@@ -226,11 +227,11 @@ class EmployeeControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
-			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
+			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" //
 	})
 	void testCreateAlreadyExistsShouldReturn400() throws Exception {
 		final String body = """
-				{"name":"Abel","surname":"Ferrer","email":"AFERRER@NIVEL36.ES","scheduleCode":"STD-WH"}
+				{"employeeNumber":"EMP-0002","name":"Abel","surname":"Ferrer","email":"AFERRER@NIVEL36.ES","scheduleCode":"STD-WH"}
 				""";
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
@@ -240,7 +241,7 @@ class EmployeeControllerIT {
 	@Test
 	void testCreateInvalidPayloadShouldReturn400() throws Exception {
 		final String body = """
-				{"name":"", "surname":"", "email":"bad", "scheduleCode":null}
+				{"employeeNumber":"", "name":"", "surname":"", "email":"bad", "scheduleCode":null}
 				""";
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt())) //
 				.andExpect(status().isBadRequest());
@@ -250,17 +251,17 @@ class EmployeeControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
 			"INSERT INTO schedule(id,code,name) VALUES(2,'STD-WH-AUG-VAR','Standard Work Hours with August Variation')",
-			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
+			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" //
 	})
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		final String body = """
-				{"name":"Abel","surname":"Ferrer Jiménez","scheduleCode":"STD-WH"}
+				{"name":"Abel","surname":"Ferrer Jiménez","email":"new@nivel36.es","scheduleCode":"STD-WH"}
 				""";
-		this.mvc.perform(put(BASE + "/{employeeEmail}", "aferrer@nivel36.es").contentType(APPLICATION_JSON)
+		this.mvc.perform(put(BASE + "/{employeeNumber}", "EMP-0001").contentType(APPLICATION_JSON)
 				.content(body).with(verifiedJwt() //
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es")) //
+				.andExpect(jsonPath("$.email").value("new@nivel36.es")) //
 				.andExpect(jsonPath("$.name").value("Abel")) //
 				.andExpect(jsonPath("$.surname").value("Ferrer Jiménez")) //
 				.andExpect(jsonPath("$.scheduleCode").value("STD-WH"));
@@ -269,9 +270,9 @@ class EmployeeControllerIT {
 	@Test
 	void testEmployeeWithScopeCannotUpdateAnotherEmployee() throws Exception {
 		final String body = """
-				{"name":"Other","surname":"Employee","scheduleCode":"STD-WH"}
+				{"name":"Other","surname":"Employee","email":"other@nivel36.es","scheduleCode":"STD-WH"}
 				""";
-		this.mvc.perform(put(BASE + "/{employeeEmail}", "other@nivel36.es").contentType(APPLICATION_JSON).content(body)
+		this.mvc.perform(put(BASE + "/{employeeNumber}", "EMP-0001").contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 								.claim("email_verified", true)) //
@@ -282,9 +283,9 @@ class EmployeeControllerIT {
 	@Test
 	void testEmployeeWithUnknownRoleCannotUpdateAnotherEmployee() throws Exception {
 		final String body = """
-				{"name":"Other","surname":"Employee","scheduleCode":"STD-WH"}
+				{"name":"Other","surname":"Employee","email":"other@nivel36.es","scheduleCode":"STD-WH"}
 				""";
-		this.mvc.perform(put(BASE + "/{employeeEmail}", "other@nivel36.es").contentType(APPLICATION_JSON).content(body)
+		this.mvc.perform(put(BASE + "/{employeeNumber}", "EMP-0001").contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt()
 						.jwt(jwt -> jwt.subject("user").claim("email", "employee@nivel36.es")
 								.claim("email_verified", true)) //
@@ -295,14 +296,14 @@ class EmployeeControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
-			"INSERT INTO employee(name,surname,email,schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)" //
+			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" //
 	})
 	void testDeleteShouldReturn204AndDisappearFromFind() throws Exception {
-		this.mvc.perform(delete(BASE + "/{employeeEmail}", "aferrer@nivel36.es").with(verifiedJwt()//
+		this.mvc.perform(delete(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent());
 
-		this.mvc.perform(get(BASE + "/by-email/{email}", "aferrer@nivel36.es").with(verifiedJwt()//
+		this.mvc.perform(get(BASE + "/{employeeNumber}", "EMP-0001").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))//
 				.andExpect(status().isNotFound());
 	}

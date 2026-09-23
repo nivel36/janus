@@ -34,6 +34,10 @@ import es.nivel36.janus.service.workshift.WorkShift;
  */
 @Repository
 interface EmployeeRepository extends CrudRepository<Employee, Long> {
+	@EntityGraph(attributePaths = "schedule")
+	Employee findByEmployeeNumber(String employeeNumber);
+
+	boolean existsByEmployeeNumber(String employeeNumber);
 
 	@Query("SELECT e.id FROM Employee e WHERE e.email = :email")
 	Optional<Long> findIdByEmail(String email);

@@ -65,7 +65,7 @@ class TimeLogServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es",
+		this.employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es",
 				new Schedule("CODE", "Name", Duration.ofMinutes(5), Duration.ofMinutes(5)));
 		final ZoneId utcZone = ZoneId.of("UTC");
 		this.worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);

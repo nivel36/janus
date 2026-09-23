@@ -46,6 +46,10 @@ public record UpdateEmployeeRequest(//
 		) //
 		String surname, //
 
+		@NotBlank(message = "email must not be blank") //
+		@Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") //
+		String email, //
+
 		@NotBlank(message = "scheduleCode must not be blank") //
 		@Pattern( //
 				regexp = "[A-Za-z0-9_-]{1,50}", //

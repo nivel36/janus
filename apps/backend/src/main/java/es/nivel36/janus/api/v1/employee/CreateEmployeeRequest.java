@@ -34,6 +34,9 @@ import jakarta.validation.constraints.Pattern;
  *                     blank and must be at most 50 characters
  */
 public record CreateEmployeeRequest( //
+		@NotBlank(message = "employeeNumber must not be blank") //
+		@Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "employeeNumber must contain only letters, digits, underscores or hyphens (max 50)") //
+		String employeeNumber, //
 		@NotBlank(message = "name must not be blank") //
 		@Pattern( //
 				regexp = "^[\\p{L} .,'-]{1,255}$", //

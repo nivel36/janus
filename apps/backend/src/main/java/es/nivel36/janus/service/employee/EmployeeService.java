@@ -115,6 +115,16 @@ public class EmployeeService {
 		return this.findEmployee(email);
 	}
 
+	@Transactional(readOnly = true)
+	public Employee findEmployeeByEmployeeNumber(final String employeeNumber) {
+		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
+		final Employee employee = this.employeeRepository.findByEmployeeNumber(employeeNumber);
+		if (employee == null) {
+			throw new ResourceNotFoundException("There is no employee with number " + employeeNumber);
+		}
+		return employee;
+	}
+
 	/** Finds an employee by canonical email for first-access identity linking. */
 	@Transactional(readOnly = true)
 	public Optional<Employee> findEmployeeForProvisioning(final String email) {
@@ -168,8 +178,9 @@ public class EmployeeService {
 	 *                                        already exists
 	 */
 	@Transactional
-	public Employee createEmployee(final String name, final String surname, final String email,
+	public Employee createEmployee(final String employeeNumber, final String name, final String surname, final String email,
 			final Schedule schedule) {
+		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
 		Strings.requireNonBlank(name, "name cannot be null or blank.");
 		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
 		Strings.requireNonBlank(email, "email cannot be null or blank.");
@@ -177,13 +188,16 @@ public class EmployeeService {
 
 		logger.debug("Creating new employee {}", email);
 
+		if (this.employeeRepository.existsByEmployeeNumber(employeeNumber)) {
+			throw new ResourceAlreadyExistsException("Employee with number " + employeeNumber + " already exists");
+		}
 		final boolean emailInUse = this.employeeRepository.existsByEmail(email);
 		if (emailInUse) {
 			logger.warn("Employee with email {} already exists", email);
 			throw new ResourceAlreadyExistsException("Employee with email " + email + " already exists");
 		}
 
-		final Employee employee = new Employee(name, surname, email, schedule);
+		final Employee employee = new Employee(employeeNumber, name, surname, email, schedule);
 
 		return this.employeeRepository.save(employee);
 	}
@@ -209,18 +223,23 @@ public class EmployeeService {
 	 *                                   or no schedule exists with the given code
 	 */
 	@Transactional
-	public Employee updateEmployee(final String email, final String newName, final String newSurname,
-			final String scheduleCode) {
-		Strings.requireNonBlank(email, "email cannot be null or blank.");
+	public Employee updateEmployee(final String employeeNumber, final String newName, final String newSurname,
+			final String newEmail, final String scheduleCode) {
+		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
+		Strings.requireNonBlank(newEmail, "newEmail cannot be null or blank.");
 		Strings.requireNonBlank(newName, "newName cannot be null or blank.");
 		Strings.requireNonBlank(newSurname, "newSurname cannot be null or blank.");
 		Strings.requireNonBlank(scheduleCode, "scheduleCode cannot be null or blank.");
 
-		logger.debug("Updating employee {}", email);
+		logger.debug("Updating employee {}", employeeNumber);
 
 		final Schedule newSchedule = this.scheduleService.findScheduleByCode(scheduleCode);
-		final Employee employee = this.findEmployee(email);
+		final Employee employee = this.findEmployeeByEmployeeNumber(employeeNumber);
+		if (!employee.getEmail().equals(newEmail) && this.employeeRepository.existsByEmail(newEmail)) {
+			throw new ResourceAlreadyExistsException("Employee with email " + newEmail + " already exists");
+		}
 		employee.setFullName(newName, newSurname);
+		employee.changeEmail(newEmail);
 		employee.setSchedule(newSchedule);
 
 		return employee;

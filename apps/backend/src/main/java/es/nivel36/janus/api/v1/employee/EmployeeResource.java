@@ -31,23 +31,23 @@ import jakarta.validation.constraints.Pattern;
 @RequestMapping("/api/v1/employees")
 public interface EmployeeResource {
 
-	@PreAuthorize("@employeeAuthorization.canView(authentication, #employeeEmail)")
-	@GetMapping("/by-email/{employeeEmail}")
-	ResponseEntity<EmployeeResponse> findEmployeeByEmail(
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail);
+	@PreAuthorize("@employeeAuthorization.canView(authentication, #employeeNumber)")
+	@GetMapping("/{employeeNumber}")
+	ResponseEntity<EmployeeResponse> findEmployee(
+			@PathVariable("employeeNumber") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String employeeNumber);
 
 	@PreAuthorize("@employeeAuthorization.canCreate(authentication)")
 	@PostMapping
 	ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request);
 
-	@PreAuthorize("@employeeAuthorization.canUpdate(authentication, #employeeEmail)")
-	@PutMapping("/{employeeEmail}")
+	@PreAuthorize("@employeeAuthorization.canUpdate(authentication, #employeeNumber)")
+	@PutMapping("/{employeeNumber}")
 	ResponseEntity<EmployeeResponse> updateEmployee(
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
+			@PathVariable("employeeNumber") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String employeeNumber,
 			@Valid @RequestBody UpdateEmployeeRequest request);
 
 	@PreAuthorize("@employeeAuthorization.canDelete(authentication)")
-	@DeleteMapping("/{employeeEmail}")
+	@DeleteMapping("/{employeeNumber}")
 	ResponseEntity<Void> deleteEmployee(
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail);
+			@PathVariable("employeeNumber") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String employeeNumber);
 }

@@ -302,7 +302,7 @@ class ScheduleControllerIT {
 
 	@Test
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES (1,'IN-USE','In Use Schedule')",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES (1,'Abel','Ferrer','aferrer@nivel36.es',1)" })
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void testDeleteScheduleWithAssignedEmployeesShouldReturn409() throws Exception {
 		this.mvc.perform(delete(BASE + "/{code}", "IN-USE").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
