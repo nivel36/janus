@@ -33,9 +33,9 @@ public class EmployeeAuthorizationAdapter {
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 	}
 
-	public boolean canView(final Authentication authentication, final String employeeEmail) {
+	public boolean canView(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.viewPolicy.allows(actor, this.employeeId(actor, employeeEmail));
+		return this.viewPolicy.allows(actor, this.employeeId(actor, employeeNumber));
 	}
 
 	public boolean canCreate(final Authentication authentication) {
@@ -43,9 +43,9 @@ public class EmployeeAuthorizationAdapter {
 		return this.createPolicy.allows(actor, null);
 	}
 
-	public boolean canUpdate(final Authentication authentication, final String employeeEmail) {
+	public boolean canUpdate(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.updatePolicy.allows(actor, this.employeeId(actor, employeeEmail));
+		return this.updatePolicy.allows(actor, this.employeeId(actor, employeeNumber));
 	}
 
 	public boolean canDelete(final Authentication authentication) {
@@ -53,10 +53,10 @@ public class EmployeeAuthorizationAdapter {
 		return this.deletePolicy.allows(actor, null);
 	}
 
-	private long employeeId(final Actor actor, final String employeeEmail) {
+	private long employeeId(final Actor actor, final String employeeNumber) {
 		final Employee employee;
 		try {
-			employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+			employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		} catch (final ResourceNotFoundException exception) {
 			if (actor.hasRole(Role.JANUS_ADMIN) || actor.hasRole(Role.JANUS_USER)) {
 				throw exception;

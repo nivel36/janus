@@ -71,11 +71,9 @@ public class EmployeeController implements EmployeeResource {
 	 * @return the {@link EmployeeResponse} matching the email
 	 */
 	@Override
-	public ResponseEntity<EmployeeResponse> findEmployeeByEmail( //
-			final String employeeEmail) {
-		logger.debug("Find employee by email ACTION performed");
-		final String email = EmailAddresses.canonicalize(employeeEmail);
-		final Employee employee = this.employeeService.findEmployeeByEmail(email);
+	public ResponseEntity<EmployeeResponse> findEmployee(final String employeeNumber) {
+		logger.debug("Find employee by number ACTION performed");
+		final Employee employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
 		return ResponseEntity.ok(response);
 	}
@@ -96,7 +94,8 @@ public class EmployeeController implements EmployeeResource {
 		final String name = request.name().trim();
 		final String surname = request.surname().trim();
 		final String email = EmailAddresses.canonicalize(request.email());
-		final Employee createdEmployee = this.employeeService.createEmployee(name, surname, email, schedule);
+		final String employeeNumber = request.employeeNumber().trim();
+		final Employee createdEmployee = this.employeeService.createEmployee(employeeNumber, name, surname, email, schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(createdEmployee);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -112,14 +111,14 @@ public class EmployeeController implements EmployeeResource {
 	 */
 	@Override
 	public ResponseEntity<EmployeeResponse> updateEmployee(//
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final UpdateEmployeeRequest request) {
 		logger.debug("Update employee ACTION performed");
-		final String email = EmailAddresses.canonicalize(employeeEmail);
+		final String email = EmailAddresses.canonicalize(request.email());
 		final String name = request.name().trim();
 		final String surname = request.surname().trim();
 		final String scheduleCode = request.scheduleCode().trim();
-		final Employee updatedEmployee = this.employeeService.updateEmployee(email, name, surname, scheduleCode);
+		final Employee updatedEmployee = this.employeeService.updateEmployee(employeeNumber, name, surname, email, scheduleCode);
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
 		return ResponseEntity.ok(response);
 	}
@@ -132,10 +131,9 @@ public class EmployeeController implements EmployeeResource {
 	 */
 	@Override
 	public ResponseEntity<Void> deleteEmployee(//
-			final String employeeEmail) {
+			final String employeeNumber) {
 		logger.debug("Delete employee ACTION performed");
-		final String email = EmailAddresses.canonicalize(employeeEmail);
-		final Employee employee = this.employeeService.findEmployeeByEmail(email);
+		final Employee employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		this.employeeService.deleteEmployee(employee);
 		return ResponseEntity.noContent().build();
 	}

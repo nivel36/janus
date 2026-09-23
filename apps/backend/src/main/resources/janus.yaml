@@ -5,6 +5,37 @@ info:
 servers:
   - url: /api/v1
 paths:
+  /employees:
+    post:
+      tags: [employees]
+      operationId: createEmployee
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateEmployeeRequest' } } }
+      responses:
+        '201':
+          description: Created employee
+          content: { application/json: { schema: { $ref: '#/components/schemas/EmployeeResponse' } } }
+  /employees/{employeeNumber}:
+    parameters:
+      - { name: employeeNumber, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9_-]{1,50}$' } }
+    get:
+      tags: [employees]
+      operationId: findEmployee
+      responses:
+        '200': { description: Employee, content: { application/json: { schema: { $ref: '#/components/schemas/EmployeeResponse' } } } }
+    put:
+      tags: [employees]
+      operationId: updateEmployee
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateEmployeeRequest' } } }
+      responses:
+        '200': { description: Updated employee, content: { application/json: { schema: { $ref: '#/components/schemas/EmployeeResponse' } } } }
+    delete:
+      tags: [employees]
+      operationId: deleteEmployee
+      responses: { '204': { description: Employee deleted } }
   /appusers/me:
     get:
       tags: [app-users]
@@ -162,6 +193,32 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    EmployeeResponse:
+      type: object
+      required: [employeeNumber, name, surname, email, scheduleCode]
+      properties:
+        employeeNumber: { type: string, pattern: '^[A-Za-z0-9_-]{1,50}$' }
+        name: { type: string }
+        surname: { type: string }
+        email: { type: string, format: email }
+        scheduleCode: { type: string }
+    CreateEmployeeRequest:
+      type: object
+      required: [employeeNumber, name, surname, email, scheduleCode]
+      properties:
+        employeeNumber: { type: string, pattern: '^[A-Za-z0-9_-]{1,50}$' }
+        name: { type: string }
+        surname: { type: string }
+        email: { type: string, format: email }
+        scheduleCode: { type: string }
+    UpdateEmployeeRequest:
+      type: object
+      required: [name, surname, email, scheduleCode]
+      properties:
+        name: { type: string }
+        surname: { type: string }
+        email: { type: string, format: email }
+        scheduleCode: { type: string }
     TimeFormat: { type: string, enum: [H12, H24] }
     AppUserResponse:
       type: object

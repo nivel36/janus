@@ -1,6 +1,8 @@
 export * from './appUserResponse';
 export * from './applicationSettingsResponse';
+export * from './createEmployeeRequest';
 export * from './createWorksiteRequest';
+export * from './employeeResponse';
 export * from './pageMetadata';
 export * from './schedulePage';
 export * from './scheduleResponse';
@@ -9,6 +11,7 @@ export * from './timeLogPage';
 export * from './timeLogResponse';
 export * from './updateAppUserRequest';
 export * from './updateApplicationSettingsRequest';
+export * from './updateEmployeeRequest';
 export * from './updateWorksiteRequest';
 export * from './worksitePage';
 export * from './worksiteResponse';

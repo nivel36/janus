@@ -50,7 +50,7 @@ import jakarta.validation.constraints.NotNull;
  * employee.
  *
  * <p>
- * Each employee is uniquely identified by their email address. In addition to
+	 * Each employee is uniquely identified by their immutable employee number. In addition to
  * time logs, the employee also has an associated work schedule represented by a
  * {@link Schedule} entity, which is mandatory and cannot be null.
  * </p>
@@ -94,18 +94,24 @@ public class Employee implements Serializable {
 	@NotBlank
 	private String surname;
 
+	/** Stable business identifier assigned when the employee is created. */
+	@NaturalId
+	@NotBlank
+	@Column(name = "employee_number", nullable = false, unique = true, updatable = false, length = 50)
+	private String employeeNumber;
+
 	/**
 	 * The email address of the employee.
 	 *
 	 * <p>
-	 * Acts as a natural identifier. This field is mandatory, must be unique, and
-	 * cannot be updated once the entity has been persisted.
+	 * This field is mandatory and remains unique so identity provisioning by email
+	 * cannot produce an ambiguous association. It may be changed through
+	 * {@link #changeEmail(String)}.
 	 * </p>
 	 */
-	@NaturalId
 	@NotBlank
 	@Email
-	@Column(updatable = false)
+	@Column(nullable = false, unique = true, length = 254)
 	private String email;
 
 	/**
@@ -175,7 +181,9 @@ public class Employee implements Serializable {
 	 * @throws IllegalArgumentException if name, surname, email is empty
 	 *
 	 */
-	public Employee(final String name, final String surname, final String email, final Schedule schedule) {
+	public Employee(final String employeeNumber, final String name, final String surname, final String email,
+			final Schedule schedule) {
+		this.employeeNumber = Strings.requireNonBlank(employeeNumber, "employeeNumber can't be null or blank");
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
 		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
@@ -201,6 +209,10 @@ public class Employee implements Serializable {
 		return this.name;
 	}
 
+	public String getEmployeeNumber() {
+		return this.employeeNumber;
+	}
+
 	/**
 	 * Returns the surname of the employee.
 	 *
@@ -217,6 +229,11 @@ public class Employee implements Serializable {
 	 */
 	public String getEmail() {
 		return this.email;
+	}
+
+	/** Changes the mutable contact email after validating the domain invariant. */
+	public void changeEmail(final String email) {
+		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
 	}
 
 	/**
@@ -336,16 +353,16 @@ public class Employee implements Serializable {
 			return false;
 		}
 		final Employee other = (Employee) obj;
-		return Objects.equals(this.email, other.email);
+		return Objects.equals(this.employeeNumber, other.employeeNumber);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.email);
+		return Objects.hash(this.employeeNumber);
 	}
 
 	@Override
 	public String toString() {
-		return this.email;
+		return this.employeeNumber;
 	}
 }

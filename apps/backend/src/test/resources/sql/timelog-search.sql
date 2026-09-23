@@ -4,10 +4,9 @@
 INSERT INTO schedule(id, code, name)
 VALUES (101, 'SEARCH-HOURS', 'Search fixture work hours');
 
-INSERT INTO employee(id, name, surname, email, schedule_id) VALUES
-    (101, 'Alice', 'Search', 'alice@example.test', 101),
-    (102, 'Bob', 'Search', 'bob@example.test', 101),
-    (103, 'Carol', 'Search', 'carol@example.test', 101);
+INSERT INTO employee(id, employee_number,name, surname, email, schedule_id) VALUES(101, 'EMP-0101','Alice', 'Search', 'alice@example.test', 101),
+    (102, 'EMP-0102', 'Bob', 'Search', 'bob@example.test', 101),
+    (103, 'EMP-0103', 'Carol', 'Search', 'carol@example.test', 101);
 
 INSERT INTO app_user(email, keycloak_subject, locale, time_format, default_timezone, employee_id)
 VALUES ('alice-account', '11111111-1111-4111-8111-111111111111', 'en-US', 'H24', 'UTC', 101);

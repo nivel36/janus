@@ -62,7 +62,7 @@ class TimeLogControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 	})
 	void testElevatedRolesWithoutVerifiedEmailAreUnauthorized() throws Exception {
 		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es").header("Authorization", "Bearer email-unverified")) //
@@ -80,7 +80,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testClockInShouldAllowGlobalWorksite() throws Exception {
@@ -103,7 +103,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-PROJ','Barcelona Project Site','UTC+2','ASSIGNED')",
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)"//
 	})
@@ -127,7 +127,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-PROJ','Barcelona Project Site','UTC+2','ASSIGNED')"//
 	})
 	void testClockInShouldRejectAssignedWorksiteWhenEmployeeIsNotAssigned() throws Exception {
@@ -151,7 +151,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testClockInWithManualEntryTimeShouldReturnForbiddenWhenDisabledBySettings() throws Exception {
@@ -169,7 +169,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testClockInShouldReturn201AndBody() throws Exception {
@@ -192,7 +192,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testClockInWithDuplicatedEntryTimeShouldFail400() throws Exception {
@@ -222,7 +222,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testClockInWithDuplicatedDeletedEntryTimeShouldReturn201AndBody() throws Exception {
@@ -259,7 +259,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')", //
-			"INSERT INTO employee(id, name,surname,email, schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)", //
+			"INSERT INTO employee(id, employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)", //
 			"INSERT INTO worksite(id, code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')", //
 			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES (1,1,'2025-08-04T07:30:00Z'::timestamp)" })
 	void testClockOutShouldReturn200AndBody() throws Exception {
@@ -284,7 +284,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testCreateTimeLogShouldReturn200AndBody() throws Exception {
@@ -313,7 +313,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testCreateDuplicatedTimeLogShouldReturn400() throws Exception {
@@ -346,7 +346,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testSearchByEmployeeShouldReturn200() throws Exception {
@@ -371,7 +371,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testSearchByEmployeeWithInvalidRangeShouldFail400() throws Exception {
@@ -391,7 +391,7 @@ class TimeLogControllerIT {
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testFindTimeLogByEmployeeAndEntryTimeShouldReturnBody() throws Exception {
@@ -418,11 +418,11 @@ class TimeLogControllerIT {
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(1,'Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO employee(id,name,surname,email,schedule_id) VALUES(2,'Ada','Lovelace','ada@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(2,'EMP-0002','Ada','Lovelace','ada@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')",
 			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES(1,1,'2025-08-07T07:45:00Z'::timestamp)" })
-	void employeeAuthorizationCanonicalizesRequestedEmail() throws Exception {
+	void employeeOperationsAreScopedThroughImmutableEmployeeAssociation() throws Exception {
 		final String entry = "2025-08-07T07:45:00Z";
 		final var employee = verifiedJwt()
 				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
@@ -432,14 +432,15 @@ class TimeLogControllerIT {
 		this.mvc.perform(get(BASE + "/{entryTime}", "AFerrer@Nivel36.ES", entry).with(employee))
 				.andExpect(status().isOk());
 		this.mvc.perform(get(BASE + "/{entryTime}", "AdA@Nivel36.ES", entry).with(employee))
-				.andExpect(status().isForbidden());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.employeeEmail").value("aferrer@nivel36.es"));
 	}
 
 	@Test
 	@Sql(statements = { //
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(name,surname,email, schedule_id) VALUES('Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testDeleteShouldReturn204AndFindReturns404() throws Exception {

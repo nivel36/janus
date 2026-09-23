@@ -73,7 +73,7 @@ class WorkShiftServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		this.employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es",
+		this.employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es",
 				new Schedule("CODE", "Name", Duration.ofMinutes(5), Duration.ofMinutes(5)));
 		ReflectionTestUtils.setField(this.employee, "id", 1L);
 		final ZoneId utcZone = ZoneId.of("UTC");
@@ -85,7 +85,7 @@ class WorkShiftServiceTest {
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 		final LocalDate previousDay = date.minusDays(1);
 		final LocalDate nextDay = date.plusDays(1);
-		final Employee employee = new Employee("Abel", "Ferrer", "aferrer@nivel36.es",
+		final Employee employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es",
 				new Schedule("CODE", "Name", Duration.ofMinutes(5), Duration.ofMinutes(5)));
 		final ZoneId utcZone = ZoneId.of("UTC");
 		final Worksite worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);

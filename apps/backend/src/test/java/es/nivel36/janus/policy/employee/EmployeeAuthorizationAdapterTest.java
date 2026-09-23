@@ -22,7 +22,7 @@ import es.nivel36.janus.service.employee.EmployeeService;
 
 class EmployeeAuthorizationAdapterTest {
 
-	private static final String EMPLOYEE_EMAIL = "employee@internal.test";
+	private static final String EMPLOYEE_NUMBER = "EMP-0011";
 	private static final long EMPLOYEE_ID = 11L;
 
 	@Test
@@ -32,14 +32,14 @@ class EmployeeAuthorizationAdapterTest {
 		final EmployeeService employeeService = mock(EmployeeService.class);
 		final Employee employee = mock(Employee.class);
 		when(actorResolver.resolve(authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), EMPLOYEE_ID));
-		when(employeeService.findEmployeeByEmail(EMPLOYEE_EMAIL)).thenReturn(employee);
+		when(employeeService.findEmployeeByEmployeeNumber(EMPLOYEE_NUMBER)).thenReturn(employee);
 		when(employee.getId()).thenReturn(EMPLOYEE_ID);
 
 		final EmployeeAuthorizationAdapter adapter = new EmployeeAuthorizationAdapter(actorResolver, employeeService);
 
-		assertThat(adapter.canView(authentication, EMPLOYEE_EMAIL)).isTrue();
+		assertThat(adapter.canView(authentication, EMPLOYEE_NUMBER)).isTrue();
 		verify(actorResolver).resolve(authentication);
-		verify(employeeService).findEmployeeByEmail(EMPLOYEE_EMAIL);
+		verify(employeeService).findEmployeeByEmployeeNumber(EMPLOYEE_NUMBER);
 		verify(employee).getId();
 	}
 
@@ -50,11 +50,11 @@ class EmployeeAuthorizationAdapterTest {
 		final EmployeeService employeeService = mock(EmployeeService.class);
 		final Employee employee = mock(Employee.class);
 		when(actorResolver.resolve(authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), EMPLOYEE_ID));
-		when(employeeService.findEmployeeByEmail(EMPLOYEE_EMAIL)).thenReturn(employee);
+		when(employeeService.findEmployeeByEmployeeNumber(EMPLOYEE_NUMBER)).thenReturn(employee);
 		when(employee.getId()).thenReturn(12L);
 
 		final EmployeeAuthorizationAdapter adapter = new EmployeeAuthorizationAdapter(actorResolver, employeeService);
 
-		assertThat(adapter.canView(authentication, EMPLOYEE_EMAIL)).isFalse();
+		assertThat(adapter.canView(authentication, EMPLOYEE_NUMBER)).isFalse();
 	}
 }

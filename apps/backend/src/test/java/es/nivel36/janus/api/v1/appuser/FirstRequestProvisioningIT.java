@@ -216,8 +216,8 @@ class FirstRequestProvisioningIT {
 	private Long insertEmployee() {
 		this.jdbcClient.sql("INSERT INTO schedule(id, code, name) VALUES (901, 'FIRST-ACCESS', 'First access')").update();
 		this.jdbcClient.sql("""
-				INSERT INTO employee (name, surname, email, schedule_id)
-				VALUES ('First', 'Access', :email, 901)
+				INSERT INTO employee (employee_number, name, surname, email, schedule_id)
+				VALUES ('EMP-0901', 'First', 'Access', :email, 901)
 				""").param("email", LINK_EMAIL).update();
 		return this.jdbcClient.sql("SELECT id FROM employee WHERE email = :email")
 				.param("email", LINK_EMAIL).query(Long.class).single();
