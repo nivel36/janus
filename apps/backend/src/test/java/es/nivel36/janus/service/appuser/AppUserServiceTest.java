@@ -78,7 +78,8 @@ class AppUserServiceTest {
 		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
 		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
 		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
-		when(this.employeeService.findEmployeeForProvisioning("person@example.test")).thenReturn(Optional.of(employee));
+		when(this.employeeService.existsEmployeeByEmail("person@example.test")).thenReturn(true);
+		when(this.employeeService.findEmployeeByEmail("person@example.test")).thenReturn(employee);
 		when(this.appUserRepository.findByEmployee(employee)).thenReturn(Optional.empty());
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty())
 				.thenReturn(Optional.empty()).thenReturn(Optional.of(winner));

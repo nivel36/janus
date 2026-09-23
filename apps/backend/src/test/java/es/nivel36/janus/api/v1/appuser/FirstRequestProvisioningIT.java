@@ -51,7 +51,6 @@ class FirstRequestProvisioningIT {
 	private static final String SUBJECT = "9a60b9f4-7436-4d93-9c25-08e08f3dfc58";
 	private static final String OTHER_SUBJECT = "b9b0c670-b030-4ce2-8a48-516a86cb80e2";
 	private static final String OPAQUE_SUBJECT = "oidc-provider|tenant:customers|user:aferrer:opaque-identity";
-	private static final String ADMIN_SUBJECT = "admin-subject-for-concurrency-test";
 	private static final String ADMIN_USERNAME = "concurrency-test-admin";
 	private static final String USERNAME = "aferrer@nivel36.es";
 	private static final String LINK_EMAIL = "first-access-link@example.test";

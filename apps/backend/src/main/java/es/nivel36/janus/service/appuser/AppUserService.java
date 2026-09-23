@@ -90,23 +90,22 @@ public class AppUserService {
 
 	/**
 	 * Finds the account linked to a Keycloak subject or provisions it on first
-	 * access. The subject is the sole identity-linking key and the verified email is
-	 * stored as contact information without being used as a unique identifier.
+	 * access. The subject is the sole identity-linking key and the verified email
+	 * is stored as contact information without being used as a unique identifier.
 	 */
 	@Transactional
-	public synchronized AppUser findOrCreateAppUser( //
+	public AppUser findOrCreateAppUser( //
 			final String keycloakSubject, //
-			final String verifiedEmail) {
+			final String email) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
-
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		final Optional<AppUser> existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 		if (existing.isPresent()) {
 			return existing.get();
 		}
 
-		final String canonicalEmail = Strings.requireNonBlank(verifiedEmail, "email cannot be null or blank.");
-		final Employee employee = this.findUnlinkedEmployee(canonicalEmail, keycloakSubject);
-		return this.insertAndReconcile(canonicalEmail, keycloakSubject, employee);
+		final Employee employee = this.findUnlinkedEmployee(email, keycloakSubject);
+		return this.insertAndReconcile(email, keycloakSubject, employee);
 	}
 
 	private AppUser insertAndReconcile(final String email, final String keycloakSubject, final Employee employee) {
@@ -142,18 +141,17 @@ public class AppUserService {
 		return appUser;
 	}
 
-	private Employee findUnlinkedEmployee(final String verifiedEmail, final String keycloakSubject) {
-		if (verifiedEmail == null) {
-			return null;
-		}
-		return this.employeeService.findEmployeeForProvisioning(verifiedEmail).filter(employee -> {
+	private Employee findUnlinkedEmployee(final String email, final String keycloakSubject) {
+		if (this.employeeService.existsEmployeeByEmail(email)) {
+			final Employee employee = employeeService.findEmployeeByEmail(email);
 			final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
 			if (linkedUser.isPresent()) {
 				this.logEmployeeConflict(employee, keycloakSubject);
-				return false;
+				return null;
 			}
-			return true;
-		}).orElse(null);
+			return employee;
+		}
+		return null;
 	}
 
 	private void logEmployeeConflict(final Employee employee, final String keycloakSubject) {
