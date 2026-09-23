@@ -32,13 +32,23 @@ public class TimeLogAuthorizationAdapter {
 
 	public boolean canOperate(final Authentication auth, final String email, final boolean manual) {
 		final Actor a = this.actors.resolve(auth);
-		return this.operate.allows(a, new OperateTimeLogPolicy.Context(this.owns(a, email), manual,
+		return this.operate.allows(a, new OperateTimeLogPolicy.Context(this.ownsOrWillBeScoped(a, email), manual,
 				this.settings.isEmployeeManualTimelogEntryAllowed()));
 	}
 
 	public boolean canView(final Authentication auth, final String email) {
 		final Actor a = this.actors.resolve(auth);
-		return this.view.allows(a, !this.restricted(a) || this.owns(a, email));
+		return this.view.allows(a, !this.restricted(a) || this.ownsOrWillBeScoped(a, email));
+	}
+
+	/**
+	 * Resolves the employee email used by an operation. Employee-only users are
+	 * always scoped through their immutable AppUser-to-Employee link, rather than
+	 * through the (potentially stale) email claim supplied by the client.
+	 */
+	public String effectiveEmployeeEmail(final Authentication auth, final String requested) {
+		final Actor actor = this.actors.resolve(auth);
+		return this.restricted(actor) ? this.employees.findEmployeeById(actor.employeeId()).getEmail() : requested;
 	}
 
 	public boolean canDelete(final Authentication auth) {
@@ -64,6 +74,10 @@ public class TimeLogAuthorizationAdapter {
 		} catch (final RuntimeException _) {
 			return false;
 		}
+	}
+
+	private boolean ownsOrWillBeScoped(final Actor actor, final String email) {
+		return this.restricted(actor) ? actor.employeeId() != null : this.owns(actor, email);
 	}
 
 	private boolean restricted(final Actor a) {

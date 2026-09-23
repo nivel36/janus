@@ -422,7 +422,7 @@ class TimeLogControllerIT {
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(2,'EMP-0002','Ada','Lovelace','ada@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')",
 			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES(1,1,'2025-08-07T07:45:00Z'::timestamp)" })
-	void employeeAuthorizationCanonicalizesRequestedEmail() throws Exception {
+	void employeeOperationsAreScopedThroughImmutableEmployeeAssociation() throws Exception {
 		final String entry = "2025-08-07T07:45:00Z";
 		final var employee = verifiedJwt()
 				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
@@ -432,7 +432,8 @@ class TimeLogControllerIT {
 		this.mvc.perform(get(BASE + "/{entryTime}", "AFerrer@Nivel36.ES", entry).with(employee))
 				.andExpect(status().isOk());
 		this.mvc.perform(get(BASE + "/{entryTime}", "AdA@Nivel36.ES", entry).with(employee))
-				.andExpect(status().isForbidden());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.employeeEmail").value("aferrer@nivel36.es"));
 	}
 
 	@Test

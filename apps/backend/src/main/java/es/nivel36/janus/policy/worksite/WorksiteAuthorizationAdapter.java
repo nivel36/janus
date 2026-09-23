@@ -35,7 +35,7 @@ public class WorksiteAuthorizationAdapter {
 
 	public boolean canSearch(final Authentication auth, final String email) {
 		final Actor a = this.actors.resolve(auth);
-		return this.search.allows(a, this.owns(a, email));
+		return this.search.allows(a, this.restricted(a) ? a.employeeId() != null : this.owns(a, email));
 	}
 
 	public String effectiveEmployeeEmail(final Authentication auth, final String requested) {

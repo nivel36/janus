@@ -69,26 +69,25 @@ class TimeLogAuthorizationAdapterTest {
 	}
 
 	@Test
-	void ownerRemainsAuthorizedWhenRequestedEmailHasMixedCapitalization() {
+	void employeeAuthorizationUsesImmutableAssociationInsteadOfRequestedEmail() {
 		final Employee employee = mock(Employee.class);
 		when(this.actors.resolve(this.authentication))
 				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
-		when(this.employees.findEmployeeByEmail("employee@internal.test")).thenReturn(employee);
-		when(employee.getId()).thenReturn(84L);
+		when(this.employees.findEmployeeById(84L)).thenReturn(employee);
+		when(employee.getEmail()).thenReturn("new-address@internal.test");
 
-		assertThat(this.adapter.canView(this.authentication, "Employee@Internal.Test")).isTrue();
-		verify(this.employees).findEmployeeByEmail("employee@internal.test");
+		assertThat(this.adapter.canView(this.authentication, "old-address@internal.test")).isTrue();
+		assertThat(this.adapter.effectiveEmployeeEmail(this.authentication, "old-address@internal.test"))
+				.isEqualTo("new-address@internal.test");
+		verify(this.employees).findEmployeeById(84L);
 	}
 
 	@Test
-	void otherEmployeeRemainsDeniedWhenRequestedEmailHasMixedCapitalization() {
-		final Employee employee = mock(Employee.class);
+	void employeeWithoutAssociationCannotOperate() {
 		when(this.actors.resolve(this.authentication))
-				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
-		when(this.employees.findEmployeeByEmail("other@internal.test")).thenReturn(employee);
-		when(employee.getId()).thenReturn(85L);
+				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), null));
 
-		assertThat(this.adapter.canView(this.authentication, "OtHeR@Internal.Test")).isFalse();
-		verify(this.employees).findEmployeeByEmail("other@internal.test");
+		assertThat(this.adapter.canOperate(this.authentication, "old-address@internal.test", false)).isFalse();
+		verifyNoInteractions(this.employees);
 	}
 }

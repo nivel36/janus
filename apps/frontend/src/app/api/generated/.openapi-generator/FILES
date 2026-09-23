@@ -5,6 +5,7 @@ api.module.ts
 api/api.ts
 api/appUsers.service.ts
 api/applicationSettings.service.ts
+api/employees.service.ts
 api/schedules.service.ts
 api/timeLogs.service.ts
 api/worksites.service.ts
@@ -14,7 +15,9 @@ git_push.sh
 index.ts
 model/appUserResponse.ts
 model/applicationSettingsResponse.ts
+model/createEmployeeRequest.ts
 model/createWorksiteRequest.ts
+model/employeeResponse.ts
 model/models.ts
 model/pageMetadata.ts
 model/schedulePage.ts
@@ -24,6 +27,7 @@ model/timeLogPage.ts
 model/timeLogResponse.ts
 model/updateAppUserRequest.ts
 model/updateApplicationSettingsRequest.ts
+model/updateEmployeeRequest.ts
 model/updateWorksiteRequest.ts
 model/worksitePage.ts
 model/worksiteResponse.ts
