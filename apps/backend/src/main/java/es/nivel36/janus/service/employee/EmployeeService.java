@@ -18,6 +18,7 @@ package es.nivel36.janus.service.employee;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,24 @@ public class EmployeeService {
 		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		logger.debug("Finding Employee by email {}", email);
 
-		return findEmployee(email);
+		return this.findEmployee(email);
+	}
+
+	/** Finds an employee by canonical email for first-access identity linking. */
+	@Transactional(readOnly = true)
+	public Optional<Employee> findEmployeeForProvisioning(final String email) {
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
+		return Optional.ofNullable(this.employeeRepository.findByEmail(email));
+	}
+
+	@Transactional(readOnly = true)
+	public Employee findEmployeeByKeycloakSubject(final String keycloakSubject) {
+		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
+		logger.debug("Finding Employee by keycloak subject {}", keycloakSubject);
+
+		return this.employeeRepository.findByKeycloakSubject(keycloakSubject)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"There is no employee linked to keycloak subject " + keycloakSubject));
 	}
 
 	/**

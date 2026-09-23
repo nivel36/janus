@@ -16,6 +16,7 @@
 package es.nivel36.janus.service.appuser;
 
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,7 +24,6 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +57,7 @@ public class AppUserService {
 	 * Repository used to access {@link AppUser} persistence operations.
 	 */
 	private final AppUserRepository appUserRepository;
+	private final AppUserCreator appUserCreator;
 	private final UserProvisioningProperties provisioningDefaults;
 	private final EmployeeService employeeService;
 
@@ -70,12 +71,15 @@ public class AppUserService {
 	 */
 	public AppUserService( //
 			final AppUserRepository appUserRepository, //
-
+			final AppUserCreator appUserCreator, //
 			final UserProvisioningProperties provisioningDefaults, //
 			final EmployeeService employeeService) {
 		this.appUserRepository = Objects.requireNonNull( //
 				appUserRepository, //
 				"AppUserRepository cannot be null.");
+		this.appUserCreator = Objects.requireNonNull( //
+				appUserCreator, //
+				"AppUserCreator cannot be null.");
 		this.provisioningDefaults = Objects.requireNonNull( //
 				provisioningDefaults, //
 				"UserProvisioningProperties cannot be null.");
@@ -86,48 +90,75 @@ public class AppUserService {
 
 	/**
 	 * Finds the account linked to a Keycloak subject or provisions it on first
-	 * access. The subject is the sole identity-linking key and the verified email
-	 * is stored as contact information without being used as a unique identifier.
+	 * access. The subject is the sole identity-linking key and the verified email is
+	 * stored as contact information without being used as a unique identifier.
 	 */
 	@Transactional
-	public AppUser findOrCreateAppUser( //
+	public synchronized AppUser findOrCreateAppUser( //
 			final String keycloakSubject, //
-			final String email) {
+			final String verifiedEmail) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
-		Strings.requireNonBlank(email, "email cannot be null or blank.");
+
 		final Optional<AppUser> existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 		if (existing.isPresent()) {
 			return existing.get();
 		}
-		final Locale locale = this.provisioningDefaults.locale();
-		final TimeFormat timeFormat = this.provisioningDefaults.getTimeFormat();
-		final ZoneId defaultTimezone = this.provisioningDefaults.defaultTimezone();
-		return this.create(email, keycloakSubject, locale, timeFormat, defaultTimezone);
+
+		final String canonicalEmail = Strings.requireNonBlank(verifiedEmail, "email cannot be null or blank.");
+		final Employee employee = this.findUnlinkedEmployee(canonicalEmail, keycloakSubject);
+		return this.insertAndReconcile(canonicalEmail, keycloakSubject, employee);
+	}
+
+	private AppUser insertAndReconcile(final String email, final String keycloakSubject, final Employee employee) {
+		try {
+			return this.appUserCreator.create(email, keycloakSubject, this.provisioningDefaults.locale(),
+					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), employee);
+		} catch (final AppUserCreationConflict conflict) {
+			if (employee != null && conflict.key() == AppUserCreationConflict.Key.UNKNOWN) {
+				// The failed transaction may still contain the competing transient
+				// association, so do not issue another query before retrying without it.
+				this.logEmployeeConflict(employee, keycloakSubject);
+				return this.insertAndReconcile(email, keycloakSubject, null);
+			}
+			// Subject reconciliation always comes first: it makes repeated requests
+			// idempotent even if a driver did not expose the violated constraint name.
+			final Optional<AppUser> subjectWinner = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
+			if (subjectWinner.isPresent()) {
+				return requireRequestedSubject(subjectWinner.get(), keycloakSubject);
+			}
+			if (employee != null && conflict.key() == AppUserCreationConflict.Key.EMPLOYEE
+					&& this.appUserRepository.existsByEmployee(employee)) {
+				this.logEmployeeConflict(employee, keycloakSubject);
+				return this.insertAndReconcile(email, keycloakSubject, null);
+			}
+			throw conflict;
+		}
+	}
+
+	private static AppUser requireRequestedSubject(final AppUser appUser, final String keycloakSubject) {
+		if (!keycloakSubject.equals(appUser.getKeycloakSubject())) {
+			throw new IllegalStateException("Subject lookup returned a profile for a different identity");
+		}
+		return appUser;
+	}
+
+	private Employee findUnlinkedEmployee(final String verifiedEmail, final String keycloakSubject) {
+		if (verifiedEmail == null) {
+			return null;
+		}
+		return this.employeeService.findEmployeeForProvisioning(verifiedEmail).filter(employee -> {
+			final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
+			if (linkedUser.isPresent()) {
+				this.logEmployeeConflict(employee, keycloakSubject);
+				return false;
+			}
+			return true;
+		}).orElse(null);
 	}
 
 	private void logEmployeeConflict(final Employee employee, final String keycloakSubject) {
 		logger.warn("Employee identity link conflict for employeeId={} and keycloakSubject={}; keeping existing link",
 				employee.getId(), keycloakSubject);
-	}
-
-	@Transactional
-	public AppUser create(final String email, final String keycloakSubject, final Locale locale,
-			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
-		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
-		Strings.requireNonBlank(email, "email cannot be null or blank.");
-		Objects.requireNonNull(locale, "locale cannot be null");
-		Objects.requireNonNull(timeFormat, "timeFormat cannot be null");
-		Objects.requireNonNull(defaultTimezone, "defaultTimezone cannot be null");
-
-		final AppUser appUser = new AppUser(email, keycloakSubject, locale, timeFormat, defaultTimezone);
-		final Employee employee = this.employeeService.findEmployeeByEmail(email);
-		final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
-		if (linkedUser != null) {
-			logEmployeeConflict(employee, keycloakSubject);
-		} else {
-			appUser.setEmployee(employee);
-		}
-		return this.appUserRepository.saveAndFlush(appUser);
 	}
 
 	@Transactional(readOnly = true)
@@ -138,10 +169,17 @@ public class AppUserService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<AppUser> findAppUsersByEmail(final String email) {
+		Strings.requireNonBlank(email, "email cannot be null or blank.");
+		return this.appUserRepository.findByEmail(email);
+	}
+
+	@Transactional(readOnly = true)
 	public AppUser findAppUserByKeycloakSubject(final String keycloakSubject) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 		return this.appUserRepository.findByKeycloakSubject(keycloakSubject)
-				.orElseThrow(() -> new AccessDeniedException("The authenticated identity has not been provisioned"));
+				.orElseThrow(() -> new org.springframework.security.access.AccessDeniedException(
+						"The authenticated identity has not been provisioned"));
 	}
 
 	@Transactional

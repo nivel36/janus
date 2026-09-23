@@ -15,8 +15,6 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
@@ -34,7 +32,7 @@ public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 		if (appUser == null) {
 			return null;
 		}
-		final UUID id = appUser.getId();
+		final var id = appUser.getId();
 		final String email = appUser.getEmail();
 		final String locale = appUser.getLocale().toLanguageTag();
 		final TimeFormat timeFormat = appUser.getTimeFormat();
