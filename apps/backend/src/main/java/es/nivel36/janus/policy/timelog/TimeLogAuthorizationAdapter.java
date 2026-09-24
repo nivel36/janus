@@ -38,7 +38,7 @@ public class TimeLogAuthorizationAdapter {
 
 	public boolean canView(final Authentication auth, final String email) {
 		final Actor a = this.actors.resolve(auth);
-		return this.view.allows(a, !this.restricted(a) || this.ownsOrWillBeScoped(a, email));
+		return this.view.allows(a, !this.restricted(a) || this.owns(a, email));
 	}
 
 	/**
@@ -68,12 +68,9 @@ public class TimeLogAuthorizationAdapter {
 		if (a.employeeId() == null) {
 			return false;
 		}
-		try {
-			return Objects.equals(a.employeeId(),
-					this.employees.findEmployeeByEmail(EmailAddresses.canonicalize(email)).getId());
-		} catch (final RuntimeException _) {
-			return false;
-		}
+		return this.employees.findEmployeeByEmail(EmailAddresses.canonicalize(email))
+				.map(employee -> Objects.equals(a.employeeId(), employee.getId()))
+				.orElse(false);
 	}
 
 	private boolean ownsOrWillBeScoped(final Actor actor, final String email) {

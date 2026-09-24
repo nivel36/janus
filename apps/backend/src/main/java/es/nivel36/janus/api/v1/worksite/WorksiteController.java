@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.api.v1.employee.EmployeeResponse;
 import es.nivel36.janus.policy.worksite.WorksiteAuthorizationAdapter;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.worksite.Worksite;
@@ -227,7 +228,7 @@ public class WorksiteController implements WorksiteResource {
 	public ResponseEntity<Void> assignEmployeeToWorksite(final String worksiteCode, final String employeeEmail) {
 		logger.debug("Add worksite to employee ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final Employee employee = this.requireEmployee(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 
 		if (worksite.getScope() != WorksiteScope.ASSIGNED) {
@@ -251,10 +252,15 @@ public class WorksiteController implements WorksiteResource {
 			final String employeeEmail) {
 		logger.debug("Remove worksite from employee ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(employeeEmail);
+		final Employee employee = this.requireEmployee(employeeEmail);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		this.worksiteService.removeEmployeeFromWorksite(worksite, employee);
 
 		return ResponseEntity.noContent().build();
+	}
+
+	private Employee requireEmployee(final String email) {
+		return this.employeeService.findEmployeeByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with email " + email));
 	}
 }

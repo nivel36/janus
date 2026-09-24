@@ -101,18 +101,18 @@ public class EmployeeService {
 	 * @param email the email of the employee to retrieve. Can't be {@code null} or
 	 *              blank.
 	 *
-	 * @return the {@link Employee} associated with the given email
+	 * @return the {@link Employee} associated with the given email, or
+	 *         {@link Optional#empty()} when the valid email has no match
 	 *
 	 * @throws NullPointerException      if {@code email} is {@code null}
 	 * @throws IllegalArgumentException  if {@code email} is blank
-	 * @throws ResourceNotFoundException if no employee exists with the given email
 	 */
 	@Transactional(readOnly = true)
-	public Employee findEmployeeByEmail(final String email) {
+	public Optional<Employee> findEmployeeByEmail(final String email) {
 		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		logger.debug("Finding Employee by email {}", email);
 
-		return this.findEmployee(email);
+		return this.employeeRepository.findByEmail(email);
 	}
 
 	@Transactional(readOnly = true)
@@ -123,14 +123,6 @@ public class EmployeeService {
 			throw new ResourceNotFoundException("There is no employee with number " + employeeNumber);
 		}
 		return employee;
-	}
-
-	/** Finds an employee by canonical email for first-access identity linking. */
-	@Transactional(readOnly = true)
-	public Optional<Employee> findEmployeeForProvisioning(final String email) {
-		Strings.requireNonBlank(email, "email cannot be null or blank.");
-		logger.debug("Finding Employee by email {}", email);
-		return Optional.ofNullable(this.employeeRepository.findByEmail(email));
 	}
 
 	/**
@@ -262,23 +254,6 @@ public class EmployeeService {
 		logger.debug("Deleting employee {}", employee);
 
 		this.employeeRepository.delete(employee);
-	}
-
-	/**
-	 * Retrieves an {@link Employee} by email or fails if it does not exist.
-	 *
-	 * @param email the employee email. Can't be {@code null} or blank.
-	 * @return the corresponding {@link Employee}
-	 *
-	 * @throws ResourceNotFoundException if no employee exists with the given email
-	 */
-	private Employee findEmployee(final String email) {
-		final Employee employee = this.employeeRepository.findByEmail(email);
-		if (employee == null) {
-			logger.warn("No employee found with email {}", email);
-			throw new ResourceNotFoundException("There is no employee with email " + email);
-		}
-		return employee;
 	}
 
 	/**

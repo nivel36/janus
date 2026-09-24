@@ -129,7 +129,7 @@ public class AppUserService {
 	}
 
 	private Employee findUnlinkedEmployee(final String email, final String keycloakSubject) {
-		return this.employeeService.findEmployeeForProvisioning(email).filter(employee -> {
+		return this.employeeService.findEmployeeByEmail(email).filter(employee -> {
 			final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
 			if (linkedUser.isPresent()) {
 				this.logEmployeeConflict(employee, keycloakSubject);
