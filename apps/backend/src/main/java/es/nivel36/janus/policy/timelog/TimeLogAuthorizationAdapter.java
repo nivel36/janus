@@ -38,7 +38,7 @@ public class TimeLogAuthorizationAdapter {
 
 	public boolean canView(final Authentication auth, final String email) {
 		final Actor a = this.actors.resolve(auth);
-		return this.view.allows(a, !this.restricted(a) || this.owns(a, email));
+		return this.view.allows(a, !this.restricted(a) || this.ownsOrWillBeScoped(a, email));
 	}
 
 	/**

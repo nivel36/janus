@@ -77,6 +77,7 @@ class TimeLogAuthorizationAdapterTest {
 		when(this.employees.findEmployeeById(84L)).thenReturn(employee);
 		when(employee.getEmail()).thenReturn("new-address@internal.test");
 
+		assertThat(this.adapter.canView(this.authentication, "old-address@internal.test")).isTrue();
 		assertThat(this.adapter.effectiveEmployeeEmail(this.authentication, "old-address@internal.test"))
 				.isEqualTo("new-address@internal.test");
 		verify(this.employees).findEmployeeById(84L);

@@ -177,9 +177,10 @@ class TimeLogSearchControllerIT {
 	}
 
 	@Test
-	void individualViewRemainsForbiddenForAnotherEmployee() throws Exception {
-		this.mvc.perform(get(OTHER_SEARCH + "2025-07-01T07:00:00Z").with(employee()))
-				.andExpect(status().isForbidden());
+	void individualViewIsScopedToTheLinkedEmployee() throws Exception {
+		this.mvc.perform(get(OTHER_SEARCH + "2025-07-01T08:00:00Z").with(employee()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.employeeEmail").value(OWN_EMAIL));
 	}
 
 	@ParameterizedTest
