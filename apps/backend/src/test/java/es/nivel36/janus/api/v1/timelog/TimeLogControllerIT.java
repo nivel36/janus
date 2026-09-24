@@ -144,7 +144,7 @@ class TimeLogControllerIT {
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
 				.andExpect(jsonPath("$.title").value("Worksite access denied")) //
 				.andExpect(jsonPath("$.detail").value(
-						"Employee aferrer@nivel36.es cannot use assigned worksite BCN-PROJ because it is not assigned"));
+						"Employee EMP-0001 cannot use assigned worksite BCN-PROJ because it is not assigned"));
 	}
 
 	@Test

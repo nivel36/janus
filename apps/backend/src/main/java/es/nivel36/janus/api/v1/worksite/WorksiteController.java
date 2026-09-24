@@ -232,7 +232,7 @@ public class WorksiteController implements WorksiteResource {
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 
 		if (worksite.getScope() != WorksiteScope.ASSIGNED) {
-			this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite);
+			this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
 		}
 
 		this.worksiteService.addEmployeeToWorksite(worksite, employee);

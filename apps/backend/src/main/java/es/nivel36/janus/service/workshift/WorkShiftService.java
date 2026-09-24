@@ -143,7 +143,7 @@ public class WorkShiftService {
 		final LocalDate lockDate = date.plusDays(daysUntilLocked);
 		if (!lockDate.isAfter(today)) {
 			logger.trace("Lock date has passed. Searching the workshift in the data base");
-			final WorkShift workShift = this.workshiftRepository.findByEmployeeEmailAndDate(employee.getEmail(), date);
+			final WorkShift workShift = this.workshiftRepository.findByEmployeeIdAndDate(employee.getId(), date);
 			if (workShift != null) {
 				return workShift;
 			} else {
@@ -153,8 +153,7 @@ public class WorkShiftService {
 		logger.trace("Building the work shift");
 		final Page<TimeLog> logsPage = this.findTimeLogs(employee, date, timeZone);
 		final TimeLogs orderedLogs = new TimeLogs(logsPage.getContent());
-		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee.getEmail(),
-				date);
+		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, date);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();
 		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, timeZone, this.policy);

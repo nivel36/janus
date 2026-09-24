@@ -149,25 +149,25 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 *
 	 * <p>
 	 * This method checks for the existence of an {@link Employee} whose natural
-	 * identifier ({@code email}) matches the provided value and whose associated
+	 * internal identifier ({@code id}) matches the provided value and whose associated
 	 * {@link Schedule} has the given {@code code}. The comparison is performed at
 	 * the persistence layer without loading full entities into memory.
 	 * </p>
 	 *
 	 * <p>
-	 * Both the employee email and the schedule code are treated as business
-	 * identifiers. The method returns {@code true} as soon as a matching assignment
+	 * The employee id is an internal key and the schedule code is a business
+	 * identifier. The method returns {@code true} as soon as a matching assignment
 	 * is found.
 	 * </p>
 	 *
-	 * @param employeeEmail the unique email address of the employee; must not be
+	 * @param employeeId the internal id of the employee; must not be
 	 *                      {@code null}
 	 * @param scheduleCode  the business code of the schedule; must not be
 	 *                      {@code null}
-	 * @return {@code true} if an employee with the given email is assigned to the
+	 * @return {@code true} if the employee is assigned to the
 	 *         specified schedule; {@code false} otherwise
 	 */
-	boolean existsByEmailAndSchedule_Code(String employeeEmail, String scheduleCode);
+	boolean existsByIdAndSchedule_Code(Long employeeId, String scheduleCode);
 
 	/**
 	 * Indicates whether an employee identified by the given email is assigned to a
@@ -178,5 +178,5 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * @return {@code true} if the employee is assigned to the worksite;
 	 *         {@code false} otherwise
 	 */
-	boolean existsByEmailAndWorksites_Code(String email, String worksiteCode);
+	boolean existsByIdAndWorksites_Code(Long employeeId, String worksiteCode);
 }

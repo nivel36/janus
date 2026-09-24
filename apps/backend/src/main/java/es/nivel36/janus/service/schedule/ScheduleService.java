@@ -267,7 +267,7 @@ public class ScheduleService {
 	 * an empty {@link Optional} is returned.
 	 * </p>
 	 *
-	 * @param employeeEmail employee's email whose working time is requested; can't
+	 * @param employee employee whose working time is requested; can't
 	 *                      be {@code null}
 	 * @param date          date to evaluate; can't be {@code null}
 	 * @return an {@link Optional} containing the applicable {@link TimeRange}, or
@@ -276,13 +276,13 @@ public class ScheduleService {
 	 *                              {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public Optional<TimeRange> findTimeRangeForEmployeeByDate(final String employeeEmail, final LocalDate date) {
-		Objects.requireNonNull(employeeEmail, "employeeEmail can't be null");
+	public Optional<TimeRange> findTimeRangeForEmployeeByDate(final Employee employee, final LocalDate date) {
+		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(date, "Date can't be null");
-		logger.debug("Finding time range for employee {} by date {}", employeeEmail, date);
+		logger.debug("Finding time range for employee {} by date {}", employee, date);
 
 		final DayOfWeek dayOfWeek = date.getDayOfWeek();
-		return this.scheduleRepository.findTimeRangeForDate(employeeEmail, date, dayOfWeek);
+		return this.scheduleRepository.findTimeRangeForDate(employee.getId(), date, dayOfWeek);
 	}
 
 	/**

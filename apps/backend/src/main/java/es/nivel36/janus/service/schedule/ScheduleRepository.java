@@ -94,7 +94,7 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 	 * exists for a given date.
 	 * </p>
 	 *
-	 * @param employeeEmail the email of the employee whose time range is to be
+	 * @param employeeId the internal id of the employee whose time range is to be
 	 *                      retrieved; must not be {@code null}
 	 * @param date          the date for which the time range is to be retrieved;
 	 *                      must not be {@code null}
@@ -111,12 +111,12 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 			JOIN e.schedule s
 			JOIN s.rules r
 			JOIN r.dayOfWeekRanges d
-			WHERE e.email = :employeeEmail
+			WHERE e.id = :employeeId
 			  AND (r.startDate IS NULL OR r.startDate <= :date)
 			  AND (r.endDate   IS NULL OR r.endDate   >= :date)
 			  AND d.dayOfWeek = :dayOfWeek
 			""")
-	Optional<TimeRange> findTimeRangeForDate(String employeeEmail, LocalDate date, DayOfWeek dayOfWeek);
+	Optional<TimeRange> findTimeRangeForDate(Long employeeId, LocalDate date, DayOfWeek dayOfWeek);
 
 	/**
 	 * Checks whether the {@link Schedule} has any associated {@link Employee}

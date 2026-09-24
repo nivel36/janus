@@ -268,6 +268,35 @@ class EmployeeControllerIT {
 	}
 
 	@Test
+	@Sql(statements = {
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard')",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(10,'EMP-0010','Alice','One','alice@internal.test',1)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(20,'HQ','Headquarters','UTC','ASSIGNED')",
+			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(10,20)",
+			"INSERT INTO work_shift(id,employee_id,date,total_pause_time,total_work_time) VALUES(30,10,'2026-09-20',0,28800)",
+			"INSERT INTO time_log(id,employee_id,worksite_id,workshift_id,entry_time,exit_time) VALUES(40,10,20,30,'2026-09-20T08:00:00Z','2026-09-20T16:00:00Z')",
+			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('alice-login@internal.test','33333333-3333-4333-8333-333333333333','en-US','H24','UTC',10)" })
+	void changingEmailPreservesAllEmployeeRelationships() throws Exception {
+		final String body = """
+				{"name":"Alice","surname":"One","email":"alice.new@internal.test","scheduleCode":"STD-WH"}
+				""";
+
+		this.mvc.perform(put(BASE + "/{employeeNumber}", "EMP-0010").contentType(APPLICATION_JSON).content(body)
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("alice.new@internal.test"));
+
+		assertRelationshipCount("SELECT COUNT(*) FROM time_log WHERE employee_id=10", 1);
+		assertRelationshipCount("SELECT COUNT(*) FROM work_shift WHERE employee_id=10", 1);
+		assertRelationshipCount("SELECT COUNT(*) FROM employee WHERE id=10 AND schedule_id=1", 1);
+		assertRelationshipCount("SELECT COUNT(*) FROM employee_worksite WHERE employee_id=10 AND worksite_id=20", 1);
+		assertRelationshipCount("SELECT COUNT(*) FROM app_user WHERE employee_id=10", 1);
+	}
+
+	private void assertRelationshipCount(final String sql, final int expected) {
+		org.assertj.core.api.Assertions.assertThat(this.jdbc.queryForObject(sql, Integer.class)).isEqualTo(expected);
+	}
+
+	@Test
 	void testEmployeeWithScopeCannotUpdateAnotherEmployee() throws Exception {
 		final String body = """
 				{"name":"Other","surname":"Employee","email":"other@nivel36.es","scheduleCode":"STD-WH"}

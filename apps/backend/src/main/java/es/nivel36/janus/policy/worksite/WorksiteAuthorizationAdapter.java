@@ -83,7 +83,7 @@ public class WorksiteAuthorizationAdapter {
 	}
 
 	private boolean assigned(final Actor a, final String code) {
-		return a.employeeId() != null && this.employees.isAssignedToWorksite(this.employee(a).getEmail(), code);
+		return a.employeeId() != null && this.employees.isAssignedToWorksite(a.employeeId(), code);
 	}
 
 	private Employee employee(final Actor a) {

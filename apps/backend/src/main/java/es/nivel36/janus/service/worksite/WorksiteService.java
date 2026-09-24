@@ -178,26 +178,26 @@ public class WorksiteService {
 	 * <li>{@code ASSIGNED}: allowed only if explicitly assigned</li>
 	 * </ul>
 	 *
-	 * @param employeeEmail the employee email; must not be {@code null}
+	 * @param employee      the employee; must not be {@code null}
 	 * @param worksite      the target worksite; must not be {@code null}
 	 * @throws NullPointerException          if any parameter is {@code null}
 	 * @throws WorksiteAccessDeniedException if access is not permitted
 	 */
-	public void assertEmployeeCanUseWorksite(final String employeeEmail, final Worksite worksite) {
-		Objects.requireNonNull(employeeEmail, "employeeEmail can't be null");
+	public void assertEmployeeCanUseWorksite(final Employee employee, final Worksite worksite) {
+		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(worksite, "worksite can't be null");
 
 		if (worksite.getScope() == WorksiteScope.GLOBAL) {
 			return;
 		}
 		if (worksite.getScope() == WorksiteScope.ASSIGNED) {
-			final boolean assigned = this.employeeService.isAssignedToWorksite(employeeEmail, worksite.getCode());
+			final boolean assigned = this.employeeService.isAssignedToWorksite(employee.getId(), worksite.getCode());
 			if (assigned) {
 				return;
 			}
-			logger.warn("Employee {} is not assigned to worksite {}", employeeEmail, worksite.getCode());
+			logger.warn("Employee {} is not assigned to worksite {}", employee, worksite.getCode());
 			throw new WorksiteAccessDeniedException(
-					"Employee %s cannot use assigned worksite %s because it is not assigned".formatted(employeeEmail,
+					"Employee %s cannot use assigned worksite %s because it is not assigned".formatted(employee,
 							worksite.getCode()));
 		}
 	}

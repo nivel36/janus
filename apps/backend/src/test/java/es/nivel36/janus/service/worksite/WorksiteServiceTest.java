@@ -50,13 +50,12 @@ class WorksiteServiceTest {
 		final Schedule schedule = new Schedule("STD-WH", "Standard Work Hours", Duration.ofMinutes(5),
 				Duration.ofMinutes(5));
 		final Employee employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es", schedule);
-		final String employeeEmail = employee.getEmail();
-		final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
+				final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
 				WorksiteScope.ASSIGNED);
-		when(this.employeeService.isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ")).thenReturn(true);
+		when(this.employeeService.isAssignedToWorksite(employee.getId(), "BCN-PROJ")).thenReturn(true);
 
-		assertDoesNotThrow(() -> this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite));
-		verify(this.employeeService).isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ");
+		assertDoesNotThrow(() -> this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite));
+		verify(this.employeeService).isAssignedToWorksite(employee.getId(), "BCN-PROJ");
 	}
 
 	@Test
@@ -64,13 +63,12 @@ class WorksiteServiceTest {
 		final Schedule schedule = new Schedule("STD-WH", "Standard Work Hours", Duration.ofMinutes(5),
 				Duration.ofMinutes(5));
 		final Employee employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es", schedule);
-		final String employeeEmail = employee.getEmail();
-		final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
+				final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
 				WorksiteScope.ASSIGNED);
-		when(this.employeeService.isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ")).thenReturn(false);
+		when(this.employeeService.isAssignedToWorksite(employee.getId(), "BCN-PROJ")).thenReturn(false);
 
 		assertThrows(WorksiteAccessDeniedException.class,
-				() -> this.worksiteService.assertEmployeeCanUseWorksite(employeeEmail, worksite));
-		verify(this.employeeService).isAssignedToWorksite("aferrer@nivel36.es", "BCN-PROJ");
+				() -> this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite));
+		verify(this.employeeService).isAssignedToWorksite(employee.getId(), "BCN-PROJ");
 	}
 }
