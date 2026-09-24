@@ -50,9 +50,10 @@ import jakarta.validation.constraints.NotNull;
  * employee.
  *
  * <p>
-	 * Each employee is uniquely identified by their immutable employee number. In addition to
- * time logs, the employee also has an associated work schedule represented by a
- * {@link Schedule} entity, which is mandatory and cannot be null.
+ * Each employee is uniquely identified by their immutable employee number. In
+ * addition to time logs, the employee also has an associated work schedule
+ * represented by a {@link Schedule} entity, which is mandatory and cannot be
+ * null.
  * </p>
  *
  * @see TimeLog
@@ -94,7 +95,9 @@ public class Employee implements Serializable {
 	@NotBlank
 	private String surname;
 
-	/** Stable business identifier assigned when the employee is created. */
+	/**
+	 * Stable business identifier assigned when the employee is created.
+	 */
 	@NaturalId
 	@NotBlank
 	@Column(name = "employee_number", nullable = false, unique = true, updatable = false, length = 50)

@@ -94,10 +94,6 @@ public class EmployeeService {
 	/**
 	 * Retrieves an {@link Employee} identified by its email address.
 	 *
-	 * <p>
-	 * The email acts as a natural identifier for the employee.
-	 * </p>
-	 *
 	 * @param email the email of the employee to retrieve. Can't be {@code null} or
 	 *              blank.
 	 *
