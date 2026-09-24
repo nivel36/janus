@@ -52,31 +52,31 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	 * @return the most recent open time log, or {@code null} if none exist
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
-	TimeLog findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(String employeeEmail);
+	TimeLog findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(Long employeeId);
 
 	/**
 	 * Retrieves a single {@link TimeLog} for the specified employee that exactly
 	 * matches the provided {@code entryTime}.
 	 *
-	 * @param employeeEmail the email of the employee whose time log is to be
+	 * @param employeeId the internal id of the employee whose time log is to be
 	 *                      retrieved
 	 * @param entryTime     the exact entry timestamp of the record
 	 * @return an {@link Optional} containing the matching time log, or empty if not
 	 *         found
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
-	TimeLog findByEmployeeEmailAndEntryTime(String employeeEmail, Instant entryTime);
+	TimeLog findByEmployeeIdAndEntryTime(Long employeeId, Instant entryTime);
 
 	/**
 	 * Checks whether a {@link TimeLog} exists for the specified employee and exact
 	 * {@code entryTime}.
 	 *
-	 * @param employeeEmail the email of the employee to check for
+	 * @param employeeId the internal id of the employee to check for
 	 * @param entryTime     the exact entry timestamp to check
 	 * @return {@code true} if a record exists for the given employee and entry
 	 *         time; {@code false} otherwise
 	 */
-	boolean existsByEmployeeEmailAndEntryTimeAndDeletedFalse(String employeeEmail, Instant entryTime);
+	boolean existsByEmployeeIdAndEntryTimeAndDeletedFalse(Long employeeId, Instant entryTime);
 
 	/**
 	 * Returns the list of {@link TimeLog} records for the given employee that are
@@ -102,7 +102,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	 * </p>
 	 *
 	 * @param from          lower bound (inclusive) for {@code entryTime}
-	 * @param employeeEmail the email of the employee whose orphan time logs will be
+	 * @param employeeId the internal id of the employee whose orphan time logs will be
 	 *                      returned
 	 * @return a list of orphan {@link TimeLog} entities (with {@link Employee} and
 	 *         {@link Worksite} initialized) since {@code from}, ordered most recent
@@ -116,9 +116,9 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 			WHERE t.deleted = false
 			AND t.entryTime >= :from
 			AND t.exitTime IS NOT NULL
-			AND e.email = :employeeEmail
+			AND e.id = :employeeId
 			AND t.workShift IS NULL
 			ORDER BY t.entryTime DESC
 			""")
-	List<TimeLog> findOrphanTimeLogsSince(Instant from, String employeeEmail);
+	List<TimeLog> findOrphanTimeLogsSince(Instant from, Long employeeId);
 }

@@ -128,7 +128,7 @@ class TimeLogServiceTest {
 
 		final TimeLog existingTimeLog = new TimeLog(this.employee, this.worksite, eightHoursBefore);
 		when(this.timeLogRepository
-				.findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getEmail()))
+				.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getId()))
 				.thenReturn(existingTimeLog);
 
 		// Act
@@ -146,7 +146,7 @@ class TimeLogServiceTest {
 		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 		when(this.timeLogRepository
-				.findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getEmail()))
+				.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getId()))
 				.thenReturn(null);
 		final Instant now = this.now();
 		assertThrows(ClockOutWithoutClockInException.class, () -> {

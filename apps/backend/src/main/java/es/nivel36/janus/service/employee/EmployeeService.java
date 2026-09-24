@@ -262,29 +262,29 @@ public class EmployeeService {
 	 *
 	 * <p>
 	 * This method checks for the existence of an {@link Employee} whose natural
-	 * identifier ({@code email}) matches the provided value and whose associated
+	 * internal identifier ({@code id}) matches the provided value and whose associated
 	 * {@link Schedule} has the given {@code code}.
 	 * </p>
 	 *
 	 * <p>
-	 * Both the employee email and the schedule code are treated as business
-	 * identifiers. The method returns {@code true} as soon as a matching assignment
+	 * The employee id is an internal key and the schedule code is a business
+	 * identifier. The method returns {@code true} as soon as a matching assignment
 	 * is found.
 	 * </p>
 	 *
-	 * @param employeeEmail the unique email address of the employee; must not be
+	 * @param employeeId the internal id of the employee; must not be
 	 *                      {@code null}
 	 * @param scheduleCode  the business code of the schedule; must not be
 	 *                      {@code null}
-	 * @return {@code true} if an employee with the given email is assigned to the
+	 * @return {@code true} if the employee is assigned to the
 	 *         specified schedule; {@code false} otherwise
 	 */
-	public boolean isAssignedToSchedule(final String employeeEmail, final String scheduleCode) {
-		Objects.requireNonNull(employeeEmail, "employeeEmail cannot be null.");
+	public boolean isAssignedToSchedule(final Long employeeId, final String scheduleCode) {
+		Objects.requireNonNull(employeeId, "employeeId cannot be null.");
 		Objects.requireNonNull(scheduleCode, "scheduleCode cannot be null.");
 
-		logger.debug("Checking if the employee {} is assigned to schedule {}", employeeEmail, scheduleCode);
-		return this.employeeRepository.existsByEmailAndSchedule_Code(employeeEmail, scheduleCode);
+		logger.debug("Checking if the employee {} is assigned to schedule {}", employeeId, scheduleCode);
+		return this.employeeRepository.existsByIdAndSchedule_Code(employeeId, scheduleCode);
 	}
 
 	/**
@@ -293,29 +293,29 @@ public class EmployeeService {
 	 *
 	 * <p>
 	 * This method checks for the existence of an {@link Employee} whose natural
-	 * identifier ({@code email}) matches the provided value and whose associated
+	 * internal identifier ({@code id}) matches the provided value and whose associated
 	 * {@link Worksite} has the given {@code code}.
 	 * </p>
 	 *
 	 * <p>
-	 * Both the employee email and the worksite code are treated as business
-	 * identifiers. The method returns {@code true} as soon as a matching assignment
+	 * The employee id is an internal key and the worksite code is a business
+	 * identifier. The method returns {@code true} as soon as a matching assignment
 	 * is found.
 	 * </p>
 	 *
-	 * @param employeeEmail the unique email address of the employee; must not be
+	 * @param employeeId the internal id of the employee; must not be
 	 *                      {@code null}
 	 * @param worksiteCode  the business code of the worksite; must not be
 	 *                      {@code null}
-	 * @return {@code true} if an employee with the given email is assigned to the
+	 * @return {@code true} if the employee is assigned to the
 	 *         specified schedule; {@code false} otherwise
 	 */
-	public boolean isAssignedToWorksite(final String employeeEmail, final String worksiteCode) {
-		Objects.requireNonNull(employeeEmail, "employeeEmail cannot be null.");
+	public boolean isAssignedToWorksite(final Long employeeId, final String worksiteCode) {
+		Objects.requireNonNull(employeeId, "employeeId cannot be null.");
 		Objects.requireNonNull(worksiteCode, "worksiteCode cannot be null.");
 
-		logger.debug("Checking if the employee {} is assigned to schedule {}", employeeEmail, worksiteCode);
-		return this.employeeRepository.existsByEmailAndWorksites_Code(employeeEmail, worksiteCode);
+		logger.debug("Checking if the employee {} is assigned to worksite {}", employeeId, worksiteCode);
+		return this.employeeRepository.existsByIdAndWorksites_Code(employeeId, worksiteCode);
 	}
 
 	@Transactional(readOnly = true)

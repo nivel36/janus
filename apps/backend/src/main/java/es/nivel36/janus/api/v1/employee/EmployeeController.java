@@ -64,11 +64,11 @@ public class EmployeeController implements EmployeeResource {
 	}
 
 	/**
-	 * Retrieves an {@link Employee} by its email address.
+	 * Retrieves an {@link Employee} by its employee number.
 	 *
-	 * @param employeeEmail the unique email address of the employee; must not be
+	 * @param employeeNumber the stable employee number of the employee; must not be
 	 *                      {@code null}
-	 * @return the {@link EmployeeResponse} matching the email
+	 * @return the {@link EmployeeResponse} matching the employee number
 	 */
 	@Override
 	public ResponseEntity<EmployeeResponse> findEmployee(final String employeeNumber) {
@@ -103,7 +103,7 @@ public class EmployeeController implements EmployeeResource {
 	/**
 	 * Updates an existing {@link Employee} identified by its identifier.
 	 *
-	 * @param employeeEmail the email of the employee to update; must not be
+	 * @param employeeNumber the stable number of the employee to update; must not be
 	 *                      {@code null}
 	 * @param request       the payload containing the new employee data; must not
 	 *                      be {@code null}
@@ -126,7 +126,7 @@ public class EmployeeController implements EmployeeResource {
 	/**
 	 * Deletes an existing {@link Employee}.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the stable number of the employee; must not be {@code null}
 	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
 	@Override

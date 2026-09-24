@@ -130,7 +130,7 @@ public class WorkShiftPrecomputeJob {
 		final Employee employee = this.employeeService.findEmployeeById(employeeId);
 		log.trace("Processing employee {}", employee);
 
-		final TimeLogs orphanLogs = this.timeLogService.findOrphanTimeLogs(target, employee.getEmail());
+		final TimeLogs orphanLogs = this.timeLogService.findOrphanTimeLogs(target, employee);
 		if (orphanLogs.isEmpty()) {
 			log.warn("No orphan time logs for employee {} at targetAnchor {}", employee, target);
 			return;
@@ -157,8 +157,7 @@ public class WorkShiftPrecomputeJob {
 				dayStart, dayEndExclusive);
 
 		final TimeLogs bucket = this.collectBucket(first, worksite, dayStart, dayEndExclusive, queue);
-		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee.getEmail(),
-				day);
+		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, day);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();
 		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, zone, this.policy);

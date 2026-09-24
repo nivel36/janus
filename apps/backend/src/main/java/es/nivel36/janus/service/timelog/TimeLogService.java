@@ -149,7 +149,7 @@ public class TimeLogService {
 
 	private void assertTimeLogDoesNotExist(final Employee employee, final Instant entryTime) {
 		final boolean timeLogExists = this.timeLogRepository
-				.existsByEmployeeEmailAndEntryTimeAndDeletedFalse(employee.getEmail(), entryTime);
+				.existsByEmployeeIdAndEntryTimeAndDeletedFalse(employee.getId(), entryTime);
 		if (timeLogExists) {
 			throw new TimeLogModificationNotAllowedException(String
 					.format("A time log with entryTime %s already exists for the employee %s.", entryTime, employee));
@@ -205,17 +205,17 @@ public class TimeLogService {
 	/**
 	 * Indicates whether the employee currently has an open {@link TimeLog}.
 	 *
-	 * @param employeeEmail the email of the employee to inspect; must not be
+	 * @param employee the employee to inspect; must not be
 	 *                      {@code null}.
 	 * @return {@code true} when an open time log exists for the employee and
 	 *         worksite; {@code false} otherwise.
 	 */
 	@Transactional(readOnly = true)
-	public boolean hasOpenTimeLog(final String employeeEmail) {
-		Objects.requireNonNull(employeeEmail, "employeeEmail cannot be null.");
+	public boolean hasOpenTimeLog(final Employee employee) {
+		Objects.requireNonNull(employee, "employee cannot be null.");
 
 		return this.timeLogRepository
-				.findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(employeeEmail) != null;
+				.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(employee.getId()) != null;
 	}
 
 	/**
@@ -254,7 +254,7 @@ public class TimeLogService {
 		this.assertWithinEditableWindow(truncatedExitTime, lockThreshold, now);
 
 		final TimeLog lastTimeLog = this.timeLogRepository
-				.findTopByEmployeeEmailAndExitTimeIsNullOrderByEntryTimeDesc(employee.getEmail());
+				.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(employee.getId());
 
 		if (lastTimeLog == null) {
 			final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = new ClockOutWithoutClockInEvent(employee,
@@ -307,7 +307,7 @@ public class TimeLogService {
 	/**
 	 * Finds a {@link TimeLog} by employee and entry time.
 	 *
-	 * @param employeeEmail email of the employee associated with the time log.
+	 * @param employee employee associated with the time log.
 	 *                      Can't be {@code null}.
 	 * @param entryTime     entry time of the time log. Can't be {@code null}.
 	 * @return the matching {@link TimeLog}.
@@ -315,15 +315,15 @@ public class TimeLogService {
 	 * @throws ResourceNotFoundException if no matching time log is found.
 	 */
 	@Transactional(readOnly = true)
-	public TimeLog findTimeLogByEmployeeAndEntryTime(final String employeeEmail, final Instant entryTime) {
-		Objects.requireNonNull(employeeEmail, "employeeEmail can't be null");
+	public TimeLog findTimeLogByEmployeeAndEntryTime(final Employee employee, final Instant entryTime) {
+		Objects.requireNonNull(employee, "employee can't be null");
 		Objects.requireNonNull(entryTime, "entryTime can't be null");
-		logger.debug("Finding time log by employee {} and entry time {}", employeeEmail, entryTime);
+		logger.debug("Finding time log by employee {} and entry time {}", employee, entryTime);
 
-		final TimeLog timeLog = this.timeLogRepository.findByEmployeeEmailAndEntryTime(employeeEmail, entryTime);
+		final TimeLog timeLog = this.timeLogRepository.findByEmployeeIdAndEntryTime(employee.getId(), entryTime);
 		if (timeLog == null) {
 			throw new ResourceNotFoundException(
-					String.format("TimeLog for employee %s at entry time %s was not found", employeeEmail, entryTime));
+					String.format("TimeLog for employee %s at entry time %s was not found", employee, entryTime));
 		}
 		return timeLog;
 	}
@@ -338,18 +338,18 @@ public class TimeLogService {
 	 *
 	 * @param from          lower bound instant for the search. Can't be
 	 *                      {@code null}.
-	 * @param employeeEmail email of the employee for whom orphan time logs are
+	 * @param employee employee for whom orphan time logs are
 	 *                      searched. Can't be {@code null}.
 	 * @return a list of orphan {@link TimeLog} instances. Never {@code null}.
 	 * @throws NullPointerException if any argument is {@code null}.
 	 */
 	@Transactional(readOnly = true)
-	public TimeLogs findOrphanTimeLogs(final Instant from, final String employeeEmail) {
+	public TimeLogs findOrphanTimeLogs(final Instant from, final Employee employee) {
 		Objects.requireNonNull(from, "from must not be null");
-		Objects.requireNonNull(employeeEmail, "employeeEmail must not be null");
-		logger.debug("Finding orphan timeLog from {} and employee {}", from, employeeEmail);
+		Objects.requireNonNull(employee, "employee must not be null");
+		logger.debug("Finding orphan timeLog from {} and employee {}", from, employee);
 
-		final List<TimeLog> orphanTimeLogs = this.timeLogRepository.findOrphanTimeLogsSince(from, employeeEmail);
+		final List<TimeLog> orphanTimeLogs = this.timeLogRepository.findOrphanTimeLogsSince(from, employee.getId());
 		logger.trace("Found {} orphan time logs", orphanTimeLogs.size());
 		return new TimeLogs(orphanTimeLogs);
 	}

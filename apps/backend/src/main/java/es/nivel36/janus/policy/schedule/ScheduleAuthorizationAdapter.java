@@ -38,7 +38,7 @@ public class ScheduleAuthorizationAdapter {
 	public boolean canView(final Authentication auth, final String code) {
 		final Actor a = this.actors.resolve(auth);
 		return this.view.allows(a, a.employeeId() != null && this.employees
-				.isAssignedToSchedule(this.employees.findEmployeeById(a.employeeId()).getEmail(), code));
+				.isAssignedToSchedule(a.employeeId(), code));
 	}
 
 	public boolean canCreate(final Authentication a) {
