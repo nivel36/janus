@@ -76,7 +76,7 @@ class AppUserServiceTest {
 		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
 		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
 		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
-		when(this.employeeService.findEmployeeForProvisioning("person@example.test")).thenReturn(Optional.of(employee));
+		when(this.employeeService.findEmployeeByEmail("person@example.test")).thenReturn(Optional.of(employee));
 		when(this.appUserRepository.findByEmployee(employee)).thenReturn(Optional.empty());
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty())
 				.thenReturn(Optional.empty()).thenReturn(Optional.of(winner));
@@ -87,6 +87,24 @@ class AppUserServiceTest {
 				.thenThrow(new AppUserCreationConflict(new RuntimeException("subject claimed")));
 
 		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, email));
+	}
+
+	@Test
+	void validEmailWithoutEmployeeCreatesAnUnlinkedProfile() {
+		final String subject = "22222222-2222-4222-8222-222222222222";
+		final String email = "unlinked@example.test";
+		final ZoneId timezone = ZoneId.of("UTC");
+		final AppUser created = new AppUser(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone);
+		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
+		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
+		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
+		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty());
+		when(this.employeeService.findEmployeeByEmail(email)).thenReturn(Optional.empty());
+		when(this.appUserCreator.create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, null))
+				.thenReturn(created);
+
+		assertSame(created, this.appUserService.findOrCreateAppUser(subject, email));
+		verify(this.appUserCreator).create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, null);
 	}
 
 	@Test

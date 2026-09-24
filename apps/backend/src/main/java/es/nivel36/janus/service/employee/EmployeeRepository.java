@@ -101,11 +101,11 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * Finds an {@link Employee} by email.
 	 *
 	 * @param email the email of the employee to find
-	 * @return the employee with the specified email, or {@code null} if no employee
-	 *         is found
+	 * @return the employee with the specified email, or {@link Optional#empty()} if
+	 *         no employee is found
 	 */
 	@EntityGraph(attributePaths = "schedule")
-	Employee findByEmail(final String email);
+	Optional<Employee> findByEmail(final String email);
 
 	@EntityGraph(attributePaths = "schedule")
 	@Query("""

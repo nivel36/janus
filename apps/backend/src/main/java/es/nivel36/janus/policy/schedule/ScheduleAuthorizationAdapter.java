@@ -57,11 +57,9 @@ public class ScheduleAuthorizationAdapter {
 		if (email == null || a.employeeId() == null) {
 			return false;
 		}
-		try {
-			return Objects.equals(a.employeeId(), this.employees.findEmployeeByEmail(email).getId());
-		} catch (final RuntimeException _) {
-			return false;
-		}
+		return this.employees.findEmployeeByEmail(email)
+				.map(employee -> Objects.equals(a.employeeId(), employee.getId()))
+				.orElse(false);
 	}
 
 	private boolean restricted(final Actor a) {

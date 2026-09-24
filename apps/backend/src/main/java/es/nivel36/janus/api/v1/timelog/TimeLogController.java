@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.policy.timelog.TimeLogAuthorizationAdapter;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
@@ -118,7 +119,7 @@ public class TimeLogController implements TimeLogResource {
 		logger.debug("Clock-in ACTION performed");
 
 		final String email = this.effectiveEmployeeEmail(authentication, employeeEmail);
-		final Employee employee = this.employeeService.findEmployeeByEmail(email);
+		final Employee employee = this.requireEmployee(email);
 		final Worksite worksite = this.findWorksiteForNewRecord(email, worksiteCode.trim());
 		final TimeLog clockIn;
 		if (entryTime != null) {
@@ -161,7 +162,7 @@ public class TimeLogController implements TimeLogResource {
 		logger.debug("Clock-out ACTION performed");
 
 		final String email = this.effectiveEmployeeEmail(authentication, employeeEmail);
-		final Employee employee = this.employeeService.findEmployeeByEmail(email);
+		final Employee employee = this.requireEmployee(email);
 		final Worksite worksite = this.findWorksiteForClockOut(email,
 				worksiteCode);
 		final TimeLog clockOut;
@@ -208,7 +209,7 @@ public class TimeLogController implements TimeLogResource {
 		logger.debug("Create time log ACTION performed");
 
 		final String email = this.effectiveEmployeeEmail(authentication, employeeEmail);
-		final Employee employee = this.employeeService.findEmployeeByEmail(email);
+		final Employee employee = this.requireEmployee(email);
 		final Worksite worksite = this.findWorksiteForNewRecord(email, worksiteCode.trim());
 		final Instant entryTime = timeLog.entryTime();
 		final Instant exitTime = timeLog.exitTime();
@@ -240,6 +241,11 @@ public class TimeLogController implements TimeLogResource {
 
 	private String effectiveEmployeeEmail(final Authentication authentication, final String requestedEmail) {
 		return EmailAddresses.canonicalize(this.authorization.effectiveEmployeeEmail(authentication, requestedEmail));
+	}
+
+	private Employee requireEmployee(final String email) {
+		return this.employeeService.findEmployeeByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with email " + email));
 	}
 
 	/**

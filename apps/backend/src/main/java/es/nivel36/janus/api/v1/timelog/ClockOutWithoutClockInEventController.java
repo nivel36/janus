@@ -27,6 +27,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
@@ -118,7 +119,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 			final ResolveClockOutWithoutClockInEventRequest request) {
 		logger.debug("Resolve clock-out-without-clock-in event ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
+		final Employee employee = this.requireEmployee(employeeEmail);
 		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
@@ -151,7 +152,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 			final InvalidateClockOutWithoutClockInEventRequest request) {
 		logger.debug("Invalidate clock-out-without-clock-in event ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
+		final Employee employee = this.requireEmployee(employeeEmail);
 		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
@@ -181,7 +182,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 			final Instant exitTime) {
 		logger.debug("Find clock-out-without-clock-in event ACTION performed");
 
-		final Employee employee = this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail));
+		final Employee employee = this.requireEmployee(employeeEmail);
 		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
@@ -194,6 +195,12 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 		if (!this.applicationSettingsService.findApplicationSettings().isEmployeeManualTimelogEntryAllowed()) {
 			throw new AccessDeniedException("Manual timelog entry is disabled for employees");
 		}
+	}
+
+	private Employee requireEmployee(final String email) {
+		final String canonicalEmail = EmailAddresses.canonicalize(email);
+		return this.employeeService.findEmployeeByEmail(canonicalEmail)
+				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with email " + canonicalEmail));
 	}
 
 	private Worksite findRecordedWorksite(final String worksiteCode) {

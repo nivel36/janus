@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -89,5 +90,15 @@ class TimeLogAuthorizationAdapterTest {
 
 		assertThat(this.adapter.canOperate(this.authentication, "old-address@internal.test", false)).isFalse();
 		verifyNoInteractions(this.employees);
+	}
+
+	@Test
+	void missingEmployeeIsDeniedWithoutDisclosingItsAbsence() {
+		when(this.actors.resolve(this.authentication))
+				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+						Set.of(Role.JANUS_USER), 84L));
+		when(this.employees.findEmployeeByEmail("missing@example.test")).thenReturn(Optional.empty());
+
+		assertThat(this.adapter.canOperate(this.authentication, "missing@example.test", false)).isFalse();
 	}
 }
