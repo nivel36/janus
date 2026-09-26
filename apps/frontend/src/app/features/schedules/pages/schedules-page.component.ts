@@ -47,10 +47,6 @@ export class SchedulesPageComponent {
     this.navigateTo(this.query(), page);
   }
 
-  protected createSchedule(): void {
-    this.router.navigate(['/']);
-  }
-
   private navigateTo(query: string, page: number): void {
     this.router.navigate([], {
       relativeTo: this.route,

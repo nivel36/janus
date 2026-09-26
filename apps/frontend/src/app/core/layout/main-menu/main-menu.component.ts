@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendarDays, faBuilding } from '@fortawesome/free-regular-svg-icons';
@@ -12,14 +12,13 @@ import { AuthService } from '../../auth/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-main-menu',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, FontAwesomeModule],
+  imports: [CommonModule, RouterLink, TranslatePipe, FontAwesomeModule],
   templateUrl: './main-menu.component.html',
   styleUrls: ['./main-menu.component.css'],
 })
 export class MainMenuComponent {
   private readonly currentUser = inject(CurrentUserFacade);
   private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
 
   readonly user = this.currentUser.currentUser;
 
@@ -31,21 +30,5 @@ export class MainMenuComponent {
 
   async logout(): Promise<void> {
     await this.auth.logout();
-  }
-
-  goToUserPreferences(): void {
-    this.router.navigate(['/user-preferences']);
-  }
-
-  goToApplicationSettings(): void {
-    this.router.navigate(['/application-settings']);
-  }
-
-  goToSchedules(): void {
-    this.router.navigate(['/schedules']);
-  }
-
-  goToWorksites(): void {
-    this.router.navigate(['/worksites']);
   }
 }

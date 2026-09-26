@@ -3,112 +3,114 @@
     <section class="app-card settings-card">
       <div class="app-card__body settings-card__body">
         @if (loading()) {
-          <app-message type="info">{{ 'applicationSettings.messages.loading' | translate }}</app-message>
+          <app-message type="info">{{
+            'applicationSettings.messages.loading' | translate
+          }}</app-message>
         } @else {
           <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
-          <app-field
-            controlId="daysUntilLocked"
-            [label]="'applicationSettings.fields.daysUntilLocked' | translate"
-            required
-          >
-            <app-range-slider
-              inputId="daysUntilLocked"
-              formControlName="daysUntilLocked"
-              [min]="0"
-              [max]="daysUntilLockedSliderMax"
-              [step]="1"
+            <app-field
+              controlId="daysUntilLocked"
+              [label]="'applicationSettings.fields.daysUntilLocked' | translate"
               required
-            />
-          </app-field>
+            >
+              <app-range-slider
+                inputId="daysUntilLocked"
+                formControlName="daysUntilLocked"
+                [min]="0"
+                [max]="daysUntilLockedSliderMax"
+                [step]="1"
+                required
+              />
+            </app-field>
 
-          <app-field
-            controlId="employeeWorkplaceCreationAllowed"
-            [label]="'applicationSettings.fields.employeeWorkplaceCreationAllowed' | translate"
-          >
-            <app-toggle-button
-              inputId="employeeWorkplaceCreationAllowed"
-              formControlName="employeeWorkplaceCreationAllowed"
-              ariaLabelledBy="employeeWorkplaceCreationAllowed-label"
-            />
-          </app-field>
+            <app-field
+              controlId="employeeWorkplaceCreationAllowed"
+              [label]="'applicationSettings.fields.employeeWorkplaceCreationAllowed' | translate"
+            >
+              <app-toggle-button
+                inputId="employeeWorkplaceCreationAllowed"
+                formControlName="employeeWorkplaceCreationAllowed"
+                ariaLabelledBy="employeeWorkplaceCreationAllowed-label"
+              />
+            </app-field>
 
-          <app-field
-            controlId="worksiteChangeDuringShiftAllowed"
-            [label]="'applicationSettings.fields.worksiteChangeDuringShiftAllowed' | translate"
-          >
-            <app-toggle-button
-              inputId="worksiteChangeDuringShiftAllowed"
-              formControlName="worksiteChangeDuringShiftAllowed"
-              ariaLabelledBy="worksiteChangeDuringShiftAllowed-label"
-            />
-          </app-field>
+            <app-field
+              controlId="worksiteChangeDuringShiftAllowed"
+              [label]="'applicationSettings.fields.worksiteChangeDuringShiftAllowed' | translate"
+            >
+              <app-toggle-button
+                inputId="worksiteChangeDuringShiftAllowed"
+                formControlName="worksiteChangeDuringShiftAllowed"
+                ariaLabelledBy="worksiteChangeDuringShiftAllowed-label"
+              />
+            </app-field>
 
-          <app-field
-            controlId="employeeManualTimelogEntryAllowed"
-            [label]="'applicationSettings.fields.employeeManualTimelogEntryAllowed' | translate"
-          >
-            <app-toggle-button
-              inputId="employeeManualTimelogEntryAllowed"
-              formControlName="employeeManualTimelogEntryAllowed"
-              ariaLabelledBy="employeeManualTimelogEntryAllowed-label"
-            />
-          </app-field>
+            <app-field
+              controlId="employeeManualTimelogEntryAllowed"
+              [label]="'applicationSettings.fields.employeeManualTimelogEntryAllowed' | translate"
+            >
+              <app-toggle-button
+                inputId="employeeManualTimelogEntryAllowed"
+                formControlName="employeeManualTimelogEntryAllowed"
+                ariaLabelledBy="employeeManualTimelogEntryAllowed-label"
+              />
+            </app-field>
 
-          <app-field
-            controlId="default-timezone"
-            [label]="'applicationSettings.fields.defaultTimezone' | translate"
-            [error]="
-              form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
-                ? ('applicationSettings.errors.invalidTimezone' | translate)
-                : ''
-            "
-            [invalid]="
-              form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
-            "
-            required
-          >
-            <app-autocomplete-textbox
-              appAutocompleteValueAccessor
-              inputId="default-timezone"
-              formControlName="defaultTimezone"
-              [items]="timezoneSearch.items()"
-              [loading]="timezoneSearch.loading()"
-              [error]="timezoneSearch.error()"
-              [panelOpen]="timezoneSearch.panelOpen()"
-              (queryChange)="timezoneSearch.search($event)"
-              [displayWith]="timezoneCatalog.displayWith"
-              [valueWith]="timezoneCatalog.valueWith"
-              [resolveByValue]="timezoneCatalog.resolve"
-              [emptyHint]="'applicationSettings.fields.defaultTimezoneHint' | translate"
-              ariaLabelledBy="default-timezone-label"
-              [ariaDescribedBy]="
+            <app-field
+              controlId="default-timezone"
+              [label]="'applicationSettings.fields.defaultTimezone' | translate"
+              [error]="
                 form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
-                  ? 'default-timezone-error'
-                  : null
+                  ? ('applicationSettings.errors.invalidTimezone' | translate)
+                  : ''
               "
-              [ariaInvalid]="
+              [invalid]="
                 form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
               "
-            />
-          </app-field>
+              required
+            >
+              <app-autocomplete-textbox
+                appAutocompleteValueAccessor
+                inputId="default-timezone"
+                formControlName="defaultTimezone"
+                [items]="timezoneSearch.items()"
+                [loading]="timezoneSearch.loading()"
+                [error]="timezoneSearch.error()"
+                [panelOpen]="timezoneSearch.panelOpen()"
+                (queryChange)="timezoneSearch.search($event)"
+                [displayWith]="timezoneCatalog.displayWith"
+                [valueWith]="timezoneCatalog.valueWith"
+                [resolveByValue]="timezoneCatalog.resolve"
+                [emptyHint]="'applicationSettings.fields.defaultTimezoneHint' | translate"
+                ariaLabelledBy="default-timezone-label"
+                [ariaDescribedBy]="
+                  form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
+                    ? 'default-timezone-error'
+                    : null
+                "
+                [ariaInvalid]="
+                  form.controls.defaultTimezone.touched && form.controls.defaultTimezone.invalid
+                "
+              />
+            </app-field>
 
-          @if (errorMessage()) {
-            <app-message type="error" presentation="inline">
-              {{ errorMessage() | translate }}
-            </app-message>
-          }
-
-          <div class="app-form-actions">
-            <app-button type="button" variant="secondary" (clicked)="cancel()">
-              {{ 'actions.cancel' | translate }}
-            </app-button>
-
-            @if (isAdmin) {
-              <app-button type="submit" [disabled]="form.invalid || saving()" variant="main">
-                {{ 'actions.save' | translate }}
-              </app-button>
+            @if (errorMessage()) {
+              <app-message type="error" presentation="inline">
+                {{ errorMessage() | translate }}
+              </app-message>
             }
-          </div>
+
+            <div class="app-form-actions">
+              <app-button variant="secondary" routerLink="/">
+                {{ 'actions.cancel' | translate }}
+              </app-button>
+
+              @if (isAdmin) {
+                <app-button type="submit" [disabled]="form.invalid || saving()" variant="main">
+                  {{ 'actions.save' | translate }}
+                </app-button>
+              }
+            </div>
           </form>
         }
       </div>

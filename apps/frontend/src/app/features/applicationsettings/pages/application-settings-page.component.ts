@@ -141,10 +141,6 @@ export class ApplicationSettingsPageComponent {
     });
   }
 
-  cancel(): void {
-    this.router.navigate(['/']);
-  }
-
   save(): void {
     if (!this.isAdmin || this.saving() || this.form.invalid) {
       this.form.markAllAsTouched();
@@ -167,7 +163,7 @@ export class ApplicationSettingsPageComponent {
       .subscribe({
         next: (updatedSettings) => {
           this.form.reset(updatedSettings);
-          this.cancel();
+          this.router.navigate(['/']);
         },
         error: () => {
           this.saveErrorMessage.set('applicationSettings.errors.update');

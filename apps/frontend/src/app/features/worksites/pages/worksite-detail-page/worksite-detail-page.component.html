@@ -31,7 +31,7 @@
           </div>
 
           <div class="worksite-detail__actions">
-            <app-button type="button" variant="secondary" (clicked)="goBack()">
+            <app-button variant="secondary" routerLink="/worksites">
               {{ 'actions.cancel' | translate }}
             </app-button>
             @if (isAdmin()) {

@@ -47,10 +47,6 @@ export class WorksitesPageComponent {
     this.navigateTo(this.query(), page);
   }
 
-  protected createWorksite(): void {
-    this.router.navigate(['/worksites/new']);
-  }
-
   private navigateTo(query: string, page: number): void {
     this.router.navigate([], {
       relativeTo: this.route,

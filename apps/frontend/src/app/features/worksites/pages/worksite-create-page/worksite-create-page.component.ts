@@ -106,8 +106,4 @@ export class WorksiteCreatePageComponent {
         },
       });
   }
-
-  cancel(): void {
-    this.router.navigate(['/worksites']);
-  }
 }
