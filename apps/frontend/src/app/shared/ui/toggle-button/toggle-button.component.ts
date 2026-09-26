@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { booleanAttribute, Component, computed, forwardRef, input } from '@angular/core';
+import { booleanAttribute, Component, computed, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { createUuid } from '../../utils/uuid.utils';
@@ -39,14 +39,22 @@ export class ToggleButtonComponent implements ControlValueAccessor {
 
   readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);
 
-  checked = false;
-  disabled = false;
+  private readonly checkedState = signal(false);
+  private readonly disabledState = signal(false);
+
+  get checked(): boolean {
+    return this.checkedState();
+  }
+
+  get disabled(): boolean {
+    return this.disabledState();
+  }
 
   private onChange: (value: boolean) => void = noopToggleChange;
   private onTouched: () => void = noopTouched;
 
   writeValue(value: boolean | null): void {
-    this.checked = !!value;
+    this.checkedState.set(!!value);
   }
 
   registerOnChange(fn: (value: boolean) => void): void {
@@ -58,7 +66,7 @@ export class ToggleButtonComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabledState.set(isDisabled);
   }
 
   markAsTouched(): void {
@@ -70,7 +78,7 @@ export class ToggleButtonComponent implements ControlValueAccessor {
       return;
     }
 
-    this.checked = !this.checked;
+    this.checkedState.update((checked) => !checked);
     this.onChange(this.checked);
     this.onTouched();
   }

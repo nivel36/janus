@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { booleanAttribute, Component, computed, forwardRef, input } from '@angular/core';
+import { booleanAttribute, Component, computed, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { createUuid } from '../../utils/uuid.utils';
 
@@ -75,12 +75,20 @@ export class RangeSliderComponent implements ControlValueAccessor {
   /**
    * Current numeric slider value.
    */
-  value = 0;
+  private readonly valueState = signal(0);
 
   /**
    * Disabled state propagated from Angular Forms.
    */
-  disabled = false;
+  private readonly disabledState = signal(false);
+
+  get value(): number {
+    return this.valueState();
+  }
+
+  get disabled(): boolean {
+    return this.disabledState();
+  }
 
   /**
    * Angular Forms callback used to propagate value changes.
@@ -98,7 +106,7 @@ export class RangeSliderComponent implements ControlValueAccessor {
    * @param value Value received from the parent form control.
    */
   writeValue(value: number | null): void {
-    this.value = typeof value === 'number' ? value : 0;
+    this.valueState.set(typeof value === 'number' ? value : 0);
   }
 
   /**
@@ -125,7 +133,7 @@ export class RangeSliderComponent implements ControlValueAccessor {
    * @param isDisabled Whether the control should be disabled.
    */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabledState.set(isDisabled);
   }
 
   /**
@@ -136,7 +144,7 @@ export class RangeSliderComponent implements ControlValueAccessor {
   onInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     const nextValue = Number(target.value);
-    this.value = nextValue;
+    this.valueState.set(nextValue);
     this.onChange(nextValue);
   }
 

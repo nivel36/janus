@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component } from '@angular/core';
+import { Component, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -31,6 +31,7 @@ describe('ToggleButtonComponent (ControlValueAccessor)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
+      providers: [provideZonelessChangeDetection()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
@@ -50,7 +51,6 @@ describe('ToggleButtonComponent (ControlValueAccessor)', () => {
 
   it('should update the view when the FormControl value changes', async () => {
     host.form.get('flag')?.setValue(true);
-    fixture.changeDetectorRef.markForCheck();
     await fixture.whenStable();
 
     const button = getButton();
@@ -98,9 +98,9 @@ describe('ToggleButtonComponent (ControlValueAccessor)', () => {
     expect(host.form.get('flag')?.value).toBe(false);
   });
 
-  it('should respect the disabled state from FormControl', () => {
+  it('should respect the disabled state from FormControl', async () => {
     host.form.get('flag')?.disable();
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const button = getButton();
     expect(button.disabled).toBe(true);

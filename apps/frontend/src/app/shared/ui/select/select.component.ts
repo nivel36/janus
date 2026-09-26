@@ -1,16 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import {
-  AfterViewInit,
-  booleanAttribute,
-  Component,
-  effect,
-  ElementRef,
-  forwardRef,
-  input,
-  ViewChild,
-} from '@angular/core';
+import { booleanAttribute, Component, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -50,37 +41,29 @@ export interface SelectOption<TValue extends string = string> {
     },
   ],
 })
-export class SelectComponent<TValue extends string = string>
-  implements ControlValueAccessor, AfterViewInit
-{
+export class SelectComponent<TValue extends string = string> implements ControlValueAccessor {
   readonly options = input.required<readonly SelectOption<TValue>[]>();
   readonly required = input(false, { transform: booleanAttribute });
   readonly inputId = input.required<string>();
   readonly ariaDescribedBy = input<string | null>(null);
   readonly ariaInvalid = input(false, { transform: booleanAttribute });
 
-  @ViewChild('nativeSelect') private nativeSelect?: ElementRef<HTMLSelectElement>;
+  private readonly valueState = signal<TValue | null>(null);
+  private readonly disabledState = signal(false);
 
-  value: TValue | null = null;
-  disabled = false;
+  get value(): TValue | null {
+    return this.valueState();
+  }
+
+  get disabled(): boolean {
+    return this.disabledState();
+  }
 
   private onChange: (value: TValue | null) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
-  constructor() {
-    effect(() => {
-      this.options();
-      this.syncNativeSelection();
-    });
-  }
-
-  ngAfterViewInit(): void {
-    this.syncNativeSelection();
-  }
-
   writeValue(value: TValue | null): void {
-    this.value = value;
-    this.syncNativeSelection();
+    this.valueState.set(value);
   }
 
   registerOnChange(fn: (value: TValue | null) => void): void {
@@ -92,25 +75,17 @@ export class SelectComponent<TValue extends string = string>
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabledState.set(isDisabled);
   }
 
   onSelectionChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
 
-    this.value = (select.value || null) as TValue | null;
+    this.valueState.set((select.value || null) as TValue | null);
     this.onChange(this.value);
   }
 
   markTouched(): void {
     this.onTouched();
-  }
-
-  private syncNativeSelection(): void {
-    if (!this.nativeSelect) {
-      return;
-    }
-
-    this.nativeSelect.nativeElement.value = this.value ?? '';
   }
 }

@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, Pipe, PipeTransform } from '@angular/core';
+import { Component, Pipe, PipeTransform, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -52,6 +52,7 @@ describe('SelectComponent (ControlValueAccessor)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
+      providers: [provideZonelessChangeDetection()],
     })
       .overrideComponent(SelectComponent, {
         set: {
@@ -89,15 +90,14 @@ describe('SelectComponent (ControlValueAccessor)', () => {
 
   it('should update the view when the FormControl value changes', async () => {
     host.form.controls.locale.setValue('en-GB');
-    fixture.changeDetectorRef.markForCheck();
     await fixture.whenStable();
 
     expect(getSelect().value).toBe('en-GB');
   });
 
-  it('should respect the disabled state from FormControl', () => {
+  it('should respect the disabled state from FormControl', async () => {
     host.form.controls.locale.disable();
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(getSelect().disabled).toBe(true);
   });
