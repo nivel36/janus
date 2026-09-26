@@ -11,7 +11,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 import { ButtonComponent } from '../button/button.component';
 import { InputComponent } from '../input/input.component';
-import { createUuid } from '../../utils/uuid.utils';
+import { ID_GENERATOR } from '../../services/id-generator.service';
 import { InputGroupComponent } from '../input-group/input-group.component';
 
 /**
@@ -33,7 +33,7 @@ import { InputGroupComponent } from '../input-group/input-group.component';
 })
 export class SearchBarComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly instanceId = createUuid();
+  private readonly instanceId = inject(ID_GENERATOR).generate('search');
   private readonly queryRequests = new Subject<{ query: string; immediate: boolean }>();
 
   /**

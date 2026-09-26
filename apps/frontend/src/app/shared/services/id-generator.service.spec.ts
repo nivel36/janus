@@ -1,0 +1,32 @@
+/**
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import { describe, expect, it } from 'vitest';
+
+import { BrowserIdGenerator, DeterministicIdGenerator } from './id-generator.service';
+
+describe('DeterministicIdGenerator', () => {
+  it('produces predictable, collision-free identifiers for each instance lifetime', () => {
+    const generator = new DeterministicIdGenerator();
+
+    expect(generator.generate('control')).toBe('control-0');
+    expect(generator.generate('control')).toBe('control-1');
+    expect(generator.generate('panel')).toBe('panel-2');
+  });
+
+  it('starts each rendering context from the same deterministic value', () => {
+    expect(new DeterministicIdGenerator().generate('control')).toBe('control-0');
+    expect(new DeterministicIdGenerator().generate('control')).toBe('control-0');
+  });
+
+  it('reuses the server sequence during browser hydration', () => {
+    const serverGenerator = new DeterministicIdGenerator();
+    const browserGenerator = new BrowserIdGenerator();
+    const prefixes = ['input', 'card', 'range-slider'];
+
+    const serverIds = prefixes.map((prefix) => serverGenerator.generate(prefix));
+    const hydratedIds = prefixes.map((prefix) => browserGenerator.generate(prefix));
+
+    expect(hydratedIds).toEqual(serverIds);
+  });
+});

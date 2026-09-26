@@ -82,6 +82,23 @@ describe('InputComponent (ControlValueAccessor)', () => {
     expect(getInput().id).toBe('worksite-name');
   });
 
+  it('should keep generated IDs stable and unique between instances', () => {
+    const firstFixture = TestBed.createComponent(InputComponent);
+    const secondFixture = TestBed.createComponent(InputComponent);
+    firstFixture.detectChanges();
+    secondFixture.detectChanges();
+    const firstId = (firstFixture.nativeElement.querySelector('input') as HTMLInputElement).id;
+
+    firstFixture.detectChanges();
+
+    expect((firstFixture.nativeElement.querySelector('input') as HTMLInputElement).id).toBe(
+      firstId,
+    );
+    expect((secondFixture.nativeElement.querySelector('input') as HTMLInputElement).id).not.toBe(
+      firstId,
+    );
+  });
+
   it('should reflect the initial FormControl value', () => {
     expect(getInput().value).toBe('Madrid Hub');
   });

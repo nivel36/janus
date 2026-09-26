@@ -11,7 +11,7 @@ import { catchError, finalize, map, of } from 'rxjs';
 import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { ClockComponent } from '../../../../shared/ui/clock/clock.component';
-import { createUuid } from '../../../../shared/utils/uuid.utils';
+import { ID_GENERATOR } from '../../../../shared/services/id-generator.service';
 import { WorksiteApiService } from '../../../worksites/services/worksite-api.service';
 import { TimeLog } from '../../models/timelog';
 import { TimeLogService } from '../../services/timelog-api.service';
@@ -40,7 +40,7 @@ export class TimelogClockCardComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly faAngleRight = faAngleRight;
-  readonly titleElementId = `clock-in-card-${createUuid()}-title`;
+  readonly titleElementId = `${inject(ID_GENERATOR).generate('clock-in-card')}-title`;
 
   /** Email of the employee for whom the card is displayed. */
   readonly employeeEmail = input.required<string>();

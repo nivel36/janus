@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, TemplateRef, contentChild, input } from '@angular/core';
-import { createUuid } from '../../utils/uuid.utils';
+import { inject, Component, TemplateRef, contentChild, input } from '@angular/core';
+import { ID_GENERATOR } from '../../services/id-generator.service';
 
 /**
  * Reusable card container with optional header and footer template slots.
@@ -14,7 +14,7 @@ import { createUuid } from '../../utils/uuid.utils';
  * <p>The card id is resolved as follows:</p>
  * <ul>
  *   <li>If the consumer provides {@code id}, that value is used.</li>
- *   <li>Otherwise, a generated identifier based on {@link createUuid} is used.</li>
+ *   <li>Otherwise, an identifier is obtained from the shared id generator.</li>
  * </ul>
  */
 @Component({
@@ -24,7 +24,7 @@ import { createUuid } from '../../utils/uuid.utils';
   templateUrl: './card.component.html',
 })
 export class CardComponent {
-  readonly titleElementId = `card-${createUuid()}-title`;
+  readonly titleElementId = `${inject(ID_GENERATOR).generate('card')}-title`;
 
   /**
    * Plain text title rendered in the card header.

@@ -1,10 +1,18 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { booleanAttribute, Component, forwardRef, input, output, signal } from '@angular/core';
+import {
+  inject,
+  booleanAttribute,
+  Component,
+  forwardRef,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { createUuid } from '../../utils/uuid.utils';
+import { ID_GENERATOR } from '../../services/id-generator.service';
 
 /**
  * Native text input with Angular Forms support.
@@ -52,7 +60,7 @@ export class InputComponent implements ControlValueAccessor {
   // eslint-disable-next-line @angular-eslint/no-output-native
   readonly blur = output<FocusEvent>();
 
-  private readonly generatedInputId = `input-${createUuid()}`;
+  private readonly generatedInputId = inject(ID_GENERATOR).generate('input');
 
   private readonly valueState = signal('');
   private readonly disabledState = signal(false);
