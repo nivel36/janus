@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChildren, input, signal, viewChildren } from '@angular/core';
+import { inject, Component, contentChildren, input, signal, viewChildren } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { createUuid } from '../../utils/uuid.utils';
+import { ID_GENERATOR } from '../../services/id-generator.service';
 import { TabItemDirective } from './tab-item.directive';
 import { TabTriggerDirective } from './tab-trigger.directive';
 
@@ -30,7 +30,7 @@ export class TabsComponent {
 
   readonly activeIndex = signal(0);
 
-  private readonly instanceId = `tabs-${createUuid()}`;
+  private readonly instanceId = inject(ID_GENERATOR).generate('tabs');
 
   private readonly loadedIndices = signal<Set<number>>(new Set([0]));
 

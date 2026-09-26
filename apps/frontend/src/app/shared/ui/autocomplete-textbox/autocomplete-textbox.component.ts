@@ -22,6 +22,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { ButtonComponent } from '../button/button.component';
+import { ID_GENERATOR } from '../../services/id-generator.service';
 import { InputGroupComponent } from '../input-group/input-group.component';
 import { InputComponent } from '../input/input.component';
 import {
@@ -95,8 +96,7 @@ export class AutocompleteTextboxComponent<T = unknown>
   private readonly resultOptions: AutocompleteOptionDirective[] = [];
   private keyManager?: ActiveDescendantKeyManager<AutocompleteOptionDirective>;
 
-  private static nextInstanceId = 0;
-  private readonly instanceId = AutocompleteTextboxComponent.nextInstanceId++;
+  private readonly instanceId = inject(ID_GENERATOR).generate('autocomplete');
   protected readonly optionIdPrefix = `autocomplete-option-${this.instanceId}`;
   private readonly generatedInputId = `autocomplete-input-${this.instanceId}`;
   readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);

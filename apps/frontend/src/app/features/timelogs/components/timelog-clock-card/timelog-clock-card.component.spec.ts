@@ -86,6 +86,19 @@ describe('TimelogClockCardComponent', () => {
     expect(controls().clockActionLabelKey()).toBe('timelog.clockout');
   });
 
+  it('keeps generated title IDs stable and unique between instances', () => {
+    const firstId = component.titleElementId;
+    const secondFixture = TestBed.createComponent(TimelogClockCardComponent);
+    secondFixture.componentRef.setInput('employeeEmail', 'another@example.com');
+    secondFixture.detectChanges();
+
+    fixture.detectChanges();
+
+    expect(component.titleElementId).toBe(firstId);
+    expect(secondFixture.componentInstance.titleElementId).not.toBe(firstId);
+    secondFixture.destroy();
+  });
+
   it('prevents concurrent mutations, updates the resource, and emits completion', async () => {
     const done = vi.fn();
     component.clockActionDone.subscribe(done);
