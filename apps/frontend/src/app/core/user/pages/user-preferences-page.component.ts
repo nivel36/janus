@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -56,10 +57,11 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
 })
 export class UserPreferencesPageComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly currentUserFacade = inject(CurrentUserFacade);
   private readonly router = inject(Router);
   readonly timezoneCatalog = inject(TimezoneCatalog);
-  readonly timezoneSearch = this.timezoneCatalog.createSearchState(inject(DestroyRef));
+  readonly timezoneSearch = this.timezoneCatalog.createSearchState(this.destroyRef);
 
   /**
    * Main form containing editable user preferences.
@@ -171,6 +173,7 @@ export class UserPreferencesPageComponent {
     this.currentUserFacade
       .updatePreferences(payload)
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         finalize(() => {
           this.saving.set(false);
         }),

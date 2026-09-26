@@ -18,16 +18,18 @@ describe('ApplicationSettingsPageComponent', () => {
   let component: ApplicationSettingsPageComponent;
   let fixture: ComponentFixture<ApplicationSettingsPageComponent>;
   let settingsLoad: Subject<typeof settings>;
+  let find: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     settingsLoad = new Subject<typeof settings>();
+    find = vi.fn().mockReturnValue(settingsLoad);
 
     await TestBed.configureTestingModule({
       imports: [ApplicationSettingsPageComponent],
       providers: [
         provideTranslateService(),
         provideRouter([]),
-        { provide: ApplicationSettingsApiService, useValue: { find: () => settingsLoad } },
+        { provide: ApplicationSettingsApiService, useValue: { find, update: vi.fn() } },
         {
           provide: CurrentUserFacade,
           useValue: {
@@ -60,6 +62,7 @@ describe('ApplicationSettingsPageComponent', () => {
   });
 
   it('shows a loading state, then fills the form with the API response', async () => {
+    expect(find).toHaveBeenCalledOnce();
     expect(component.loading()).toBe(true);
     expect(fixture.nativeElement.textContent).toContain('applicationSettings.messages.loading');
 
@@ -69,6 +72,46 @@ describe('ApplicationSettingsPageComponent', () => {
 
     expect(component.loading()).toBe(false);
     expect(component.form.getRawValue()).toEqual(settings);
+  });
+
+  it('reloads the resource when loadSettings is called', async () => {
+    settingsLoad.next(settings);
+    settingsLoad.complete();
+    await fixture.whenStable();
+
+    const reloadedSettings = { ...settings, daysUntilLocked: 20 };
+    const reload = new Subject<typeof settings>();
+    find.mockReturnValue(reload);
+
+    component.loadSettings();
+    fixture.detectChanges();
+
+    expect(find).toHaveBeenCalledTimes(2);
+    expect(component.loading()).toBe(true);
+
+    reload.next(reloadedSettings);
+    reload.complete();
+    await fixture.whenStable();
+
+    expect(component.form.getRawValue()).toEqual(reloadedSettings);
+  });
+
+  it('exposes a resource load error', async () => {
+    settingsLoad.error(new Error('request failed'));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.loading()).toBe(false);
+    expect(component.errorMessage()).toBe('applicationSettings.errors.load');
+    expect(fixture.nativeElement.textContent).toContain('applicationSettings.errors.load');
+  });
+
+  it('cancels a pending load when the component is destroyed', () => {
+    expect(settingsLoad.observed).toBe(true);
+
+    fixture.destroy();
+
+    expect(settingsLoad.observed).toBe(false);
   });
 });
 

@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
-import { rxResource, toObservable } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -41,9 +41,10 @@ import { MessageComponent } from '../../../../shared/ui/message/message.componen
 })
 export class WorksiteEditPageComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   readonly timezoneCatalog = inject(TimezoneCatalog);
-  readonly timezoneSearch = this.timezoneCatalog.createSearchState(inject(DestroyRef));
+  readonly timezoneSearch = this.timezoneCatalog.createSearchState(this.destroyRef);
   private readonly worksiteApiService = inject(WorksiteApiService);
 
   readonly code = input.required<string>();
@@ -147,6 +148,7 @@ export class WorksiteEditPageComponent {
         address: rawValue.address?.trim() || null,
       })
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         takeUntil(this.codeChanges.pipe(filter((code) => code !== worksite.code))),
         finalize(() => {
           this.saving.set(false);
