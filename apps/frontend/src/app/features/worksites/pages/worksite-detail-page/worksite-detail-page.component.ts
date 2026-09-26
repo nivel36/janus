@@ -1,11 +1,10 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { map } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
@@ -47,18 +46,14 @@ import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retr
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorksiteDetailPageComponent {
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly worksiteApiService = inject(WorksiteApiService);
   private readonly currentUser = inject(CurrentUserFacade);
 
-  protected readonly worksiteCode = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('code') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('code') ?? '' },
-  );
+  readonly code = input.required<string>();
 
   protected readonly worksiteResource = rxResource<Worksite, { code: string }>({
-    params: () => ({ code: this.worksiteCode() }),
+    params: () => ({ code: this.code() }),
     stream: ({ params }) =>
       this.worksiteApiService.findByCode(params.code, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
   });
