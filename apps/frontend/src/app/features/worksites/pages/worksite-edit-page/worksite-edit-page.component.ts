@@ -3,7 +3,7 @@
  */
 import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, finalize, takeUntil } from 'rxjs';
@@ -15,9 +15,10 @@ import { AutocompleteValueAccessorDirective } from '../../../../shared/ui/autoco
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
 import { InputComponent } from '../../../../shared/ui/input/input.component';
-import { SelectComponent, SelectOption } from '../../../../shared/ui/select/select.component';
+import { SelectComponent } from '../../../../shared/ui/select/select.component';
 import { TimezoneCatalog } from '../../../../shared/services/timezone-catalog.service';
-import { Worksite, WorksiteScope } from '../../models/worksite';
+import { createWorksiteFormControls, WORKSITE_SCOPE_OPTIONS } from '../../forms/worksite-form';
+import { Worksite } from '../../models/worksite';
 import { WorksiteApiService } from '../../services/worksite-api.service';
 
 import { MessageComponent } from '../../../../shared/ui/message/message.component';
@@ -67,36 +68,10 @@ export class WorksiteEditPageComponent {
 
   readonly form = this.fb.group({
     code: this.fb.nonNullable.control({ value: '', disabled: true }),
-
-    name: this.fb.nonNullable.control('', {
-      validators: [
-        Validators.required,
-        Validators.maxLength(250),
-        Validators.pattern(/^[\p{L}0-9 _'.,-]+$/u),
-      ],
-    }),
-
-    timeZone: this.fb.control<string | null>('Europe/Madrid', {
-      validators: [Validators.required],
-    }),
-
-    scope: this.fb.nonNullable.control<WorksiteScope>('GLOBAL', {
-      validators: [Validators.required],
-    }),
-    description: this.fb.control<string | null>(null, {
-      validators: [Validators.maxLength(500)],
-    }),
-    address: this.fb.control<string | null>(null, {
-      validators: [Validators.maxLength(500)],
-    }),
+    ...createWorksiteFormControls(this.fb),
   });
 
-  readonly scopeOptions: SelectOption<WorksiteScope>[] = (
-    ['GLOBAL', 'ASSIGNED'] as WorksiteScope[]
-  ).map((scope) => ({
-    value: scope,
-    labelKey: `worksite.scopes.${scope}`,
-  }));
+  readonly scopeOptions = WORKSITE_SCOPE_OPTIONS;
 
   readonly loading = computed(() => this.worksiteResource.isLoading());
 
