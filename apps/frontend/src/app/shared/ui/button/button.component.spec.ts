@@ -154,6 +154,7 @@ describe('ButtonComponent', () => {
     expect(linkEl).toBeTruthy();
     expect(linkEl.getAttribute('href')).toBe('/worksites/new');
     expect(linkEl.classList).toContain('app-button--main');
+    expect(linkEl.textContent?.trim()).toBe('New');
     expect(linkFixture.nativeElement.querySelector('button')).toBeNull();
   });
 });

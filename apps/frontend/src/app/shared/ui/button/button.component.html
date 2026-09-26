@@ -1,8 +1,6 @@
 @if (routerLink(); as destination) {
   <a [class]="buttonClass" [routerLink]="destination" [attr.aria-label]="ariaLabel()">
-    <span class="app-button__label">
-      <ng-content></ng-content>
-    </span>
+    <ng-container [ngTemplateOutlet]="label"></ng-container>
   </a>
 } @else {
   <button
@@ -12,8 +10,12 @@
     [disabled]="disabled()"
     (click)="clicked.emit($event)"
   >
-    <span class="app-button__label">
-      <ng-content></ng-content>
-    </span>
+    <ng-container [ngTemplateOutlet]="label"></ng-container>
   </button>
 }
+
+<ng-template #label>
+  <span class="app-button__label">
+    <ng-content></ng-content>
+  </span>
+</ng-template>
