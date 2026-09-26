@@ -138,7 +138,11 @@ export class TimelogClockCardComponent {
       )
       .subscribe({
         next: (timeLog) => {
-          this.latestTimeLogResource.set(timeLog);
+          if (this.employeeEmail() === employeeEmail) {
+            this.latestTimeLogResource.set(timeLog);
+          } else {
+            this.latestTimeLogResource.reload();
+          }
           this.clockActionDone.emit();
         },
         error: () => {

@@ -31,6 +31,7 @@ describe('TimelogClockCardComponent', () => {
   let clockOutResult: Subject<TimeLog>;
   let clockIn: ReturnType<typeof vi.fn>;
   let clockOut: ReturnType<typeof vi.fn>;
+  let searchLatestByEmployee: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     latestTimeLogs = new Subject<TimeLog | undefined>();
@@ -38,6 +39,7 @@ describe('TimelogClockCardComponent', () => {
     clockOutResult = new Subject<TimeLog>();
     clockIn = vi.fn(() => clockInResult.asObservable());
     clockOut = vi.fn(() => clockOutResult.asObservable());
+    searchLatestByEmployee = vi.fn(() => latestTimeLogs.asObservable());
 
     await TestBed.configureTestingModule({
       imports: [TimelogClockCardComponent],
@@ -53,7 +55,7 @@ describe('TimelogClockCardComponent', () => {
         {
           provide: TimeLogService,
           useValue: {
-            searchLatestByEmployee: vi.fn(() => latestTimeLogs.asObservable()),
+            searchLatestByEmployee,
             clockIn,
             clockOut,
           },
@@ -102,6 +104,22 @@ describe('TimelogClockCardComponent', () => {
     expect(controls().latestTimeLog()).toEqual(createdTimeLog);
     expect(controls().isClockActionLoading()).toBe(false);
     expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not store a completed mutation for a previous employee', async () => {
+    controls().onClockAction();
+
+    fixture.componentRef.setInput('employeeEmail', 'other@example.com');
+    fixture.detectChanges();
+    await settleEffects();
+
+    const staleTimeLog = timelog(null);
+    clockInResult.next(staleTimeLog);
+    clockInResult.complete();
+    await settleEffects();
+
+    expect(searchLatestByEmployee).toHaveBeenLastCalledWith('other@example.com');
+    expect(controls().latestTimeLog()).toBeUndefined();
   });
 
   it('exposes a failed mutation as signal presentation state', async () => {
