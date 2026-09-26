@@ -129,14 +129,21 @@ public class AppUserService {
 	}
 
 	private Employee findUnlinkedEmployee(final String email, final String keycloakSubject) {
-		return this.employeeService.findEmployeeByEmail(email).filter(employee -> {
-			final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
-			if (linkedUser.isPresent()) {
-				this.logEmployeeConflict(employee, keycloakSubject);
-				return false;
-			}
-			return true;
-		}).orElse(null);
+		final Optional<Employee> candidate = this.employeeService.findEmployeeByEmail(email);
+
+		if (candidate.isEmpty()) {
+			return null;
+		}
+
+		final Employee employee = candidate.get();
+		final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
+
+		if (linkedUser.isPresent()) {
+			this.logEmployeeConflict(employee, keycloakSubject);
+			return null;
+		}
+
+		return employee;
 	}
 
 	private void logEmployeeConflict(final Employee employee, final String keycloakSubject) {
