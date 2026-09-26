@@ -54,8 +54,20 @@ class HostComponent {
 describe('AutocompleteTextboxComponent', () => {
   let fixture: ComponentFixture<HostComponent>;
   let overlay: HTMLElement;
+  let resizeObserverCallback: ResizeObserverCallback;
+  const disconnect = vi.fn();
 
   beforeEach(async () => {
+    disconnect.mockClear();
+    class ResizeObserverMock implements ResizeObserver {
+      constructor(callback: ResizeObserverCallback) {
+        resizeObserverCallback = callback;
+      }
+      readonly disconnect = disconnect;
+      observe = vi.fn();
+      unobserve = vi.fn();
+    }
+    vi.stubGlobal('ResizeObserver', ResizeObserverMock);
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
       configurable: true,
       value: vi.fn(),
@@ -133,5 +145,29 @@ describe('AutocompleteTextboxComponent', () => {
     fixture.detectChanges();
     expect(overlay.textContent).toContain('autocomplete.loadingResults');
     expect(input.getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('updates the overlay width directly from the ResizeObserver callback', () => {
+    const autocomplete = fixture.debugElement.query(By.directive(AutocompleteTextboxComponent))
+      .componentInstance as AutocompleteTextboxComponent<Option>;
+
+    resizeObserverCallback(
+      [{ contentRect: { width: 320 } } as ResizeObserverEntry],
+      {} as ResizeObserver,
+    );
+
+    expect(autocomplete.overlayWidth).toBe(320);
+  });
+
+  it('stops emitting value changes and disconnects the observer after destruction', () => {
+    const autocomplete = fixture.debugElement.query(By.directive(AutocompleteTextboxComponent))
+      .componentInstance as AutocompleteTextboxComponent<Option>;
+    const emittedQueries = fixture.componentInstance.queries.length;
+
+    fixture.destroy();
+    autocomplete.textControl.setValue('ignored');
+
+    expect(fixture.componentInstance.queries).toHaveLength(emittedQueries);
+    expect(disconnect).toHaveBeenCalledOnce();
   });
 });
