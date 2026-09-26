@@ -1,10 +1,18 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { booleanAttribute, Component, computed, forwardRef, input, signal } from '@angular/core';
+import {
+  inject,
+  booleanAttribute,
+  Component,
+  computed,
+  forwardRef,
+  input,
+  signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { createUuid } from '../../utils/uuid.utils';
+import { ID_GENERATOR } from '../../services/id-generator.service';
 
 const noopToggleChange = (value: boolean): void => {
   void value;
@@ -35,7 +43,7 @@ export class ToggleButtonComponent implements ControlValueAccessor {
   readonly ariaInvalid = input(false, { transform: booleanAttribute });
   readonly ariaLabelledBy = input<string | null>(null);
 
-  private readonly generatedInputId = `toggle-button-${createUuid()}`;
+  private readonly generatedInputId = inject(ID_GENERATOR).generate('toggle-button');
 
   readonly controlId = computed(() => this.inputId() ?? this.generatedInputId);
 

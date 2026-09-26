@@ -1,10 +1,10 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, input } from '@angular/core';
+import { inject, Component, input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AvatarComponent } from '../../../../shared/ui/avatar/avatar.component';
-import { createUuid } from '../../../../shared/utils/uuid.utils';
+import { ID_GENERATOR } from '../../../../shared/services/id-generator.service';
 
 @Component({
   selector: 'app-employee-card',
@@ -14,7 +14,7 @@ import { createUuid } from '../../../../shared/utils/uuid.utils';
   styleUrl: './employee-card.component.css',
 })
 export class EmployeeCardComponent {
-  readonly titleElementId = `employee-card-${createUuid()}-title`;
+  readonly titleElementId = `${inject(ID_GENERATOR).generate('employee-card')}-title`;
 
   readonly fullName = input<string | null>(null);
   readonly location = input<string>('Barcelona Headquarters');
