@@ -3,9 +3,9 @@
  */
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
@@ -24,7 +24,6 @@ describe('WorksiteEditPageComponent', () => {
   let router: {
     navigate: ReturnType<typeof vi.fn>;
   };
-  let paramMap: BehaviorSubject<ParamMap>;
 
   beforeEach(async () => {
     worksiteApiService = {
@@ -45,18 +44,11 @@ describe('WorksiteEditPageComponent', () => {
     router = {
       navigate: vi.fn(),
     };
-    paramMap = new BehaviorSubject(convertToParamMap({ code: 'BCN-HQ' }));
-
     await TestBed.configureTestingModule({
       imports: [WorksiteEditPageComponent],
       providers: [
         provideTranslateService(),
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            paramMap,
-          },
-        },
+        { provide: ActivatedRoute, useValue: {} },
         { provide: Router, useValue: router },
         { provide: WorksiteApiService, useValue: worksiteApiService },
         { provide: Keycloak, useValue: { authenticated: false, tokenParsed: undefined } },
@@ -69,6 +61,7 @@ describe('WorksiteEditPageComponent', () => {
 
     fixture = TestBed.createComponent(WorksiteEditPageComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('code', 'BCN-HQ');
     fixture.detectChanges();
   });
 
@@ -155,9 +148,7 @@ describe('WorksiteEditPageComponent', () => {
           })
         : secondLoad,
     );
-    worksiteApiService.update.mockReturnValue(
-      throwError(() => new Error('update failed')),
-    );
+    worksiteApiService.update.mockReturnValue(throwError(() => new Error('update failed')));
     await fixture.whenStable();
 
     component.save();
@@ -169,7 +160,7 @@ describe('WorksiteEditPageComponent', () => {
     worksiteApiService.update.mockReturnValue(lateUpdate);
     component.save();
 
-    paramMap.next(convertToParamMap({ code: 'MAD-HUB' }));
+    fixture.componentRef.setInput('code', 'MAD-HUB');
     fixture.detectChanges();
 
     expect(lateUpdate.observed).toBe(false);
@@ -202,11 +193,9 @@ describe('WorksiteEditPageComponent', () => {
   });
 
   it('shows the load error without reading the resource value', async () => {
-    worksiteApiService.findByCode.mockReturnValue(
-      throwError(() => new Error('request failed')),
-    );
+    worksiteApiService.findByCode.mockReturnValue(throwError(() => new Error('request failed')));
 
-    paramMap.next(convertToParamMap({ code: 'MISSING' }));
+    fixture.componentRef.setInput('code', 'MISSING');
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -243,10 +232,10 @@ describe('WorksiteEditPageComponent', () => {
     );
     worksiteApiService.findByCode.mockClear();
 
-    paramMap.next(convertToParamMap({ code: 'FIRST' }));
+    fixture.componentRef.setInput('code', 'FIRST');
     fixture.detectChanges();
     expect(firstLoad.observed).toBe(true);
-    paramMap.next(convertToParamMap({ code: 'SECOND' }));
+    fixture.componentRef.setInput('code', 'SECOND');
     fixture.detectChanges();
     expect(firstLoad.observed).toBe(false);
     firstLoad.next({

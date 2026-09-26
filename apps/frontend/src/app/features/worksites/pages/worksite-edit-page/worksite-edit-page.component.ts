@@ -1,12 +1,12 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
+import { rxResource, toObservable } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { filter, finalize, map, takeUntil } from 'rxjs';
+import { filter, finalize, takeUntil } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
@@ -41,19 +41,16 @@ import { MessageComponent } from '../../../../shared/ui/message/message.componen
 })
 export class WorksiteEditPageComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly timezoneCatalog = inject(TimezoneCatalog);
   readonly timezoneSearch = this.timezoneCatalog.createSearchState(inject(DestroyRef));
   private readonly worksiteApiService = inject(WorksiteApiService);
 
-  readonly worksiteCode = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('code') ?? '')),
-    { initialValue: '' },
-  );
+  readonly code = input.required<string>();
+  private readonly codeChanges = toObservable(this.code);
 
   private readonly worksiteResource = rxResource<Worksite, { code: string }>({
-    params: () => ({ code: this.worksiteCode() }),
+    params: () => ({ code: this.code() }),
     stream: ({ params }) =>
       this.worksiteApiService.findByCode(params.code, ACTIVE_SCREEN_HTTP_RETRY_POLICY),
   });
@@ -64,7 +61,7 @@ export class WorksiteEditPageComponent {
     }
 
     const worksite = this.worksiteResource.value();
-    return worksite?.code === this.worksiteCode() ? worksite : null;
+    return worksite?.code === this.code() ? worksite : null;
   });
 
   readonly form = this.fb.group({
@@ -111,7 +108,7 @@ export class WorksiteEditPageComponent {
   );
 
   private readonly clearSaveErrorOnWorksiteChangeEffect = effect(() => {
-    this.worksiteCode();
+    this.code();
     this.saveErrorMessage.set('');
   });
 
@@ -150,12 +147,7 @@ export class WorksiteEditPageComponent {
         address: rawValue.address?.trim() || null,
       })
       .pipe(
-        takeUntil(
-          this.route.paramMap.pipe(
-            map((params) => params.get('code') ?? ''),
-            filter((code) => code !== worksite.code),
-          ),
-        ),
+        takeUntil(this.codeChanges.pipe(filter((code) => code !== worksite.code))),
         finalize(() => {
           this.saving.set(false);
         }),
@@ -171,6 +163,6 @@ export class WorksiteEditPageComponent {
   }
 
   cancel(): void {
-    this.router.navigate(['/worksites', this.worksiteCode()]);
+    this.router.navigate(['/worksites', this.code()]);
   }
 }
