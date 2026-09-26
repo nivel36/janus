@@ -1,23 +1,23 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.schedules">
-    <div pageContent class="app-page-content app-list-page">
-        <div class="app-list-page__toolbar">
-            <app-search-bar
-                placeholderKey="schedule.search.placeholder"
-                helpTextKey="schedule.search.helpText"
-                [query]="query()"
-                (queryChange)="onQueryChange($event)"
-            />
-            @if (isAdmin()) {
-                <app-button variant="main" (clicked)="createSchedule()">
-                    {{ 'actions.new' | translate }}
-                </app-button>
-            }
-        </div>
-        <app-schedule-table
-            class="app-list-page__results"
-            [query]="query()"
-            [page]="page()"
-            (pageChange)="onPageChange($event)"
-        />
+  <div pageContent class="app-page-content app-list-page">
+    <div class="app-list-page__toolbar">
+      <app-search-bar
+        placeholderKey="schedule.search.placeholder"
+        helpTextKey="schedule.search.helpText"
+        [query]="query()"
+        (queryChange)="onQueryChange($event)"
+      />
+      @if (isAdmin()) {
+        <app-button variant="main" routerLink="/">
+          {{ 'actions.new' | translate }}
+        </app-button>
+      }
     </div>
+    <app-schedule-table
+      class="app-list-page__results"
+      [query]="query()"
+      [page]="page()"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
 </app-page-template>

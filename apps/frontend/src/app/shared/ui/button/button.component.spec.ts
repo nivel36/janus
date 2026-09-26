@@ -4,6 +4,7 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ButtonComponent } from './button.component';
@@ -49,13 +50,26 @@ class DisabledAttributeHostComponent {}
 })
 class IconAttributeHostComponent {}
 
+@Component({
+  standalone: true,
+  imports: [ButtonComponent],
+  template: ` <app-button variant="main" routerLink="/worksites/new"> New </app-button> `,
+})
+class LinkHostComponent {}
+
 describe('ButtonComponent', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let host: TestHostComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent, DisabledAttributeHostComponent, IconAttributeHostComponent],
+      imports: [
+        TestHostComponent,
+        DisabledAttributeHostComponent,
+        IconAttributeHostComponent,
+        LinkHostComponent,
+      ],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
@@ -130,5 +144,16 @@ describe('ButtonComponent', () => {
     buttonEl.click();
 
     expect(onClickedSpy).toHaveBeenCalled();
+  });
+
+  it('should render a router link instead of a button for a fixed destination', () => {
+    const linkFixture = TestBed.createComponent(LinkHostComponent);
+    linkFixture.detectChanges();
+
+    const linkEl: HTMLAnchorElement = linkFixture.nativeElement.querySelector('a');
+    expect(linkEl).toBeTruthy();
+    expect(linkEl.getAttribute('href')).toBe('/worksites/new');
+    expect(linkEl.classList).toContain('app-button--main');
+    expect(linkFixture.nativeElement.querySelector('button')).toBeNull();
   });
 });

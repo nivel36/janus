@@ -61,10 +61,6 @@ export class WorksiteDetailPageComponent {
   protected readonly worksite = computed(() => this.worksiteResource.value());
   protected readonly isAdmin = this.currentUser.isAdmin;
 
-  protected goBack(): void {
-    this.router.navigate(['/worksites']);
-  }
-
   protected editWorksite(worksite: Worksite): void {
     this.router.navigate(['/worksites', worksite.code, 'edit']);
   }

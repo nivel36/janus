@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { ChangeDetectionStrategy, booleanAttribute, Component, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 /**
  * Visual intent styles that can be applied to the button.
@@ -17,11 +18,16 @@ type ButtonType = 'button' | 'submit' | 'reset';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-button',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './button.component.html',
   styleUrl: './button.component.css',
 })
 export class ButtonComponent {
+  /**
+   * Fixed destination that renders this control as a semantic link.
+   */
+  readonly routerLink = input<string | readonly unknown[]>();
+
   /**
    * Visual variant used to build the CSS modifier class.
    */

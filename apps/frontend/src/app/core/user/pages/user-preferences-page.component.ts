@@ -190,19 +190,12 @@ export class UserPreferencesPageComponent {
       .subscribe({
         next: (updatedPreferences) => {
           this.applyPreferences(updatedPreferences);
-          this.cancel();
+          this.router.navigate(['/']);
         },
         error: () => {
           this.saveErrorMessage.set('userPreferences.errors.update');
         },
       });
-  }
-
-  /**
-   * Navigates back to root .
-   */
-  cancel(): void {
-    this.router.navigate(['/']);
   }
 
   /**
