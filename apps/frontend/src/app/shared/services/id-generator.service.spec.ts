@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { DeterministicIdGenerator } from './id-generator.service';
+import { BrowserIdGenerator, DeterministicIdGenerator } from './id-generator.service';
 
 describe('DeterministicIdGenerator', () => {
   it('produces predictable, collision-free identifiers for each instance lifetime', () => {
@@ -17,5 +17,16 @@ describe('DeterministicIdGenerator', () => {
   it('starts each rendering context from the same deterministic value', () => {
     expect(new DeterministicIdGenerator().generate('control')).toBe('control-0');
     expect(new DeterministicIdGenerator().generate('control')).toBe('control-0');
+  });
+
+  it('reuses the server sequence during browser hydration', () => {
+    const serverGenerator = new DeterministicIdGenerator();
+    const browserGenerator = new BrowserIdGenerator();
+    const prefixes = ['input', 'card', 'range-slider'];
+
+    const serverIds = prefixes.map((prefix) => serverGenerator.generate(prefix));
+    const hydratedIds = prefixes.map((prefix) => browserGenerator.generate(prefix));
+
+    expect(hydratedIds).toEqual(serverIds);
   });
 });
