@@ -14,9 +14,9 @@ import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete
 import { AutocompleteValueAccessorDirective } from '../../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
-import { SelectComponent, SelectOption } from '../../../../shared/ui/select/select.component';
+import { SelectComponent } from '../../../../shared/ui/select/select.component';
 import { InputComponent } from '../../../../shared/ui/input/input.component';
-import { WorksiteScope } from '../../models/worksite';
+import { createWorksiteFormControls, WORKSITE_SCOPE_OPTIONS } from '../../forms/worksite-form';
 import { WorksiteApiService } from '../../services/worksite-api.service';
 import { UniqueWorksiteCodeValidator } from '../../validators/unique-worksite-code.validator';
 
@@ -59,35 +59,10 @@ export class WorksiteCreatePageComponent {
       updateOn: 'blur',
     }),
 
-    name: this.fb.nonNullable.control('', {
-      validators: [
-        Validators.required,
-        Validators.maxLength(250),
-        Validators.pattern(/^[\p{L}0-9 _'.,-]+$/u),
-      ],
-    }),
-
-    timeZone: this.fb.control<string | null>('Europe/Madrid', {
-      validators: [Validators.required],
-    }),
-
-    scope: this.fb.nonNullable.control<WorksiteScope>('GLOBAL', {
-      validators: [Validators.required],
-    }),
-    description: this.fb.control<string | null>(null, {
-      validators: [Validators.maxLength(500)],
-    }),
-    address: this.fb.control<string | null>(null, {
-      validators: [Validators.maxLength(500)],
-    }),
+    ...createWorksiteFormControls(this.fb),
   });
 
-  readonly scopeOptions: SelectOption<WorksiteScope>[] = (
-    ['GLOBAL', 'ASSIGNED'] as WorksiteScope[]
-  ).map((scope) => ({
-    value: scope,
-    labelKey: `worksite.scopes.${scope}`,
-  }));
+  readonly scopeOptions = WORKSITE_SCOPE_OPTIONS;
 
   readonly saving = signal(false);
 
