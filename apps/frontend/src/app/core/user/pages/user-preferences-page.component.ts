@@ -1,7 +1,15 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -40,6 +48,7 @@ import { TimeFormat } from '../models/user-preferences';
 import { MessageComponent } from '../../../shared/ui/message/message.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-user-preferences-page',
   standalone: true,
   imports: [

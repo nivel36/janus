@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /**
  * Size variants supported by the avatar component.
@@ -11,6 +11,7 @@ export type AvatarSize = 'large' | 'medium' | 'small';
 const DEFAULT_AVATAR_SRC = 'assets/images/user.png';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-avatar',
   standalone: true,
   imports: [],
@@ -63,8 +64,6 @@ export class AvatarComponent {
    * Builds the complete CSS class list for the root avatar element.
    */
   get hostClass(): string {
-    return [`app-avatar--${this.size()}`, this.styleClass().trim()]
-      .filter(Boolean)
-      .join(' ');
+    return [`app-avatar--${this.size()}`, this.styleClass().trim()].filter(Boolean).join(' ');
   }
 }

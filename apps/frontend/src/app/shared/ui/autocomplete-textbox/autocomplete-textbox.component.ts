@@ -5,6 +5,7 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActiveDescendantKeyManager, LiveAnnouncer } from '@angular/cdk/a11y';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import {
+  ChangeDetectionStrategy,
   AfterViewInit,
   Component,
   DestroyRef,
@@ -39,6 +40,7 @@ import {
  * AutocompleteValueAccessorDirective, keeping this control useful without Angular forms.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-autocomplete-textbox',
   standalone: true,
   imports: [

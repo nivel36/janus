@@ -37,6 +37,13 @@ module.exports = defineConfig([
     },
   },
   {
+    files: ["src/app/**/*.ts"],
+    ignores: ["**/*.spec.ts"],
+    rules: {
+      "@angular-eslint/prefer-on-push-component-change-detection": "error",
+    },
+  },
+  {
     files: ["**/*.html"],
     extends: [
       angular.configs.templateRecommended,

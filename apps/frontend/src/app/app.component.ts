@@ -2,7 +2,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, OnInit, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  effect,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -16,6 +23,7 @@ import {
 } from './core/i18n/language.util';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],

@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import {
+  ChangeDetectionStrategy,
   inject,
   booleanAttribute,
   Component,
@@ -18,6 +19,7 @@ import { ID_GENERATOR } from '../../services/id-generator.service';
  * Native text input with Angular Forms support.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-input',
   standalone: true,
   templateUrl: './input.component.html',

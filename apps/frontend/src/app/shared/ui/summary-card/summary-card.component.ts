@@ -1,11 +1,12 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-summary-card',
   standalone: true,
   imports: [FontAwesomeModule],

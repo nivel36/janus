@@ -2,7 +2,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { isPlatformBrowser } from '@angular/common';
-import { Component, DestroyRef, OnInit, PLATFORM_ID, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  PLATFORM_ID,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
 
@@ -14,6 +23,7 @@ import { timer } from 'rxjs';
  * interrupted each second.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-clock',
   standalone: true,
   templateUrl: './clock.component.html',

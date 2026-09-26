@@ -2,7 +2,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { NgTemplateOutlet } from '@angular/common';
-import { inject, Component, contentChildren, input, signal, viewChildren } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  inject,
+  Component,
+  contentChildren,
+  input,
+  signal,
+  viewChildren,
+} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ID_GENERATOR } from '../../services/id-generator.service';
 import { TabItemDirective } from './tab-item.directive';
@@ -15,6 +23,7 @@ import { TabTriggerDirective } from './tab-trigger.directive';
  * is not rendered upfront.</p>
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-tabs',
   standalone: true,
   imports: [NgTemplateOutlet, TabTriggerDirective, TranslatePipe],

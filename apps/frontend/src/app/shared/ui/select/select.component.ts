@@ -1,7 +1,14 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { booleanAttribute, Component, forwardRef, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  booleanAttribute,
+  Component,
+  forwardRef,
+  input,
+  signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -28,6 +35,7 @@ export interface SelectOption<TValue extends string = string> {
  * @typeParam TValue - String-based value type handled by the component.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-select',
   standalone: true,
   imports: [TranslatePipe],

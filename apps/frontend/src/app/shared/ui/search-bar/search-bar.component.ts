@@ -1,7 +1,16 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, DestroyRef, OnInit, effect, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -18,6 +27,7 @@ import { InputGroupComponent } from '../input-group/input-group.component';
  * Standalone search bar component.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-search-bar',
   standalone: true,
   imports: [

@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import {
+  ChangeDetectionStrategy,
   inject,
   booleanAttribute,
   Component,
@@ -24,6 +25,7 @@ import { ID_GENERATOR } from '../../services/id-generator.service';
  * component generates a stable UUID-based id for accessibility bindings.</p>
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-range-slider',
   standalone: true,
   templateUrl: './range-slider.component.html',
