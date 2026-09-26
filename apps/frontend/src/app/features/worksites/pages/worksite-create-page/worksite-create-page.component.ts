@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -64,6 +64,8 @@ export class WorksiteCreatePageComponent {
   });
 
   readonly scopeOptions = WORKSITE_SCOPE_OPTIONS;
+
+  readonly formStatus = toSignal(this.form.statusChanges, { initialValue: this.form.status });
 
   readonly saving = signal(false);
 
