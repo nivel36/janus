@@ -41,7 +41,7 @@ class TestHostComponent {
   ];
 
   readonly form = new FormGroup({
-    locale: new FormControl('es-ES'),
+    locale: new FormControl('en-GB'),
   });
 }
 
@@ -76,23 +76,23 @@ describe('SelectComponent (ControlValueAccessor)', () => {
   });
 
   it('should reflect the initial FormControl value', () => {
-    expect(getSelect().value).toBe('es-ES');
+    expect(getSelect().value).toBe('en-GB');
   });
 
   it('should update the FormControl when the selection changes', () => {
     const select = getSelect();
 
-    select.value = 'en-GB';
+    select.value = 'es-ES';
     select.dispatchEvent(new Event('change', { bubbles: true }));
 
-    expect(host.form.controls.locale.value).toBe('en-GB');
+    expect(host.form.controls.locale.value).toBe('es-ES');
   });
 
   it('should update the view when the FormControl value changes', async () => {
-    host.form.controls.locale.setValue('en-GB');
+    host.form.controls.locale.setValue('es-ES');
     await fixture.whenStable();
 
-    expect(getSelect().value).toBe('en-GB');
+    expect(getSelect().value).toBe('es-ES');
   });
 
   it('should respect the disabled state from FormControl', async () => {
