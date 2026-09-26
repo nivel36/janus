@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   input,
   signal,
@@ -19,6 +18,13 @@ import { TimeLogService, TimeLogPage } from '../../services/timelog-api.service'
 import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import {
+  DEFAULT_LIST_PAGE,
+  DEFAULT_LIST_PAGE_SIZE,
+  emptyListPage,
+  synchronizeListPage,
+} from '../../../../shared/utils/list-query-params.util';
+import { TimeLog } from '../../models/timelog';
 
 import {
   AsyncEmptyDirective,
@@ -45,8 +51,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimelogTableComponent {
-  private static readonly PAGE_SIZE = 5;
-
   private readonly timeLogService = inject(TimeLogService);
   private readonly currentUser = inject(CurrentUserFacade);
 
@@ -67,7 +71,7 @@ export class TimelogTableComponent {
   /**
    * Current visible page in the UI (1-based).
    */
-  protected readonly currentPage = signal(1);
+  protected readonly currentPage = signal(DEFAULT_LIST_PAGE);
 
   protected readonly timelogsResource = rxResource<
     TimeLogPage,
@@ -78,14 +82,8 @@ export class TimelogTableComponent {
       page: this.currentPage(),
     }),
     stream: ({ params }) =>
-      this.timeLogService.search(params.page - 1, TimelogTableComponent.PAGE_SIZE),
-    defaultValue: {
-      items: [],
-      totalItems: 0,
-      page: 0,
-      pageSize: TimelogTableComponent.PAGE_SIZE,
-      totalPages: 0,
-    },
+      this.timeLogService.search(params.page - DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE),
+    defaultValue: emptyListPage<TimeLog>(),
   });
 
   /**
@@ -103,18 +101,12 @@ export class TimelogTableComponent {
    */
   protected readonly pagedTimelogs = computed(() => this.timelogs());
 
-  private readonly pageSyncEffect = effect(() => {
-    if (this.timelogsResource.isLoading()) {
-      return;
-    }
-
-    const totalItems = this.totalItems();
-    const maxPage = Math.max(1, Math.ceil(totalItems / TimelogTableComponent.PAGE_SIZE));
-
-    if (this.currentPage() > maxPage) {
-      this.currentPage.set(maxPage);
-    }
-  });
+  private readonly pageSyncEffect = synchronizeListPage(
+    this.currentPage,
+    this.totalItems,
+    this.timelogsResource.isLoading,
+    (page) => this.currentPage.set(page),
+  );
 
   protected readonly isEmpty = computed(
     () =>
@@ -128,6 +120,6 @@ export class TimelogTableComponent {
   }
 
   protected get pageSize(): number {
-    return TimelogTableComponent.PAGE_SIZE;
+    return DEFAULT_LIST_PAGE_SIZE;
   }
 }
