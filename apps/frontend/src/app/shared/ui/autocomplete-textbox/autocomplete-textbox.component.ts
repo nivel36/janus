@@ -9,7 +9,6 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  NgZone,
   ViewChild,
   computed,
   inject,
@@ -18,6 +17,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
@@ -111,10 +111,9 @@ export class AutocompleteTextboxComponent<T = unknown>
   private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
-  private readonly ngZone = inject(NgZone);
 
   constructor() {
-    this.textControl.valueChanges.subscribe((value) => {
+    this.textControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       if (this.hasSelection && value.trim() !== this.displayWith()(this.selectedValue!).trim()) {
         this.selectionState.set(null);
         this.selectedChange.emit(null);
@@ -170,16 +169,14 @@ export class AutocompleteTextboxComponent<T = unknown>
     this.updateOverlayWidth();
     const ResizeObserverConstructor = this.document.defaultView?.ResizeObserver;
     if (!ResizeObserverConstructor) return;
-    this.ngZone.runOutsideAngular(() => {
-      const observer = new ResizeObserverConstructor((entries) => {
-        const width = entries[0]?.contentRect.width;
-        if (width !== undefined && width !== this.overlayWidth) {
-          this.ngZone.run(() => this.overlayWidthState.set(width));
-        }
-      });
-      observer.observe(this.inputWrapper.nativeElement);
-      this.destroyRef.onDestroy(() => observer.disconnect());
+    const observer = new ResizeObserverConstructor((entries) => {
+      const width = entries[0]?.contentRect.width;
+      if (width !== undefined && width !== this.overlayWidth) {
+        this.overlayWidthState.set(width);
+      }
     });
+    observer.observe(this.inputWrapper.nativeElement);
+    this.destroyRef.onDestroy(() => observer.disconnect());
   }
 
   private updateOverlayWidth(): void {
