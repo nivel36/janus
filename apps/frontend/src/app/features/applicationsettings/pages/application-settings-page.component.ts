@@ -1,5 +1,5 @@
-import { Location } from '@angular/common';
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -36,14 +36,18 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
   ],
   templateUrl: './application-settings-page.component.html',
 })
-export class ApplicationSettingsPageComponent implements OnInit {
+export class ApplicationSettingsPageComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly currentUser = inject(CurrentUserFacade);
   private readonly settingsApiService = inject(ApplicationSettingsApiService);
-  private readonly location = inject(Location);
   private readonly router = inject(Router);
   readonly timezoneCatalog = inject(TimezoneCatalog);
-  readonly timezoneSearch = this.timezoneCatalog.createSearchState(inject(DestroyRef));
+  readonly timezoneSearch = this.timezoneCatalog.createSearchState(this.destroyRef);
+
+  private readonly settingsResource = rxResource({
+    stream: () => this.settingsApiService.find(),
+  });
 
   /**
    * Main form containing editable application settings.
@@ -62,7 +66,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
   /**
    * Indicates whether the initial preference load is in progress.
    */
-  readonly loading = signal(true);
+  readonly loading = computed(() => this.settingsResource.isLoading());
 
   /**
    * Indicates whether a save operation is in progress.
@@ -72,7 +76,11 @@ export class ApplicationSettingsPageComponent implements OnInit {
   /**
    * Translation key of the current error message, if any.
    */
-  readonly errorMessage = signal('');
+  private readonly saveErrorMessage = signal('');
+
+  readonly errorMessage = computed(() =>
+    this.settingsResource.error() ? 'applicationSettings.errors.load' : this.saveErrorMessage(),
+  );
 
   get isAdmin(): boolean {
     return this.currentUser.isAdmin();
@@ -82,9 +90,20 @@ export class ApplicationSettingsPageComponent implements OnInit {
     return Math.max(31, this.form.controls.daysUntilLocked.value);
   }
 
-  ngOnInit(): void {
-    this.loadSettings();
-  }
+  private readonly populateFormEffect = effect(() => {
+    if (this.settingsResource.hasValue()) {
+      const settings = this.settingsResource.value();
+      if (settings) {
+        this.applyApplicationSettings(settings);
+      }
+    }
+
+    if (this.isAdmin) {
+      this.form.enable();
+    } else {
+      this.form.disable();
+    }
+  });
 
   /**
    * Loads the settings of the current application and populates the form.
@@ -93,35 +112,8 @@ export class ApplicationSettingsPageComponent implements OnInit {
    * translation key is exposed to the template.
    */
   loadSettings(): void {
-    this.loading.set(true);
-    this.errorMessage.set('');
-
-    this.settingsApiService
-      .find()
-      .pipe(
-        finalize(() => {
-          this.loading.set(false);
-        }),
-      )
-      .subscribe({
-        next: (settings) => {
-          if (!settings) {
-            this.errorMessage.set('applicationSettings.errors.load');
-            return;
-          }
-
-          this.applyApplicationSettings(settings);
-
-          if (!this.isAdmin) {
-            this.form.disable();
-          } else {
-            this.form.enable();
-          }
-        },
-        error: () => {
-          this.errorMessage.set('applicationSettings.errors.load');
-        },
-      });
+    this.saveErrorMessage.set('');
+    this.settingsResource.reload();
   }
 
   /**
@@ -153,11 +145,12 @@ export class ApplicationSettingsPageComponent implements OnInit {
     const payload: ApplicationSettings = this.form.getRawValue();
 
     this.saving.set(true);
-    this.errorMessage.set('');
+    this.saveErrorMessage.set('');
 
     this.settingsApiService
       .update(payload)
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         finalize(() => {
           this.saving.set(false);
         }),
@@ -168,7 +161,7 @@ export class ApplicationSettingsPageComponent implements OnInit {
           this.cancel();
         },
         error: () => {
-          this.errorMessage.set('applicationSettings.errors.update');
+          this.saveErrorMessage.set('applicationSettings.errors.update');
         },
       });
   }

@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -40,9 +41,10 @@ import { MessageComponent } from '../../../../shared/ui/message/message.componen
 })
 export class WorksiteCreatePageComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   readonly timezoneCatalog = inject(TimezoneCatalog);
-  readonly timezoneSearch = this.timezoneCatalog.createSearchState(inject(DestroyRef));
+  readonly timezoneSearch = this.timezoneCatalog.createSearchState(this.destroyRef);
   private readonly worksiteApiService = inject(WorksiteApiService);
   private readonly uniqueWorksiteCodeValidator = inject(UniqueWorksiteCodeValidator);
 
@@ -112,6 +114,7 @@ export class WorksiteCreatePageComponent {
         address: rawValue.address?.trim() || null,
       })
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         finalize(() => {
           this.saving.set(false);
         }),
