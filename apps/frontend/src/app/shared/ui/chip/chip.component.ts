@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
@@ -16,6 +16,7 @@ type ChipType = 'default' | 'primary' | 'secondary' | 'tertiary' | 'green' | 're
 type ChipSize = 'normal' | 'big';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-chip',
   standalone: true,
   imports: [FontAwesomeModule],

@@ -115,6 +115,32 @@ describe('WorksiteCreatePageComponent', () => {
     expect(worksiteApiService.create).not.toHaveBeenCalled();
   });
 
+  it('refreshes the view when asynchronous code validation completes', async () => {
+    const codeLookup = new Subject<never>();
+    worksiteApiService.findByCode.mockReturnValue(codeLookup.asObservable());
+
+    component.form.setValue({
+      code: 'MAD-HUB',
+      name: 'Madrid Hub',
+      timeZone: 'Europe/Madrid',
+      scope: 'GLOBAL',
+      description: null,
+      address: null,
+    });
+    fixture.detectChanges();
+
+    const saveButton = fixture.nativeElement.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
+    expect(saveButton.disabled).toBe(true);
+
+    codeLookup.error(new HttpErrorResponse({ status: 404 }));
+    await fixture.whenStable();
+
+    expect(component.form.valid).toBe(true);
+    expect(saveButton.disabled).toBe(false);
+  });
+
   it('saves optional address and description fields', async () => {
     worksiteApiService.findByCode.mockReturnValue(
       throwError(() => new HttpErrorResponse({ status: 404 })),

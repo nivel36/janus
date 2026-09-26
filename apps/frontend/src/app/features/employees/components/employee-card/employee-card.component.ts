@@ -1,12 +1,13 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { inject, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, inject, Component, input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AvatarComponent } from '../../../../shared/ui/avatar/avatar.component';
 import { ID_GENERATOR } from '../../../../shared/services/id-generator.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-employee-card',
   standalone: true,
   imports: [AvatarComponent, TranslatePipe],

@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { booleanAttribute, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, booleanAttribute, Component, input, output } from '@angular/core';
 
 /**
  * Visual intent styles that can be applied to the button.
@@ -14,6 +14,7 @@ type ButtonVariant = 'default' | 'main' | 'secondary';
 type ButtonType = 'button' | 'submit' | 'reset';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-button',
   standalone: true,
   imports: [],

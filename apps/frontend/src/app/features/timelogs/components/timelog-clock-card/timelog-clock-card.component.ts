@@ -1,7 +1,16 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
@@ -27,6 +36,7 @@ interface ResolvedClockAction {
  * Self-contained card responsible for displaying and executing the clock in / clock out action.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-timelog-clock-card',
   standalone: true,
   imports: [TranslatePipe, ClockComponent, ButtonComponent, FontAwesomeModule],

@@ -193,7 +193,7 @@
             <app-button
               type="submit"
               variant="main"
-              [disabled]="form.invalid || form.pending || saving()"
+              [disabled]="formStatus() === 'INVALID' || formStatus() === 'PENDING' || saving()"
             >
               {{ 'actions.save' | translate }}
             </app-button>

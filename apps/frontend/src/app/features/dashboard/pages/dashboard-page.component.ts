@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
@@ -11,6 +11,7 @@ import { TimelogTableComponent } from '../../timelogs/components/timelog-table/t
 import { EmployeeCardComponent } from '../../employees/components/employee-card/employee-card.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-dashboard-page',
   standalone: true,
   imports: [
@@ -26,12 +27,12 @@ import { EmployeeCardComponent } from '../../employees/components/employee-card/
 export class DashboardPageComponent {
   private readonly currentUser = inject(CurrentUserFacade);
 
-  tableRefreshToken = 0;
+  readonly tableRefreshToken = signal(0);
 
   readonly employeeEmail = this.currentUser.email;
   readonly fullName = this.currentUser.fullName;
 
   onClockActionDone(): void {
-    this.tableRefreshToken += 1;
+    this.tableRefreshToken.update((token) => token + 1);
   }
 }

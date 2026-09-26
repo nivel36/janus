@@ -2,7 +2,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { NgTemplateOutlet } from '@angular/common';
-import { inject, Component, TemplateRef, contentChild, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  inject,
+  Component,
+  TemplateRef,
+  contentChild,
+  input,
+} from '@angular/core';
 import { ID_GENERATOR } from '../../services/id-generator.service';
 
 /**
@@ -18,6 +25,7 @@ import { ID_GENERATOR } from '../../services/id-generator.service';
  * </ul>
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-card',
   standalone: true,
   imports: [NgTemplateOutlet],

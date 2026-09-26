@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { booleanAttribute, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, booleanAttribute, Component, input } from '@angular/core';
 
 /**
  * Horizontal group for text inputs and addons.
@@ -10,6 +10,7 @@ import { booleanAttribute, Component, input } from '@angular/core';
  * compose prefixed, suffixed, multiple-addon or button-addon fields.
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-input-group',
   standalone: true,
   templateUrl: './input-group.component.html',

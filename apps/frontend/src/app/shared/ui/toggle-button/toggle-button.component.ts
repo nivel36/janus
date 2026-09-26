@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import {
+  ChangeDetectionStrategy,
   inject,
   booleanAttribute,
   Component,
@@ -23,6 +24,7 @@ const noopTouched = (): void => {
 };
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-toggle-button',
   standalone: true,
   templateUrl: './toggle-button.component.html',
