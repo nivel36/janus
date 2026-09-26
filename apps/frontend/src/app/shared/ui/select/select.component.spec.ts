@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component, Pipe, PipeTransform } from '@angular/core';
+import { Component, Pipe, PipeTransform, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -41,7 +41,7 @@ class TestHostComponent {
   ];
 
   readonly form = new FormGroup({
-    locale: new FormControl('es-ES'),
+    locale: new FormControl('en-GB'),
   });
 }
 
@@ -52,6 +52,7 @@ describe('SelectComponent (ControlValueAccessor)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
+      providers: [provideZonelessChangeDetection()],
     })
       .overrideComponent(SelectComponent, {
         set: {
@@ -75,29 +76,28 @@ describe('SelectComponent (ControlValueAccessor)', () => {
   });
 
   it('should reflect the initial FormControl value', () => {
-    expect(getSelect().value).toBe('es-ES');
+    expect(getSelect().value).toBe('en-GB');
   });
 
   it('should update the FormControl when the selection changes', () => {
     const select = getSelect();
 
-    select.value = 'en-GB';
+    select.value = 'es-ES';
     select.dispatchEvent(new Event('change', { bubbles: true }));
 
-    expect(host.form.controls.locale.value).toBe('en-GB');
+    expect(host.form.controls.locale.value).toBe('es-ES');
   });
 
   it('should update the view when the FormControl value changes', async () => {
-    host.form.controls.locale.setValue('en-GB');
-    fixture.changeDetectorRef.markForCheck();
+    host.form.controls.locale.setValue('es-ES');
     await fixture.whenStable();
 
-    expect(getSelect().value).toBe('en-GB');
+    expect(getSelect().value).toBe('es-ES');
   });
 
-  it('should respect the disabled state from FormControl', () => {
+  it('should respect the disabled state from FormControl', async () => {
     host.form.controls.locale.disable();
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(getSelect().disabled).toBe(true);
   });

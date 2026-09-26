@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,6 +15,7 @@ describe('RangeSliderComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RangeSliderComponent],
+      providers: [provideZonelessChangeDetection()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RangeSliderComponent);
@@ -58,7 +60,6 @@ describe('RangeSliderComponent', () => {
 
   it('should disable native input when setDisabledState is called', async () => {
     component.setDisabledState(true);
-    fixture.changeDetectorRef.markForCheck();
     await fixture.whenStable();
 
     const slider: HTMLInputElement = fixture.debugElement.query(
@@ -67,6 +68,17 @@ describe('RangeSliderComponent', () => {
 
     expect(component.disabled).toBe(true);
     expect(slider.disabled).toBe(true);
+  });
+
+  it('should update the native value when writeValue is called in zoneless mode', async () => {
+    component.writeValue(65);
+    await fixture.whenStable();
+
+    const slider: HTMLInputElement = fixture.debugElement.query(
+      By.css('input[type="range"]'),
+    ).nativeElement;
+
+    expect(slider.value).toBe('65');
   });
 
   it('should use provided inputId when present', () => {
