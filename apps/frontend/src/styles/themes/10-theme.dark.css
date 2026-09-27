@@ -61,12 +61,12 @@
         180deg,
         var(--color-primary-300) 0%,
         var(--color-primary-400) 45%,
-        var(--color-primary-glow-500)
+        var(--color-primary-500)
     );
     --control-accent-hover-background: linear-gradient(
         180deg,
-        var(--color-primary-200) 0%,
-        var(--color-primary-300) 45%,
+        var(--color-primary-300) 0%,
+        var(--color-primary-400) 45%,
         var(--color-primary-glow-400)
     );
     --control-accent-pressed-background: var(--accent-active);
