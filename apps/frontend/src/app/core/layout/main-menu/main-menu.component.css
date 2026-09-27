@@ -61,6 +61,7 @@
 .main-menu__icon-button--logout {
   display: flex;
   align-items: center;
+  padding: 0;
   border-left: var(--panel-border);
   --button-text-color: var(--accent-strong);
   --button-text-hover-color: var(--accent-hover);
