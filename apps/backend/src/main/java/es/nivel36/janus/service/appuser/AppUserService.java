@@ -171,11 +171,13 @@ public class AppUserService {
 			final UUID id, //
 			final Locale newLocale, //
 			final TimeFormat newTimeFormat, //
-			final ZoneId newDefaultTimezone) {
+			final ZoneId newDefaultTimezone, //
+			final Theme newTheme) {
 		final AppUser appUser = this.findAppUserById(id);
 		appUser.setLocale(newLocale);
 		appUser.setTimeFormat(newTimeFormat);
 		appUser.setDefaultTimezone(newDefaultTimezone);
+		appUser.setTheme(newTheme);
 		return appUser;
 	}
 

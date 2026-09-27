@@ -6,6 +6,7 @@ import { HttpContext } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 
+import { Theme as ApiTheme } from '../../../api/generated/model/theme';
 import { TimeFormat as ApiTimeFormat } from '../../../api/generated/model/timeFormat';
 import { UserPreferences, type TimeFormat } from '../models/user-preferences';
 import { AppUsersService } from '../../../api/generated/api/appUsers.service';
@@ -92,6 +93,7 @@ export class UserProfileApiService {
       switchMap((profileId) =>
         this.api.updateAppUser(profileId, {
           ...payload,
+          theme: payload.theme as ApiTheme,
           timeFormat: payload.timeFormat as ApiTimeFormat,
         }),
       ),
@@ -111,6 +113,7 @@ export class UserProfileApiService {
    */
   private toPreferences(response: AppUserResponse): UserPreferences {
     return {
+      theme: response.theme,
       locale: response.locale,
       timeFormat: response.timeFormat as TimeFormat,
       defaultTimezone: response.defaultTimezone,

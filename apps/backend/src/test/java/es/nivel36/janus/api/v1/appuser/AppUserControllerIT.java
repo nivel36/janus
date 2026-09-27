@@ -57,17 +57,29 @@ class AppUserControllerIT {
 			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		final String body = """
-				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
+				  {"locale":"en-CA","timeFormat":"H12","theme":"LIGHT","defaultTimezone":"America/Toronto"}
 				""";
 
-		this.mvc.perform(put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa").with(verifiedJwt().jwt(token -> token.subject("11111111-1111-4111-8111-111111111111"))//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))) //
+		this.mvc.perform(put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+				.with(verifiedJwt().jwt(token -> token.subject("11111111-1111-4111-8111-111111111111"))//
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))) //
 				.contentType(APPLICATION_JSON).content(body)) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.email").value("jdoe@example.test")) //
 				.andExpect(jsonPath("$.locale").value("en-CA")) //
 				.andExpect(jsonPath("$.timeFormat").value("H12")) //
+				.andExpect(jsonPath("$.theme").value("LIGHT")) //
 				.andExpect(jsonPath("$.defaultTimezone").value("America/Toronto"));
+		this.entityManager.flush();
+		this.entityManager.clear();
+		org.assertj.core.api.Assertions
+				.assertThat(this.jdbcTemplate.queryForObject(
+						"SELECT THEME FROM APP_USER WHERE ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'", String.class))
+				.isEqualTo("LIGHT");
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
+				.jwt(jwt -> jwt.subject("11111111-1111-4111-8111-111111111111").claim("email", "jdoe@example.test"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.theme").value("LIGHT"));
 	}
 
 	@Test
@@ -75,7 +87,7 @@ class AppUserControllerIT {
 			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testMeUpdatesBySubjectDespiteCopiedMutableClaims() throws Exception {
 		final String body = """
-				  {"locale":"en-CA","timeFormat":"H12","defaultTimezone":"America/Toronto"}
+				  {"locale":"en-CA","timeFormat":"H12","theme":"LIGHT","defaultTimezone":"America/Toronto"}
 				""";
 
 		this.mvc.perform(put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
@@ -105,14 +117,16 @@ class AppUserControllerIT {
 		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
 				.subject("99999999-9999-4999-8999-999999999999").claim("email", "new-user@example.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.email").value("new-user@example.test")).andExpect(jsonPath("$.locale").value("en-US"))
+				.andExpect(jsonPath("$.email").value("new-user@example.test"))
+				.andExpect(jsonPath("$.locale").value("en-US")).andExpect(jsonPath("$.theme").value("DARK"))
 				.andExpect(jsonPath("$.timeFormat").value("H24")).andExpect(jsonPath("$.defaultTimezone").value("UTC"));
 
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
-				.jwt(jwt -> jwt.issuer("https://issuer.example.test").subject("99999999-9999-4999-8999-999999999999")
-						.claim("email", "renamed@example.test"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.email").value("new-user@example.test"));
+		this.mvc.perform(
+				get(BASE + "/me").with(verifiedJwt()
+						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
+								.subject("99999999-9999-4999-8999-999999999999").claim("email", "renamed@example.test"))
+						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("new-user@example.test"));
 
 		org.assertj.core.api.Assertions
 				.assertThat(this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?",
@@ -136,17 +150,18 @@ class AppUserControllerIT {
 
 	@Test
 	void testMeRejectsMissingEmail() throws Exception {
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
+		this.mvc.perform(
+				get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
+						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isBadRequest());
 
 		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(
 				jwt -> jwt.subject("88888888-8888-4888-8888-888888888888").claim("preferred_username", "x".repeat(51)))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/me").with(
-				verifiedJwt().jwt(jwt -> jwt.subject("66666666-6666-4666-8666-666666666666").claim("preferred_username", "ab"))
-						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isBadRequest());
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
+				.jwt(jwt -> jwt.subject("66666666-6666-4666-8666-666666666666").claim("preferred_username", "ab"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 
 		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
 				.jwt(jwt -> jwt.subject("55555555-5555-4555-8555-555555555555").claim("preferred_username", "john/doe"))
@@ -162,7 +177,23 @@ class AppUserControllerIT {
 				.andExpect(status().isNoContent());
 
 		this.entityManager.flush();
-		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate.queryForObject(
-				"SELECT COUNT(*) FROM app_user WHERE email = ?", Integer.class, "jdoe@example.test")).isZero();
+		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate
+				.queryForObject("SELECT COUNT(*) FROM app_user WHERE email = ?", Integer.class, "jdoe@example.test"))
+				.isZero();
 	}
+
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.ValueSource(strings = { "", ",\"theme\":null", ",\"theme\":\"system\"" })
+	@Sql(statements = {
+			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
+	void rejectsMissingOrInvalidTheme(final String themeProperty) throws Exception {
+		final String body = "{\"locale\":\"en-CA\",\"timeFormat\":\"H12\",\"defaultTimezone\":\"UTC\"" + themeProperty
+				+ "}";
+		this.mvc.perform(put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+				.with(verifiedJwt().jwt(
+						jwt -> jwt.subject("11111111-1111-4111-8111-111111111111").claim("email", "jdoe@example.test"))
+						.authorities(createAuthorityList("ROLE_JANUS_USER")))
+				.contentType(APPLICATION_JSON).content(body)).andExpect(status().isBadRequest());
+	}
+
 }

@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 
 import { AppComponent } from './app.component';
+import { UserPreferences } from './core/user/models/user-preferences';
 import { CurrentUserFacade } from './core/user/services/current-user.facade';
 
 describe('AppComponent', () => {
@@ -38,11 +39,7 @@ describe('AppComponent', () => {
 
   it('should apply app language from user locale preferences', async () => {
     const useSpy = vi.fn();
-    const preferences = signal<{
-      locale: string;
-      timeFormat: string;
-      defaultTimezone: string;
-    } | null>(null);
+    const preferences = signal<UserPreferences | null>(null);
     const onLangChange = new Subject<{ lang: string; translations: object }>();
 
     await TestBed.configureTestingModule({
@@ -70,6 +67,7 @@ describe('AppComponent', () => {
     preferences.set({
       locale: 'ca-ES',
       timeFormat: 'H24',
+      theme: 'DARK',
       defaultTimezone: 'Europe/Madrid',
     });
     fixture.detectChanges();
@@ -84,6 +82,7 @@ describe('AppComponent', () => {
     preferences.set({
       locale: 'en-GB',
       timeFormat: 'H24',
+      theme: 'DARK',
       defaultTimezone: 'Europe/London',
     });
     fixture.detectChanges();
@@ -95,4 +94,49 @@ describe('AppComponent', () => {
 
     expect(document.documentElement.lang).toBe('en-GB');
   });
+  it('applies persisted themes and resets to dark without browser storage', async () => {
+    const preferences = signal<UserPreferences | null>(null);
+    const storageRead = vi.spyOn(Storage.prototype, 'getItem');
+    const storageWrite = vi.spyOn(Storage.prototype, 'setItem');
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        { provide: CurrentUserFacade, useValue: { preferences } },
+        {
+          provide: TranslateService,
+          useValue: {
+            getCurrentLang: () => 'es-ES',
+            use: vi.fn(),
+            onLangChange: new Subject(),
+          },
+        },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('DARK');
+
+    preferences.set({
+      locale: 'es-ES',
+      timeFormat: 'H24',
+      defaultTimezone: 'UTC',
+      theme: 'LIGHT',
+    });
+    fixture.detectChanges();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('LIGHT');
+
+    preferences.set({ ...preferences()!, theme: 'DARK' });
+    fixture.detectChanges();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('DARK');
+
+    preferences.set({ ...preferences()!, theme: 'LIGHT' });
+    fixture.detectChanges();
+    preferences.set(null);
+    fixture.detectChanges();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('DARK');
+    expect(storageRead).not.toHaveBeenCalled();
+    expect(storageWrite).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+
 });

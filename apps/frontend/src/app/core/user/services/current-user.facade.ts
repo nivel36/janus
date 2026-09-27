@@ -140,7 +140,7 @@ export class CurrentUserFacade {
   /**
    * Updates preferences for the current authenticated user.
    *
-   * After a successful update, a reload event is emitted so every consumer
+   * After a successful update, the resource is updated so every consumer
    * of `preferences$` and `currentUser` receives the persisted values.
    *
    * @param payload - New preferences to persist
@@ -148,8 +148,8 @@ export class CurrentUserFacade {
    */
   updatePreferences(payload: UserPreferences): Observable<UserPreferences> {
     return this.userProfileApi.updatePreferences(payload).pipe(
-      tap(() => {
-        this.preferencesResource.reload();
+      tap((preferences) => {
+        this.preferencesResource.set(preferences);
       }),
     );
   }

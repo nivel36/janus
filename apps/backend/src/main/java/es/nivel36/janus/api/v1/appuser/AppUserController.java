@@ -34,6 +34,7 @@ import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
+import es.nivel36.janus.service.appuser.Theme;
 import es.nivel36.janus.util.EmailAddresses;
 
 /**
@@ -105,7 +106,8 @@ public class AppUserController implements AppUserResource {
 		final Locale forLanguageTag = Locale.forLanguageTag(request.locale().trim());
 		final TimeFormat timeFormat = request.timeFormat();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
-		final AppUser updated = this.appUserService.updateAppUser(id, forLanguageTag, timeFormat, zoneId);
+		final Theme theme = request.theme();
+		final AppUser updated = this.appUserService.updateAppUser(id, forLanguageTag, timeFormat, zoneId, theme);
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(updated);
 		return ResponseEntity.ok(appUserResponse);
 	}

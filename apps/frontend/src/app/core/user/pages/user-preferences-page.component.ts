@@ -24,9 +24,8 @@ import { AutocompleteValueAccessorDirective } from '../../../shared/ui/autocompl
 import { FieldComponent } from '../../../shared/ui/field/field.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
-import { UserPreferences } from '../models/user-preferences';
+import { Theme, TimeFormat, UserPreferences } from '../models/user-preferences';
 import { CurrentUserFacade } from '../services/current-user.facade';
-import { TimeFormat } from '../models/user-preferences';
 
 /**
  * Page responsible for displaying and updating the preferences
@@ -46,7 +45,6 @@ import { TimeFormat } from '../models/user-preferences';
  * Those responsibilities belong to CurrentUserFacade and lower layers.
  */
 import { MessageComponent } from '../../../shared/ui/message/message.component';
-import { Theme, ThemeService } from '../../theme/theme.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,7 +67,6 @@ export class UserPreferencesPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly currentUserFacade = inject(CurrentUserFacade);
   private readonly router = inject(Router);
-  private readonly themeService = inject(ThemeService);
   readonly timezoneCatalog = inject(TimezoneCatalog);
   readonly timezoneSearch = this.timezoneCatalog.createSearchState(this.destroyRef);
 
@@ -86,7 +83,7 @@ export class UserPreferencesPageComponent {
     timeFormat: this.fb.nonNullable.control('H24' as TimeFormat, {
       validators: [Validators.required],
     }),
-    theme: this.fb.nonNullable.control(this.themeService.theme(), {
+    theme: this.fb.nonNullable.control<Theme>('DARK', {
       validators: [Validators.required],
     }),
     defaultTimezone: this.fb.control<string | null>(null, {
@@ -112,9 +109,9 @@ export class UserPreferencesPageComponent {
     }),
   );
 
-  readonly themeOptions: SelectOption<Theme>[] = (['light', 'dark'] as Theme[]).map((theme) => ({
+  readonly themeOptions: SelectOption<Theme>[] = (['LIGHT', 'DARK'] as Theme[]).map((theme) => ({
     value: theme,
-    labelKey: `userPreferences.theme.${theme}`,
+    labelKey: `userPreferences.theme.${theme.toLowerCase()}`,
   }));
 
   /**
@@ -168,6 +165,7 @@ export class UserPreferencesPageComponent {
      * to contain a non-null IANA timezone identifier.
      */
     const payload: UserPreferences = {
+      theme: rawValue.theme,
       locale: rawValue.locale,
       timeFormat: rawValue.timeFormat,
       defaultTimezone: rawValue.defaultTimezone!,
@@ -186,7 +184,6 @@ export class UserPreferencesPageComponent {
       )
       .subscribe({
         next: (updatedPreferences) => {
-          this.themeService.setTheme(rawValue.theme);
           this.applyPreferences(updatedPreferences);
           this.router.navigate(['/']);
         },
@@ -206,6 +203,7 @@ export class UserPreferencesPageComponent {
     const resolvedLocale = resolveSupportedLanguage(preferences.locale);
 
     this.form.reset({
+      theme: preferences.theme,
       locale: resolvedLocale,
       timeFormat: preferences.timeFormat,
       defaultTimezone: preferences.defaultTimezone,

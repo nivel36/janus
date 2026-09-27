@@ -19,6 +19,7 @@ import es.nivel36.janus.api.validation.LanguageTag;
 import es.nivel36.janus.api.validation.ValidTimeZone;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
+import es.nivel36.janus.service.appuser.Theme;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -30,6 +31,7 @@ import jakarta.validation.constraints.NotNull;
  *                        and must identify a supported locale
  * @param timeFormat      the preferred {@link TimeFormat} of the user; must not
  *                        be {@code null}
+ * @param theme           the preferred color theme
  * @param defaultTimezone the valid IANA time-zone identifier of the user (for
  *                        example {@code "Europe/Madrid"}); must not be blank
  */
@@ -44,5 +46,8 @@ public record UpdateAppUserRequest( //
 
 		@NotBlank(message = "defaultTimezone must not be blank") //
 		@ValidTimeZone(message = "defaultTimezone must be a valid time-zone identifier") //
-		String defaultTimezone) {
+		String defaultTimezone, //
+
+		@NotNull(message = "theme must not be null") //
+		Theme theme) {
 }

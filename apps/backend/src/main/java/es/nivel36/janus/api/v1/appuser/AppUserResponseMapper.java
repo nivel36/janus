@@ -15,11 +15,14 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
+import es.nivel36.janus.service.appuser.Theme;
 
 /**
  * Maps {@link AppUser} entities into {@link AppUserResponse} DTOs.
@@ -32,11 +35,12 @@ public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 		if (appUser == null) {
 			return null;
 		}
-		final var id = appUser.getId();
+		final UUID id = appUser.getId();
 		final String email = appUser.getEmail();
 		final String locale = appUser.getLocale().toLanguageTag();
 		final TimeFormat timeFormat = appUser.getTimeFormat();
 		final String defaultTimeZone = appUser.getDefaultTimezone().getId();
-		return new AppUserResponse(id, email, locale, timeFormat, defaultTimeZone);
+		final Theme theme = appUser.getTheme();
+		return new AppUserResponse(id, email, locale, timeFormat, defaultTimeZone, theme);
 	}
 }

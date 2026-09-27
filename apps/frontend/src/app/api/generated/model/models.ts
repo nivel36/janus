@@ -6,6 +6,7 @@ export * from './employeeResponse';
 export * from './pageMetadata';
 export * from './schedulePage';
 export * from './scheduleResponse';
+export * from './theme';
 export * from './timeFormat';
 export * from './timeLogPage';
 export * from './timeLogResponse';

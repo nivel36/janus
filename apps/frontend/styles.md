@@ -43,7 +43,7 @@ For example, a primitive color represents a palette value; it does not say wheth
 into theme-dependent visual decisions. This is where concepts such as page background, text
 color, accent, borders, panels, selection, focus, and highlighted controls are defined.
 
-The application uses the dark theme as the global base and can override it with the `data-theme='light'` attribute for light mode. Component rules should not duplicate theme decisions; they should consume semantic or component tokens.
+The application uses the dark theme as the global base and can override it with the `data-theme='LIGHT'` attribute for light mode. Component rules should not duplicate theme decisions; they should consume semantic or component tokens. Theme values follow the API enum: `DARK` and `LIGHT`.
 
 ### Semantic tokens
 

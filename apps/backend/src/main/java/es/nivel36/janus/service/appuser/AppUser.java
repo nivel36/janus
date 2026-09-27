@@ -73,6 +73,10 @@ public class AppUser implements Serializable {
 	private TimeFormat timeFormat;
 
 	@NotNull
+	@Enumerated(EnumType.STRING)
+	private Theme theme = Theme.DARK;
+
+	@NotNull
 	private ZoneId defaultTimezone;
 
 	@OneToOne(fetch = FetchType.LAZY)
@@ -134,6 +138,14 @@ public class AppUser implements Serializable {
 
 	public void setTimeFormat(final TimeFormat timeFormat) {
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
+	}
+
+	public Theme getTheme() {
+		return this.theme;
+	}
+
+	public void setTheme(final Theme theme) {
+		this.theme = Objects.requireNonNull(theme, "theme can't be null");
 	}
 
 	public ZoneId getDefaultTimezone() {

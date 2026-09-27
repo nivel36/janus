@@ -22,6 +22,7 @@ model/models.ts
 model/pageMetadata.ts
 model/schedulePage.ts
 model/scheduleResponse.ts
+model/theme.ts
 model/timeFormat.ts
 model/timeLogPage.ts
 model/timeLogResponse.ts

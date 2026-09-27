@@ -34,7 +34,6 @@ import { DOCUMENT, isPlatformBrowser, registerLocaleData } from '@angular/common
 import localeEs from '@angular/common/locales/es';
 import localeCa from '@angular/common/locales/ca';
 import { provideApi } from './api/generated/provide-api';
-import { ThemeService } from './core/theme/theme.service';
 
 registerLocaleData(localeEs);
 registerLocaleData(localeCa);
@@ -89,7 +88,6 @@ export function apiBearerUrlPattern(apiBaseUrl: string, origin?: string): RegExp
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideAppInitializer(() => inject(ThemeService).initialize()),
     provideKeycloak({
       config: environment.keycloak,
       providers: [AutoRefreshTokenService, UserActivityService],

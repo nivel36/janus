@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { TimeFormat } from './timeFormat';
+import { Theme } from './theme';
 
 
 export interface AppUserResponse { 
@@ -15,6 +16,7 @@ export interface AppUserResponse {
     email: string;
     locale: string;
     timeFormat: TimeFormat;
+    theme: Theme;
     defaultTimezone: string;
 }
 

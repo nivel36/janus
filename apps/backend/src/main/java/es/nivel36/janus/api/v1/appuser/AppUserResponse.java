@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
+import es.nivel36.janus.service.appuser.Theme;
 
 /**
  * Response DTO exposing the public representation of an {@link AppUser}.
@@ -29,6 +30,13 @@ import es.nivel36.janus.service.appuser.AppUser;
  *                        language tag
  * @param timeFormat      the preferred {@link TimeFormat}
  * @param defaultTimezone the default timezone of the user
+ * @param theme           the preferred color theme
  */
-public record AppUserResponse(UUID id, String email, String locale, TimeFormat timeFormat, String defaultTimezone) {
+public record AppUserResponse( //
+		UUID id, //
+		String email, //
+		String locale, //
+		TimeFormat timeFormat, //
+		String defaultTimezone, //
+		Theme theme) {
 }

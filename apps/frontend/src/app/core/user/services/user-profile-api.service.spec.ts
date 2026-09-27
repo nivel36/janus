@@ -69,6 +69,7 @@ describe('UserProfileApiService', () => {
 const PREFERENCES: UserPreferences = {
   locale: 'es-ES',
   timeFormat: 'H24',
+  theme: 'LIGHT',
   defaultTimezone: 'Europe/Madrid',
 };
 

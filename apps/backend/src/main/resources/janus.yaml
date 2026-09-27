@@ -219,24 +219,27 @@ components:
         surname: { type: string }
         email: { type: string, format: email }
         scheduleCode: { type: string }
+    Theme: { type: string, enum: [DARK, LIGHT], default: DARK }
     TimeFormat: { type: string, enum: [H12, H24] }
     AppUserResponse:
       type: object
-      required: [id, email, locale, timeFormat, defaultTimezone]
+      required: [id, email, locale, timeFormat, defaultTimezone, theme]
       properties:
         id: { type: string, format: uuid }
         email: { type: string, format: email }
         locale: { type: string }
         timeFormat: { $ref: '#/components/schemas/TimeFormat' }
+        theme: { $ref: '#/components/schemas/Theme' }
         defaultTimezone: { type: string }
     UpdateAppUserRequest:
       type: object
-      required: [locale, timeFormat, defaultTimezone]
+      required: [locale, timeFormat, defaultTimezone, theme]
       properties:
         locale:
           type: string
           description: Supported BCP 47 language tag, such as en-US or en
         timeFormat: { $ref: '#/components/schemas/TimeFormat' }
+        theme: { $ref: '#/components/schemas/Theme' }
         defaultTimezone: { type: string, minLength: 1 }
     ApplicationSettingsResponse:
       type: object

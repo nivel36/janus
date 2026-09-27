@@ -36,6 +36,12 @@ export class AppComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      this.document.documentElement.setAttribute(
+        'data-theme',
+        this.currentUserFacade.preferences()?.theme ?? 'DARK',
+      );
+    });
+    effect(() => {
       const locale = this.currentUserFacade.preferences()?.locale;
       if (locale) {
         this.translateService.use(this.resolveLanguage(locale));
