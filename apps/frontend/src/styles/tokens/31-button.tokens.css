@@ -8,4 +8,15 @@
     --button-border: 0;
     --button-border-radius: var(--radius-100);
     --button-icon-size: var(--font-size-350);
+
+    /* Button component contract: compound controls may override these by inheritance. */
+    --button-control-height: var(--button-height);
+    --button-control-min-width: var(--button-min-width);
+    --button-control-border: var(--button-border);
+    --button-control-border-radius: var(--button-border-radius);
+    --button-shadow: var(--control-accent-glow);
+    --button-hover-shadow: var(--control-accent-hover-glow);
+    --button-focus-shadow: var(--control-accent-hover-glow), var(--focus-ring);
+    --button-active-shadow: var(--control-accent-pressed-glow);
+    --button-disabled-shadow: var(--control-accent-disabled-glow);
 }

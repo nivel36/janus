@@ -12,6 +12,8 @@ import {
 } from '@angular/core';
 import { ID_GENERATOR } from '../../services/id-generator.service';
 
+export type CardVariant = 'default' | 'empty';
+
 /**
  * Reusable card container with optional header and footer template slots.
  *
@@ -29,6 +31,7 @@ import { ID_GENERATOR } from '../../services/id-generator.service';
   selector: 'app-card',
   imports: [NgTemplateOutlet],
   templateUrl: './card.component.html',
+  styleUrl: './card.component.css',
 })
 export class CardComponent {
   readonly titleElementId = `${inject(ID_GENERATOR).generate('card')}-title`;
@@ -45,6 +48,13 @@ export class CardComponent {
    *  Extra CSS classes applied to the outer card container.
    */
   readonly styleClass = input<string>();
+
+  /** Layout treatment for the card body. Empty cards reserve useful panel space. */
+  readonly variant = input<CardVariant>('default');
+
+  get cardClass(): string {
+    return ['app-card', `app-card--${this.variant()}`, this.styleClass()].filter(Boolean).join(' ');
+  }
 
   /**
    * Accessible name used when no title is rendered.

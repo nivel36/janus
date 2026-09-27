@@ -1,0 +1,7 @@
+.app-card--empty {
+  --card-body-min-height: 24rem;
+}
+
+.app-card__body {
+  min-height: var(--card-body-min-height, 0);
+}

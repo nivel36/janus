@@ -1,33 +1,33 @@
 :host {
-    display: block;
-    width: 100%;
+  display: block;
+  width: 100%;
 }
 
 input {
-    width: 100%;
-    height: var(--form-control-height);
-    box-sizing: border-box;
-    padding-block: var(--form-control-padding-block);
-    padding-inline: var(--form-control-padding-inline);
-    border: var(--form-control-border);
-    border-radius: var(--form-control-border-radius);
-    outline: 0;
-    background: var(--form-control-background-color);
+  width: 100%;
+  height: var(--input-height, var(--form-control-height));
+  box-sizing: border-box;
+  padding-block: var(--form-control-padding-block);
+  padding-inline: var(--form-control-padding-inline);
+  border: var(--input-border, var(--form-control-border));
+  border-radius: var(--input-border-radius, var(--form-control-border-radius));
+  outline: 0;
+  background: var(--form-control-background-color);
 
-    color: var(--form-control-text-color);
+  color: var(--form-control-text-color);
 
-    font-size: var(--form-control-font-size);
-    font-weight: var(--form-control-font-weight);
-    line-height: var(--form-control-line-height);
+  font-size: var(--form-control-font-size);
+  font-weight: var(--form-control-font-weight);
+  line-height: var(--form-control-line-height);
 
-    transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
 input:focus {
-    box-shadow: var(--form-control-focus-ring);
+  box-shadow: var(--input-focus-shadow, var(--form-control-focus-ring));
 }
 
 input:disabled {
-    cursor: not-allowed;
-    opacity: var(--form-disabled-opacity);
+  cursor: not-allowed;
+  opacity: var(--form-disabled-opacity);
 }

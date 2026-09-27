@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
@@ -34,6 +34,21 @@ class TextAddonHostComponent {}
 })
 class ButtonAddonHostComponent {}
 
+@Component({
+  standalone: true,
+  imports: [ButtonComponent, InputComponent, InputGroupComponent],
+  template: `
+    <app-input-group ariaLabel="Account" [disabled]="disabled()">
+      <app-button [disabled]="disabled()">Find</app-button>
+      <app-input placeholder="Account number" />
+      <span inputGroupAddon>#</span>
+    </app-input-group>
+  `,
+})
+class StateHostComponent {
+  readonly disabled = signal(false);
+}
+
 describe('InputGroupComponent', () => {
   it('should group text addons with the shared input component', async () => {
     const fixture = await createFixture(TextAddonHostComponent);
@@ -55,6 +70,49 @@ describe('InputGroupComponent', () => {
 
     expect(button).toBeTruthy();
     expect(input).toBeTruthy();
+  });
+
+  it('should configure first, intermediate and last projected hosts through CSS properties', async () => {
+    const fixture = await createFixture(StateHostComponent);
+    const items = fixture.nativeElement.querySelector('.input-group').children;
+
+    expect(
+      getComputedStyle(items[0])
+        .getPropertyValue('--button-control-border-radius')
+        .replaceAll(/\s+/g, ''),
+    ).toBe('var(--form-control-border-radius)00var(--form-control-border-radius)');
+    expect(getComputedStyle(items[1]).getPropertyValue('--input-border-radius').trim()).toBe('0');
+    expect(
+      getComputedStyle(items[2]).getPropertyValue('--input-border-radius').replaceAll(/\s+/g, ''),
+    ).toBe('0var(--form-control-border-radius)var(--form-control-border-radius)0');
+  });
+
+  it('should lift the focused child while the group owns the focus ring', async () => {
+    const fixture = await createFixture(StateHostComponent);
+    const inputHost = fixture.nativeElement.querySelector('app-input');
+    const input = inputHost.querySelector('input') as HTMLInputElement;
+
+    input.focus();
+
+    expect(document.activeElement).toBe(input);
+    expect(getComputedStyle(inputHost).zIndex).toBe('1');
+    expect(getComputedStyle(inputHost).getPropertyValue('--input-focus-shadow').trim()).toBe(
+      'none',
+    );
+  });
+
+  it('should expose disabled state on the group, addon and button', async () => {
+    const fixture = await createFixture(StateHostComponent);
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+
+    const group = fixture.nativeElement.querySelector('.input-group');
+    const addon = fixture.nativeElement.querySelector('[inputGroupAddon]');
+    const button = fixture.nativeElement.querySelector('button');
+
+    expect(group.classList.contains('input-group--disabled')).toBe(true);
+    expect(getComputedStyle(addon).opacity).toBe('var(--form-disabled-opacity)');
+    expect(button.disabled).toBe(true);
   });
 });
 

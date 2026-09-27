@@ -1,7 +1,13 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { ChangeDetectionStrategy, booleanAttribute, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  booleanAttribute,
+  Component,
+  input,
+  ViewEncapsulation,
+} from '@angular/core';
 
 /**
  * Horizontal group for text inputs and addons.
@@ -14,6 +20,9 @@ import { ChangeDetectionStrategy, booleanAttribute, Component, input } from '@an
   selector: 'app-input-group',
   templateUrl: './input-group.component.html',
   styleUrl: './input-group.component.css',
+  // The rules are deliberately global and fully qualified. This lets them style
+  // projected addon hosts while the child components keep ownership of their DOM.
+  encapsulation: ViewEncapsulation.None,
 })
 export class InputGroupComponent {
   /** Accessible label for the grouped input controls. */

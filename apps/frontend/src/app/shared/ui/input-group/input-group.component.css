@@ -1,98 +1,98 @@
-:host {
-    display: flex;
-    width: 100%;
+app-input-group {
+  display: flex;
+  width: 100%;
 }
 
-.input-group {
-    position: relative;
-    display: inline-flex;
-    align-items: stretch;
-    width: 100%;
-    border-radius: var(--form-control-border-radius);
-    transition: box-shadow 0.2s ease;
+app-input-group > .input-group {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+  border-radius: var(--form-control-border-radius);
+  transition: box-shadow 0.2s ease;
 }
 
-.input-group:focus-within {
-    box-shadow: var(--form-control-focus-ring);
+app-input-group > .input-group:focus-within {
+  box-shadow: var(--form-control-focus-ring);
 }
 
-:host ::ng-deep app-input {
-    --form-control-focus-ring: none;
+app-input-group > .input-group > app-input {
+  --input-focus-shadow: none;
 
-    flex: 1 1 auto;
-    min-width: 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-:host ::ng-deep app-input input,
-:host ::ng-deep app-button .app-button,
-:host ::ng-deep [inputGroupAddon] {
-    position: relative;
-    border-radius: 0;
+app-input-group > .input-group > app-input,
+app-input-group > .input-group > app-button,
+app-input-group > .input-group > [inputGroupAddon] {
+  position: relative;
+  --input-border-radius: 0;
+  --button-control-border-radius: 0;
 }
 
-:host ::ng-deep app-input:not(:first-child) input,
-:host ::ng-deep app-button:not(:first-child) .app-button,
-:host ::ng-deep [inputGroupAddon]:not(:first-child) {
-    margin-left: calc(var(--border-width-thin) * -1);
+app-input-group > .input-group > :not(:first-child) {
+  margin-left: calc(var(--border-width-thin) * -1);
 }
 
-:host ::ng-deep app-input:first-child input,
-:host ::ng-deep app-button:first-child .app-button,
-:host ::ng-deep [inputGroupAddon]:first-child {
-    border-top-left-radius: var(--form-control-border-radius);
-    border-bottom-left-radius: var(--form-control-border-radius);
+app-input-group > .input-group > :first-child {
+  --input-border-radius: var(--form-control-border-radius) 0 0 var(--form-control-border-radius);
+  --button-control-border-radius: var(--form-control-border-radius) 0 0
+    var(--form-control-border-radius);
+
+  border-radius: var(--form-control-border-radius) 0 0 var(--form-control-border-radius);
 }
 
-:host ::ng-deep app-input:last-child input,
-:host ::ng-deep app-button:last-child .app-button,
-:host ::ng-deep [inputGroupAddon]:last-child {
-    border-top-right-radius: var(--form-control-border-radius);
-    border-bottom-right-radius: var(--form-control-border-radius);
+app-input-group > .input-group > :last-child {
+  --input-border-radius: 0 var(--form-control-border-radius) var(--form-control-border-radius) 0;
+  --button-control-border-radius: 0 var(--form-control-border-radius)
+    var(--form-control-border-radius) 0;
+
+  border-radius: 0 var(--form-control-border-radius) var(--form-control-border-radius) 0;
 }
 
-:host ::ng-deep app-input:focus-within,
-:host ::ng-deep app-button:focus-within,
-:host ::ng-deep [inputGroupAddon]:focus-within {
-    z-index: 1;
+app-input-group > .input-group > :only-child {
+  --input-border-radius: var(--form-control-border-radius);
+  --button-control-border-radius: var(--form-control-border-radius);
+
+  border-radius: var(--form-control-border-radius);
 }
 
-:host ::ng-deep [inputGroupAddon] {
-    box-sizing: border-box;
-    min-width: var(--form-control-height);
-    min-height: var(--form-control-height);
-    padding-block: var(--form-control-padding-block);
-    padding-inline: var(--form-control-padding-inline);
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-
-    border: var(--form-control-border);
-    background: var(--input-group-addon-background-color, var(--form-control-background-color));
-    color: var(--input-group-addon-text-color, var(--content-secondary));
-    font-size: var(--form-control-font-size);
-    line-height: 1;
-    white-space: nowrap;
+app-input-group > .input-group > :focus-within {
+  z-index: 1;
 }
 
-:host ::ng-deep app-button .app-button {
-    height: var(--form-control-height);
-    min-width: var(--form-control-height);
-    padding-inline: var(--form-control-padding-inline);
-    box-shadow: none;
+app-input-group > .input-group > [inputGroupAddon] {
+  box-sizing: border-box;
+  min-width: var(--form-control-height);
+  min-height: var(--form-control-height);
+  padding-block: var(--form-control-padding-block);
+  padding-inline: var(--form-control-padding-inline);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+
+  border: var(--form-control-border);
+  background: var(--input-group-addon-background-color, var(--form-control-background-color));
+  color: var(--input-group-addon-text-color, var(--content-secondary));
+  font-size: var(--form-control-font-size);
+  line-height: 1;
+  white-space: nowrap;
 }
 
-:host ::ng-deep app-button .app-button:hover,
-:host ::ng-deep app-button .app-button:focus-visible,
-:host ::ng-deep app-button .app-button:active {
-    box-shadow: none;
+app-input-group > .input-group > app-button {
+  --button-control-height: var(--form-control-height);
+  --button-control-min-width: var(--form-control-height);
+  --button-padding-inline: var(--form-control-padding-inline);
+  --button-shadow: none;
+  --button-hover-shadow: none;
+  --button-focus-shadow: none;
+  --button-active-shadow: none;
+  --button-disabled-shadow: none;
 }
 
-:host ::ng-deep app-button:not(:first-child) .app-button {
-    border-left: 0;
-}
-
-.input-group--disabled ::ng-deep [inputGroupAddon] {
-    opacity: var(--form-disabled-opacity);
+app-input-group > .input-group--disabled > [inputGroupAddon] {
+  opacity: var(--form-disabled-opacity);
 }

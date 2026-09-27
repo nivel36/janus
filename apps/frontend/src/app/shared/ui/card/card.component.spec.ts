@@ -46,7 +46,27 @@ class TestHostWithoutTemplatesComponent {
   styleClass = '';
 }
 
+@Component({
+  standalone: true,
+  imports: [CardComponent],
+  template: `<app-card variant="empty" ariaLabel="Empty panel"></app-card>`,
+})
+class EmptyCardHostComponent {}
+
 describe('CardComponent', () => {
+  it('should expose the empty body layout variant', async () => {
+    await TestBed.configureTestingModule({ imports: [EmptyCardHostComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(EmptyCardHostComponent);
+    fixture.detectChanges();
+
+    const card = fixture.nativeElement.querySelector('.app-card');
+    const body = fixture.nativeElement.querySelector('.app-card__body');
+
+    expect(card.classList.contains('app-card--empty')).toBe(true);
+    expect(getComputedStyle(card).getPropertyValue('--card-body-min-height').trim()).toBe('24rem');
+    expect(getComputedStyle(body).minHeight).toBe('var(--card-body-min-height, 0)');
+  });
+
   describe('with projected header and footer templates', () => {
     let fixture: ComponentFixture<TestHostComponent>;
     let hostComponent: TestHostComponent;
