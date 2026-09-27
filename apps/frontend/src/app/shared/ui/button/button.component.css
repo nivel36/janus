@@ -73,11 +73,14 @@
 .app-button--text:focus-visible {
   color: var(--button-text-hover-color, var(--content-primary));
   background: transparent;
+}
+
+.app-button--text:hover {
   box-shadow: none;
 }
 
 .app-button--text:focus-visible {
-  outline: var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 .app-button--text:active {
