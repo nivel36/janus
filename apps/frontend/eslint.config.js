@@ -18,6 +18,19 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      "@typescript-eslint/no-unused-vars": "error",
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@angular/forms",
+              importNames: ["FormsModule"],
+              message: "Use ReactiveFormsModule instead of the template-driven FormsModule.",
+            },
+          ],
+        },
+      ],
       "@angular-eslint/directive-selector": [
         "error",
         {
