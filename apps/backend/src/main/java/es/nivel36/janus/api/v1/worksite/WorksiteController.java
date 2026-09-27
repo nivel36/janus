@@ -66,14 +66,17 @@ public class WorksiteController implements WorksiteResource {
 	 *                               into {@link WorksiteResponse} DTOs; must not be
 	 *                               {@code null}
 	 */
-	public WorksiteController(final WorksiteService worksiteService, final EmployeeService employeeService,
-			final WorksiteAuthorizationAdapter authorization,
+	public WorksiteController( //
+			final WorksiteService worksiteService, //
+			final EmployeeService employeeService, //
+			final WorksiteAuthorizationAdapter authorization, //
 			final @Qualifier("worksiteResponseMapper") Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
 		this.worksiteService = //
 				Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
 		this.employeeService = //
 				Objects.requireNonNull(employeeService, "EmployeeService can't be null");
-		this.authorization = Objects.requireNonNull(authorization, "authorization can't be null");
+		this.authorization = //
+				Objects.requireNonNull(authorization, "authorization can't be null");
 		this.worksiteResponseMapper = //
 				Objects.requireNonNull(worksiteResponseMapper, "WorksiteResponseMapper can't be null");
 	}

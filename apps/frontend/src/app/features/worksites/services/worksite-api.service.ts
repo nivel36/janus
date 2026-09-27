@@ -66,7 +66,7 @@ export class WorksiteApiService {
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
 
     return this.api
-      .searchWorksites('', employeeEmail, 0, 100, ['code,desc'], 'body', false, { context })
+      .searchWorksites(undefined, employeeEmail, 0, 100, ['code,desc'], 'body', false, { context })
       .pipe(
         map((response) =>
           (response.content ?? [])
