@@ -23,8 +23,7 @@
 /* Base styles */
 @import './styles/40-base.css';
 
-/* Global component styles */
-@import './styles/components/50-card.css';
+/* Global composition patterns */
 @import './styles/components/51-forms.css';
 @import './styles/components/52-form-actions.css';
 @import './styles/components/53-header-detail.css';

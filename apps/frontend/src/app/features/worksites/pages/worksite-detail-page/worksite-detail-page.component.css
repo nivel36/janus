@@ -30,8 +30,8 @@
   margin-top: 1.55rem;
 }
 
-:host ::ng-deep .worksite-detail__panel--empty .app-card__body {
-  min-height: 24rem;
+.worksite-detail__panel--empty {
+  --card-body-min-height: 24rem;
 }
 
 @media (max-width: 900px) {

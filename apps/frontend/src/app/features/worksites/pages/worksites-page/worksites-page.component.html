@@ -1,7 +1,11 @@
 <app-page-template appNameKey="navigation.janus" pageNameKey="navigation.worksites">
   <div pageContent class="app-page-content app-list-page">
     <div class="app-list-page__toolbar">
-      <app-search-bar [query]="query()" (queryChange)="onQueryChange($event)" />
+      <app-search-bar
+        class="app-list-page__search"
+        [query]="query()"
+        (queryChange)="onQueryChange($event)"
+      />
       @if (isAdmin()) {
         <app-button variant="main" routerLink="/worksites/new">
           {{ 'actions.new' | translate }}

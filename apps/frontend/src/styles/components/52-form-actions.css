@@ -1,29 +1,22 @@
 .app-form-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: var(--form-actions-gap);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--form-actions-gap);
 
-    margin-inline-start: auto;
-    margin-top: var(--form-actions-margin-block-start);
+  margin-inline-start: auto;
+  margin-top: var(--form-actions-margin-block-start);
 }
 
 @media (max-width: 640px) {
-    .app-form-actions {
-        flex-direction: var(--responsive-form-actions-flex-direction-mobile);
-        align-items: var(--responsive-form-actions-align-items-mobile);
-        inline-size: var(--responsive-form-actions-inline-size-mobile);
-    }
+  .app-form-actions {
+    flex-direction: var(--responsive-form-actions-flex-direction-mobile);
+    align-items: var(--responsive-form-actions-align-items-mobile);
+    inline-size: var(--responsive-form-actions-inline-size-mobile);
+  }
 
-    .app-form-actions > * {
-        min-inline-size: var(--responsive-form-actions-min-inline-size-mobile);
-        inline-size: var(--responsive-form-actions-inline-size-mobile);
-    }
-
-    .app-form-actions .app-button {
-        block-size: var(--responsive-form-actions-block-size-mobile);
-        min-block-size: var(--responsive-form-actions-min-block-size-mobile);
-        min-inline-size: var(--responsive-form-actions-min-inline-size-mobile);
-        inline-size: var(--responsive-form-actions-inline-size-mobile);
-    }
+  .app-form-actions > * {
+    min-inline-size: var(--responsive-form-actions-min-inline-size-mobile);
+    inline-size: var(--responsive-form-actions-inline-size-mobile);
+  }
 }

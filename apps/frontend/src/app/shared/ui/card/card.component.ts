@@ -29,6 +29,7 @@ import { ID_GENERATOR } from '../../services/id-generator.service';
   selector: 'app-card',
   imports: [NgTemplateOutlet],
   templateUrl: './card.component.html',
+  styleUrl: './card.component.css',
 })
 export class CardComponent {
   readonly titleElementId = `${inject(ID_GENERATOR).generate('card')}-title`;
