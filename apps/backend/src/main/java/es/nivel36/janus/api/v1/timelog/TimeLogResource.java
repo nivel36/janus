@@ -32,41 +32,41 @@ import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
-@RequestMapping({ "/api/v1/employees/{employeeEmail}/time-logs", "/api/v1/employees/{employeeEmail}/timelogs" })
+@RequestMapping({ "/api/v1/employees/{employeeNumber}/time-logs", "/api/v1/employees/{employeeNumber}/timelogs", "/api/v1/employees/by-email/{employeeNumber}/time-logs" })
 public interface TimeLogResource {
 
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, #entryTime != null)")
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #entryTime != null)")
 	@PostMapping("/clock-in")
 	ResponseEntity<TimeLogResponse> clockIn(
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
+			@PathVariable("employeeNumber") String employeeNumber,
 			@RequestParam(value = "entryTime", required = false) Instant entryTime,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			Authentication authentication);
 
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, #exitTime != null)")
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #exitTime != null)")
 	@PostMapping("/clock-out")
 	ResponseEntity<TimeLogResponse> clockOut(
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
+			@PathVariable("employeeNumber") String employeeNumber,
 			@RequestParam(value = "exitTime", required = false) Instant exitTime,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			Authentication authentication) throws ClockOutWithoutClockInException;
 
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, true)")
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, true)")
 	@PostMapping({ "", "/" })
 	ResponseEntity<TimeLogResponse> createTimeLog(
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
+			@PathVariable("employeeNumber") String employeeNumber,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@Valid @RequestBody CreateTimeLogRequest timeLog, Authentication authentication);
 
-	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeEmail)")
+	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeNumber)")
 	@GetMapping("/{entryTime}")
 	ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
+			@PathVariable("employeeNumber") String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime, Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{entryTime}")
 	ResponseEntity<Void> deleteTimeLog(
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
+			@PathVariable("employeeNumber") String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime);
 }

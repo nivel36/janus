@@ -36,7 +36,6 @@ import es.nivel36.janus.service.timelog.ClockOutWithoutClockInEventService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import es.nivel36.janus.util.EmailAddresses;
 
 /**
  * REST controller responsible for exposing operations related to
@@ -102,7 +101,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 * Resolves a {@link ClockOutWithoutClockInEvent} by creating a corresponding
 	 * {@link TimeLog}.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 * @param worksiteCode  the code of the worksite where the event was recorded;
 	 *                      must not be {@code null}
 	 * @param exitTime      the exit time of the event to resolve; must not be
@@ -113,13 +112,13 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 */
 	@Override
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEvent( //
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final String worksiteCode, //
 			final Instant exitTime, //
 			final ResolveClockOutWithoutClockInEventRequest request) {
 		logger.debug("Resolve clock-out-without-clock-in event ACTION performed");
 
-		final Employee employee = this.requireEmployee(employeeEmail);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
@@ -135,7 +134,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	/**
 	 * Invalidates a {@link ClockOutWithoutClockInEvent}.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 * @param worksiteCode  the code of the worksite where the event was recorded;
 	 *                      must not be {@code null}
 	 * @param exitTime      the exit time of the event to invalidate; must not be
@@ -146,13 +145,13 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 */
 	@Override
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEvent( //
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final String worksiteCode, //
 			final Instant exitTime, //
 			final InvalidateClockOutWithoutClockInEventRequest request) {
 		logger.debug("Invalidate clock-out-without-clock-in event ACTION performed");
 
-		final Employee employee = this.requireEmployee(employeeEmail);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
@@ -169,7 +168,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 * Retrieves a {@link ClockOutWithoutClockInEvent} by employee, worksite, and
 	 * exit time.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 * @param worksiteCode  the code of the worksite where the event was recorded;
 	 *                      must not be {@code null}
 	 * @param exitTime      the exit time of the event; must not be {@code null}
@@ -177,12 +176,12 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 */
 	@Override
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEvent( //
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final String worksiteCode, //
 			final Instant exitTime) {
 		logger.debug("Find clock-out-without-clock-in event ACTION performed");
 
-		final Employee employee = this.requireEmployee(employeeEmail);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = this.clockOutWithoutClockInEventService
 				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
@@ -197,10 +196,8 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 		}
 	}
 
-	private Employee requireEmployee(final String email) {
-		final String canonicalEmail = EmailAddresses.canonicalize(email);
-		return this.employeeService.findEmployeeByEmail(canonicalEmail)
-				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with email " + canonicalEmail));
+	private Employee requireEmployee(final String employeeNumber) {
+		return this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber);
 	}
 
 	private Worksite findRecordedWorksite(final String worksiteCode) {

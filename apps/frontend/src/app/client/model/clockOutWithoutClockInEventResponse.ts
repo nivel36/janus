@@ -9,12 +9,15 @@
  */
 
 
-export interface TimeLogResponse {
+export interface ClockOutWithoutClockInEventResponse {
     employeeEmail: string;
     worksiteCode: string;
-    worksiteZoneId: string;
-    entryTime: string;
-    exitTime?: string | null;
-    workTime: { [key: string]: any; } | null;
+    exitTime: string;
+    detectedAt: string;
+    resolved: boolean;
+    invalidated: boolean;
+    reason?: string;
+    resolvedTimeLogEntry?: string;
+    resolvedTimeLogExitTime?: string;
 }
 

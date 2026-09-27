@@ -72,14 +72,14 @@ public interface WorksiteResource {
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode);
 
 	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
-	@PutMapping("/{worksiteCode}/employees/{employeeEmail}")
+	@PutMapping({ "/{worksiteCode}/employees/{employeeNumber}", "/{worksiteCode}/employees/by-email/{employeeNumber}" })
 	ResponseEntity<Void> assignEmployeeToWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail);
+			@PathVariable("employeeNumber") String employeeNumber);
 
 	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
-	@DeleteMapping("/{worksiteCode}/employees/{employeeEmail}")
+	@DeleteMapping({ "/{worksiteCode}/employees/{employeeNumber}", "/{worksiteCode}/employees/by-email/{employeeNumber}" })
 	ResponseEntity<EmployeeResponse> removeEmployeeFromWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@PathVariable("employeeEmail") @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail);
+			@PathVariable("employeeNumber") String employeeNumber);
 }

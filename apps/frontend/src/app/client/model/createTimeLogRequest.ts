@@ -7,12 +7,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { PageMetadata } from './pageMetadata';
-import { TimeLogResponse } from './timeLogResponse';
 
 
-export interface TimeLogPage {
-    content: Array<TimeLogResponse>;
-    page: PageMetadata;
+export interface CreateTimeLogRequest {
+    entryTime: string;
+    exitTime: string;
 }
 

@@ -38,7 +38,6 @@ import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import es.nivel36.janus.util.EmailAddresses;
 
 /**
  * REST controller responsible for exposing operations related to employee time
@@ -101,7 +100,7 @@ public class TimeLogController implements TimeLogResource {
 	 * Clocks in an employee at a specified entry time or at the current time if
 	 * none is provided.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 * @param entryTime     the entry time as ISO-8601 string (e.g.,
 	 *                      "2025-08-04T09:30:00Z"); if {@code null}, the current
 	 *                      system time will be used
@@ -112,14 +111,13 @@ public class TimeLogController implements TimeLogResource {
 	 */
 	@Override
 	public ResponseEntity<TimeLogResponse> clockIn( //
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final Instant entryTime, //
 			final String worksiteCode, //
 			final Authentication authentication) {
 		logger.debug("Clock-in ACTION performed");
 
-		final String email = this.effectiveEmployeeEmail(authentication, employeeEmail);
-		final Employee employee = this.requireEmployee(email);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode.trim());
 		final TimeLog clockIn;
 		if (entryTime != null) {
@@ -141,7 +139,7 @@ public class TimeLogController implements TimeLogResource {
 	 * Clocks out an employee at a specified exit time or at the current time if
 	 * none is provided.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 * @param exitTime      the exit time as ISO-8601 string (e.g.,
 	 *                      "2025-08-04T18:00:00Z"); if {@code null}, the current
 	 *                      system time will be used
@@ -155,14 +153,13 @@ public class TimeLogController implements TimeLogResource {
 	 */
 	@Override
 	public ResponseEntity<TimeLogResponse> clockOut( //
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final Instant exitTime, //
 			final String worksiteCode, //
 			final Authentication authentication) throws ClockOutWithoutClockInException {
 		logger.debug("Clock-out ACTION performed");
 
-		final String email = this.effectiveEmployeeEmail(authentication, employeeEmail);
-		final Employee employee = this.requireEmployee(email);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final Worksite worksite = this.findWorksiteForClockOut(employee,
 				worksiteCode);
 		final TimeLog clockOut;
@@ -192,7 +189,7 @@ public class TimeLogController implements TimeLogResource {
 	/**
 	 * Creates a new time log entry for a specific employee and worksite.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 * @param worksiteCode  the code of the worksite where the time log is created;
 	 *                      must not be {@code null}
 	 * @param timeLog       the {@link CreateTimeLogRequest} payload containing the
@@ -202,14 +199,13 @@ public class TimeLogController implements TimeLogResource {
 	 */
 	@Override
 	public ResponseEntity<TimeLogResponse> createTimeLog( //
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final String worksiteCode, //
 			final CreateTimeLogRequest timeLog, //
 			final Authentication authentication) {
 		logger.debug("Create time log ACTION performed");
 
-		final String email = this.effectiveEmployeeEmail(authentication, employeeEmail);
-		final Employee employee = this.requireEmployee(email);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode.trim());
 		final Instant entryTime = timeLog.entryTime();
 		final Instant exitTime = timeLog.exitTime();
@@ -221,38 +217,32 @@ public class TimeLogController implements TimeLogResource {
 	/**
 	 * Finds a specific time log for an employee by its entry time.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 * @param entryTime     the entry time of the time log; must not be {@code null}
 	 * @param authentication the current authentication; must not be {@code null}
 	 * @return the {@link TimeLogResponse} entry
 	 */
 	@Override
 	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(//
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final Instant entryTime, //
 			final Authentication authentication) {
 		logger.debug("Find time log by employee and entry time ACTION performed");
 
-		final String email = this.effectiveEmployeeEmail(authentication, employeeEmail);
-		final Employee employee = this.requireEmployee(email);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		final TimeLogResponse timeLogResponse = this.timeLogResponseMapper.map(timeLog);
 		return ResponseEntity.ok(timeLogResponse);
 	}
 
-	private String effectiveEmployeeEmail(final Authentication authentication, final String requestedEmail) {
-		return EmailAddresses.canonicalize(this.authorization.effectiveEmployeeEmail(authentication, requestedEmail));
-	}
-
-	private Employee requireEmployee(final String email) {
-		return this.employeeService.findEmployeeByEmail(email)
-				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with email " + email));
+	private Employee requireEmployee(final String employeeNumber) {
+		return this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber);
 	}
 
 	/**
 	 * Deletes a time log entry for an employee by its entry time.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 * @param entryTime     the entry time of the time log to delete; must not be
 	 *                      {@code null}
 	 * @return a {@link ResponseEntity} with no content (HTTP 204) if the deletion
@@ -260,12 +250,11 @@ public class TimeLogController implements TimeLogResource {
 	 */
 	@Override
 	public ResponseEntity<Void> deleteTimeLog(//
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final Instant entryTime) {
 		logger.debug("Delete time log ACTION performed");
 
-		final String email = EmailAddresses.canonicalize(employeeEmail);
-		final Employee employee = this.requireEmployee(email);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
 		this.timeLogService.deleteTimeLog(timeLog);
 		return ResponseEntity.noContent().build();

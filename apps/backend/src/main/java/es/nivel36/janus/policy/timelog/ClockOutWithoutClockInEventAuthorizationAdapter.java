@@ -6,15 +6,15 @@
 package es.nivel36.janus.policy.timelog;
 
 import java.util.Objects;
+import java.util.OptionalLong;
 
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.security.Actor;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.employee.EmployeeService;
-import es.nivel36.janus.util.EmailAddresses;
 
 /** Spring method-security adapter for clock-out-without-clock-in policies. */
 @Component("clockOutWithoutClockInEventAuthorization")
@@ -32,24 +32,29 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 	}
 
-	public boolean canView(final Authentication authentication, final String employeeEmail) {
+	public boolean canView(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.viewPolicy.allows(actor, this.employeeId(employeeEmail));
+		final OptionalLong employeeId = this.employeeId(employeeNumber);
+		return employeeId.isPresent() && this.viewPolicy.allows(actor, employeeId.getAsLong());
 	}
 
-	public boolean canResolve(final Authentication authentication, final String employeeEmail) {
+	public boolean canResolve(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.resolvePolicy.allows(actor, this.employeeId(employeeEmail));
+		final OptionalLong employeeId = this.employeeId(employeeNumber);
+		return employeeId.isPresent() && this.resolvePolicy.allows(actor, employeeId.getAsLong());
 	}
 
-	public boolean canInvalidate(final Authentication authentication, final String employeeEmail) {
+	public boolean canInvalidate(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.invalidatePolicy.allows(actor, this.employeeId(employeeEmail));
+		final OptionalLong employeeId = this.employeeId(employeeNumber);
+		return employeeId.isPresent() && this.invalidatePolicy.allows(actor, employeeId.getAsLong());
 	}
 
-	private long employeeId(final String employeeEmail) {
-		return this.employeeService.findEmployeeByEmail(EmailAddresses.canonicalize(employeeEmail))
-				.map(employee -> employee.getId())
-				.orElseThrow(() -> new AccessDeniedException("The employee's email is invalid"));
+	private OptionalLong employeeId(final String employeeNumber) {
+		try {
+			return OptionalLong.of(this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber).getId());
+		} catch (final ResourceNotFoundException exception) {
+			return OptionalLong.empty();
+		}
 	}
 }

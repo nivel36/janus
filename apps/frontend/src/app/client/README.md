@@ -46,7 +46,7 @@ npm link
 In your project:
 
 ```console
-npm link 
+npm link
 ```
 
 __Note for Windows users:__ The Angular CLI has troubles to use linked npm packages.

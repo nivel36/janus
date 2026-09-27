@@ -223,15 +223,15 @@ public class WorksiteController implements WorksiteResource {
 	 * Adds a {@link Worksite} to an {@link Employee}.
 	 *
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 *
 	 * @return an empty response with HTTP 204 status
 	 */
 	@Override
-	public ResponseEntity<Void> assignEmployeeToWorksite(final String worksiteCode, final String employeeEmail) {
+	public ResponseEntity<Void> assignEmployeeToWorksite(final String worksiteCode, final String employeeNumber) {
 		logger.debug("Add worksite to employee ACTION performed");
 
-		final Employee employee = this.requireEmployee(employeeEmail);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 
 		if (worksite.getScope() != WorksiteScope.ASSIGNED) {
@@ -245,25 +245,24 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Removes a {@link Worksite} from an {@link Employee}.
 	 *
-	 * @param employeeEmail the email of the employee; must not be {@code null}
+	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 * @param worksiteCode  the worksite business code; must not be {@code null}
 	 * @return an empty response with HTTP 204 status
 	 */
 	@Override
 	public ResponseEntity<EmployeeResponse> removeEmployeeFromWorksite( //
 			final String worksiteCode, //
-			final String employeeEmail) {
+			final String employeeNumber) {
 		logger.debug("Remove worksite from employee ACTION performed");
 
-		final Employee employee = this.requireEmployee(employeeEmail);
+		final Employee employee = this.requireEmployee(employeeNumber);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		this.worksiteService.removeEmployeeFromWorksite(worksite, employee);
 
 		return ResponseEntity.noContent().build();
 	}
 
-	private Employee requireEmployee(final String email) {
-		return this.employeeService.findEmployeeByEmail(email)
-				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with email " + email));
+	private Employee requireEmployee(final String employeeNumber) {
+		return this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber);
 	}
 }
