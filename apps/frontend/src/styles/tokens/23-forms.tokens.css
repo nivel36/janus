@@ -31,6 +31,12 @@
     --form-control-focus-ring: var(--focus-ring);
     --form-control-height: var(--size-800);
 
+    /* Input component contract: compound controls may override these by inheritance. */
+    --input-height: var(--form-control-height);
+    --input-border: var(--form-control-border);
+    --input-border-radius: var(--form-control-border-radius);
+    --input-focus-shadow: var(--form-control-focus-ring);
+
     --input-group-addon-background-color: var(--form-control-background-color);
     --input-group-addon-text-color: var(--content-secondary);
 

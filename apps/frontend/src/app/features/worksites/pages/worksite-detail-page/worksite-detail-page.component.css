@@ -30,10 +30,6 @@
   margin-top: 1.55rem;
 }
 
-:host ::ng-deep .worksite-detail__panel--empty .app-card__body {
-  min-height: 24rem;
-}
-
 @media (max-width: 900px) {
   .worksite-detail__grid {
     grid-template-columns: var(--responsive-worksite-detail-grid-columns-tablet);
