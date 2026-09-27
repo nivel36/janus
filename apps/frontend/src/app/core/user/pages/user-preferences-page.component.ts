@@ -46,6 +46,7 @@ import { TimeFormat } from '../models/user-preferences';
  * Those responsibilities belong to CurrentUserFacade and lower layers.
  */
 import { MessageComponent } from '../../../shared/ui/message/message.component';
+import { Theme, ThemeService } from '../../theme/theme.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,6 +69,7 @@ export class UserPreferencesPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly currentUserFacade = inject(CurrentUserFacade);
   private readonly router = inject(Router);
+  private readonly themeService = inject(ThemeService);
   readonly timezoneCatalog = inject(TimezoneCatalog);
   readonly timezoneSearch = this.timezoneCatalog.createSearchState(this.destroyRef);
 
@@ -82,6 +84,9 @@ export class UserPreferencesPageComponent {
       validators: [Validators.required],
     }),
     timeFormat: this.fb.nonNullable.control('H24' as TimeFormat, {
+      validators: [Validators.required],
+    }),
+    theme: this.fb.nonNullable.control(this.themeService.theme(), {
       validators: [Validators.required],
     }),
     defaultTimezone: this.fb.control<string | null>(null, {
@@ -106,6 +111,11 @@ export class UserPreferencesPageComponent {
       labelKey: `userPreferences.timeFormat.${timeFormat}`,
     }),
   );
+
+  readonly themeOptions: SelectOption<Theme>[] = (['light', 'dark'] as Theme[]).map((theme) => ({
+    value: theme,
+    labelKey: `userPreferences.theme.${theme}`,
+  }));
 
   /**
    * Indicates whether the initial preference load is in progress.
@@ -134,7 +144,6 @@ export class UserPreferencesPageComponent {
       this.applyPreferences(preferences);
     }
   });
-
 
   /**
    * Persists the current form values as preferences for the
@@ -177,6 +186,7 @@ export class UserPreferencesPageComponent {
       )
       .subscribe({
         next: (updatedPreferences) => {
+          this.themeService.setTheme(rawValue.theme);
           this.applyPreferences(updatedPreferences);
           this.router.navigate(['/']);
         },

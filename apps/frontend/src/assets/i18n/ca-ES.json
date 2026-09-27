@@ -114,11 +114,16 @@
       "locale": "Idioma",
       "timeFormat": "Format d'hora",
       "defaultTimezone": "Zona horària predeterminada",
-      "defaultTimezoneHint": "Busca la teva zona horària. Per exemple, Europe/Madrid."
+      "defaultTimezoneHint": "Busca la teva zona horària. Per exemple, Europe/Madrid.",
+      "theme": "Tema"
     },
     "timeFormat": {
       "H24": "24 hores",
       "H12": "12 hores"
+    },
+    "theme": {
+      "light": "Clar",
+      "dark": "Fosc"
     },
     "errors": {
       "load": "No s'han pogut carregar les preferències d'usuari.",

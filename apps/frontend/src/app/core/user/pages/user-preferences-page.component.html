@@ -67,6 +67,19 @@
             />
           </app-field>
 
+          <app-field
+            controlId="preferences-theme"
+            [label]="'userPreferences.fields.theme' | translate"
+            required
+          >
+            <app-select
+              inputId="preferences-theme"
+              formControlName="theme"
+              [options]="themeOptions"
+              required
+            />
+          </app-field>
+
           @if (errorMessage()) {
             <app-message type="error" presentation="inline">
               {{ errorMessage() | translate }}
