@@ -25,7 +25,7 @@ public interface TimeLogSearchResource {
 	@PreAuthorize("@timeLogAuthorization.canSearch(authentication)")
 	@GetMapping({ "", "/" })
 	ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(
-			@RequestParam(value = "employeeEmail", required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
+			@RequestParam(value = "employeeEmail", required = false) @Pattern(regexp = "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
 			@RequestParam(value = "fromInstant", required = false) Instant fromInstant,
 			@RequestParam(value = "toInstant", required = false) Instant toInstant,
 			@PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable,

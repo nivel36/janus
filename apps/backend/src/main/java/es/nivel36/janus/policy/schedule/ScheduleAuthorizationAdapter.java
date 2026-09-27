@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import es.nivel36.janus.policy.EmployeeEmailResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.appuser.Role;
@@ -14,15 +15,18 @@ import es.nivel36.janus.service.employee.EmployeeService;
 public class ScheduleAuthorizationAdapter {
 	private final ActorResolver actors;
 	private final EmployeeService employees;
+	private final EmployeeEmailResolver employeeEmails;
 	private final SearchSchedulePolicy search = new SearchSchedulePolicy();
 	private final ViewSchedulePolicy view = new ViewSchedulePolicy();
 	private final CreateSchedulePolicy create = new CreateSchedulePolicy();
 	private final UpdateSchedulePolicy update = new UpdateSchedulePolicy();
 	private final DeleteSchedulePolicy delete = new DeleteSchedulePolicy();
 
-	public ScheduleAuthorizationAdapter(final ActorResolver actors, final EmployeeService employees) {
+	public ScheduleAuthorizationAdapter(final ActorResolver actors, final EmployeeService employees,
+			final EmployeeEmailResolver employeeEmails) {
 		this.actors = Objects.requireNonNull(actors);
 		this.employees = Objects.requireNonNull(employees);
+		this.employeeEmails = Objects.requireNonNull(employeeEmails);
 	}
 
 	public boolean canSearch(final Authentication auth, final String email) {
@@ -32,7 +36,7 @@ public class ScheduleAuthorizationAdapter {
 
 	public String effectiveEmployeeEmail(final Authentication auth, final String requested) {
 		final Actor a = this.actors.resolve(auth);
-		return this.restricted(a) ? this.employees.findEmployeeById(a.employeeId()).getEmail() : requested;
+		return this.employeeEmails.effectiveEmail(a, requested, this.restricted(a));
 	}
 
 	public boolean canView(final Authentication auth, final String code) {
@@ -54,12 +58,7 @@ public class ScheduleAuthorizationAdapter {
 	}
 
 	private boolean owns(final Actor a, final String email) {
-		if (email == null || a.employeeId() == null) {
-			return false;
-		}
-		return this.employees.findEmployeeByEmail(email)
-				.map(employee -> Objects.equals(a.employeeId(), employee.getId()))
-				.orElse(false);
+		return this.employeeEmails.owns(a, email);
 	}
 
 	private boolean restricted(final Actor a) {
