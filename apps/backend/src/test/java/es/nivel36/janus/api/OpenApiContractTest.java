@@ -62,8 +62,8 @@ class OpenApiContractTest {
 		assertMappings(AppUserResource.class, "/app-users", "/appusers");
 		assertMappings(ApplicationSettingsResource.class, "/application-settings", "/applicationsettings");
 		assertMappings(TimeLogSearchResource.class, "/time-logs", "/timelogs");
-		assertMappings(TimeLogResource.class, "/employees/{employeeEmail}/time-logs",
-				"/employees/{employeeEmail}/timelogs");
+		assertMappings(TimeLogResource.class, "/employees/{employeeNumber}/time-logs",
+				"/employees/{employeeNumber}/timelogs", "/employees/by-email/{employeeNumber}/time-logs");
 	}
 
 	@Test
@@ -77,8 +77,8 @@ class OpenApiContractTest {
 		@SuppressWarnings("unchecked")
 		final var paths = ((Map<String, Object>) contract.get("paths")).keySet();
 		assertThat(paths).contains("/app-users/me", "/app-users/{id}", "/application-settings", "/time-logs/",
-				"/employees/{employeeEmail}/time-logs/clock-in",
-				"/employees/{employeeEmail}/time-logs/clock-out");
+				"/employees/{employeeNumber}/time-logs/clock-in",
+				"/employees/{employeeNumber}/time-logs/clock-out");
 		assertThat(paths).noneMatch(path -> path.contains("appusers") || path.contains("applicationsettings")
 				|| path.contains("timelogs"));
 	}
@@ -105,9 +105,12 @@ class OpenApiContractTest {
 		return operations;
 	}
 
-	private static void assertMappings(final Class<?> resource, final String canonical, final String legacy) {
+	private static void assertMappings(final Class<?> resource, final String canonical, final String... legacy) {
 		final var mapping = resource.getAnnotation(RequestMapping.class);
-		assertThat(mapping.value()).containsExactly(API_PREFIX + canonical, API_PREFIX + legacy);
+		final String[] expected = new String[legacy.length + 1];
+		expected[0] = API_PREFIX + canonical;
+		for (int i = 0; i < legacy.length; i++) expected[i + 1] = API_PREFIX + legacy[i];
+		assertThat(mapping.value()).containsExactly(expected);
 	}
 
 	private static boolean isHttpMethod(final String value) {

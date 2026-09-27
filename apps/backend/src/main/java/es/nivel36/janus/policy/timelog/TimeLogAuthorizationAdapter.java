@@ -10,6 +10,7 @@ import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
+import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 
 @Component("timeLogAuthorization")
@@ -17,27 +18,29 @@ public class TimeLogAuthorizationAdapter {
 	private final ActorResolver actors;
 	private final ApplicationSettingsService settings;
 	private final EmployeeEmailResolver employeeEmails;
+	private final EmployeeService employeeService;
 	private final OperateTimeLogPolicy operate = new OperateTimeLogPolicy();
 	private final ViewTimeLogPolicy view = new ViewTimeLogPolicy();
 	private final SearchTimeLogPolicy search = new SearchTimeLogPolicy();
 	private final DeleteTimeLogPolicy delete = new DeleteTimeLogPolicy();
 
 	public TimeLogAuthorizationAdapter(final ActorResolver a, final ApplicationSettingsService s,
-			final EmployeeEmailResolver employeeEmails) {
+			final EmployeeEmailResolver employeeEmails, final EmployeeService employeeService) {
 		this.actors = Objects.requireNonNull(a);
 		this.settings = Objects.requireNonNull(s);
 		this.employeeEmails = Objects.requireNonNull(employeeEmails);
+		this.employeeService = Objects.requireNonNull(employeeService);
 	}
 
 	public boolean canOperate(final Authentication auth, final String email, final boolean manual) {
 		final Actor a = this.actors.resolve(auth);
-		return this.operate.allows(a, new OperateTimeLogPolicy.Context(this.ownsOrWillBeScoped(a, email), manual,
+		return this.operate.allows(a, new OperateTimeLogPolicy.Context(this.ownsEmployeeNumber(a, email), manual,
 				this.settings.isEmployeeManualTimelogEntryAllowed()));
 	}
 
 	public boolean canView(final Authentication auth, final String email) {
 		final Actor a = this.actors.resolve(auth);
-		return this.view.allows(a, !this.restricted(a) || this.ownsOrWillBeScoped(a, email));
+		return this.view.allows(a, !this.restricted(a) || this.ownsEmployeeNumber(a, email));
 	}
 
 	/**
@@ -67,12 +70,9 @@ public class TimeLogAuthorizationAdapter {
 		return this.search.scope(this.actors.resolve(auth));
 	}
 
-	private boolean owns(final Actor a, final String email) {
-		return this.employeeEmails.owns(a, email);
-	}
-
-	private boolean ownsOrWillBeScoped(final Actor actor, final String email) {
-		return this.restricted(actor) ? actor.employeeId() != null : this.owns(actor, email);
+	private boolean ownsEmployeeNumber(final Actor actor, final String employeeNumber) {
+		return actor.employeeId() != null
+				&& actor.employeeId().equals(this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber).getId());
 	}
 
 	private boolean restricted(final Actor a) {

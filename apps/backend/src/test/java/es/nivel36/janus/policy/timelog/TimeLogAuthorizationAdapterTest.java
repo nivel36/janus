@@ -34,7 +34,7 @@ class TimeLogAuthorizationAdapterTest {
 	private final EmployeeService employees = mock(EmployeeService.class);
 	private final ApplicationSettingsService settings = mock(ApplicationSettingsService.class);
 	private final TimeLogAuthorizationAdapter adapter = new TimeLogAuthorizationAdapter(this.actors, this.settings,
-			new EmployeeEmailResolver(this.employees));
+			new EmployeeEmailResolver(this.employees), this.employees);
 
 	@ParameterizedTest
 	@EnumSource(Role.class)

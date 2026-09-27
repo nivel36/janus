@@ -121,6 +121,18 @@ public class EmployeeService {
 		return employee;
 	}
 
+	/** Resolves the canonical employee number first, with email as a deprecated compatibility selector. */
+	@Transactional(readOnly = true)
+	public Employee findEmployeeByEmployeeNumberOrEmail(final String selector) {
+		Strings.requireNonBlank(selector, "employee selector cannot be null or blank.");
+		final Employee byNumber = this.employeeRepository.findByEmployeeNumber(selector);
+		if (byNumber != null) {
+			return byNumber;
+		}
+		return this.employeeRepository.findByEmail(selector)
+				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with number or email " + selector));
+	}
+
 	/**
 	 * Finds the identifiers of employees who have at least one {@link TimeLog}
 	 * since the specified instant but have no associated {@link WorkShift}.

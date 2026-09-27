@@ -5,6 +5,7 @@ api.module.ts
 api/api.ts
 api/appUsers.service.ts
 api/applicationSettings.service.ts
+api/clockOutWithoutClockInEvents.service.ts
 api/employees.service.ts
 api/schedules.service.ts
 api/timeLogs.service.ts
@@ -15,11 +16,15 @@ git_push.sh
 index.ts
 model/appUserResponse.ts
 model/applicationSettingsResponse.ts
+model/clockOutWithoutClockInEventResponse.ts
 model/createEmployeeRequest.ts
+model/createTimeLogRequest.ts
 model/createWorksiteRequest.ts
 model/employeeResponse.ts
+model/invalidateClockOutWithoutClockInEventRequest.ts
 model/models.ts
 model/pageMetadata.ts
+model/resolveClockOutWithoutClockInEventRequest.ts
 model/schedulePage.ts
 model/scheduleResponse.ts
 model/theme.ts
