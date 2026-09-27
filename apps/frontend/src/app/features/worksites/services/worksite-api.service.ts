@@ -5,9 +5,9 @@ import { HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { WorksitesService } from '../../../api/generated/api/worksites.service';
-import { WorksiteResponse } from '../../../api/generated/model/worksiteResponse';
-import { WorksiteScope as ApiWorksiteScope } from '../../../api/generated/model/worksiteScope';
+import { WorksitesService } from '../../../client/api/worksites.service';
+import { WorksiteResponse } from '../../../client/model/worksiteResponse';
+import { WorksiteScope as ApiWorksiteScope } from '../../../client/model/worksiteScope';
 import {
   CreateWorksitePayload,
   UpdateWorksitePayload,

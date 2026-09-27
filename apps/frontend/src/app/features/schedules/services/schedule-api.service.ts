@@ -5,7 +5,7 @@ import { HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { SchedulesService } from '../../../api/generated/api/schedules.service';
+import { SchedulesService } from '../../../client/api/schedules.service';
 import { Schedule } from '../models/schedule';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,

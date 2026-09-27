@@ -5,7 +5,7 @@
 Transport routes and DTOs are generated with OpenAPI Generator's
 `typescript-angular` generator from the versioned backend contract at
 `../backend/src/main/resources/janus.yaml`. Generated sources live under
-`src/app/api/generated`; do not edit them manually.
+`src/app/client`; do not edit them manually.
 
 Run `npm run generate:api` after changing the API specification. CI runs
 `npm run check:api` and fails when the committed client is out of date.

@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { AppUsersService } from '../../../api/generated/api/appUsers.service';
+import { AppUsersService } from '../../../client/api/appUsers.service';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
   HTTP_RETRY_POLICY,

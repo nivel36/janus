@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpContext } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { TimeLog } from '../models/timelog';
-import { TimeLogsService } from '../../../api/generated/api/timeLogs.service';
-import { TimeLogResponse } from '../../../api/generated/model/timeLogResponse';
+import { TimeLogsService } from '../../../client/api/timeLogs.service';
+import { TimeLogResponse } from '../../../client/model/timeLogResponse';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
   HTTP_RETRY_POLICY,

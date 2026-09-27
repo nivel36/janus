@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ApplicationSettingsService as ApplicationSettingsTransportService } from '../../../api/generated/api/applicationSettings.service';
+import { ApplicationSettingsService as ApplicationSettingsTransportService } from '../../../client/api/applicationSettings.service';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
   HTTP_RETRY_POLICY,

@@ -6,11 +6,11 @@ import { HttpContext } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 
-import { Theme as ApiTheme } from '../../../api/generated/model/theme';
-import { TimeFormat as ApiTimeFormat } from '../../../api/generated/model/timeFormat';
+import { Theme as ApiTheme } from '../../../client/model/theme';
+import { TimeFormat as ApiTimeFormat } from '../../../client/model/timeFormat';
 import { UserPreferences, type TimeFormat } from '../models/user-preferences';
-import { AppUsersService } from '../../../api/generated/api/appUsers.service';
-import { AppUserResponse } from '../../../api/generated/model/appUserResponse';
+import { AppUsersService } from '../../../client/api/appUsers.service';
+import { AppUserResponse } from '../../../client/model/appUserResponse';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
   HTTP_RETRY_POLICY,

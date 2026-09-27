@@ -1,7 +1,7 @@
 import { HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApplicationSettingsService as ApplicationSettingsTransportService } from '../../../api/generated/api/applicationSettings.service';
+import { ApplicationSettingsService as ApplicationSettingsTransportService } from '../../../client/api/applicationSettings.service';
 import { ApplicationSettings } from '../models/application-settings';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,

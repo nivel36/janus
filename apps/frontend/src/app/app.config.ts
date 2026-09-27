@@ -33,7 +33,7 @@ import { DOCUMENT, isPlatformBrowser, registerLocaleData } from '@angular/common
 
 import localeEs from '@angular/common/locales/es';
 import localeCa from '@angular/common/locales/ca';
-import { provideApi } from './api/generated/provide-api';
+import { provideApi } from './client/provide-api';
 
 registerLocaleData(localeEs);
 registerLocaleData(localeCa);
