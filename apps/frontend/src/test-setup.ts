@@ -2,8 +2,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 /// <reference types="vite/client" />
-import 'zone.js';
-import 'zone.js/testing';
 import '@angular/compiler';
 import { ɵresolveComponentResources as resolveComponentResources } from '@angular/core';
 import { getTestBed } from '@angular/core/testing';
