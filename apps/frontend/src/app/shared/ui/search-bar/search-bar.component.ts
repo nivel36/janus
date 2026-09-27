@@ -12,7 +12,7 @@ import {
   output,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Subject, distinctUntilChanged, filter, map, of, switchMap, timer } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -95,6 +95,13 @@ export class SearchBarComponent implements OnInit {
    * Reactive control bound to the visible search input.
    */
   protected readonly queryControl = new FormControl('', { nonNullable: true });
+
+  /**
+   * Reactive form used to handle native form submission without reloading the document.
+   */
+  protected readonly searchForm = new FormGroup({
+    query: this.queryControl,
+  });
 
   private readonly syncQueryEffect = effect(() => {
     this.queryControl.setValue(this.query(), { emitEvent: false });

@@ -1,4 +1,4 @@
-<form class="search-bar" role="search" (submit)="$event.preventDefault(); submitCurrentQuery()">
+<form class="search-bar" role="search" [formGroup]="searchForm" (ngSubmit)="submitCurrentQuery()">
     <label class="search-bar__label" [for]="inputId">{{ 'searchBar.inputLabel' | translate }}</label>
     <app-input-group [ariaLabel]="'searchBar.inputLabel' | translate">
         <app-input

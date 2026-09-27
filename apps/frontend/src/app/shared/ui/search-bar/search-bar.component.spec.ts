@@ -67,24 +67,17 @@ describe('SearchBarComponent', () => {
     currentFixture.detectChanges();
   }
 
-  function submitFromDom(currentFixture: ComponentFixture<SearchBarComponent>): void {
-    const submitButtonDe = currentFixture.debugElement.query(By.css('button[type="submit"]'));
-
-    if (submitButtonDe) {
-      (submitButtonDe.nativeElement as HTMLButtonElement).click();
-      currentFixture.detectChanges();
-      return;
-    }
-
+  function submitFromDom(currentFixture: ComponentFixture<SearchBarComponent>): SubmitEvent {
     const formDe = currentFixture.debugElement.query(By.css('form'));
 
     if (formDe) {
-      formDe.nativeElement.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      const submitEvent = new SubmitEvent('submit', { bubbles: true, cancelable: true });
+      formDe.nativeElement.dispatchEvent(submitEvent);
       currentFixture.detectChanges();
-      return;
+      return submitEvent;
     }
 
-    throw new Error('SearchBarComponent test: no submit button or form element was found.');
+    throw new Error('SearchBarComponent test: no form element was found.');
   }
 
   beforeEach(async () => {
@@ -279,10 +272,11 @@ describe('SearchBarComponent', () => {
     const emitSpy = vi.spyOn(component.queryChange, 'emit');
 
     setInputValue(fixture, '   abcd   ');
-    submitFromDom(fixture);
+    const submitEvent = submitFromDom(fixture);
 
     expect(emitSpy).toHaveBeenCalledTimes(1);
     expect(emitSpy).toHaveBeenCalledWith('abcd');
+    expect(submitEvent.defaultPrevented).toBe(true);
   });
 
   it('should replace a pending debounced query on submit and keep processing changes', async () => {
