@@ -1,71 +1,42 @@
 .clock-in-card {
-    text-align: center;
+  text-align: center;
 }
 
 .clock-in-card__body {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    justify-content: center;
-    gap: var(--section-big-gap);
-    flex-direction: column;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  justify-content: center;
+  gap: var(--section-big-gap);
+  flex-direction: column;
 }
 
 .clock-in-card__footer {
-    text-align: right;
+  text-align: right;
 }
 
 .clock-in-card__clock-in {
-    color: var(--content-primary);
+  color: var(--content-primary);
 
-    font-size: var(--type-heading-lg-font-size);
-    font-weight: var(--type-heading-lg-font-weight);
-    line-height: var(--type-heading-lg-line-height);
+  font-size: var(--type-heading-lg-font-size);
+  font-weight: var(--type-heading-lg-font-weight);
+  line-height: var(--type-heading-lg-line-height);
 }
 
 .clock-in-card__clock {
-    color: var(--accent-strong);
+  color: var(--accent-strong);
 
-    font-size: var(--type-display-lg-font-size);
-    font-weight: var(--type-display-lg-font-weight);
-    line-height: var(--type-display-lg-line-height);
-    letter-spacing: var(--type-caps-wide-letter-spacing);
+  font-size: var(--type-display-lg-font-size);
+  font-weight: var(--type-display-lg-font-weight);
+  line-height: var(--type-display-lg-line-height);
+  letter-spacing: var(--type-caps-wide-letter-spacing);
 }
 
 .clock-in-card__clock-in,
 .clock-in-card__clock-action-feedback {
-    margin: 0;
+  margin: 0;
 }
 
-.clock-in-card__secondary-action {
-    color: var(--content-secondary);
-
-    font-size: var(--type-body-sm-font-size);
-    font-weight: var(--type-body-sm-font-weight);
-    line-height: var(--type-body-sm-line-height);
-
-    cursor: pointer;
-    background: transparent;
-    border: 0px;
-}
-
-.clock-in-card__secondary-action .clock-in-card__icon {
-    color: var(--accent-strong);
-}
-
-.clock-in-card__secondary-action:disabled {
-    cursor: default;
-    pointer-events: none;
-}
-
-.clock-in-card__secondary-action:disabled .clock-in-card__icon {
-    color: var(--accent-muted);
-}
-
-.clock-in-card__secondary-action:hover {
-    color: var(--content-primary);
-}
-
-.clock-in-card__secondary-action:hover .clock-in-card__icon {
-    color: var(--accent-hover);
+.clock-in-card__icon {
+  color: var(--accent-strong);
 }

@@ -7,13 +7,29 @@ import { RouterLink } from '@angular/router';
 
 /**
  * Visual intent styles that can be applied to the button.
+ *
+ * `text` is intended for low-emphasis actions that still need button semantics,
+ * rather than for navigation (which must use a link).
  */
-type ButtonVariant = 'default' | 'main' | 'secondary';
+export type ButtonVariant = 'default' | 'main' | 'secondary' | 'text';
 
 /**
  * Native button `type` values supported by this component.
  */
-type ButtonType = 'button' | 'submit' | 'reset';
+export type ButtonType = 'button' | 'submit' | 'reset';
+
+/**
+ * Shared application button.
+ *
+ * Use `app-button` for application actions, form submission, cancellation,
+ * retry actions and secondary actions. Use `routerLink` when the control
+ * navigates to a fixed application destination so it renders as a semantic
+ * link.
+ *
+ * Native buttons are reserved for the internal implementation of compound
+ * controls whose semantics and keyboard interaction are owned by that control,
+ * such as tabs, the paginator and the toggle button.
+ */
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +78,9 @@ export class ButtonComponent {
    * technologies can announce a meaningful label.
    */
   readonly ariaLabel = input<string>();
+
+  /** Optional native tooltip text. */
+  readonly title = input<string>();
 
   /**
    * Emits the native click event when the button is activated.

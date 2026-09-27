@@ -3,6 +3,7 @@
  */
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideTranslateService } from '@ngx-translate/core';
 import { Subject, of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,6 +13,7 @@ import { Worksite } from '../../../worksites/models/worksite';
 import { WorksiteApiService } from '../../../worksites/services/worksite-api.service';
 import { TimeLog } from '../../models/timelog';
 import { TimeLogService } from '../../services/timelog-api.service';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { TimelogClockCardComponent } from './timelog-clock-card.component';
 
 interface ClockCardControls {
@@ -84,6 +86,24 @@ describe('TimelogClockCardComponent', () => {
 
     expect(controls().latestTimeLog()?.worksiteCode).toBe('BCN');
     expect(controls().clockActionLabelKey()).toBe('timelog.clockout');
+  });
+
+  it('uses the shared button public API for primary and secondary actions', () => {
+    const buttons = fixture.debugElement
+      .queryAll(By.directive(ButtonComponent))
+      .map((element) => element.componentInstance as ButtonComponent);
+
+    expect(buttons).toHaveLength(2);
+    expect(buttons.map((button) => button.type())).toEqual(['button', 'button']);
+    expect(buttons.map((button) => button.variant())).toEqual(['default', 'text']);
+    expect(buttons.every((button) => !button.disabled())).toBe(true);
+
+    const secondaryButton = fixture.debugElement.queryAll(By.directive(ButtonComponent))[1];
+    (secondaryButton.nativeElement.querySelector('button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(clockOut).toHaveBeenCalledWith('employee@example.com', 'BCN');
+    expect(buttons.every((button) => button.disabled())).toBe(true);
   });
 
   it('keeps generated title IDs stable and unique between instances', () => {

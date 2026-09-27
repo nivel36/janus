@@ -1,5 +1,10 @@
 @if (routerLink(); as destination) {
-  <a [class]="buttonClass" [routerLink]="destination" [attr.aria-label]="ariaLabel()">
+  <a
+    [class]="buttonClass"
+    [routerLink]="destination"
+    [attr.aria-label]="ariaLabel()"
+    [attr.title]="title()"
+  >
     <ng-container [ngTemplateOutlet]="label"></ng-container>
   </a>
 } @else {
@@ -7,6 +12,7 @@
     [class]="buttonClass"
     [type]="type()"
     [attr.aria-label]="ariaLabel()"
+    [attr.title]="title()"
     [disabled]="disabled()"
     (click)="clicked.emit($event)"
   >
