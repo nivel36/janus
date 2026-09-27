@@ -30,7 +30,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.api.v1.employee.EmployeeResponse;
 import es.nivel36.janus.policy.worksite.WorksiteAuthorizationAdapter;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
@@ -250,7 +249,7 @@ public class WorksiteController implements WorksiteResource {
 	 * @return an empty response with HTTP 204 status
 	 */
 	@Override
-	public ResponseEntity<EmployeeResponse> removeEmployeeFromWorksite( //
+	public ResponseEntity<Void> removeEmployeeFromWorksite( //
 			final String worksiteCode, //
 			final String employeeNumber) {
 		logger.debug("Remove worksite from employee ACTION performed");
