@@ -95,6 +95,17 @@ class TimeLogSearchControllerIT {
 	}
 
 	@ParameterizedTest
+	@CsvSource({ "ROLE_JANUS_EMPLOYEE," + OWN_SUBJECT, "ROLE_JANUS_USER,user" })
+	void employeeEmailFilterIsCanonicalizedForRestrictedAndPrivilegedUsers(final String role,
+			final String subject) throws Exception {
+		this.mvc.perform(get(BASE).param("employeeEmail", "  ALICE@EXAMPLE.TEST  ")
+				.with(verifiedJwt().jwt(token -> token.subject(subject)).authorities(createAuthorityList(role))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()").value(5))
+				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OWN_EMAIL))));
+	}
+
+	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void clientCannotExpandScopeByFilteringAnotherEmployee(final String endpoint) throws Exception {
 		assertEmpty(this.mvc.perform(get(endpoint).param("employeeEmail", OTHER_EMAIL)

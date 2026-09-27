@@ -39,7 +39,7 @@ public interface ScheduleResource {
 	@PreAuthorize("@scheduleAuthorization.canSearch(authentication, #employeeEmail)")
 	ResponseEntity<Page<ScheduleResponse>> searchSchedules(
 			@RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "query must contain only letters, digits, underscores or hyphens (max 50)") String query,
-			@RequestParam(required = false) @Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
+			@RequestParam(required = false) @Pattern(regexp = "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
 			Pageable pageable, Authentication authentication);
 
 	@PreAuthorize("@scheduleAuthorization.canView(authentication, #scheduleCode)")

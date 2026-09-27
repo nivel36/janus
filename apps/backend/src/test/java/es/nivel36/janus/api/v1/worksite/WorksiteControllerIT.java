@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -85,6 +87,22 @@ class WorksiteControllerIT {
 				.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());
+	}
+
+	@ParameterizedTest
+	@CsvSource({ "ROLE_JANUS_EMPLOYEE,aferrer@nivel36.es", "ROLE_JANUS_USER,user" })
+	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','ASSIGNED')",
+			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" })
+	void employeeEmailFilterIsCanonicalizedForRestrictedAndPrivilegedUsers(final String role,
+			final String subject) throws Exception {
+		this.mvc.perform(get(BASE).param("employeeEmail", "  AFERRER@NIVEL36.ES  ")
+				.with(verifiedJwt().jwt(jwt -> jwt.subject(subject)).authorities(createAuthorityList(role))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
+				.andExpect(jsonPath("$.content[0].code").value("BCN-HQ"));
 	}
 
 	@Test

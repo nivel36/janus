@@ -28,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -164,6 +166,19 @@ class ScheduleControllerIT {
 				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.page.totalElements").value(1)).andExpect(jsonPath("$.page.size").value(20))
 				.andExpect(jsonPath("$.page.number").value(0)).andExpect(jsonPath("$.content[0].code").value("STD-WH"));
+	}
+
+	@ParameterizedTest
+	@CsvSource({ "ROLE_JANUS_EMPLOYEE,aferrer@nivel36.es", "ROLE_JANUS_USER,user" })
+	@Sql(statements = {
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" })
+	void employeeEmailFilterIsCanonicalizedForRestrictedAndPrivilegedUsers(final String role,
+			final String subject) throws Exception {
+		this.mvc.perform(get(BASE).param("employeeEmail", "  AFERRER@NIVEL36.ES  ")
+				.with(verifiedJwt().jwt(jwt -> jwt.subject(subject)).authorities(createAuthorityList(role))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
+				.andExpect(jsonPath("$.content[0].code").value("STD-WH"));
 	}
 
 	@Test

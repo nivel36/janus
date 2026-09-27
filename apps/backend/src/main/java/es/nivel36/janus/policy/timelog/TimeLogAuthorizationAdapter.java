@@ -5,29 +5,28 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import es.nivel36.janus.policy.EmployeeEmailResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
-import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.TimeLogSearchScope;
-import es.nivel36.janus.util.EmailAddresses;
 
 @Component("timeLogAuthorization")
 public class TimeLogAuthorizationAdapter {
 	private final ActorResolver actors;
-	private final EmployeeService employees;
 	private final ApplicationSettingsService settings;
+	private final EmployeeEmailResolver employeeEmails;
 	private final OperateTimeLogPolicy operate = new OperateTimeLogPolicy();
 	private final ViewTimeLogPolicy view = new ViewTimeLogPolicy();
 	private final SearchTimeLogPolicy search = new SearchTimeLogPolicy();
 	private final DeleteTimeLogPolicy delete = new DeleteTimeLogPolicy();
 
-	public TimeLogAuthorizationAdapter(final ActorResolver a, final EmployeeService e,
-			final ApplicationSettingsService s) {
+	public TimeLogAuthorizationAdapter(final ActorResolver a, final ApplicationSettingsService s,
+			final EmployeeEmailResolver employeeEmails) {
 		this.actors = Objects.requireNonNull(a);
-		this.employees = Objects.requireNonNull(e);
 		this.settings = Objects.requireNonNull(s);
+		this.employeeEmails = Objects.requireNonNull(employeeEmails);
 	}
 
 	public boolean canOperate(final Authentication auth, final String email, final boolean manual) {
@@ -48,7 +47,11 @@ public class TimeLogAuthorizationAdapter {
 	 */
 	public String effectiveEmployeeEmail(final Authentication auth, final String requested) {
 		final Actor actor = this.actors.resolve(auth);
-		return this.restricted(actor) ? this.employees.findEmployeeById(actor.employeeId()).getEmail() : requested;
+		return this.employeeEmails.effectiveEmail(actor, requested, this.restricted(actor));
+	}
+
+	public String canonicalEmployeeEmail(final String requested) {
+		return this.employeeEmails.canonicalize(requested);
 	}
 
 	public boolean canDelete(final Authentication auth) {
@@ -65,12 +68,7 @@ public class TimeLogAuthorizationAdapter {
 	}
 
 	private boolean owns(final Actor a, final String email) {
-		if (a.employeeId() == null) {
-			return false;
-		}
-		return this.employees.findEmployeeByEmail(EmailAddresses.canonicalize(email))
-				.map(employee -> Objects.equals(a.employeeId(), employee.getId()))
-				.orElse(false);
+		return this.employeeEmails.owns(a, email);
 	}
 
 	private boolean ownsOrWillBeScoped(final Actor actor, final String email) {

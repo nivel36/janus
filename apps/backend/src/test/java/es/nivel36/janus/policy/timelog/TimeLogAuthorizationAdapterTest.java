@@ -24,6 +24,7 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
+import es.nivel36.janus.policy.EmployeeEmailResolver;
 import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 
 class TimeLogAuthorizationAdapterTest {
@@ -32,8 +33,8 @@ class TimeLogAuthorizationAdapterTest {
 	private final ActorResolver actors = mock(ActorResolver.class);
 	private final EmployeeService employees = mock(EmployeeService.class);
 	private final ApplicationSettingsService settings = mock(ApplicationSettingsService.class);
-	private final TimeLogAuthorizationAdapter adapter = new TimeLogAuthorizationAdapter(this.actors, this.employees,
-			this.settings);
+	private final TimeLogAuthorizationAdapter adapter = new TimeLogAuthorizationAdapter(this.actors, this.settings,
+			new EmployeeEmailResolver(this.employees));
 
 	@ParameterizedTest
 	@EnumSource(Role.class)
