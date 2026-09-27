@@ -106,8 +106,6 @@
   min-width: 0;
   padding: 0;
 
-  aspect-ratio: 1;
-
   font-size: var(--button-icon-size);
   letter-spacing: normal;
   text-transform: none;

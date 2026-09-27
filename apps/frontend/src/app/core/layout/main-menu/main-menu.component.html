@@ -1,51 +1,58 @@
 @if (user(); as user) {
   <nav class="main-menu" [attr.aria-label]="'navigation.mainMenu' | translate">
     <div class="main-menu__identity">
-      <a
+      <app-button
+        variant="text"
         class="main-menu__user-name"
         routerLink="/user-preferences"
-        [attr.aria-label]="user.fullName"
-        [attr.title]="user.fullName"
+        [ariaLabel]="user.fullName"
+        [title]="user.fullName"
       >
         <span aria-hidden="true">{{ user.fullName }}</span>
-      </a>
+      </app-button>
     </div>
 
     <div class="main-menu__actions">
-      <a
+      <app-button
+        variant="text"
+        icon
         class="main-menu__icon-button"
         routerLink="/worksites"
-        [attr.aria-label]="'navigation.worksites' | translate"
-        [attr.title]="'navigation.worksites' | translate"
+        [ariaLabel]="'navigation.worksites' | translate"
+        [title]="'navigation.worksites' | translate"
       >
         <span aria-hidden="true"><fa-icon [icon]="faBuilding"></fa-icon></span>
-      </a>
+      </app-button>
 
-      <a
+      <app-button
+        variant="text"
+        icon
         class="main-menu__icon-button"
         routerLink="/schedules"
-        [attr.aria-label]="'navigation.schedules' | translate"
-        [attr.title]="'navigation.schedules' | translate"
+        [ariaLabel]="'navigation.schedules' | translate"
+        [title]="'navigation.schedules' | translate"
       >
         <span aria-hidden="true"><fa-icon [icon]="faCalendarDays"></fa-icon></span>
-      </a>
+      </app-button>
 
       @if (user.isAdmin) {
-        <a
+        <app-button
+          variant="text"
+          icon
           class="main-menu__icon-button"
           routerLink="/application-settings"
-          [attr.aria-label]="'navigation.applicationSettings' | translate"
-          [attr.title]="'navigation.applicationSettings' | translate"
+          [ariaLabel]="'navigation.applicationSettings' | translate"
+          [title]="'navigation.applicationSettings' | translate"
         >
           <span aria-hidden="true"><fa-icon [icon]="faGear"></fa-icon></span>
-        </a>
+        </app-button>
       }
 
       <app-button
         type="button"
         variant="text"
         icon
-        class="main-menu__icon-button--logout"
+        class="main-menu__icon-button main-menu__icon-button--logout"
         [ariaLabel]="'actions.logout' | translate"
         [title]="'actions.logout' | translate"
         (clicked)="logout()"

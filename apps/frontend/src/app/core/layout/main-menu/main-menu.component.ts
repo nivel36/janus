@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+
 import { TranslatePipe } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendarDays, faBuilding } from '@fortawesome/free-regular-svg-icons';
@@ -11,7 +11,7 @@ import { ButtonComponent } from '../../../shared/ui/button/button.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-main-menu',
-  imports: [RouterLink, TranslatePipe, FontAwesomeModule, ButtonComponent],
+  imports: [TranslatePipe, FontAwesomeModule, ButtonComponent],
   templateUrl: './main-menu.component.html',
   styleUrl: './main-menu.component.css',
 })

@@ -7,7 +7,7 @@
     --button-gap: var(--size-200);
     --button-border: 0;
     --button-border-radius: var(--radius-100);
-    --button-icon-size: var(--font-size-350);
+    --button-icon-size: var(--font-size-400);
 
     /* Button component contract: compound controls may override these by inheritance. */
     --button-control-height: var(--button-height);
