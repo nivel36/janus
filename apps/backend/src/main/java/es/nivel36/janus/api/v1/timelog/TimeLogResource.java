@@ -32,7 +32,7 @@ import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
-@RequestMapping("/api/v1/employees/{employeeEmail}/timelogs")
+@RequestMapping({ "/api/v1/employees/{employeeEmail}/time-logs", "/api/v1/employees/{employeeEmail}/timelogs" })
 public interface TimeLogResource {
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeEmail, #entryTime != null)")

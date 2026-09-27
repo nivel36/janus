@@ -50,7 +50,7 @@ class AppUserControllerIT {
 	private @Autowired JdbcTemplate jdbcTemplate;
 	private @Autowired EntityManager entityManager;
 
-	private static final String BASE = "/api/v1/appusers";
+	private static final String BASE = "/api/v1/app-users";
 
 	@Test
 	@Sql(statements = {

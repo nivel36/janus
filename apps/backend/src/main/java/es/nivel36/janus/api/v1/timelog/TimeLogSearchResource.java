@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.constraints.Pattern;
 
-@RequestMapping("/api/v1/timelogs")
+@RequestMapping({ "/api/v1/time-logs", "/api/v1/timelogs" })
 public interface TimeLogSearchResource {
 
 	@PreAuthorize("@timeLogAuthorization.canSearch(authentication)")

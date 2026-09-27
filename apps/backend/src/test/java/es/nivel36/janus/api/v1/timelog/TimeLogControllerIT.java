@@ -56,8 +56,8 @@ class TimeLogControllerIT {
 
 	private @MockitoBean Clock clock;
 	private @Autowired MockMvc mvc;
-	private static final String BASE = "/api/v1/employees/{employeeEmail}/timelogs";
-	private static final String SEARCH_BASE = "/api/v1/timelogs";
+	private static final String BASE = "/api/v1/employees/{employeeEmail}/time-logs";
+	private static final String SEARCH_BASE = "/api/v1/time-logs";
 
 	@Test
 	@Sql(statements = { //
