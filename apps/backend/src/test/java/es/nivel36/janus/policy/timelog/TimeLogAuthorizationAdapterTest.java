@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -20,6 +19,7 @@ import org.springframework.security.core.Authentication;
 
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.Employee;
@@ -77,6 +77,8 @@ class TimeLogAuthorizationAdapterTest {
 				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
 		when(this.employees.findEmployeeById(84L)).thenReturn(employee);
 		when(employee.getEmail()).thenReturn("new-address@internal.test");
+		when(employee.getId()).thenReturn(84L);
+		when(this.employees.findEmployeeByEmployeeNumberOrEmail("old-address@internal.test")).thenReturn(employee);
 
 		assertThat(this.adapter.canView(this.authentication, "old-address@internal.test")).isTrue();
 		assertThat(this.adapter.effectiveEmployeeEmail(this.authentication, "old-address@internal.test"))
@@ -98,7 +100,8 @@ class TimeLogAuthorizationAdapterTest {
 		when(this.actors.resolve(this.authentication))
 				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
 						Set.of(Role.JANUS_USER), 84L));
-		when(this.employees.findEmployeeByEmail("missing@example.test")).thenReturn(Optional.empty());
+		when(this.employees.findEmployeeByEmployeeNumberOrEmail("missing@example.test"))
+				.thenThrow(new ResourceNotFoundException("There is no employee with selector missing@example.test"));
 
 		assertThat(this.adapter.canOperate(this.authentication, "missing@example.test", false)).isFalse();
 	}

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.policy.EmployeeEmailResolver;
 import es.nivel36.janus.security.Actor;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
@@ -71,8 +72,15 @@ public class TimeLogAuthorizationAdapter {
 	}
 
 	private boolean ownsEmployeeNumber(final Actor actor, final String employeeNumber) {
-		return actor.employeeId() != null
-				&& actor.employeeId().equals(this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber).getId());
+		if (actor.employeeId() == null) {
+			return false;
+		}
+		try {
+			return actor.employeeId()
+					.equals(this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber).getId());
+		} catch (final ResourceNotFoundException exception) {
+			return false;
+		}
 	}
 
 	private boolean restricted(final Actor a) {

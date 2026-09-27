@@ -6,11 +6,13 @@
 package es.nivel36.janus.policy.timelog;
 
 import java.util.Objects;
+import java.util.OptionalLong;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.security.Actor;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.employee.EmployeeService;
 
@@ -32,20 +34,27 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 
 	public boolean canView(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.viewPolicy.allows(actor, this.employeeId(employeeNumber));
+		final OptionalLong employeeId = this.employeeId(employeeNumber);
+		return employeeId.isPresent() && this.viewPolicy.allows(actor, employeeId.getAsLong());
 	}
 
 	public boolean canResolve(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.resolvePolicy.allows(actor, this.employeeId(employeeNumber));
+		final OptionalLong employeeId = this.employeeId(employeeNumber);
+		return employeeId.isPresent() && this.resolvePolicy.allows(actor, employeeId.getAsLong());
 	}
 
 	public boolean canInvalidate(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		return this.invalidatePolicy.allows(actor, this.employeeId(employeeNumber));
+		final OptionalLong employeeId = this.employeeId(employeeNumber);
+		return employeeId.isPresent() && this.invalidatePolicy.allows(actor, employeeId.getAsLong());
 	}
 
-	private long employeeId(final String employeeNumber) {
-		return this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber).getId();
+	private OptionalLong employeeId(final String employeeNumber) {
+		try {
+			return OptionalLong.of(this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber).getId());
+		} catch (final ResourceNotFoundException exception) {
+			return OptionalLong.empty();
+		}
 	}
 }
