@@ -154,9 +154,6 @@ export class CurrentUserFacade {
     );
   }
 
-  reloadPreferences(): boolean {
-    return this.preferencesResource.reload();
-  }
 
   private hasClientRole(role: string): boolean {
     return this.permissions().clientRoles[JANUS_API_CLIENT_ID]?.includes(role) ?? false;

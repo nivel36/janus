@@ -114,16 +114,6 @@ export class ApplicationSettingsPageComponent {
     }
   });
 
-  /**
-   * Loads the settings of the current application and populates the form.
-   *
-   * If no preferences are available or loading fails, an error
-   * translation key is exposed to the template.
-   */
-  loadSettings(): void {
-    this.saveErrorMessage.set('');
-    this.settingsResource.reload();
-  }
 
   /**
    * Applies loaded or updated ApplicationSettings to the form and resets

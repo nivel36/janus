@@ -74,27 +74,6 @@ describe('ApplicationSettingsPageComponent', () => {
     expect(component.form.getRawValue()).toEqual(settings);
   });
 
-  it('reloads the resource when loadSettings is called', async () => {
-    settingsLoad.next(settings);
-    settingsLoad.complete();
-    await fixture.whenStable();
-
-    const reloadedSettings = { ...settings, daysUntilLocked: 20 };
-    const reload = new Subject<typeof settings>();
-    find.mockReturnValue(reload);
-
-    component.loadSettings();
-    fixture.detectChanges();
-
-    expect(find).toHaveBeenCalledTimes(2);
-    expect(component.loading()).toBe(true);
-
-    reload.next(reloadedSettings);
-    reload.complete();
-    await fixture.whenStable();
-
-    expect(component.form.getRawValue()).toEqual(reloadedSettings);
-  });
 
   it('exposes a resource load error', async () => {
     settingsLoad.error(new Error('request failed'));

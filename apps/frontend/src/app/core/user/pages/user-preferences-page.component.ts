@@ -136,17 +136,6 @@ export class UserPreferencesPageComponent {
     }
   });
 
-  /**
-   * Loads the preferences of the current authenticated user and
-   * populates the form.
-   *
-   * If no preferences are available or loading fails, an error
-   * translation key is exposed to the template.
-   */
-  loadPreferences(): void {
-    this.saveErrorMessage.set('');
-    this.currentUserFacade.reloadPreferences();
-  }
 
   /**
    * Persists the current form values as preferences for the
