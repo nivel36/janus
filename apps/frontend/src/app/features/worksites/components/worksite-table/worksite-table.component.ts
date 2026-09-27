@@ -29,7 +29,6 @@ import {
 
 @Component({
   selector: 'app-worksite-table',
-  standalone: true,
   imports: [
     ButtonComponent,
     AsyncStateComponent,

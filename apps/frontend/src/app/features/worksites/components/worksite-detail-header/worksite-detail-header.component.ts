@@ -11,7 +11,6 @@ import { Worksite } from '../../models/worksite';
 
 @Component({
   selector: 'app-worksite-detail-header',
-  standalone: true,
   imports: [ChipComponent, FontAwesomeModule, TranslatePipe],
   templateUrl: './worksite-detail-header.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

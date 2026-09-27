@@ -35,7 +35,6 @@ import { MessageComponent } from '../../../../shared/ui/message/message.componen
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-worksite-edit-page',
-  standalone: true,
   imports: [
     MessageComponent,
     ReactiveFormsModule,

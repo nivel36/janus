@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { ActiveDescendantKeyManager, LiveAnnouncer } from '@angular/cdk/a11y';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import {
@@ -10,13 +10,13 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  ViewChild,
   computed,
   inject,
   input,
   isDevMode,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -42,9 +42,7 @@ import {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-autocomplete-textbox',
-  standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     OverlayModule,
     TranslatePipe,
@@ -65,7 +63,7 @@ import {
 export class AutocompleteTextboxComponent<T = unknown>
   implements AfterViewInit, AutocompleteOptionController
 {
-  @ViewChild('inputWrapper', { static: true }) private inputWrapper!: ElementRef<HTMLElement>;
+  private readonly inputWrapper = viewChild.required<ElementRef<HTMLElement>>('inputWrapper');
 
   readonly items = input<readonly T[]>([]);
   readonly loading = input(false);
@@ -177,12 +175,12 @@ export class AutocompleteTextboxComponent<T = unknown>
         this.overlayWidthState.set(width);
       }
     });
-    observer.observe(this.inputWrapper.nativeElement);
+    observer.observe(this.inputWrapper().nativeElement);
     this.destroyRef.onDestroy(() => observer.disconnect());
   }
 
   private updateOverlayWidth(): void {
-    this.overlayWidthState.set(this.inputWrapper?.nativeElement.getBoundingClientRect().width ?? 0);
+    this.overlayWidthState.set(this.inputWrapper().nativeElement.getBoundingClientRect().width);
   }
   registerOption(option: AutocompleteOptionDirective): void {
     this.resultOptions.push(option);

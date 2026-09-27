@@ -9,7 +9,6 @@ import { ID_GENERATOR } from '../../../../shared/services/id-generator.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-employee-card',
-  standalone: true,
   imports: [AvatarComponent, TranslatePipe],
   templateUrl: './employee-card.component.html',
   styleUrl: './employee-card.component.css',

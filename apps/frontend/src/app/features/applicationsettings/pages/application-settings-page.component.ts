@@ -30,7 +30,6 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-application-settings-page',
-  standalone: true,
   imports: [
     MessageComponent,
     ReactiveFormsModule,

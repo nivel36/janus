@@ -20,7 +20,6 @@ import {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-worksites-page',
-  standalone: true,
   imports: [
     ButtonComponent,
     PageTemplateComponent,

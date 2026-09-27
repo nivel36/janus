@@ -50,7 +50,6 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-user-preferences-page',
-  standalone: true,
   imports: [
     MessageComponent,
     ReactiveFormsModule,

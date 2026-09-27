@@ -26,7 +26,6 @@ import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retr
 
 @Component({
   selector: 'app-worksite-detail-page',
-  standalone: true,
   imports: [
     AsyncStateComponent,
     AsyncLoadingDirective,

@@ -25,7 +25,6 @@ import { TabTriggerDirective } from './tab-trigger.directive';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-tabs',
-  standalone: true,
   imports: [NgTemplateOutlet, TabTriggerDirective, TranslatePipe],
   templateUrl: './tabs.component.html',
   styleUrl: './tabs.component.css',

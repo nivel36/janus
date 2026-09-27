@@ -8,7 +8,6 @@ import { Directive, TemplateRef, inject, input } from '@angular/core';
  */
 @Directive({
   selector: 'ng-template[appTabItem]',
-  standalone: true,
 })
 export class TabItemDirective {
   /**
