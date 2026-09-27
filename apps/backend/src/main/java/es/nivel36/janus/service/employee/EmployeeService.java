@@ -32,6 +32,7 @@ import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.util.EmailAddresses;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -129,7 +130,7 @@ public class EmployeeService {
 		if (byNumber != null) {
 			return byNumber;
 		}
-		return this.employeeRepository.findByEmail(selector)
+		return this.employeeRepository.findByEmail(EmailAddresses.canonicalize(selector))
 				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with number or email " + selector));
 	}
 
