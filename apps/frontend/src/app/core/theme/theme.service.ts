@@ -22,10 +22,7 @@ export class ThemeService {
 
   setTheme(theme: Theme): void {
     this.applyTheme(theme);
-
-    if (isPlatformBrowser(this.platformId)) {
-      this.document.defaultView?.localStorage.setItem(THEME_STORAGE_KEY, theme);
-    }
+    this.persistTheme(theme);
   }
 
   private applyTheme(theme: Theme): void {
@@ -34,12 +31,37 @@ export class ThemeService {
   }
 
   private readPersistedTheme(): Theme | null {
+    const storage = this.browserStorage();
+    if (!storage) {
+      return null;
+    }
+
+    try {
+      const storedTheme = storage.getItem(THEME_STORAGE_KEY);
+      return storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private persistTheme(theme: Theme): void {
+    try {
+      this.browserStorage()?.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // Applying the theme must not depend on Web Storage being writable.
+    }
+  }
+
+  private browserStorage(): Storage | null {
     if (!isPlatformBrowser(this.platformId)) {
       return null;
     }
 
-    const storedTheme = this.document.defaultView?.localStorage.getItem(THEME_STORAGE_KEY);
-    return storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : null;
+    try {
+      return this.document.defaultView?.localStorage ?? null;
+    } catch {
+      return null;
+    }
   }
 
   private preferredSystemTheme(): Theme {
