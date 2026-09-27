@@ -25,7 +25,6 @@ import { timer } from 'rxjs';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-clock',
-  standalone: true,
   templateUrl: './clock.component.html',
 })
 export class ClockComponent implements OnInit {

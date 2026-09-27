@@ -10,7 +10,6 @@ import { Worksite } from '../../models/worksite';
 
 @Component({
   selector: 'app-worksite-detail-panel',
-  standalone: true,
   imports: [CardComponent, ChipComponent, TranslatePipe],
   templateUrl: './worksite-detail-panel.component.html',
   styleUrl: './worksite-detail-panel.component.css',

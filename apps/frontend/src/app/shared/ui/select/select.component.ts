@@ -37,7 +37,6 @@ export interface SelectOption<TValue extends string = string> {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-select',
-  standalone: true,
   imports: [TranslatePipe],
   templateUrl: './select.component.html',
   styleUrl: './select.component.css',

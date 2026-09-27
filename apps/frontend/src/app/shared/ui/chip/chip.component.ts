@@ -18,7 +18,6 @@ type ChipSize = 'normal' | 'big';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-chip',
-  standalone: true,
   imports: [FontAwesomeModule],
   templateUrl: './chip.component.html',
   styleUrl: './chip.component.css',

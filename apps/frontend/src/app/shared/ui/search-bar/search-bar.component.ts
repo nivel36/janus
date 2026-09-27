@@ -29,7 +29,6 @@ import { InputGroupComponent } from '../input-group/input-group.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-search-bar',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     TranslatePipe,

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -11,10 +10,9 @@ import { AuthService } from '../../auth/auth.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-main-menu',
-  standalone: true,
-  imports: [CommonModule, RouterLink, TranslatePipe, FontAwesomeModule],
+  imports: [RouterLink, TranslatePipe, FontAwesomeModule],
   templateUrl: './main-menu.component.html',
-  styleUrls: ['./main-menu.component.css'],
+  styleUrl: './main-menu.component.css',
 })
 export class MainMenuComponent {
   private readonly currentUser = inject(CurrentUserFacade);

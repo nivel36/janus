@@ -12,7 +12,6 @@ import { ChangeDetectionStrategy, booleanAttribute, Component, input } from '@an
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-input-group',
-  standalone: true,
   templateUrl: './input-group.component.html',
   styleUrl: './input-group.component.css',
 })

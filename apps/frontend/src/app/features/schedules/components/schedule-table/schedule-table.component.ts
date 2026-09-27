@@ -27,7 +27,6 @@ import {
 
 @Component({
   selector: 'app-schedule-table',
-  standalone: true,
   imports: [
     ButtonComponent,
     AsyncStateComponent,

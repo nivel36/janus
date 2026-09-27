@@ -16,7 +16,6 @@ import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
  */
 @Component({
   selector: 'app-paginator',
-  standalone: true,
   imports: [FontAwesomeModule],
   templateUrl: './paginator.component.html',
   styleUrl: './paginator.component.css',

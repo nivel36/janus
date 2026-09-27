@@ -13,7 +13,6 @@ const DEFAULT_AVATAR_SRC = 'assets/images/user.png';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-avatar',
-  standalone: true,
   imports: [],
   templateUrl: './avatar.component.html',
   styleUrl: './avatar.component.css',

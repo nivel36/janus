@@ -24,6 +24,23 @@ module.exports = defineConfig([
         {
           paths: [
             {
+              name: "@angular/common",
+              importNames: ["CommonModule"],
+              message: "Import only the Angular directives and pipes used by the standalone declaration.",
+            },
+            {
+              name: "@angular/core",
+              importNames: [
+                "HostBinding",
+                "HostListener",
+                "ViewChild",
+                "ViewChildren",
+                "ContentChild",
+                "ContentChildren",
+              ],
+              message: "Use host metadata and Angular signal queries instead of legacy decorators.",
+            },
+            {
               name: "@angular/forms",
               importNames: ["FormsModule"],
               message: "Use ReactiveFormsModule instead of the template-driven FormsModule.",

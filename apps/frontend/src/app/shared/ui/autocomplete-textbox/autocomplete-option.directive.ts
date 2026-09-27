@@ -2,14 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Highlightable, ListKeyManagerOption } from '@angular/cdk/a11y';
-import {
-  Directive,
-  ElementRef,
-  HostBinding,
-  InjectionToken,
-  OnDestroy,
-  inject,
-} from '@angular/core';
+import { Directive, ElementRef, InjectionToken, OnDestroy, inject } from '@angular/core';
 
 /** Registration contract that keeps the option directive independent of its host component. */
 export interface AutocompleteOptionController {
@@ -24,7 +17,10 @@ export const AUTOCOMPLETE_OPTION_CONTROLLER = new InjectionToken<AutocompleteOpt
 /** Lightweight option adapter used by the CDK active-descendant key manager. */
 @Directive({
   selector: '[appAutocompleteOption]',
-  standalone: true,
+  host: {
+    '[class.autocomplete__option--active]': 'active',
+    '[attr.aria-selected]': 'ariaSelected',
+  },
 })
 export class AutocompleteOptionDirective implements ListKeyManagerOption, Highlightable, OnDestroy {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -42,10 +38,8 @@ export class AutocompleteOptionDirective implements ListKeyManagerOption, Highli
   }
 
   /** Whether this option is currently managed as the active descendant. */
-  @HostBinding('class.autocomplete__option--active')
   active = false;
 
-  @HostBinding('attr.aria-selected')
   get ariaSelected(): string {
     return String(this.active);
   }

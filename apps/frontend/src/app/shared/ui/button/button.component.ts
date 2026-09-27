@@ -18,7 +18,6 @@ type ButtonType = 'button' | 'submit' | 'reset';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-button',
-  standalone: true,
   imports: [NgTemplateOutlet, RouterLink],
   templateUrl: './button.component.html',
   styleUrl: './button.component.css',

@@ -11,7 +11,6 @@ import {
 
 @Component({
   selector: 'app-field',
-  standalone: true,
   templateUrl: './field.component.html',
   styleUrl: './field.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

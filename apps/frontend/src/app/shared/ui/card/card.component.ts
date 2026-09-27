@@ -27,7 +27,6 @@ import { ID_GENERATOR } from '../../services/id-generator.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-card',
-  standalone: true,
   imports: [NgTemplateOutlet],
   templateUrl: './card.component.html',
 })
