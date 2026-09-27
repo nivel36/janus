@@ -24,6 +24,14 @@ module.exports = defineConfig([
         {
           paths: [
             {
+              name: "zone.js",
+              message: "Janus uses Angular's zoneless change detection in production and tests.",
+            },
+            {
+              name: "zone.js/testing",
+              message: "Use Angular's native zoneless test support instead of zone.js/testing.",
+            },
+            {
               name: "@angular/common",
               importNames: ["CommonModule"],
               message: "Import only the Angular directives and pipes used by the standalone declaration.",
@@ -33,12 +41,14 @@ module.exports = defineConfig([
               importNames: [
                 "HostBinding",
                 "HostListener",
+                "NgZone",
+                "provideZoneChangeDetection",
                 "ViewChild",
                 "ViewChildren",
                 "ContentChild",
                 "ContentChildren",
               ],
-              message: "Use host metadata and Angular signal queries instead of legacy decorators.",
+              message: "Use zoneless Angular APIs, host metadata, and signal queries.",
             },
             {
               name: "@angular/forms",
@@ -64,6 +74,13 @@ module.exports = defineConfig([
           style: "kebab-case",
         },
       ],
+      "@angular-eslint/no-implicit-take-until-destroyed": "error",
+      "@angular-eslint/prefer-inject": "error",
+      "@angular-eslint/prefer-output-emitter-ref": "error",
+      "@angular-eslint/prefer-output-readonly": "error",
+      "@angular-eslint/prefer-signals": "error",
+      "@angular-eslint/prefer-standalone": "error",
+      "@angular-eslint/use-lifecycle-interface": "error",
     },
   },
   {
