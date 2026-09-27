@@ -114,11 +114,16 @@
       "locale": "Language",
       "timeFormat": "Time format",
       "defaultTimezone": "Default timezone",
-      "defaultTimezoneHint": "Find your timezone. For example, Europe/Madrid."
+      "defaultTimezoneHint": "Find your timezone. For example, Europe/Madrid.",
+      "theme": "Theme"
     },
     "timeFormat": {
       "H24": "24-hour",
       "H12": "12-hour"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark"
     },
     "errors": {
       "load": "Unable to load user preferences.",
