@@ -29,17 +29,17 @@
 
   <footer class="app-card__footer clock-in-card__footer">
     @if (hasClockInOutPermission()) {
-      <button
+      <app-button
         type="button"
-        class="clock-in-card__secondary-action"
+        variant="text"
         [disabled]="isClockActionLoading()"
-        (click)="onOppositeClockAction()"
+        (clicked)="onOppositeClockAction()"
       >
         {{ oppositeClockActionLabelKey() | translate }}
-        <span class="clock-in-card__icon">
+        <span class="clock-in-card__icon" aria-hidden="true">
           <fa-icon [icon]="faAngleRight"></fa-icon>
         </span>
-      </button>
+      </app-button>
     }
   </footer>
 </section>

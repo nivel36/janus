@@ -6,11 +6,12 @@ import { faCalendarDays, faBuilding } from '@fortawesome/free-regular-svg-icons'
 import { faPowerOff, faGear, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { CurrentUserFacade } from '../../user/services/current-user.facade';
 import { AuthService } from '../../auth/auth.service';
+import { ButtonComponent } from '../../../shared/ui/button/button.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-main-menu',
-  imports: [RouterLink, TranslatePipe, FontAwesomeModule],
+  imports: [RouterLink, TranslatePipe, FontAwesomeModule, ButtonComponent],
   templateUrl: './main-menu.component.html',
   styleUrl: './main-menu.component.css',
 })

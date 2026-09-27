@@ -41,15 +41,17 @@
         </a>
       }
 
-      <button
+      <app-button
         type="button"
+        variant="text"
+        icon
         class="main-menu__icon-button main-menu__icon-button--logout"
-        [attr.aria-label]="'actions.logout' | translate"
-        [attr.title]="'actions.logout' | translate"
-        (click)="logout()"
+        [ariaLabel]="'actions.logout' | translate"
+        [title]="'actions.logout' | translate"
+        (clicked)="logout()"
       >
         <span aria-hidden="true"><fa-icon [icon]="faPowerOff"></fa-icon></span>
-      </button>
+      </app-button>
     </div>
   </nav>
 }

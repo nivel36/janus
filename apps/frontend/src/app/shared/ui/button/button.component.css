@@ -53,6 +53,45 @@
   cursor: not-allowed;
 }
 
+.app-button--text {
+  height: auto;
+  min-width: 0;
+  padding: 0;
+
+  color: var(--button-text-color, var(--content-secondary));
+  background: transparent;
+  box-shadow: none;
+
+  font-size: var(--type-body-sm-font-size);
+  font-weight: var(--type-body-sm-font-weight);
+  line-height: var(--type-body-sm-line-height);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.app-button--text:hover,
+.app-button--text:focus-visible {
+  color: var(--button-text-hover-color, var(--content-primary));
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-button--text:focus-visible {
+  outline: var(--focus-ring);
+}
+
+.app-button--text:active {
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-button--text:disabled {
+  color: var(--content-secondary);
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
 .app-button__label {
   display: inline-flex;
   align-items: center;

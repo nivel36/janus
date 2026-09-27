@@ -7,7 +7,7 @@ import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ButtonComponent } from './button.component';
+import { ButtonComponent, ButtonType, ButtonVariant } from './button.component';
 
 @Component({
   standalone: true,
@@ -19,6 +19,7 @@ import { ButtonComponent } from './button.component';
       [disabled]="disabled"
       [styleClass]="styleClass"
       [ariaLabel]="ariaLabel"
+      [title]="title"
       (clicked)="onClicked($event)"
     >
       Save
@@ -26,11 +27,12 @@ import { ButtonComponent } from './button.component';
   `,
 })
 class TestHostComponent {
-  variant: 'default' | 'main' | 'secondary' = 'default';
-  type: 'button' | 'submit' | 'reset' = 'button';
+  variant: ButtonVariant = 'default';
+  type: ButtonType = 'button';
   disabled = false;
   styleClass = '';
   ariaLabel: string | undefined = undefined;
+  title: string | undefined = undefined;
 
   onClicked(_event: MouseEvent): void {
     void _event;
@@ -95,6 +97,22 @@ describe('ButtonComponent', () => {
     expect(buttonEl.classList).toContain('app-button--default');
   });
 
+  it.each([
+    ['default', 'button'],
+    ['main', 'submit'],
+    ['secondary', 'reset'],
+    ['text', 'button'],
+  ] as const)('exposes the %s variant and %s native type consistently', async (variant, type) => {
+    host.variant = variant;
+    host.type = type;
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
+
+    const buttonEl = getButton();
+    expect(buttonEl.type).toBe(type);
+    expect(buttonEl.classList).toContain(`app-button--${variant}`);
+  });
+
   it('should disable the button when disabled is true', async () => {
     host.disabled = true;
     fixture.changeDetectorRef.markForCheck();
@@ -135,6 +153,14 @@ describe('ButtonComponent', () => {
 
     const buttonEl = getButton();
     expect(buttonEl.hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('should expose native tooltip text when provided', async () => {
+    host.title = 'Save changes';
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
+
+    expect(getButton().title).toBe('Save changes');
   });
 
   it('should emit clicked when the button is pressed', () => {
