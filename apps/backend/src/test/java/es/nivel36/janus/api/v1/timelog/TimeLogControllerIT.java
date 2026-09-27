@@ -287,7 +287,7 @@ class TimeLogControllerIT {
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
-	void testCreateTimeLogShouldReturn200AndBody() throws Exception {
+	void testCreateTimeLogShouldReturn201AndBody() throws Exception {
 		final String entry = "2025-08-05T07:30:00Z";
 		final String exit = "2025-08-05T16:00:00Z";
 		final String body = """
@@ -301,7 +301,7 @@ class TimeLogControllerIT {
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isOk()) //
+				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
 				.andExpect(jsonPath("$.exitTime").value(exit)) //
@@ -330,7 +330,7 @@ class TimeLogControllerIT {
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isOk());
+				.andExpect(status().isCreated());
 
 		this.mvc.perform(post(BASE + "/", "EMP-0001") //
 				.param("worksiteCode", "BCN-HQ") //

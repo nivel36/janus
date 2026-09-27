@@ -211,7 +211,7 @@ public class TimeLogController implements TimeLogResource {
 		final Instant exitTime = timeLog.exitTime();
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
 		final TimeLogResponse createdTimeLogResponse = this.timeLogResponseMapper.map(createdTimeLog);
-		return ResponseEntity.ok(createdTimeLogResponse);
+		return ResponseEntity.status(HttpStatus.CREATED).body(createdTimeLogResponse);
 	}
 
 	/**
