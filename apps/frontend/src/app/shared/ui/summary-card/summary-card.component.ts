@@ -8,7 +8,6 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-summary-card',
-  standalone: true,
   imports: [FontAwesomeModule],
   templateUrl: './summary-card.component.html',
   styleUrl: './summary-card.component.css',

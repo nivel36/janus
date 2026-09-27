@@ -15,7 +15,6 @@ import { SummaryCardComponent } from '../../../../shared/ui/summary-card/summary
 
 @Component({
   selector: 'app-worksite-summary-panel',
-  standalone: true,
   imports: [CardComponent, SummaryCardComponent, TranslatePipe],
   templateUrl: './worksite-summary-panel.component.html',
   styleUrl: './worksite-summary-panel.component.css',

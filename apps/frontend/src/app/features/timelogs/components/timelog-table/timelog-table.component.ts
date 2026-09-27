@@ -35,7 +35,6 @@ import {
 
 @Component({
   selector: 'app-timelog-table',
-  standalone: true,
   imports: [
     ButtonComponent,
     AsyncStateComponent,

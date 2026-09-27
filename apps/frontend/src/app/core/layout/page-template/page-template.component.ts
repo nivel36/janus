@@ -7,7 +7,6 @@ import { MainMenuComponent } from '../../../core/layout/main-menu/main-menu.comp
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-page-template',
-  standalone: true,
   imports: [TranslatePipe, RouterLink, MainMenuComponent],
   templateUrl: './page-template.component.html',
   styleUrl: './page-template.component.css',

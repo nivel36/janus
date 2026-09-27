@@ -26,7 +26,6 @@ const noopTouched = (): void => {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-toggle-button',
-  standalone: true,
   templateUrl: './toggle-button.component.html',
   styleUrl: './toggle-button.component.css',
   providers: [

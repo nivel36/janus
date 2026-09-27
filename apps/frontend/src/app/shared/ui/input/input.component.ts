@@ -21,7 +21,6 @@ import { ID_GENERATOR } from '../../services/id-generator.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-input',
-  standalone: true,
   templateUrl: './input.component.html',
   styleUrl: './input.component.css',
   providers: [

@@ -12,7 +12,6 @@ import { EmployeeCardComponent } from '../../employees/components/employee-card/
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-dashboard-page',
-  standalone: true,
   imports: [
     PageTemplateComponent,
     EmployeeCardComponent,

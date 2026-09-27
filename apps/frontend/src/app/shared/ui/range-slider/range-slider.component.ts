@@ -27,7 +27,6 @@ import { ID_GENERATOR } from '../../services/id-generator.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-range-slider',
-  standalone: true,
   templateUrl: './range-slider.component.html',
   styleUrl: './range-slider.component.css',
   providers: [

@@ -38,7 +38,6 @@ interface ResolvedClockAction {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-timelog-clock-card',
-  standalone: true,
   imports: [TranslatePipe, ClockComponent, ButtonComponent, FontAwesomeModule],
   templateUrl: './timelog-clock-card.component.html',
   styleUrl: './timelog-clock-card.component.css',
