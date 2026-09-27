@@ -86,7 +86,7 @@ export class TimeLogsService extends BaseService {
             }
         }
 
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeEmail", value: employeeEmail, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/timelogs/clock-in`;
+        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeEmail", value: employeeEmail, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/clock-in`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
             {
@@ -151,7 +151,7 @@ export class TimeLogsService extends BaseService {
             }
         }
 
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeEmail", value: employeeEmail, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/timelogs/clock-out`;
+        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeEmail", value: employeeEmail, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/clock-out`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
             {
@@ -225,7 +225,7 @@ export class TimeLogsService extends BaseService {
             }
         }
 
-        let localVarPath = `/timelogs/`;
+        let localVarPath = `/time-logs/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogPage>('get', `${basePath}${localVarPath}`,
             {

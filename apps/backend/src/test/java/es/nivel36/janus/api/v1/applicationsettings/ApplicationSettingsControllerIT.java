@@ -44,7 +44,7 @@ import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 @TestExecutionListeners(listeners = EmployeeIdentityTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 class ApplicationSettingsControllerIT {
 
-	private static final String BASE = "/api/v1/applicationsettings";
+	private static final String BASE = "/api/v1/application-settings";
 
 	private @Autowired MockMvc mvc;
 

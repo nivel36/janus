@@ -77,7 +77,7 @@ export class AppUsersService extends BaseService {
             }
         }
 
-        let localVarPath = `/appusers/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/app-users/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -126,7 +126,7 @@ export class AppUsersService extends BaseService {
             }
         }
 
-        let localVarPath = `/appusers/me`;
+        let localVarPath = `/app-users/me`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<AppUserResponse>('get', `${basePath}${localVarPath}`,
             {
@@ -192,7 +192,7 @@ export class AppUsersService extends BaseService {
             }
         }
 
-        let localVarPath = `/appusers/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/app-users/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<AppUserResponse>('put', `${basePath}${localVarPath}`,
             {

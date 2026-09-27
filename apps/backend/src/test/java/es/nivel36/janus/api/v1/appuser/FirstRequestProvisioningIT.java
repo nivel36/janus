@@ -73,12 +73,12 @@ class FirstRequestProvisioningIT {
 
 	@Test
 	void provisionsAndRetrievesUserWithLongOpaqueSubject() throws Exception {
-		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
+		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
 						.claim("email", "opaque-subject@example.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
 
-		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
+		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
 						.claim("email", "ignored@example.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
@@ -149,7 +149,7 @@ class FirstRequestProvisioningIT {
 			final CountDownLatch ready, final CountDownLatch start) throws Exception {
 		ready.countDown();
 		start.await();
-		return this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt().jwt(token -> {
+		return this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt().jwt(token -> {
 			token.issuer(this.issuer).subject(subject).claim("email", email == null ? username + "@example.test" : email)
 					.claim("email_verified", true);
 		}).authorities(createAuthorityList("ROLE_JANUS_USER")))).andReturn();
@@ -164,7 +164,7 @@ class FirstRequestProvisioningIT {
 	void verifiedEmailLinksTheOnlyUnlinkedEmployeeAfterNormalization() throws Exception {
 		final Long employeeId = this.insertEmployee();
 
-		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
+		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", "linked-user")
 						.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
@@ -178,7 +178,7 @@ class FirstRequestProvisioningIT {
 		this.provision(SUBJECT, "first-identity");
 
 		this.mvc.perform(
-				get("/api/v1/appusers/me")
+				get("/api/v1/app-users/me")
 						.with(verifiedJwt()
 								.jwt(token -> token.issuer(this.issuer).subject(OTHER_SUBJECT)
 										.claim("preferred_username", "second-identity").claim("email", LINK_EMAIL)
@@ -193,7 +193,7 @@ class FirstRequestProvisioningIT {
 	}
 
 	private void provision(final String subject, final String username) throws Exception {
-		this.mvc.perform(get("/api/v1/appusers/me").with(verifiedJwt()
+		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(subject).claim("preferred_username", username)
 						.claim("email", LINK_EMAIL).claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
@@ -206,10 +206,10 @@ class FirstRequestProvisioningIT {
 				.claim("preferred_username", "first-employee").claim("email", LINK_EMAIL)
 				.claim("email_verified", true)).authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
 
-		this.mvc.perform(get("/api/v1/timelogs").with(authentication)).andExpect(status().isForbidden());
+		this.mvc.perform(get("/api/v1/time-logs").with(authentication)).andExpect(status().isForbidden());
 		assertThat(this.countProfiles()).isZero();
-		this.mvc.perform(get("/api/v1/appusers/me").with(authentication)).andExpect(status().isOk());
-		this.mvc.perform(get("/api/v1/timelogs").with(authentication))
+		this.mvc.perform(get("/api/v1/app-users/me").with(authentication)).andExpect(status().isOk());
+		this.mvc.perform(get("/api/v1/time-logs").with(authentication))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(0));
 	}
 
@@ -227,7 +227,7 @@ class FirstRequestProvisioningIT {
 	void firstAuthenticatedRequestProvisionsLocalProfile() throws Exception {
 		assertThat(this.countProfiles()).isZero();
 
-		this.mvc.perform(get("/api/v1/appusers/me").with(
+		this.mvc.perform(get("/api/v1/app-users/me").with(
 				verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("email", USERNAME))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value(USERNAME))

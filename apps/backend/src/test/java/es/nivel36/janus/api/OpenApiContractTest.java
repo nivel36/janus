@@ -30,6 +30,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.yaml.snakeyaml.Yaml;
 
 import es.nivel36.janus.api.v1.appuser.AppUserResource;
+import es.nivel36.janus.api.v1.applicationsettings.ApplicationSettingsResource;
+import es.nivel36.janus.api.v1.timelog.TimeLogResource;
+import es.nivel36.janus.api.v1.timelog.TimeLogSearchResource;
 
 class OpenApiContractTest {
 
@@ -55,16 +58,35 @@ class OpenApiContractTest {
 	}
 
 	@Test
-	void appUsersHasOneCanonicalPublicPath() {
-		final var mapping = AppUserResource.class.getAnnotation(RequestMapping.class);
+	void compoundResourcesExposeCanonicalPathsBeforeTheirDeprecatedAliases() {
+		assertMappings(AppUserResource.class, "/app-users", "/appusers");
+		assertMappings(ApplicationSettingsResource.class, "/application-settings", "/applicationsettings");
+		assertMappings(TimeLogSearchResource.class, "/time-logs", "/timelogs");
+		assertMappings(TimeLogResource.class, "/employees/{employeeEmail}/time-logs",
+				"/employees/{employeeEmail}/timelogs");
+	}
 
-		assertThat(mapping.value()).containsExactly(API_PREFIX + "/appusers");
+	@Test
+	void openApiContractPublishesOnlyCanonicalCompoundResourcePaths() throws IOException {
+		final Map<String, Object> contract;
+		try (var contractStream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
+				var reader = new InputStreamReader(contractStream)) {
+			contract = new Yaml().load(reader);
+		}
+
+		@SuppressWarnings("unchecked")
+		final var paths = ((Map<String, Object>) contract.get("paths")).keySet();
+		assertThat(paths).contains("/app-users/me", "/app-users/{id}", "/application-settings", "/time-logs/",
+				"/employees/{employeeEmail}/time-logs/clock-in",
+				"/employees/{employeeEmail}/time-logs/clock-out");
+		assertThat(paths).noneMatch(path -> path.contains("appusers") || path.contains("applicationsettings")
+				|| path.contains("timelogs"));
 	}
 
 	private static Set<String> implementedOperations(final Class<?> resource) {
 		final var baseMapping = resource.getAnnotation(RequestMapping.class);
 		assertThat(baseMapping).as("class-level mapping for %s", resource.getSimpleName()).isNotNull();
-		assertThat(baseMapping.value()).as("one canonical mapping for %s", resource.getSimpleName()).hasSize(1);
+		assertThat(baseMapping.value()).as("mapping for %s", resource.getSimpleName()).isNotEmpty();
 		final var basePath = baseMapping.value()[0].substring(API_PREFIX.length());
 		final var operations = new LinkedHashSet<String>();
 
@@ -81,6 +103,11 @@ class OpenApiContractTest {
 			}
 		}
 		return operations;
+	}
+
+	private static void assertMappings(final Class<?> resource, final String canonical, final String legacy) {
+		final var mapping = resource.getAnnotation(RequestMapping.class);
+		assertThat(mapping.value()).containsExactly(API_PREFIX + canonical, API_PREFIX + legacy);
 	}
 
 	private static boolean isHttpMethod(final String value) {

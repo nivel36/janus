@@ -52,11 +52,11 @@ import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 @TestExecutionListeners(listeners = EmployeeIdentityTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 class TimeLogSearchControllerIT {
 
-	private static final String BASE = "/api/v1/timelogs";
+	private static final String BASE = "/api/v1/time-logs";
 	private static final String OWN_EMAIL = "alice@example.test";
 	private static final String OTHER_EMAIL = "bob@example.test";
 	private static final String OWN_SUBJECT = "11111111-1111-4111-8111-111111111111";
-	private static final String OTHER_SEARCH = "/api/v1/employees/" + OTHER_EMAIL + "/timelogs/";
+	private static final String OTHER_SEARCH = "/api/v1/employees/" + OTHER_EMAIL + "/time-logs/";
 
 	private @Autowired MockMvc mvc;
 

@@ -71,7 +71,7 @@ export class ApplicationSettingsService extends BaseService {
             }
         }
 
-        let localVarPath = `/applicationsettings`;
+        let localVarPath = `/application-settings`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ApplicationSettingsResponse>('get', `${basePath}${localVarPath}`,
             {
@@ -133,7 +133,7 @@ export class ApplicationSettingsService extends BaseService {
             }
         }
 
-        let localVarPath = `/applicationsettings`;
+        let localVarPath = `/application-settings`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ApplicationSettingsResponse>('put', `${basePath}${localVarPath}`,
             {

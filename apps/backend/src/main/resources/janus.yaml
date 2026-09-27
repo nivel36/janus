@@ -36,7 +36,7 @@ paths:
       tags: [employees]
       operationId: deleteEmployee
       responses: { '204': { description: Employee deleted } }
-  /appusers/me:
+  /app-users/me:
     get:
       tags: [app-users]
       operationId: findCurrentAppUser
@@ -44,7 +44,7 @@ paths:
         '200':
           description: Current application user
           content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } }
-  /appusers/{id}:
+  /app-users/{id}:
     parameters:
       - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
     put:
@@ -67,7 +67,7 @@ paths:
         '400': { description: Invalid UUID }
         '403': { description: Insufficient permissions }
         '404': { description: Application user not found }
-  /applicationsettings:
+  /application-settings:
     get:
       tags: [application-settings]
       operationId: findApplicationSettings
@@ -147,7 +147,7 @@ paths:
         '200':
           description: Paginated schedules
           content: { application/json: { schema: { $ref: '#/components/schemas/SchedulePage' } } }
-  /timelogs/:
+  /time-logs/:
     get:
       tags: [time-logs]
       operationId: searchTimeLogs
@@ -162,7 +162,7 @@ paths:
         '200':
           description: Paginated time logs
           content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogPage' } } }
-  /employees/{employeeEmail}/timelogs/clock-in:
+  /employees/{employeeEmail}/time-logs/clock-in:
     post:
       tags: [time-logs]
       operationId: clockIn
@@ -174,7 +174,7 @@ paths:
         '201':
           description: Clocked in
           content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } }
-  /employees/{employeeEmail}/timelogs/clock-out:
+  /employees/{employeeEmail}/time-logs/clock-out:
     post:
       tags: [time-logs]
       operationId: clockOut
