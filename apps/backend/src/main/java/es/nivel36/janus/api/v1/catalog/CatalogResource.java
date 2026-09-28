@@ -35,5 +35,5 @@ public interface CatalogResource {
 	ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones(
 			@RequestParam(required = false) @SearchQuery String query,
 			@RequestParam(value = "sortBy", defaultValue = "LEVEL1") TimeZoneSortBy sortBy,
-			@PageableDefault(size = 25) Pageable pageable);
+			@PageableDefault(size = 20) Pageable pageable);
 }

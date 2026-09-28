@@ -19,6 +19,8 @@ import java.time.Instant;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -44,7 +46,8 @@ public interface WorksiteResource {
 	ResponseEntity<Page<WorksiteResponse>> searchWorksites(
 			@RequestParam(required = false) @SearchQuery String query,
 			@RequestParam(required = false) @Pattern(regexp = "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
-			Pageable pageable, Authentication authentication);
+			@PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC) Pageable pageable,
+			Authentication authentication);
 
 	@GetMapping("/{worksiteCode}")
 	@PreAuthorize("@worksiteAuthorization.canView(authentication)")

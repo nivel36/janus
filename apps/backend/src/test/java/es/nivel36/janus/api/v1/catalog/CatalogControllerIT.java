@@ -84,6 +84,14 @@ class CatalogControllerIT {
 				.andExpect(jsonPath("$.page.size").value(5));
 	}
 
+
+	@Test
+	void testSearchTimeZonesShouldUseStandardDefaultPageSize() throws Exception {
+		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.page.number").value(0))
+				.andExpect(jsonPath("$.page.size").value(20)).andExpect(jsonPath("$.content.length()").value(20));
+	}
+
 	@Test
 	void testSearchTimeZonesShouldSortByUtcWhenRequested() throws Exception {
 		this.mvc.perform(get(BASE).queryParam("sortBy", "UTC").queryParam("page", "0").queryParam("size", "20")
