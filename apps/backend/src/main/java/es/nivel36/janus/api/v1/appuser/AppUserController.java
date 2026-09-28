@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
@@ -94,15 +93,12 @@ public class AppUserController implements AppUserResource {
 	 *
 	 * @param request        the payload containing the new user preferences; must
 	 *                       not be {@code null}
-	 * @param authentication the current authentication used to identify the user;
-	 *                       must not be {@code null}
 	 * @return the updated {@link AppUserResponse}
 	 */
 	@Override
 	public ResponseEntity<AppUserResponse> updateAppUser( //
 			final UUID id, //
-			final UpdateAppUserRequest request, //
-			final Authentication authentication) {
+			final UpdateAppUserRequest request) {
 		final Locale forLanguageTag = Locale.forLanguageTag(request.locale().trim());
 		final TimeFormat timeFormat = request.timeFormat();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());

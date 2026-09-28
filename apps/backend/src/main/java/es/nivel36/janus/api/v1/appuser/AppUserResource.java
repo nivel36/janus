@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,8 +40,7 @@ public interface AppUserResource {
 	@PutMapping("/{id}")
 	ResponseEntity<AppUserResponse> updateAppUser( //
 			@PathVariable UUID id, //
-			@Valid @RequestBody UpdateAppUserRequest request, //
-			Authentication authentication);
+			@Valid @RequestBody UpdateAppUserRequest request);
 
 	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{id}")
