@@ -195,7 +195,7 @@ class TimeLogControllerIT {
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
-	void testClockInWithDuplicatedEntryTimeShouldFail400() throws Exception {
+	void testClockInWithDuplicatedEntryTimeShouldFail409() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
 		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
@@ -214,7 +214,7 @@ class TimeLogControllerIT {
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isBadRequest()) //
+				.andExpect(status().isConflict()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
 
@@ -285,6 +285,27 @@ class TimeLogControllerIT {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" //
+	})
+	void testClockOutWithoutClockInShouldReturn409() throws Exception {
+		this.mvc.perform(post(BASE + "/clock-out", "EMP-0001") //
+				.param("worksiteCode", "BCN-HQ") //
+				.param("exitTime", "2025-08-04T16:00:00Z")
+				.with(verifiedJwt()
+						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+								.claim("email_verified", true)) //
+						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+				.andExpect(status().isConflict()) //
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
+				.andExpect(jsonPath("$.type").value("urn:problem:clock-out-without-clock-in")) //
+				.andExpect(jsonPath("$.title").value("Invalid clock-out"));
+	}
+
+	@Test
+	@Sql(statements = { //
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testCreateTimeLogShouldReturn201AndBody() throws Exception {
@@ -316,7 +337,7 @@ class TimeLogControllerIT {
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
-	void testCreateDuplicatedTimeLogShouldReturn400() throws Exception {
+	void testCreateDuplicatedTimeLogShouldReturn409() throws Exception {
 		final String entry = "2025-08-05T09:00:00Z";
 		final String exit = "2025-08-05T17:30:00Z";
 		final String body = """
@@ -339,7 +360,7 @@ class TimeLogControllerIT {
 						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isBadRequest());
+				.andExpect(status().isConflict());
 	}
 
 	@Test

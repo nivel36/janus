@@ -28,6 +28,12 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 
+import es.nivel36.janus.service.ResourceAlreadyExistsException;
+import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
+import es.nivel36.janus.service.timelog.EventAlreadyFinalizedException;
+import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
+import es.nivel36.janus.service.timelog.TimeLogChronologyException;
+
 class JanusExceptionHandlerTest {
 
 	private static final String SENSITIVE_DETAIL = "sensitive-provider-detail-8e25f43a";
@@ -35,6 +41,39 @@ class JanusExceptionHandlerTest {
 	private static final URI INTERNAL_ERROR_TYPE = URI.create("urn:problem:internal");
 
 	private final JanusExceptionHandler handler = new JanusExceptionHandler(Clock.systemUTC());
+
+	@Test
+	void duplicatedResourcesAreConflictsWithAClientActionableType() {
+		final ProblemDetail problem = this.handler
+				.handleResourceAlreadyExists(new ResourceAlreadyExistsException("duplicate"), null);
+
+		assertProblem(problem, HttpStatus.CONFLICT, "urn:problem:resource-already-exists",
+				"Resource already exists");
+	}
+
+	@Test
+	void chronologyIndependentOfPersistedStateIsABadRequest() {
+		final ProblemDetail problem = this.handler
+				.handleTimeLogChronology(new TimeLogChronologyException("exit precedes entry"), null);
+
+		assertProblem(problem, HttpStatus.BAD_REQUEST, "urn:problem:invalid-chronology",
+				"Invalid chronological order");
+	}
+
+	@Test
+	void operationsIncompatibleWithCurrentStateAreConflicts() {
+		final ProblemDetail closed = this.handler.handleTimeLogAlreadyClosed(new TimeLogAlreadyClosedException(), null);
+		final ProblemDetail missingClockIn = this.handler
+				.handleClockOutWithoutClockIn(new ClockOutWithoutClockInException(), null);
+		final ProblemDetail finalized = this.handler.handleEventAlreadyFinalized(new EventAlreadyFinalizedException(),
+				null);
+
+		assertProblem(closed, HttpStatus.CONFLICT, "urn:problem:operation-conflict", "Time log already closed");
+		assertProblem(missingClockIn, HttpStatus.CONFLICT, "urn:problem:clock-out-without-clock-in",
+				"Invalid clock-out");
+		assertProblem(finalized, HttpStatus.CONFLICT, "urn:problem:event-already-finalized",
+				"Event already finalized");
+	}
 
 	@Test
 	void authorizationDeniedDoesNotExposeExceptionMessage() {
@@ -79,5 +118,12 @@ class JanusExceptionHandlerTest {
 		assertThat(problem.getStatus()).isEqualTo(expectedStatus.value());
 		assertThat(problem.getType()).isEqualTo(expectedType);
 		assertThat(problem.getDetail()).isEqualTo(expectedDetail).doesNotContain(SENSITIVE_DETAIL);
+	}
+
+	private static void assertProblem(final ProblemDetail problem, final HttpStatus expectedStatus,
+			final String expectedType, final String expectedTitle) {
+		assertThat(problem.getStatus()).isEqualTo(expectedStatus.value());
+		assertThat(problem.getType()).isEqualTo(URI.create(expectedType));
+		assertThat(problem.getTitle()).isEqualTo(expectedTitle);
 	}
 }

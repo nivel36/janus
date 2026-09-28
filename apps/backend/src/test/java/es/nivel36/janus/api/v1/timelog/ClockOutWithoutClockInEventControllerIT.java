@@ -171,6 +171,16 @@ class ClockOutWithoutClockInEventControllerIT {
 				.andExpect(jsonPath("$.reason").value("Worked from home before the transfer")) //
 				.andExpect(jsonPath("$.resolvedTimeLogEntry").value(entry)) //
 				.andExpect(jsonPath("$.resolvedTimeLogExitTime").value(exit));
+
+		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "EMP-0001", exit) //
+				.param("worksiteCode", "HOME-AF") //
+				.contentType(APPLICATION_JSON).content(body)
+				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.andExpect(status().isConflict()) //
+				.andExpect(content().contentTypeCompatibleWith("application/problem+json")) //
+				.andExpect(jsonPath("$.type").value("urn:problem:event-already-finalized")) //
+				.andExpect(jsonPath("$.title").value("Event already finalized"));
 	}
 
 	@Test

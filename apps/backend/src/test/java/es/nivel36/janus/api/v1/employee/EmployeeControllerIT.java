@@ -229,13 +229,13 @@ class EmployeeControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')", //
 			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" //
 	})
-	void testCreateAlreadyExistsShouldReturn400() throws Exception {
+	void testCreateAlreadyExistsShouldReturn409() throws Exception {
 		final String body = """
 				{"employeeNumber":"EMP-0002","name":"Abel","surname":"Ferrer","email":"AFERRER@NIVEL36.ES","scheduleCode":"STD-WH"}
 				""";
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isBadRequest());
+				.andExpect(status().isConflict());
 	}
 
 	@Test
