@@ -115,12 +115,12 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	@Query("""
 			SELECT DISTINCT w
 			FROM Worksite w
-			WHERE (LOWER(w.name) LIKE LOWER(CONCAT('%', :query, '%'))
-			   OR LOWER(w.code) LIKE LOWER(CONCAT('%', :query, '%'))
+			WHERE (LOWER(w.name) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!'
+			   OR LOWER(w.code) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!'
 			   OR (w.description IS NOT NULL
-			    AND LOWER(w.description) LIKE LOWER(CONCAT('%', :query, '%')))
+			    AND LOWER(w.description) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!')
 			   OR (w.address IS NOT NULL
-			    AND LOWER(w.address) LIKE LOWER(CONCAT('%', :query, '%'))))
+			    AND LOWER(w.address) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!'))
 			  AND (:employeeEmail IS NULL
 			   OR w.scope = es.nivel36.janus.service.worksite.WorksiteScope.GLOBAL
 			   OR EXISTS (
