@@ -73,6 +73,10 @@ class OpenApiContractTest {
 			assertParameters(operationKey, implementation, documentation);
 			assertRequestBody(operationKey, implementation.method(), documentation.operation());
 			assertSuccessResponse(operationKey, implementation.method(), documentation.operation());
+			if (implementation.compatibilityMapping()) {
+				assertThat(documentation.operation().get("deprecated"))
+						.as("compatibility mapping %s must remain documented as deprecated", operationKey).isEqualTo(true);
+			}
 		}
 	}
 
@@ -102,15 +106,22 @@ class OpenApiContractTest {
 		for (final var resource : restResources()) {
 			final var baseMapping = AnnotatedElementUtils.findMergedAnnotation(resource, RequestMapping.class);
 			assertThat(baseMapping.value()).as("mapping for %s", resource.getSimpleName()).isNotEmpty();
-			final var basePath = baseMapping.value()[0].substring(API_PREFIX.length());
+			final var basePaths = baseMapping.value();
 			for (final var method : resource.getDeclaredMethods()) {
 				final var mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
 				if (mapping == null) continue;
-				final var methodPath = mapping.value().length == 0 ? "" : mapping.value()[0];
-				for (final var httpMethod : mapping.method()) {
-					final var key = httpMethod.name() + " " + normalize(basePath + methodPath);
-					assertThat(result.put(key, new ImplementedOperation(resource, method))).as("duplicate %s", key)
-							.isNull();
+				final var methodPaths = mapping.value().length == 0 ? new String[] { "" } : mapping.value();
+				for (int baseIndex = 0; baseIndex < basePaths.length; baseIndex++) {
+					final var baseMappingPath = basePaths[baseIndex];
+					final var basePath = baseMappingPath.substring(API_PREFIX.length());
+					for (int methodIndex = 0; methodIndex < methodPaths.length; methodIndex++) {
+						final var methodPath = methodPaths[methodIndex];
+						for (final var httpMethod : mapping.method()) {
+							final var key = httpMethod.name() + " " + normalize(basePath + methodPath);
+							result.putIfAbsent(key,
+									new ImplementedOperation(resource, method, baseIndex > 0 || methodIndex > 0));
+						}
+					}
 				}
 			}
 		}
@@ -238,7 +249,7 @@ class OpenApiContractTest {
 		return path.length() > 1 && path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
 	}
 
-	private record ImplementedOperation(Class<?> resource, Method method) { }
+	private record ImplementedOperation(Class<?> resource, Method method, boolean compatibilityMapping) { }
 
 	private record DocumentedOperation(Map<String, Object> pathItem, Map<String, Object> operation) { }
 }

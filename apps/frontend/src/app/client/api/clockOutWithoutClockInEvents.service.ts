@@ -109,6 +109,73 @@ export class ClockOutWithoutClockInEventsService extends BaseService {
      * @param employeeNumber
      * @param exitTime
      * @param worksiteCode
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @deprecated
+     */
+    public findClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ClockOutWithoutClockInEventResponse>;
+    public findClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClockOutWithoutClockInEventResponse>>;
+    public findClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClockOutWithoutClockInEventResponse>>;
+    public findClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (employeeNumber === null || employeeNumber === undefined) {
+            throw new Error('Required parameter employeeNumber was null or undefined when calling findClockOutWithoutClockInEventByEmail.');
+        }
+        if (exitTime === null || exitTime === undefined) {
+            throw new Error('Required parameter exitTime was null or undefined when calling findClockOutWithoutClockInEventByEmail.');
+        }
+        if (worksiteCode === null || worksiteCode === undefined) {
+            throw new Error('Required parameter worksiteCode was null or undefined when calling findClockOutWithoutClockInEventByEmail.');
+        }
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>worksiteCode, 'worksiteCode');
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/clock-out-without-clock-in-events/${this.configuration.encodeParam({name: "exitTime", value: exitTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ClockOutWithoutClockInEventResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param employeeNumber
+     * @param exitTime
+     * @param worksiteCode
      * @param invalidateClockOutWithoutClockInEventRequest
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -166,6 +233,84 @@ export class ClockOutWithoutClockInEventsService extends BaseService {
         }
 
         let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/clock-out-without-clock-in-events/${this.configuration.encodeParam({name: "exitTime", value: exitTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}/invalidate`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ClockOutWithoutClockInEventResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: invalidateClockOutWithoutClockInEventRequest,
+                params: localVarQueryParameters,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param employeeNumber
+     * @param exitTime
+     * @param worksiteCode
+     * @param invalidateClockOutWithoutClockInEventRequest
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @deprecated
+     */
+    public invalidateClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, invalidateClockOutWithoutClockInEventRequest?: InvalidateClockOutWithoutClockInEventRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ClockOutWithoutClockInEventResponse>;
+    public invalidateClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, invalidateClockOutWithoutClockInEventRequest?: InvalidateClockOutWithoutClockInEventRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClockOutWithoutClockInEventResponse>>;
+    public invalidateClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, invalidateClockOutWithoutClockInEventRequest?: InvalidateClockOutWithoutClockInEventRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClockOutWithoutClockInEventResponse>>;
+    public invalidateClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, invalidateClockOutWithoutClockInEventRequest?: InvalidateClockOutWithoutClockInEventRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (employeeNumber === null || employeeNumber === undefined) {
+            throw new Error('Required parameter employeeNumber was null or undefined when calling invalidateClockOutWithoutClockInEventByEmail.');
+        }
+        if (exitTime === null || exitTime === undefined) {
+            throw new Error('Required parameter exitTime was null or undefined when calling invalidateClockOutWithoutClockInEventByEmail.');
+        }
+        if (worksiteCode === null || worksiteCode === undefined) {
+            throw new Error('Required parameter worksiteCode was null or undefined when calling invalidateClockOutWithoutClockInEventByEmail.');
+        }
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>worksiteCode, 'worksiteCode');
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/clock-out-without-clock-in-events/${this.configuration.encodeParam({name: "exitTime", value: exitTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}/invalidate`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ClockOutWithoutClockInEventResponse>('post', `${basePath}${localVarPath}`,
             {
@@ -246,6 +391,87 @@ export class ClockOutWithoutClockInEventsService extends BaseService {
         }
 
         let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/clock-out-without-clock-in-events/${this.configuration.encodeParam({name: "exitTime", value: exitTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}/resolve`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ClockOutWithoutClockInEventResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: resolveClockOutWithoutClockInEventRequest,
+                params: localVarQueryParameters,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @param employeeNumber
+     * @param exitTime
+     * @param worksiteCode
+     * @param resolveClockOutWithoutClockInEventRequest
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @deprecated
+     */
+    public resolveClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, resolveClockOutWithoutClockInEventRequest: ResolveClockOutWithoutClockInEventRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ClockOutWithoutClockInEventResponse>;
+    public resolveClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, resolveClockOutWithoutClockInEventRequest: ResolveClockOutWithoutClockInEventRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClockOutWithoutClockInEventResponse>>;
+    public resolveClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, resolveClockOutWithoutClockInEventRequest: ResolveClockOutWithoutClockInEventRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClockOutWithoutClockInEventResponse>>;
+    public resolveClockOutWithoutClockInEventByEmail(employeeNumber: string, exitTime: string, worksiteCode: string, resolveClockOutWithoutClockInEventRequest: ResolveClockOutWithoutClockInEventRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (employeeNumber === null || employeeNumber === undefined) {
+            throw new Error('Required parameter employeeNumber was null or undefined when calling resolveClockOutWithoutClockInEventByEmail.');
+        }
+        if (exitTime === null || exitTime === undefined) {
+            throw new Error('Required parameter exitTime was null or undefined when calling resolveClockOutWithoutClockInEventByEmail.');
+        }
+        if (worksiteCode === null || worksiteCode === undefined) {
+            throw new Error('Required parameter worksiteCode was null or undefined when calling resolveClockOutWithoutClockInEventByEmail.');
+        }
+        if (resolveClockOutWithoutClockInEventRequest === null || resolveClockOutWithoutClockInEventRequest === undefined) {
+            throw new Error('Required parameter resolveClockOutWithoutClockInEventRequest was null or undefined when calling resolveClockOutWithoutClockInEventByEmail.');
+        }
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>worksiteCode, 'worksiteCode');
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/clock-out-without-clock-in-events/${this.configuration.encodeParam({name: "exitTime", value: exitTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}/resolve`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ClockOutWithoutClockInEventResponse>('post', `${basePath}${localVarPath}`,
             {
