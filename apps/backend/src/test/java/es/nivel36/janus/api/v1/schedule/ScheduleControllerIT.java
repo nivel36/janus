@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -166,6 +167,35 @@ class ScheduleControllerIT {
 				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.page.totalElements").value(1)).andExpect(jsonPath("$.page.size").value(20))
 				.andExpect(jsonPath("$.page.number").value(0)).andExpect(jsonPath("$.content[0].code").value("STD-WH"));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "Turno estándar", "estándar-mañana" })
+	void searchSchedulesAcceptsSpacesAccentsAndHyphens(final String query) throws Exception {
+		final String body = """
+				{
+				  "code": "TURNO-MANANA",
+				  "name": "Turno estándar-mañana",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
+				  "rules": [{
+				    "name": "Laborables",
+				    "dayOfWeekRanges": [{
+				      "dayOfWeek": "MONDAY",
+				      "effectiveWorkHours": "PT8H",
+				      "timeRange": { "startTime": "09:00", "endTime": "17:00" }
+				    }]
+				  }]
+				}
+				""";
+
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isCreated());
+
+		this.mvc.perform(get(BASE).param("query", query).with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
+				.andExpect(jsonPath("$.content[0].code").value("TURNO-MANANA"));
 	}
 
 	@ParameterizedTest

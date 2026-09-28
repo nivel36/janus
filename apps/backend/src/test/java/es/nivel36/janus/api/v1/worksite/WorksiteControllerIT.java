@@ -33,6 +33,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -73,6 +74,18 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ')]").exists())
 				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ' && @.scope=='GLOBAL')]").exists())
 				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ' && @.active==true)]").exists());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "Centro logístico", "logístico-norte", "material frágil", "Avenida de la Constitución" })
+	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO worksite(code,name,time_zone,scope,description,address) VALUES('MAD-NORTE','Centro logístico-norte','Europe/Madrid','GLOBAL','Almacén de material frágil','Avenida de la Constitución, 24')" })
+	void searchAcceptsFreeTextFromWorksiteFields(final String query) throws Exception {
+		this.mvc.perform(get(BASE).param("query", query).with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
+				.andExpect(jsonPath("$.content[0].code").value("MAD-NORTE"));
 	}
 
 	@Test

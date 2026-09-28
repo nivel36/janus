@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import es.nivel36.janus.api.validation.SearchQuery;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -40,7 +41,7 @@ public interface WorksiteResource {
 	@GetMapping
 	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeEmail)")
 	ResponseEntity<Page<WorksiteResponse>> searchWorksites(
-			@RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "query must contain only letters, digits, underscores or hyphens (max 50)") String query,
+			@RequestParam(required = false) @SearchQuery String query,
 			@RequestParam(required = false) @Pattern(regexp = "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
 			Pageable pageable, Authentication authentication);
 
