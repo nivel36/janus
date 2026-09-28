@@ -30,7 +30,7 @@ paths:
       required: true
       schema:
         type: string
-        pattern: ^[A-Za-z0-9_-]{1,50}$
+        pattern: '[A-Za-z0-9_-]{1,50}'
     get:
       tags:
       - employees
@@ -157,10 +157,14 @@ paths:
         in: query
         schema:
           type: string
+          pattern: '[A-Za-z0-9_-]{1,50}'
       - name: employeeEmail
         in: query
         schema:
           type: string
+          format: email
+          maxLength: 254
+          pattern: "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$"
       - name: page
         in: query
         schema:
@@ -210,6 +214,7 @@ paths:
       required: true
       schema:
         type: string
+        pattern: '[A-Za-z0-9_-]{1,50}'
     get:
       tags:
       - worksites
@@ -245,6 +250,37 @@ paths:
       responses:
         '204':
           description: Deleted
+  /worksites/{worksiteCode}/stats:
+    parameters:
+    - name: worksiteCode
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '[A-Za-z0-9_-]{1,50}'
+    - name: start
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+    - name: end
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+    get:
+      tags:
+      - worksites
+      operationId: stats
+      responses:
+        '200':
+          description: Worksite statistics for the requested interval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorksiteStatsResponse'
   /schedules:
     get:
       tags:
@@ -255,10 +291,14 @@ paths:
         in: query
         schema:
           type: string
+          pattern: '[A-Za-z0-9_-]{1,50}'
       - name: employeeEmail
         in: query
         schema:
           type: string
+          format: email
+          maxLength: 254
+          pattern: "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$"
       - name: page
         in: query
         schema:
@@ -284,7 +324,109 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SchedulePage'
-  /time-logs/:
+    post:
+      tags:
+      - schedules
+      operationId: createSchedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScheduleRequest'
+      responses:
+        '201':
+          description: Created schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+  /schedules/{scheduleCode}:
+    parameters:
+    - name: scheduleCode
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '[A-Za-z0-9_-]{1,50}'
+    get:
+      tags: [schedules]
+      operationId: findSchedule
+      responses:
+        '200':
+          description: Schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+    put:
+      tags: [schedules]
+      operationId: updateSchedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScheduleRequest'
+      responses:
+        '200':
+          description: Updated schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+    delete:
+      tags: [schedules]
+      operationId: deleteSchedule
+      responses:
+        '204':
+          description: Schedule deleted
+  /catalogs/time-zones:
+    get:
+      tags: [catalogs]
+      operationId: searchTimeZones
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [LEVEL1, LEVEL2, UTC]
+          default: LEVEL1
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 25
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: true
+      responses:
+        '200':
+          description: Paginated time-zone catalog
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeZoneCatalogPage'
+  /time-logs:
     get:
       tags:
       - time-logs
@@ -294,6 +436,9 @@ paths:
         in: query
         schema:
           type: string
+          format: email
+          maxLength: 254
+          pattern: "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$"
       - name: fromInstant
         in: query
         schema:
@@ -348,13 +493,14 @@ paths:
         required: true
         schema:
           type: string
-          pattern: ^[A-Za-z0-9_-]{1,50}$
+          pattern: '[A-Za-z0-9_-]{1,50}'
       - &id002
         name: worksiteCode
         in: query
         required: true
         schema:
           type: string
+          pattern: '[A-Za-z0-9_-]{1,50}'
       - name: entryTime
         in: query
         schema:
@@ -494,6 +640,7 @@ paths:
       required: true
       schema:
         type: string
+        pattern: '[A-Za-z0-9_-]{1,50}'
     - *id001
     put:
       tags:
@@ -509,201 +656,6 @@ paths:
       responses:
         '204':
           description: Employee removed from the worksite; no content is returned.
-  /employees/{employeeEmail}/time-logs/clock-in:
-    post:
-      tags:
-      - time-logs
-      operationId: clockInByEmail
-      responses:
-        '201':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimeLogResponse'
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
-      parameters:
-      - &id004
-        name: employeeEmail
-        in: path
-        required: true
-        schema:
-          type: string
-          format: email
-      - *id002
-      - name: entryTime
-        in: query
-        schema:
-          type: string
-          format: date-time
-  /employees/{employeeEmail}/time-logs/clock-out:
-    post:
-      tags:
-      - time-logs
-      operationId: clockOutByEmail
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimeLogResponse'
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
-      parameters:
-      - *id004
-      - *id002
-      - name: exitTime
-        in: query
-        schema:
-          type: string
-          format: date-time
-  /employees/{employeeEmail}/time-logs:
-    post:
-      tags:
-      - time-logs
-      operationId: createTimeLogByEmail
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimeLogResponse'
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
-      parameters:
-      - *id004
-      - *id002
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateTimeLogRequest'
-  /employees/{employeeEmail}/time-logs/{entryTime}:
-    parameters:
-    - *id004
-    - name: entryTime
-      in: path
-      required: true
-      schema:
-        type: string
-        format: date-time
-    get:
-      tags:
-      - time-logs
-      operationId: findTimeLogByEmployeeAndEntryTimeByEmail
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimeLogResponse'
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
-    delete:
-      tags:
-      - time-logs
-      operationId: deleteTimeLogByEmail
-      responses:
-        '204':
-          description: No content
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
-  /employees/{employeeEmail}/clock-out-without-clock-in-events/{exitTime}:
-    parameters: &id005
-    - *id004
-    - name: exitTime
-      in: path
-      required: true
-      schema:
-        type: string
-        format: date-time
-    - *id002
-    get:
-      tags:
-      - clock-out-without-clock-in-events
-      operationId: findClockOutWithoutClockInEventByEmail
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
-  /employees/{employeeEmail}/clock-out-without-clock-in-events/{exitTime}/resolve:
-    parameters: *id005
-    post:
-      tags:
-      - clock-out-without-clock-in-events
-      operationId: resolveClockOutWithoutClockInEventByEmail
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResolveClockOutWithoutClockInEventRequest'
-  /employees/{employeeEmail}/clock-out-without-clock-in-events/{exitTime}/invalidate:
-    parameters: *id005
-    post:
-      tags:
-      - clock-out-without-clock-in-events
-      operationId: invalidateClockOutWithoutClockInEventByEmail
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InvalidateClockOutWithoutClockInEventRequest'
-  /worksites/{worksiteCode}/employees/{employeeEmail}:
-    parameters:
-    - name: worksiteCode
-      in: path
-      required: true
-      schema:
-        type: string
-    - *id004
-    put:
-      tags:
-      - worksites
-      operationId: assignEmployeeToWorksiteByEmail
-      responses:
-        '204':
-          description: No content
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
-    delete:
-      tags:
-      - worksites
-      operationId: removeEmployeeFromWorksiteByEmail
-      responses:
-        '204':
-          description: Employee removed from the worksite; no content is returned.
-      deprecated: true
-      description: Deprecated compatibility route; migrate to the employeeNumber route.
 components:
   securitySchemes:
     bearerAuth:
@@ -722,7 +674,7 @@ components:
       properties:
         employeeNumber:
           type: string
-          pattern: ^[A-Za-z0-9_-]{1,50}$
+          pattern: '[A-Za-z0-9_-]{1,50}'
         name:
           type: string
         surname:
@@ -743,7 +695,7 @@ components:
       properties:
         employeeNumber:
           type: string
-          pattern: ^[A-Za-z0-9_-]{1,50}$
+          pattern: '[A-Za-z0-9_-]{1,50}'
         name:
           type: string
         surname:
@@ -976,6 +928,141 @@ components:
           items:
             type: object
             additionalProperties: true
+    CreateScheduleRequest:
+      type: object
+      required: [code, name, entryTolerance, exitTolerance, rules]
+      properties:
+        code:
+          type: string
+          pattern: '[A-Za-z0-9_-]{1,50}'
+        name:
+          type: string
+          pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
+        entryTolerance:
+          type: string
+          format: duration
+          pattern: '^P(?!-).*$'
+        exitTolerance:
+          type: string
+          format: duration
+          pattern: '^P(?!-).*$'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleRuleRequest'
+    UpdateScheduleRequest:
+      type: object
+      required: [name, entryTolerance, exitTolerance, rules]
+      properties:
+        name:
+          type: string
+          pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
+        entryTolerance:
+          type: string
+          format: duration
+          pattern: '^P(?!-).*$'
+        exitTolerance:
+          type: string
+          format: duration
+          pattern: '^P(?!-).*$'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleRuleRequest'
+    ScheduleRuleRequest:
+      type: object
+      required: [name, dayOfWeekRanges]
+      description: startDate must be on or before endDate when both are supplied.
+      properties:
+        name:
+          type: string
+          pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        dayOfWeekRanges:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleRuleTimeRangeRequest'
+    ScheduleRuleTimeRangeRequest:
+      type: object
+      required: [dayOfWeek, effectiveWorkHours, timeRange]
+      description: effectiveWorkHours must be non-negative and no longer than timeRange.
+      properties:
+        dayOfWeek:
+          type: string
+          enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+        effectiveWorkHours:
+          type: string
+          format: duration
+          pattern: '^P(?!-).*$'
+        timeRange:
+          $ref: '#/components/schemas/ScheduleTimeRangeRequest'
+    ScheduleTimeRangeRequest:
+      type: object
+      required: [startTime, endTime]
+      description: endTime must be after startTime.
+      properties:
+        startTime:
+          type: string
+          format: time
+        endTime:
+          type: string
+          format: time
+    WorksiteStatsResponse:
+      type: object
+      required: [worksiteCode, startInclusive, endInclusive, employeesWhoClockedIn, erroneousTimeLogs,
+        totalTimeLogs, employeesAllowedToClockIn, distinctSchedulesFromEmployeesWhoClockedIn]
+      properties:
+        worksiteCode:
+          type: string
+        startInclusive:
+          type: string
+          format: date-time
+        endInclusive:
+          type: string
+          format: date-time
+        employeesWhoClockedIn:
+          type: integer
+          format: int64
+        erroneousTimeLogs:
+          type: integer
+          format: int64
+        totalTimeLogs:
+          type: integer
+          format: int64
+        employeesAllowedToClockIn:
+          type: integer
+          format: int64
+        distinctSchedulesFromEmployeesWhoClockedIn:
+          type: integer
+          format: int64
+    TimeZoneCatalogItemResponse:
+      type: object
+      required: [literal, level1, utc]
+      properties:
+        literal:
+          type: string
+        level1:
+          type: string
+        level2:
+          type: string
+          nullable: true
+        utc:
+          type: string
+    TimeZoneCatalogPage:
+      type: object
+      required: [content, page]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeZoneCatalogItemResponse'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
     DurationResponse:
       type: object
       additionalProperties: true
