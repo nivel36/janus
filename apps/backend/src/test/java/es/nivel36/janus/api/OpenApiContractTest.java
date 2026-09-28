@@ -17,103 +17,244 @@ package es.nivel36.janus.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ValueConstants;
 import org.yaml.snakeyaml.Yaml;
 
-import es.nivel36.janus.api.v1.appuser.AppUserResource;
-import es.nivel36.janus.api.v1.applicationsettings.ApplicationSettingsResource;
-import es.nivel36.janus.api.v1.timelog.TimeLogResource;
-import es.nivel36.janus.api.v1.timelog.TimeLogSearchResource;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 
 class OpenApiContractTest {
 
 	private static final String API_PREFIX = "/api/v1";
+	private static final String RESOURCE_PATTERN = "classpath*:es/nivel36/janus/api/v1/**/*Resource.class";
+	private static final Set<String> HTTP_METHODS = Set.of("get", "put", "post", "delete", "patch", "head",
+			"options", "trace");
 
 	@Test
-	void appUserEndpointsArePresentInTheVersionedOpenApiContract() throws IOException {
-		final Map<String, Object> contract;
-		try (var contractStream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
-				var reader = new InputStreamReader(contractStream)) {
-			contract = new Yaml().load(reader);
-		}
+	void openApiOperationsMatchEveryRestResourceBidirectionally() throws Exception {
+		final var documented = documentedOperations(contract());
+		final var implemented = implementedOperations();
 
-		@SuppressWarnings("unchecked")
-		final var paths = (Map<String, Map<String, Object>>) contract.get("paths");
-		final var documentedOperations = new LinkedHashSet<String>();
-		paths.forEach((path, operations) -> operations.keySet().stream()
-				.filter(OpenApiContractTest::isHttpMethod)
-				.map(method -> method.toUpperCase(Locale.ROOT) + " " + path)
-				.forEach(documentedOperations::add));
-
-		assertThat(documentedOperations).containsAll(implementedOperations(AppUserResource.class));
+		assertThat(documented.keySet()).as("documented operations must equal canonical implemented operations")
+				.containsExactlyInAnyOrderElementsOf(implemented.keySet());
 	}
 
 	@Test
-	void compoundResourcesExposeCanonicalPathsBeforeTheirDeprecatedAliases() {
-		assertMappings(AppUserResource.class, "/app-users", "/appusers");
-		assertMappings(ApplicationSettingsResource.class, "/application-settings", "/applicationsettings");
-		assertMappings(TimeLogSearchResource.class, "/time-logs", "/timelogs");
-		assertMappings(TimeLogResource.class, "/employees/{employeeNumber}/time-logs",
-				"/employees/{employeeNumber}/timelogs", "/employees/by-email/{employeeNumber}/time-logs");
-	}
+	void openApiDocumentsParametersBodiesValidationsAndSuccessResponses() throws Exception {
+		final var documented = documentedOperations(contract());
 
-	@Test
-	void openApiContractPublishesOnlyCanonicalCompoundResourcePaths() throws IOException {
-		final Map<String, Object> contract;
-		try (var contractStream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
-				var reader = new InputStreamReader(contractStream)) {
-			contract = new Yaml().load(reader);
-		}
-
-		@SuppressWarnings("unchecked")
-		final var paths = ((Map<String, Object>) contract.get("paths")).keySet();
-		assertThat(paths).contains("/app-users/me", "/app-users/{id}", "/application-settings", "/time-logs/",
-				"/employees/{employeeNumber}/time-logs/clock-in",
-				"/employees/{employeeNumber}/time-logs/clock-out");
-		assertThat(paths).noneMatch(path -> path.contains("appusers") || path.contains("applicationsettings")
-				|| path.contains("timelogs"));
-	}
-
-	private static Set<String> implementedOperations(final Class<?> resource) {
-		final var baseMapping = resource.getAnnotation(RequestMapping.class);
-		assertThat(baseMapping).as("class-level mapping for %s", resource.getSimpleName()).isNotNull();
-		assertThat(baseMapping.value()).as("mapping for %s", resource.getSimpleName()).isNotEmpty();
-		final var basePath = baseMapping.value()[0].substring(API_PREFIX.length());
-		final var operations = new LinkedHashSet<String>();
-
-		for (final var method : resource.getDeclaredMethods()) {
-			final var mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
-			if (mapping == null) {
-				continue;
+		for (final var entry : implementedOperations().entrySet()) {
+			final var operationKey = entry.getKey();
+			final var implementation = entry.getValue();
+			final var documentation = documented.get(operationKey);
+			assertThat(documentation).as("documentation for %s", operationKey).isNotNull();
+			assertParameters(operationKey, implementation, documentation);
+			assertRequestBody(operationKey, implementation.method(), documentation.operation());
+			assertSuccessResponse(operationKey, implementation.method(), documentation.operation());
+			if (implementation.compatibilityMapping()) {
+				assertThat(documentation.operation().get("deprecated"))
+						.as("compatibility mapping %s must remain documented as deprecated", operationKey).isEqualTo(true);
 			}
-			final var methodPaths = mapping.value().length == 0 ? new String[] { "" } : mapping.value();
-			for (final var httpMethod : mapping.method()) {
-				for (final var methodPath : methodPaths) {
-					operations.add(httpMethod.name() + " " + basePath + methodPath);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Map<String, Object> contract() throws Exception {
+		try (var stream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
+				var reader = new InputStreamReader(stream)) {
+			return new Yaml().load(reader);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Map<String, DocumentedOperation> documentedOperations(final Map<String, Object> contract) {
+		final var result = new LinkedHashMap<String, DocumentedOperation>();
+		final var paths = (Map<String, Map<String, Object>>) contract.get("paths");
+		paths.forEach((path, pathItem) -> pathItem.forEach((verb, value) -> {
+			if (HTTP_METHODS.contains(verb)) {
+				result.put(verb.toUpperCase(Locale.ROOT) + " " + normalize(path),
+						new DocumentedOperation(pathItem, (Map<String, Object>) value));
+			}
+		}));
+		return result;
+	}
+
+	private static Map<String, ImplementedOperation> implementedOperations() throws Exception {
+		final var result = new LinkedHashMap<String, ImplementedOperation>();
+		for (final var resource : restResources()) {
+			final var baseMapping = AnnotatedElementUtils.findMergedAnnotation(resource, RequestMapping.class);
+			assertThat(baseMapping.value()).as("mapping for %s", resource.getSimpleName()).isNotEmpty();
+			final var basePaths = baseMapping.value();
+			for (final var method : resource.getDeclaredMethods()) {
+				final var mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
+				if (mapping == null) continue;
+				final var methodPaths = mapping.value().length == 0 ? new String[] { "" } : mapping.value();
+				for (int baseIndex = 0; baseIndex < basePaths.length; baseIndex++) {
+					final var baseMappingPath = basePaths[baseIndex];
+					final var basePath = baseMappingPath.substring(API_PREFIX.length());
+					for (int methodIndex = 0; methodIndex < methodPaths.length; methodIndex++) {
+						final var methodPath = methodPaths[methodIndex];
+						for (final var httpMethod : mapping.method()) {
+							final var key = httpMethod.name() + " " + normalize(basePath + methodPath);
+							result.putIfAbsent(key,
+									new ImplementedOperation(resource, method, baseIndex > 0 || methodIndex > 0));
+						}
+					}
 				}
 			}
 		}
-		return operations;
+		return result;
 	}
 
-	private static void assertMappings(final Class<?> resource, final String canonical, final String... legacy) {
-		final var mapping = resource.getAnnotation(RequestMapping.class);
-		final String[] expected = new String[legacy.length + 1];
-		expected[0] = API_PREFIX + canonical;
-		for (int i = 0; i < legacy.length; i++) expected[i + 1] = API_PREFIX + legacy[i];
-		assertThat(mapping.value()).containsExactly(expected);
+	private static Set<Class<?>> restResources() throws Exception {
+		final var resolver = new PathMatchingResourcePatternResolver();
+		final var readers = new CachingMetadataReaderFactory(resolver);
+		final var resources = new LinkedHashSet<Class<?>>();
+		for (final var resource : resolver.getResources(RESOURCE_PATTERN)) {
+			final var className = readers.getMetadataReader(resource).getClassMetadata().getClassName();
+			final var type = Class.forName(className);
+			if (type.isInterface() && AnnotatedElementUtils.hasAnnotation(type, RequestMapping.class)) resources.add(type);
+		}
+		assertThat(resources).as("REST resource interfaces discovered below api/v1").isNotEmpty();
+		return resources;
 	}
 
-	private static boolean isHttpMethod(final String value) {
-		return Set.of("get", "put", "post", "delete", "patch", "head", "options", "trace").contains(value);
+	@SuppressWarnings("unchecked")
+	private static void assertParameters(final String key, final ImplementedOperation implementation,
+			final DocumentedOperation documentation) {
+		final var documented = new ArrayList<Map<String, Object>>();
+		documented.addAll((List<Map<String, Object>>) documentation.pathItem().getOrDefault("parameters", List.of()));
+		documented.addAll((List<Map<String, Object>>) documentation.operation().getOrDefault("parameters", List.of()));
+
+		for (final var parameter : implementation.method().getParameters()) {
+			final var pathVariable = parameter.getAnnotation(PathVariable.class);
+			final var requestParam = parameter.getAnnotation(RequestParam.class);
+			if (pathVariable != null) {
+				assertParameter(key, documented, annotationName(pathVariable.value(), pathVariable.name(), parameter),
+						"path", true, parameter);
+			} else if (requestParam != null) {
+				assertParameter(key, documented, annotationName(requestParam.value(), requestParam.name(), parameter),
+						"query", requestParam.required()
+								&& ValueConstants.DEFAULT_NONE.equals(requestParam.defaultValue()), parameter);
+			} else if (parameter.getType() == Pageable.class) {
+				assertSimpleParameter(key, documented, "page", "query", false, "integer");
+				assertSimpleParameter(key, documented, "size", "query", false, "integer");
+				assertSimpleParameter(key, documented, "sort", "query", false, "array");
+			}
+		}
 	}
+
+	@SuppressWarnings("unchecked")
+	private static void assertParameter(final String key, final List<Map<String, Object>> documented,
+			final String name, final String location, final boolean required, final Parameter implementation) {
+		final var parameter = findParameter(key, documented, name, location);
+		if (required) {
+			assertThat(parameter.get("required")).as("required flag for %s parameter %s", key, name).isEqualTo(true);
+		} else {
+			assertThat(parameter.get("required")).as("required flag for %s parameter %s", key, name)
+					.isIn(null, false);
+		}
+		final var schema = (Map<String, Object>) parameter.get("schema");
+		assertThat(schema.get("type")).as("type for %s parameter %s", key, name)
+				.isEqualTo(openApiType(implementation.getType()));
+		if (implementation.getType() == Instant.class) assertThat(schema.get("format")).isEqualTo("date-time");
+		if (implementation.getType() == UUID.class) assertThat(schema.get("format")).isEqualTo("uuid");
+		final var pattern = implementation.getAnnotation(Pattern.class);
+		if (pattern != null) assertThat(schema.get("pattern")).as("validation for %s parameter %s", key, name)
+				.isEqualTo(fullValuePattern(pattern.regexp()));
+	}
+
+	private static void assertSimpleParameter(final String key, final List<Map<String, Object>> parameters,
+			final String name, final String location, final boolean required, final String type) {
+		final var synthetic = findParameter(key, parameters, name, location);
+		assertThat(synthetic.get("required")).isIn(null, required);
+		assertThat(schema(synthetic).get("type")).as("type for %s parameter %s", key, name).isEqualTo(type);
+	}
+
+	private static Map<String, Object> findParameter(final String key, final List<Map<String, Object>> parameters,
+			final String name, final String location) {
+		return parameters.stream().filter(p -> name.equals(p.get("name")) && location.equals(p.get("in"))).findFirst()
+				.orElseThrow(() -> new AssertionError("Missing " + location + " parameter " + name + " for " + key));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Map<String, Object> schema(final Map<String, Object> parameter) {
+		return (Map<String, Object>) parameter.get("schema");
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void assertRequestBody(final String key, final Method method, final Map<String, Object> operation) {
+		for (final var parameter : method.getParameters()) {
+			final var body = parameter.getAnnotation(RequestBody.class);
+			if (body == null) continue;
+			final var documented = (Map<String, Object>) operation.get("requestBody");
+			assertThat(documented).as("request body for %s", key).isNotNull();
+			assertThat(documented.get("required")).isEqualTo(body.required());
+			final var content = (Map<String, Object>) documented.get("content");
+			final var json = (Map<String, Object>) content.get("application/json");
+			assertThat(schema(json).get("$ref")).isEqualTo("#/components/schemas/" + parameter.getType().getSimpleName());
+			if (parameter.isAnnotationPresent(Valid.class)) assertThat(documented).containsKey("required");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void assertSuccessResponse(final String key, final Method method, final Map<String, Object> operation) {
+		final var responses = (Map<String, Object>) operation.get("responses");
+		assertThat(responses).as("responses for %s", key).containsKey(expectedSuccessCode(method));
+	}
+
+	private static String expectedSuccessCode(final Method method) {
+		if (method.getName().startsWith("delete") || method.getName().startsWith("assign")
+				|| method.getName().startsWith("remove")) return "204";
+		if (Set.of("createEmployee", "createWorksite", "createSchedule", "createTimeLog", "clockIn")
+				.contains(method.getName())) return "201";
+		return "200";
+	}
+
+	private static String annotationName(final String value, final String name, final Parameter parameter) {
+		if (!value.isBlank()) return value;
+		if (!name.isBlank()) return name;
+		return parameter.getName();
+	}
+
+	private static String openApiType(final Class<?> type) {
+		if (type == int.class || type == long.class || Number.class.isAssignableFrom(type)) return "integer";
+		if (type == boolean.class || type == Boolean.class) return "boolean";
+		return "string";
+	}
+
+	private static String fullValuePattern(final String pattern) {
+		final var withStartAnchor = pattern.startsWith("^") ? pattern : "^" + pattern;
+		return withStartAnchor.endsWith("$") ? withStartAnchor : withStartAnchor + "$";
+	}
+
+	private static String normalize(final String path) {
+		return path.length() > 1 && path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+	}
+
+	private record ImplementedOperation(Class<?> resource, Method method, boolean compatibilityMapping) { }
+
+	private record DocumentedOperation(Map<String, Object> pathItem, Map<String, Object> operation) { }
 }
