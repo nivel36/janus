@@ -72,6 +72,21 @@ class ScheduleControllerIT {
 				.andExpect(status().isUnauthorized());
 	}
 
+
+	@Test
+	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES "
+			+ "(21,'SCH-20','Schedule 20'),(20,'SCH-19','Schedule 19'),(19,'SCH-18','Schedule 18'),(18,'SCH-17','Schedule 17'),(17,'SCH-16','Schedule 16'),"
+			+ "(16,'SCH-15','Schedule 15'),(15,'SCH-14','Schedule 14'),(14,'SCH-13','Schedule 13'),(13,'SCH-12','Schedule 12'),(12,'SCH-11','Schedule 11'),"
+			+ "(11,'SCH-10','Schedule 10'),(10,'SCH-09','Schedule 09'),(9,'SCH-08','Schedule 08'),(8,'SCH-07','Schedule 07'),(7,'SCH-06','Schedule 06'),"
+			+ "(6,'SCH-05','Schedule 05'),(5,'SCH-04','Schedule 04'),(4,'SCH-03','Schedule 03'),(3,'SCH-02','Schedule 02'),(2,'SCH-01','Schedule 01'),(1,'SCH-00','Schedule 00')" })
+	void searchWithoutPaginationUsesStableDefaults() throws Exception {
+		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.page.number").value(0))
+				.andExpect(jsonPath("$.page.size").value(20)).andExpect(jsonPath("$.content.length()").value(20))
+				.andExpect(jsonPath("$.content[0].code").value("SCH-00"))
+				.andExpect(jsonPath("$.content[19].code").value("SCH-19"));
+	}
+
 	@Test
 	void testCreateScheduleShouldReturn201AndBody() throws Exception {
 		final String body = """

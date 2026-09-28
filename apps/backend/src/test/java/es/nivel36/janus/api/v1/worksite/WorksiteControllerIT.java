@@ -88,6 +88,23 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.content[?(@.code=='BCN-HQ' && @.active==true)]").exists());
 	}
 
+
+	@Test
+	@Sql(statements = {
+			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES "
+					+ "('WS-20','Worksite 20','UTC','GLOBAL'),('WS-19','Worksite 19','UTC','GLOBAL'),('WS-18','Worksite 18','UTC','GLOBAL'),('WS-17','Worksite 17','UTC','GLOBAL'),('WS-16','Worksite 16','UTC','GLOBAL'),"
+					+ "('WS-15','Worksite 15','UTC','GLOBAL'),('WS-14','Worksite 14','UTC','GLOBAL'),('WS-13','Worksite 13','UTC','GLOBAL'),('WS-12','Worksite 12','UTC','GLOBAL'),('WS-11','Worksite 11','UTC','GLOBAL'),"
+					+ "('WS-10','Worksite 10','UTC','GLOBAL'),('WS-09','Worksite 09','UTC','GLOBAL'),('WS-08','Worksite 08','UTC','GLOBAL'),('WS-07','Worksite 07','UTC','GLOBAL'),('WS-06','Worksite 06','UTC','GLOBAL'),"
+					+ "('WS-05','Worksite 05','UTC','GLOBAL'),('WS-04','Worksite 04','UTC','GLOBAL'),('WS-03','Worksite 03','UTC','GLOBAL'),('WS-02','Worksite 02','UTC','GLOBAL'),('WS-01','Worksite 01','UTC','GLOBAL'),('WS-00','Worksite 00','UTC','GLOBAL')" })
+	void searchWithoutPaginationUsesStableDefaults() throws Exception {
+		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.page.number").value(0))
+				.andExpect(jsonPath("$.page.size").value(20)).andExpect(jsonPath("$.content.length()").value(20))
+				.andExpect(jsonPath("$.content[0].code").value("WS-00"))
+				.andExpect(jsonPath("$.content[19].code").value("WS-19"));
+	}
+
 	@ParameterizedTest
 	@ValueSource(strings = { "Centro logístico", "logístico-norte", "material frágil", "Avenida de la Constitución",
 			"50%", "MAD_NORTE", "C:\\Depot", "entrada!sur" })
