@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -260,6 +261,7 @@ class WorksiteControllerIT {
 		this.mvc.perform(delete(BASE + "/{code}/employees/{employeeNumber}", "BCN-HQ", "EMP-0001")
 				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isNoContent()) //
+				.andExpect(header().doesNotExist("Content-Type")) //
 				.andExpect(content().string(""));
 	}
 }
