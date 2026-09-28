@@ -48,8 +48,24 @@ class CatalogControllerIT {
 	private @Autowired MockMvc mvc;
 
 	@Test
+	void testSearchTimeZonesShouldEnforceSearchQueryContract() throws Exception {
+		final var request = get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")));
+
+		this.mvc.perform(request.queryParam("query", "a".repeat(100))).andExpect(status().isOk());
+		this.mvc.perform(get(BASE).queryParam("query", "")
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
+		this.mvc.perform(get(BASE).queryParam("query", "a".repeat(101))
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
+		this.mvc.perform(get(BASE).queryParam("query", "Europe\nMadrid")
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
 	void testSearchTimeZonesShouldReturn200AndPageData() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("search", "Europe/Madrid").with(verifiedJwt()//
+		this.mvc.perform(get(BASE).queryParam("query", "Europe/Madrid").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
@@ -78,7 +94,7 @@ class CatalogControllerIT {
 
 	@Test
 	void testSearchTimeZonesShouldKeepRemainingSegmentsInSecondLevel() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("search", "America/Argentina/Buenos_Aires").with(verifiedJwt()//
+		this.mvc.perform(get(BASE).queryParam("query", "America/Argentina/Buenos_Aires").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.content[0].level1").value("America")) //

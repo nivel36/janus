@@ -10,6 +10,9 @@
 
 
 export interface EmployeeResponse {
+    /**
+     * Stable employee identifier containing 1 to 50 letters, digits, underscores, or hyphens.
+     */
     employeeNumber: string;
     name: string;
     surname: string;
