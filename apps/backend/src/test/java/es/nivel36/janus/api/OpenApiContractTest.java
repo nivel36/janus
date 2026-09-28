@@ -118,7 +118,8 @@ class OpenApiContractTest {
 						for (final var httpMethod : mapping.method()) {
 							final var key = httpMethod.name() + " " + normalize(basePath + methodPath);
 							result.putIfAbsent(key,
-									new ImplementedOperation(resource, method, baseIndex > 0 || methodIndex > 0));
+									new ImplementedOperation(resource, method,
+											baseIndex > 0 || methodIndex > 0 || method.isAnnotationPresent(Deprecated.class)));
 						}
 					}
 				}
@@ -175,7 +176,7 @@ class OpenApiContractTest {
 			assertThat(parameter.get("required")).as("required flag for %s parameter %s", key, name)
 					.isIn(null, false);
 		}
-		final var schema = (Map<String, Object>) parameter.get("schema");
+		final var schema = resolveSchema((Map<String, Object>) parameter.get("schema"));
 		assertThat(schema.get("type")).as("type for %s parameter %s", key, name)
 				.isEqualTo(openApiType(implementation.getType()));
 		if (implementation.getType() == Instant.class) assertThat(schema.get("format")).isEqualTo("date-time");
@@ -183,6 +184,19 @@ class OpenApiContractTest {
 		final var pattern = implementation.getAnnotation(Pattern.class);
 		if (pattern != null) assertThat(schema.get("pattern")).as("validation for %s parameter %s", key, name)
 				.isEqualTo(fullValuePattern(pattern.regexp()));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Map<String, Object> resolveSchema(final Map<String, Object> schema) {
+		final var reference = (String) schema.get("$ref");
+		if (reference == null) return schema;
+		try {
+			final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
+					.get("schemas");
+			return schemas.get(reference.substring(reference.lastIndexOf('/') + 1));
+		} catch (final Exception exception) {
+			throw new IllegalStateException("Could not resolve OpenAPI schema " + reference, exception);
+		}
 	}
 
 	private static void assertSimpleParameter(final String key, final List<Map<String, Object>> parameters,
@@ -227,8 +241,9 @@ class OpenApiContractTest {
 	private static String expectedSuccessCode(final Method method) {
 		if (method.getName().startsWith("delete") || method.getName().startsWith("assign")
 				|| method.getName().startsWith("remove")) return "204";
-		if (Set.of("createEmployee", "createWorksite", "createSchedule", "createTimeLog", "clockIn")
-				.contains(method.getName())) return "201";
+		if (method.getName().startsWith("createEmployee") || method.getName().startsWith("createWorksite")
+				|| method.getName().startsWith("createSchedule") || method.getName().startsWith("createTimeLog")
+				|| method.getName().startsWith("clockIn")) return "201";
 		return "200";
 	}
 

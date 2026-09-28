@@ -773,40 +773,46 @@ paths:
       deprecated: true
       responses:
         '204': { description: Time log deleted }
-  /employees/by-email/{employeeNumber}/time-logs/clock-in:
+  /employees/by-email/{email}/time-logs/clock-in:
     post:
       tags: [time-logs]
       operationId: clockInByEmail
       deprecated: true
       parameters:
-      - *id001
+      - &legacyEmail
+        name: email
+        in: path
+        required: true
+        schema:
+          type: string
+          format: email
       - *id002
       - { name: entryTime, in: query, schema: { type: string, format: date-time } }
       responses:
         '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-  /employees/by-email/{employeeNumber}/time-logs/clock-out:
+  /employees/by-email/{email}/time-logs/clock-out:
     post:
       tags: [time-logs]
       operationId: clockOutByEmail
       deprecated: true
       parameters:
-      - *id001
+      - *legacyEmail
       - *id002
       - { name: exitTime, in: query, schema: { type: string, format: date-time } }
       responses:
         '200': { description: Closed time log, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-  /employees/by-email/{employeeNumber}/time-logs:
+  /employees/by-email/{email}/time-logs:
     post:
       tags: [time-logs]
       operationId: createTimeLogByEmail
       deprecated: true
-      parameters: [*id001, *id002]
+      parameters: [*legacyEmail, *id002]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateTimeLogRequest' } } } }
       responses:
         '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-  /employees/by-email/{employeeNumber}/time-logs/{entryTime}:
+  /employees/by-email/{email}/time-logs/{entryTime}:
     parameters:
-    - *id001
+    - *legacyEmail
     - { name: entryTime, in: path, required: true, schema: { type: string, format: date-time } }
     get:
       tags: [time-logs]
@@ -820,9 +826,9 @@ paths:
       deprecated: true
       responses:
         '204': { description: Time log deleted }
-  /employees/by-email/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}:
+  /employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}:
     parameters: &id004
-    - *id001
+    - *legacyEmail
     - { name: exitTime, in: path, required: true, schema: { type: string, format: date-time } }
     - *id002
     get:
@@ -831,7 +837,7 @@ paths:
       deprecated: true
       responses:
         '200': { description: Event, content: { application/json: { schema: { $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse' } } } }
-  /employees/by-email/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/resolve:
+  /employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}/resolve:
     parameters: *id004
     post:
       tags: [clock-out-without-clock-in-events]
@@ -840,7 +846,7 @@ paths:
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResolveClockOutWithoutClockInEventRequest' } } } }
       responses:
         '200': { description: Resolved event, content: { application/json: { schema: { $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse' } } } }
-  /employees/by-email/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/invalidate:
+  /employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}/invalidate:
     parameters: *id004
     post:
       tags: [clock-out-without-clock-in-events]
@@ -849,10 +855,10 @@ paths:
       requestBody: { required: false, content: { application/json: { schema: { $ref: '#/components/schemas/InvalidateClockOutWithoutClockInEventRequest' } } } }
       responses:
         '200': { description: Invalidated event, content: { application/json: { schema: { $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse' } } } }
-  /worksites/{worksiteCode}/employees/by-email/{employeeNumber}:
+  /worksites/{worksiteCode}/employees/by-email/{email}:
     parameters:
     - { name: worksiteCode, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9_-]{1,50}$' } }
-    - *id001
+    - *legacyEmail
     put:
       tags: [worksites]
       operationId: assignEmployeeToWorksiteByEmail

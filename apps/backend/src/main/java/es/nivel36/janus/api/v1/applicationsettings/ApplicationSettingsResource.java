@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.validation.Valid;
 
-@RequestMapping({ "/api/v1/application-settings" })
+@RequestMapping({ "/api/v1/application-settings", "/api/v1/applicationsettings" })
 public interface ApplicationSettingsResource {
 
 	@PreAuthorize("@applicationSettingsAuthorization.canView(authentication)")

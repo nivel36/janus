@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import es.nivel36.janus.api.validation.EmployeeNumber;
 import es.nivel36.janus.api.validation.SearchQuery;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 
 @RequestMapping("/api/v1/worksites")
@@ -86,4 +87,18 @@ public interface WorksiteResource {
 	ResponseEntity<Void> removeEmployeeFromWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
+
+	@Deprecated
+	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
+	@PutMapping("/{worksiteCode}/employees/by-email/{email}")
+	ResponseEntity<Void> assignEmployeeToWorksiteByEmail(
+			@PathVariable @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@PathVariable @Email String email);
+
+	@Deprecated
+	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
+	@DeleteMapping("/{worksiteCode}/employees/by-email/{email}")
+	ResponseEntity<Void> removeEmployeeFromWorksiteByEmail(
+			@PathVariable @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@PathVariable @Email String email);
 }
