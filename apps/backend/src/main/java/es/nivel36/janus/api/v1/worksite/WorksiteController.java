@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.worksite;
 
+import java.net.URI;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Objects;
@@ -28,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.policy.worksite.WorksiteAuthorizationAdapter;
@@ -173,7 +175,9 @@ public class WorksiteController implements WorksiteResource {
 		final Worksite worksite = this.worksiteService.createWorksite(code, name, zoneId, scope, description, address);
 
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{worksiteCode}").encode()
+				.buildAndExpand(response.code()).toUri();
+		return ResponseEntity.created(location).body(response);
 	}
 
 	/**

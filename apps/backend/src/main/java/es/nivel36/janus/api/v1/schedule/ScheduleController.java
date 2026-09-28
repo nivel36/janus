@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
@@ -24,11 +25,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.policy.schedule.ScheduleAuthorizationAdapter;
@@ -156,7 +157,9 @@ public class ScheduleController implements ScheduleResource {
 		final Schedule createdSchedule = this.scheduleService.createSchedule(code, name, entryTolerance, exitTolerance,
 				rules);
 		final ScheduleResponse response = this.scheduleResponseMapper.map(createdSchedule);
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{scheduleCode}").encode()
+				.buildAndExpand(response.code()).toUri();
+		return ResponseEntity.created(location).body(response);
 	}
 
 	/**

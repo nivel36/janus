@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -294,7 +295,7 @@ class TimeLogControllerIT {
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
 
-		this.mvc.perform(post(BASE + "/", "EMP-0001") //
+		this.mvc.perform(post(BASE, "EMP-0001") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt()
@@ -302,6 +303,8 @@ class TimeLogControllerIT {
 								.claim("email_verified", true))//
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
+				.andExpect(header().string("Location",
+						"http://localhost/api/v1/employees/EMP-0001/time-logs/2025-08-05T07%3A30%3A00Z")) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
 				.andExpect(jsonPath("$.exitTime").value(exit)) //

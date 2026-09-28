@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.employee;
 
+import java.net.URI;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
@@ -97,7 +99,9 @@ public class EmployeeController implements EmployeeResource {
 		final String employeeNumber = request.employeeNumber().trim();
 		final Employee createdEmployee = this.employeeService.createEmployee(employeeNumber, name, surname, email, schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(createdEmployee);
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{employeeNumber}").encode()
+				.buildAndExpand(createdEmployee.getEmployeeNumber()).toUri();
+		return ResponseEntity.created(location).body(response);
 	}
 
 	/**

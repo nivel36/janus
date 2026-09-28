@@ -165,6 +165,7 @@ class WorksiteControllerIT {
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isCreated()) //
+				.andExpect(header().string("Location", "http://localhost/api/v1/worksites/MAD-HUB")) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.code").value(code)) //
 				.andExpect(jsonPath("$.name").value("Madrid Hub")) //

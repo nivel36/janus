@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
+import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
@@ -26,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
@@ -205,7 +207,9 @@ public class TimeLogController implements TimeLogResource {
 		final Instant exitTime = timeLog.exitTime();
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
 		final TimeLogResponse createdTimeLogResponse = this.timeLogResponseMapper.map(createdTimeLog);
-		return ResponseEntity.status(HttpStatus.CREATED).body(createdTimeLogResponse);
+		final URI location = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{entryTime}").encode()
+				.buildAndExpand(createdTimeLog.getEntryTime()).toUri();
+		return ResponseEntity.created(location).body(createdTimeLogResponse);
 	}
 
 	/**
