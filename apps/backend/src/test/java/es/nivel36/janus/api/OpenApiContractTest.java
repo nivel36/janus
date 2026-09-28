@@ -183,7 +183,7 @@ class OpenApiContractTest {
 		if (implementation.getType() == UUID.class) assertThat(schema.get("format")).isEqualTo("uuid");
 		final var pattern = implementation.getAnnotation(Pattern.class);
 		if (pattern != null) assertThat(schema.get("pattern")).as("validation for %s parameter %s", key, name)
-				.isEqualTo(pattern.regexp());
+				.isEqualTo(fullValuePattern(pattern.regexp()));
 	}
 
 	private static void assertSimpleParameter(final String key, final List<Map<String, Object>> parameters,
@@ -243,6 +243,11 @@ class OpenApiContractTest {
 		if (type == int.class || type == long.class || Number.class.isAssignableFrom(type)) return "integer";
 		if (type == boolean.class || type == Boolean.class) return "boolean";
 		return "string";
+	}
+
+	private static String fullValuePattern(final String pattern) {
+		final var withStartAnchor = pattern.startsWith("^") ? pattern : "^" + pattern;
+		return withStartAnchor.endsWith("$") ? withStartAnchor : withStartAnchor + "$";
 	}
 
 	private static String normalize(final String path) {

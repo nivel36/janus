@@ -30,7 +30,7 @@ paths:
       required: true
       schema:
         type: string
-        pattern: '[A-Za-z0-9_-]{1,50}'
+        pattern: '^[A-Za-z0-9_-]{1,50}$'
     get:
       tags:
       - employees
@@ -157,7 +157,7 @@ paths:
         in: query
         schema:
           type: string
-          pattern: '[A-Za-z0-9_-]{1,50}'
+          pattern: '^[A-Za-z0-9_-]{1,50}$'
       - name: employeeEmail
         in: query
         schema:
@@ -214,7 +214,7 @@ paths:
       required: true
       schema:
         type: string
-        pattern: '[A-Za-z0-9_-]{1,50}'
+        pattern: '^[A-Za-z0-9_-]{1,50}$'
     get:
       tags:
       - worksites
@@ -257,7 +257,7 @@ paths:
       required: true
       schema:
         type: string
-        pattern: '[A-Za-z0-9_-]{1,50}'
+        pattern: '^[A-Za-z0-9_-]{1,50}$'
     - name: start
       in: query
       required: true
@@ -291,7 +291,7 @@ paths:
         in: query
         schema:
           type: string
-          pattern: '[A-Za-z0-9_-]{1,50}'
+          pattern: '^[A-Za-z0-9_-]{1,50}$'
       - name: employeeEmail
         in: query
         schema:
@@ -348,7 +348,7 @@ paths:
       required: true
       schema:
         type: string
-        pattern: '[A-Za-z0-9_-]{1,50}'
+        pattern: '^[A-Za-z0-9_-]{1,50}$'
     get:
       tags: [schedules]
       operationId: findSchedule
@@ -493,14 +493,14 @@ paths:
         required: true
         schema:
           type: string
-          pattern: '[A-Za-z0-9_-]{1,50}'
+          pattern: '^[A-Za-z0-9_-]{1,50}$'
       - &id002
         name: worksiteCode
         in: query
         required: true
         schema:
           type: string
-          pattern: '[A-Za-z0-9_-]{1,50}'
+          pattern: '^[A-Za-z0-9_-]{1,50}$'
       - name: entryTime
         in: query
         schema:
@@ -640,7 +640,7 @@ paths:
       required: true
       schema:
         type: string
-        pattern: '[A-Za-z0-9_-]{1,50}'
+        pattern: '^[A-Za-z0-9_-]{1,50}$'
     - *id001
     put:
       tags:
@@ -840,7 +840,7 @@ paths:
         '200': { description: Invalidated event, content: { application/json: { schema: { $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse' } } } }
   /worksites/{worksiteCode}/employees/by-email/{employeeNumber}:
     parameters:
-    - { name: worksiteCode, in: path, required: true, schema: { type: string, pattern: '[A-Za-z0-9_-]{1,50}' } }
+    - { name: worksiteCode, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9_-]{1,50}$' } }
     - *id001
     put:
       tags: [worksites]
@@ -872,7 +872,7 @@ components:
       properties:
         employeeNumber:
           type: string
-          pattern: '[A-Za-z0-9_-]{1,50}'
+          pattern: '^[A-Za-z0-9_-]{1,50}$'
         name:
           type: string
         surname:
@@ -893,7 +893,7 @@ components:
       properties:
         employeeNumber:
           type: string
-          pattern: '[A-Za-z0-9_-]{1,50}'
+          pattern: '^[A-Za-z0-9_-]{1,50}$'
         name:
           type: string
         surname:
@@ -1132,7 +1132,7 @@ components:
       properties:
         code:
           type: string
-          pattern: '[A-Za-z0-9_-]{1,50}'
+          pattern: '^[A-Za-z0-9_-]{1,50}$'
         name:
           type: string
           pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
