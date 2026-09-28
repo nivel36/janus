@@ -105,73 +105,6 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
-     * Deprecated compatibility route; migrate to the employeeNumber route.
-     * @param employeeEmail
-     * @param worksiteCode
-     * @param entryTime
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public clockInByEmail(employeeEmail: string, worksiteCode: string, entryTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public clockInByEmail(employeeEmail: string, worksiteCode: string, entryTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public clockInByEmail(employeeEmail: string, worksiteCode: string, entryTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public clockInByEmail(employeeEmail: string, worksiteCode: string, entryTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeEmail === null || employeeEmail === undefined) {
-            throw new Error('Required parameter employeeEmail was null or undefined when calling clockInByEmail.');
-        }
-        if (worksiteCode === null || worksiteCode === undefined) {
-            throw new Error('Required parameter worksiteCode was null or undefined when calling clockInByEmail.');
-        }
-
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>worksiteCode, 'worksiteCode');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>entryTime, 'entryTime');
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeEmail", value: employeeEmail, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs/clock-in`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * @param employeeNumber
      * @param worksiteCode
      * @param exitTime
@@ -221,73 +154,6 @@ export class TimeLogsService extends BaseService {
         }
 
         let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/clock-out`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Deprecated compatibility route; migrate to the employeeNumber route.
-     * @param employeeEmail
-     * @param worksiteCode
-     * @param exitTime
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public clockOutByEmail(employeeEmail: string, worksiteCode: string, exitTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public clockOutByEmail(employeeEmail: string, worksiteCode: string, exitTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public clockOutByEmail(employeeEmail: string, worksiteCode: string, exitTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public clockOutByEmail(employeeEmail: string, worksiteCode: string, exitTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeEmail === null || employeeEmail === undefined) {
-            throw new Error('Required parameter employeeEmail was null or undefined when calling clockOutByEmail.');
-        }
-        if (worksiteCode === null || worksiteCode === undefined) {
-            throw new Error('Required parameter worksiteCode was null or undefined when calling clockOutByEmail.');
-        }
-
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>worksiteCode, 'worksiteCode');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>exitTime, 'exitTime');
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeEmail", value: employeeEmail, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs/clock-out`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
             {
@@ -380,84 +246,6 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
-     * Deprecated compatibility route; migrate to the employeeNumber route.
-     * @param employeeEmail
-     * @param worksiteCode
-     * @param createTimeLogRequest
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public createTimeLogByEmail(employeeEmail: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public createTimeLogByEmail(employeeEmail: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public createTimeLogByEmail(employeeEmail: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public createTimeLogByEmail(employeeEmail: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeEmail === null || employeeEmail === undefined) {
-            throw new Error('Required parameter employeeEmail was null or undefined when calling createTimeLogByEmail.');
-        }
-        if (worksiteCode === null || worksiteCode === undefined) {
-            throw new Error('Required parameter worksiteCode was null or undefined when calling createTimeLogByEmail.');
-        }
-        if (createTimeLogRequest === null || createTimeLogRequest === undefined) {
-            throw new Error('Required parameter createTimeLogRequest was null or undefined when calling createTimeLogByEmail.');
-        }
-
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>worksiteCode, 'worksiteCode');
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeEmail", value: employeeEmail, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: createTimeLogRequest,
-                params: localVarQueryParameters,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * @param employeeNumber
      * @param entryTime
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -499,64 +287,6 @@ export class TimeLogsService extends BaseService {
         }
 
         let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Deprecated compatibility route; migrate to the employeeNumber route.
-     * @param employeeEmail
-     * @param entryTime
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public deleteTimeLogByEmail(employeeEmail: string, entryTime: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteTimeLogByEmail(employeeEmail: string, entryTime: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteTimeLogByEmail(employeeEmail: string, entryTime: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteTimeLogByEmail(employeeEmail: string, entryTime: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeEmail === null || employeeEmail === undefined) {
-            throw new Error('Required parameter employeeEmail was null or undefined when calling deleteTimeLogByEmail.');
-        }
-        if (entryTime === null || entryTime === undefined) {
-            throw new Error('Required parameter entryTime was null or undefined when calling deleteTimeLogByEmail.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeEmail", value: employeeEmail, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -629,65 +359,6 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
-     * Deprecated compatibility route; migrate to the employeeNumber route.
-     * @param employeeEmail
-     * @param entryTime
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public findTimeLogByEmployeeAndEntryTimeByEmail(employeeEmail: string, entryTime: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public findTimeLogByEmployeeAndEntryTimeByEmail(employeeEmail: string, entryTime: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public findTimeLogByEmployeeAndEntryTimeByEmail(employeeEmail: string, entryTime: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public findTimeLogByEmployeeAndEntryTimeByEmail(employeeEmail: string, entryTime: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeEmail === null || employeeEmail === undefined) {
-            throw new Error('Required parameter employeeEmail was null or undefined when calling findTimeLogByEmployeeAndEntryTimeByEmail.');
-        }
-        if (entryTime === null || entryTime === undefined) {
-            throw new Error('Required parameter entryTime was null or undefined when calling findTimeLogByEmployeeAndEntryTimeByEmail.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeEmail", value: employeeEmail, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TimeLogResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * @param employeeEmail
      * @param fromInstant
      * @param toInstant
@@ -745,7 +416,7 @@ export class TimeLogsService extends BaseService {
             }
         }
 
-        let localVarPath = `/time-logs/`;
+        let localVarPath = `/time-logs`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogPage>('get', `${basePath}${localVarPath}`,
             {
