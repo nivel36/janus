@@ -31,13 +31,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.api.validation.EmployeeNumber;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 
-@RequestMapping({ "/api/v1/employees/{employeeNumber}/time-logs" })
+@RequestMapping("/api/v1")
 public interface TimeLogResource {
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #entryTime != null)")
-	@PostMapping("/clock-in")
+	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-in", "/employees/{employeeNumber}/timelogs/clock-in" })
 	ResponseEntity<TimeLogResponse> clockIn(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam(value = "entryTime", required = false) Instant entryTime,
@@ -45,7 +46,7 @@ public interface TimeLogResource {
 			Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #exitTime != null)")
-	@PostMapping("/clock-out")
+	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-out", "/employees/{employeeNumber}/timelogs/clock-out" })
 	ResponseEntity<TimeLogResponse> clockOut(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam(value = "exitTime", required = false) Instant exitTime,
@@ -53,21 +54,55 @@ public interface TimeLogResource {
 			Authentication authentication) throws ClockOutWithoutClockInException;
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, true)")
-	@PostMapping
+	@PostMapping({ "/employees/{employeeNumber}/time-logs", "/employees/{employeeNumber}/timelogs" })
 	ResponseEntity<TimeLogResponse> createTimeLog(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@Valid @RequestBody CreateTimeLogRequest timeLog, Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeNumber)")
-	@GetMapping("/{entryTime}")
+	@GetMapping({ "/employees/{employeeNumber}/time-logs/{entryTime}", "/employees/{employeeNumber}/timelogs/{entryTime}" })
 	ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime, Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
-	@DeleteMapping("/{entryTime}")
+	@DeleteMapping({ "/employees/{employeeNumber}/time-logs/{entryTime}", "/employees/{employeeNumber}/timelogs/{entryTime}" })
 	ResponseEntity<Void> deleteTimeLog(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime);
+
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #email, #entryTime != null)")
+	@Deprecated
+	@PostMapping("/employees/by-email/{email}/time-logs/clock-in")
+	ResponseEntity<TimeLogResponse> clockInByEmail(@PathVariable @Email String email,
+			@RequestParam(value = "entryTime", required = false) Instant entryTime,
+			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			Authentication authentication);
+
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #email, #exitTime != null)")
+	@Deprecated
+	@PostMapping("/employees/by-email/{email}/time-logs/clock-out")
+	ResponseEntity<TimeLogResponse> clockOutByEmail(@PathVariable @Email String email,
+			@RequestParam(value = "exitTime", required = false) Instant exitTime,
+			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			Authentication authentication) throws ClockOutWithoutClockInException;
+
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #email, true)")
+	@Deprecated
+	@PostMapping("/employees/by-email/{email}/time-logs")
+	ResponseEntity<TimeLogResponse> createTimeLogByEmail(@PathVariable @Email String email,
+			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@Valid @RequestBody CreateTimeLogRequest timeLog, Authentication authentication);
+
+	@PreAuthorize("@timeLogAuthorization.canView(authentication, #email)")
+	@Deprecated
+	@GetMapping("/employees/by-email/{email}/time-logs/{entryTime}")
+	ResponseEntity<TimeLogResponse> findTimeLogByEmail(@PathVariable @Email String email,
+			@PathVariable Instant entryTime, Authentication authentication);
+
+	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
+	@Deprecated
+	@DeleteMapping("/employees/by-email/{email}/time-logs/{entryTime}")
+	ResponseEntity<Void> deleteTimeLogByEmail(@PathVariable @Email String email, @PathVariable Instant entryTime);
 }

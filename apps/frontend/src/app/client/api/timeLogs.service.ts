@@ -105,19 +105,19 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
-     * @param employeeNumber
+     * @param email
      * @param worksiteCode
      * @param entryTime
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @deprecated
      */
-    public clockInByEmail(employeeNumber: string, worksiteCode: string, entryTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public clockInByEmail(employeeNumber: string, worksiteCode: string, entryTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public clockInByEmail(employeeNumber: string, worksiteCode: string, entryTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public clockInByEmail(employeeNumber: string, worksiteCode: string, entryTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling clockInByEmail.');
+    public clockInByEmail(email: string, worksiteCode: string, entryTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
+    public clockInByEmail(email: string, worksiteCode: string, entryTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
+    public clockInByEmail(email: string, worksiteCode: string, entryTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
+    public clockInByEmail(email: string, worksiteCode: string, entryTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (email === null || email === undefined) {
+            throw new Error('Required parameter email was null or undefined when calling clockInByEmail.');
         }
         if (worksiteCode === null || worksiteCode === undefined) {
             throw new Error('Required parameter worksiteCode was null or undefined when calling clockInByEmail.');
@@ -154,7 +154,7 @@ export class TimeLogsService extends BaseService {
             }
         }
 
-        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/clock-in`;
+        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "email", value: email, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs/clock-in`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
             {
@@ -302,19 +302,19 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
-     * @param employeeNumber
+     * @param email
      * @param worksiteCode
      * @param exitTime
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @deprecated
      */
-    public clockOutByEmail(employeeNumber: string, worksiteCode: string, exitTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public clockOutByEmail(employeeNumber: string, worksiteCode: string, exitTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public clockOutByEmail(employeeNumber: string, worksiteCode: string, exitTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public clockOutByEmail(employeeNumber: string, worksiteCode: string, exitTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling clockOutByEmail.');
+    public clockOutByEmail(email: string, worksiteCode: string, exitTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
+    public clockOutByEmail(email: string, worksiteCode: string, exitTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
+    public clockOutByEmail(email: string, worksiteCode: string, exitTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
+    public clockOutByEmail(email: string, worksiteCode: string, exitTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (email === null || email === undefined) {
+            throw new Error('Required parameter email was null or undefined when calling clockOutByEmail.');
         }
         if (worksiteCode === null || worksiteCode === undefined) {
             throw new Error('Required parameter worksiteCode was null or undefined when calling clockOutByEmail.');
@@ -351,7 +351,7 @@ export class TimeLogsService extends BaseService {
             }
         }
 
-        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/clock-out`;
+        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "email", value: email, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs/clock-out`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
             {
@@ -510,19 +510,19 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
-     * @param employeeNumber
+     * @param email
      * @param worksiteCode
      * @param createTimeLogRequest
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @deprecated
      */
-    public createTimeLogByEmail(employeeNumber: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public createTimeLogByEmail(employeeNumber: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public createTimeLogByEmail(employeeNumber: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public createTimeLogByEmail(employeeNumber: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling createTimeLogByEmail.');
+    public createTimeLogByEmail(email: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
+    public createTimeLogByEmail(email: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
+    public createTimeLogByEmail(email: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
+    public createTimeLogByEmail(email: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (email === null || email === undefined) {
+            throw new Error('Required parameter email was null or undefined when calling createTimeLogByEmail.');
         }
         if (worksiteCode === null || worksiteCode === undefined) {
             throw new Error('Required parameter worksiteCode was null or undefined when calling createTimeLogByEmail.');
@@ -569,7 +569,7 @@ export class TimeLogsService extends BaseService {
             }
         }
 
-        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs`;
+        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "email", value: email, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
             {
@@ -720,18 +720,18 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
-     * @param employeeNumber
+     * @param email
      * @param entryTime
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @deprecated
      */
-    public deleteTimeLogByEmail(employeeNumber: string, entryTime: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteTimeLogByEmail(employeeNumber: string, entryTime: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteTimeLogByEmail(employeeNumber: string, entryTime: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteTimeLogByEmail(employeeNumber: string, entryTime: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling deleteTimeLogByEmail.');
+    public deleteTimeLogByEmail(email: string, entryTime: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deleteTimeLogByEmail(email: string, entryTime: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deleteTimeLogByEmail(email: string, entryTime: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deleteTimeLogByEmail(email: string, entryTime: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (email === null || email === undefined) {
+            throw new Error('Required parameter email was null or undefined when calling deleteTimeLogByEmail.');
         }
         if (entryTime === null || entryTime === undefined) {
             throw new Error('Required parameter entryTime was null or undefined when calling deleteTimeLogByEmail.');
@@ -761,7 +761,7 @@ export class TimeLogsService extends BaseService {
             }
         }
 
-        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
+        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "email", value: email, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -834,18 +834,18 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
-     * @param employeeNumber
+     * @param email
      * @param entryTime
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @deprecated
      */
-    public findTimeLogByEmail(employeeNumber: string, entryTime: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public findTimeLogByEmail(employeeNumber: string, entryTime: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public findTimeLogByEmail(employeeNumber: string, entryTime: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public findTimeLogByEmail(employeeNumber: string, entryTime: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling findTimeLogByEmail.');
+    public findTimeLogByEmail(email: string, entryTime: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
+    public findTimeLogByEmail(email: string, entryTime: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
+    public findTimeLogByEmail(email: string, entryTime: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
+    public findTimeLogByEmail(email: string, entryTime: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (email === null || email === undefined) {
+            throw new Error('Required parameter email was null or undefined when calling findTimeLogByEmail.');
         }
         if (entryTime === null || entryTime === undefined) {
             throw new Error('Required parameter entryTime was null or undefined when calling findTimeLogByEmail.');
@@ -876,7 +876,7 @@ export class TimeLogsService extends BaseService {
             }
         }
 
-        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
+        let localVarPath = `/employees/by-email/${this.configuration.encodeParam({name: "email", value: email, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "email"})}/time-logs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogResponse>('get', `${basePath}${localVarPath}`,
             {
