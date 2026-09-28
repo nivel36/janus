@@ -97,7 +97,7 @@ class ScheduleControllerIT {
 	}
 
 	@Test
-	void testCreateDuplicatedScheduleShouldReturn400() throws Exception {
+	void testCreateDuplicatedScheduleShouldReturn409() throws Exception {
 		final String body = """
 				{
 				  "code": "STD-WH",
@@ -128,7 +128,7 @@ class ScheduleControllerIT {
 
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isBadRequest()) //
+				.andExpect(status().isConflict()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
 

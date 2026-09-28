@@ -139,7 +139,7 @@ public class TimeLogService {
 
 	private void assertWithinEditableWindow(final Instant time, final Instant lockThreshold, final Instant now) {
 		if (time.isAfter(now)) {
-			throw new TimeLogModificationNotAllowedException("Time cannot be in the future");
+			throw new TimeLogFutureTimeException();
 		}
 		if (!time.isAfter(lockThreshold)) {
 			throw new TimeLogModificationNotAllowedException(
