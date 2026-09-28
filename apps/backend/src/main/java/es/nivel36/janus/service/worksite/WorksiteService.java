@@ -29,6 +29,7 @@ import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
+import es.nivel36.janus.util.LikePatterns;
 
 /**
  * Service class responsible for managing {@link Worksite} entities.
@@ -99,7 +100,7 @@ public class WorksiteService {
 		if (query == null || query.isEmpty()) {
 			worksites = this.worksiteRepository.findAll(pageable);
 		} else {
-			worksites = this.worksiteRepository.search(query, employeeEmail, pageable);
+			worksites = this.worksiteRepository.search(LikePatterns.escape(query), employeeEmail, pageable);
 		}
 
 		logger.trace("Found {} worksites", worksites.getTotalElements());

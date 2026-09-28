@@ -77,15 +77,17 @@ class WorksiteControllerIT {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "Centro logístico", "logístico-norte", "material frágil", "Avenida de la Constitución" })
+	@ValueSource(strings = { "Centro logístico", "logístico-norte", "material frágil", "Avenida de la Constitución",
+			"50%", "MAD_NORTE", "C:\\Depot", "entrada!sur" })
 	@Sql(statements = {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
-			"INSERT INTO worksite(code,name,time_zone,scope,description,address) VALUES('MAD-NORTE','Centro logístico-norte','Europe/Madrid','GLOBAL','Almacén de material frágil','Avenida de la Constitución, 24')" })
+			"INSERT INTO worksite(code,name,time_zone,scope,description,address) VALUES('MAD_NORTE','Centro logístico-norte','Europe/Madrid','GLOBAL','Almacén de material frágil al 50%','Avenida de la Constitución, 24; C:\\Depot; entrada!sur')",
+			"INSERT INTO worksite(code,name,time_zone,scope,description) VALUES('MADXNORTE','Centro secundario','Europe/Madrid','GLOBAL','Almacén al 500 por cien')" })
 	void searchAcceptsFreeTextFromWorksiteFields(final String query) throws Exception {
 		this.mvc.perform(get(BASE).param("query", query).with(verifiedJwt()
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
-				.andExpect(jsonPath("$.content[0].code").value("MAD-NORTE"));
+				.andExpect(jsonPath("$.content[0].code").value("MAD_NORTE"));
 	}
 
 	@Test

@@ -170,11 +170,11 @@ class ScheduleControllerIT {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "Turno estándar", "estándar-mañana" })
+	@ValueSource(strings = { "Turno estándar", "estándar-mañana", "TURNO_MANANA" })
 	void searchSchedulesAcceptsSpacesAccentsAndHyphens(final String query) throws Exception {
 		final String body = """
 				{
-				  "code": "TURNO-MANANA",
+				  "code": "TURNO_MANANA",
 				  "name": "Turno estándar-mañana",
 				  "entryTolerance": "PT1H",
 				  "exitTolerance": "PT1H",
@@ -195,7 +195,11 @@ class ScheduleControllerIT {
 		this.mvc.perform(get(BASE).param("query", query).with(verifiedJwt()
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
-				.andExpect(jsonPath("$.content[0].code").value("TURNO-MANANA"));
+				.andExpect(jsonPath("$.content[0].code").value("TURNO_MANANA"));
+
+		this.mvc.perform(get(BASE).param("query", "%").with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
 	}
 
 	@ParameterizedTest
