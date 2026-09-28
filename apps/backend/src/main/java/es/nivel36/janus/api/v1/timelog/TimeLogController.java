@@ -28,8 +28,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.policy.timelog.TimeLogAuthorizationAdapter;
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
@@ -52,7 +50,6 @@ public class TimeLogController implements TimeLogResource {
 	private static final Logger logger = LoggerFactory.getLogger(TimeLogController.class);
 
 	private final TimeLogService timeLogService;
-	private final TimeLogAuthorizationAdapter authorization;
 	private final EmployeeService employeeService;
 	private final WorksiteService worksiteService;
 	private final Clock clock;
@@ -63,8 +60,6 @@ public class TimeLogController implements TimeLogResource {
 	 *
 	 * @param timeLogService        application service handling {@link TimeLog}
 	 *                              logic; must not be {@code null}
-	 * @param authorization         authorization adapter used to scope employee-only
-	 *                              operations; must not be {@code null}
 	 * @param employeeService       service used to resolve {@link Employee}
 	 *                              entities; must not be {@code null}
 	 * @param worksiteService       service resolving {@link Worksite} entities;
@@ -77,7 +72,7 @@ public class TimeLogController implements TimeLogResource {
 	 */
 	public TimeLogController( //
 			final TimeLogService timeLogService, //
-			final TimeLogAuthorizationAdapter authorization, //
+
 			final EmployeeService employeeService, //
 			final WorksiteService worksiteService, //
 			final @Qualifier("timeLogResponseMapper") Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper, //
@@ -85,7 +80,6 @@ public class TimeLogController implements TimeLogResource {
 	) {
 		this.timeLogService = Objects.requireNonNull( //
 				timeLogService, "timeLogService can't be null");
-		this.authorization = Objects.requireNonNull(authorization, "authorization can't be null");
 		this.employeeService = Objects.requireNonNull( //
 				employeeService, "employeeService can't be null");
 		this.worksiteService = Objects.requireNonNull( //

@@ -32,7 +32,7 @@ import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
-@RequestMapping({ "/api/v1/employees/{employeeNumber}/time-logs", "/api/v1/employees/{employeeNumber}/timelogs", "/api/v1/employees/by-email/{employeeNumber}/time-logs" })
+@RequestMapping({ "/api/v1/employees/{employeeNumber}/time-logs" })
 public interface TimeLogResource {
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #entryTime != null)")
@@ -52,7 +52,7 @@ public interface TimeLogResource {
 			Authentication authentication) throws ClockOutWithoutClockInException;
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, true)")
-	@PostMapping({ "", "/" })
+	@PostMapping
 	ResponseEntity<TimeLogResponse> createTimeLog(
 			@PathVariable("employeeNumber") String employeeNumber,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,

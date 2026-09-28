@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
-@RequestMapping({ "/api/v1/employees/{employeeNumber}/clock-out-without-clock-in-events", "/api/v1/employees/by-email/{employeeNumber}/clock-out-without-clock-in-events" })
+@RequestMapping({ "/api/v1/employees/{employeeNumber}/clock-out-without-clock-in-events"})
 public interface ClockOutWithoutClockInEventResource {
 
 	@PostMapping("/{exitTime}/resolve")

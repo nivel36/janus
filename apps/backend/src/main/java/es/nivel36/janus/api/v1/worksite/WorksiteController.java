@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.policy.worksite.WorksiteAuthorizationAdapter;
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.worksite.Worksite;

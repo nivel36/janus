@@ -80,7 +80,6 @@ class OpenApiContractTest {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private static Map<String, Object> contract() throws Exception {
 		try (var stream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
 				var reader = new InputStreamReader(stream)) {

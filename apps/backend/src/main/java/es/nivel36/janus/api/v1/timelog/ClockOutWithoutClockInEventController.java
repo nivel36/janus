@@ -27,7 +27,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
