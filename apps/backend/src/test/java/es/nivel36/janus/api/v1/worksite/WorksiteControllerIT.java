@@ -145,14 +145,14 @@ class WorksiteControllerIT {
 	@Sql(statements = {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
-	void testCreateAlreadyExistsShouldReturn400() throws Exception {
+	void testCreateAlreadyExistsShouldReturn409() throws Exception {
 		final String code = "BCN-HQ";
 		final String body = """
 				  {"code":"%s","name":"Barcelona Headquarters","timeZone":"Europe/Madrid","scope":"GLOBAL"}
 				""".formatted(code);
 
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isBadRequest());
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isConflict());
 	}
 
 	@Test

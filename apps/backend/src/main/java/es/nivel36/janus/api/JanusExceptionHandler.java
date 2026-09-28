@@ -52,6 +52,7 @@ import es.nivel36.janus.service.timelog.EventAlreadyFinalizedException;
 import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
 import es.nivel36.janus.service.timelog.TimeLogChronologyException;
 import es.nivel36.janus.service.timelog.TimeLogDeletedException;
+import es.nivel36.janus.service.timelog.TimeLogFutureTimeException;
 import es.nivel36.janus.service.timelog.TimeLogModificationNotAllowedException;
 import es.nivel36.janus.service.timelog.WorksiteMismatchOnClockOutException;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
@@ -76,6 +77,12 @@ public class JanusExceptionHandler {
 	private static final URI TYPE_NOT_FOUND = URI.create("urn:problem:resource-not-found");
 	private static final URI TYPE_INVALID_ARGUMENT = URI.create("urn:problem:invalid-argument");
 	private static final URI TYPE_OPERATION_CONFLICT = URI.create("urn:problem:operation-conflict");
+	private static final URI TYPE_RESOURCE_ALREADY_EXISTS = URI.create("urn:problem:resource-already-exists");
+	private static final URI TYPE_INVALID_CHRONOLOGY = URI.create("urn:problem:invalid-chronology");
+	private static final URI TYPE_INVALID_TIME_LOG_TIME = URI.create("urn:problem:invalid-time-log-time");
+	private static final URI TYPE_CLOCK_OUT_WITHOUT_CLOCK_IN = URI.create("urn:problem:clock-out-without-clock-in");
+	private static final URI TYPE_WORKSITE_MISMATCH = URI.create("urn:problem:worksite-mismatch-on-clock-out");
+	private static final URI TYPE_EVENT_ALREADY_FINALIZED = URI.create("urn:problem:event-already-finalized");
 	private static final URI TYPE_INVALID_DATE_TIME = URI.create("urn:problem:invalid-date-time-format");
 	private static final URI TYPE_MALFORMED_REQUEST = URI.create("urn:problem:malformed-request");
 	private static final URI TYPE_MISSING_PARAMETER = URI.create("urn:problem:missing-parameter");
@@ -127,8 +134,8 @@ public class JanusExceptionHandler {
 	@ExceptionHandler(ResourceAlreadyExistsException.class)
 	ProblemDetail handleResourceAlreadyExists(final ResourceAlreadyExistsException ex,
 			final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-		pd.setType(TYPE_OPERATION_CONFLICT);
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+		pd.setType(TYPE_RESOURCE_ALREADY_EXISTS);
 		pd.setTitle("Resource already exists");
 		pd.setDetail(ex.getMessage());
 		this.addCommonProps(pd, request);
@@ -139,7 +146,7 @@ public class JanusExceptionHandler {
 	@ExceptionHandler(TimeLogChronologyException.class)
 	ProblemDetail handleTimeLogChronology(final TimeLogChronologyException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-		pd.setType(TYPE_OPERATION_CONFLICT);
+		pd.setType(TYPE_INVALID_CHRONOLOGY);
 		pd.setTitle("Invalid chronological order");
 		pd.setDetail(ex.getMessage());
 		this.addCommonProps(pd, request);
@@ -149,7 +156,7 @@ public class JanusExceptionHandler {
 
 	@ExceptionHandler(TimeLogAlreadyClosedException.class)
 	ProblemDetail handleTimeLogAlreadyClosed(final TimeLogAlreadyClosedException ex, final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Time log already closed");
 		pd.setDetail(ex.getMessage());
@@ -160,7 +167,7 @@ public class JanusExceptionHandler {
 
 	@ExceptionHandler(TimeLogDeletedException.class)
 	ProblemDetail handleTimeLogDeleted(final TimeLogDeletedException ex, final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Time log has been deleted");
 		pd.setDetail(ex.getMessage());
@@ -172,7 +179,7 @@ public class JanusExceptionHandler {
 	@ExceptionHandler(TimeLogModificationNotAllowedException.class)
 	ProblemDetail handleTimeLogModificationNotAllowed(final TimeLogModificationNotAllowedException ex,
 			final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
 		pd.setType(TYPE_OPERATION_CONFLICT);
 		pd.setTitle("Time log not allowed");
 		pd.setDetail(ex.getMessage());
@@ -181,12 +188,23 @@ public class JanusExceptionHandler {
 		return pd;
 	}
 
+	@ExceptionHandler(TimeLogFutureTimeException.class)
+	ProblemDetail handleTimeLogFutureTime(final TimeLogFutureTimeException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_INVALID_TIME_LOG_TIME);
+		pd.setTitle("Invalid time log time");
+		pd.setDetail(ex.getMessage());
+		this.addCommonProps(pd, request);
+		logger.warn("TimeLogFutureTimeException error {}", pd);
+		return pd;
+	}
+
 	@ExceptionHandler(ClockOutWithoutClockInException.class)
 	ProblemDetail handleClockOutWithoutClockIn(final ClockOutWithoutClockInException ex,
 			final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-		pd.setType(TYPE_OPERATION_CONFLICT);
-		pd.setTitle("Invalid Clock out");
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+		pd.setType(TYPE_CLOCK_OUT_WITHOUT_CLOCK_IN);
+		pd.setTitle("Invalid clock-out");
 		pd.setDetail(ex.getMessage());
 		this.addCommonProps(pd, request);
 		logger.warn("ClockOutWithoutClockInException error {}", pd);
@@ -196,9 +214,9 @@ public class JanusExceptionHandler {
 	@ExceptionHandler(WorksiteMismatchOnClockOutException.class)
 	ProblemDetail handleWorksiteMismatchOnClockOut(final WorksiteMismatchOnClockOutException ex,
 			final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-		pd.setType(TYPE_OPERATION_CONFLICT);
-		pd.setTitle("Invalid Clock out");
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+		pd.setType(TYPE_WORKSITE_MISMATCH);
+		pd.setTitle("Invalid clock-out");
 		pd.setDetail("Cannot clock out in worksite " + ex.getActual() + " when shift started in " + ex.getExpected());
 		this.addCommonProps(pd, request);
 		logger.warn("WorksiteMismatchOnClockOutException error {}", pd);
@@ -208,8 +226,8 @@ public class JanusExceptionHandler {
 	@ExceptionHandler(ZoneRulesException.class)
 	ProblemDetail handleZoneRulesException(final ZoneRulesException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-		pd.setType(TYPE_OPERATION_CONFLICT);
-		pd.setTitle("Incorrect TimeZone");
+		pd.setType(TYPE_INVALID_DATE_TIME);
+		pd.setTitle("Invalid time zone");
 		pd.setDetail(ex.getMessage());
 		this.addCommonProps(pd, request);
 		logger.warn("ZoneRulesException error {}", pd);
@@ -219,8 +237,8 @@ public class JanusExceptionHandler {
 	@ExceptionHandler(EventAlreadyFinalizedException.class)
 	ProblemDetail handleEventAlreadyFinalized(final EventAlreadyFinalizedException ex,
 			final HttpServletRequest request) {
-		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-		pd.setType(TYPE_OPERATION_CONFLICT);
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+		pd.setType(TYPE_EVENT_ALREADY_FINALIZED);
 		pd.setTitle("Event already finalized");
 		pd.setDetail(ex.getMessage());
 		this.addCommonProps(pd, request);

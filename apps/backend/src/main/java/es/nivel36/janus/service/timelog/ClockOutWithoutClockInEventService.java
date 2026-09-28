@@ -97,6 +97,9 @@ public class ClockOutWithoutClockInEventService {
 		Objects.requireNonNull(entryTime, "entryTime can't be null");
 
 		logger.debug("Resolving clockOutWithoutClockInEvent {} at {}", clockOutWithoutClockInEvent, entryTime);
+		if (clockOutWithoutClockInEvent.isResolved() || clockOutWithoutClockInEvent.isInvalidated()) {
+			throw new EventAlreadyFinalizedException();
+		}
 
 		final Employee employee = clockOutWithoutClockInEvent.getEmployee();
 		final Worksite worksite = clockOutWithoutClockInEvent.getWorksite();

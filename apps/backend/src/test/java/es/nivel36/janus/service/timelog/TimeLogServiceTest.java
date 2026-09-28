@@ -214,6 +214,19 @@ class TimeLogServiceTest {
 		verify(this.timeLogRepository, times(0)).save(any());
 	}
 
+	@Test
+	void testCreateTimeLogWithFutureTimeThrowsClientInputException() {
+		final Instant fixedNow = LocalDateTime.of(2025, 8, 30, 10, 0, 0).toInstant(ZoneOffset.UTC);
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+
+		final Instant futureEntry = fixedNow.plus(1, ChronoUnit.SECONDS);
+		assertThrows(TimeLogFutureTimeException.class,
+				() -> this.timeLogService.createTimeLog(this.employee, this.worksite, futureEntry, futureEntry));
+
+		verify(this.timeLogRepository, times(0)).save(any());
+	}
+
 	@ParameterizedTest(name = "{index} => {0}")
 	@MethodSource("provideInvalidEntryExitPairs")
 	void testCreateTimeLogInvalidEntryExitShouldThrow(final String description, final Instant entry,
