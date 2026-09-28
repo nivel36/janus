@@ -116,8 +116,8 @@ class TimeLogSearchControllerIT {
 	@ValueSource(strings = { BASE })
 	void dateRangeIsInclusiveAtStartExclusiveAtEndAndStillScoped(final String endpoint) throws Exception {
 		for (int page = 0; page < 2; page++) {
-			this.mvc.perform(get(endpoint).param("fromInstant", "2025-07-02T08:00:00Z")
-					.param("toInstant", "2025-07-04T08:00:00Z").param("page", Integer.toString(page))
+			this.mvc.perform(get(endpoint).param("start", "2025-07-02T08:00:00Z")
+					.param("end", "2025-07-04T08:00:00Z").param("page", Integer.toString(page))
 					.param("size", "1").param("sort", "entryTime,asc").with(employee()))
 					.andExpect(status().isOk())
 					.andExpect(jsonPath("$.content.length()").value(1))
@@ -197,12 +197,15 @@ class TimeLogSearchControllerIT {
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void incompleteOrReversedDateRangesAreRejected(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).param("fromInstant", "2025-07-02T08:00:00Z").with(employee()))
+		this.mvc.perform(get(endpoint).param("start", "2025-07-02T08:00:00Z").with(employee()))
 				.andExpect(status().isBadRequest());
-		this.mvc.perform(get(endpoint).param("toInstant", "2025-07-04T08:00:00Z").with(employee()))
+		this.mvc.perform(get(endpoint).param("end", "2025-07-04T08:00:00Z").with(employee()))
 				.andExpect(status().isBadRequest());
-		this.mvc.perform(get(endpoint).param("fromInstant", "2025-07-04T08:00:00Z")
-				.param("toInstant", "2025-07-02T08:00:00Z").with(employee()))
+		this.mvc.perform(get(endpoint).param("start", "2025-07-04T08:00:00Z")
+				.param("end", "2025-07-02T08:00:00Z").with(employee()))
+				.andExpect(status().isBadRequest());
+		this.mvc.perform(get(endpoint).param("start", "2025-07-04T08:00:00Z")
+				.param("end", "2025-07-04T08:00:00Z").with(employee()))
 				.andExpect(status().isBadRequest());
 	}
 

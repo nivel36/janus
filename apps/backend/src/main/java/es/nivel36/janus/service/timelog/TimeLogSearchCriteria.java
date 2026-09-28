@@ -9,16 +9,16 @@ import java.time.Instant;
 
 /**
  * Optional client filters, independent of the authorized search scope.
- * The entry-time range includes {@code fromInstant} and excludes {@code toInstant}.
+ * The entry-time range includes {@code start} and excludes {@code end}.
  */
-public record TimeLogSearchCriteria(String employeeEmail, Instant fromInstant, Instant toInstant) {
+public record TimeLogSearchCriteria(String employeeEmail, Instant start, Instant end) {
 
 	public TimeLogSearchCriteria {
-		if ((fromInstant == null) != (toInstant == null)) {
-			throw new IllegalArgumentException("Both fromInstant and toInstant must be provided together or omitted.");
+		if ((start == null) != (end == null)) {
+			throw new IllegalArgumentException("Both start and end must be provided together or omitted.");
 		}
-		if (fromInstant != null && fromInstant.isAfter(toInstant)) {
-			throw new IllegalArgumentException("toInstant must be after fromInstant");
+		if (start != null && !start.isBefore(end)) {
+			throw new IllegalArgumentException("end must be after start");
 		}
 	}
 }

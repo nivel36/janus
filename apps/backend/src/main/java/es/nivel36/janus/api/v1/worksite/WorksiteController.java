@@ -133,8 +133,8 @@ public class WorksiteController implements WorksiteResource {
 			final String worksiteCode, //
 			final Instant start, //
 			final Instant end) {
-		if (end.isBefore(start)) {
-			throw new IllegalArgumentException("end must be greater than or equal to start");
+		if (!start.isBefore(end)) {
+			throw new IllegalArgumentException("end must be after start");
 		}
 
 		this.worksiteService.findWorksiteByCode(worksiteCode);

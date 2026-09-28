@@ -261,12 +261,14 @@ paths:
     - name: start
       in: query
       required: true
+      description: Inclusive lower bound of the half-open interval [start, end).
       schema:
         type: string
         format: date-time
     - name: end
       in: query
       required: true
+      description: Exclusive upper bound of the half-open interval [start, end).
       schema:
         type: string
         format: date-time
@@ -439,13 +441,15 @@ paths:
           format: email
           maxLength: 254
           pattern: "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$"
-      - name: fromInstant
+      - name: start
         in: query
+        description: Inclusive lower bound of the half-open interval [start, end).
         schema:
           type: string
           format: date-time
-      - name: toInstant
+      - name: end
         in: query
+        description: Exclusive upper bound of the half-open interval [start, end).
         schema:
           type: string
           format: date-time
@@ -708,8 +712,8 @@ paths:
           format: email
           maxLength: 254
           pattern: "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$"
-      - { name: fromInstant, in: query, schema: { type: string, format: date-time } }
-      - { name: toInstant, in: query, schema: { type: string, format: date-time } }
+      - { name: start, in: query, schema: { type: string, format: date-time } }
+      - { name: end, in: query, schema: { type: string, format: date-time } }
       - { name: page, in: query, schema: { type: integer, default: 0 } }
       - { name: size, in: query, schema: { type: integer, default: 20 } }
       - { name: sort, in: query, schema: { type: array, items: { type: string } }, style: form, explode: true }
@@ -1212,15 +1216,15 @@ components:
           format: time
     WorksiteStatsResponse:
       type: object
-      required: [worksiteCode, startInclusive, endInclusive, employeesWhoClockedIn, erroneousTimeLogs,
+      required: [worksiteCode, start, end, employeesWhoClockedIn, erroneousTimeLogs,
         totalTimeLogs, employeesAllowedToClockIn, distinctSchedulesFromEmployeesWhoClockedIn]
       properties:
         worksiteCode:
           type: string
-        startInclusive:
+        start:
           type: string
           format: date-time
-        endInclusive:
+        end:
           type: string
           format: date-time
         employeesWhoClockedIn:

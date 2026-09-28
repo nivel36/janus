@@ -1,7 +1,7 @@
 # Time log search authorization
 
 `GET /api/v1/timelogs` searches visible time logs with optional `employeeEmail`,
-`fromInstant` and `toInstant` filters. Both instants must be supplied together;
+`start` and `end` filters. Both instants must be supplied together;
 the lower bound is inclusive and the upper bound is exclusive. Standard `page`,
 `size` and `sort` parameters control pagination. The default order is descending
 `entryTime`.

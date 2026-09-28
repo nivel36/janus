@@ -510,8 +510,8 @@ export class WorksitesService extends BaseService {
 
     /**
      * @param worksiteCode
-     * @param start
-     * @param end
+     * @param start Inclusive lower bound of the half-open interval [start, end).
+     * @param end Exclusive upper bound of the half-open interval [start, end).
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

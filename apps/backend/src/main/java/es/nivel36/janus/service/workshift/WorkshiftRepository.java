@@ -41,13 +41,13 @@ interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 
 	/**
 	 * Finds the {@link WorkShift} entries for an employee whose {@code date} falls
-	 * within the provided half-open range {@code [fromInclusive, toExclusive)}.
+	 * within the provided half-open range {@code [start, end)}.
 	 *
 	 * @param employeeId internal id of the employee whose shifts are requested; must
 	 *                      not be {@code null}
-	 * @param fromInclusive the inclusive lower bound of the date range; must not be
+	 * @param start         the inclusive lower bound of the date range; must not be
 	 *                      {@code null}
-	 * @param toExclusive   the exclusive upper bound of the date range; must not be
+	 * @param end           the exclusive upper bound of the date range; must not be
 	 *                      {@code null}
 	 * @param pageable      pagination information; must not be {@code null}
 	 * @return a {@link Page} containing the matching work shifts
@@ -56,9 +56,9 @@ interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 			SELECT w
 			FROM WorkShift w
 			WHERE w.employee.id = :employeeId
-			AND w.date >= :fromInclusive
-			AND w.date < :toExclusive
+			AND w.date >= :start
+			AND w.date < :end
 			""")
-	Page<WorkShift> findByEmployeeIdAndRange(Long employeeId, LocalDate fromInclusive, LocalDate toExclusive,
+	Page<WorkShift> findByEmployeeIdAndRange(Long employeeId, LocalDate start, LocalDate end,
 			Pageable pageable);
 }

@@ -11,8 +11,8 @@
 
 export interface WorksiteStatsResponse {
     worksiteCode: string;
-    startInclusive: string;
-    endInclusive: string;
+    start: string;
+    end: string;
     employeesWhoClockedIn: number;
     erroneousTimeLogs: number;
     totalTimeLogs: number;

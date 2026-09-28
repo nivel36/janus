@@ -365,14 +365,14 @@ class WorkShiftServiceTest {
 		final Pageable page = Pageable.unpaged();
 
 		final ZoneId z = this.worksite.getTimeZone();
-		final Instant fromInstant = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
-		final Instant toInstant = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
+		final Instant start = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
+		final Instant end = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
 
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
 		when(this.timeLogService.searchTimeLogs(
-				new TimeLogSearchCriteria(this.employee.getEmail(), fromInstant, toInstant),
+				new TimeLogSearchCriteria(this.employee.getEmail(), start, end),
 				new TimeLogSearchScope.Employee(this.employee.getId()), page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))
@@ -399,14 +399,14 @@ class WorkShiftServiceTest {
 		final Pageable page = Pageable.unpaged();
 
 		final ZoneId z = this.worksite.getTimeZone();
-		final Instant fromInstant = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
-		final Instant toInstant = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
+		final Instant start = date.atStartOfDay(z).toInstant().minus(1, ChronoUnit.DAYS);
+		final Instant end = date.atStartOfDay(z).toInstant().plus(2, ChronoUnit.DAYS);
 
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
 		when(this.timeLogService.searchTimeLogs(
-				new TimeLogSearchCriteria(this.employee.getEmail(), fromInstant, toInstant),
+				new TimeLogSearchCriteria(this.employee.getEmail(), start, end),
 				new TimeLogSearchScope.Employee(this.employee.getId()), page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))

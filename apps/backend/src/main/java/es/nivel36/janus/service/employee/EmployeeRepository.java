@@ -54,38 +54,38 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 			SELECT COUNT(DISTINCT t.employee.id)
 			FROM TimeLog t
 			WHERE t.worksite.code = :worksiteCode
-			AND t.entryTime >= :startInclusive
-			AND t.entryTime <= :endInclusive
+			AND t.entryTime >= :start
+			AND t.entryTime < :end
 			""")
-	long countDistinctEmployeesWithTimeLogsInRange(String worksiteCode, Instant startInclusive, Instant endInclusive);
+	long countDistinctEmployeesWithTimeLogsInRange(String worksiteCode, Instant start, Instant end);
 
 	@Query("""
 			SELECT COUNT(t.id)
 			FROM TimeLog t
 			WHERE t.worksite.code = :worksiteCode
-			AND t.entryTime >= :startInclusive
-			AND t.entryTime <= :endInclusive
+			AND t.entryTime >= :start
+			AND t.entryTime < :end
 			""")
-	long countTimeLogsInRange(String worksiteCode, Instant startInclusive, Instant endInclusive);
+	long countTimeLogsInRange(String worksiteCode, Instant start, Instant end);
 
 	@Query("""
 			SELECT COUNT(t.id)
 			FROM TimeLog t
 			WHERE t.worksite.code = :worksiteCode
-			AND t.entryTime >= :startInclusive
-			AND t.entryTime <= :endInclusive
+			AND t.entryTime >= :start
+			AND t.entryTime < :end
 			AND t.exitTime IS NULL
 			""")
-	long countOpenTimeLogsInRange(String worksiteCode, Instant startInclusive, Instant endInclusive);
+	long countOpenTimeLogsInRange(String worksiteCode, Instant start, Instant end);
 
 	@Query("""
 			SELECT COUNT(DISTINCT t.employee.schedule.id)
 			FROM TimeLog t
 			WHERE t.worksite.code = :worksiteCode
-			AND t.entryTime >= :startInclusive
-			AND t.entryTime <= :endInclusive
+			AND t.entryTime >= :start
+			AND t.entryTime < :end
 			""")
-	long countDistinctSchedulesInRange(String worksiteCode, Instant startInclusive, Instant endInclusive);
+	long countDistinctSchedulesInRange(String worksiteCode, Instant start, Instant end);
 
 	/**
 	 * Checks whether a {@link Employee} exists for the specified email.
@@ -127,7 +127,7 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * considered. The query returns distinct employee IDs.
 	 * </p>
 	 *
-	 * @param fromInclusive the lower bound instant; only time logs with
+	 * @param start the lower bound instant; only time logs with
 	 *                      {@code entryTime} greater than or equal to this value
 	 *                      are considered
 	 * @return a list of unique employee IDs corresponding to employees with at
@@ -137,11 +137,11 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 			SELECT DISTINCT t.employee_id
 			FROM time_log t
 			WHERE t.deleted = false
-			AND t.entry_time >= :fromInclusive
+			AND t.entry_time >= :start
 			AND t.exit_time IS NOT NULL
 			AND t.workshift_id IS NULL;
 			""", nativeQuery = true)
-	List<Long> findWithoutWorkshiftsSince(@Param("fromInclusive") Instant fromInclusive);
+	List<Long> findWithoutWorkshiftsSince(Instant start);
 
 	/**
 	 * Determines whether an employee identified by the given email address is

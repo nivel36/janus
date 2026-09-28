@@ -51,18 +51,18 @@ public class TimeLogSearchController implements TimeLogSearchResource {
 	 * authorization scope.
 	 *
 	 * @param employeeEmail   optional employee email filter
-	 * @param fromInstant     optional lower bound for the time range
-	 * @param toInstant       optional upper bound for the time range
+	 * @param start           optional inclusive lower bound for the time range
+	 * @param end             optional exclusive upper bound for the time range
 	 * @param pageable        pagination and sorting information; must not be
 	 *                        {@code null}
 	 * @param authentication current authentication; must not be {@code null}
 	 * @return a page of matching time log responses
 	 */
 	@Override
-	public ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(final String employeeEmail, final Instant fromInstant,
-			final Instant toInstant, final Pageable pageable, final Authentication authentication) {
+	public ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(final String employeeEmail, final Instant start,
+			final Instant end, final Pageable pageable, final Authentication authentication) {
 		final TimeLogSearchCriteria criteria = new TimeLogSearchCriteria(
-				this.authorization.canonicalEmployeeEmail(employeeEmail), fromInstant, toInstant);
+				this.authorization.canonicalEmployeeEmail(employeeEmail), start, end);
 		return ResponseEntity.ok(this.timeLogs.searchTimeLogs(criteria, this.authorization.searchScope(authentication),
 				pageable).map(this.mapper::map));
 	}

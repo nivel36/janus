@@ -1008,26 +1008,26 @@ export class TimeLogsService extends BaseService {
 
     /**
      * @param employeeEmail
-     * @param fromInstant
-     * @param toInstant
+     * @param start Inclusive lower bound of the half-open interval [start, end).
+     * @param end Exclusive upper bound of the half-open interval [start, end).
      * @param page
      * @param size
      * @param sort
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public searchTimeLogs(employeeEmail?: string, fromInstant?: string, toInstant?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogPage>;
-    public searchTimeLogs(employeeEmail?: string, fromInstant?: string, toInstant?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogPage>>;
-    public searchTimeLogs(employeeEmail?: string, fromInstant?: string, toInstant?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogPage>>;
-    public searchTimeLogs(employeeEmail?: string, fromInstant?: string, toInstant?: string, page?: number, size?: number, sort?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public searchTimeLogs(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogPage>;
+    public searchTimeLogs(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogPage>>;
+    public searchTimeLogs(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogPage>>;
+    public searchTimeLogs(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>employeeEmail, 'employeeEmail');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>fromInstant, 'fromInstant');
+          <any>start, 'start');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>toInstant, 'toInstant');
+          <any>end, 'end');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>page, 'page');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
@@ -1082,8 +1082,8 @@ export class TimeLogsService extends BaseService {
 
     /**
      * @param employeeEmail
-     * @param fromInstant
-     * @param toInstant
+     * @param start
+     * @param end
      * @param page
      * @param size
      * @param sort
@@ -1091,18 +1091,18 @@ export class TimeLogsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @deprecated
      */
-    public searchTimeLogsLegacy(employeeEmail?: string, fromInstant?: string, toInstant?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogPage>;
-    public searchTimeLogsLegacy(employeeEmail?: string, fromInstant?: string, toInstant?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogPage>>;
-    public searchTimeLogsLegacy(employeeEmail?: string, fromInstant?: string, toInstant?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogPage>>;
-    public searchTimeLogsLegacy(employeeEmail?: string, fromInstant?: string, toInstant?: string, page?: number, size?: number, sort?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public searchTimeLogsLegacy(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogPage>;
+    public searchTimeLogsLegacy(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogPage>>;
+    public searchTimeLogsLegacy(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogPage>>;
+    public searchTimeLogsLegacy(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>employeeEmail, 'employeeEmail');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>fromInstant, 'fromInstant');
+          <any>start, 'start');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>toInstant, 'toInstant');
+          <any>end, 'end');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>page, 'page');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,

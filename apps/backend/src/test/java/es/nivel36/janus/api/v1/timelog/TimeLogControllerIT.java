@@ -376,13 +376,13 @@ class TimeLogControllerIT {
 	})
 	void testSearchByEmployeeWithInvalidRangeShouldFail400() throws Exception {
 		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "EMP-0001") //
-				.param("fromInstant", "2025-08-10T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
+				.param("start", "2025-08-10T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 
 		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "EMP-0001") //
-				.param("fromInstant", "2025-08-10T10:00:00Z") //
-				.param("toInstant", "2025-08-09T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
+				.param("start", "2025-08-10T10:00:00Z") //
+				.param("end", "2025-08-09T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 	}
