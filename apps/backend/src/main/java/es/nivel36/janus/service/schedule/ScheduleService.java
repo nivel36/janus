@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.util.LikePatterns;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -308,7 +309,7 @@ public class ScheduleService {
 		if (query == null || query.isEmpty()) {
 			schedules = this.scheduleRepository.findAll(pageable);
 		} else {
-			schedules = this.scheduleRepository.search(query, employeeEmail, pageable);
+			schedules = this.scheduleRepository.search(LikePatterns.escape(query), employeeEmail, pageable);
 		}
 
 		logger.trace("Found {} worksites", schedules.getTotalElements());

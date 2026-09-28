@@ -166,8 +166,8 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 			FROM Schedule s
 			JOIN FETCH s.rules r
 			JOIN FETCH r.dayOfWeekRanges d
-			WHERE (LOWER(s.name) LIKE LOWER(CONCAT('%', :query, '%'))
-			    OR LOWER(s.code) LIKE LOWER(CONCAT('%', :query, '%')))
+			WHERE (LOWER(s.name) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!'
+			    OR LOWER(s.code) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!')
 			  AND (:employeeEmail IS NULL
 			    OR EXISTS (
 			        SELECT 1
