@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
+import es.nivel36.janus.api.validation.EmployeeNumber;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 
@@ -38,7 +39,7 @@ public interface TimeLogResource {
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #entryTime != null)")
 	@PostMapping("/clock-in")
 	ResponseEntity<TimeLogResponse> clockIn(
-			@PathVariable("employeeNumber") String employeeNumber,
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam(value = "entryTime", required = false) Instant entryTime,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			Authentication authentication);
@@ -46,7 +47,7 @@ public interface TimeLogResource {
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #exitTime != null)")
 	@PostMapping("/clock-out")
 	ResponseEntity<TimeLogResponse> clockOut(
-			@PathVariable("employeeNumber") String employeeNumber,
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam(value = "exitTime", required = false) Instant exitTime,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			Authentication authentication) throws ClockOutWithoutClockInException;
@@ -54,19 +55,19 @@ public interface TimeLogResource {
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, true)")
 	@PostMapping
 	ResponseEntity<TimeLogResponse> createTimeLog(
-			@PathVariable("employeeNumber") String employeeNumber,
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@Valid @RequestBody CreateTimeLogRequest timeLog, Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeNumber)")
 	@GetMapping("/{entryTime}")
 	ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
-			@PathVariable("employeeNumber") String employeeNumber,
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime, Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{entryTime}")
 	ResponseEntity<Void> deleteTimeLog(
-			@PathVariable("employeeNumber") String employeeNumber,
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime);
 }

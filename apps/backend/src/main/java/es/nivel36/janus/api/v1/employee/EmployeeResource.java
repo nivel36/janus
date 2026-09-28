@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
+import es.nivel36.janus.api.validation.EmployeeNumber;
 
 @RequestMapping("/api/v1/employees")
 public interface EmployeeResource {
@@ -34,7 +34,7 @@ public interface EmployeeResource {
 	@PreAuthorize("@employeeAuthorization.canView(authentication, #employeeNumber)")
 	@GetMapping("/{employeeNumber}")
 	ResponseEntity<EmployeeResponse> findEmployee(
-			@PathVariable("employeeNumber") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String employeeNumber);
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
 
 	@PreAuthorize("@employeeAuthorization.canCreate(authentication)")
 	@PostMapping
@@ -43,11 +43,11 @@ public interface EmployeeResource {
 	@PreAuthorize("@employeeAuthorization.canUpdate(authentication, #employeeNumber)")
 	@PutMapping("/{employeeNumber}")
 	ResponseEntity<EmployeeResponse> updateEmployee(
-			@PathVariable("employeeNumber") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String employeeNumber,
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@Valid @RequestBody UpdateEmployeeRequest request);
 
 	@PreAuthorize("@employeeAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{employeeNumber}")
 	ResponseEntity<Void> deleteEmployee(
-			@PathVariable("employeeNumber") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}") String employeeNumber);
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
 }

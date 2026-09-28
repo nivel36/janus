@@ -156,6 +156,14 @@ class WorksiteControllerIT {
 		this.mvc.perform(get(BASE + "/{code}", "BAD CODE WITH SPACE").with(verifiedJwt())).andExpect(status().isBadRequest());
 	}
 
+	@ParameterizedTest
+	@ValueSource(strings = { " ", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "bad employee!" })
+	void assignmentWithInvalidEmployeeNumberShouldFail400(final String employeeNumber) throws Exception {
+		this.mvc.perform(put(BASE + "/{code}/employees/{employeeNumber}", "BCN-HQ", employeeNumber)
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
+	}
+
 	@Test
 	@Sql(statements = {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",

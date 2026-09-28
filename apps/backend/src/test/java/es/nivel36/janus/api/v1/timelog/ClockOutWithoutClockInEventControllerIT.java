@@ -32,6 +32,8 @@ import java.time.ZoneOffset;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -58,6 +60,15 @@ class ClockOutWithoutClockInEventControllerIT {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 8, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.clock.getZone()).thenReturn(ZoneOffset.UTC);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { " ", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "bad employee!" })
+	void eventLookupWithInvalidEmployeeNumberShouldFail400(final String employeeNumber) throws Exception {
+		this.mvc.perform(get(BASE + "/{exitTime}", employeeNumber, "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "BCN-HQ").with(verifiedJwt()
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
 	}
 
 	@Test
