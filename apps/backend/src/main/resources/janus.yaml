@@ -29,8 +29,7 @@ paths:
       in: path
       required: true
       schema:
-        type: string
-        pattern: '^[A-Za-z0-9_-]{1,50}$'
+        $ref: '#/components/schemas/EmployeeNumber'
     get:
       tags:
       - employees
@@ -496,8 +495,7 @@ paths:
         in: path
         required: true
         schema:
-          type: string
-          pattern: '^[A-Za-z0-9_-]{1,50}$'
+          $ref: '#/components/schemas/EmployeeNumber'
       - &id002
         name: worksiteCode
         in: query
@@ -865,6 +863,10 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    EmployeeNumber:
+      type: string
+      pattern: '^[A-Za-z0-9_-]{1,50}$'
+      description: Stable employee identifier containing 1 to 50 letters, digits, underscores, or hyphens.
     EmployeeResponse:
       type: object
       required:
@@ -875,8 +877,7 @@ components:
       - scheduleCode
       properties:
         employeeNumber:
-          type: string
-          pattern: '^[A-Za-z0-9_-]{1,50}$'
+          $ref: '#/components/schemas/EmployeeNumber'
         name:
           type: string
         surname:
@@ -896,8 +897,7 @@ components:
       - scheduleCode
       properties:
         employeeNumber:
-          type: string
-          pattern: '^[A-Za-z0-9_-]{1,50}$'
+          $ref: '#/components/schemas/EmployeeNumber'
         name:
           type: string
         surname:

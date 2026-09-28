@@ -16,6 +16,7 @@
 package es.nivel36.janus.api.v1.employee;
 
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.api.validation.EmployeeNumber;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -34,8 +35,7 @@ import jakarta.validation.constraints.Pattern;
  *                     blank and must be at most 50 characters
  */
 public record CreateEmployeeRequest( //
-		@NotBlank(message = "employeeNumber must not be blank") //
-		@Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "employeeNumber must contain only letters, digits, underscores or hyphens (max 50)") //
+		@EmployeeNumber //
 		String employeeNumber, //
 		@NotBlank(message = "name must not be blank") //
 		@Pattern( //

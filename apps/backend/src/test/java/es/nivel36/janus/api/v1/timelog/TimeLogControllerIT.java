@@ -34,6 +34,8 @@ import java.time.ZoneOffset;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -507,9 +509,10 @@ class TimeLogControllerIT {
 				.andExpect(status().isNotFound());
 	}
 
-	@Test
-	void testClockInWithInvalidEmailShouldFail400() throws Exception {
-		this.mvc.perform(post(BASE + "/clock-in", "bad email") //
+	@ParameterizedTest
+	@ValueSource(strings = { " ", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "bad employee!" })
+	void clockInWithInvalidEmployeeNumberShouldFail400(final String employeeNumber) throws Exception {
+		this.mvc.perform(post(BASE + "/clock-in", employeeNumber) //
 				.param("worksiteCode", "BCN-HQ").with(verifiedJwt())) //
 				.andExpect(status().isBadRequest());
 	}
