@@ -33,6 +33,7 @@ import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.service.timelog.EventAlreadyFinalizedException;
 import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
 import es.nivel36.janus.service.timelog.TimeLogChronologyException;
+import es.nivel36.janus.service.timelog.TimeLogFutureTimeException;
 
 class JanusExceptionHandlerTest {
 
@@ -58,6 +59,14 @@ class JanusExceptionHandlerTest {
 
 		assertProblem(problem, HttpStatus.BAD_REQUEST, "urn:problem:invalid-chronology",
 				"Invalid chronological order");
+	}
+
+	@Test
+	void futureClientSuppliedTimesAreBadRequests() {
+		final ProblemDetail problem = this.handler.handleTimeLogFutureTime(new TimeLogFutureTimeException(), null);
+
+		assertProblem(problem, HttpStatus.BAD_REQUEST, "urn:problem:invalid-time-log-time",
+				"Invalid time log time");
 	}
 
 	@Test

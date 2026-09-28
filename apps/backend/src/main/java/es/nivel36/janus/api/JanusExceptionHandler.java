@@ -52,6 +52,7 @@ import es.nivel36.janus.service.timelog.EventAlreadyFinalizedException;
 import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
 import es.nivel36.janus.service.timelog.TimeLogChronologyException;
 import es.nivel36.janus.service.timelog.TimeLogDeletedException;
+import es.nivel36.janus.service.timelog.TimeLogFutureTimeException;
 import es.nivel36.janus.service.timelog.TimeLogModificationNotAllowedException;
 import es.nivel36.janus.service.timelog.WorksiteMismatchOnClockOutException;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
@@ -78,6 +79,7 @@ public class JanusExceptionHandler {
 	private static final URI TYPE_OPERATION_CONFLICT = URI.create("urn:problem:operation-conflict");
 	private static final URI TYPE_RESOURCE_ALREADY_EXISTS = URI.create("urn:problem:resource-already-exists");
 	private static final URI TYPE_INVALID_CHRONOLOGY = URI.create("urn:problem:invalid-chronology");
+	private static final URI TYPE_INVALID_TIME_LOG_TIME = URI.create("urn:problem:invalid-time-log-time");
 	private static final URI TYPE_CLOCK_OUT_WITHOUT_CLOCK_IN = URI.create("urn:problem:clock-out-without-clock-in");
 	private static final URI TYPE_WORKSITE_MISMATCH = URI.create("urn:problem:worksite-mismatch-on-clock-out");
 	private static final URI TYPE_EVENT_ALREADY_FINALIZED = URI.create("urn:problem:event-already-finalized");
@@ -183,6 +185,17 @@ public class JanusExceptionHandler {
 		pd.setDetail(ex.getMessage());
 		this.addCommonProps(pd, request);
 		logger.warn("TimeLogModificationNotAllowedException error {}", pd);
+		return pd;
+	}
+
+	@ExceptionHandler(TimeLogFutureTimeException.class)
+	ProblemDetail handleTimeLogFutureTime(final TimeLogFutureTimeException ex, final HttpServletRequest request) {
+		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		pd.setType(TYPE_INVALID_TIME_LOG_TIME);
+		pd.setTitle("Invalid time log time");
+		pd.setDetail(ex.getMessage());
+		this.addCommonProps(pd, request);
+		logger.warn("TimeLogFutureTimeException error {}", pd);
 		return pd;
 	}
 
