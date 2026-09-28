@@ -853,7 +853,7 @@ paths:
       operationId: removeEmployeeFromWorksiteByEmail
       deprecated: true
       responses:
-        '204': { description: Employee removed }
+        '204': { description: Employee removed from the worksite; no content is returned. }
 components:
   securitySchemes:
     bearerAuth:
