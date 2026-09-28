@@ -508,7 +508,7 @@ paths:
       operationId: removeEmployeeFromWorksite
       responses:
         '204':
-          description: No content
+          description: Employee removed from the worksite; no content is returned.
   /employees/{employeeEmail}/time-logs/clock-in:
     post:
       tags:
@@ -701,7 +701,7 @@ paths:
       operationId: removeEmployeeFromWorksiteByEmail
       responses:
         '204':
-          description: No content
+          description: Employee removed from the worksite; no content is returned.
       deprecated: true
       description: Deprecated compatibility route; migrate to the employeeNumber route.
 components:
