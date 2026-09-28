@@ -54,22 +54,22 @@ public class TimeZoneCatalogService {
 	 * string.
 	 * </p>
 	 *
-	 * @param search   optional search text applied to the full zone id
+	 * @param query    optional search text applied to the full zone id
 	 * @param sortBy   sort strategy for the resulting catalog page
 	 * @param pageable Spring pagination information (page and size)
 	 * @return a page of catalog items matching the input filters
 	 */
-	public Page<TimeZoneCatalogItem> search(final String search, final TimeZoneSortBy sortBy, final Pageable pageable) {
+	public Page<TimeZoneCatalogItem> search(final String query, final TimeZoneSortBy sortBy, final Pageable pageable) {
 		Objects.requireNonNull(sortBy, "sortBy can't be null");
 		Objects.requireNonNull(pageable, "pageable can't be null");
 
-		final String normalizedSearch = search == null ? null : search.toLowerCase(Locale.ROOT);
+		final String normalizedQuery = query == null ? null : query.toLowerCase(Locale.ROOT);
 		final ZonedDateTime now = ZonedDateTime.now(this.clock);
 
 		final List<TimeZoneCatalogItem> filtered = ZoneId.getAvailableZoneIds().stream().sorted()
 				.map(zoneId -> this.map(zoneId, now))
-				.filter(item -> normalizedSearch == null || normalizedSearch.isBlank()
-						|| item.zoneId().toLowerCase(Locale.ROOT).contains(normalizedSearch))
+				.filter(item -> normalizedQuery == null || normalizedQuery.isBlank()
+						|| item.zoneId().toLowerCase(Locale.ROOT).contains(normalizedQuery))
 				.sorted(this.resolveSort(sortBy)).toList();
 
 		final int start = Math.toIntExact(pageable.getOffset());

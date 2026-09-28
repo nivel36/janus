@@ -36,7 +36,7 @@ export class CatalogsService extends BaseService {
     }
 
     /**
-     * @param search
+     * @param query
      * @param sortBy
      * @param page
      * @param size
@@ -44,14 +44,14 @@ export class CatalogsService extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public searchTimeZones(search?: string, sortBy?: 'LEVEL1' | 'LEVEL2' | 'UTC', page?: number, size?: number, sort?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeZoneCatalogPage>;
-    public searchTimeZones(search?: string, sortBy?: 'LEVEL1' | 'LEVEL2' | 'UTC', page?: number, size?: number, sort?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeZoneCatalogPage>>;
-    public searchTimeZones(search?: string, sortBy?: 'LEVEL1' | 'LEVEL2' | 'UTC', page?: number, size?: number, sort?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeZoneCatalogPage>>;
-    public searchTimeZones(search?: string, sortBy?: 'LEVEL1' | 'LEVEL2' | 'UTC', page?: number, size?: number, sort?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public searchTimeZones(query?: string, sortBy?: 'LEVEL1' | 'LEVEL2' | 'UTC', page?: number, size?: number, sort?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeZoneCatalogPage>;
+    public searchTimeZones(query?: string, sortBy?: 'LEVEL1' | 'LEVEL2' | 'UTC', page?: number, size?: number, sort?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeZoneCatalogPage>>;
+    public searchTimeZones(query?: string, sortBy?: 'LEVEL1' | 'LEVEL2' | 'UTC', page?: number, size?: number, sort?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeZoneCatalogPage>>;
+    public searchTimeZones(query?: string, sortBy?: 'LEVEL1' | 'LEVEL2' | 'UTC', page?: number, size?: number, sort?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>search, 'search');
+          <any>query, 'query');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>sortBy, 'sortBy');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,

@@ -55,6 +55,18 @@ class ScheduleControllerIT {
 	private @Autowired MockMvc mvc;
 
 	@Test
+	void searchSchedulesShouldEnforceSearchQueryContract() throws Exception {
+		this.mvc.perform(get(BASE).queryParam("query", "a".repeat(100)).with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk());
+		this.mvc.perform(get(BASE).queryParam("query", "").with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isBadRequest());
+		this.mvc.perform(get(BASE).queryParam("query", "a".repeat(101)).with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isBadRequest());
+		this.mvc.perform(get(BASE).queryParam("query", "Turno\nMañana").with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isBadRequest());
+	}
+
+	@Test
 	void testElevatedRolesWithoutVerifiedEmailAreUnauthorized() throws Exception {
 		this.mvc.perform(get(BASE).header("Authorization", "Bearer email-unverified")) //
 				.andExpect(status().isUnauthorized());

@@ -58,17 +58,17 @@ public class CatalogController implements CatalogResource {
 	 * Returns a paginated list of Java time zones with formatted literal and split
 	 * levels.
 	 *
-	 * @param search   optional search text over full zone id values
+	 * @param query    optional search text over full zone id values
 	 * @param sortBy   sorting mode ({@code LEVEL1} or {@code UTC})
 	 * @param pageable Spring pagination information
 	 * @return a page with matching time zone catalog items
 	 */
 	@Override
 	public ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones( //
-			final String search, //
+			final String query, //
 			final TimeZoneSortBy sortBy, // 
 			final Pageable pageable) {
-		final Page<TimeZoneCatalogItemResponse> zones = this.timeZoneCatalogService.search(search, sortBy, pageable)
+		final Page<TimeZoneCatalogItemResponse> zones = this.timeZoneCatalogService.search(query, sortBy, pageable)
 				.map(timeZoneCatalogItemResponseMapper::map);
 		return ResponseEntity.ok(zones);
 	}

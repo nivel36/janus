@@ -156,7 +156,9 @@ paths:
         in: query
         schema:
           type: string
-          pattern: '^[A-Za-z0-9_-]{1,50}$'
+          minLength: 1
+          maxLength: 100
+          pattern: '^[\p{L}\p{M}\p{N}\p{Zs}\p{P}\p{S}]+$'
       - name: employeeEmail
         in: query
         schema:
@@ -292,7 +294,9 @@ paths:
         in: query
         schema:
           type: string
-          pattern: '^[A-Za-z0-9_-]{1,50}$'
+          minLength: 1
+          maxLength: 100
+          pattern: '^[\p{L}\p{M}\p{N}\p{Zs}\p{P}\p{S}]+$'
       - name: employeeEmail
         in: query
         schema:
@@ -387,11 +391,14 @@ paths:
       tags: [catalogs]
       operationId: searchTimeZones
       parameters:
-      - name: search
+      - name: query
         in: query
         required: false
         schema:
           type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[\p{L}\p{M}\p{N}\p{Zs}\p{P}\p{S}]+$'
       - name: sortBy
         in: query
         required: false
