@@ -48,6 +48,9 @@ export class CurrentUserFacade {
    */
   readonly email = computed(() => this.authService.claims()?.email ?? null);
 
+  /** Stable number of the employee linked to the current application user. */
+  readonly employeeNumber = this.userProfileApi.employeeNumber;
+
   /**
    * The user's full name derived from claims.
    */

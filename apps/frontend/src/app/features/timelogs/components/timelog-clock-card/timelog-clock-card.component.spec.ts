@@ -34,6 +34,7 @@ describe('TimelogClockCardComponent', () => {
   let clockIn: ReturnType<typeof vi.fn>;
   let clockOut: ReturnType<typeof vi.fn>;
   let searchLatestByEmployee: ReturnType<typeof vi.fn>;
+  let searchAssignedToEmployee: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     latestTimeLogs = new Subject<TimeLog | undefined>();
@@ -42,6 +43,7 @@ describe('TimelogClockCardComponent', () => {
     clockIn = vi.fn(() => clockInResult.asObservable());
     clockOut = vi.fn(() => clockOutResult.asObservable());
     searchLatestByEmployee = vi.fn(() => latestTimeLogs.asObservable());
+    searchAssignedToEmployee = vi.fn(() => of([{ code: 'BCN' } as Worksite]));
 
     await TestBed.configureTestingModule({
       imports: [TimelogClockCardComponent],
@@ -65,7 +67,7 @@ describe('TimelogClockCardComponent', () => {
         {
           provide: WorksiteApiService,
           useValue: {
-            searchAssignedToEmployee: vi.fn(() => of([{ code: 'BCN' } as Worksite])),
+            searchAssignedToEmployee,
           },
         },
       ],
@@ -74,8 +76,14 @@ describe('TimelogClockCardComponent', () => {
     fixture = TestBed.createComponent(TimelogClockCardComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('employeeEmail', 'employee@example.com');
+    fixture.componentRef.setInput('employeeNumber', 'EMP-0001');
     fixture.detectChanges();
     await settleEffects();
+  });
+
+  it('uses the stable employee number for both employee-scoped searches', () => {
+    expect(searchLatestByEmployee).toHaveBeenCalledWith('EMP-0001');
+    expect(searchAssignedToEmployee).toHaveBeenCalledWith('EMP-0001');
   });
 
   it('derives the action labels from the latest timelog resource', async () => {
@@ -110,6 +118,7 @@ describe('TimelogClockCardComponent', () => {
     const firstId = component.titleElementId;
     const secondFixture = TestBed.createComponent(TimelogClockCardComponent);
     secondFixture.componentRef.setInput('employeeEmail', 'another@example.com');
+    secondFixture.componentRef.setInput('employeeNumber', 'EMP-0002');
     secondFixture.detectChanges();
 
     fixture.detectChanges();
@@ -143,6 +152,7 @@ describe('TimelogClockCardComponent', () => {
     controls().onClockAction();
 
     fixture.componentRef.setInput('employeeEmail', 'other@example.com');
+    fixture.componentRef.setInput('employeeNumber', 'EMP-0002');
     fixture.detectChanges();
     await settleEffects();
 
@@ -151,7 +161,7 @@ describe('TimelogClockCardComponent', () => {
     clockInResult.complete();
     await settleEffects();
 
-    expect(searchLatestByEmployee).toHaveBeenLastCalledWith();
+    expect(searchLatestByEmployee).toHaveBeenLastCalledWith('EMP-0002');
     expect(controls().latestTimeLog()).toBeUndefined();
   });
 

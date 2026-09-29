@@ -37,10 +37,11 @@ public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 		}
 		final UUID id = appUser.getId();
 		final String email = appUser.getEmail();
+		final String employeeNumber = appUser.getEmployee() == null ? null : appUser.getEmployee().getEmployeeNumber();
 		final String locale = appUser.getLocale().toLanguageTag();
 		final TimeFormat timeFormat = appUser.getTimeFormat();
 		final String defaultTimeZone = appUser.getDefaultTimezone().getId();
 		final Theme theme = appUser.getTheme();
-		return new AppUserResponse(id, email, locale, timeFormat, defaultTimeZone, theme);
+		return new AppUserResponse(id, email, employeeNumber, locale, timeFormat, defaultTimeZone, theme);
 	}
 }

@@ -53,23 +53,25 @@ export class TimelogClockCardComponent {
 
   /** Email of the employee for whom the card is displayed. */
   readonly employeeEmail = input.required<string>();
+  /** Stable number used to scope searches even when the actor also has elevated roles. */
+  readonly employeeNumber = input.required<string>();
 
   /** Event emitted when the clocking action completes successfully. */
   readonly clockActionDone = output<void>();
 
   private readonly latestTimeLogResource = rxResource<TimeLog | undefined, string>({
-    params: () => this.employeeEmail(),
-    stream: ({ params: employeeEmail }) =>
+    params: () => this.employeeNumber(),
+    stream: ({ params: employeeNumber }) =>
       this.timeLogService
-        .searchLatestByEmployee()
+        .searchLatestByEmployee(employeeNumber)
         .pipe(catchError(() => of(undefined))),
     defaultValue: undefined,
   });
 
   private readonly assignedWorksiteCodeResource = rxResource<string | undefined, string>({
-    params: () => this.employeeEmail(),
-    stream: ({ params: employeeEmail }) =>
-      this.worksiteApiService.searchAssignedToEmployee().pipe(
+    params: () => this.employeeNumber(),
+    stream: ({ params: employeeNumber }) =>
+      this.worksiteApiService.searchAssignedToEmployee(employeeNumber).pipe(
         map((worksites) => (worksites.length === 1 ? worksites[0].code : undefined)),
         catchError(() => of(undefined)),
       ),

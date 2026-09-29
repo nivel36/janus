@@ -959,6 +959,10 @@ components:
         email:
           type: string
           format: email
+        employeeNumber:
+          allOf:
+          - $ref: '#/components/schemas/EmployeeNumber'
+          nullable: true
         locale:
           type: string
         timeFormat:
