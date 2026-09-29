@@ -4,7 +4,6 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-import java.time.Instant;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,20 +49,20 @@ public class TimeLogSearchController implements TimeLogSearchResource {
 	 * Searches time logs using the requested filters and the authenticated user's
 	 * authorization scope.
 	 *
-	 * @param employeeEmail   optional employee email filter
-	 * @param start           optional inclusive lower bound for the time range
-	 * @param end             optional exclusive upper bound for the time range
+	 * @param criteria        validated optional filters; start and end must either both
+	 *                        be present or both be absent
 	 * @param pageable        pagination and sorting information; must not be
 	 *                        {@code null}
 	 * @param authentication current authentication; must not be {@code null}
 	 * @return a page of matching time log responses
 	 */
 	@Override
-	public ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(final String employeeEmail, final Instant start,
-			final Instant end, final Pageable pageable, final Authentication authentication) {
-		final TimeLogSearchCriteria criteria = new TimeLogSearchCriteria(
-				this.authorization.canonicalEmployeeEmail(employeeEmail), start, end);
-		return ResponseEntity.ok(this.timeLogs.searchTimeLogs(criteria, this.authorization.searchScope(authentication),
+	public ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(final TimeLogSearchCriteria criteria,
+			final Pageable pageable, final Authentication authentication) {
+		final TimeLogSearchCriteria canonicalCriteria = new TimeLogSearchCriteria(
+				this.authorization.canonicalEmployeeEmail(criteria.employeeEmail()), criteria.start(), criteria.end());
+		return ResponseEntity.ok(this.timeLogs.searchTimeLogs(canonicalCriteria,
+				this.authorization.searchScope(authentication),
 				pageable).map(this.mapper::map));
 	}
 }
