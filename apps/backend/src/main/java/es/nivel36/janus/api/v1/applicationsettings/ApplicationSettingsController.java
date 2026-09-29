@@ -85,10 +85,10 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
 			final UpdateApplicationSettingsRequest request) {
 		logger.debug("Update application settings ACTION performed");
-		final int daysUntilLocked = request.daysUntilLocked();
-		final boolean employeeWorkplaceCreationAllowed = request.employeeWorkplaceCreationAllowed();
-		final boolean worksiteChangeDuringShiftAllowed = request.worksiteChangeDuringShiftAllowed();
-		final boolean employeeManualTimelogEntryAllowed = request.employeeManualTimelogEntryAllowed();
+		final int daysUntilLocked = request.daysUntilLocked().intValue();
+		final boolean employeeWorkplaceCreationAllowed = request.employeeWorkplaceCreationAllowed().booleanValue();
+		final boolean worksiteChangeDuringShiftAllowed = request.worksiteChangeDuringShiftAllowed().booleanValue();
+		final boolean employeeManualTimelogEntryAllowed = request.employeeManualTimelogEntryAllowed().booleanValue();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
 		final ApplicationSettings updatedSettings = this.applicationSettingsService.update( //
 				daysUntilLocked, //
