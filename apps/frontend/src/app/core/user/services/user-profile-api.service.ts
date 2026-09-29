@@ -1,7 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpContext } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
@@ -43,6 +43,8 @@ const PROFILE_LOAD_RETRY_POLICY: HttpRetryPolicy = {
 export class UserProfileApiService {
   private readonly api = inject(AppUsersService);
   private profileId: string | null = null;
+  /** Stable employee identifier supplied by the profile API (never inferred from claims). */
+  readonly employeeNumber = signal<string | null>(null);
 
   /**
    * Retrieves the full user profile from the backend.
@@ -70,7 +72,7 @@ export class UserProfileApiService {
    */
   getPreferences(): Observable<UserPreferences> {
     return this.getProfile().pipe(
-      tap((response) => (this.profileId = response.id)),
+      tap((response) => this.rememberProfile(response)),
       map((response) => this.toPreferences(response)),
     );
   }
@@ -97,7 +99,7 @@ export class UserProfileApiService {
           timeFormat: payload.timeFormat as ApiTimeFormat,
         }),
       ),
-      tap((response) => (this.profileId = response.id)),
+      tap((response) => this.rememberProfile(response)),
       map((response) => this.toPreferences(response)),
     );
   }
@@ -118,5 +120,10 @@ export class UserProfileApiService {
       timeFormat: response.timeFormat as TimeFormat,
       defaultTimezone: response.defaultTimezone,
     };
+  }
+
+  private rememberProfile(response: AppUserResponse): void {
+    this.profileId = response.id;
+    this.employeeNumber.set(response.employeeNumber ?? null);
   }
 }

@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import es.nivel36.janus.policy.EmployeeEmailResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
@@ -18,7 +17,6 @@ public class WorksiteAuthorizationAdapter {
 	private final ActorResolver actors;
 	private final EmployeeService employees;
 	private final ApplicationSettingsService settings;
-	private final EmployeeEmailResolver employeeEmails;
 	private final SearchWorksitePolicy search = new SearchWorksitePolicy();
 	private final ViewWorksitePolicy view = new ViewWorksitePolicy();
 	private final ViewWorksiteStatsPolicy stats = new ViewWorksiteStatsPolicy();
@@ -28,21 +26,26 @@ public class WorksiteAuthorizationAdapter {
 	private final ManageWorksiteAssignmentsPolicy assignments = new ManageWorksiteAssignmentsPolicy();
 
 	public WorksiteAuthorizationAdapter(final ActorResolver actors, final EmployeeService employees,
-			final ApplicationSettingsService settings, final EmployeeEmailResolver employeeEmails) {
+			final ApplicationSettingsService settings) {
 		this.actors = Objects.requireNonNull(actors);
 		this.employees = Objects.requireNonNull(employees);
 		this.settings = Objects.requireNonNull(settings);
-		this.employeeEmails = Objects.requireNonNull(employeeEmails);
 	}
 
-	public boolean canSearch(final Authentication auth, final String email) {
+	public boolean canSearch(final Authentication auth, final String employeeNumber) {
 		final Actor a = this.actors.resolve(auth);
-		return this.search.allows(a, this.restricted(a) ? a.employeeId() != null : this.owns(a, email));
+		final boolean allowedFilter = !this.restricted(a) || a.employeeId() != null
+				&& (employeeNumber == null || this.employees.findEmployeeById(a.employeeId()).getEmployeeNumber()
+						.equals(employeeNumber));
+		return this.search.allows(a, allowedFilter);
 	}
 
-	public String effectiveEmployeeEmail(final Authentication auth, final String requested) {
+	public String effectiveEmployeeNumber(final Authentication auth, final String requested) {
 		final Actor a = this.actors.resolve(auth);
-		return this.employeeEmails.effectiveEmail(a, requested, this.restricted(a));
+		if (this.restricted(a) && a.employeeId() != null) {
+			return this.employees.findEmployeeById(a.employeeId()).getEmployeeNumber();
+		}
+		return requested;
 	}
 
 	public boolean canView(final Authentication auth) {
@@ -73,10 +76,6 @@ public class WorksiteAuthorizationAdapter {
 
 	public boolean canManageAssignments(final Authentication auth) {
 		return this.assignments.allows(this.actors.resolve(auth), null);
-	}
-
-	private boolean owns(final Actor a, final String email) {
-		return this.employeeEmails.owns(a, email);
 	}
 
 	private boolean assigned(final Actor a, final String code) {

@@ -62,11 +62,11 @@ export class WorksiteApiService {
    * Global worksites are intentionally excluded: this query is used when a
    * clock action needs an explicitly assigned worksite.
    */
-  searchAssignedToEmployee(employeeEmail: string): Observable<Worksite[]> {
+  searchAssignedToEmployee(employeeNumber: string): Observable<Worksite[]> {
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
 
     return this.api
-      .searchWorksites(undefined, employeeEmail, 0, 100, ['code,desc'], 'body', false, { context })
+      .searchWorksites(undefined, employeeNumber, 0, 100, ['code,desc'], 'body', false, { context })
       .pipe(
         map((response) =>
           (response.content ?? [])
@@ -136,7 +136,7 @@ export class WorksiteApiService {
       scope: response.scope,
       description: response.description ?? null,
       address: response.address ?? null,
-      ownerEmployeeEmail: response.ownerEmployeeEmail ?? null,
+      ownerEmployeeEmail: null,
       active: response.active,
     };
   }

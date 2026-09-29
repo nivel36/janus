@@ -57,7 +57,7 @@ class TimeLogSearchControllerIT {
 	private static final String OWN_EMAIL = "alice@example.test";
 	private static final String OTHER_EMAIL = "bob@example.test";
 	private static final String OWN_SUBJECT = "11111111-1111-4111-8111-111111111111";
-	private static final String OTHER_SEARCH = "/api/v1/employees/" + OTHER_EMAIL + "/time-logs/";
+	private static final String OTHER_SEARCH = "/api/v1/employees/EMP-0102/time-logs/";
 
 	private @Autowired MockMvc mvc;
 
@@ -84,8 +84,8 @@ class TimeLogSearchControllerIT {
 	}
 
 	@Test
-	void clientCanFilterByOwnEmailWithoutExpandingScope() throws Exception {
-		this.mvc.perform(get(BASE).param("employeeEmail", OWN_EMAIL).param("page", "1")
+	void clientCanFilterByOwnEmployeeNumberWithoutExpandingScope() throws Exception {
+		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0101").param("page", "1")
 				.param("size", "2").param("sort", "entryTime,desc").with(employee()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OWN_EMAIL))))
@@ -97,9 +97,9 @@ class TimeLogSearchControllerIT {
 
 	@ParameterizedTest
 	@CsvSource({ "ROLE_JANUS_EMPLOYEE," + OWN_SUBJECT, "ROLE_JANUS_USER,user" })
-	void employeeEmailFilterIsCanonicalizedForRestrictedAndPrivilegedUsers(final String role,
+	void employeeNumberFilterWorksForRestrictedAndPrivilegedUsers(final String role,
 			final String subject) throws Exception {
-		this.mvc.perform(get(BASE).param("employeeEmail", "  ALICE@EXAMPLE.TEST  ")
+		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0101")
 				.with(verifiedJwt().jwt(token -> token.subject(subject)).authorities(createAuthorityList(role))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(5))
@@ -109,7 +109,7 @@ class TimeLogSearchControllerIT {
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void clientCannotExpandScopeByFilteringAnotherEmployee(final String endpoint) throws Exception {
-		assertEmpty(this.mvc.perform(get(endpoint).param("employeeEmail", OTHER_EMAIL)
+		assertEmpty(this.mvc.perform(get(endpoint).param("employeeNumber", "EMP-0102")
 				.param("size", "1").with(employee())));
 	}
 
@@ -149,7 +149,7 @@ class TimeLogSearchControllerIT {
 	@ParameterizedTest
 	@ValueSource(strings = { "ROLE_JANUS_USER", "ROLE_JANUS_ADMIN" })
 	void elevatedScopeStillRespectsEmployeeFilterAndPagination(final String role) throws Exception {
-		this.mvc.perform(get(BASE).param("employeeEmail", OTHER_EMAIL).param("page", "1")
+		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0102").param("page", "1")
 				.param("size", "2").param("sort", "entryTime,asc")
 				.with(verifiedJwt().authorities(createAuthorityList(role))))
 				.andExpect(status().isOk())

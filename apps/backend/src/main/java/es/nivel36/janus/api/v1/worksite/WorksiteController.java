@@ -84,7 +84,7 @@ public class WorksiteController implements WorksiteResource {
 	 * Retrieves all worksites registered in the system.
 	 *
 	 * @param query          optional worksite search query
-	 * @param employeeEmail  optional employee email filter
+	 * @param employeeNumber  optional employee number filter
 	 * @param pageable       pagination and sorting information; must not be
 	 *                       {@code null}
 	 * @param authentication current authentication; must not be {@code null}
@@ -93,14 +93,14 @@ public class WorksiteController implements WorksiteResource {
 	@Override
 	public ResponseEntity<Page<WorksiteResponse>> searchWorksites( //
 			final String query, //
-			final String employeeEmail, //
+			final String employeeNumber, //
 			final Pageable pageable, //
 			final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
-		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, employeeEmail);
+		final String effectiveEmployeeNumber = this.authorization.effectiveEmployeeNumber(authentication, employeeNumber);
 
 		final Page<WorksiteResponse> worksites = this.worksiteService
-				.searchWorksites(query, effectiveEmployeeEmail, pageable).map(this.worksiteResponseMapper::map);
+				.searchWorksites(query, effectiveEmployeeNumber, pageable).map(this.worksiteResponseMapper::map);
 		return ResponseEntity.ok(worksites);
 	}
 
