@@ -5,6 +5,7 @@ export * from './createEmployeeRequest';
 export * from './createScheduleRequest';
 export * from './createTimeLogRequest';
 export * from './createWorksiteRequest';
+export * from './employeePage';
 export * from './employeeResponse';
 export * from './invalidateClockOutWithoutClockInEventRequest';
 export * from './pageMetadata';

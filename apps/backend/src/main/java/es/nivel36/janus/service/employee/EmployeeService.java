@@ -22,6 +22,8 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,7 @@ import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.util.Strings;
+import es.nivel36.janus.util.LikePatterns;
 
 /**
  * Service responsible for managing {@link Employee} entities.
@@ -355,6 +358,15 @@ public class EmployeeService {
 		Objects.requireNonNull(end, "end cannot be null.");
 		validateRange(start, end);
 		return this.employeeRepository.countDistinctSchedulesInRange(worksiteCode, start, end);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<Employee> searchEmployees(final String query, final String scheduleCode, final String worksiteCode,
+			final Pageable pageable) {
+		Objects.requireNonNull(pageable, "pageable cannot be null.");
+		logger.debug("Searching employees by query {}, schedule {} and worksite {}", query, scheduleCode, worksiteCode);
+		return this.employeeRepository.search(query == null ? "" : LikePatterns.escape(query), scheduleCode,
+				worksiteCode, pageable);
 	}
 
 	private static void validateRange(final Instant start, final Instant end) {

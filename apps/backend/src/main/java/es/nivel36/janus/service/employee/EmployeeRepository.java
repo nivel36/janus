@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -33,6 +35,21 @@ import es.nivel36.janus.service.workshift.WorkShift;
  */
 @Repository
 interface EmployeeRepository extends CrudRepository<Employee, Long> {
+	@EntityGraph(attributePaths = "schedule")
+	@Query("""
+			SELECT e
+			FROM Employee e
+			WHERE (LOWER(e.employeeNumber) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!'
+			   OR LOWER(e.name) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!'
+			   OR LOWER(e.surname) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!'
+			   OR LOWER(e.email) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!')
+			  AND (:scheduleCode IS NULL OR e.schedule.code = :scheduleCode)
+			  AND (:worksiteCode IS NULL OR EXISTS (
+			       SELECT 1 FROM e.worksites w WHERE w.code = :worksiteCode
+			  ))
+			""")
+	Page<Employee> search(String query, String scheduleCode, String worksiteCode, Pageable pageable);
+
 	@EntityGraph(attributePaths = "schedule")
 	Employee findByEmployeeNumber(String employeeNumber);
 

@@ -6,6 +6,57 @@ servers:
 - url: /api/v1
 paths:
   /employees:
+    get:
+      tags:
+      - employees
+      operationId: searchEmployees
+      parameters:
+      - name: query
+        in: query
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[\p{L}\p{M}\p{N}\p{Zs}\p{P}\p{S}]+$'
+      - name: scheduleCode
+        in: query
+        schema:
+          type: string
+          pattern: '^[A-Za-z0-9_-]{1,50}$'
+      - name: worksiteCode
+        in: query
+        schema:
+          type: string
+          pattern: '^[A-Za-z0-9_-]{1,50}$'
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - name: size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 20
+      - name: sort
+        in: query
+        description: Sort criteria; defaults to employeeNumber,asc.
+        schema:
+          type: array
+          default: ['employeeNumber,asc']
+          items:
+            type: string
+        style: form
+        explode: true
+      responses:
+        '200':
+          description: Page of employees matching the filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeePage'
     post:
       tags:
       - employees
@@ -795,6 +846,18 @@ components:
           format: email
         scheduleCode:
           type: string
+    EmployeePage:
+      type: object
+      required:
+      - content
+      - page
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeResponse'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
     CreateEmployeeRequest:
       type: object
       required:
