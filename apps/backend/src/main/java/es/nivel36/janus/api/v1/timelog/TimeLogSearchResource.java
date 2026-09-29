@@ -4,8 +4,6 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-import java.time.Instant;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -14,10 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import jakarta.validation.constraints.Pattern;
+import es.nivel36.janus.service.timelog.TimeLogSearchCriteria;
+import jakarta.validation.Valid;
 
 @RequestMapping({ "/api/v1/time-logs", "/api/v1/timelogs" })
 public interface TimeLogSearchResource {
@@ -25,9 +24,7 @@ public interface TimeLogSearchResource {
 	@PreAuthorize("@timeLogAuthorization.canSearch(authentication)")
 	@GetMapping({ "", "/" })
 	ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(
-			@RequestParam(value = "employeeEmail", required = false) @Pattern(regexp = "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
-			@RequestParam(value = "start", required = false) Instant start,
-			@RequestParam(value = "end", required = false) Instant end,
+			@Valid @ModelAttribute TimeLogSearchCriteria criteria,
 			@PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable,
 			Authentication authentication);
 }

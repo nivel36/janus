@@ -441,6 +441,7 @@ paths:
       tags:
       - time-logs
       operationId: searchTimeLogs
+      description: The start and end time-range bounds must be provided together or both omitted. When present, start must be before end.
       parameters:
       - name: employeeEmail
         in: query
@@ -451,13 +452,13 @@ paths:
           pattern: "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$"
       - name: start
         in: query
-        description: Inclusive lower bound of the half-open interval [start, end).
+        description: Inclusive lower bound of the half-open interval [start, end). Must be provided together with end.
         schema:
           type: string
           format: date-time
       - name: end
         in: query
-        description: Exclusive upper bound of the half-open interval [start, end).
+        description: Exclusive upper bound of the half-open interval [start, end). Must be provided together with start and be after it.
         schema:
           type: string
           format: date-time
@@ -711,6 +712,7 @@ paths:
       tags: [time-logs]
       operationId: searchTimeLogsLegacy
       deprecated: true
+      description: The start and end time-range bounds must be provided together or both omitted. When present, start must be before end.
       parameters:
       - name: employeeEmail
         in: query
@@ -719,8 +721,8 @@ paths:
           format: email
           maxLength: 254
           pattern: "^[ \t]*(?=[^ \t]{1,254}[ \t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \t]*$"
-      - { name: start, in: query, schema: { type: string, format: date-time } }
-      - { name: end, in: query, schema: { type: string, format: date-time } }
+      - { name: start, in: query, description: "Inclusive lower bound of the half-open interval [start, end). Must be provided together with end.", schema: { type: string, format: date-time } }
+      - { name: end, in: query, description: "Exclusive upper bound of the half-open interval [start, end). Must be provided together with start and be after it.", schema: { type: string, format: date-time } }
       - { name: page, in: query, schema: { type: integer, default: 0 } }
       - { name: size, in: query, schema: { type: integer, default: 20 } }
       - { name: sort, in: query, schema: { type: array, items: { type: string } }, style: form, explode: true }

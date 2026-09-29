@@ -53,6 +53,7 @@ import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 class TimeLogSearchControllerIT {
 
 	private static final String BASE = "/api/v1/time-logs";
+	private static final String LEGACY_BASE = "/api/v1/timelogs";
 	private static final String OWN_EMAIL = "alice@example.test";
 	private static final String OTHER_EMAIL = "bob@example.test";
 	private static final String OWN_SUBJECT = "11111111-1111-4111-8111-111111111111";
@@ -195,8 +196,21 @@ class TimeLogSearchControllerIT {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void incompleteOrReversedDateRangesAreRejected(final String endpoint) throws Exception {
+	@ValueSource(strings = { BASE, LEGACY_BASE })
+	void bothDateRangeBoundsMayBeAbsent(final String endpoint) throws Exception {
+		this.mvc.perform(get(endpoint).with(employee())).andExpect(status().isOk());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { BASE, LEGACY_BASE })
+	void bothDateRangeBoundsMayBePresent(final String endpoint) throws Exception {
+		this.mvc.perform(get(endpoint).param("start", "2025-07-02T08:00:00Z")
+				.param("end", "2025-07-04T08:00:00Z").with(employee())).andExpect(status().isOk());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { BASE, LEGACY_BASE })
+	void incompleteOrNonIncreasingDateRangesAreRejected(final String endpoint) throws Exception {
 		this.mvc.perform(get(endpoint).param("start", "2025-07-02T08:00:00Z").with(employee()))
 				.andExpect(status().isBadRequest());
 		this.mvc.perform(get(endpoint).param("end", "2025-07-04T08:00:00Z").with(employee()))
