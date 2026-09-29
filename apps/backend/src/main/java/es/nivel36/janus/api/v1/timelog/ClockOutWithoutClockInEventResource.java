@@ -34,37 +34,80 @@ import es.nivel36.janus.api.validation.EmployeeNumber;
 @RequestMapping("/api/v1")
 public interface ClockOutWithoutClockInEventResource {
 
-	@PatchMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}")
+	@PatchMapping("/employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}")
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #employeeNumber) and @clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #employeeNumber)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@PathVariable("exitTime") Instant exitTime,
 			@Valid @RequestBody TransitionClockOutWithoutClockInEventRequest request);
 
 	@Deprecated(forRemoval = true)
-	@PostMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/resolve")
+	@PostMapping("/employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}/resolve")
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #employeeNumber)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEvent(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@PathVariable("exitTime") Instant exitTime,
 			@Valid @RequestBody ResolveClockOutWithoutClockInEventRequest request);
 
 	@Deprecated(forRemoval = true)
-	@PostMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/invalidate")
+	@PostMapping("/employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}/invalidate")
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #employeeNumber)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEvent(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@PathVariable("exitTime") Instant exitTime,
 			@RequestBody(required = false) @Valid InvalidateClockOutWithoutClockInEventRequest request);
 
-	@GetMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}")
+	@GetMapping("/employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}")
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canView(authentication, #employeeNumber)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEvent(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@PathVariable("exitTime") Instant exitTime);
+
+	@Deprecated(forRemoval = true)
+	@PatchMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #employeeNumber) and @clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #employeeNumber)")
+	default ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEventLegacy(
+			@PathVariable("employeeNumber") @EmployeeNumber final String employeeNumber,
+			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
+			@PathVariable("exitTime") final Instant exitTime,
+			@Valid @RequestBody final TransitionClockOutWithoutClockInEventRequest request) {
+		return this.transitionClockOutWithoutClockInEvent(employeeNumber, worksiteCode, exitTime, request);
+	}
+
+	@Deprecated(forRemoval = true)
+	@PostMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/resolve")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #employeeNumber)")
+	default ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEventLegacy(
+			@PathVariable("employeeNumber") @EmployeeNumber final String employeeNumber,
+			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
+			@PathVariable("exitTime") final Instant exitTime,
+			@Valid @RequestBody final ResolveClockOutWithoutClockInEventRequest request) {
+		return this.resolveClockOutWithoutClockInEvent(employeeNumber, worksiteCode, exitTime, request);
+	}
+
+	@Deprecated(forRemoval = true)
+	@PostMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/invalidate")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #employeeNumber)")
+	default ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEventLegacy(
+			@PathVariable("employeeNumber") @EmployeeNumber final String employeeNumber,
+			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
+			@PathVariable("exitTime") final Instant exitTime,
+			@RequestBody(required = false) @Valid final InvalidateClockOutWithoutClockInEventRequest request) {
+		return this.invalidateClockOutWithoutClockInEvent(employeeNumber, worksiteCode, exitTime, request);
+	}
+
+	@Deprecated(forRemoval = true)
+	@GetMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canView(authentication, #employeeNumber)")
+	default ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEventLegacy(
+			@PathVariable("employeeNumber") @EmployeeNumber final String employeeNumber,
+			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") final String worksiteCode,
+			@PathVariable("exitTime") final Instant exitTime) {
+		return this.findClockOutWithoutClockInEvent(employeeNumber, worksiteCode, exitTime);
+	}
 
 }

@@ -55,7 +55,7 @@ class CompatibilityMappingsIT {
 				.andExpect(status().isBadRequest());
 
 		this.mvc.perform(MockMvcRequestBuilders
-				.get("/api/v1/employees/person@example.test/clock-out-without-clock-in-events/" + TIME)
+				.get("/api/v1/employees/person@example.test/worksites/WS-1/clock-out-without-clock-in-events/" + TIME)
 				.param("worksiteCode", "WS-1").with(adminJwt()))
 				.andExpect(status().isBadRequest());
 
@@ -98,7 +98,13 @@ class CompatibilityMappingsIT {
 						"findTimeLogByEmployeeAndEntryTime"),
 				mapping(HttpMethod.DELETE, "/api/v1/employees/EMP-1/timelogs/" + TIME, "deleteTimeLog"),
 				mapping(HttpMethod.GET, "/api/v1/employees/EMP-1/clock-out-without-clock-in-events/" + TIME,
-						"findClockOutWithoutClockInEvent"));
+						"findClockOutWithoutClockInEventLegacy"),
+				mapping(HttpMethod.PATCH, "/api/v1/employees/EMP-1/clock-out-without-clock-in-events/" + TIME,
+						"transitionClockOutWithoutClockInEventLegacy"),
+				mapping(HttpMethod.POST, "/api/v1/employees/EMP-1/clock-out-without-clock-in-events/" + TIME
+						+ "/resolve", "resolveClockOutWithoutClockInEventLegacy"),
+				mapping(HttpMethod.POST, "/api/v1/employees/EMP-1/clock-out-without-clock-in-events/" + TIME
+						+ "/invalidate", "invalidateClockOutWithoutClockInEventLegacy"));
 	}
 
 	private static Mapping mapping(final HttpMethod method, final String path, final String handlerMethod) {
