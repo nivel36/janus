@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import es.nivel36.janus.policy.EmployeeEmailResolver;
+import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.appuser.Role;
@@ -15,7 +15,7 @@ import es.nivel36.janus.service.employee.EmployeeService;
 public class ScheduleAuthorizationAdapter {
 	private final ActorResolver actors;
 	private final EmployeeService employees;
-	private final EmployeeEmailResolver employeeEmails;
+	private final EmployeeNumberResolver employeeNumbers;
 	private final SearchSchedulePolicy search = new SearchSchedulePolicy();
 	private final ViewSchedulePolicy view = new ViewSchedulePolicy();
 	private final CreateSchedulePolicy create = new CreateSchedulePolicy();
@@ -23,20 +23,20 @@ public class ScheduleAuthorizationAdapter {
 	private final DeleteSchedulePolicy delete = new DeleteSchedulePolicy();
 
 	public ScheduleAuthorizationAdapter(final ActorResolver actors, final EmployeeService employees,
-			final EmployeeEmailResolver employeeEmails) {
+			final EmployeeNumberResolver employeeNumbers) {
 		this.actors = Objects.requireNonNull(actors);
 		this.employees = Objects.requireNonNull(employees);
-		this.employeeEmails = Objects.requireNonNull(employeeEmails);
+		this.employeeNumbers = Objects.requireNonNull(employeeNumbers);
 	}
 
-	public boolean canSearch(final Authentication auth, final String email) {
+	public boolean canSearch(final Authentication auth, final String employeeNumber) {
 		final Actor a = this.actors.resolve(auth);
-		return this.search.allows(a, this.restricted(a) ? a.employeeId() != null : this.owns(a, email));
+		return this.search.allows(a, this.restricted(a) ? a.employeeId() != null : this.owns(a, employeeNumber));
 	}
 
-	public String effectiveEmployeeEmail(final Authentication auth, final String requested) {
+	public String effectiveEmployeeNumber(final Authentication auth, final String requested) {
 		final Actor a = this.actors.resolve(auth);
-		return this.employeeEmails.effectiveEmail(a, requested, this.restricted(a));
+		return this.employeeNumbers.effectiveNumber(a, requested, this.restricted(a));
 	}
 
 	public boolean canView(final Authentication auth, final String code) {
@@ -57,8 +57,8 @@ public class ScheduleAuthorizationAdapter {
 		return this.delete.allows(this.actors.resolve(a), null);
 	}
 
-	private boolean owns(final Actor a, final String email) {
-		return this.employeeEmails.owns(a, email);
+	private boolean owns(final Actor a, final String employeeNumber) {
+		return this.employeeNumbers.owns(a, employeeNumber);
 	}
 
 	private boolean restricted(final Actor a) {

@@ -59,7 +59,9 @@ public class TimeLogSearchController implements TimeLogSearchResource {
 	@Override
 	public ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(final TimeLogSearchCriteria criteria,
 			final Pageable pageable, final Authentication authentication) {
-		return ResponseEntity.ok(this.timeLogs.searchTimeLogs(criteria,
+		final TimeLogSearchCriteria canonicalCriteria = new TimeLogSearchCriteria(
+				this.authorization.effectiveEmployeeNumber(authentication, criteria.employeeNumber()), criteria.employeeEmail(), criteria.start(), criteria.end());
+		return ResponseEntity.ok(this.timeLogs.searchTimeLogs(canonicalCriteria,
 				this.authorization.searchScope(authentication),
 				pageable).map(this.mapper::map));
 	}

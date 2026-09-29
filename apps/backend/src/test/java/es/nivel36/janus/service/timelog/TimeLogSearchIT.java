@@ -50,7 +50,7 @@ class TimeLogSearchIT {
 
 	@Test
 	void scopeAndClientEmployeeFilterAreCombined() {
-		final TimeLogSearchCriteria criteria = new TimeLogSearchCriteria("bob@example.test", null, null);
+		final TimeLogSearchCriteria criteria = new TimeLogSearchCriteria("EMP-002", null, null);
 		final PageRequest page = PageRequest.of(0, 2, Sort.by("entryTime"));
 
 		final Page<TimeLog> allowed = this.service.searchTimeLogs(criteria, new TimeLogSearchScope.All(), page);
