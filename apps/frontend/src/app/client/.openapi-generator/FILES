@@ -39,6 +39,7 @@ model/timeLogPage.ts
 model/timeLogResponse.ts
 model/timeZoneCatalogItemResponse.ts
 model/timeZoneCatalogPage.ts
+model/transitionClockOutWithoutClockInEventRequest.ts
 model/updateAppUserRequest.ts
 model/updateApplicationSettingsRequest.ts
 model/updateEmployeeRequest.ts

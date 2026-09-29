@@ -96,6 +96,26 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 				"clockOutWithoutClockInEventResponseMapper can't be null");
 	}
 
+	@Override
+	public ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent(
+			final String employeeNumber, final String worksiteCode, final Instant exitTime,
+			final TransitionClockOutWithoutClockInEventRequest request) {
+		logger.debug("Transition clock-out-without-clock-in event ACTION performed: {}", request.action());
+		final Employee employee = this.requireEmployee(employeeNumber);
+		final Worksite worksite = this.findRecordedWorksite(worksiteCode.trim());
+		final ClockOutWithoutClockInEvent event = this.clockOutWithoutClockInEventService
+				.findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(employee, worksite, exitTime);
+		final Optional<String> reason = this.toOptionalReason(request.reason());
+		final ClockOutWithoutClockInEvent transitioned;
+		if (request.action() == ClockOutWithoutClockInEventAction.RESOLVE) {
+			this.assertManualTimeEntryAllowed();
+			transitioned = this.clockOutWithoutClockInEventService.resolve(event, request.entryTime(), reason);
+		} else {
+			transitioned = this.clockOutWithoutClockInEventService.invalidate(event, reason);
+		}
+		return ResponseEntity.ok(this.clockOutWithoutClockInEventResponseMapper.map(transitioned));
+	}
+
 	/**
 	 * Resolves a {@link ClockOutWithoutClockInEvent} by creating a corresponding
 	 * {@link TimeLog}.
@@ -110,6 +130,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 * @return the resolved {@link ClockOutWithoutClockInEventResponse}
 	 */
 	@Override
+	@SuppressWarnings("removal")
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEvent( //
 			final String employeeNumber, //
 			final String worksiteCode, //
@@ -143,6 +164,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 * @return the invalidated {@link ClockOutWithoutClockInEventResponse}
 	 */
 	@Override
+	@SuppressWarnings("removal")
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEvent( //
 			final String employeeNumber, //
 			final String worksiteCode, //

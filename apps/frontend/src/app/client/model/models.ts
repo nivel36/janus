@@ -21,6 +21,7 @@ export * from './timeLogPage';
 export * from './timeLogResponse';
 export * from './timeZoneCatalogItemResponse';
 export * from './timeZoneCatalogPage';
+export * from './transitionClockOutWithoutClockInEventRequest';
 export * from './updateAppUserRequest';
 export * from './updateApplicationSettingsRequest';
 export * from './updateEmployeeRequest';

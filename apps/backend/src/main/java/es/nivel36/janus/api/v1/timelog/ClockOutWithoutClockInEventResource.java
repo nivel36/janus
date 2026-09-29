@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +34,15 @@ import es.nivel36.janus.api.validation.EmployeeNumber;
 @RequestMapping("/api/v1")
 public interface ClockOutWithoutClockInEventResource {
 
+	@PatchMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #employeeNumber) and @clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #employeeNumber)")
+	ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent(
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
+			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@PathVariable("exitTime") Instant exitTime,
+			@Valid @RequestBody TransitionClockOutWithoutClockInEventRequest request);
+
+	@Deprecated(forRemoval = true)
 	@PostMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/resolve")
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #employeeNumber)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEvent(
@@ -41,6 +51,7 @@ public interface ClockOutWithoutClockInEventResource {
 			@PathVariable("exitTime") Instant exitTime,
 			@Valid @RequestBody ResolveClockOutWithoutClockInEventRequest request);
 
+	@Deprecated(forRemoval = true)
 	@PostMapping("/employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/invalidate")
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #employeeNumber)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEvent(
