@@ -25,6 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -85,5 +87,32 @@ class ApplicationSettingsControllerIT {
 				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").value(true))
 				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").value(true))
 				.andExpect(jsonPath("$.defaultTimezone").value("UTC"));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { //
+			"\"daysUntilLocked\":3,", //
+			"\"employeeWorkplaceCreationAllowed\":false,", //
+			"\"worksiteChangeDuringShiftAllowed\":true,", //
+			"\"employeeManualTimelogEntryAllowed\":true," //
+	})
+	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
+	void testUpdateShouldRejectMissingRequiredSettingWithoutChangingStoredSettings(final String fieldToOmit)
+			throws Exception {
+		final String completeBody = """
+				{"daysUntilLocked":3,"employeeWorkplaceCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimelogEntryAllowed":true,"defaultTimezone":"UTC"}
+				""";
+		final String incompleteBody = completeBody.replace(fieldToOmit, "");
+
+		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(incompleteBody)
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
+
+		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.daysUntilLocked").value(7))
+				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").value(true))
+				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").value(false))
+				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").value(false))
+				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
 	}
 }
