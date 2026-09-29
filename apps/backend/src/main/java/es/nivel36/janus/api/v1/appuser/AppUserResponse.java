@@ -26,8 +26,7 @@ import es.nivel36.janus.service.appuser.Theme;
  *
  * @param id              the public UUID of the user
  * @param email           the user email (not necessarily unique)
- * @param employeeNumber  the stable identifier of the linked employee, or
- *                        {@code null} when the user is not linked to one
+ * @param employeeNumber  the stable number of the linked employee, or {@code null}
  * @param locale          the user's preferred locale expressed as a BCP 47
  *                        language tag
  * @param timeFormat      the preferred {@link TimeFormat}

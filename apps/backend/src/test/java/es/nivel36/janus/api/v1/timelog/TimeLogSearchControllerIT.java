@@ -58,7 +58,7 @@ class TimeLogSearchControllerIT {
 	private static final String OWN_EMAIL = "alice@example.test";
 	private static final String OTHER_EMAIL = "bob@example.test";
 	private static final String OWN_SUBJECT = "11111111-1111-4111-8111-111111111111";
-	private static final String OWN_SEARCH = "/api/v1/employees/EMP-0101/time-logs/";
+	private static final String OTHER_SEARCH = "/api/v1/employees/EMP-0102/time-logs/";
 
 	private @Autowired MockMvc mvc;
 	private @Autowired JdbcTemplate jdbc;
@@ -98,7 +98,7 @@ class TimeLogSearchControllerIT {
 	}
 
 	@Test
-	void clientCanFilterByOwnNumberWithoutExpandingScope() throws Exception {
+	void clientCanFilterByOwnEmployeeNumberWithoutExpandingScope() throws Exception {
 		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0101").param("page", "1")
 				.param("size", "2").param("sort", "entryTime,desc").with(employee()))
 				.andExpect(status().isOk())
@@ -111,7 +111,7 @@ class TimeLogSearchControllerIT {
 
 	@ParameterizedTest
 	@CsvSource({ "ROLE_JANUS_EMPLOYEE," + OWN_SUBJECT, "ROLE_JANUS_USER,user" })
-	void employeeNumberFilterIsAppliedForRestrictedAndPrivilegedUsers(final String role,
+	void employeeNumberFilterWorksForRestrictedAndPrivilegedUsers(final String role,
 			final String subject) throws Exception {
 		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0101")
 				.with(verifiedJwt().jwt(token -> token.subject(subject)).authorities(createAuthorityList(role))))
@@ -123,9 +123,8 @@ class TimeLogSearchControllerIT {
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void clientCannotExpandScopeByFilteringAnotherEmployee(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).param("employeeNumber", "EMP-0102").param("size", "1").with(employee()))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OWN_EMAIL))));
+		assertEmpty(this.mvc.perform(get(endpoint).param("employeeNumber", "EMP-0102")
+				.param("size", "1").with(employee())));
 	}
 
 	@ParameterizedTest
@@ -173,6 +172,17 @@ class TimeLogSearchControllerIT {
 						"2025-07-04T07:00:00Z")))
 				.andExpect(jsonPath("$.page.totalElements").value(4))
 				.andExpect(jsonPath("$.page.totalPages").value(2));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "ROLE_JANUS_USER", "ROLE_JANUS_ADMIN" })
+	void legacyRouteStillFiltersByEmployeeEmail(final String role) throws Exception {
+		this.mvc.perform(get(LEGACY_BASE).param("employeeEmail", OTHER_EMAIL).param("sort", "entryTime,asc")
+				.with(verifiedJwt().authorities(createAuthorityList(role))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()").value(4))
+				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OTHER_EMAIL))))
+				.andExpect(jsonPath("$.page.totalElements").value(4));
 	}
 
 	@ParameterizedTest

@@ -72,7 +72,7 @@ public interface TimeLogResource {
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime);
 
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #email, #entryTime != null)")
+	@PreAuthorize("@timeLogAuthorization.canOperateByEmail(authentication, #email, #entryTime != null)")
 	@Deprecated
 	@PostMapping("/employees/by-email/{email}/time-logs/clock-in")
 	ResponseEntity<TimeLogResponse> clockInByEmail(@PathVariable @Email String email,
@@ -80,7 +80,7 @@ public interface TimeLogResource {
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			Authentication authentication);
 
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #email, #exitTime != null)")
+	@PreAuthorize("@timeLogAuthorization.canOperateByEmail(authentication, #email, #exitTime != null)")
 	@Deprecated
 	@PostMapping("/employees/by-email/{email}/time-logs/clock-out")
 	ResponseEntity<TimeLogResponse> clockOutByEmail(@PathVariable @Email String email,
@@ -88,14 +88,14 @@ public interface TimeLogResource {
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			Authentication authentication) throws ClockOutWithoutClockInException;
 
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #email, true)")
+	@PreAuthorize("@timeLogAuthorization.canOperateByEmail(authentication, #email, true)")
 	@Deprecated
 	@PostMapping("/employees/by-email/{email}/time-logs")
 	ResponseEntity<TimeLogResponse> createTimeLogByEmail(@PathVariable @Email String email,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@Valid @RequestBody CreateTimeLogRequest timeLog, Authentication authentication);
 
-	@PreAuthorize("@timeLogAuthorization.canView(authentication, #email)")
+	@PreAuthorize("@timeLogAuthorization.canViewByEmail(authentication, #email)")
 	@Deprecated
 	@GetMapping("/employees/by-email/{email}/time-logs/{entryTime}")
 	ResponseEntity<TimeLogResponse> findTimeLogByEmail(@PathVariable @Email String email,

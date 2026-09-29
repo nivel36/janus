@@ -17,12 +17,11 @@ export interface AppUserResponse {
     /**
      * Stable employee identifier containing 1 to 50 letters, digits, underscores, or hyphens.
      */
-    employeeNumber?: string | null;
+    employeeNumber?: string;
     locale: string;
     timeFormat: TimeFormat;
     theme: Theme;
     defaultTimezone: string;
 }
-
 
 

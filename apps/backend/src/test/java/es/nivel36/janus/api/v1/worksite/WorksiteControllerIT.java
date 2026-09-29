@@ -146,7 +146,7 @@ class WorksiteControllerIT {
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','ASSIGNED')",
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" })
-	void employeeNumberFilterIsAppliedForRestrictedAndPrivilegedUsers(final String role,
+	void employeeNumberFilterWorksForRestrictedAndPrivilegedUsers(final String role,
 			final String subject) throws Exception {
 		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0001")
 				.with(verifiedJwt().jwt(jwt -> jwt.subject(subject)).authorities(createAuthorityList(role))))

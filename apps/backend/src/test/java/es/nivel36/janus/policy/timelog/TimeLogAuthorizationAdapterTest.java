@@ -78,10 +78,10 @@ class TimeLogAuthorizationAdapterTest {
 		when(this.employees.findEmployeeById(84L)).thenReturn(employee);
 		when(employee.getEmployeeNumber()).thenReturn("EMP-0084");
 		when(employee.getId()).thenReturn(84L);
-		when(this.employees.findEmployeeByEmployeeNumberOrEmail("old-address@internal.test")).thenReturn(employee);
+		when(this.employees.findEmployeeByEmployeeNumber("EMP-0001")).thenReturn(employee);
 
-		assertThat(this.adapter.canView(this.authentication, "old-address@internal.test")).isTrue();
-		assertThat(this.adapter.effectiveEmployeeNumber(this.authentication, "old-address@internal.test"))
+		assertThat(this.adapter.canView(this.authentication, "EMP-0001")).isTrue();
+		assertThat(this.adapter.effectiveEmployeeNumber(this.authentication, "EMP-0001"))
 				.isEqualTo("EMP-0084");
 		verify(this.employees).findEmployeeById(84L);
 	}
@@ -100,9 +100,9 @@ class TimeLogAuthorizationAdapterTest {
 		when(this.actors.resolve(this.authentication))
 				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
 						Set.of(Role.JANUS_USER), 84L));
-		when(this.employees.findEmployeeByEmployeeNumberOrEmail("missing@example.test"))
+		when(this.employees.findEmployeeByEmployeeNumber("MISSING"))
 				.thenThrow(new ResourceNotFoundException("There is no employee with selector missing@example.test"));
 
-		assertThat(this.adapter.canOperate(this.authentication, "missing@example.test", false)).isFalse();
+		assertThat(this.adapter.canOperate(this.authentication, "MISSING", false)).isFalse();
 	}
 }

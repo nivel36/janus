@@ -98,7 +98,7 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 * <ul>
 	 * <li>{@code employeeNumber} is {@code null}.</li>
 	 * <li>The worksite scope is {@code GLOBAL}.</li>
-	 * <li>The worksite has an associated employee with the given employee number.</li>
+	 * <li>The worksite has an associated employee with the given number.</li>
 	 * </ul>
 	 * </li>
 	 * </ul>
@@ -106,7 +106,7 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 *
 	 * @param query         the search text to match against worksite name, code,
 	 *                      description or address. Can't be {@code null}.
-	 * @param employeeNumber the employee number used to filter visible
+	 * @param employeeNumber the number of the employee used to filter visible
 	 *                      worksites. Can be {@code null}.
 	 * @param pageable      the pagination information. Can't be {@code null}.
 	 * @return a {@link Page} of {@link Worksite} instances matching the criteria;

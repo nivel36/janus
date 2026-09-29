@@ -23,6 +23,7 @@ import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.Theme;
+import es.nivel36.janus.service.employee.Employee;
 
 /**
  * Maps {@link AppUser} entities into {@link AppUserResponse} DTOs.
@@ -37,7 +38,8 @@ public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 		}
 		final UUID id = appUser.getId();
 		final String email = appUser.getEmail();
-		final String employeeNumber = appUser.getEmployee() == null ? null : appUser.getEmployee().getEmployeeNumber();
+		final Employee employee = appUser.getEmployee();
+		final String employeeNumber = employee == null ? null : employee.getEmployeeNumber();
 		final String locale = appUser.getLocale().toLanguageTag();
 		final TimeFormat timeFormat = appUser.getTimeFormat();
 		final String defaultTimeZone = appUser.getDefaultTimezone().getId();

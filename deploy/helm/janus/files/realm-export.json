@@ -4,7 +4,11 @@
   "verifyEmail": true,
   "loginTheme": "janus",
   "internationalizationEnabled": true,
-  "supportedLocales": ["es", "ca", "en"],
+  "supportedLocales": [
+    "es",
+    "ca",
+    "en"
+  ],
   "defaultLocale": "es",
   "requiredActions": [
     {
@@ -57,8 +61,14 @@
       "serviceAccountsEnabled": false,
       "consentRequired": false,
       "fullScopeAllowed": true,
-      "redirectUris": ["http://localhost/*", "http://localhost:4200/*"],
-      "webOrigins": ["http://localhost", "http://localhost:4200"],
+      "redirectUris": [
+        "http://localhost/*",
+        "http://localhost:4200/*"
+      ],
+      "webOrigins": [
+        "http://localhost",
+        "http://localhost:4200"
+      ],
       "protocolMappers": [
         {
           "name": "janus-api-audience",
@@ -69,6 +79,21 @@
             "included.client.audience": "janus-api",
             "id.token.claim": "false",
             "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "employee-number",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "employeeNumber",
+            "claim.name": "employeeNumber",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
             "introspection.token.claim": "true"
           }
         }
@@ -92,7 +117,16 @@
         }
       ],
       "clientRoles": {
-        "janus-api": ["JANUS_EMPLOYEE", "JANUS_USER", "JANUS_ADMIN"]
+        "janus-api": [
+          "JANUS_EMPLOYEE",
+          "JANUS_USER",
+          "JANUS_ADMIN"
+        ]
+      },
+      "attributes": {
+        "employeeNumber": [
+          "EMP-0001"
+        ]
       }
     }
   ]

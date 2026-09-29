@@ -51,9 +51,7 @@ export class TimelogClockCardComponent {
   readonly faAngleRight = faAngleRight;
   readonly titleElementId = `${inject(ID_GENERATOR).generate('clock-in-card')}-title`;
 
-  /** Email of the employee for whom the card is displayed. */
-  readonly employeeEmail = input.required<string>();
-  /** Stable number used to scope searches even when the actor also has elevated roles. */
+  /** Stable number of the employee for whom the card is displayed. */
   readonly employeeNumber = input.required<string>();
 
   /** Event emitted when the clocking action completes successfully. */
@@ -123,7 +121,7 @@ export class TimelogClockCardComponent {
       return;
     }
 
-    const employeeEmail = this.employeeEmail();
+    const employeeNumber = this.employeeNumber();
     const { shouldClockOut, worksiteCode } = this.resolveClockAction(
       mode,
       this.latestTimeLog(),
@@ -139,8 +137,8 @@ export class TimelogClockCardComponent {
     this.clockActionFeedbackKey.set(undefined);
 
     const action$ = shouldClockOut
-      ? this.timeLogService.clockOut(employeeEmail, worksiteCode)
-      : this.timeLogService.clockIn(employeeEmail, worksiteCode);
+      ? this.timeLogService.clockOut(employeeNumber, worksiteCode)
+      : this.timeLogService.clockIn(employeeNumber, worksiteCode);
 
     action$
       .pipe(
@@ -149,7 +147,7 @@ export class TimelogClockCardComponent {
       )
       .subscribe({
         next: (timeLog) => {
-          if (this.employeeEmail() === employeeEmail) {
+          if (this.employeeNumber() === employeeNumber) {
             this.latestTimeLogResource.set(timeLog);
           } else {
             this.latestTimeLogResource.reload();

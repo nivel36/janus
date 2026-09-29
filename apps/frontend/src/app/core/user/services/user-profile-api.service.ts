@@ -43,10 +43,8 @@ const PROFILE_LOAD_RETRY_POLICY: HttpRetryPolicy = {
 export class UserProfileApiService {
   private readonly api = inject(AppUsersService);
   private profileId: string | null = null;
-  private readonly employeeNumberState = signal<string | null>(null);
-
-  /** Stable employee identifier supplied by the persisted application-user profile. */
-  readonly employeeNumber = this.employeeNumberState.asReadonly();
+  /** Stable employee identifier supplied by the profile API (never inferred from claims). */
+  readonly employeeNumber = signal<string | null>(null);
 
   /**
    * Retrieves the full user profile from the backend.
@@ -73,7 +71,7 @@ export class UserProfileApiService {
    * @returns Observable emitting the user's preferences
    */
   getPreferences(): Observable<UserPreferences> {
-    this.employeeNumberState.set(null);
+    this.employeeNumber.set(null);
     return this.getProfile().pipe(
       tap((response) => this.rememberProfile(response)),
       map((response) => this.toPreferences(response)),
@@ -127,6 +125,6 @@ export class UserProfileApiService {
 
   private rememberProfile(response: AppUserResponse): void {
     this.profileId = response.id;
-    this.employeeNumberState.set(response.employeeNumber ?? null);
+    this.employeeNumber.set(response.employeeNumber ?? null);
   }
 }

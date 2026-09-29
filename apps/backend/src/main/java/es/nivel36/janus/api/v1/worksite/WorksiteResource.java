@@ -46,7 +46,7 @@ public interface WorksiteResource {
 	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeNumber)")
 	ResponseEntity<Page<WorksiteResponse>> searchWorksites(
 			@RequestParam(required = false) @SearchQuery String query,
-			@RequestParam(required = false) @Pattern(regexp = "^[A-Za-z0-9_-]{1,50}$", message = "employeeNumber must be a valid employee number") String employeeNumber,
+			@RequestParam(required = false) @Pattern(regexp = EmployeeNumber.PATTERN, message = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)") String employeeNumber,
 			@PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC) Pageable pageable,
 			Authentication authentication);
 
@@ -80,13 +80,13 @@ public interface WorksiteResource {
 	@PutMapping({ "/{worksiteCode}/employees/{employeeNumber}" })
 	ResponseEntity<Void> assignEmployeeToWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
+			@PathVariable("employeeNumber") @Pattern(regexp = EmployeeNumber.PATTERN, message = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)") String employeeNumber);
 
 	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
 	@DeleteMapping({ "/{worksiteCode}/employees/{employeeNumber}" })
 	ResponseEntity<Void> removeEmployeeFromWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
+			@PathVariable("employeeNumber") @Pattern(regexp = EmployeeNumber.PATTERN, message = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)") String employeeNumber);
 
 	@Deprecated
 	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")

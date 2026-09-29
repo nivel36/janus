@@ -96,12 +96,8 @@ public class WorksiteService {
 	@Transactional(readOnly = true)
 	public Page<Worksite> searchWorksites(final String query, final String employeeNumber, final Pageable pageable) {
 		logger.debug("Searching worksites by query {} and employee number {}", query, employeeNumber);
-		final Page<Worksite> worksites;
-		if (query == null || query.isEmpty()) {
-			worksites = this.worksiteRepository.findAll(pageable);
-		} else {
-			worksites = this.worksiteRepository.search(LikePatterns.escape(query), employeeNumber, pageable);
-		}
+		final String escapedQuery = query == null ? "" : LikePatterns.escape(query);
+		final Page<Worksite> worksites = this.worksiteRepository.search(escapedQuery, employeeNumber, pageable);
 
 		logger.trace("Found {} worksites", worksites.getTotalElements());
 		return worksites;

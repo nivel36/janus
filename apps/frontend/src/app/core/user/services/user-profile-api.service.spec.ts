@@ -24,12 +24,10 @@ describe('UserProfileApiService', () => {
     transport = {
       findCurrentAppUser: vi
         .fn()
-        .mockReturnValue(
-          of({ id: USER_ID, email: 'person@example.test', employeeNumber: 'EMP-0001', ...PREFERENCES }),
-        ),
+        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', employeeNumber: 'EMP-0001', ...PREFERENCES })),
       updateAppUser: vi
         .fn()
-        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', ...PREFERENCES })),
+        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', employeeNumber: 'EMP-0001', ...PREFERENCES })),
     };
     TestBed.configureTestingModule({
       providers: [UserProfileApiService, { provide: AppUsersService, useValue: transport }],

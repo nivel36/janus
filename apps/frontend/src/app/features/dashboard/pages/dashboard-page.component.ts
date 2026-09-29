@@ -26,7 +26,6 @@ export class DashboardPageComponent {
 
   readonly tableRefreshToken = signal(0);
 
-  readonly employeeEmail = this.currentUser.email;
   readonly employeeNumber = this.currentUser.employeeNumber;
   readonly fullName = this.currentUser.fullName;
 

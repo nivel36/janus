@@ -75,7 +75,6 @@ describe('TimelogClockCardComponent', () => {
 
     fixture = TestBed.createComponent(TimelogClockCardComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('employeeEmail', 'employee@example.com');
     fixture.componentRef.setInput('employeeNumber', 'EMP-0001');
     fixture.detectChanges();
     await settleEffects();
@@ -110,14 +109,13 @@ describe('TimelogClockCardComponent', () => {
     (secondaryButton.nativeElement.querySelector('button') as HTMLButtonElement).click();
     fixture.detectChanges();
 
-    expect(clockOut).toHaveBeenCalledWith('employee@example.com', 'BCN');
+    expect(clockOut).toHaveBeenCalledWith('EMP-0001', 'BCN');
     expect(buttons.every((button) => button.disabled())).toBe(true);
   });
 
   it('keeps generated title IDs stable and unique between instances', () => {
     const firstId = component.titleElementId;
     const secondFixture = TestBed.createComponent(TimelogClockCardComponent);
-    secondFixture.componentRef.setInput('employeeEmail', 'another@example.com');
     secondFixture.componentRef.setInput('employeeNumber', 'EMP-0002');
     secondFixture.detectChanges();
 
@@ -151,7 +149,6 @@ describe('TimelogClockCardComponent', () => {
   it('does not store a completed mutation for a previous employee', async () => {
     controls().onClockAction();
 
-    fixture.componentRef.setInput('employeeEmail', 'other@example.com');
     fixture.componentRef.setInput('employeeNumber', 'EMP-0002');
     fixture.detectChanges();
     await settleEffects();
@@ -170,7 +167,7 @@ describe('TimelogClockCardComponent', () => {
     clockOutResult.error(new Error('network'));
     await settleEffects();
 
-    expect(clockOut).toHaveBeenCalledWith('employee@example.com', 'BCN');
+    expect(clockOut).toHaveBeenCalledWith('EMP-0001', 'BCN');
     expect(controls().isClockActionLoading()).toBe(false);
     expect(controls().clockActionFeedbackKey()).toBe('timelog.clockActionNetworkError');
   });

@@ -62,7 +62,7 @@ export class WorksiteApiService {
    * Global worksites are intentionally excluded: this query is used when a
    * clock action needs an explicitly assigned worksite.
    */
-  searchAssignedToEmployee(employeeNumber?: string): Observable<Worksite[]> {
+  searchAssignedToEmployee(employeeNumber: string): Observable<Worksite[]> {
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
 
     return this.api

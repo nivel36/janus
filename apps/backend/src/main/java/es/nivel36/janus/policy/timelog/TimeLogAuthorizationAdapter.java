@@ -44,6 +44,19 @@ public class TimeLogAuthorizationAdapter {
 		return this.view.allows(a, !this.restricted(a) || this.ownsEmployeeNumber(a, employeeSelector));
 	}
 
+	/** Compatibility authorization for the deprecated routes whose identifier is an email. */
+	public boolean canOperateByEmail(final Authentication auth, final String email, final boolean manual) {
+		final Actor actor = this.actors.resolve(auth);
+		return this.operate.allows(actor, new OperateTimeLogPolicy.Context(this.ownsEmployeeEmail(actor, email), manual,
+				this.settings.isEmployeeManualTimelogEntryAllowed()));
+	}
+
+	/** Compatibility authorization for the deprecated routes whose identifier is an email. */
+	public boolean canViewByEmail(final Authentication auth, final String email) {
+		final Actor actor = this.actors.resolve(auth);
+		return this.view.allows(actor, !this.restricted(actor) || this.ownsEmployeeEmail(actor, email));
+	}
+
 	/**
 	 * Resolves the employee number used by a search. Employee-only users are
 	 * always scoped through their immutable AppUser-to-Employee link, rather than
@@ -74,10 +87,18 @@ public class TimeLogAuthorizationAdapter {
 		}
 		try {
 			return actor.employeeId()
-					.equals(this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber).getId());
+					.equals(this.employeeService.findEmployeeByEmployeeNumber(employeeNumber).getId());
 		} catch (final ResourceNotFoundException exception) {
 			return false;
 		}
+	}
+
+	private boolean ownsEmployeeEmail(final Actor actor, final String email) {
+		if (actor.employeeId() == null) {
+			return false;
+		}
+		return this.employeeService.findEmployeeByEmail(email)
+				.map(employee -> actor.employeeId().equals(employee.getId())).orElse(false);
 	}
 
 	private boolean restricted(final Actor a) {
