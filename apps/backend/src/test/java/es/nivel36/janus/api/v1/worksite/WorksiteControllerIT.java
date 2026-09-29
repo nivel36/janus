@@ -198,6 +198,8 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.code").value("VISIBLE"));
 
 		this.mvc.perform(get(BASE + "/{code}", "OUTSIDE").with(employeeJwt)).andExpect(status().isForbidden());
+
+		this.mvc.perform(get(BASE + "/{code}", "MISSING").with(employeeJwt)).andExpect(status().isForbidden());
 	}
 
 	@Test

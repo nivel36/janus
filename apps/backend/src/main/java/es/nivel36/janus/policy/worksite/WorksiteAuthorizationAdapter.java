@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.EmployeeService;
@@ -57,10 +58,14 @@ public class WorksiteAuthorizationAdapter {
 		if (!this.view.allows(a, null) || a.employeeId() == null) {
 			return false;
 		}
-		return switch (this.worksites.findWorksiteByCode(code).getScope()) {
-		case GLOBAL -> true;
-		case ASSIGNED -> this.assigned(a, code);
-		};
+		try {
+			return switch (this.worksites.findWorksiteByCode(code).getScope()) {
+			case GLOBAL -> true;
+			case ASSIGNED -> this.assigned(a, code);
+			};
+		} catch (final ResourceNotFoundException ex) {
+			return false;
+		}
 	}
 
 	public boolean canViewStats(final Authentication auth, final String code) {
