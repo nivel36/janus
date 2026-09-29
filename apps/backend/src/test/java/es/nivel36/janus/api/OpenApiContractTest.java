@@ -80,6 +80,22 @@ class OpenApiContractTest {
 		}
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	void timeLogResponsesRequireStableEmployeeNumberAndDeprecateEmail() throws Exception {
+		final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
+				.get("schemas");
+
+		for (final var schemaName : List.of("TimeLogResponse", "ClockOutWithoutClockInEventResponse")) {
+			final var schema = schemas.get(schemaName);
+			final var required = (List<String>) schema.get("required");
+			final var properties = (Map<String, Map<String, Object>>) schema.get("properties");
+			assertThat(required).as("required properties for %s", schemaName).contains("employeeNumber");
+			assertThat(properties.get("employeeNumber")).containsEntry("type", "string");
+			assertThat(properties.get("employeeEmail")).containsEntry("deprecated", true);
+		}
+	}
+
 	private static Map<String, Object> contract() throws Exception {
 		try (var stream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
 				var reader = new InputStreamReader(stream)) {

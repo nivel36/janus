@@ -97,6 +97,7 @@ class TimeLogControllerIT {
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
+				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001")) //
 				.andExpect(jsonPath("$.entryTime").value(entry)) //
 				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
 	}

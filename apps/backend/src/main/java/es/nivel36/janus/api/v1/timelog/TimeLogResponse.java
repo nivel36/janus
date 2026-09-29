@@ -30,8 +30,11 @@ import es.nivel36.janus.service.worksite.Worksite;
  * {@link Employee} and the {@link Worksite}.
  * </p>
  *
- * @param employeeEmail  the unique email address of the {@link Employee}
- *                       associated with this time log; must not be {@code null}
+ * @param employeeNumber the stable number of the {@link Employee} associated
+ *                       with this time log; must not be {@code null}
+ * @param employeeEmail  the employee email retained temporarily for backwards
+ *                       compatibility; scheduled for removal in a future API
+ *                       version
  * @param worksiteCode   the unique code identifying the {@link Worksite} where
  *                       the time log was recorded; must not be {@code null}
  * @param worksiteZoneId the zone id associated with the {@link Worksite} where
@@ -43,6 +46,6 @@ import es.nivel36.janus.service.worksite.Worksite;
  * @param workTime       the elapsed work duration, represented in multiple
  *                       formats; absent if the time log is still open
  */
-public record TimeLogResponse(String employeeEmail, String worksiteCode, ZoneId worksiteZoneId, Instant entryTime,
-		Instant exitTime, DurationResponse workTime) {
+public record TimeLogResponse(String employeeNumber, String employeeEmail, String worksiteCode, ZoneId worksiteZoneId,
+		Instant entryTime, Instant exitTime, DurationResponse workTime) {
 }

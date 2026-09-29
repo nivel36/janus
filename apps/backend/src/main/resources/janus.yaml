@@ -1286,14 +1286,20 @@ components:
     TimeLogResponse:
       type: object
       required:
+      - employeeNumber
       - employeeEmail
       - worksiteCode
       - worksiteZoneId
       - entryTime
       - workTime
       properties:
+        employeeNumber:
+          type: string
+          description: Stable employee identifier used by canonical employee routes.
         employeeEmail:
           type: string
+          deprecated: true
+          description: Deprecated compatibility field; use employeeNumber instead. It will be removed in a future API version.
         worksiteCode:
           type: string
         worksiteZoneId:
@@ -1373,6 +1379,7 @@ components:
     ClockOutWithoutClockInEventResponse:
       type: object
       required:
+      - employeeNumber
       - employeeEmail
       - worksiteCode
       - exitTime
@@ -1380,9 +1387,14 @@ components:
       - resolved
       - invalidated
       properties:
+        employeeNumber:
+          type: string
+          description: Stable employee identifier used by canonical employee routes.
         employeeEmail:
           type: string
           format: email
+          deprecated: true
+          description: Deprecated compatibility field; use employeeNumber instead. It will be removed in a future API version.
         worksiteCode:
           type: string
         exitTime: *id006
