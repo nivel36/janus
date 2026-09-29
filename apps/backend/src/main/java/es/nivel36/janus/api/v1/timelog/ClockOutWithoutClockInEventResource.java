@@ -59,7 +59,7 @@ public interface ClockOutWithoutClockInEventResource {
 
 	@Deprecated
 	@PostMapping("/employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}/resolve")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #email)")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolveByEmail(authentication, #email)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEventByEmail(
 			@PathVariable @Email String email,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
@@ -67,7 +67,7 @@ public interface ClockOutWithoutClockInEventResource {
 
 	@Deprecated
 	@PostMapping("/employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}/invalidate")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #email)")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canInvalidateByEmail(authentication, #email)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEventByEmail(
 			@PathVariable @Email String email,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
@@ -76,7 +76,7 @@ public interface ClockOutWithoutClockInEventResource {
 
 	@Deprecated
 	@GetMapping("/employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canView(authentication, #email)")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canViewByEmail(authentication, #email)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEventByEmail(
 			@PathVariable @Email String email,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,

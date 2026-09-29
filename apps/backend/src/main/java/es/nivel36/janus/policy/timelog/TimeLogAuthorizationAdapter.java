@@ -39,9 +39,22 @@ public class TimeLogAuthorizationAdapter {
 				this.settings.isEmployeeManualTimelogEntryAllowed()));
 	}
 
+	/** Compatibility authorization for the deprecated routes whose identifier is an email. */
+	public boolean canOperateByEmail(final Authentication auth, final String email, final boolean manual) {
+		final Actor actor = this.actors.resolve(auth);
+		return this.operate.allows(actor, new OperateTimeLogPolicy.Context(this.ownsEmployeeEmail(actor, email), manual,
+				this.settings.isEmployeeManualTimelogEntryAllowed()));
+	}
+
 	public boolean canView(final Authentication auth, final String email) {
 		final Actor a = this.actors.resolve(auth);
 		return this.view.allows(a, !this.restricted(a) || this.ownsEmployeeNumber(a, email));
+	}
+
+	/** Compatibility authorization for the deprecated routes whose identifier is an email. */
+	public boolean canViewByEmail(final Authentication auth, final String email) {
+		final Actor actor = this.actors.resolve(auth);
+		return this.view.allows(actor, !this.restricted(actor) || this.ownsEmployeeEmail(actor, email));
 	}
 
 	/**
@@ -77,10 +90,18 @@ public class TimeLogAuthorizationAdapter {
 		}
 		try {
 			return actor.employeeId()
-					.equals(this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber).getId());
+					.equals(this.employeeService.findEmployeeByEmployeeNumber(employeeNumber).getId());
 		} catch (final ResourceNotFoundException exception) {
 			return false;
 		}
+	}
+
+	private boolean ownsEmployeeEmail(final Actor actor, final String email) {
+		if (actor.employeeId() == null) {
+			return false;
+		}
+		return this.employeeService.findEmployeeByEmail(this.employeeEmails.canonicalize(email))
+				.map(employee -> actor.employeeId().equals(employee.getId())).orElse(false);
 	}
 
 	private boolean restricted(final Actor a) {

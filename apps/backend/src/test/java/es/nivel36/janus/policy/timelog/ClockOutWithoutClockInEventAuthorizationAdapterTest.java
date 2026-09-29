@@ -32,7 +32,7 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	void missingEmployeeIsDeniedWithoutDisclosingItsAbsence() {
 		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
 				UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_ADMIN), null));
-		when(this.employees.findEmployeeByEmployeeNumberOrEmail("MISSING"))
+		when(this.employees.findEmployeeByEmployeeNumber("MISSING"))
 				.thenThrow(new ResourceNotFoundException("There is no employee with selector MISSING"));
 
 		assertThat(this.adapter.canView(this.authentication, "MISSING")).isFalse();
