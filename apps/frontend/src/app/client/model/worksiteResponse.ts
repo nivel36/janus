@@ -17,7 +17,6 @@ export interface WorksiteResponse {
     scope: WorksiteScope;
     description?: string | null;
     address?: string | null;
-    ownerEmployeeEmail?: string | null;
     active: boolean;
 }
 

@@ -10,6 +10,14 @@
 
 
 export interface ClockOutWithoutClockInEventResponse {
+    /**
+     * Stable employee identifier used by canonical employee routes.
+     */
+    employeeNumber: string;
+    /**
+     * Deprecated compatibility field; use employeeNumber instead. It will be removed in a future API version.
+     * @deprecated
+     */
     employeeEmail: string;
     worksiteCode: string;
     exitTime: string;

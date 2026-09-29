@@ -1007,9 +1007,10 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
+     * The start and end time-range bounds must be provided together or both omitted. When present, start must be before end.
      * @param employeeEmail
-     * @param start Inclusive lower bound of the half-open interval [start, end).
-     * @param end Exclusive upper bound of the half-open interval [start, end).
+     * @param start Inclusive lower bound of the half-open interval [start, end). Must be provided together with end.
+     * @param end Exclusive upper bound of the half-open interval [start, end). Must be provided together with start and be after it.
      * @param page
      * @param size
      * @param sort
@@ -1081,9 +1082,10 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
+     * The start and end time-range bounds must be provided together or both omitted. When present, start must be before end.
      * @param employeeEmail
-     * @param start
-     * @param end
+     * @param start Inclusive lower bound of the half-open interval [start, end). Must be provided together with end.
+     * @param end Exclusive upper bound of the half-open interval [start, end). Must be provided together with start and be after it.
      * @param page
      * @param size
      * @param sort
