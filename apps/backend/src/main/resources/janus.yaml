@@ -1078,9 +1078,6 @@ components:
         address:
           type: string
           nullable: true
-        ownerEmployeeEmail:
-          type: string
-          nullable: true
         active:
           type: boolean
     CreateWorksiteRequest:

@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,6 +45,8 @@ import org.yaml.snakeyaml.Yaml;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
+
+import es.nivel36.janus.api.v1.worksite.WorksiteResponse;
 
 class OpenApiContractTest {
 
@@ -78,6 +81,20 @@ class OpenApiContractTest {
 						.as("compatibility mapping %s must remain documented as deprecated", operationKey).isEqualTo(true);
 			}
 		}
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void worksiteResponseSchemaMatchesThePublicResponseModel() throws Exception {
+		final var components = (Map<String, Object>) contract().get("components");
+		final var schemas = (Map<String, Map<String, Object>>) components.get("schemas");
+		final var schema = schemas.get(WorksiteResponse.class.getSimpleName());
+		final var documentedProperties = ((Map<String, Object>) schema.get("properties")).keySet();
+		final var publicProperties = Arrays.stream(WorksiteResponse.class.getRecordComponents())
+				.map(component -> component.getName()).toList();
+
+		assertThat(documentedProperties).as("documented WorksiteResponse properties")
+				.containsExactlyInAnyOrderElementsOf(publicProperties);
 	}
 
 	private static Map<String, Object> contract() throws Exception {
