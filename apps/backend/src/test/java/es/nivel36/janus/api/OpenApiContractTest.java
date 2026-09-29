@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,6 +45,8 @@ import org.yaml.snakeyaml.Yaml;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
+
+import es.nivel36.janus.api.v1.worksite.WorksiteResponse;
 
 class OpenApiContractTest {
 
@@ -82,6 +85,7 @@ class OpenApiContractTest {
 
 	@Test
 	@SuppressWarnings("unchecked")
+
 	void timeLogResponsesRequireStableEmployeeNumberAndDeprecateEmail() throws Exception {
 		final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
 				.get("schemas");

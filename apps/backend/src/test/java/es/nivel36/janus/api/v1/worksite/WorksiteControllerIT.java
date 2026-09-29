@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.worksite;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
@@ -43,6 +44,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import tools.jackson.databind.ObjectMapper;
+
 import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 
@@ -54,6 +57,7 @@ import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 class WorksiteControllerIT {
 
 	private @Autowired MockMvc mvc;
+	private @Autowired ObjectMapper objectMapper;
 
 	private static final String BASE = "/api/v1/worksites";
 
@@ -165,13 +169,17 @@ class WorksiteControllerIT {
 			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testFindByCodeShouldReturnWorksite() throws Exception {
-		this.mvc.perform(get(BASE + "/{code}", "BCN-HQ").with(verifiedJwt()//
+		final var result = this.mvc.perform(get(BASE + "/{code}", "BCN-HQ").with(verifiedJwt()//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.code").value("BCN-HQ"))
 				.andExpect(jsonPath("$.name").value("Barcelona Headquarters"))
 				.andExpect(jsonPath("$.timeZone").value("UTC+02:00")).andExpect(jsonPath("$.scope").value("GLOBAL"))
-				.andExpect(jsonPath("$.active").value(true));
+				.andExpect(jsonPath("$.active").value(true)).andReturn();
+
+		final var response = this.objectMapper.readTree(result.getResponse().getContentAsByteArray());
+		assertThat(response.propertyNames()).as("JSON properties must match the public WorksiteResponse model")
+				.containsExactlyInAnyOrder("code", "name", "timeZone", "scope", "description", "address", "active");
 	}
 
 	@Test
