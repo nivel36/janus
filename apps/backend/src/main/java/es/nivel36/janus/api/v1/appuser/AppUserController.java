@@ -92,7 +92,7 @@ public class AppUserController implements AppUserResource {
 	}
 
 	private static String normalizeEmployeeNumber(final String claim) {
-		if (claim == null || claim.isBlank()) {
+		if (claim == null) {
 			return null;
 		}
 		final String normalized = claim.trim();

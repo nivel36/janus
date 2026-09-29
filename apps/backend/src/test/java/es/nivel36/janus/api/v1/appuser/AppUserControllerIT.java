@@ -168,13 +168,18 @@ class AppUserControllerIT {
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 	}
 
-	@Test
-	void testMeRejectsInvalidEmployeeNumberClaim() throws Exception {
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.ValueSource(strings = { "", " ", "\t", "not valid!" })
+	void testMeRejectsInvalidEmployeeNumberClaim(final String employeeNumber) throws Exception {
 		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt
 				.subject("55555555-5555-4555-8555-555555555555").claim("email", "valid@example.test")
-				.claim("employeeNumber", "not valid!"))
+				.claim("employeeNumber", employeeNumber))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isBadRequest());
+
+		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate.queryForObject(
+				"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?", Integer.class,
+				"55555555-5555-4555-8555-555555555555")).isZero();
 	}
 
 	@Test
