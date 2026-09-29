@@ -96,8 +96,8 @@ describe('ApplicationSettingsPageComponent', () => {
 
 const settings = {
   daysUntilLocked: 12,
-  employeeWorkplaceCreationAllowed: true,
+  employeeWorksiteCreationAllowed: true,
   worksiteChangeDuringShiftAllowed: true,
-  employeeManualTimelogEntryAllowed: false,
+  employeeManualTimeLogEntryAllowed: false,
   defaultTimezone: 'Europe/Paris',
 };

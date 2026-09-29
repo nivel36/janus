@@ -59,11 +59,11 @@ public class ApplicationSettingsService {
 	 *
 	 * @param daysUntilLocked                   number of days before an entity
 	 *                                          becomes locked.
-	 * @param employeeWorkplaceCreationAllowed  whether employees are allowed to
+	 * @param employeeWorksiteCreationAllowed  whether employees are allowed to
 	 *                                          create workplaces.
 	 * @param worksiteChangeDuringShiftAllowed  whether worksite changes are allowed
 	 *                                          during a shift.
-	 * @param employeeManualTimelogEntryAllowed whether employees are allowed to set
+	 * @param employeeManualTimeLogEntryAllowed whether employees are allowed to set
 	 *                                          custom entry/exit instants in
 	 *                                          timelog operations.
 	 * @param defaultTimezone                   default application time zone.
@@ -74,16 +74,16 @@ public class ApplicationSettingsService {
 	@Transactional
 	public ApplicationSettings update( //
 			final int daysUntilLocked, //
-			final boolean employeeWorkplaceCreationAllowed, //
+			final boolean employeeWorksiteCreationAllowed, //
 			final boolean worksiteChangeDuringShiftAllowed, //
-			final boolean employeeManualTimelogEntryAllowed, //
+			final boolean employeeManualTimeLogEntryAllowed, //
 			final ZoneId defaultTimezone) {
 		logger.debug("Updating application settings");
 		final ApplicationSettings applicationSettings = this.findById();
 		applicationSettings.setDaysUntilLocked(daysUntilLocked);
-		applicationSettings.setEmployeeWorkplaceCreationAllowed(employeeWorkplaceCreationAllowed);
+		applicationSettings.setEmployeeWorkplaceCreationAllowed(employeeWorksiteCreationAllowed);
 		applicationSettings.setWorksiteChangeDuringShiftAllowed(worksiteChangeDuringShiftAllowed);
-		applicationSettings.setEmployeeManualTimelogEntryAllowed(employeeManualTimelogEntryAllowed);
+		applicationSettings.setEmployeeManualTimelogEntryAllowed(employeeManualTimeLogEntryAllowed);
 		applicationSettings.setDefaultTimezone(defaultTimezone);
 		return applicationSettings;
 	}

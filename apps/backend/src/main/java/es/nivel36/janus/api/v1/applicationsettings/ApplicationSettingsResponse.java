@@ -15,18 +15,24 @@
  */
 package es.nivel36.janus.api.v1.applicationsettings;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 
 /**
  * Response payload that represents global {@link ApplicationSettings} values.
+ * Serialization always emits the canonical record component names. The
+ * obsolete {@code employeeWorkplaceCreationAllowed} and
+ * {@code employeeManualTimelogEntryAllowed} names are temporary
+ * deserialization-only aliases.
  *
  * @param daysUntilLocked                   number of days a time log remains
  *                                          editable
- * @param employeeWorkplaceCreationAllowed  whether employees can create
+ * @param employeeWorksiteCreationAllowed   whether employees can create
  *                                          personal worksites
  * @param worksiteChangeDuringShiftAllowed  whether changing worksite during a
  *                                          shift is allowed
- * @param employeeManualTimelogEntryAllowed whether employees can set custom
+ * @param employeeManualTimeLogEntryAllowed whether employees can set custom
  *                                          entry/exit instants in timelog
  *                                          operations
  * @param defaultTimezone                   IANA time zone identifier used as
@@ -34,8 +40,8 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
  */
 public record ApplicationSettingsResponse( //
 		int daysUntilLocked, //
-		boolean employeeWorkplaceCreationAllowed, //
+		@JsonAlias("employeeWorkplaceCreationAllowed") boolean employeeWorksiteCreationAllowed, //
 		boolean worksiteChangeDuringShiftAllowed, //
-		boolean employeeManualTimelogEntryAllowed, //
+		@JsonAlias("employeeManualTimelogEntryAllowed") boolean employeeManualTimeLogEntryAllowed, //
 		String defaultTimezone) {
 }

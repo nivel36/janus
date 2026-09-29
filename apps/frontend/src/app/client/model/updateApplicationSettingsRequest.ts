@@ -11,9 +11,15 @@
 
 export interface UpdateApplicationSettingsRequest {
     daysUntilLocked: number;
-    employeeWorkplaceCreationAllowed: boolean;
+    /**
+     * Canonical name. During the migration window the API also accepts the obsolete employeeWorkplaceCreationAllowed input name; clients must migrate to this property.
+     */
+    employeeWorksiteCreationAllowed: boolean;
     worksiteChangeDuringShiftAllowed: boolean;
-    employeeManualTimelogEntryAllowed: boolean;
+    /**
+     * Canonical name. During the migration window the API also accepts the obsolete employeeManualTimelogEntryAllowed input name; clients must migrate to this property.
+     */
+    employeeManualTimeLogEntryAllowed: boolean;
     defaultTimezone: string;
 }
 

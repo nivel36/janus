@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.api.v1.applicationsettings;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -24,14 +26,20 @@ import es.nivel36.janus.api.validation.ValidTimeZone;
 /**
  * Request payload used to update global application settings.
  *
+ * <p>
+ * For a temporary migration window, deserialization also accepts the obsolete
+ * {@code employeeWorkplaceCreationAllowed} and
+ * {@code employeeManualTimelogEntryAllowed} property names. Clients must use
+ * the canonical record component names; the aliases will be removed.
+ *
  * @param daysUntilLocked                   number of days a time log remains
  *                                          editable; must be greater than or
  *                                          equal to zero
- * @param employeeWorkplaceCreationAllowed  whether employees can create
+ * @param employeeWorksiteCreationAllowed   whether employees can create
  *                                          personal worksites
  * @param worksiteChangeDuringShiftAllowed  whether changing worksite during a
  *                                          shift is allowed
- * @param employeeManualTimelogEntryAllowed whether employees can set custom
+ * @param employeeManualTimeLogEntryAllowed whether employees can set custom
  *                                          entry/exit instants in timelog
  *                                          operations
  * @param defaultTimezone                   valid IANA time-zone identifier used
@@ -43,14 +51,16 @@ public record UpdateApplicationSettingsRequest(
 		@NotNull(message = "daysUntilLocked is required") //
 		Integer daysUntilLocked, //
 
-		@NotNull(message = "employeeWorkplaceCreationAllowed is required") //
-		Boolean employeeWorkplaceCreationAllowed, //
+		@JsonAlias("employeeWorkplaceCreationAllowed") // Legacy input alias; remove after the migration window.
+		@NotNull(message = "employeeWorksiteCreationAllowed is required") //
+		Boolean employeeWorksiteCreationAllowed, //
 
 		@NotNull(message = "worksiteChangeDuringShiftAllowed is required") //
 		Boolean worksiteChangeDuringShiftAllowed, //
 
-		@NotNull(message = "employeeManualTimelogEntryAllowed is required") //
-		Boolean employeeManualTimelogEntryAllowed, //
+		@JsonAlias("employeeManualTimelogEntryAllowed") // Legacy input alias; remove after the migration window.
+		@NotNull(message = "employeeManualTimeLogEntryAllowed is required") //
+		Boolean employeeManualTimeLogEntryAllowed, //
 
 		@NotNull(message = "defaultTimezone is required") //
 		@NotBlank(message = "defaultTimezone is required") //

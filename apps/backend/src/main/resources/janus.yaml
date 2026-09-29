@@ -954,40 +954,44 @@ components:
       type: object
       required:
       - daysUntilLocked
-      - employeeWorkplaceCreationAllowed
+      - employeeWorksiteCreationAllowed
       - worksiteChangeDuringShiftAllowed
-      - employeeManualTimelogEntryAllowed
+      - employeeManualTimeLogEntryAllowed
       - defaultTimezone
       properties:
         daysUntilLocked:
           type: integer
           minimum: 0
-        employeeWorkplaceCreationAllowed:
+        employeeWorksiteCreationAllowed:
           type: boolean
+          description: Canonical name. The obsolete employeeWorkplaceCreationAllowed name is accepted only as a temporary deserialization alias.
         worksiteChangeDuringShiftAllowed:
           type: boolean
-        employeeManualTimelogEntryAllowed:
+        employeeManualTimeLogEntryAllowed:
           type: boolean
+          description: Canonical name. The obsolete employeeManualTimelogEntryAllowed name is accepted only as a temporary deserialization alias.
         defaultTimezone:
           type: string
     UpdateApplicationSettingsRequest:
       type: object
       required:
       - daysUntilLocked
-      - employeeWorkplaceCreationAllowed
+      - employeeWorksiteCreationAllowed
       - worksiteChangeDuringShiftAllowed
-      - employeeManualTimelogEntryAllowed
+      - employeeManualTimeLogEntryAllowed
       - defaultTimezone
       properties:
         daysUntilLocked:
           type: integer
           minimum: 0
-        employeeWorkplaceCreationAllowed:
+        employeeWorksiteCreationAllowed:
           type: boolean
+          description: Canonical name. During the migration window the API also accepts the obsolete employeeWorkplaceCreationAllowed input name; clients must migrate to this property.
         worksiteChangeDuringShiftAllowed:
           type: boolean
-        employeeManualTimelogEntryAllowed:
+        employeeManualTimeLogEntryAllowed:
           type: boolean
+          description: Canonical name. During the migration window the API also accepts the obsolete employeeManualTimelogEntryAllowed input name; clients must migrate to this property.
         defaultTimezone:
           type: string
           minLength: 1
