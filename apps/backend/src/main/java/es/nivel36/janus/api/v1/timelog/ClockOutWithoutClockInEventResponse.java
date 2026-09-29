@@ -20,8 +20,11 @@ import java.time.Instant;
 /**
  * Response payload describing a {@code ClockOutWithoutClockInEvent}.
  *
- * @param employeeEmail           email of the employee associated with the
- *                                event
+ * @param employeeNumber          stable number of the employee associated with
+ *                                the event
+ * @param employeeEmail           employee email retained temporarily for
+ *                                backwards compatibility; scheduled for
+ *                                removal in a future API version
  * @param worksiteCode            code of the worksite where the event occurred
  * @param exitTime                instant when the employee clocked out without
  *                                a previous clock-in
@@ -36,7 +39,7 @@ import java.time.Instant;
  * @param resolvedTimeLogExitTime exit time of the resolving time log, if
  *                                present
  */
-public record ClockOutWithoutClockInEventResponse(String employeeEmail, String worksiteCode, Instant exitTime,
-		Instant detectedAt, boolean resolved, boolean invalidated, String reason, Instant resolvedTimeLogEntry,
-		Instant resolvedTimeLogExitTime) {
+public record ClockOutWithoutClockInEventResponse(String employeeNumber, String employeeEmail, String worksiteCode,
+		Instant exitTime, Instant detectedAt, boolean resolved, boolean invalidated, String reason,
+		Instant resolvedTimeLogEntry, Instant resolvedTimeLogExitTime) {
 }
