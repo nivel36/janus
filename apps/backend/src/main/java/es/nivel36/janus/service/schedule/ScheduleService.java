@@ -296,20 +296,20 @@ public class ScheduleService {
 	 *
 	 * @param query         a text query to filter schedules; may be {@code null} or
 	 *                      blank
-	 * @param employeeEmail the employee email used to filter assigned schedules;
+	 * @param employeeNumber the employee number used to filter assigned schedules;
 	 *                      may be {@code null}
 	 * @param pageable      pagination information; must not be {@code null}
 	 * @return a {@link Page} of matching {@link Schedule} instances; never
 	 *         {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public Page<Schedule> searchSchedules(final String query, final String employeeEmail, final Pageable pageable) {
-		logger.debug("Searching schedules by query {} and employee email {}", query, employeeEmail);
+	public Page<Schedule> searchSchedules(final String query, final String employeeNumber, final Pageable pageable) {
+		logger.debug("Searching schedules by query {} and employee number {}", query, employeeNumber);
 		final Page<Schedule> schedules;
 		if (query == null || query.isEmpty()) {
 			schedules = this.scheduleRepository.findAll(pageable);
 		} else {
-			schedules = this.scheduleRepository.search(LikePatterns.escape(query), employeeEmail, pageable);
+			schedules = this.scheduleRepository.search(LikePatterns.escape(query), employeeNumber, pageable);
 		}
 
 		logger.trace("Found {} worksites", schedules.getTotalElements());

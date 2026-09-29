@@ -44,10 +44,10 @@ describe('WorksiteApiService', () => {
 
   it('returns only active worksites assigned to the employee', () => {
     let worksites: unknown;
-    service.searchAssignedToEmployee('employee@example.com').subscribe((result) => (worksites = result));
+    service.searchAssignedToEmployee('EMP-0001').subscribe((result) => (worksites = result));
 
     const request = httpTesting.expectOne((candidate) => candidate.url.endsWith('/worksites'));
-    expect(request.request.params.get('employeeEmail')).toBe('employee@example.com');
+    expect(request.request.params.get('employeeNumber')).toBe('EMP-0001');
     expect(request.request.params.get('size')).toBe('100');
     request.flush({
       content: [

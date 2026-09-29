@@ -15,7 +15,7 @@ import jakarta.validation.constraints.Pattern;
  * The entry-time range includes {@code start} and excludes {@code end}.
  */
 public record TimeLogSearchCriteria(
-		@Pattern(regexp = "^[ \\t]*(?=[^ \\t]{1,254}[ \\t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \\t]*$", message = "must be a valid and safe email address (max 254)") String employeeEmail,
+		@Pattern(regexp = "^[A-Za-z0-9_-]{1,50}$", message = "must be a valid employee number") String employeeNumber,
 		Instant start, Instant end) {
 
 	@AssertTrue(message = "start and end must be provided together or omitted")

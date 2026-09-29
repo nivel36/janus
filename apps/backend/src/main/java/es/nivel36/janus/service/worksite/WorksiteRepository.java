@@ -96,9 +96,9 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 * (case-insensitive).</li>
 	 * <li>And one of the following conditions is met:
 	 * <ul>
-	 * <li>{@code employeeEmail} is {@code null}.</li>
+	 * <li>{@code employeeNumber} is {@code null}.</li>
 	 * <li>The worksite scope is {@code GLOBAL}.</li>
-	 * <li>The worksite has an associated employee with the given email.</li>
+	 * <li>The worksite has an associated employee with the given employee number.</li>
 	 * </ul>
 	 * </li>
 	 * </ul>
@@ -106,7 +106,7 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 *
 	 * @param query         the search text to match against worksite name, code,
 	 *                      description or address. Can't be {@code null}.
-	 * @param employeeEmail the email of the employee used to filter visible
+	 * @param employeeNumber the employee number used to filter visible
 	 *                      worksites. Can be {@code null}.
 	 * @param pageable      the pagination information. Can't be {@code null}.
 	 * @return a {@link Page} of {@link Worksite} instances matching the criteria;
@@ -121,14 +121,14 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 			    AND LOWER(w.description) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!')
 			   OR (w.address IS NOT NULL
 			    AND LOWER(w.address) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!'))
-			  AND (:employeeEmail IS NULL
+			  AND (:employeeNumber IS NULL
 			   OR w.scope = es.nivel36.janus.service.worksite.WorksiteScope.GLOBAL
 			   OR EXISTS (
 			        SELECT 1
 			        FROM w.employees e
-			        WHERE e.email = :employeeEmail
+			        WHERE e.employeeNumber = :employeeNumber
 			   ))
 			""")
-	Page<Worksite> search(String query, String employeeEmail, Pageable pageable);
+	Page<Worksite> search(String query, String employeeNumber, Pageable pageable);
 
 }

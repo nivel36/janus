@@ -151,7 +151,7 @@ describe('TimelogClockCardComponent', () => {
     clockInResult.complete();
     await settleEffects();
 
-    expect(searchLatestByEmployee).toHaveBeenLastCalledWith('other@example.com');
+    expect(searchLatestByEmployee).toHaveBeenLastCalledWith();
     expect(controls().latestTimeLog()).toBeUndefined();
   });
 

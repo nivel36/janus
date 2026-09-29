@@ -166,7 +166,7 @@ public class WorkShiftService {
 		final Instant to = startOfDay.plus(2, ChronoUnit.DAYS); // We add two days to ensure that we cover the 24-hour
 																// shifts of certain professions.
 		final Pageable unpaged = Pageable.unpaged();
-		return this.timeLogService.searchTimeLogs(new TimeLogSearchCriteria(employee.getEmail(), from, to),
+		return this.timeLogService.searchTimeLogs(new TimeLogSearchCriteria(employee.getEmployeeNumber(), from, to),
 				new TimeLogSearchScope.Employee(employee.getId()), unpaged);
 	}
 }

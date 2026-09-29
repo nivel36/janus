@@ -61,7 +61,7 @@ export class TimelogClockCardComponent {
     params: () => this.employeeEmail(),
     stream: ({ params: employeeEmail }) =>
       this.timeLogService
-        .searchLatestByEmployee(employeeEmail)
+        .searchLatestByEmployee()
         .pipe(catchError(() => of(undefined))),
     defaultValue: undefined,
   });
@@ -69,7 +69,7 @@ export class TimelogClockCardComponent {
   private readonly assignedWorksiteCodeResource = rxResource<string | undefined, string>({
     params: () => this.employeeEmail(),
     stream: ({ params: employeeEmail }) =>
-      this.worksiteApiService.searchAssignedToEmployee(employeeEmail).pipe(
+      this.worksiteApiService.searchAssignedToEmployee().pipe(
         map((worksites) => (worksites.length === 1 ? worksites[0].code : undefined)),
         catchError(() => of(undefined)),
       ),

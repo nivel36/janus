@@ -87,20 +87,20 @@ public class WorksiteService {
 	 *
 	 * @param query         a text query to filter worksites; may be {@code null} or
 	 *                      blank
-	 * @param employeeEmail the employee email used to filter assigned worksites;
+	 * @param employeeNumber the employee number used to filter assigned worksites;
 	 *                      may be {@code null}
 	 * @param pageable      pagination information; must not be {@code null}
 	 * @return a {@link Page} of matching {@link Worksite} instances; never
 	 *         {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public Page<Worksite> searchWorksites(final String query, final String employeeEmail, final Pageable pageable) {
-		logger.debug("Searching worksites by query {} and employee email {}", query, employeeEmail);
+	public Page<Worksite> searchWorksites(final String query, final String employeeNumber, final Pageable pageable) {
+		logger.debug("Searching worksites by query {} and employee number {}", query, employeeNumber);
 		final Page<Worksite> worksites;
 		if (query == null || query.isEmpty()) {
 			worksites = this.worksiteRepository.findAll(pageable);
 		} else {
-			worksites = this.worksiteRepository.search(LikePatterns.escape(query), employeeEmail, pageable);
+			worksites = this.worksiteRepository.search(LikePatterns.escape(query), employeeNumber, pageable);
 		}
 
 		logger.trace("Found {} worksites", worksites.getTotalElements());

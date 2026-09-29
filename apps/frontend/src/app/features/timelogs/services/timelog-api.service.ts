@@ -39,10 +39,10 @@ export class TimeLogService {
       );
   }
 
-  searchLatestByEmployee(email: string): Observable<TimeLog | undefined> {
+  searchLatestByEmployee(employeeNumber?: string): Observable<TimeLog | undefined> {
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
     return this.api
-      .searchTimeLogs(email, undefined, undefined, 0, 1, ['entryTime,desc'], 'body', false, { context })
+      .searchTimeLogs(employeeNumber, undefined, undefined, 0, 1, ['entryTime,desc'], 'body', false, { context })
       .pipe(map((r) => r.content[0] ? this.mapTimeLog(r.content[0]) : undefined));
   }
 
