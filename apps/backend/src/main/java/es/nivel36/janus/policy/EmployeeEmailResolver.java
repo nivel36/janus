@@ -32,8 +32,7 @@ public class EmployeeEmailResolver {
 			return false;
 		}
 		return this.employees.findEmployeeByEmail(this.canonicalize(email))
-				.map(employee -> Objects.equals(actor.employeeId(), employee.getId()))
-				.orElse(false);
+				.map(employee -> Objects.equals(actor.employeeId(), employee.getId())).orElse(false);
 	}
 
 	public String effectiveEmail(final Actor actor, final String requested, final boolean restricted) {

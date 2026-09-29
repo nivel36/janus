@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
@@ -17,6 +18,7 @@ public class WorksiteAuthorizationAdapter {
 	private final ActorResolver actors;
 	private final EmployeeService employees;
 	private final ApplicationSettingsService settings;
+	private final EmployeeNumberResolver employeeNumbers;
 	private final SearchWorksitePolicy search = new SearchWorksitePolicy();
 	private final ViewWorksitePolicy view = new ViewWorksitePolicy();
 	private final ViewWorksiteStatsPolicy stats = new ViewWorksiteStatsPolicy();
@@ -26,26 +28,21 @@ public class WorksiteAuthorizationAdapter {
 	private final ManageWorksiteAssignmentsPolicy assignments = new ManageWorksiteAssignmentsPolicy();
 
 	public WorksiteAuthorizationAdapter(final ActorResolver actors, final EmployeeService employees,
-			final ApplicationSettingsService settings) {
+			final ApplicationSettingsService settings, final EmployeeNumberResolver employeeNumbers) {
 		this.actors = Objects.requireNonNull(actors);
 		this.employees = Objects.requireNonNull(employees);
 		this.settings = Objects.requireNonNull(settings);
+		this.employeeNumbers = Objects.requireNonNull(employeeNumbers);
 	}
 
 	public boolean canSearch(final Authentication auth, final String employeeNumber) {
 		final Actor a = this.actors.resolve(auth);
-		final boolean allowedFilter = !this.restricted(a) || a.employeeId() != null
-				&& (employeeNumber == null || this.employees.findEmployeeById(a.employeeId()).getEmployeeNumber()
-						.equals(employeeNumber));
-		return this.search.allows(a, allowedFilter);
+		return this.search.allows(a, this.restricted(a) ? a.employeeId() != null : this.owns(a, employeeNumber));
 	}
 
 	public String effectiveEmployeeNumber(final Authentication auth, final String requested) {
 		final Actor a = this.actors.resolve(auth);
-		if (this.restricted(a) && a.employeeId() != null) {
-			return this.employees.findEmployeeById(a.employeeId()).getEmployeeNumber();
-		}
-		return requested;
+		return this.employeeNumbers.effectiveNumber(a, requested, this.restricted(a));
 	}
 
 	public boolean canView(final Authentication auth) {
@@ -76,6 +73,10 @@ public class WorksiteAuthorizationAdapter {
 
 	public boolean canManageAssignments(final Authentication auth) {
 		return this.assignments.allows(this.actors.resolve(auth), null);
+	}
+
+	private boolean owns(final Actor a, final String employeeNumber) {
+		return this.employeeNumbers.owns(a, employeeNumber);
 	}
 
 	private boolean assigned(final Actor a, final String code) {

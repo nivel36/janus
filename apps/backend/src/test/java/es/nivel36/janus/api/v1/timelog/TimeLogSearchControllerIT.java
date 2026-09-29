@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
@@ -60,6 +61,19 @@ class TimeLogSearchControllerIT {
 	private static final String OTHER_SEARCH = "/api/v1/employees/EMP-0102/time-logs/";
 
 	private @Autowired MockMvc mvc;
+	private @Autowired JdbcTemplate jdbc;
+
+	@Test
+	void employeeNumberFilterSurvivesEmployeeEmailChange() throws Exception {
+		this.jdbc.update("UPDATE employee SET email = ? WHERE employee_number = ?", "alice.changed@example.test",
+				"EMP-0101");
+
+		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0101")
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()").value(5))
+				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is("alice.changed@example.test"))));
+	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { BASE, BASE + "/" })
@@ -201,7 +215,7 @@ class TimeLogSearchControllerIT {
 
 	@Test
 	void individualViewIsScopedToTheLinkedEmployee() throws Exception {
-		this.mvc.perform(get(OTHER_SEARCH + "2025-07-01T08:00:00Z").with(employee()))
+		this.mvc.perform(get(OWN_SEARCH + "2025-07-01T08:00:00Z").with(employee()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.employeeEmail").value(OWN_EMAIL));
 	}

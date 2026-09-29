@@ -71,6 +71,7 @@ export class UserProfileApiService {
    * @returns Observable emitting the user's preferences
    */
   getPreferences(): Observable<UserPreferences> {
+    this.employeeNumber.set(null);
     return this.getProfile().pipe(
       tap((response) => this.rememberProfile(response)),
       map((response) => this.toPreferences(response)),

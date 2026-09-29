@@ -24,7 +24,7 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
-import es.nivel36.janus.policy.EmployeeEmailResolver;
+import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 
 class TimeLogAuthorizationAdapterTest {
@@ -34,7 +34,7 @@ class TimeLogAuthorizationAdapterTest {
 	private final EmployeeService employees = mock(EmployeeService.class);
 	private final ApplicationSettingsService settings = mock(ApplicationSettingsService.class);
 	private final TimeLogAuthorizationAdapter adapter = new TimeLogAuthorizationAdapter(this.actors, this.settings,
-			new EmployeeEmailResolver(this.employees), this.employees);
+			new EmployeeNumberResolver(this.employees), this.employees);
 
 	@ParameterizedTest
 	@EnumSource(Role.class)
@@ -71,18 +71,18 @@ class TimeLogAuthorizationAdapterTest {
 	}
 
 	@Test
-	void employeeAuthorizationUsesImmutableAssociationInsteadOfRequestedEmail() {
+	void employeeSearchUsesNumberFromImmutableAssociation() {
 		final Employee employee = mock(Employee.class);
 		when(this.actors.resolve(this.authentication))
 				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
 		when(this.employees.findEmployeeById(84L)).thenReturn(employee);
-		when(employee.getEmail()).thenReturn("new-address@internal.test");
+		when(employee.getEmployeeNumber()).thenReturn("EMP-0084");
 		when(employee.getId()).thenReturn(84L);
 		when(this.employees.findEmployeeByEmployeeNumber("EMP-0001")).thenReturn(employee);
 
 		assertThat(this.adapter.canView(this.authentication, "EMP-0001")).isTrue();
-		assertThat(this.adapter.effectiveEmployeeEmail(this.authentication, "old-address@internal.test"))
-				.isEqualTo("new-address@internal.test");
+		assertThat(this.adapter.effectiveEmployeeNumber(this.authentication, "EMP-0001"))
+				.isEqualTo("EMP-0084");
 		verify(this.employees).findEmployeeById(84L);
 	}
 

@@ -54,6 +54,19 @@ class AppUserControllerIT {
 
 	@Test
 	@Sql(statements = {
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Jane','Doe','jdoe@example.test',1)",
+			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','account@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid',1)" })
+	void currentProfileIncludesLinkedEmployeeNumber() throws Exception {
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
+				.jwt(jwt -> jwt.subject("11111111-1111-4111-8111-111111111111").claim("email", "account@example.test"))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER"))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001"));
+	}
+
+	@Test
+	@Sql(statements = {
 			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		final String body = """

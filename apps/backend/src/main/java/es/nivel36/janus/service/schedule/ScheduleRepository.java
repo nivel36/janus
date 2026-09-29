@@ -148,14 +148,14 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 	 * </p>
 	 *
 	 * <p>
-	 * If {@code employeeEmail} is provided, only schedules associated with the
+	 * If {@code employeeNumber} is provided, only schedules associated with the
 	 * specified {@link Employee} are returned. Otherwise, all matching schedules
 	 * are included.
 	 * </p>
 	 *
 	 * @param query         the search term to match against schedule name and code;
 	 *                      must not be {@code null}
-	 * @param employeeEmail the email of the employee used to filter schedules; may
+	 * @param employeeNumber the employee number used to filter schedules; may
 	 *                      be {@code null}
 	 * @param pageable      the pagination information; must not be {@code null}
 	 * @return a {@link Page} of {@link Schedule} entities matching the criteria;
@@ -168,14 +168,14 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 			JOIN FETCH r.dayOfWeekRanges d
 			WHERE (LOWER(s.name) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!'
 			    OR LOWER(s.code) LIKE LOWER(CONCAT('%', :query, '%')) ESCAPE '!')
-			  AND (:employeeEmail IS NULL
+			  AND (:employeeNumber IS NULL
 			    OR EXISTS (
 			        SELECT 1
 			        FROM s.employees e
-			        WHERE e.email = :employeeEmail
+			        WHERE e.employeeNumber = :employeeNumber
 			    ))
 			""")
-	Page<Schedule> search(String query, String employeeEmail, Pageable pageable);
+	Page<Schedule> search(String query, String employeeNumber, Pageable pageable);
 
 	@Override
 	@EntityGraph(attributePaths = { "rules", "rules.dayOfWeekRanges" })

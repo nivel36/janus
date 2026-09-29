@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import es.nivel36.janus.policy.EmployeeEmailResolver;
+import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.security.ActorResolver;
@@ -18,7 +18,7 @@ import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 public class TimeLogAuthorizationAdapter {
 	private final ActorResolver actors;
 	private final ApplicationSettingsService settings;
-	private final EmployeeEmailResolver employeeEmails;
+	private final EmployeeNumberResolver employeeNumbers;
 	private final EmployeeService employeeService;
 	private final OperateTimeLogPolicy operate = new OperateTimeLogPolicy();
 	private final ViewTimeLogPolicy view = new ViewTimeLogPolicy();
@@ -26,10 +26,10 @@ public class TimeLogAuthorizationAdapter {
 	private final DeleteTimeLogPolicy delete = new DeleteTimeLogPolicy();
 
 	public TimeLogAuthorizationAdapter(final ActorResolver a, final ApplicationSettingsService s,
-			final EmployeeEmailResolver employeeEmails, final EmployeeService employeeService) {
+			final EmployeeNumberResolver employeeNumbers, final EmployeeService employeeService) {
 		this.actors = Objects.requireNonNull(a);
 		this.settings = Objects.requireNonNull(s);
-		this.employeeEmails = Objects.requireNonNull(employeeEmails);
+		this.employeeNumbers = Objects.requireNonNull(employeeNumbers);
 		this.employeeService = Objects.requireNonNull(employeeService);
 	}
 
@@ -39,16 +39,16 @@ public class TimeLogAuthorizationAdapter {
 				this.settings.isEmployeeManualTimelogEntryAllowed()));
 	}
 
+	public boolean canView(final Authentication auth, final String employeeSelector) {
+		final Actor a = this.actors.resolve(auth);
+		return this.view.allows(a, !this.restricted(a) || this.ownsEmployeeNumber(a, employeeSelector));
+	}
+
 	/** Compatibility authorization for the deprecated routes whose identifier is an email. */
 	public boolean canOperateByEmail(final Authentication auth, final String email, final boolean manual) {
 		final Actor actor = this.actors.resolve(auth);
 		return this.operate.allows(actor, new OperateTimeLogPolicy.Context(this.ownsEmployeeEmail(actor, email), manual,
 				this.settings.isEmployeeManualTimelogEntryAllowed()));
-	}
-
-	public boolean canView(final Authentication auth, final String email) {
-		final Actor a = this.actors.resolve(auth);
-		return this.view.allows(a, !this.restricted(a) || this.ownsEmployeeNumber(a, email));
 	}
 
 	/** Compatibility authorization for the deprecated routes whose identifier is an email. */
@@ -58,18 +58,15 @@ public class TimeLogAuthorizationAdapter {
 	}
 
 	/**
-	 * Resolves the employee email used by an operation. Employee-only users are
+	 * Resolves the employee number used by a search. Employee-only users are
 	 * always scoped through their immutable AppUser-to-Employee link, rather than
-	 * through the (potentially stale) email claim supplied by the client.
+	 * through the (potentially stale) identifier supplied by the client.
 	 */
-	public String effectiveEmployeeEmail(final Authentication auth, final String requested) {
+	public String effectiveEmployeeNumber(final Authentication auth, final String requested) {
 		final Actor actor = this.actors.resolve(auth);
-		return this.employeeEmails.effectiveEmail(actor, requested, this.restricted(actor));
+		return this.employeeNumbers.effectiveNumber(actor, requested, this.restricted(actor));
 	}
 
-	public String canonicalEmployeeEmail(final String requested) {
-		return this.employeeEmails.canonicalize(requested);
-	}
 
 	public boolean canDelete(final Authentication auth) {
 		return this.delete.allows(this.actors.resolve(auth), null);
@@ -100,7 +97,7 @@ public class TimeLogAuthorizationAdapter {
 		if (actor.employeeId() == null) {
 			return false;
 		}
-		return this.employeeService.findEmployeeByEmail(this.employeeEmails.canonicalize(email))
+		return this.employeeService.findEmployeeByEmail(email)
 				.map(employee -> actor.employeeId().equals(employee.getId())).orElse(false);
 	}
 

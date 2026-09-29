@@ -234,9 +234,9 @@ class ScheduleControllerIT {
 	@Sql(statements = {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" })
-	void employeeEmailFilterIsCanonicalizedForRestrictedAndPrivilegedUsers(final String role,
+	void employeeNumberFilterIsAppliedForRestrictedAndPrivilegedUsers(final String role,
 			final String subject) throws Exception {
-		this.mvc.perform(get(BASE).param("employeeEmail", "  AFERRER@NIVEL36.ES  ")
+		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0001")
 				.with(verifiedJwt().jwt(jwt -> jwt.subject(subject)).authorities(createAuthorityList(role))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
 				.andExpect(jsonPath("$.content[0].code").value("STD-WH"));

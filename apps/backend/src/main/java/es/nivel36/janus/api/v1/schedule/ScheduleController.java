@@ -94,10 +94,10 @@ public class ScheduleController implements ScheduleResource {
 	 *
 	 * <p>
 	 * Employees with only the {@code JANUS_EMPLOYEE} role are restricted to
-	 * searching their own schedules and must provide their own email address.
+	 * searching their own schedules and the server derives their employee number from the authenticated actor.
 	 *
 	 * @param query          optional search query; may be {@code null}
-	 * @param employeeEmail  optional employee email filter; may be {@code null}
+	 * @param employeeNumber  optional employee number filter; may be {@code null}
 	 * @param pageable       pagination information; can't be {@code null}
 	 * @param authentication current authentication context; can't be {@code null}
 	 * @return a {@link ResponseEntity} containing a paginated list of matching
@@ -106,13 +106,13 @@ public class ScheduleController implements ScheduleResource {
 	 *                               perform the search
 	 */
 	@Override
-	public ResponseEntity<Page<ScheduleResponse>> searchSchedules(final String query, final String employeeEmail,
+	public ResponseEntity<Page<ScheduleResponse>> searchSchedules(final String query, final String employeeNumber,
 			final Pageable pageable, final Authentication authentication) {
 		logger.debug("Search schedules ACTION performed");
-		final String effectiveEmployeeEmail = this.authorization.effectiveEmployeeEmail(authentication, employeeEmail);
+		final String effectiveEmployeeNumber = this.authorization.effectiveEmployeeNumber(authentication, employeeNumber);
 
 		final Page<ScheduleResponse> schedules = this.scheduleService
-				.searchSchedules(query, effectiveEmployeeEmail, pageable).map(this.scheduleResponseMapper::map);
+				.searchSchedules(query, effectiveEmployeeNumber, pageable).map(this.scheduleResponseMapper::map);
 		return ResponseEntity.ok(schedules);
 	}
 

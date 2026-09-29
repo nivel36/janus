@@ -372,7 +372,7 @@ class WorkShiftServiceTest {
 		when(this.clock.instant()).thenReturn(fixedNow);
 
 		when(this.timeLogService.searchTimeLogs(
-				new TimeLogSearchCriteria(this.employee.getEmail(), start, end),
+				new TimeLogSearchCriteria(this.employee.getEmployeeNumber(), start, end),
 				new TimeLogSearchScope.Employee(this.employee.getId()), page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))
@@ -406,7 +406,7 @@ class WorkShiftServiceTest {
 		when(this.clock.instant()).thenReturn(fixedNow);
 
 		when(this.timeLogService.searchTimeLogs(
-				new TimeLogSearchCriteria(this.employee.getEmail(), start, end),
+				new TimeLogSearchCriteria(this.employee.getEmployeeNumber(), start, end),
 				new TimeLogSearchScope.Employee(this.employee.getId()), page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))
