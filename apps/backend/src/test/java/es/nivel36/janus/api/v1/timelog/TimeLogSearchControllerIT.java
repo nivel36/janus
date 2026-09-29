@@ -161,6 +161,17 @@ class TimeLogSearchControllerIT {
 	}
 
 	@ParameterizedTest
+	@ValueSource(strings = { "ROLE_JANUS_USER", "ROLE_JANUS_ADMIN" })
+	void legacyRouteStillFiltersByEmployeeEmail(final String role) throws Exception {
+		this.mvc.perform(get(LEGACY_BASE).param("employeeEmail", OTHER_EMAIL).param("sort", "entryTime,asc")
+				.with(verifiedJwt().authorities(createAuthorityList(role))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()").value(4))
+				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OTHER_EMAIL))))
+				.andExpect(jsonPath("$.page.totalElements").value(4));
+	}
+
+	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void employeeWithoutPersistentEmployeeAssociationHasEmptyScope(final String endpoint) throws Exception {
 		for (int page : new int[] { 0, 3 }) {
