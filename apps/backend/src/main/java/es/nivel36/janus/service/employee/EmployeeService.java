@@ -32,7 +32,6 @@ import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
-import es.nivel36.janus.util.EmailAddresses;
 import es.nivel36.janus.util.Strings;
 
 /**
@@ -120,18 +119,6 @@ public class EmployeeService {
 			throw new ResourceNotFoundException("There is no employee with number " + employeeNumber);
 		}
 		return employee;
-	}
-
-	/** Resolves the canonical employee number first, with email as a deprecated compatibility selector. */
-	@Transactional(readOnly = true)
-	public Employee findEmployeeByEmployeeNumberOrEmail(final String selector) {
-		Strings.requireNonBlank(selector, "employee selector cannot be null or blank.");
-		final Employee byNumber = this.employeeRepository.findByEmployeeNumber(selector);
-		if (byNumber != null) {
-			return byNumber;
-		}
-		return this.employeeRepository.findByEmail(EmailAddresses.canonicalize(selector))
-				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with number or email " + selector));
 	}
 
 	/**

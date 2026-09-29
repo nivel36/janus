@@ -30,23 +30,6 @@ class EmployeeServiceTest {
 	}
 
 	@Test
-	void compatibilitySelectorCanonicalizesOnlyTheEmailFallback() {
-		final Employee employee = mock(Employee.class);
-		when(this.repository.findByEmployeeNumber("AFerrer@Nivel36.ES")).thenReturn(null);
-		when(this.repository.findByEmail("aferrer@nivel36.es")).thenReturn(Optional.of(employee));
-
-		assertThat(this.service.findEmployeeByEmployeeNumberOrEmail("AFerrer@Nivel36.ES")).isSameAs(employee);
-	}
-
-	@Test
-	void compatibilitySelectorPrefersAnExactEmployeeNumber() {
-		final Employee employee = mock(Employee.class);
-		when(this.repository.findByEmployeeNumber("EMP-0001")).thenReturn(employee);
-
-		assertThat(this.service.findEmployeeByEmployeeNumberOrEmail("EMP-0001")).isSameAs(employee);
-	}
-
-	@Test
 	void validEmailWithoutMatchReturnsEmpty() {
 		when(this.repository.findByEmail("missing@example.test")).thenReturn(Optional.empty());
 

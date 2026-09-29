@@ -50,11 +50,34 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 		return employeeId.isPresent() && this.invalidatePolicy.allows(actor, employeeId.getAsLong());
 	}
 
+	public boolean canViewByEmail(final Authentication authentication, final String email) {
+		final Actor actor = this.actorResolver.resolve(authentication);
+		final OptionalLong employeeId = this.employeeIdByEmail(email);
+		return employeeId.isPresent() && this.viewPolicy.allows(actor, employeeId.getAsLong());
+	}
+
+	public boolean canResolveByEmail(final Authentication authentication, final String email) {
+		final Actor actor = this.actorResolver.resolve(authentication);
+		final OptionalLong employeeId = this.employeeIdByEmail(email);
+		return employeeId.isPresent() && this.resolvePolicy.allows(actor, employeeId.getAsLong());
+	}
+
+	public boolean canInvalidateByEmail(final Authentication authentication, final String email) {
+		final Actor actor = this.actorResolver.resolve(authentication);
+		final OptionalLong employeeId = this.employeeIdByEmail(email);
+		return employeeId.isPresent() && this.invalidatePolicy.allows(actor, employeeId.getAsLong());
+	}
+
 	private OptionalLong employeeId(final String employeeNumber) {
 		try {
-			return OptionalLong.of(this.employeeService.findEmployeeByEmployeeNumberOrEmail(employeeNumber).getId());
+			return OptionalLong.of(this.employeeService.findEmployeeByEmployeeNumber(employeeNumber).getId());
 		} catch (final ResourceNotFoundException exception) {
 			return OptionalLong.empty();
 		}
+	}
+
+	private OptionalLong employeeIdByEmail(final String email) {
+		return this.employeeService.findEmployeeByEmail(email).map(employee -> OptionalLong.of(employee.getId()))
+				.orElseGet(OptionalLong::empty);
 	}
 }
