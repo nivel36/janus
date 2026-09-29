@@ -109,7 +109,7 @@ class AppUserControllerIT {
 						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
 								.subject("11111111-1111-4111-8111-111111111111").claim("email", "changed@example.test"))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("jdoe@example.test"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("changed@example.test"));
 	}
 
 	@Test
@@ -126,7 +126,7 @@ class AppUserControllerIT {
 						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
 								.subject("99999999-9999-4999-8999-999999999999").claim("email", "renamed@example.test"))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("new-user@example.test"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("renamed@example.test"));
 
 		org.assertj.core.api.Assertions
 				.assertThat(this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?",
@@ -166,6 +166,15 @@ class AppUserControllerIT {
 		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
 				.jwt(jwt -> jwt.subject("55555555-5555-4555-8555-555555555555").claim("preferred_username", "john/doe"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void testMeRejectsInvalidEmployeeNumberClaim() throws Exception {
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt
+				.subject("55555555-5555-4555-8555-555555555555").claim("email", "valid@example.test")
+				.claim("employeeNumber", "not valid!"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isBadRequest());
 	}
 
 	@Test

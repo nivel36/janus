@@ -142,7 +142,7 @@ CREATE TABLE EMPLOYEE (
   EMAIL         VARCHAR(254) NOT NULL,
   SCHEDULE_ID   BIGINT NOT NULL,
   CONSTRAINT UK_EMPLOYEE_NUMBER UNIQUE (EMPLOYEE_NUMBER),
-  -- Email stays unique because automatic user provisioning resolves one employee by email.
+  -- Email remains unique for current product validation; identity provisioning uses EMPLOYEE_NUMBER, never EMAIL.
   CONSTRAINT UK_EMPLOYEE_EMAIL UNIQUE (EMAIL),
   CONSTRAINT CK_EMPLOYEE_EMAIL_CANONICAL CHECK (EMAIL = LOWER(BTRIM(EMAIL))),
   CONSTRAINT FK_EMPLOYEE_SCHEDULE

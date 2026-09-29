@@ -82,10 +82,10 @@ class FirstRequestProvisioningIT {
 				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
 						.claim("email", "ignored@example.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("opaque-subject@example.test"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("ignored@example.test"));
 
-		assertThat(this.jdbcClient.sql("SELECT keycloak_subject FROM app_user WHERE email = 'opaque-subject@example.test'")
-				.query(String.class).single()).isEqualTo(OPAQUE_SUBJECT);
+		assertThat(this.jdbcClient.sql("SELECT email FROM app_user WHERE keycloak_subject = :subject")
+				.param("subject", OPAQUE_SUBJECT).query(String.class).single()).isEqualTo("ignored@example.test");
 	}
 
 	@Test
@@ -102,8 +102,7 @@ class FirstRequestProvisioningIT {
 
 		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
 		assertThat(this.countProfiles()).isOne();
-		assertThat(results).extracting(result -> result.getResponse().getContentAsString()).isNotEmpty()
-				.allMatch(body -> body.contains(this.usernameForSubject(SUBJECT)));
+		assertThat(this.usernameForSubject(SUBJECT)).isIn("first-name@example.test", "second-name@example.test");
 	}
 
 	@Test
@@ -152,6 +151,9 @@ class FirstRequestProvisioningIT {
 		return this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt().jwt(token -> {
 			token.issuer(this.issuer).subject(subject).claim("email", email == null ? username + "@example.test" : email)
 					.claim("email_verified", true);
+			if (LINK_EMAIL.equals(email)) {
+				token.claim("employeeNumber", "EMP-0901");
+			}
 		}).authorities(createAuthorityList("ROLE_JANUS_USER")))).andReturn();
 	}
 
@@ -161,12 +163,13 @@ class FirstRequestProvisioningIT {
 	}
 
 	@Test
-	void verifiedEmailLinksTheOnlyUnlinkedEmployeeAfterNormalization() throws Exception {
+	void employeeNumberClaimLinksTheOnlyUnlinkedEmployeeAfterNormalization() throws Exception {
 		final Long employeeId = this.insertEmployee();
 
 		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", "linked-user")
-						.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ").claim("email_verified", true))
+						.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ").claim("employeeNumber", "  EMP-0901  ")
+						.claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
 		assertThat(this.jdbcClient.sql("SELECT employee_id FROM app_user WHERE keycloak_subject = :subject")
 				.param("subject", SUBJECT).query(Long.class).single()).isEqualTo(employeeId);
@@ -182,7 +185,7 @@ class FirstRequestProvisioningIT {
 						.with(verifiedJwt()
 								.jwt(token -> token.issuer(this.issuer).subject(OTHER_SUBJECT)
 										.claim("preferred_username", "second-identity").claim("email", LINK_EMAIL)
-										.claim("email_verified", true))
+										.claim("employeeNumber", "EMP-0901").claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk());
 		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject AND employee_id IS NULL")
@@ -195,7 +198,7 @@ class FirstRequestProvisioningIT {
 	private void provision(final String subject, final String username) throws Exception {
 		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(subject).claim("preferred_username", username)
-						.claim("email", LINK_EMAIL).claim("email_verified", true))
+						.claim("email", LINK_EMAIL).claim("employeeNumber", "EMP-0901").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
 	}
 
@@ -204,7 +207,7 @@ class FirstRequestProvisioningIT {
 		this.insertEmployee();
 		final var authentication = verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT)
 				.claim("preferred_username", "first-employee").claim("email", LINK_EMAIL)
-				.claim("email_verified", true)).authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
+				.claim("employeeNumber", "EMP-0901").claim("email_verified", true)).authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
 
 		this.mvc.perform(get("/api/v1/time-logs").with(authentication)).andExpect(status().isForbidden());
 		assertThat(this.countProfiles()).isZero();
@@ -221,6 +224,19 @@ class FirstRequestProvisioningIT {
 				""").param("email", LINK_EMAIL).update();
 		return this.jdbcClient.sql("SELECT id FROM employee WHERE email = :email")
 				.param("email", LINK_EMAIL).query(Long.class).single();
+	}
+
+	@Test
+	void unknownEmployeeNumberCreatesAnUnassociatedAccount() throws Exception {
+		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
+				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("email", USERNAME)
+						.claim("employeeNumber", "EMP-UNKNOWN").claim("email_verified", true))
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk());
+
+		assertThat(this.jdbcClient.sql(
+				"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject AND employee_id IS NULL")
+				.param("subject", SUBJECT).query(Long.class).single()).isOne();
 	}
 
 	@Test

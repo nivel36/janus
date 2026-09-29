@@ -112,7 +112,7 @@ public class EmployeeService {
 		return this.employeeRepository.findByEmail(email);
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional(readOnly = true, noRollbackFor = ResourceNotFoundException.class)
 	public Employee findEmployeeByEmployeeNumber(final String employeeNumber) {
 		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
 		final Employee employee = this.employeeRepository.findByEmployeeNumber(employeeNumber);

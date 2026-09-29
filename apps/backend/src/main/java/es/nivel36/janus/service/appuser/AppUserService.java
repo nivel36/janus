@@ -89,21 +89,26 @@ public class AppUserService {
 
 	/**
 	 * Finds the account linked to a Keycloak subject or provisions it on first
-	 * access. The subject is the sole identity-linking key and the verified email
-	 * is stored as contact information without being used as a unique identifier.
+	 * access. The subject is the sole identity-linking key, {@code employeeNumber}
+	 * selects an employee only during first access, and the verified email is kept
+	 * as mutable contact information. A missing or unknown employee number creates
+	 * an account without an employee association.
 	 */
 	@Transactional
 	public AppUser findOrCreateAppUser( //
 			final String keycloakSubject, //
-			final String email) {
+			final String email, //
+			final String employeeNumber) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		final Optional<AppUser> existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 		if (existing.isPresent()) {
-			return existing.get();
+			final AppUser appUser = existing.get();
+			appUser.setEmail(email);
+			return appUser;
 		}
 
-		final Employee employee = this.findUnlinkedEmployee(email, keycloakSubject);
+		final Employee employee = this.findUnlinkedEmployee(employeeNumber, keycloakSubject);
 		return this.insertAndReconcile(email, keycloakSubject, employee);
 	}
 
@@ -128,14 +133,17 @@ public class AppUserService {
 		}
 	}
 
-	private Employee findUnlinkedEmployee(final String email, final String keycloakSubject) {
-		final Optional<Employee> candidate = this.employeeService.findEmployeeByEmail(email);
-
-		if (candidate.isEmpty()) {
+	private Employee findUnlinkedEmployee(final String employeeNumber, final String keycloakSubject) {
+		if (employeeNumber == null) {
 			return null;
 		}
-
-		final Employee employee = candidate.get();
+		final Employee employee;
+		try {
+			employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
+		} catch (final ResourceNotFoundException notFound) {
+			logger.info("No employee found for employeeNumber claim {}; provisioning an unlinked account", employeeNumber);
+			return null;
+		}
 		final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
 
 		if (linkedUser.isPresent()) {
