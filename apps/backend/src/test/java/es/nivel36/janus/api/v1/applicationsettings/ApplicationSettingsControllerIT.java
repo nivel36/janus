@@ -56,17 +56,34 @@ class ApplicationSettingsControllerIT {
 		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.daysUntilLocked").isNumber())
-				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").isBoolean())
+				.andExpect(jsonPath("$.employeeWorksiteCreationAllowed").isBoolean())
+				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").doesNotExist())
 				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").isBoolean())
-				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").isBoolean())
+				.andExpect(jsonPath("$.employeeManualTimeLogEntryAllowed").isBoolean())
+				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").doesNotExist())
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
+	}
+
+	@Test
+	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
+	void testUpdateShouldAcceptObsoleteInputAliasesButEmitCanonicalNames() throws Exception {
+		final String body = """
+				{"daysUntilLocked":3,"employeeWorkplaceCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimelogEntryAllowed":true,"defaultTimezone":"UTC"}
+				""";
+
+		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.employeeWorksiteCreationAllowed").value(false))
+				.andExpect(jsonPath("$.employeeManualTimeLogEntryAllowed").value(true))
+				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").doesNotExist())
+				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").doesNotExist());
 	}
 
 	@Test
 	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
 	void testUpdateShouldReturnForbiddenForNonAdmin() throws Exception {
 		final String body = """
-				{"daysUntilLocked":5,"employeeWorkplaceCreationAllowed":true,"worksiteChangeDuringShiftAllowed":false,"employeeManualTimelogEntryAllowed":false,"defaultTimezone":"Europe/Madrid"}
+				{"daysUntilLocked":5,"employeeWorksiteCreationAllowed":true,"worksiteChangeDuringShiftAllowed":false,"employeeManualTimeLogEntryAllowed":false,"defaultTimezone":"Europe/Madrid"}
 				""";
 
 		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
@@ -77,30 +94,30 @@ class ApplicationSettingsControllerIT {
 	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
 	void testUpdateShouldReturnUpdatedSettingsForAdmin() throws Exception {
 		final String body = """
-				{"daysUntilLocked":3,"employeeWorkplaceCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimelogEntryAllowed":true,"defaultTimezone":"UTC"}
+				{"daysUntilLocked":3,"employeeWorksiteCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimeLogEntryAllowed":true,"defaultTimezone":"UTC"}
 				""";
 
 		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
 				.andExpect(jsonPath("$.daysUntilLocked").value(3))
-				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").value(false))
+				.andExpect(jsonPath("$.employeeWorksiteCreationAllowed").value(false))
 				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").value(true))
-				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").value(true))
+				.andExpect(jsonPath("$.employeeManualTimeLogEntryAllowed").value(true))
 				.andExpect(jsonPath("$.defaultTimezone").value("UTC"));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { //
 			"\"daysUntilLocked\":3,", //
-			"\"employeeWorkplaceCreationAllowed\":false,", //
+			"\"employeeWorksiteCreationAllowed\":false,", //
 			"\"worksiteChangeDuringShiftAllowed\":true,", //
-			"\"employeeManualTimelogEntryAllowed\":true," //
+			"\"employeeManualTimeLogEntryAllowed\":true," //
 	})
 	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
 	void testUpdateShouldRejectMissingRequiredSettingWithoutChangingStoredSettings(final String fieldToOmit)
 			throws Exception {
 		final String completeBody = """
-				{"daysUntilLocked":3,"employeeWorkplaceCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimelogEntryAllowed":true,"defaultTimezone":"UTC"}
+				{"daysUntilLocked":3,"employeeWorksiteCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimeLogEntryAllowed":true,"defaultTimezone":"UTC"}
 				""";
 		final String incompleteBody = completeBody.replace(fieldToOmit, "");
 
@@ -110,9 +127,9 @@ class ApplicationSettingsControllerIT {
 
 		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.daysUntilLocked").value(7))
-				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").value(true))
+				.andExpect(jsonPath("$.employeeWorksiteCreationAllowed").value(true))
 				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").value(false))
-				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").value(false))
+				.andExpect(jsonPath("$.employeeManualTimeLogEntryAllowed").value(false))
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
 	}
 }

@@ -65,9 +65,9 @@ export class ApplicationSettingsPageComponent {
    */
   readonly form = this.fb.nonNullable.group({
     daysUntilLocked: [0, [Validators.required, Validators.min(0)]],
-    employeeWorkplaceCreationAllowed: [false],
+    employeeWorksiteCreationAllowed: [false],
     worksiteChangeDuringShiftAllowed: [false],
-    employeeManualTimelogEntryAllowed: [false],
+    employeeManualTimeLogEntryAllowed: [false],
     defaultTimezone: ['Europe/Madrid', Validators.required],
   });
 
@@ -123,9 +123,9 @@ export class ApplicationSettingsPageComponent {
   private applyApplicationSettings(applicationSettings: ApplicationSettings): void {
     this.form.reset({
       daysUntilLocked: applicationSettings.daysUntilLocked,
-      employeeWorkplaceCreationAllowed: applicationSettings.employeeWorkplaceCreationAllowed,
+      employeeWorksiteCreationAllowed: applicationSettings.employeeWorksiteCreationAllowed,
       worksiteChangeDuringShiftAllowed: applicationSettings.worksiteChangeDuringShiftAllowed,
-      employeeManualTimelogEntryAllowed: applicationSettings.employeeManualTimelogEntryAllowed,
+      employeeManualTimeLogEntryAllowed: applicationSettings.employeeManualTimeLogEntryAllowed,
       defaultTimezone: applicationSettings.defaultTimezone,
     });
   }

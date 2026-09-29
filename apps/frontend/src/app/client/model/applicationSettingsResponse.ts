@@ -11,9 +11,15 @@
 
 export interface ApplicationSettingsResponse {
     daysUntilLocked: number;
-    employeeWorkplaceCreationAllowed: boolean;
+    /**
+     * Canonical name. The obsolete employeeWorkplaceCreationAllowed name is accepted only as a temporary deserialization alias.
+     */
+    employeeWorksiteCreationAllowed: boolean;
     worksiteChangeDuringShiftAllowed: boolean;
-    employeeManualTimelogEntryAllowed: boolean;
+    /**
+     * Canonical name. The obsolete employeeManualTimelogEntryAllowed name is accepted only as a temporary deserialization alias.
+     */
+    employeeManualTimeLogEntryAllowed: boolean;
     defaultTimezone: string;
 }
 

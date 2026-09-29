@@ -51,8 +51,8 @@ describe('ApplicationSettingsApiService', () => {
 
 const settings = {
   daysUntilLocked: 7,
-  employeeWorkplaceCreationAllowed: true,
+  employeeWorksiteCreationAllowed: true,
   worksiteChangeDuringShiftAllowed: false,
-  employeeManualTimelogEntryAllowed: false,
+  employeeManualTimeLogEntryAllowed: false,
   defaultTimezone: 'Europe/Madrid',
 };

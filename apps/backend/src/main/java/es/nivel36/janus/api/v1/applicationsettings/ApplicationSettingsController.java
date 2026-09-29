@@ -86,15 +86,15 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 			final UpdateApplicationSettingsRequest request) {
 		logger.debug("Update application settings ACTION performed");
 		final int daysUntilLocked = request.daysUntilLocked().intValue();
-		final boolean employeeWorkplaceCreationAllowed = request.employeeWorkplaceCreationAllowed().booleanValue();
+		final boolean employeeWorksiteCreationAllowed = request.employeeWorksiteCreationAllowed().booleanValue();
 		final boolean worksiteChangeDuringShiftAllowed = request.worksiteChangeDuringShiftAllowed().booleanValue();
-		final boolean employeeManualTimelogEntryAllowed = request.employeeManualTimelogEntryAllowed().booleanValue();
+		final boolean employeeManualTimeLogEntryAllowed = request.employeeManualTimeLogEntryAllowed().booleanValue();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
 		final ApplicationSettings updatedSettings = this.applicationSettingsService.update( //
 				daysUntilLocked, //
-				employeeWorkplaceCreationAllowed, //
+				employeeWorksiteCreationAllowed, //
 				worksiteChangeDuringShiftAllowed, //
-				employeeManualTimelogEntryAllowed, //
+				employeeManualTimeLogEntryAllowed, //
 				zoneId);
 		final ApplicationSettingsResponse appSettingsResponse = this.appSettingsResponseMapper.map(updatedSettings);
 		return ResponseEntity.ok(appSettingsResponse);

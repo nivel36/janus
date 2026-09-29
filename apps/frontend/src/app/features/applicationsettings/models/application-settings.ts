@@ -1,7 +1,7 @@
 export interface ApplicationSettings {
   daysUntilLocked: number;
-  employeeWorkplaceCreationAllowed: boolean;
+  employeeWorksiteCreationAllowed: boolean;
   worksiteChangeDuringShiftAllowed: boolean;
-  employeeManualTimelogEntryAllowed: boolean;
+  employeeManualTimeLogEntryAllowed: boolean;
   defaultTimezone: string;
 }

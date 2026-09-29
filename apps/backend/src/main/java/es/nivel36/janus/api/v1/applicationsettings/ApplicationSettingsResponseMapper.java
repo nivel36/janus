@@ -33,15 +33,15 @@ public class ApplicationSettingsResponseMapper implements Mapper<ApplicationSett
 			return null;
 		}
 		final int daysUntilLocked = applicationSettings.getDaysUntilLocked();
-		final boolean employeeWorkplaceCreationAllowed = applicationSettings.isEmployeeWorkplaceCreationAllowed();
+		final boolean employeeWorksiteCreationAllowed = applicationSettings.isEmployeeWorkplaceCreationAllowed();
 		final boolean worksiteChangeDuringShiftAllowed = applicationSettings.isWorksiteChangeDuringShiftAllowed();
-		final boolean employeeManualTimelogEntryAllowed = applicationSettings.isEmployeeManualTimelogEntryAllowed();
+		final boolean employeeManualTimeLogEntryAllowed = applicationSettings.isEmployeeManualTimelogEntryAllowed();
 		final String zoneId = applicationSettings.getDefaultTimezone().getId();
 		return new ApplicationSettingsResponse( //
 				daysUntilLocked, //
-				employeeWorkplaceCreationAllowed, //
+				employeeWorksiteCreationAllowed, //
 				worksiteChangeDuringShiftAllowed, //
-				employeeManualTimelogEntryAllowed, //
+				employeeManualTimeLogEntryAllowed, //
 				zoneId);
 	}
 }
