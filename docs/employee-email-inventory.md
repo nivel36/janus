@@ -9,15 +9,11 @@ utilizarse para enlazar fichajes, turnos, horarios, centros o usuarios ya asocia
 `apps/backend/src/main/resources/janus.yaml` expone `employeeEmail` únicamente como:
 
 - filtro opcional de `GET /worksites/`, `GET /schedules/` y `GET /timelogs/`;
-- dato de salida en `ClockOutWithoutClockInEventResponse` y `TimeLogResponse`;
 - dato de entrada/salida del empleado;
-- selector de compatibilidad en las rutas de fichaje `clock-in` y `clock-out`.
+- filtro opcional de las búsquedas que lo soportan.
 
-Las interfaces HTTP Java contienen además selectores de compatibilidad por correo en
-las rutas de fichajes, eventos de salida sin entrada y asignaciones de centros. Estos
-selectores se resuelven una sola vez a `Employee` en el controlador; desde ese límite,
-servicios y repositorios usan la entidad o `employee.id`. Su sustitución pública por
-`employeeNumber` requiere una versión nueva del contrato HTTP.
+Las interfaces HTTP Java usan `employeeNumber` para las operaciones sobre fichajes,
+eventos de salida sin entrada y asignaciones de centros.
 
 ## Consultas internas
 
@@ -26,7 +22,7 @@ Las únicas consultas internas que comparan correo son filtros explícitos:
 - `TimeLogSearchSpecifications.matching`, para `TimeLogSearchCriteria.employeeEmail`;
 - `ScheduleRepository.search`, para el filtro de horarios asignados;
 - `WorksiteRepository.search`, para el filtro de centros asignados;
-- `EmployeeRepository.findByEmail`, exclusivamente para selectores HTTP heredados.
+- `EmployeeRepository.findByEmail`, para la gestión del empleado.
 
 `EmployeeRepository.findIdByEmail` se eliminó al quedar sin consumidores. La
 asociación inicial de `AppUser` resuelve exclusivamente `employeeNumber`; por eso se

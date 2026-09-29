@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.api.validation.EmployeeNumber;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 
 @RequestMapping("/api/v1")
@@ -72,37 +71,4 @@ public interface TimeLogResource {
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime);
 
-	@PreAuthorize("@timeLogAuthorization.canOperateByEmail(authentication, #email, #entryTime != null)")
-	@Deprecated
-	@PostMapping("/employees/by-email/{email}/time-logs/clock-in")
-	ResponseEntity<TimeLogResponse> clockInByEmail(@PathVariable @Email String email,
-			@RequestParam(value = "entryTime", required = false) Instant entryTime,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			Authentication authentication);
-
-	@PreAuthorize("@timeLogAuthorization.canOperateByEmail(authentication, #email, #exitTime != null)")
-	@Deprecated
-	@PostMapping("/employees/by-email/{email}/time-logs/clock-out")
-	ResponseEntity<TimeLogResponse> clockOutByEmail(@PathVariable @Email String email,
-			@RequestParam(value = "exitTime", required = false) Instant exitTime,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			Authentication authentication) throws ClockOutWithoutClockInException;
-
-	@PreAuthorize("@timeLogAuthorization.canOperateByEmail(authentication, #email, true)")
-	@Deprecated
-	@PostMapping("/employees/by-email/{email}/time-logs")
-	ResponseEntity<TimeLogResponse> createTimeLogByEmail(@PathVariable @Email String email,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@Valid @RequestBody CreateTimeLogRequest timeLog, Authentication authentication);
-
-	@PreAuthorize("@timeLogAuthorization.canViewByEmail(authentication, #email)")
-	@Deprecated
-	@GetMapping("/employees/by-email/{email}/time-logs/{entryTime}")
-	ResponseEntity<TimeLogResponse> findTimeLogByEmail(@PathVariable @Email String email,
-			@PathVariable Instant entryTime, Authentication authentication);
-
-	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
-	@Deprecated
-	@DeleteMapping("/employees/by-email/{email}/time-logs/{entryTime}")
-	ResponseEntity<Void> deleteTimeLogByEmail(@PathVariable @Email String email, @PathVariable Instant entryTime);
 }

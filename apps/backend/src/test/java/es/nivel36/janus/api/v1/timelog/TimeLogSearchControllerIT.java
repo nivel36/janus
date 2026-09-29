@@ -57,7 +57,7 @@ class TimeLogSearchControllerIT {
 	private static final String OWN_EMAIL = "alice@example.test";
 	private static final String OTHER_EMAIL = "bob@example.test";
 	private static final String OWN_SUBJECT = "11111111-1111-4111-8111-111111111111";
-	private static final String OTHER_SEARCH = "/api/v1/employees/EMP-0102/time-logs/";
+	private static final String OTHER_SEARCH = "/api/v1/employees/EMP-0101/time-logs/";
 
 	private @Autowired MockMvc mvc;
 
@@ -67,7 +67,7 @@ class TimeLogSearchControllerIT {
 		this.mvc.perform(get(endpoint).param("sort", "entryTime,asc").with(employee()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(5))
-				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OWN_EMAIL))))
+				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))))
 				.andExpect(jsonPath("$.content[*].entryTime", contains("2025-07-01T08:00:00Z",
 						"2025-07-02T08:00:00Z", "2025-07-03T08:00:00Z", "2025-07-04T08:00:00Z",
 						"2025-07-05T08:00:00Z")))
@@ -88,7 +88,7 @@ class TimeLogSearchControllerIT {
 		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0101").param("page", "1")
 				.param("size", "2").param("sort", "entryTime,desc").with(employee()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OWN_EMAIL))))
+				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))))
 				.andExpect(jsonPath("$.content[*].entryTime", contains("2025-07-03T08:00:00Z",
 						"2025-07-02T08:00:00Z")))
 				.andExpect(jsonPath("$.page.totalElements").value(5))
@@ -103,7 +103,7 @@ class TimeLogSearchControllerIT {
 				.with(verifiedJwt().jwt(token -> token.subject(subject)).authorities(createAuthorityList(role))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(5))
-				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OWN_EMAIL))));
+				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))));
 	}
 
 	@ParameterizedTest
@@ -122,7 +122,7 @@ class TimeLogSearchControllerIT {
 					.param("size", "1").param("sort", "entryTime,asc").with(employee()))
 					.andExpect(status().isOk())
 					.andExpect(jsonPath("$.content.length()").value(1))
-					.andExpect(jsonPath("$.content[0].employeeEmail").value(OWN_EMAIL))
+					.andExpect(jsonPath("$.content[0].employeeNumber").value("EMP-0101"))
 					.andExpect(jsonPath("$.content[0].entryTime").value(
 							page == 0 ? "2025-07-02T08:00:00Z" : "2025-07-03T08:00:00Z"))
 					.andExpect(jsonPath("$.page.totalElements").value(2))
@@ -141,8 +141,8 @@ class TimeLogSearchControllerIT {
 				.with(verifiedJwt().jwt(token -> token.subject(OWN_SUBJECT)).authorities(createAuthorityList(roles))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(11))
-				.andExpect(jsonPath("$.content[*].employeeEmail",
-						hasItems(OWN_EMAIL, OTHER_EMAIL, "carol@example.test")))
+				.andExpect(jsonPath("$.content[*].employeeNumber",
+						hasItems("EMP-0101", "EMP-0102", "EMP-0103")))
 				.andExpect(jsonPath("$.page.totalElements").value(11));
 	}
 
@@ -153,7 +153,7 @@ class TimeLogSearchControllerIT {
 				.param("size", "2").param("sort", "entryTime,asc")
 				.with(verifiedJwt().authorities(createAuthorityList(role))))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OTHER_EMAIL))))
+				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0102"))))
 				.andExpect(jsonPath("$.content[*].entryTime", contains("2025-07-03T07:00:00Z",
 						"2025-07-04T07:00:00Z")))
 				.andExpect(jsonPath("$.page.totalElements").value(4))
@@ -167,7 +167,7 @@ class TimeLogSearchControllerIT {
 				.with(verifiedJwt().authorities(createAuthorityList(role))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(4))
-				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OTHER_EMAIL))))
+				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0102"))))
 				.andExpect(jsonPath("$.page.totalElements").value(4));
 	}
 
@@ -188,7 +188,7 @@ class TimeLogSearchControllerIT {
 						.claim("email_verified", true))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(5))
-				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OWN_EMAIL))))
+				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))))
 				.andExpect(jsonPath("$.page.totalElements").value(5));
 	}
 
@@ -203,7 +203,7 @@ class TimeLogSearchControllerIT {
 	void individualViewIsScopedToTheLinkedEmployee() throws Exception {
 		this.mvc.perform(get(OTHER_SEARCH + "2025-07-01T08:00:00Z").with(employee()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.employeeEmail").value(OWN_EMAIL));
+				.andExpect(jsonPath("$.employeeNumber").value("EMP-0101"));
 	}
 
 	@ParameterizedTest
@@ -241,7 +241,7 @@ class TimeLogSearchControllerIT {
 		final ResultActions result = this.mvc.perform(request)
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(expectedEntries.length))
-				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is(OWN_EMAIL))))
+				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))))
 				.andExpect(jsonPath("$.page.number").value(page))
 				.andExpect(jsonPath("$.page.size").value(2))
 				.andExpect(jsonPath("$.page.totalElements").value(5))

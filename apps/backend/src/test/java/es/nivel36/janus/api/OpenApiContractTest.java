@@ -86,7 +86,7 @@ class OpenApiContractTest {
 	@Test
 	@SuppressWarnings("unchecked")
 
-	void timeLogResponsesRequireStableEmployeeNumberAndDeprecateEmail() throws Exception {
+	void timeLogResponsesRequireStableEmployeeNumber() throws Exception {
 		final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
 				.get("schemas");
 
@@ -96,7 +96,7 @@ class OpenApiContractTest {
 			final var properties = (Map<String, Map<String, Object>>) schema.get("properties");
 			assertThat(required).as("required properties for %s", schemaName).contains("employeeNumber");
 			assertThat(properties.get("employeeNumber")).containsEntry("type", "string");
-			assertThat(properties.get("employeeEmail")).containsEntry("deprecated", true);
+			assertThat(properties).doesNotContainKey("employeeEmail");
 		}
 	}
 

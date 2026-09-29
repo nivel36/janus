@@ -27,13 +27,11 @@ class ClockOutWithoutClockInEventResponseMapperTest {
 		final var worksite = mock(Worksite.class);
 		final var event = mock(ClockOutWithoutClockInEvent.class);
 		when(employee.getEmployeeNumber()).thenReturn("EMP-0042");
-		when(employee.getEmail()).thenReturn("employee@example.test");
 		when(event.getEmployee()).thenReturn(employee);
 		when(event.getWorksite()).thenReturn(worksite);
 
 		final var response = new ClockOutWithoutClockInEventResponseMapper().map(event);
 
 		assertThat(response.employeeNumber()).isEqualTo("EMP-0042");
-		assertThat(response.employeeEmail()).isEqualTo("employee@example.test");
 	}
 }

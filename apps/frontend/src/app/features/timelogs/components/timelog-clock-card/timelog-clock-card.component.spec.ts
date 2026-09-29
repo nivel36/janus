@@ -176,7 +176,7 @@ describe('TimelogClockCardComponent', () => {
 
   function timelog(exitTime: string | null): TimeLog {
     return {
-      employeeEmail: 'employee@example.com',
+      employeeNumber: 'EMP-0001',
       worksiteCode: 'BCN',
       worksiteZoneId: 'Europe/Madrid',
       entryTime: '2026-09-26T08:00:00Z',

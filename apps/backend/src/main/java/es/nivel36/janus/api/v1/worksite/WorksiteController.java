@@ -30,7 +30,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.policy.worksite.WorksiteAuthorizationAdapter;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
@@ -265,18 +264,4 @@ public class WorksiteController implements WorksiteResource {
 		return this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 	}
 
-	private Employee requireEmployeeByEmail(final String email) {
-		return this.employeeService.findEmployeeByEmail(email)
-				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with email " + email));
-	}
-
-	@Override
-	public ResponseEntity<Void> assignEmployeeToWorksiteByEmail(final String worksiteCode, final String email) {
-		return this.assignEmployeeToWorksite(worksiteCode, this.requireEmployeeByEmail(email).getEmployeeNumber());
-	}
-
-	@Override
-	public ResponseEntity<Void> removeEmployeeFromWorksiteByEmail(final String worksiteCode, final String email) {
-		return this.removeEmployeeFromWorksite(worksiteCode, this.requireEmployeeByEmail(email).getEmployeeNumber());
-	}
 }

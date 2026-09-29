@@ -27,7 +27,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
@@ -198,34 +197,6 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 
 	private Employee requireEmployee(final String employeeNumber) {
 		return this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
-	}
-
-	private Employee requireEmployeeByEmail(final String email) {
-		return this.employeeService.findEmployeeByEmail(email)
-				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with email " + email));
-	}
-
-	@Override
-	public ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEventByEmail(
-			final String email, final String worksiteCode, final Instant exitTime,
-			final ResolveClockOutWithoutClockInEventRequest request) {
-		return this.resolveClockOutWithoutClockInEvent(this.requireEmployeeByEmail(email).getEmployeeNumber(), worksiteCode,
-				exitTime, request);
-	}
-
-	@Override
-	public ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEventByEmail(
-			final String email, final String worksiteCode, final Instant exitTime,
-			final InvalidateClockOutWithoutClockInEventRequest request) {
-		return this.invalidateClockOutWithoutClockInEvent(this.requireEmployeeByEmail(email).getEmployeeNumber(),
-				worksiteCode, exitTime, request);
-	}
-
-	@Override
-	public ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEventByEmail(
-			final String email, final String worksiteCode, final Instant exitTime) {
-		return this.findClockOutWithoutClockInEvent(this.requireEmployeeByEmail(email).getEmployeeNumber(), worksiteCode,
-				exitTime);
 	}
 
 	private Worksite findRecordedWorksite(final String worksiteCode) {

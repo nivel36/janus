@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import es.nivel36.janus.api.validation.EmployeeNumber;
 
@@ -57,28 +56,4 @@ public interface ClockOutWithoutClockInEventResource {
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@PathVariable("exitTime") Instant exitTime);
 
-	@Deprecated
-	@PostMapping("/employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}/resolve")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolveByEmail(authentication, #email)")
-	ResponseEntity<ClockOutWithoutClockInEventResponse> resolveClockOutWithoutClockInEventByEmail(
-			@PathVariable @Email String email,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@PathVariable Instant exitTime, @Valid @RequestBody ResolveClockOutWithoutClockInEventRequest request);
-
-	@Deprecated
-	@PostMapping("/employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}/invalidate")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canInvalidateByEmail(authentication, #email)")
-	ResponseEntity<ClockOutWithoutClockInEventResponse> invalidateClockOutWithoutClockInEventByEmail(
-			@PathVariable @Email String email,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@PathVariable Instant exitTime,
-			@RequestBody(required = false) @Valid InvalidateClockOutWithoutClockInEventRequest request);
-
-	@Deprecated
-	@GetMapping("/employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canViewByEmail(authentication, #email)")
-	ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEventByEmail(
-			@PathVariable @Email String email,
-			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
-			@PathVariable Instant exitTime);
 }

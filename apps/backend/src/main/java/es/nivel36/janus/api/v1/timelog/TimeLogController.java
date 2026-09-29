@@ -28,7 +28,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
@@ -234,11 +233,6 @@ public class TimeLogController implements TimeLogResource {
 		return this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 	}
 
-	private Employee requireEmployeeByEmail(final String email) {
-		return this.employeeService.findEmployeeByEmail(email)
-				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with email " + email));
-	}
-
 	/**
 	 * Deletes a time log entry for an employee by its entry time.
 	 *
@@ -260,34 +254,4 @@ public class TimeLogController implements TimeLogResource {
 		return ResponseEntity.noContent().build();
 	}
 
-	@Override
-	public ResponseEntity<TimeLogResponse> clockInByEmail(final String email, final Instant entryTime,
-			final String worksiteCode, final Authentication authentication) {
-		return this.clockIn(this.requireEmployeeByEmail(email).getEmployeeNumber(), entryTime, worksiteCode, authentication);
-	}
-
-	@Override
-	public ResponseEntity<TimeLogResponse> clockOutByEmail(final String email, final Instant exitTime,
-			final String worksiteCode, final Authentication authentication) throws ClockOutWithoutClockInException {
-		return this.clockOut(this.requireEmployeeByEmail(email).getEmployeeNumber(), exitTime, worksiteCode, authentication);
-	}
-
-	@Override
-	public ResponseEntity<TimeLogResponse> createTimeLogByEmail(final String email, final String worksiteCode,
-			final CreateTimeLogRequest timeLog, final Authentication authentication) {
-		return this.createTimeLog(this.requireEmployeeByEmail(email).getEmployeeNumber(), worksiteCode, timeLog,
-				authentication);
-	}
-
-	@Override
-	public ResponseEntity<TimeLogResponse> findTimeLogByEmail(final String email, final Instant entryTime,
-			final Authentication authentication) {
-		return this.findTimeLogByEmployeeAndEntryTime(this.requireEmployeeByEmail(email).getEmployeeNumber(), entryTime,
-				authentication);
-	}
-
-	@Override
-	public ResponseEntity<Void> deleteTimeLogByEmail(final String email, final Instant entryTime) {
-		return this.deleteTimeLog(this.requireEmployeeByEmail(email).getEmployeeNumber(), entryTime);
-	}
 }

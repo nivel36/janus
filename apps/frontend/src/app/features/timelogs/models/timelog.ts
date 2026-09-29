@@ -4,7 +4,7 @@
 import { Duration } from './duration';
 
 export interface TimeLog {
-  employeeEmail: string;
+  employeeNumber: string;
   worksiteCode: string;
   worksiteZoneId: string;
   entryTime: string;

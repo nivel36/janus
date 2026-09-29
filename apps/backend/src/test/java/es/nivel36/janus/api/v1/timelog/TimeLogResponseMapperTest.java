@@ -32,13 +32,11 @@ class TimeLogResponseMapperTest {
 		@SuppressWarnings("unchecked")
 		final Mapper<Duration, DurationResponse> durationMapper = mock(Mapper.class);
 		when(employee.getEmployeeNumber()).thenReturn("EMP-0042");
-		when(employee.getEmail()).thenReturn("employee@example.test");
 		when(timeLog.getEmployee()).thenReturn(employee);
 		when(timeLog.getWorksite()).thenReturn(worksite);
 
 		final var response = new TimeLogResponseMapper(durationMapper).map(timeLog);
 
 		assertThat(response.employeeNumber()).isEqualTo("EMP-0042");
-		assertThat(response.employeeEmail()).isEqualTo("employee@example.test");
 	}
 }

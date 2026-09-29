@@ -99,7 +99,7 @@ describe('TimelogTableComponent', () => {
 
   function timelog(entryTime: string): TimeLog {
     return {
-      employeeEmail: 'employee@example.com',
+      employeeNumber: 'EMP-0001',
       worksiteCode: 'BCN',
       worksiteZoneId: 'Europe/Madrid',
       entryTime,

@@ -52,7 +52,6 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		final Worksite worksite = Objects.requireNonNull(entity.getWorksite(), "Worksite can't be null");
 
 		final String employeeNumber = employee.getEmployeeNumber();
-		final String employeeEmail = employee.getEmail();
 		final String worksiteCode = worksite.getCode();
 
 		final ZoneId worksiteZoneId = worksite.getTimeZone();
@@ -65,7 +64,7 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		final DurationResponse workDurationResponse = this.mapWorkDuration(workDurationValue);
 		final DurationResponse workTime = workDurationResponse;
 
-		return new TimeLogResponse(employeeNumber, employeeEmail, worksiteCode, worksiteZoneId, entryTime, exitTime,
+		return new TimeLogResponse(employeeNumber, worksiteCode, worksiteZoneId, entryTime, exitTime,
 				workTime);
 	}
 

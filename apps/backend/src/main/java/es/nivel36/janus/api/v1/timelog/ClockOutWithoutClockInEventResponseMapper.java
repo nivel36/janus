@@ -43,7 +43,6 @@ public class ClockOutWithoutClockInEventResponseMapper
 		final Worksite worksite = Objects.requireNonNull(entity.getWorksite(), "worksite can't be null");
 
 		final String employeeNumber = employee.getEmployeeNumber();
-		final String employeeEmail = employee.getEmail();
 		final String worksiteCode = worksite.getCode();
 		final Instant exitTime = entity.getExitTime();
 		final Instant detectedAt = entity.getDetectedAt();
@@ -55,7 +54,7 @@ public class ClockOutWithoutClockInEventResponseMapper
 		final Instant resolvedTimeLogEntry = resolvedTimeLog == null ? null : resolvedTimeLog.getEntryTime();
 		final Instant resolvedTimeLogExit = resolvedTimeLog == null ? null : resolvedTimeLog.getExitTime();
 
-		return new ClockOutWithoutClockInEventResponse(employeeNumber, employeeEmail, worksiteCode, exitTime, detectedAt,
+		return new ClockOutWithoutClockInEventResponse(employeeNumber, worksiteCode, exitTime, detectedAt,
 				resolved, invalidated, reason, resolvedTimeLogEntry, resolvedTimeLogExit);
 	}
 

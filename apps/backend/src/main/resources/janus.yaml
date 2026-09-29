@@ -767,104 +767,6 @@ paths:
       deprecated: true
       responses:
         '204': { description: Time log deleted }
-  /employees/by-email/{email}/time-logs/clock-in:
-    post:
-      tags: [time-logs]
-      operationId: clockInByEmail
-      deprecated: true
-      parameters:
-      - &legacyEmail
-        name: email
-        in: path
-        required: true
-        schema:
-          type: string
-          format: email
-      - *id002
-      - { name: entryTime, in: query, schema: { type: string, format: date-time } }
-      responses:
-        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-  /employees/by-email/{email}/time-logs/clock-out:
-    post:
-      tags: [time-logs]
-      operationId: clockOutByEmail
-      deprecated: true
-      parameters:
-      - *legacyEmail
-      - *id002
-      - { name: exitTime, in: query, schema: { type: string, format: date-time } }
-      responses:
-        '200': { description: Closed time log, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-  /employees/by-email/{email}/time-logs:
-    post:
-      tags: [time-logs]
-      operationId: createTimeLogByEmail
-      deprecated: true
-      parameters: [*legacyEmail, *id002]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateTimeLogRequest' } } } }
-      responses:
-        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-  /employees/by-email/{email}/time-logs/{entryTime}:
-    parameters:
-    - *legacyEmail
-    - { name: entryTime, in: path, required: true, schema: { type: string, format: date-time } }
-    get:
-      tags: [time-logs]
-      operationId: findTimeLogByEmail
-      deprecated: true
-      responses:
-        '200': { description: Time log, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-    delete:
-      tags: [time-logs]
-      operationId: deleteTimeLogByEmail
-      deprecated: true
-      responses:
-        '204': { description: Time log deleted }
-  /employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}:
-    parameters: &id004
-    - *legacyEmail
-    - { name: exitTime, in: path, required: true, schema: { type: string, format: date-time } }
-    - *id002
-    get:
-      tags: [clock-out-without-clock-in-events]
-      operationId: findClockOutWithoutClockInEventByEmail
-      deprecated: true
-      responses:
-        '200': { description: Event, content: { application/json: { schema: { $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse' } } } }
-  /employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}/resolve:
-    parameters: *id004
-    post:
-      tags: [clock-out-without-clock-in-events]
-      operationId: resolveClockOutWithoutClockInEventByEmail
-      deprecated: true
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResolveClockOutWithoutClockInEventRequest' } } } }
-      responses:
-        '200': { description: Resolved event, content: { application/json: { schema: { $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse' } } } }
-  /employees/by-email/{email}/clock-out-without-clock-in-events/{exitTime}/invalidate:
-    parameters: *id004
-    post:
-      tags: [clock-out-without-clock-in-events]
-      operationId: invalidateClockOutWithoutClockInEventByEmail
-      deprecated: true
-      requestBody: { required: false, content: { application/json: { schema: { $ref: '#/components/schemas/InvalidateClockOutWithoutClockInEventRequest' } } } }
-      responses:
-        '200': { description: Invalidated event, content: { application/json: { schema: { $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse' } } } }
-  /worksites/{worksiteCode}/employees/by-email/{email}:
-    parameters:
-    - { name: worksiteCode, in: path, required: true, schema: { type: string, pattern: '^[A-Za-z0-9_-]{1,50}$' } }
-    - *legacyEmail
-    put:
-      tags: [worksites]
-      operationId: assignEmployeeToWorksiteByEmail
-      deprecated: true
-      responses:
-        '204': { description: Employee assigned }
-    delete:
-      tags: [worksites]
-      operationId: removeEmployeeFromWorksiteByEmail
-      deprecated: true
-      responses:
-        '204': { description: Employee removed from the worksite; no content is returned. }
 components:
   securitySchemes:
     bearerAuth:
@@ -1280,7 +1182,6 @@ components:
       type: object
       required:
       - employeeNumber
-      - employeeEmail
       - worksiteCode
       - worksiteZoneId
       - entryTime
@@ -1289,10 +1190,6 @@ components:
         employeeNumber:
           type: string
           description: Stable employee identifier used by canonical employee routes.
-        employeeEmail:
-          type: string
-          deprecated: true
-          description: Deprecated compatibility field; use employeeNumber instead. It will be removed in a future API version.
         worksiteCode:
           type: string
         worksiteZoneId:
@@ -1373,7 +1270,6 @@ components:
       type: object
       required:
       - employeeNumber
-      - employeeEmail
       - worksiteCode
       - exitTime
       - detectedAt
@@ -1383,11 +1279,6 @@ components:
         employeeNumber:
           type: string
           description: Stable employee identifier used by canonical employee routes.
-        employeeEmail:
-          type: string
-          format: email
-          deprecated: true
-          description: Deprecated compatibility field; use employeeNumber instead. It will be removed in a future API version.
         worksiteCode:
           type: string
         exitTime: *id006

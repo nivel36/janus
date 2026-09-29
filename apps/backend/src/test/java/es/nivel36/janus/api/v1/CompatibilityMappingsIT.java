@@ -49,7 +49,7 @@ class CompatibilityMappingsIT {
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Compatibility','User','person@example.test',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'WS-1','Compatibility site','UTC','ASSIGNED')" })
 	@Transactional
-	void canonicalOperationsRejectAnEmailWhileDeprecatedByEmailAssignmentStillWorks() throws Exception {
+	void canonicalOperationsRejectAnEmail() throws Exception {
 		this.mvc.perform(MockMvcRequestBuilders.get("/api/v1/employees/person@example.test/time-logs/" + TIME)
 				.with(adminJwt()))
 				.andExpect(status().isBadRequest());
@@ -63,9 +63,6 @@ class CompatibilityMappingsIT {
 				.with(adminJwt()))
 				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(MockMvcRequestBuilders.put("/api/v1/worksites/WS-1/employees/by-email/person@example.test")
-				.with(adminJwt()))
-				.andExpect(status().isNoContent());
 	}
 
 	private static JwtRequestPostProcessor adminJwt() {
@@ -100,21 +97,8 @@ class CompatibilityMappingsIT {
 				mapping(HttpMethod.GET, "/api/v1/employees/EMP-1/timelogs/" + TIME,
 						"findTimeLogByEmployeeAndEntryTime"),
 				mapping(HttpMethod.DELETE, "/api/v1/employees/EMP-1/timelogs/" + TIME, "deleteTimeLog"),
-				mapping(HttpMethod.POST, "/api/v1/employees/by-email/" + EMAIL + "/time-logs/clock-in", "clockInByEmail"),
-				mapping(HttpMethod.POST, "/api/v1/employees/by-email/" + EMAIL + "/time-logs/clock-out", "clockOutByEmail"),
-				mapping(HttpMethod.POST, "/api/v1/employees/by-email/" + EMAIL + "/time-logs", "createTimeLogByEmail"),
-				mapping(HttpMethod.GET, "/api/v1/employees/by-email/" + EMAIL + "/time-logs/" + TIME, "findTimeLogByEmail"),
-				mapping(HttpMethod.DELETE, "/api/v1/employees/by-email/" + EMAIL + "/time-logs/" + TIME, "deleteTimeLogByEmail"),
-				mapping(HttpMethod.GET, "/api/v1/employees/by-email/" + EMAIL + "/clock-out-without-clock-in-events/" + TIME,
-						"findClockOutWithoutClockInEventByEmail"),
-				mapping(HttpMethod.POST, "/api/v1/employees/by-email/" + EMAIL + "/clock-out-without-clock-in-events/" + TIME + "/resolve",
-						"resolveClockOutWithoutClockInEventByEmail"),
-				mapping(HttpMethod.POST, "/api/v1/employees/by-email/" + EMAIL + "/clock-out-without-clock-in-events/" + TIME + "/invalidate",
-						"invalidateClockOutWithoutClockInEventByEmail"),
-				mapping(HttpMethod.PUT, "/api/v1/worksites/WS-1/employees/by-email/" + EMAIL,
-						"assignEmployeeToWorksiteByEmail"),
-				mapping(HttpMethod.DELETE, "/api/v1/worksites/WS-1/employees/by-email/" + EMAIL,
-						"removeEmployeeFromWorksiteByEmail"));
+				mapping(HttpMethod.GET, "/api/v1/employees/EMP-1/clock-out-without-clock-in-events/" + TIME,
+						"findClockOutWithoutClockInEvent"));
 	}
 
 	private static Mapping mapping(final HttpMethod method, final String path, final String handlerMethod) {

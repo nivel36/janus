@@ -148,7 +148,6 @@ class ClockOutWithoutClockInEventControllerIT {
 				.andExpect(status().isOk()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
 				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001")) //
-				.andExpect(jsonPath("$.employeeEmail").value("aferrer@nivel36.es")) //
 				.andExpect(jsonPath("$.worksiteCode").value("HOME-AF")) //
 				.andExpect(jsonPath("$.exitTime").value(exit)) //
 				.andExpect(jsonPath("$.resolved").value(false)) //
