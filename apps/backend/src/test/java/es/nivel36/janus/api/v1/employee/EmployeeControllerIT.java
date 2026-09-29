@@ -61,6 +61,42 @@ class EmployeeControllerIT {
 	}
 
 	@Test
+	@Sql(statements = {
+			"INSERT INTO schedule(id,code,name) VALUES(1,'DAY','Day'),(2,'NIGHT','Night')",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(10,'EMP-0002','Alice','Anders','alice@test.invalid',1),(11,'EMP-0001','Bob','Brown','bob@test.invalid',1),(12,'EMP-0003','Alice','Clark','clark@test.invalid',2)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(20,'HQ','Headquarters','UTC','ASSIGNED'),(21,'REMOTE','Remote','UTC','ASSIGNED')",
+			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(10,20),(11,21),(12,20)" })
+	void searchEmployeesAppliesTextScheduleAndWorksiteFilters() throws Exception {
+		this.mvc.perform(get(BASE).param("query", "alice").param("scheduleCode", "DAY")
+				.param("worksiteCode", "HQ")
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.page.totalElements").value(1))
+				.andExpect(jsonPath("$.content[0].employeeNumber").value("EMP-0002"));
+	}
+
+	@Test
+	@Sql(statements = {
+			"INSERT INTO schedule(id,code,name) VALUES(1,'DAY','Day')",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(10,'EMP-0002','Alice','Anders','alice@test.invalid',1),(11,'EMP-0001','Bob','Brown','bob@test.invalid',1),(12,'EMP-0003','Carol','Clark','carol@test.invalid',1)" })
+	void searchEmployeesUsesStableDefaultOrderAndPagination() throws Exception {
+		this.mvc.perform(get(BASE).param("size", "2").param("page", "0")
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.page.totalElements").value(3))
+				.andExpect(jsonPath("$.page.totalPages").value(2))
+				.andExpect(jsonPath("$.content[0].employeeNumber").value("EMP-0001"))
+				.andExpect(jsonPath("$.content[1].employeeNumber").value("EMP-0002"));
+	}
+
+	@Test
+	void restrictedEmployeeCannotEnumerateEmployeeIdentities() throws Exception {
+		this.mvc.perform(get(BASE).with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(10,'EMP-0010','Alice','One','alice@internal.test',1)",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(11,'EMP-0011','Bob','Two','bob@internal.test',1)",

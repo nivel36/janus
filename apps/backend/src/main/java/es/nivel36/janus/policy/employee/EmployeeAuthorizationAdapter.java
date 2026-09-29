@@ -27,6 +27,7 @@ public class EmployeeAuthorizationAdapter {
 	private final UpdateEmployeePolicy updatePolicy = new UpdateEmployeePolicy();
 	private final CreateEmployeePolicy createPolicy = new CreateEmployeePolicy();
 	private final DeleteEmployeePolicy deletePolicy = new DeleteEmployeePolicy();
+	private final SearchEmployeePolicy searchPolicy = new SearchEmployeePolicy();
 
 	public EmployeeAuthorizationAdapter(final ActorResolver actorResolver, final EmployeeService employeeService) {
 		this.actorResolver = Objects.requireNonNull(actorResolver, "actorResolver can't be null");
@@ -36,6 +37,10 @@ public class EmployeeAuthorizationAdapter {
 	public boolean canView(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
 		return this.viewPolicy.allows(actor, this.employeeId(actor, employeeNumber));
+	}
+
+	public boolean canSearch(final Authentication authentication) {
+		return this.searchPolicy.allows(this.actorResolver.resolve(authentication), null);
 	}
 
 	public boolean canCreate(final Authentication authentication) {

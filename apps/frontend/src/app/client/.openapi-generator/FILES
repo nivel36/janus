@@ -22,6 +22,7 @@ model/createEmployeeRequest.ts
 model/createScheduleRequest.ts
 model/createTimeLogRequest.ts
 model/createWorksiteRequest.ts
+model/employeePage.ts
 model/employeeResponse.ts
 model/invalidateClockOutWithoutClockInEventRequest.ts
 model/models.ts

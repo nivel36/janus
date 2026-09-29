@@ -20,6 +20,8 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,6 +63,16 @@ public class EmployeeController implements EmployeeResource {
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
 		this.employeeResponseMapper = Objects.requireNonNull(employeeResponseMapper,
 				"employeeResponseMapper can't be null");
+	}
+
+	@Override
+	public ResponseEntity<Page<EmployeeResponse>> searchEmployees(final String query, final String scheduleCode,
+			final String worksiteCode, final Pageable pageable) {
+		logger.debug("Search employees ACTION performed");
+		final Page<EmployeeResponse> employees = this.employeeService
+				.searchEmployees(query, scheduleCode, worksiteCode, pageable)
+				.map(this.employeeResponseMapper::map);
+		return ResponseEntity.ok(employees);
 	}
 
 	/**
