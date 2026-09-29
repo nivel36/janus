@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
+import es.nivel36.janus.api.validation.EmployeeNumber;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
@@ -83,9 +84,23 @@ public class AppUserController implements AppUserResource {
 			throw new IllegalArgumentException("email claim is required");
 		}
 		final String subject = token.getSubject();
-		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, EmailAddresses.canonicalize(email));
+		final String employeeNumber = normalizeEmployeeNumber(token.getClaimAsString("employeeNumber"));
+		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, EmailAddresses.canonicalize(email),
+				employeeNumber);
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(appUser);
 		return ResponseEntity.ok(appUserResponse);
+	}
+
+	private static String normalizeEmployeeNumber(final String claim) {
+		if (claim == null) {
+			return null;
+		}
+		final String normalized = claim.trim();
+		if (!normalized.matches(EmployeeNumber.PATTERN)) {
+			throw new IllegalArgumentException(
+					"employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)");
+		}
+		return normalized;
 	}
 
 	/**

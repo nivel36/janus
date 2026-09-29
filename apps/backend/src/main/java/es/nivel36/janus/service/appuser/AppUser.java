@@ -112,6 +112,10 @@ public class AppUser implements Serializable {
 		return this.email;
 	}
 
+	void setEmail(final String email) {
+		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
+	}
+
 	public String getKeycloakSubject() {
 		return this.keycloakSubject;
 	}

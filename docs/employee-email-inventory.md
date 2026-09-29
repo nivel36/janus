@@ -26,8 +26,12 @@ Las únicas consultas internas que comparan correo son filtros explícitos:
 - `TimeLogSearchSpecifications.matching`, para `TimeLogSearchCriteria.employeeEmail`;
 - `ScheduleRepository.search`, para el filtro de horarios asignados;
 - `WorksiteRepository.search`, para el filtro de centros asignados;
-- `EmployeeRepository.findByEmail`/`findIdByEmail`, para resolver entrada HTTP y para
-  la asociación inicial de `AppUser`.
+- `EmployeeRepository.findByEmail`, exclusivamente para selectores HTTP heredados.
+
+`EmployeeRepository.findIdByEmail` se eliminó al quedar sin consumidores. La
+asociación inicial de `AppUser` resuelve exclusivamente `employeeNumber`; por eso se
+mantiene la unicidad de correo mientras sigan activos los selectores y validaciones
+heredados, y se conserva siempre `UK_EMPLOYEE_NUMBER`.
 
 Las consultas operativas de `WorkshiftRepository`, `TimeLogRepository` y
 `ScheduleRepository.findTimeRangeForDate` usan `employee.id`. Las comprobaciones de

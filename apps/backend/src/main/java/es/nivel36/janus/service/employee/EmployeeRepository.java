@@ -38,9 +38,6 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 
 	boolean existsByEmployeeNumber(String employeeNumber);
 
-	@Query("SELECT e.id FROM Employee e WHERE e.email = :email")
-	Optional<Long> findIdByEmail(String email);
-
 	@Query("""
 			SELECT COUNT(DISTINCT e.id)
 			FROM Employee e

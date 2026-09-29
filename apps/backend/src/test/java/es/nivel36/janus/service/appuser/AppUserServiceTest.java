@@ -76,7 +76,7 @@ class AppUserServiceTest {
 		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
 		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
 		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
-		when(this.employeeService.findEmployeeByEmail("person@example.test")).thenReturn(Optional.of(employee));
+		when(this.employeeService.findEmployeeByEmployeeNumber("EMP-42")).thenReturn(employee);
 		when(this.appUserRepository.findByEmployee(employee)).thenReturn(Optional.empty());
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty())
 				.thenReturn(Optional.empty()).thenReturn(Optional.of(winner));
@@ -86,7 +86,7 @@ class AppUserServiceTest {
 				isNull()))
 				.thenThrow(new AppUserCreationConflict(new RuntimeException("subject claimed")));
 
-		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, email));
+		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, email, "EMP-42"));
 	}
 
 	@Test
@@ -99,11 +99,10 @@ class AppUserServiceTest {
 		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
 		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty());
-		when(this.employeeService.findEmployeeByEmail(email)).thenReturn(Optional.empty());
 		when(this.appUserCreator.create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, null))
 				.thenReturn(created);
 
-		assertSame(created, this.appUserService.findOrCreateAppUser(subject, email));
+		assertSame(created, this.appUserService.findOrCreateAppUser(subject, email, null));
 		verify(this.appUserCreator).create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, null);
 	}
 
@@ -123,6 +122,35 @@ class AppUserServiceTest {
 
 		assertThrows(IllegalArgumentException.class,
 				() -> new AppUser("oversized-subject", oversizedSubject, Locale.ENGLISH, TimeFormat.H24));
+	}
+
+
+	@Test
+	void unknownEmployeeNumberCreatesAnUnlinkedProfile() {
+		final String subject = "33333333-3333-4333-8333-333333333333";
+		final String email = "unknown@example.test";
+		final ZoneId timezone = ZoneId.of("UTC");
+		final AppUser created = new AppUser(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone);
+		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
+		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
+		when(this.provisioningDefaults.defaultTimezone()).thenReturn(timezone);
+		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty());
+		when(this.employeeService.findEmployeeByEmployeeNumber("UNKNOWN"))
+				.thenThrow(new ResourceNotFoundException("missing"));
+		when(this.appUserCreator.create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, null))
+				.thenReturn(created);
+
+		assertSame(created, this.appUserService.findOrCreateAppUser(subject, email, "UNKNOWN"));
+	}
+
+	@Test
+	void existingProfileUpdatesItsContactEmailWithoutRelinking() {
+		final String subject = "44444444-4444-4444-8444-444444444444";
+		final AppUser existing = new AppUser("old@example.test", subject, Locale.ENGLISH, TimeFormat.H24);
+		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.of(existing));
+
+		assertSame(existing, this.appUserService.findOrCreateAppUser(subject, "new@example.test", "EMP-99"));
+		assertEquals("new@example.test", existing.getEmail());
 	}
 
 }
