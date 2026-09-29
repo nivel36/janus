@@ -649,12 +649,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
+    patch:
+      tags:
+      - clock-out-without-clock-in-events
+      operationId: transitionClockOutWithoutClockInEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransitionClockOutWithoutClockInEventRequest'
+      responses:
+        '200':
+          description: Event transitioned to its requested final state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
   /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/resolve:
     parameters: *id003
     post:
       tags:
       - clock-out-without-clock-in-events
       operationId: resolveClockOutWithoutClockInEvent
+      deprecated: true
       responses:
         '200':
           description: OK
@@ -674,6 +692,7 @@ paths:
       tags:
       - clock-out-without-clock-in-events
       operationId: invalidateClockOutWithoutClockInEvent
+      deprecated: true
       responses:
         '200':
           description: OK
@@ -1327,6 +1346,19 @@ components:
     InvalidateClockOutWithoutClockInEventRequest:
       type: object
       properties:
+        reason:
+          type: string
+          maxLength: 255
+    TransitionClockOutWithoutClockInEventRequest:
+      type: object
+      description: A RESOLVE action requires entryTime; an INVALIDATE action forbids entryTime.
+      required:
+      - action
+      properties:
+        action:
+          type: string
+          enum: [RESOLVE, INVALIDATE]
+        entryTime: *id006
         reason:
           type: string
           maxLength: 255

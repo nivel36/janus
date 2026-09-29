@@ -20,6 +20,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -244,5 +245,33 @@ class ClockOutWithoutClockInEventControllerIT {
 				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@Sql(statements = {
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('admin','provider-account-id','en-US','H24','UTC',NULL)",
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'OFFICE','Office','UTC','GLOBAL')",
+			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z','2025-08-04T16:00:00Z',false,false)" })
+	void uniformTransitionRejectsInvalidRequestsAndRepeatedFinalization() throws Exception {
+		final var request = patch(BASE + "/{exitTime}", "EMP-0001", "2025-08-04T16:00:00Z")
+				.param("worksiteCode", "OFFICE").contentType(APPLICATION_JSON)
+				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
+						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")));
+
+		this.mvc.perform(request).andExpect(status().isBadRequest());
+		this.mvc.perform(request.content("{\"action\":\"DELETE\"}")).andExpect(status().isBadRequest());
+		this.mvc.perform(request.content("{\"action\":\"RESOLVE\"}")).andExpect(status().isBadRequest());
+		this.mvc.perform(request.content(
+				"{\"action\":\"INVALIDATE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}"))
+				.andExpect(status().isBadRequest());
+
+		final String transition = "{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\",\"reason\":\"Recovered entry\"}";
+		this.mvc.perform(request.content(transition)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.resolved").value(true));
+		this.mvc.perform(request.content(transition)).andExpect(status().isConflict())
+				.andExpect(jsonPath("$.type").value("urn:problem:event-already-finalized"));
 	}
 }
