@@ -51,25 +51,25 @@ export class TimelogClockCardComponent {
   readonly faAngleRight = faAngleRight;
   readonly titleElementId = `${inject(ID_GENERATOR).generate('clock-in-card')}-title`;
 
-  /** Email of the employee for whom the card is displayed. */
-  readonly employeeEmail = input.required<string>();
+  /** Stable number of the employee for whom the card is displayed. */
+  readonly employeeNumber = input.required<string>();
 
   /** Event emitted when the clocking action completes successfully. */
   readonly clockActionDone = output<void>();
 
   private readonly latestTimeLogResource = rxResource<TimeLog | undefined, string>({
-    params: () => this.employeeEmail(),
-    stream: ({ params: employeeEmail }) =>
+    params: () => this.employeeNumber(),
+    stream: ({ params: employeeNumber }) =>
       this.timeLogService
-        .searchLatestByEmployee(employeeEmail)
+        .searchLatestByEmployee(employeeNumber)
         .pipe(catchError(() => of(undefined))),
     defaultValue: undefined,
   });
 
   private readonly assignedWorksiteCodeResource = rxResource<string | undefined, string>({
-    params: () => this.employeeEmail(),
-    stream: ({ params: employeeEmail }) =>
-      this.worksiteApiService.searchAssignedToEmployee(employeeEmail).pipe(
+    params: () => this.employeeNumber(),
+    stream: ({ params: employeeNumber }) =>
+      this.worksiteApiService.searchAssignedToEmployee(employeeNumber).pipe(
         map((worksites) => (worksites.length === 1 ? worksites[0].code : undefined)),
         catchError(() => of(undefined)),
       ),
@@ -121,7 +121,7 @@ export class TimelogClockCardComponent {
       return;
     }
 
-    const employeeEmail = this.employeeEmail();
+    const employeeNumber = this.employeeNumber();
     const { shouldClockOut, worksiteCode } = this.resolveClockAction(
       mode,
       this.latestTimeLog(),
@@ -137,8 +137,8 @@ export class TimelogClockCardComponent {
     this.clockActionFeedbackKey.set(undefined);
 
     const action$ = shouldClockOut
-      ? this.timeLogService.clockOut(employeeEmail, worksiteCode)
-      : this.timeLogService.clockIn(employeeEmail, worksiteCode);
+      ? this.timeLogService.clockOut(employeeNumber, worksiteCode)
+      : this.timeLogService.clockIn(employeeNumber, worksiteCode);
 
     action$
       .pipe(
@@ -147,7 +147,7 @@ export class TimelogClockCardComponent {
       )
       .subscribe({
         next: (timeLog) => {
-          if (this.employeeEmail() === employeeEmail) {
+          if (this.employeeNumber() === employeeNumber) {
             this.latestTimeLogResource.set(timeLog);
           } else {
             this.latestTimeLogResource.reload();

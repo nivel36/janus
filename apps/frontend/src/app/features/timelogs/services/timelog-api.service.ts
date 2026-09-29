@@ -39,19 +39,19 @@ export class TimeLogService {
       );
   }
 
-  searchLatestByEmployee(email: string): Observable<TimeLog | undefined> {
+  searchLatestByEmployee(employeeNumber: string): Observable<TimeLog | undefined> {
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
     return this.api
-      .searchTimeLogs(email, undefined, undefined, 0, 1, ['entryTime,desc'], 'body', false, { context })
+      .searchTimeLogs(employeeNumber, undefined, undefined, 0, 1, ['entryTime,desc'], 'body', false, { context })
       .pipe(map((r) => r.content[0] ? this.mapTimeLog(r.content[0]) : undefined));
   }
 
-  clockIn(email: string, worksiteCode: string): Observable<TimeLog> {
-    return this.api.clockIn(email, worksiteCode).pipe(map((item) => this.mapTimeLog(item)));
+  clockIn(employeeNumber: string, worksiteCode: string): Observable<TimeLog> {
+    return this.api.clockIn(employeeNumber, worksiteCode).pipe(map((item) => this.mapTimeLog(item)));
   }
 
-  clockOut(email: string, worksiteCode: string): Observable<TimeLog> {
-    return this.api.clockOut(email, worksiteCode).pipe(map((item) => this.mapTimeLog(item)));
+  clockOut(employeeNumber: string, worksiteCode: string): Observable<TimeLog> {
+    return this.api.clockOut(employeeNumber, worksiteCode).pipe(map((item) => this.mapTimeLog(item)));
   }
 
   private mapTimeLog(response: TimeLogResponse): TimeLog {

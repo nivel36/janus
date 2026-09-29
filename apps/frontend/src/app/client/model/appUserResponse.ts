@@ -14,6 +14,10 @@ import { Theme } from './theme';
 export interface AppUserResponse {
     id: string;
     email: string;
+    /**
+     * Stable employee identifier containing 1 to 50 letters, digits, underscores, or hyphens.
+     */
+    employeeNumber?: string;
     locale: string;
     timeFormat: TimeFormat;
     theme: Theme;

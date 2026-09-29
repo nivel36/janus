@@ -27,6 +27,10 @@ final class TimeLogSearchSpecifications {
 	static Specification<TimeLog> matching(final TimeLogSearchCriteria criteria) {
 		return (root, _, builder) -> {
 			Predicate predicate = builder.conjunction();
+			if (criteria.employeeNumber() != null) {
+				predicate = builder.and(predicate,
+						builder.equal(root.get("employee").get("employeeNumber"), criteria.employeeNumber()));
+			}
 			if (criteria.employeeEmail() != null) {
 				predicate = builder.and(predicate,
 						builder.equal(root.get("employee").get("email"), criteria.employeeEmail()));

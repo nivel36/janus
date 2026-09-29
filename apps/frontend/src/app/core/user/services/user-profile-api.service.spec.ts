@@ -24,10 +24,10 @@ describe('UserProfileApiService', () => {
     transport = {
       findCurrentAppUser: vi
         .fn()
-        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', ...PREFERENCES })),
+        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', employeeNumber: 'EMP-0001', ...PREFERENCES })),
       updateAppUser: vi
         .fn()
-        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', ...PREFERENCES })),
+        .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', employeeNumber: 'EMP-0001', ...PREFERENCES })),
     };
     TestBed.configureTestingModule({
       providers: [UserProfileApiService, { provide: AppUsersService, useValue: transport }],
@@ -40,6 +40,7 @@ describe('UserProfileApiService', () => {
     service.getPreferences().subscribe((preferences) => (result = preferences));
 
     expect(result).toEqual(PREFERENCES);
+    expect(service.employeeNumber()).toBe('EMP-0001');
     const [, , options] = transport.findCurrentAppUser.mock.calls[0];
     expect(options.context.get(HTTP_RETRY_POLICY)).toEqual({
       retries: 10,

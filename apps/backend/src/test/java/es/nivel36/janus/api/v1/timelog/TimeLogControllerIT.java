@@ -67,7 +67,7 @@ class TimeLogControllerIT {
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 	})
 	void testElevatedRolesWithoutVerifiedEmailAreUnauthorized() throws Exception {
-		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es").header("Authorization", "Bearer email-unverified")) //
+		this.mvc.perform(get(SEARCH_BASE).param("employeeNumber", "EMP-0001").header("Authorization", "Bearer email-unverified")) //
 				.andExpect(status().isUnauthorized());
 	}
 
@@ -404,7 +404,7 @@ class TimeLogControllerIT {
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "aferrer@nivel36.es").with(verifiedJwt()
+		this.mvc.perform(get(SEARCH_BASE).param("employeeNumber", "EMP-0001").with(verifiedJwt()
 				.jwt(token -> token.subject("aferrer@nivel36.es"))//
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
@@ -419,12 +419,12 @@ class TimeLogControllerIT {
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
 	})
 	void testSearchByEmployeeWithInvalidRangeShouldFail400() throws Exception {
-		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "EMP-0001") //
+		this.mvc.perform(get(SEARCH_BASE).param("employeeNumber", "EMP-0001") //
 				.param("start", "2025-08-10T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(SEARCH_BASE).param("employeeEmail", "EMP-0001") //
+		this.mvc.perform(get(SEARCH_BASE).param("employeeNumber", "EMP-0001") //
 				.param("start", "2025-08-10T10:00:00Z") //
 				.param("end", "2025-08-09T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //

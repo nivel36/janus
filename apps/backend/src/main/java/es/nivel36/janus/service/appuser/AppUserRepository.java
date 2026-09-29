@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -32,7 +33,12 @@ interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 
 	List<AppUser> findByEmail(String email);
 
+	@EntityGraph(attributePaths = "employee")
 	Optional<AppUser> findByKeycloakSubject(String keycloakSubject);
+
+	@Override
+	@EntityGraph(attributePaths = "employee")
+	Optional<AppUser> findById(UUID id);
 
 	boolean existsByKeycloakSubject(String keycloakSubject);
 
