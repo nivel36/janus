@@ -11,12 +11,14 @@ import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.EmployeeService;
+import es.nivel36.janus.service.worksite.WorksiteService;
 import es.nivel36.janus.service.worksite.WorksiteScope;
 
 @Component("worksiteAuthorization")
 public class WorksiteAuthorizationAdapter {
 	private final ActorResolver actors;
 	private final EmployeeService employees;
+	private final WorksiteService worksites;
 	private final ApplicationSettingsService settings;
 	private final EmployeeNumberResolver employeeNumbers;
 	private final SearchWorksitePolicy search = new SearchWorksitePolicy();
@@ -28,9 +30,11 @@ public class WorksiteAuthorizationAdapter {
 	private final ManageWorksiteAssignmentsPolicy assignments = new ManageWorksiteAssignmentsPolicy();
 
 	public WorksiteAuthorizationAdapter(final ActorResolver actors, final EmployeeService employees,
-			final ApplicationSettingsService settings, final EmployeeNumberResolver employeeNumbers) {
+			final WorksiteService worksites, final ApplicationSettingsService settings,
+			final EmployeeNumberResolver employeeNumbers) {
 		this.actors = Objects.requireNonNull(actors);
 		this.employees = Objects.requireNonNull(employees);
+		this.worksites = Objects.requireNonNull(worksites);
 		this.settings = Objects.requireNonNull(settings);
 		this.employeeNumbers = Objects.requireNonNull(employeeNumbers);
 	}
@@ -45,8 +49,18 @@ public class WorksiteAuthorizationAdapter {
 		return this.employeeNumbers.effectiveNumber(a, requested, this.restricted(a));
 	}
 
-	public boolean canView(final Authentication auth) {
-		return this.view.allows(this.actors.resolve(auth), null);
+	public boolean canView(final Authentication auth, final String code) {
+		final Actor a = this.actors.resolve(auth);
+		if (this.elevated(a)) {
+			return true;
+		}
+		if (!this.view.allows(a, null) || a.employeeId() == null) {
+			return false;
+		}
+		return switch (this.worksites.findWorksiteByCode(code).getScope()) {
+		case GLOBAL -> true;
+		case ASSIGNED -> this.assigned(a, code);
+		};
 	}
 
 	public boolean canViewStats(final Authentication auth, final String code) {

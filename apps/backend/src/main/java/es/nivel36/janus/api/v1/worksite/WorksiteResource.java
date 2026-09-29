@@ -50,7 +50,7 @@ public interface WorksiteResource {
 			Authentication authentication);
 
 	@GetMapping("/{worksiteCode}")
-	@PreAuthorize("@worksiteAuthorization.canView(authentication)")
+	@PreAuthorize("@worksiteAuthorization.canView(authentication, #worksiteCode)")
 	ResponseEntity<WorksiteResponse> findWorksite(
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode);
 
