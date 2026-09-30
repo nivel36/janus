@@ -234,6 +234,8 @@ paths:
         style: form
         explode: true
       responses:
+        '403':
+          description: Employee association missing, employee filter outside the authorized scope, or actor without a permitted role.
         '200':
           description: Paginated worksites
           content:
@@ -370,6 +372,8 @@ paths:
         style: form
         explode: true
       responses:
+        '403':
+          description: Employee association missing, employee filter outside the authorized scope, or actor without a permitted role.
         '200':
           description: Paginated schedules
           content:
@@ -523,6 +527,8 @@ paths:
         style: form
         explode: true
       responses:
+        '403':
+          description: Employee association missing, employee filter outside the authorized scope, or actor without a permitted role.
         '200':
           description: Paginated time logs
           content:

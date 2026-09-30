@@ -11,17 +11,16 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Pattern;
 
 /**
- * Optional client filters, independent of the authorized search scope.
- * The entry-time range includes {@code start} and excludes {@code end}.
+ * Optional client filters, independent of the authorized search scope. The
+ * entry-time range includes {@code start} and excludes {@code end}.
  */
 public record TimeLogSearchCriteria(
-		@Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)") String employeeNumber,
-		@Pattern(regexp = "^[ \\t]*(?=[^ \\t]{1,254}[ \\t]*$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[ \\t]*$", message = "employeeEmail must be a valid and safe email address (max 254)") String employeeEmail,
-		Instant start, Instant end) {
+		@Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)") //
+		String employeeNumber, //
 
-	public TimeLogSearchCriteria(final String employeeNumber, final Instant start, final Instant end) {
-		this(employeeNumber, null, start, end);
-	}
+		Instant start, //
+
+		Instant end) {
 
 	@AssertTrue(message = "start and end must be provided together or omitted")
 	public boolean isRangeComplete() {

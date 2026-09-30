@@ -10,28 +10,27 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import es.nivel36.janus.policy.EmployeeAccessPolicy;
+import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.ResourceNotFoundException;
-import es.nivel36.janus.service.appuser.Role;
-import es.nivel36.janus.service.employee.Employee;
-import es.nivel36.janus.service.employee.EmployeeService;
 
 /** Spring method-security adapter for employee policies. */
 @Component("employeeAuthorization")
 public class EmployeeAuthorizationAdapter {
 
 	private final ActorResolver actorResolver;
-	private final EmployeeService employeeService;
+	private final EmployeeNumberResolver employeeNumbers;
 	private final ViewEmployeePolicy viewPolicy = new ViewEmployeePolicy();
 	private final UpdateEmployeePolicy updatePolicy = new UpdateEmployeePolicy();
 	private final CreateEmployeePolicy createPolicy = new CreateEmployeePolicy();
 	private final DeleteEmployeePolicy deletePolicy = new DeleteEmployeePolicy();
 	private final SearchEmployeePolicy searchPolicy = new SearchEmployeePolicy();
 
-	public EmployeeAuthorizationAdapter(final ActorResolver actorResolver, final EmployeeService employeeService) {
+	public EmployeeAuthorizationAdapter(final ActorResolver actorResolver, final EmployeeNumberResolver employeeNumbers) {
 		this.actorResolver = Objects.requireNonNull(actorResolver, "actorResolver can't be null");
-		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.employeeNumbers = Objects.requireNonNull(employeeNumbers, "employeeNumbers can't be null");
 	}
 
 	public boolean canView(final Authentication authentication, final String employeeNumber) {
@@ -59,19 +58,13 @@ public class EmployeeAuthorizationAdapter {
 	}
 
 	private long employeeId(final Actor actor, final String employeeNumber) {
-		final Employee employee;
 		try {
-			employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
+			return this.employeeNumbers.requireEmployeeId(employeeNumber);
 		} catch (final ResourceNotFoundException exception) {
-			if (actor.hasRole(Role.JANUS_ADMIN) || actor.hasRole(Role.JANUS_USER)) {
+			if (EmployeeAccessPolicy.hasElevatedAccess(actor)) {
 				throw exception;
 			}
 			throw new AccessDeniedException("Employees can only access their own resources");
 		}
-		if (employee == null) {
-			throw new AccessDeniedException("The employee's email is invalid");
-		}
-		return employee.getId();
-
 	}
 }

@@ -4,6 +4,8 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,13 +20,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import es.nivel36.janus.service.timelog.TimeLogSearchCriteria;
 import jakarta.validation.Valid;
 
-@RequestMapping({ "/api/v1/time-logs", "/api/v1/timelogs" })
+@RequestMapping({ "/api/v1/time-logs" })
 public interface TimeLogSearchResource {
 
-	@PreAuthorize("@timeLogAuthorization.canSearch(authentication)")
-	@GetMapping({ "", "/" })
-	ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(
-			@Valid @ModelAttribute TimeLogSearchCriteria criteria,
-			@PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable,
+	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
+	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
+	@PreAuthorize("@timeLogAuthorization.canSearch(authentication, #criteria.employeeNumber())")
+	@GetMapping
+	ResponseEntity<Page<TimeLogResponse>> searchTimeLogs( //
+			@Valid @ModelAttribute TimeLogSearchCriteria criteria, //
+			@PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable, //
 			Authentication authentication);
 }

@@ -17,6 +17,8 @@ package es.nivel36.janus.api.v1.worksite;
 
 import java.time.Instant;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,6 +44,8 @@ import jakarta.validation.constraints.Pattern;
 public interface WorksiteResource {
 
 	@GetMapping
+	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
+	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
 	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeNumber)")
 	ResponseEntity<Page<WorksiteResponse>> searchWorksites(
 			@RequestParam(required = false) @SearchQuery String query,

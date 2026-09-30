@@ -40,8 +40,7 @@ public interface EmployeeResource {
 
 	@GetMapping
 	@PreAuthorize("@employeeAuthorization.canSearch(authentication)")
-	ResponseEntity<Page<EmployeeResponse>> searchEmployees(
-			@RequestParam(required = false) @SearchQuery String query,
+	ResponseEntity<Page<EmployeeResponse>> searchEmployees(@RequestParam(required = false) @SearchQuery String query,
 			@RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "scheduleCode must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode,
 			@RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "worksiteCode must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@PageableDefault(size = 20, sort = "employeeNumber", direction = Sort.Direction.ASC) Pageable pageable);
@@ -63,6 +62,5 @@ public interface EmployeeResource {
 
 	@PreAuthorize("@employeeAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{employeeNumber}")
-	ResponseEntity<Void> deleteEmployee(
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
+	ResponseEntity<Void> deleteEmployee(@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
 }

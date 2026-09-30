@@ -32,6 +32,7 @@ import jakarta.validation.constraints.NotNull;
  *                  after {@code startTime}
  */
 public record ScheduleTimeRangeRequest( //
+		
 		@NotNull(message = "startTime must not be null") //
 		LocalTime startTime, //
 

@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
 
+import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.ResourceNotFoundException;
@@ -26,7 +27,7 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	private final ActorResolver actors = mock(ActorResolver.class);
 	private final EmployeeService employees = mock(EmployeeService.class);
 	private final ClockOutWithoutClockInEventAuthorizationAdapter adapter =
-			new ClockOutWithoutClockInEventAuthorizationAdapter(this.actors, this.employees);
+			new ClockOutWithoutClockInEventAuthorizationAdapter(this.actors, this.employees, new EmployeeNumberResolver(this.employees));
 
 	@Test
 	void missingEmployeeIsDeniedWithoutDisclosingItsAbsence() {

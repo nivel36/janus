@@ -123,8 +123,8 @@ class TimeLogSearchControllerIT {
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void clientCannotExpandScopeByFilteringAnotherEmployee(final String endpoint) throws Exception {
-		assertEmpty(this.mvc.perform(get(endpoint).param("employeeNumber", "EMP-0102")
-				.param("size", "1").with(employee())));
+		this.mvc.perform(get(endpoint).param("employeeNumber", "EMP-0102")
+				.param("size", "1").with(employee())).andExpect(status().isForbidden());
 	}
 
 	@ParameterizedTest
@@ -187,11 +187,12 @@ class TimeLogSearchControllerIT {
 
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
-	void employeeWithoutPersistentEmployeeAssociationHasEmptyScope(final String endpoint) throws Exception {
+	void employeeWithoutPersistentEmployeeAssociationCannotSearch(final String endpoint) throws Exception {
 		for (int page : new int[] { 0, 3 }) {
-			assertEmpty(this.mvc.perform(get(endpoint).param("page", Integer.toString(page)).param("size", "2")
+			this.mvc.perform(get(endpoint).param("page", Integer.toString(page)).param("size", "2")
 					.with(verifiedJwt().jwt(token -> token.claim("email", OWN_EMAIL).claim("email_verified", true))
-							.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))));
+							.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+					.andExpect(status().isForbidden());
 		}
 	}
 
@@ -248,6 +249,12 @@ class TimeLogSearchControllerIT {
 				.andExpect(status().isBadRequest());
 	}
 
+	@Test
+	void missingEmployeeFilterDoesNotDiscloseExistenceToRestrictedActors() throws Exception {
+		this.mvc.perform(get(BASE).param("employeeNumber", "MISSING").with(employee()))
+				.andExpect(status().isForbidden());
+	}
+
 	private void assertOwnPage(final String endpoint, final int page, final String... expectedEntries)
 			throws Exception {
 		final MockHttpServletRequestBuilder request = get(endpoint).param("page", Integer.toString(page))
@@ -263,13 +270,6 @@ class TimeLogSearchControllerIT {
 		if (expectedEntries.length > 0) {
 			result.andExpect(jsonPath("$.content[*].entryTime", contains(expectedEntries)));
 		}
-	}
-
-	private static void assertEmpty(final ResultActions result) throws Exception {
-		result.andExpect(status().isOk())
-				.andExpect(jsonPath("$.content").isEmpty())
-				.andExpect(jsonPath("$.page.totalElements").value(0))
-				.andExpect(jsonPath("$.page.totalPages").value(0));
 	}
 
 	private static JwtRequestPostProcessor employee() {

@@ -1,20 +1,14 @@
 package es.nivel36.janus.policy.worksite;
 
-import java.util.Objects;
-
+import es.nivel36.janus.policy.EmployeeSearchPolicy;
 import es.nivel36.janus.policy.Policy;
 import es.nivel36.janus.security.Actor;
-import es.nivel36.janus.service.appuser.Role;
 
-public final class SearchWorksitePolicy implements Policy<Boolean> {
+public final class SearchWorksitePolicy implements Policy<EmployeeSearchPolicy.Context> {
+	private final EmployeeSearchPolicy search = new EmployeeSearchPolicy();
+
 	@Override
-	public boolean allows(final Actor actor, final Boolean context) {
-		Objects.requireNonNull(actor, "actor can't be null");
-		Objects.requireNonNull(context, "context can't be null");
-		return this.elevated(actor) || actor.hasRole(Role.JANUS_EMPLOYEE) && context;
-	}
-
-	private boolean elevated(final Actor actor) {
-		return actor.hasRole(Role.JANUS_USER) || actor.hasRole(Role.JANUS_ADMIN);
+	public boolean allows(final Actor actor, final EmployeeSearchPolicy.Context context) {
+		return this.search.allows(actor, context);
 	}
 }

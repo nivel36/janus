@@ -1,5 +1,6 @@
 package es.nivel36.janus.api.v1.schedule;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,17 +18,22 @@ public class ScheduleRuleDefinitionMapper implements Mapper<ScheduleRuleRequest,
 
 	public ScheduleRuleDefinitionMapper(
 			final @Qualifier("scheduleRuleTimeRangeDefinitionMapper") Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper) {
-		this.scheduleRuleTimeRangeDefinitionMapper = Objects.requireNonNull(scheduleRuleTimeRangeDefinitionMapper,
+		this.scheduleRuleTimeRangeDefinitionMapper = Objects.requireNonNull( //
+				scheduleRuleTimeRangeDefinitionMapper, //
 				"scheduleRuleTimeRangeDefinitionMapper can't be null");
 	}
 
 	@Override
-	public ScheduleRuleDefinition map(final ScheduleRuleRequest object) {
-		if (object == null) {
+	public ScheduleRuleDefinition map(final ScheduleRuleRequest scheduleRuleRequest) {
+		if (scheduleRuleRequest == null) {
 			return null;
 		}
-		return new ScheduleRuleDefinition(object.name(), object.startDate(), object.endDate(),
-				this.mapScheduleRuleTimeRangeDefinition(object.dayOfWeekRanges()));
+		final String name = scheduleRuleRequest.name();
+		final LocalDate startDate = scheduleRuleRequest.startDate();
+		final LocalDate endDate = scheduleRuleRequest.endDate();
+		final List<ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitions = this
+				.mapScheduleRuleTimeRangeDefinition(scheduleRuleRequest.dayOfWeekRanges());
+		return new ScheduleRuleDefinition(name, startDate, endDate, scheduleRuleTimeRangeDefinitions);
 	}
 
 	public List<ScheduleRuleTimeRangeDefinition> mapScheduleRuleTimeRangeDefinition(

@@ -7,6 +7,7 @@ package es.nivel36.janus.policy.employee;
 
 import java.util.Objects;
 
+import es.nivel36.janus.policy.EmployeeAccessPolicy;
 import es.nivel36.janus.policy.Policy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
@@ -19,7 +20,7 @@ public final class ViewEmployeePolicy implements Policy<Long> {
 		Objects.requireNonNull(actor, "actor can't be null");
 		Objects.requireNonNull(employeeId, "employeeId can't be null");
 
-		if (actor.hasRole(Role.JANUS_ADMIN) || actor.hasRole(Role.JANUS_USER)) {
+		if (EmployeeAccessPolicy.hasElevatedAccess(actor)) {
 			return true;
 		}
 		return actor.hasRole(Role.JANUS_EMPLOYEE) && employeeId.equals(actor.employeeId());

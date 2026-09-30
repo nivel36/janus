@@ -96,10 +96,12 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	}
 
 	@Override
-	public ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent(
-			final String employeeNumber, final String worksiteCode, final Instant exitTime,
+	public ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent( //
+			final String employeeNumber, //
+			final String worksiteCode, //
+			final Instant exitTime, //
 			final TransitionClockOutWithoutClockInEventRequest request) {
-		logger.debug("Transition clock-out-without-clock-in event ACTION performed: {}", request.action());
+		logger.debug("Transition clock-out-without-clock-in event ACTION performed");
 		final Employee employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode.trim());
 		final ClockOutWithoutClockInEvent event = this.clockOutWithoutClockInEventService
@@ -112,7 +114,9 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 		} else {
 			transitioned = this.clockOutWithoutClockInEventService.invalidate(event, reason);
 		}
-		return ResponseEntity.ok(this.clockOutWithoutClockInEventResponseMapper.map(transitioned));
+		final ClockOutWithoutClockInEventResponse response = this.clockOutWithoutClockInEventResponseMapper
+				.map(transitioned);
+		return ResponseEntity.ok(response);
 	}
 
 	/**

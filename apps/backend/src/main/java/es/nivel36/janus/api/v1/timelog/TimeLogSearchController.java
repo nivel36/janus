@@ -17,6 +17,7 @@ import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.policy.timelog.TimeLogAuthorizationAdapter;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogSearchCriteria;
+import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 import es.nivel36.janus.service.timelog.TimeLogService;
 
 /**
@@ -27,42 +28,47 @@ public class TimeLogSearchController implements TimeLogSearchResource {
 
 	private final TimeLogService timeLogs;
 	private final TimeLogAuthorizationAdapter authorization;
-	private final Mapper<TimeLog, TimeLogResponse> mapper;
+	private final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper;
 
 	/**
 	 * Creates a controller for searching time logs.
 	 *
-	 * @param timeLogs      service used to search time logs; must not be {@code null}
-	 * @param authorization component that determines the authenticated user's search
-	 *                      scope; must not be {@code null}
-	 * @param mapper        mapper converting time logs to API responses; must not be
-	 *                      {@code null}
+	 * @param timeLogs              service used to search time logs; must not be
+	 *                              {@code null}
+	 * @param authorization         component that determines the authenticated
+	 *                              user's search scope; must not be {@code null}
+	 * @param timeLogResponseMapper timeLogResponseMapper converting time logs to
+	 *                              API responses; must not be {@code null}
 	 */
-	public TimeLogSearchController(final TimeLogService timeLogs, final TimeLogAuthorizationAdapter authorization,
-			@Qualifier("timeLogResponseMapper") final Mapper<TimeLog, TimeLogResponse> mapper) {
+	public TimeLogSearchController( //
+			final TimeLogService timeLogs, //
+			final TimeLogAuthorizationAdapter authorization, //
+			@Qualifier("timeLogResponseMapper") final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper) {
 		this.timeLogs = Objects.requireNonNull(timeLogs);
 		this.authorization = Objects.requireNonNull(authorization);
-		this.mapper = Objects.requireNonNull(mapper);
+		this.timeLogResponseMapper = Objects.requireNonNull(timeLogResponseMapper);
 	}
 
 	/**
 	 * Searches time logs using the requested filters and the authenticated user's
 	 * authorization scope.
 	 *
-	 * @param criteria        validated optional filters; start and end must either both
-	 *                        be present or both be absent
-	 * @param pageable        pagination and sorting information; must not be
-	 *                        {@code null}
+	 * @param criteria       validated optional filters; start and end must either
+	 *                       both be present or both be absent
+	 * @param pageable       pagination and sorting information; must not be
+	 *                       {@code null}
 	 * @param authentication current authentication; must not be {@code null}
 	 * @return a page of matching time log responses
 	 */
 	@Override
-	public ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(final TimeLogSearchCriteria criteria,
-			final Pageable pageable, final Authentication authentication) {
-		final TimeLogSearchCriteria canonicalCriteria = new TimeLogSearchCriteria(
-				this.authorization.effectiveEmployeeNumber(authentication, criteria.employeeNumber()), criteria.employeeEmail(), criteria.start(), criteria.end());
-		return ResponseEntity.ok(this.timeLogs.searchTimeLogs(canonicalCriteria,
-				this.authorization.searchScope(authentication),
-				pageable).map(this.mapper::map));
+	public ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(//
+			final TimeLogSearchCriteria criteria, //
+			final Pageable pageable, //
+			final Authentication authentication) {
+		final TimeLogSearchScope searchScope = this.authorization.searchScope(authentication);
+		final Page<TimeLogResponse> response = this.timeLogs //
+				.searchTimeLogs(criteria, searchScope, pageable) //
+				.map(this.timeLogResponseMapper::map);
+		return ResponseEntity.ok(response);
 	}
 }

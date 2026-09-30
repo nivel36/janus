@@ -6,6 +6,7 @@
 package es.nivel36.janus.policy;
 
 import java.util.Objects;
+import java.util.OptionalLong;
 
 import org.springframework.stereotype.Component;
 
@@ -28,14 +29,38 @@ public class EmployeeNumberResolver {
 			return false;
 		}
 		try {
-			return Objects.equals(actor.employeeId(), this.employees.findEmployeeByEmployeeNumber(employeeNumber).getId());
+			return Objects.equals(actor.employeeId(), this.requireEmployeeId(employeeNumber));
 		} catch (final ResourceNotFoundException exception) {
 			return false;
 		}
 	}
 
+	/** Resolves an identifier, preserving resource-not-found errors for the caller. */
+	public long requireEmployeeId(final String employeeNumber) {
+		return this.employees.findEmployeeByEmployeeNumber(employeeNumber).getId();
+	}
+
+	/** Missing references are data absence; technical failures still propagate. */
+	public OptionalLong employeeId(final String employeeNumber) {
+		if (employeeNumber == null) {
+			return OptionalLong.empty();
+		}
+		try {
+			return OptionalLong.of(this.requireEmployeeId(employeeNumber));
+		} catch (final ResourceNotFoundException exception) {
+			return OptionalLong.empty();
+		}
+	}
+
+	/** Builds filter facts without looking up references for unrestricted callers. */
+	public EmployeeSearchPolicy.Context searchContext(final Actor actor, final String requested,
+			final boolean restricted) {
+		return new EmployeeSearchPolicy.Context(requested != null, restricted && this.owns(actor, requested));
+	}
+
+	/** Supplies the linked employee only when an authorized request has no filter. */
 	public String effectiveNumber(final Actor actor, final String requested, final boolean restricted) {
-		return restricted && actor.employeeId() != null
+		return requested == null && restricted && actor.employeeId() != null
 				? this.employees.findEmployeeById(actor.employeeId()).getEmployeeNumber()
 				: requested;
 	}

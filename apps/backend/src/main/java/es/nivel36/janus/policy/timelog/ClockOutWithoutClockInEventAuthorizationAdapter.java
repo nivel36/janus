@@ -11,8 +11,8 @@ import java.util.OptionalLong;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.employee.EmployeeService;
 
@@ -22,31 +22,33 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 
 	private final ActorResolver actorResolver;
 	private final EmployeeService employeeService;
+	private final EmployeeNumberResolver employeeNumbers;
 	private final ViewClockOutWithoutClockInEventPolicy viewPolicy = new ViewClockOutWithoutClockInEventPolicy();
 	private final ResolveClockOutWithoutClockInEventPolicy resolvePolicy = new ResolveClockOutWithoutClockInEventPolicy();
 	private final InvalidateClockOutWithoutClockInEventPolicy invalidatePolicy = new InvalidateClockOutWithoutClockInEventPolicy();
 
 	public ClockOutWithoutClockInEventAuthorizationAdapter(final ActorResolver actorResolver,
-			final EmployeeService employeeService) {
+			final EmployeeService employeeService, final EmployeeNumberResolver employeeNumbers) {
 		this.actorResolver = Objects.requireNonNull(actorResolver, "actorResolver can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.employeeNumbers = Objects.requireNonNull(employeeNumbers, "employeeNumbers can't be null");
 	}
 
 	public boolean canView(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		final OptionalLong employeeId = this.employeeId(employeeNumber);
+		final OptionalLong employeeId = this.employeeNumbers.employeeId(employeeNumber);
 		return employeeId.isPresent() && this.viewPolicy.allows(actor, employeeId.getAsLong());
 	}
 
 	public boolean canResolve(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		final OptionalLong employeeId = this.employeeId(employeeNumber);
+		final OptionalLong employeeId = this.employeeNumbers.employeeId(employeeNumber);
 		return employeeId.isPresent() && this.resolvePolicy.allows(actor, employeeId.getAsLong());
 	}
 
 	public boolean canInvalidate(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.actorResolver.resolve(authentication);
-		final OptionalLong employeeId = this.employeeId(employeeNumber);
+		final OptionalLong employeeId = this.employeeNumbers.employeeId(employeeNumber);
 		return employeeId.isPresent() && this.invalidatePolicy.allows(actor, employeeId.getAsLong());
 	}
 
@@ -66,14 +68,6 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 		final Actor actor = this.actorResolver.resolve(authentication);
 		final OptionalLong employeeId = this.employeeIdByEmail(email);
 		return employeeId.isPresent() && this.invalidatePolicy.allows(actor, employeeId.getAsLong());
-	}
-
-	private OptionalLong employeeId(final String employeeNumber) {
-		try {
-			return OptionalLong.of(this.employeeService.findEmployeeByEmployeeNumber(employeeNumber).getId());
-		} catch (final ResourceNotFoundException exception) {
-			return OptionalLong.empty();
-		}
 	}
 
 	private OptionalLong employeeIdByEmail(final String email) {

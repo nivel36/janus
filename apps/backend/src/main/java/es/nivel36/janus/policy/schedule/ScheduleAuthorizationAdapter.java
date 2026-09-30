@@ -5,10 +5,10 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import es.nivel36.janus.policy.EmployeeAccessPolicy;
 import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
-import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.EmployeeService;
 
 @Component("scheduleAuthorization")
@@ -31,18 +31,19 @@ public class ScheduleAuthorizationAdapter {
 
 	public boolean canSearch(final Authentication auth, final String employeeNumber) {
 		final Actor a = this.actors.resolve(auth);
-		return this.search.allows(a, this.restricted(a) ? a.employeeId() != null : this.owns(a, employeeNumber));
+		return this.search.allows(a, this.employeeNumbers.searchContext(a, employeeNumber,
+				EmployeeAccessPolicy.isRestrictedToOwnEmployee(a)));
 	}
 
 	public String effectiveEmployeeNumber(final Authentication auth, final String requested) {
 		final Actor a = this.actors.resolve(auth);
-		return this.employeeNumbers.effectiveNumber(a, requested, this.restricted(a));
+		return this.employeeNumbers.effectiveNumber(a, requested, EmployeeAccessPolicy.isRestrictedToOwnEmployee(a));
 	}
 
 	public boolean canView(final Authentication auth, final String code) {
 		final Actor a = this.actors.resolve(auth);
-		return this.view.allows(a, a.employeeId() != null && this.employees
-				.isAssignedToSchedule(a.employeeId(), code));
+		return this.view.allows(a, new ViewSchedulePolicy.Context(a.employeeId() != null && this.employees
+				.isAssignedToSchedule(a.employeeId(), code)));
 	}
 
 	public boolean canCreate(final Authentication a) {
@@ -55,13 +56,5 @@ public class ScheduleAuthorizationAdapter {
 
 	public boolean canDelete(final Authentication a) {
 		return this.delete.allows(this.actors.resolve(a), null);
-	}
-
-	private boolean owns(final Actor a, final String employeeNumber) {
-		return this.employeeNumbers.owns(a, employeeNumber);
-	}
-
-	private boolean restricted(final Actor a) {
-		return a.hasRole(Role.JANUS_EMPLOYEE) && !a.hasRole(Role.JANUS_USER) && !a.hasRole(Role.JANUS_ADMIN);
 	}
 }

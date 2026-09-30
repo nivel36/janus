@@ -100,10 +100,10 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	 * first).</li>
 	 * </ul>
 	 * </p>
-	 *
-	 * @param from          lower bound (inclusive) for {@code entryTime}
 	 * @param employeeId the internal id of the employee whose orphan time logs will be
 	 *                      returned
+	 * @param from          lower bound (inclusive) for {@code entryTime}
+	 *
 	 * @return a list of orphan {@link TimeLog} entities (with {@link Employee} and
 	 *         {@link Worksite} initialized) since {@code from}, ordered most recent
 	 *         first
@@ -120,5 +120,5 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 			AND t.workShift IS NULL
 			ORDER BY t.entryTime DESC
 			""")
-	List<TimeLog> findOrphanTimeLogsSince(Instant from, Long employeeId);
+	List<TimeLog> findOrphanTimeLogsSince(Long employeeId, Instant from);
 }

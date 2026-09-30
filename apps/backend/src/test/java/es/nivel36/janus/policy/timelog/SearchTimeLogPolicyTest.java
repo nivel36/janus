@@ -17,6 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import es.nivel36.janus.policy.EmployeeAccessPolicy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.timelog.TimeLogSearchScope;
@@ -65,7 +66,7 @@ class SearchTimeLogPolicyTest {
 				case TimeLogSearchScope.None _ -> false;
 			};
 			assertThat(visible).as("actor %s viewing employee %s", actor, employeeId)
-					.isEqualTo(view.allows(actor, employeeId.equals(actor.employeeId())));
+					.isEqualTo(view.allows(actor, new EmployeeAccessPolicy.Context(employeeId.equals(actor.employeeId()))));
 		}
 	}
 

@@ -1,12 +1,18 @@
 package es.nivel36.janus.policy.appuser;
 
-import es.nivel36.janus.policy.RolePolicy;
+import java.util.Objects;
+import java.util.UUID;
+
+import es.nivel36.janus.policy.Policy;
+import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 
-/** Pure authorization policy for this resource operation. */
-public final class UpdateCurrentAppUserPolicy extends RolePolicy {
-	
-	public UpdateCurrentAppUserPolicy() {
-		super(Role.JANUS_EMPLOYEE, Role.JANUS_USER, Role.JANUS_ADMIN);
+/** Administrators may update any account; other recognized actors only their own. */
+public final class UpdateCurrentAppUserPolicy implements Policy<UUID> {
+	@Override
+	public boolean allows(final Actor actor, final UUID targetUserId) {
+		Objects.requireNonNull(actor, "actor can't be null");
+		return actor.hasRole(Role.JANUS_ADMIN) || actor.id().equals(targetUserId)
+				&& (actor.hasRole(Role.JANUS_EMPLOYEE) || actor.hasRole(Role.JANUS_USER));
 	}
 }

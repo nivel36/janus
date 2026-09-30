@@ -31,10 +31,6 @@ final class TimeLogSearchSpecifications {
 				predicate = builder.and(predicate,
 						builder.equal(root.get("employee").get("employeeNumber"), criteria.employeeNumber()));
 			}
-			if (criteria.employeeEmail() != null) {
-				predicate = builder.and(predicate,
-						builder.equal(root.get("employee").get("email"), criteria.employeeEmail()));
-			}
 			if (criteria.start() != null) {
 				predicate = builder.and(predicate,
 						builder.greaterThanOrEqualTo(root.get("entryTime"), criteria.start()),

@@ -6,20 +6,30 @@ package es.nivel36.janus.policy.timelog;
 
 import java.util.Objects;
 
+import es.nivel36.janus.policy.EmployeeAccessPolicy;
+import es.nivel36.janus.policy.EmployeeSearchPolicy;
+import es.nivel36.janus.policy.Policy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 
-/** Determines visible time logs without granting permission to execute a search. */
-public final class SearchTimeLogPolicy {
+/** Separates permission to execute a search from the scope of visible rows. */
+public final class SearchTimeLogPolicy implements Policy<EmployeeSearchPolicy.Context> {
+
+	private final EmployeeSearchPolicy search = new EmployeeSearchPolicy();
+
+	@Override
+	public boolean allows(final Actor actor, final EmployeeSearchPolicy.Context context) {
+		return this.search.allows(actor, context);
+	}
 
 	private final ViewTimeLogPolicy view = new ViewTimeLogPolicy();
 
 	public TimeLogSearchScope scope(final Actor actor) {
 		Objects.requireNonNull(actor, "actor can't be null");
-		if (this.view.allows(actor, false)) {
+		if (this.view.allows(actor, new EmployeeAccessPolicy.Context(false))) {
 			return new TimeLogSearchScope.All();
 		}
-		if (this.view.allows(actor, true) && actor.employeeId() != null && actor.employeeId() > 0) {
+		if (this.view.allows(actor, new EmployeeAccessPolicy.Context(true)) && actor.employeeId() != null && actor.employeeId() > 0) {
 			return new TimeLogSearchScope.Employee(actor.employeeId());
 		}
 		return new TimeLogSearchScope.None();

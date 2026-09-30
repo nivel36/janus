@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -39,6 +41,8 @@ import jakarta.validation.constraints.Pattern;
 public interface ScheduleResource {
 
 	@GetMapping
+	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
+	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
 	@PreAuthorize("@scheduleAuthorization.canSearch(authentication, #employeeNumber)")
 	ResponseEntity<Page<ScheduleResponse>> searchSchedules(
 			@RequestParam(required = false) @SearchQuery String query,

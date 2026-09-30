@@ -335,21 +335,22 @@ public class TimeLogService {
 	 * An orphan time log is a log that is not properly paired or finalized
 	 * according to business rules.
 	 * </p>
-	 *
-	 * @param from          lower bound instant for the search. Can't be
-	 *                      {@code null}.
 	 * @param employee employee for whom orphan time logs are
 	 *                      searched. Can't be {@code null}.
+	 * @param from          lower bound instant for the search. Can't be
+	 *                      {@code null}.
+	 *
 	 * @return a list of orphan {@link TimeLog} instances. Never {@code null}.
 	 * @throws NullPointerException if any argument is {@code null}.
 	 */
 	@Transactional(readOnly = true)
-	public TimeLogs findOrphanTimeLogs(final Instant from, final Employee employee) {
+	public TimeLogs findOrphanTimeLogs(final Employee employee, final Instant from) {
 		Objects.requireNonNull(from, "from must not be null");
 		Objects.requireNonNull(employee, "employee must not be null");
 		logger.debug("Finding orphan timeLog from {} and employee {}", from, employee);
 
-		final List<TimeLog> orphanTimeLogs = this.timeLogRepository.findOrphanTimeLogsSince(from, employee.getId());
+		final Long employeeId = employee.getId();
+		final List<TimeLog> orphanTimeLogs = this.timeLogRepository.findOrphanTimeLogsSince(employeeId, from);
 		logger.trace("Found {} orphan time logs", orphanTimeLogs.size());
 		return new TimeLogs(orphanTimeLogs);
 	}

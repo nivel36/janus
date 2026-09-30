@@ -5,15 +5,15 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import es.nivel36.janus.policy.EmployeeAccessPolicy;
 import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
-import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.EmployeeService;
-import es.nivel36.janus.service.worksite.WorksiteService;
 import es.nivel36.janus.service.worksite.WorksiteScope;
+import es.nivel36.janus.service.worksite.WorksiteService;
 
 @Component("worksiteAuthorization")
 public class WorksiteAuthorizationAdapter {
@@ -42,48 +42,53 @@ public class WorksiteAuthorizationAdapter {
 
 	public boolean canSearch(final Authentication auth, final String employeeNumber) {
 		final Actor a = this.actors.resolve(auth);
-		return this.search.allows(a, this.restricted(a) ? a.employeeId() != null : this.owns(a, employeeNumber));
+		return this.search.allows(a, this.employeeNumbers.searchContext(a, employeeNumber,
+				EmployeeAccessPolicy.isRestrictedToOwnEmployee(a)));
 	}
 
 	public String effectiveEmployeeNumber(final Authentication auth, final String requested) {
 		final Actor a = this.actors.resolve(auth);
-		return this.employeeNumbers.effectiveNumber(a, requested, this.restricted(a));
+		return this.employeeNumbers.effectiveNumber(a, requested, EmployeeAccessPolicy.isRestrictedToOwnEmployee(a));
 	}
 
 	public boolean canView(final Authentication auth, final String code) {
-		final Actor a = this.actors.resolve(auth);
-		if (this.elevated(a)) {
-			return true;
-		}
-		if (!this.view.allows(a, null) || a.employeeId() == null) {
-			return false;
+		final Actor actor = this.actors.resolve(auth);
+		return this.view.allows(actor, this.viewContext(actor, code));
+	}
+
+	private ViewWorksitePolicy.Context viewContext(final Actor actor, final String code) {
+		final ViewWorksitePolicy.Context missing = new ViewWorksitePolicy.Context(false, null, false);
+		if (!EmployeeAccessPolicy.isRestrictedToOwnEmployee(actor) || actor.employeeId() == null) {
+			return missing;
 		}
 		try {
-			return switch (this.worksites.findWorksiteByCode(code).getScope()) {
-			case GLOBAL -> true;
-			case ASSIGNED -> this.assigned(a, code);
-			};
+			final WorksiteScope scope = this.worksites.findWorksiteByCode(code).getScope();
+			return new ViewWorksitePolicy.Context(true, scope,
+					scope == WorksiteScope.ASSIGNED && this.assigned(actor, code));
 		} catch (final ResourceNotFoundException ex) {
-			return false;
+			return missing;
 		}
 	}
 
 	public boolean canViewStats(final Authentication auth, final String code) {
 		final Actor a = this.actors.resolve(auth);
-		return this.stats.allows(a, this.assigned(a, code));
+		return this.stats.allows(a, new ViewWorksiteStatsPolicy.Context(this.assigned(a, code)));
 	}
 
 	public boolean canCreate(final Authentication auth, final WorksiteScope scope) {
-		final Actor a = this.actors.resolve(auth);
-		return this.elevated(a) || this.create.allows(a, new CreateWorksitePolicy.Context(
-				this.settings.isEmployeeWorkplaceCreationAllowed(), scope == WorksiteScope.ASSIGNED));
+		final Actor actor = this.actors.resolve(auth);
+		final boolean needsEmployeeFacts = !EmployeeAccessPolicy.hasElevatedAccess(actor);
+		return this.create.allows(actor, new CreateWorksitePolicy.Context(
+				needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
+				scope == WorksiteScope.ASSIGNED));
 	}
 
 	public boolean canUpdate(final Authentication auth, final String code, final WorksiteScope scope) {
-		final Actor a = this.actors.resolve(auth);
-		return this.elevated(a) || this.update.allows(a,
-				new UpdateWorksitePolicy.Context(this.settings.isEmployeeWorkplaceCreationAllowed(),
-						scope == WorksiteScope.ASSIGNED, this.assigned(a, code)));
+		final Actor actor = this.actors.resolve(auth);
+		final boolean needsEmployeeFacts = !EmployeeAccessPolicy.hasElevatedAccess(actor);
+		return this.update.allows(actor, new UpdateWorksitePolicy.Context(
+				needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
+				scope == WorksiteScope.ASSIGNED, needsEmployeeFacts && this.assigned(actor, code)));
 	}
 
 	public boolean canDelete(final Authentication auth) {
@@ -94,19 +99,7 @@ public class WorksiteAuthorizationAdapter {
 		return this.assignments.allows(this.actors.resolve(auth), null);
 	}
 
-	private boolean owns(final Actor a, final String employeeNumber) {
-		return this.employeeNumbers.owns(a, employeeNumber);
-	}
-
 	private boolean assigned(final Actor a, final String code) {
 		return a.employeeId() != null && this.employees.isAssignedToWorksite(a.employeeId(), code);
-	}
-
-	private boolean elevated(final Actor a) {
-		return a.hasRole(Role.JANUS_USER) || a.hasRole(Role.JANUS_ADMIN);
-	}
-
-	private boolean restricted(final Actor a) {
-		return a.hasRole(Role.JANUS_EMPLOYEE) && !a.hasRole(Role.JANUS_USER) && !a.hasRole(Role.JANUS_ADMIN);
 	}
 }

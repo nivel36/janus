@@ -32,7 +32,11 @@ import es.nivel36.janus.service.schedule.Schedule;
  * @param exitTolerance  allowed tolerance for exit times
  * @param rules          rules associated with the schedule
  */
-public record ScheduleResponse(String code, String name, Duration entryTolerance, Duration exitTolerance,
+public record ScheduleResponse( //
+		String code, //
+		String name, //
+		Duration entryTolerance, //
+		Duration exitTolerance, //
 		List<ScheduleRuleResponse> rules) {
 
 	/**
@@ -45,7 +49,10 @@ public record ScheduleResponse(String code, String name, Duration entryTolerance
 	 *                        active
 	 * @param dayOfWeekRanges day specific working ranges belonging to the rule
 	 */
-	public record ScheduleRuleResponse(String name, LocalDate startDate, LocalDate endDate,
+	public record ScheduleRuleResponse( //
+			String name, //
+			LocalDate startDate, //
+			LocalDate endDate, //
 			List<DayOfWeekTimeRangeResponse> dayOfWeekRanges) {
 	}
 
@@ -59,7 +66,9 @@ public record ScheduleResponse(String code, String name, Duration entryTolerance
 	 * @param timeRange          start-inclusive and end-exclusive time range for
 	 *                           the shift, or {@code null} when no range is set
 	 */
-	public record DayOfWeekTimeRangeResponse(DayOfWeek dayOfWeek, Duration effectiveWorkHours,
+	public record DayOfWeekTimeRangeResponse( //
+			DayOfWeek dayOfWeek, //
+			Duration effectiveWorkHours, //
 			TimeRangeResponse timeRange) {
 	}
 

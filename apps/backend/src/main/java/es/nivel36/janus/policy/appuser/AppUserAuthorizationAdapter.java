@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
-import es.nivel36.janus.service.appuser.Role;
 
 @Component("appUserAuthorization")
 public class AppUserAuthorizationAdapter {
@@ -21,7 +20,7 @@ public class AppUserAuthorizationAdapter {
 
 	public boolean canUpdate(final Authentication a, final UUID id) {
 		final Actor actor = this.actors.resolve(a);
-		return actor.hasRole(Role.JANUS_ADMIN) || (actor.id().equals(id) && this.updateCurrent.allows(actor, null));
+		return this.updateCurrent.allows(actor, id);
 	}
 
 	public boolean canDelete(final Authentication a) {
