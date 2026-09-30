@@ -94,7 +94,30 @@ class CatalogControllerIT {
 
 	@Test
 	void testSearchTimeZonesShouldSortByUtcWhenRequested() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("sortBy", "UTC").queryParam("page", "0").queryParam("size", "20")
+		this.mvc.perform(get(BASE).queryParam("sort", "utc,asc").queryParam("page", "0").queryParam("size", "20")
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.andExpect(status().isOk()) //
+				.andExpect(jsonPath("$.content[0].utc").value(Matchers.startsWith("UTC-")));
+	}
+
+	@Test
+	void testSearchTimeZonesShouldRejectUnknownSortProperty() throws Exception {
+		this.mvc.perform(get(BASE).queryParam("sort", "unknown,asc")
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void testSearchTimeZonesShouldIgnoreLegacySortByParameter() throws Exception {
+		this.mvc.perform(get(BASE).queryParam("sortBy", "UNKNOWN")
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void testSearchTimeZonesShouldUsePageableSortWhenLegacySortByIsAlsoSent() throws Exception {
+		this.mvc.perform(get(BASE).queryParam("sortBy", "LEVEL1").queryParam("sort", "utc,asc")
+				.queryParam("page", "0").queryParam("size", "20")
 				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isOk()) //
 				.andExpect(jsonPath("$.content[0].utc").value(Matchers.startsWith("UTC-")));

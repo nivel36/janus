@@ -26,6 +26,7 @@ import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 /**
@@ -55,12 +56,11 @@ public class TimeZoneCatalogService {
 	 * </p>
 	 *
 	 * @param query    optional search text applied to the full zone id
-	 * @param sortBy   sort strategy for the resulting catalog page
-	 * @param pageable Spring pagination information (page and size)
+	 * @param pageable pagination and sorting information; supported sort properties
+	 *                 are {@code level1}, {@code level2}, and {@code utc}
 	 * @return a page of catalog items matching the input filters
 	 */
-	public Page<TimeZoneCatalogItem> search(final String query, final TimeZoneSortBy sortBy, final Pageable pageable) {
-		Objects.requireNonNull(sortBy, "sortBy can't be null");
+	public Page<TimeZoneCatalogItem> search(final String query, final Pageable pageable) {
 		Objects.requireNonNull(pageable, "pageable can't be null");
 
 		final String normalizedQuery = query == null ? null : query.toLowerCase(Locale.ROOT);
@@ -70,7 +70,7 @@ public class TimeZoneCatalogService {
 				.map(zoneId -> this.map(zoneId, now))
 				.filter(item -> normalizedQuery == null || normalizedQuery.isBlank()
 						|| item.zoneId().toLowerCase(Locale.ROOT).contains(normalizedQuery))
-				.sorted(this.resolveSort(sortBy)).toList();
+				.sorted(this.resolveSort(pageable.getSort())).toList();
 
 		final int start = Math.toIntExact(pageable.getOffset());
 		if (start >= filtered.size()) {
@@ -105,11 +105,19 @@ public class TimeZoneCatalogService {
 		return "UTC" + sign + hours + ":" + String.format("%02d", minutes);
 	}
 
-	private Comparator<TimeZoneCatalogItem> resolveSort(final TimeZoneSortBy sortBy) {
-		return switch (sortBy) {
-		case LEVEL1 -> Comparator.comparing(TimeZoneCatalogItem::level1).thenComparing(TimeZoneCatalogItem::zoneId);
-		case UTC ->
-			Comparator.comparingInt(TimeZoneCatalogItem::offsetSeconds).thenComparing(TimeZoneCatalogItem::zoneId);
-		};
+	private Comparator<TimeZoneCatalogItem> resolveSort(final Sort sort) {
+		Comparator<TimeZoneCatalogItem> comparator = null;
+		for (final Sort.Order order : sort) {
+			Comparator<TimeZoneCatalogItem> propertyComparator = switch (order.getProperty()) {
+			case "level1" -> Comparator.comparing(TimeZoneCatalogItem::level1);
+			case "level2" -> Comparator.comparing(TimeZoneCatalogItem::level2);
+			case "utc" -> Comparator.comparingInt(TimeZoneCatalogItem::offsetSeconds);
+			default -> throw new IllegalArgumentException("Unsupported time-zone sort property: " + order.getProperty());
+			};
+			if (order.isDescending()) propertyComparator = propertyComparator.reversed();
+			comparator = comparator == null ? propertyComparator : comparator.thenComparing(propertyComparator);
+		}
+		return (comparator == null ? Comparator.comparing(TimeZoneCatalogItem::zoneId) : comparator)
+				.thenComparing(TimeZoneCatalogItem::zoneId);
 	}
 }
