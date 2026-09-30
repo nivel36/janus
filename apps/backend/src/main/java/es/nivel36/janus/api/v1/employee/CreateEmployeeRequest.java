@@ -37,6 +37,7 @@ import jakarta.validation.constraints.Pattern;
 public record CreateEmployeeRequest( //
 		@EmployeeNumber //
 		String employeeNumber, //
+		
 		@NotBlank(message = "name must not be blank") //
 		@Pattern( //
 				regexp = "^[\\p{L} .,'-]{1,255}$", //

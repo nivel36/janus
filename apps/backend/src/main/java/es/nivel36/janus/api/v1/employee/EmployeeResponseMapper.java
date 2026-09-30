@@ -31,8 +31,11 @@ public class EmployeeResponseMapper implements Mapper<Employee, EmployeeResponse
 		if (employee == null) {
 			return null;
 		}
-		return new EmployeeResponse(employee.getEmployeeNumber(), employee.getName(), employee.getSurname(), employee.getEmail(),
+		return new EmployeeResponse( //
+				employee.getEmployeeNumber(), //
+				employee.getName(), //
+				employee.getSurname(), //
+				employee.getEmail(), //
 				employee.getSchedule().getCode());
 	}
-
 }

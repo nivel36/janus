@@ -15,8 +15,6 @@
  */
 package es.nivel36.janus.api.v1.applicationsettings;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-
 import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 
 /**
@@ -40,8 +38,8 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
  */
 public record ApplicationSettingsResponse( //
 		int daysUntilLocked, //
-		@JsonAlias("employeeWorkplaceCreationAllowed") boolean employeeWorksiteCreationAllowed, //
+		boolean employeeWorksiteCreationAllowed, //
 		boolean worksiteChangeDuringShiftAllowed, //
-		@JsonAlias("employeeManualTimelogEntryAllowed") boolean employeeManualTimeLogEntryAllowed, //
+		boolean employeeManualTimeLogEntryAllowed, //
 		String defaultTimezone) {
 }

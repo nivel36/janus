@@ -44,7 +44,5 @@ public interface AppUserResource {
 
 	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{id}")
-	ResponseEntity<Void> deleteAppUser( //
-			@PathVariable UUID id);
-
+	ResponseEntity<Void> deleteAppUser(@PathVariable UUID id);
 }

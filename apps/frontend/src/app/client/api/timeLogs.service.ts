@@ -107,72 +107,6 @@ export class TimeLogsService extends BaseService {
     /**
      * @param employeeNumber
      * @param worksiteCode
-     * @param entryTime
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public clockInLegacy(employeeNumber: string, worksiteCode: string, entryTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public clockInLegacy(employeeNumber: string, worksiteCode: string, entryTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public clockInLegacy(employeeNumber: string, worksiteCode: string, entryTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public clockInLegacy(employeeNumber: string, worksiteCode: string, entryTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling clockInLegacy.');
-        }
-        if (worksiteCode === null || worksiteCode === undefined) {
-            throw new Error('Required parameter worksiteCode was null or undefined when calling clockInLegacy.');
-        }
-
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>worksiteCode, 'worksiteCode');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>entryTime, 'entryTime');
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/timelogs/clock-in`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @param employeeNumber
-     * @param worksiteCode
      * @param exitTime
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -220,72 +154,6 @@ export class TimeLogsService extends BaseService {
         }
 
         let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/clock-out`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @param employeeNumber
-     * @param worksiteCode
-     * @param exitTime
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public clockOutLegacy(employeeNumber: string, worksiteCode: string, exitTime?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public clockOutLegacy(employeeNumber: string, worksiteCode: string, exitTime?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public clockOutLegacy(employeeNumber: string, worksiteCode: string, exitTime?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public clockOutLegacy(employeeNumber: string, worksiteCode: string, exitTime?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling clockOutLegacy.');
-        }
-        if (worksiteCode === null || worksiteCode === undefined) {
-            throw new Error('Required parameter worksiteCode was null or undefined when calling clockOutLegacy.');
-        }
-
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>worksiteCode, 'worksiteCode');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>exitTime, 'exitTime');
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/timelogs/clock-out`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
             {
@@ -379,83 +247,6 @@ export class TimeLogsService extends BaseService {
 
     /**
      * @param employeeNumber
-     * @param worksiteCode
-     * @param createTimeLogRequest
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public createTimeLogLegacy(employeeNumber: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public createTimeLogLegacy(employeeNumber: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public createTimeLogLegacy(employeeNumber: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public createTimeLogLegacy(employeeNumber: string, worksiteCode: string, createTimeLogRequest: CreateTimeLogRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling createTimeLogLegacy.');
-        }
-        if (worksiteCode === null || worksiteCode === undefined) {
-            throw new Error('Required parameter worksiteCode was null or undefined when calling createTimeLogLegacy.');
-        }
-        if (createTimeLogRequest === null || createTimeLogRequest === undefined) {
-            throw new Error('Required parameter createTimeLogRequest was null or undefined when calling createTimeLogLegacy.');
-        }
-
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>worksiteCode, 'worksiteCode');
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/timelogs`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TimeLogResponse>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: createTimeLogRequest,
-                params: localVarQueryParameters,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @param employeeNumber
      * @param entryTime
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -515,63 +306,6 @@ export class TimeLogsService extends BaseService {
      * @param entryTime
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public deleteTimeLogLegacy(employeeNumber: string, entryTime: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteTimeLogLegacy(employeeNumber: string, entryTime: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteTimeLogLegacy(employeeNumber: string, entryTime: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteTimeLogLegacy(employeeNumber: string, entryTime: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling deleteTimeLogLegacy.');
-        }
-        if (entryTime === null || entryTime === undefined) {
-            throw new Error('Required parameter entryTime was null or undefined when calling deleteTimeLogLegacy.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/timelogs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @param employeeNumber
-     * @param entryTime
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
      */
     public findTimeLogByEmployeeAndEntryTime(employeeNumber: string, entryTime: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
     public findTimeLogByEmployeeAndEntryTime(employeeNumber: string, entryTime: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
@@ -610,64 +344,6 @@ export class TimeLogsService extends BaseService {
         }
 
         let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/time-logs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TimeLogResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @param employeeNumber
-     * @param entryTime
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @deprecated
-     */
-    public findTimeLogLegacy(employeeNumber: string, entryTime: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogResponse>;
-    public findTimeLogLegacy(employeeNumber: string, entryTime: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogResponse>>;
-    public findTimeLogLegacy(employeeNumber: string, entryTime: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogResponse>>;
-    public findTimeLogLegacy(employeeNumber: string, entryTime: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (employeeNumber === null || employeeNumber === undefined) {
-            throw new Error('Required parameter employeeNumber was null or undefined when calling findTimeLogLegacy.');
-        }
-        if (entryTime === null || entryTime === undefined) {
-            throw new Error('Required parameter entryTime was null or undefined when calling findTimeLogLegacy.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/employees/${this.configuration.encodeParam({name: "employeeNumber", value: employeeNumber, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/timelogs/${this.configuration.encodeParam({name: "entryTime", value: entryTime, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "date-time"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TimeLogResponse>('get', `${basePath}${localVarPath}`,
             {
@@ -758,10 +434,7 @@ export class TimeLogsService extends BaseService {
     }
 
     /**
-     * The start and end time-range bounds must be provided together or both omitted. When present, start must be before end.
-     * @param employeeEmail
-     * @param start Inclusive lower bound of the half-open interval [start, end). Must be provided together with end.
-     * @param end Exclusive upper bound of the half-open interval [start, end). Must be provided together with start and be after it.
+     * Compatibility mapping for the legacy time-log collection path.
      * @param page
      * @param size
      * @param sort
@@ -769,18 +442,12 @@ export class TimeLogsService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @deprecated
      */
-    public searchTimeLogsLegacy(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogPage>;
-    public searchTimeLogsLegacy(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogPage>>;
-    public searchTimeLogsLegacy(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogPage>>;
-    public searchTimeLogsLegacy(employeeEmail?: string, start?: string, end?: string, page?: number, size?: number, sort?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public searchTimeLogsLegacy(page?: number, size?: number, sort?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TimeLogPage>;
+    public searchTimeLogsLegacy(page?: number, size?: number, sort?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TimeLogPage>>;
+    public searchTimeLogsLegacy(page?: number, size?: number, sort?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TimeLogPage>>;
+    public searchTimeLogsLegacy(page?: number, size?: number, sort?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>employeeEmail, 'employeeEmail');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>start, 'start');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>end, 'end');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>page, 'page');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,

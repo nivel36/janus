@@ -15,13 +15,10 @@
  */
 package es.nivel36.janus.api.v1.applicationsettings;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-
+import es.nivel36.janus.api.validation.ValidTimeZone;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-
-import es.nivel36.janus.api.validation.ValidTimeZone;
 
 /**
  * Request payload used to update global application settings.
@@ -51,14 +48,12 @@ public record UpdateApplicationSettingsRequest(
 		@NotNull(message = "daysUntilLocked is required") //
 		Integer daysUntilLocked, //
 
-		@JsonAlias("employeeWorkplaceCreationAllowed") // Legacy input alias; remove after the migration window.
 		@NotNull(message = "employeeWorksiteCreationAllowed is required") //
 		Boolean employeeWorksiteCreationAllowed, //
 
 		@NotNull(message = "worksiteChangeDuringShiftAllowed is required") //
 		Boolean worksiteChangeDuringShiftAllowed, //
 
-		@JsonAlias("employeeManualTimelogEntryAllowed") // Legacy input alias; remove after the migration window.
 		@NotNull(message = "employeeManualTimeLogEntryAllowed is required") //
 		Boolean employeeManualTimeLogEntryAllowed, //
 

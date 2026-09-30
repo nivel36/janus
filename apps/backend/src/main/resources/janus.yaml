@@ -529,6 +529,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TimeLogPage'
+  /timelogs:
+    get:
+      tags:
+      - time-logs
+      operationId: searchTimeLogsLegacy
+      deprecated: true
+      description: Compatibility mapping for the legacy time-log collection path.
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 0
+      - name: size
+        in: query
+        schema:
+          type: integer
+          default: 20
+      - name: sort
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: true
+      responses:
+        '200':
+          description: Paginated time logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeLogPage'
   /employees/{employeeNumber}/time-logs/clock-in:
     post:
       tags:
@@ -671,126 +704,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-  /employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}/resolve:
-    parameters: *id003
-    post:
-      tags:
-      - clock-out-without-clock-in-events
-      operationId: resolveClockOutWithoutClockInEvent
-      deprecated: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResolveClockOutWithoutClockInEventRequest'
-  /employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}/invalidate:
-    parameters: *id003
-    post:
-      tags:
-      - clock-out-without-clock-in-events
-      operationId: invalidateClockOutWithoutClockInEvent
-      deprecated: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InvalidateClockOutWithoutClockInEventRequest'
-  /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}:
-    parameters: &id004
-    - *id001
-    - name: exitTime
-      in: path
-      required: true
-      schema:
-        type: string
-        format: date-time
-    - *id002
-    get:
-      tags:
-      - clock-out-without-clock-in-events
-      operationId: findClockOutWithoutClockInEventLegacy
-      deprecated: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-    patch:
-      tags:
-      - clock-out-without-clock-in-events
-      operationId: transitionClockOutWithoutClockInEventLegacy
-      deprecated: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TransitionClockOutWithoutClockInEventRequest'
-      responses:
-        '200':
-          description: Event transitioned to its requested final state
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-  /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/resolve:
-    parameters: *id004
-    post:
-      tags:
-      - clock-out-without-clock-in-events
-      operationId: resolveClockOutWithoutClockInEventLegacy
-      deprecated: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResolveClockOutWithoutClockInEventRequest'
-  /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/invalidate:
-    parameters: *id004
-    post:
-      tags:
-      - clock-out-without-clock-in-events
-      operationId: invalidateClockOutWithoutClockInEventLegacy
-      deprecated: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InvalidateClockOutWithoutClockInEventRequest'
   /worksites/{worksiteCode}/employees/{employeeNumber}:
     parameters:
     - name: worksiteCode
@@ -814,111 +727,6 @@ paths:
       responses:
         '204':
           description: Employee removed from the worksite; no content is returned.
-  # Compatibility mappings remain public during the employee identifier and
-  # compound-resource migrations. They will be removed in the next major version.
-  /appusers/me:
-    get:
-      tags: [app-users]
-      operationId: findCurrentAppUserLegacy
-      deprecated: true
-      responses:
-        '200': { description: Current application user, content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } } }
-  /appusers/{id}:
-    parameters:
-    - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
-    put:
-      tags: [app-users]
-      operationId: updateAppUserLegacy
-      deprecated: true
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateAppUserRequest' } } } }
-      responses:
-        '200': { description: Updated application user, content: { application/json: { schema: { $ref: '#/components/schemas/AppUserResponse' } } } }
-    delete:
-      tags: [app-users]
-      operationId: deleteAppUserLegacy
-      deprecated: true
-      responses:
-        '204': { description: Application user deleted }
-  /applicationsettings:
-    get:
-      tags: [application-settings]
-      operationId: findApplicationSettingsLegacy
-      deprecated: true
-      responses:
-        '200': { description: Current settings, content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSettingsResponse' } } } }
-    put:
-      tags: [application-settings]
-      operationId: updateApplicationSettingsLegacy
-      deprecated: true
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateApplicationSettingsRequest' } } } }
-      responses:
-        '200': { description: Updated settings, content: { application/json: { schema: { $ref: '#/components/schemas/ApplicationSettingsResponse' } } } }
-  /timelogs:
-    get:
-      tags: [time-logs]
-      operationId: searchTimeLogsLegacy
-      deprecated: true
-      description: The start and end time-range bounds must be provided together or both omitted. When present, start must be before end.
-      parameters:
-      - name: employeeEmail
-        in: query
-        schema:
-          type: string
-          format: email
-      - { name: start, in: query, description: "Inclusive lower bound of the half-open interval [start, end). Must be provided together with end.", schema: { type: string, format: date-time } }
-      - { name: end, in: query, description: "Exclusive upper bound of the half-open interval [start, end). Must be provided together with start and be after it.", schema: { type: string, format: date-time } }
-      - { name: page, in: query, schema: { type: integer, default: 0 } }
-      - { name: size, in: query, schema: { type: integer, default: 20 } }
-      - { name: sort, in: query, schema: { type: array, items: { type: string } }, style: form, explode: true }
-      responses:
-        '200': { description: Paginated time logs, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogPage' } } } }
-  /employees/{employeeNumber}/timelogs/clock-in:
-    post:
-      tags: [time-logs]
-      operationId: clockInLegacy
-      deprecated: true
-      parameters:
-      - *id001
-      - *id002
-      - { name: entryTime, in: query, schema: { type: string, format: date-time } }
-      responses:
-        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-  /employees/{employeeNumber}/timelogs/clock-out:
-    post:
-      tags: [time-logs]
-      operationId: clockOutLegacy
-      deprecated: true
-      parameters:
-      - *id001
-      - *id002
-      - { name: exitTime, in: query, schema: { type: string, format: date-time } }
-      responses:
-        '200': { description: Closed time log, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-  /employees/{employeeNumber}/timelogs:
-    post:
-      tags: [time-logs]
-      operationId: createTimeLogLegacy
-      deprecated: true
-      parameters: [*id001, *id002]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateTimeLogRequest' } } } }
-      responses:
-        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-  /employees/{employeeNumber}/timelogs/{entryTime}:
-    parameters:
-    - *id001
-    - { name: entryTime, in: path, required: true, schema: { type: string, format: date-time } }
-    get:
-      tags: [time-logs]
-      operationId: findTimeLogLegacy
-      deprecated: true
-      responses:
-        '200': { description: Time log, content: { application/json: { schema: { $ref: '#/components/schemas/TimeLogResponse' } } } }
-    delete:
-      tags: [time-logs]
-      operationId: deleteTimeLogLegacy
-      deprecated: true
-      responses:
-        '204': { description: Time log deleted }
 components:
   securitySchemes:
     bearerAuth:
