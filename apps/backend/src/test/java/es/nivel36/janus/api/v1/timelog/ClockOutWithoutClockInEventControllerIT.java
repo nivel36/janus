@@ -21,7 +21,6 @@ import static org.springframework.security.core.authority.AuthorityUtils.createA
 import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -91,28 +90,28 @@ class ClockOutWithoutClockInEventControllerIT {
 		final var outsider = verifiedJwt().jwt(jwt -> jwt.subject("outsider-subject"));
 
 		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").with(employee)).andExpect(status().isOk());
-		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
-				.content("{\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isOk());
-		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "EMP-0001", "OFFICE", "2025-08-05T16:00:00Z").contentType(APPLICATION_JSON).content("{}").with(employee))
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+				.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isOk());
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-05T16:00:00Z").contentType(APPLICATION_JSON).content("{\"action\":\"INVALIDATE\"}").with(employee))
 				.andExpect(status().isOk());
 
 		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").with(employee)).andExpect(status().isForbidden());
-		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
-				.content("{\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isForbidden());
-		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON).content("{}").with(employee))
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+				.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isForbidden());
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON).content("{\"action\":\"INVALIDATE\"}").with(employee))
 				.andExpect(status().isForbidden());
 		this.mvc.perform(get(BASE + "/{exitTime}", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").with(employee)).andExpect(status().isForbidden())
 				.andExpect(jsonPath("$.detail").value("You are not authorized to perform this operation"));
-		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
-				.content("{\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isForbidden());
-		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON).content("{}").with(employee))
+		this.mvc.perform(patch(BASE + "/{exitTime}", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+				.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isForbidden());
+		this.mvc.perform(patch(BASE + "/{exitTime}", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON).content("{\"action\":\"INVALIDATE\"}").with(employee))
 				.andExpect(status().isForbidden());
 
 		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").with(admin)).andExpect(status().isOk());
 		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").with(outsider)).andExpect(status().isForbidden());
-		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
-				.content("{\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(outsider)).andExpect(status().isForbidden());
-		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON).content("{}").with(outsider))
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+				.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(outsider)).andExpect(status().isForbidden());
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON).content("{\"action\":\"INVALIDATE\"}").with(outsider))
 				.andExpect(status().isForbidden());
 	}
 
@@ -153,10 +152,10 @@ class ClockOutWithoutClockInEventControllerIT {
 		final String exit = "2025-08-04T16:00:00Z";
 		final String entry = "2025-08-04T09:00:00Z";
 		final String body = """
-				  {"entryTime":"%s","reason":"Worked from home before the transfer"}
+				  {"action":"RESOLVE","entryTime":"%s","reason":"Worked from home before the transfer"}
 				""".formatted(entry);
 
-		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "EMP-0001", "HOME-AF", exit) //
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit) //
 				.contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
@@ -169,7 +168,7 @@ class ClockOutWithoutClockInEventControllerIT {
 				.andExpect(jsonPath("$.resolvedTimeLogEntry").value(entry)) //
 				.andExpect(jsonPath("$.resolvedTimeLogExitTime").value(exit));
 
-		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "EMP-0001", "HOME-AF", exit) //
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit) //
 				.contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
@@ -191,10 +190,10 @@ class ClockOutWithoutClockInEventControllerIT {
 	void testInvalidateClockOutWithoutClockInEventShouldAllowTransferredPersonalWorksite() throws Exception {
 		final String exit = "2025-08-04T16:00:00Z";
 		final String body = """
-				  {"reason":"Handled manually after transfer"}
+				  {"action":"INVALIDATE","reason":"Handled manually after transfer"}
 				""";
 
-		this.mvc.perform(post(BASE + "/{exitTime}/invalidate", "EMP-0001", "HOME-AF", exit) //
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit) //
 				.contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
@@ -218,10 +217,10 @@ class ClockOutWithoutClockInEventControllerIT {
 		final String exit = "2025-08-04T16:00:00Z";
 		final String entry = "2025-08-04T09:00:00Z";
 		final String body = """
-				  {"entryTime":"%s","reason":"Worked from home before the transfer"}
+				  {"action":"RESOLVE","entryTime":"%s","reason":"Worked from home before the transfer"}
 				""".formatted(entry);
 
-		this.mvc.perform(post(BASE + "/{exitTime}/resolve", "EMP-0001", "HOME-AF", exit) //
+		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit) //
 				.contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //

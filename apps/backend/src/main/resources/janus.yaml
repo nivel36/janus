@@ -535,39 +535,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TimeLogPage'
-  /timelogs:
-    get:
-      tags:
-      - time-logs
-      operationId: searchTimeLogsLegacy
-      deprecated: true
-      description: Compatibility mapping for the legacy time-log collection path.
-      parameters:
-      - name: page
-        in: query
-        schema:
-          type: integer
-          default: 0
-      - name: size
-        in: query
-        schema:
-          type: integer
-          default: 20
-      - name: sort
-        in: query
-        schema:
-          type: array
-          items:
-            type: string
-        style: form
-        explode: true
-      responses:
-        '200':
-          description: Paginated time logs
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimeLogPage'
   /employees/{employeeNumber}/time-logs/clock-in:
     post:
       tags:
