@@ -21,10 +21,9 @@ import java.time.DateTimeException;
 import java.time.format.DateTimeParseException;
 import java.time.zone.ZoneRulesException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +87,6 @@ public class JanusExceptionHandler {
 	private static final URI TYPE_MISSING_PARAMETER = URI.create("urn:problem:missing-parameter");
 	private static final URI TYPE_TYPE_MISMATCH = URI.create("urn:problem:type-mismatch");
 	private static final URI TYPE_VALIDATION_FAILED = URI.create("urn:problem:validation-failed");
-	private static final URI TYPE_VALIDATION_ERROR = URI.create("urn:problem:validation-error");
 	private static final URI TYPE_CONSTRAINT_VIOLATION = URI.create("urn:problem:constraint-violation");
 	private static final URI TYPE_INTERNAL_ERROR = URI.create("urn:problem:internal");
 	private static final URI TYPE_ACCESS_DENIED = URI.create("urn:problem:access-denied");
@@ -365,31 +363,27 @@ public class JanusExceptionHandler {
 		pd.setTitle("Validation failed");
 		pd.setDetail("Request contains invalid fields");
 		pd.setProperty("errors", ex.getBindingResult().getFieldErrors().stream()
-				.map(err -> "%s: %s".formatted(err.getField(), err.getDefaultMessage())).toList());
+				.map(err -> new ValidationError(err.getField(), err.getDefaultMessage(), firstCode(err))).toList());
 		this.addCommonProps(pd, request);
 		logger.warn("MethodArgumentNotValidException error {}", pd);
 		return pd;
 	}
 
 	@ExceptionHandler(HandlerMethodValidationException.class)
-	ProblemDetail handle(final HandlerMethodValidationException ex) {
+	ProblemDetail handle(final HandlerMethodValidationException ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-		pd.setType(TYPE_VALIDATION_ERROR);
-		pd.setTitle("Validation error");
-		pd.setDetail("Request parameters/path are invalid");
+		pd.setType(TYPE_VALIDATION_FAILED);
+		pd.setTitle("Validation failed");
+		pd.setDetail("Request contains invalid fields");
 
-		final List<Map<String, String>> errors = new ArrayList<>();
+		final List<ValidationError> errors = new ArrayList<>();
 		for (final ParameterValidationResult pvr : ex.getParameterValidationResults()) {
 			for (final MessageSourceResolvable msr : pvr.getResolvableErrors()) {
-				final String fullCode = msr.getCodes()[1];
-				final StringTokenizer st = new StringTokenizer(fullCode, ".");
-				final String code = st.nextToken();
-				final String field = st.nextToken();
-				final String message = msr.getDefaultMessage();
-				errors.add(Map.of("name", field, "reason", message, "code", code));
+				errors.add(new ValidationError(parameterName(pvr), msr.getDefaultMessage(), firstCode(msr)));
 			}
 		}
 		pd.setProperty("errors", errors);
+		this.addCommonProps(pd, request);
 		logger.warn("HandlerMethodValidationException error {}", pd);
 		return pd;
 	}
@@ -400,8 +394,10 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_CONSTRAINT_VIOLATION);
 		pd.setTitle("Constraint violation");
 		pd.setDetail("One or more constraints were violated");
-		pd.setProperty("violations", ex.getConstraintViolations().stream()
-				.map(v -> "%s: %s".formatted(v.getPropertyPath(), v.getMessage())).toList());
+		pd.setProperty("errors", ex.getConstraintViolations().stream()
+				.map(v -> new ValidationError(v.getPropertyPath().toString(), v.getMessage(),
+						v.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName()))
+				.toList());
 		this.addCommonProps(pd, request);
 		logger.warn("ConstraintViolationException error {}", pd);
 		return pd;
@@ -435,5 +431,22 @@ public class JanusExceptionHandler {
 		if (request != null) {
 			pd.setProperty("instance", request.getRequestURI());
 		}
+	}
+
+	private static String firstCode(final MessageSourceResolvable error) {
+		return Arrays.stream(error.getCodes() == null ? new String[0] : error.getCodes())
+				.filter(Objects::nonNull)
+				.map(code -> code.split("\\.", 2)[0])
+				.filter(code -> !code.isBlank())
+				.findFirst()
+				.orElse("Validation");
+	}
+
+	private static String parameterName(final ParameterValidationResult result) {
+		final String name = result.getMethodParameter().getParameterName();
+		return name == null || name.isBlank() ? "argument" : name;
+	}
+
+	private record ValidationError(String name, String reason, String code) {
 	}
 }
