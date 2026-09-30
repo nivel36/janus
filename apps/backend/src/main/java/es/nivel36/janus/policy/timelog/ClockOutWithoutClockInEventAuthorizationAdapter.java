@@ -8,10 +8,13 @@ package es.nivel36.janus.policy.timelog;
 import java.util.Objects;
 import java.util.OptionalLong;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import es.nivel36.janus.api.v1.timelog.ClockOutWithoutClockInEventAction;
 import es.nivel36.janus.policy.EmployeeNumberResolver;
+import es.nivel36.janus.policy.Policy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.employee.EmployeeService;
@@ -24,14 +27,24 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 	private final EmployeeService employeeService;
 	private final EmployeeNumberResolver employeeNumbers;
 	private final ViewClockOutWithoutClockInEventPolicy viewPolicy = new ViewClockOutWithoutClockInEventPolicy();
-	private final ResolveClockOutWithoutClockInEventPolicy resolvePolicy = new ResolveClockOutWithoutClockInEventPolicy();
-	private final InvalidateClockOutWithoutClockInEventPolicy invalidatePolicy = new InvalidateClockOutWithoutClockInEventPolicy();
+	private final Policy<Long> resolvePolicy;
+	private final Policy<Long> invalidatePolicy;
 
+	@Autowired
 	public ClockOutWithoutClockInEventAuthorizationAdapter(final ActorResolver actorResolver,
 			final EmployeeService employeeService, final EmployeeNumberResolver employeeNumbers) {
+		this(actorResolver, employeeService, employeeNumbers, new ResolveClockOutWithoutClockInEventPolicy(),
+				new InvalidateClockOutWithoutClockInEventPolicy());
+	}
+
+	ClockOutWithoutClockInEventAuthorizationAdapter(final ActorResolver actorResolver,
+			final EmployeeService employeeService, final EmployeeNumberResolver employeeNumbers,
+			final Policy<Long> resolvePolicy, final Policy<Long> invalidatePolicy) {
 		this.actorResolver = Objects.requireNonNull(actorResolver, "actorResolver can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.employeeNumbers = Objects.requireNonNull(employeeNumbers, "employeeNumbers can't be null");
+		this.resolvePolicy = Objects.requireNonNull(resolvePolicy, "resolvePolicy can't be null");
+		this.invalidatePolicy = Objects.requireNonNull(invalidatePolicy, "invalidatePolicy can't be null");
 	}
 
 	public boolean canView(final Authentication authentication, final String employeeNumber) {
@@ -50,6 +63,29 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 		final Actor actor = this.actorResolver.resolve(authentication);
 		final OptionalLong employeeId = this.employeeNumbers.employeeId(employeeNumber);
 		return employeeId.isPresent() && this.invalidatePolicy.allows(actor, employeeId.getAsLong());
+	}
+
+	/**
+	 * Authorizes only the policy associated with the requested transition.
+	 *
+	 * @return {@code false} when no action was supplied
+	 */
+	public boolean canTransition(final Authentication authentication, final String employeeNumber,
+			final ClockOutWithoutClockInEventAction action) {
+		if (action == null) {
+			return false;
+		}
+
+		final Actor actor = this.actorResolver.resolve(authentication);
+		final OptionalLong employeeId = this.employeeNumbers.employeeId(employeeNumber);
+		if (employeeId.isEmpty()) {
+			return false;
+		}
+
+		return switch (action) {
+		case RESOLVE -> this.resolvePolicy.allows(actor, employeeId.getAsLong());
+		case INVALIDATE -> this.invalidatePolicy.allows(actor, employeeId.getAsLong());
+		};
 	}
 
 	public boolean canViewByEmail(final Authentication authentication, final String email) {

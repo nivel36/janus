@@ -33,7 +33,7 @@ import jakarta.validation.constraints.Pattern;
 public interface ClockOutWithoutClockInEventResource {
 
 	@PatchMapping("/employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}")
-	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canResolve(authentication, #employeeNumber) and @clockOutWithoutClockInEventAuthorization.canInvalidate(authentication, #employeeNumber)")
+	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canTransition(authentication, #employeeNumber, #request.action())")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
