@@ -81,7 +81,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testListShouldReturnSeededWorksite() throws Exception {
 		this.mvc.perform(get(BASE).with(verifiedJwt()//
@@ -95,7 +95,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES "
 					+ "('WS-20','Worksite 20','UTC','GLOBAL'),('WS-19','Worksite 19','UTC','GLOBAL'),('WS-18','Worksite 18','UTC','GLOBAL'),('WS-17','Worksite 17','UTC','GLOBAL'),('WS-16','Worksite 16','UTC','GLOBAL'),"
 					+ "('WS-15','Worksite 15','UTC','GLOBAL'),('WS-14','Worksite 14','UTC','GLOBAL'),('WS-13','Worksite 13','UTC','GLOBAL'),('WS-12','Worksite 12','UTC','GLOBAL'),('WS-11','Worksite 11','UTC','GLOBAL'),"
@@ -113,7 +113,7 @@ class WorksiteControllerIT {
 	@ValueSource(strings = { "Centro logístico", "logístico-norte", "material frágil", "Avenida de la Constitución",
 			"50%", "MAD_NORTE", "C:\\Depot", "entrada!sur" })
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope,description,address) VALUES('MAD_NORTE','Centro logístico-norte','Europe/Madrid','GLOBAL','Almacén de material frágil al 50%','Avenida de la Constitución, 24; C:\\Depot; entrada!sur')",
 			"INSERT INTO worksite(code,name,time_zone,scope,description) VALUES('MADXNORTE','Centro secundario','Europe/Madrid','GLOBAL','Almacén al 500 por cien')" })
 	void searchAcceptsFreeTextFromWorksiteFields(final String query) throws Exception {
@@ -125,7 +125,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(2,'EMP-0002','Berta','Person','bperson@nivel36.es',1)",
@@ -141,7 +141,7 @@ class WorksiteControllerIT {
 	@ParameterizedTest
 	@CsvSource({ "ROLE_JANUS_EMPLOYEE,aferrer@nivel36.es", "ROLE_JANUS_USER,user" })
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','ASSIGNED')",
@@ -156,7 +156,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('GLOBAL-1','Global Worksite','UTC+2','GLOBAL')" })
 	void testListAsEmployeeShouldRejectWhenJwtEmailClaimMissing() throws Exception {
 		this.mvc.perform(get(BASE).with(verifiedJwt()//
@@ -166,7 +166,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testFindByCodeShouldReturnWorksite() throws Exception {
 		final var result = this.mvc.perform(get(BASE + "/{code}", "BCN-HQ").with(verifiedJwt()//
@@ -184,7 +184,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'VISIBLE','Visible Worksite','UTC','ASSIGNED')",
@@ -223,7 +223,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testCreateAlreadyExistsShouldReturn409() throws Exception {
 		final String code = "BCN-HQ";
@@ -259,7 +259,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		final String body = """
@@ -274,7 +274,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','ASSIGNED')" })
@@ -290,7 +290,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(2,'EMP-0002','Berta','Person','bperson@nivel36.es',1)",
@@ -319,7 +319,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testDeleteShouldReturn204AndRemoveFromList() throws Exception {
 		this.mvc.perform(delete(BASE + "/{code}", "BCN-HQ").with(verifiedJwt()//
@@ -332,7 +332,7 @@ class WorksiteControllerIT {
 
 	@Test
 	@Sql(statements = {
-			"INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, default_timezone) VALUES (7, true, false, 'Europe/Madrid')",
+			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','ASSIGNED')",

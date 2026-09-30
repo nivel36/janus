@@ -66,9 +66,9 @@ class ApplicationSettingsControllerIT {
 
 	@Test
 	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
-	void testUpdateShouldAcceptObsoleteInputAliasesButEmitCanonicalNames() throws Exception {
+	void testUpdateShouldAcceptCanonicalInputNames() throws Exception {
 		final String body = """
-				{"daysUntilLocked":3,"employeeWorkplaceCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimelogEntryAllowed":true,"defaultTimezone":"UTC"}
+				{"daysUntilLocked":3,"employeeWorksiteCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimeLogEntryAllowed":true,"defaultTimezone":"UTC"}
 				""";
 
 		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)

@@ -338,7 +338,7 @@ class TimeLogControllerIT {
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
 
-		this.mvc.perform(post(BASE + "/", "EMP-0001") //
+		this.mvc.perform(post(BASE, "EMP-0001") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt()
@@ -367,7 +367,7 @@ class TimeLogControllerIT {
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
 
-		this.mvc.perform(post(BASE + "/", "EMP-0001") //
+		this.mvc.perform(post(BASE, "EMP-0001") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt()
@@ -376,7 +376,7 @@ class TimeLogControllerIT {
 						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(post(BASE + "/", "EMP-0001") //
+		this.mvc.perform(post(BASE, "EMP-0001") //
 				.param("worksiteCode", "BCN-HQ") //
 				.contentType(APPLICATION_JSON).content(body)
 				.with(verifiedJwt()
