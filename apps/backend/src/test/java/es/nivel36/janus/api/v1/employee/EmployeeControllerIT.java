@@ -295,8 +295,10 @@ class EmployeeControllerIT {
 		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.errors[0]").value(
-						"employeeNumber: employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)"));
+				.andExpect(jsonPath("$.errors[0].name").value("employeeNumber"))
+				.andExpect(jsonPath("$.errors[0].reason").value(
+						"employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)"))
+				.andExpect(jsonPath("$.errors[0].code").value("EmployeeNumber"));
 	}
 
 	@Test
