@@ -450,13 +450,6 @@ paths:
           minLength: 1
           maxLength: 100
           pattern: '^[\p{L}\p{M}\p{N}\p{Zs}\p{P}\p{S}]+$'
-      - name: sortBy
-        in: query
-        required: false
-        schema:
-          type: string
-          enum: [LEVEL1, LEVEL2, UTC]
-          default: LEVEL1
       - name: page
         in: query
         required: false
@@ -472,10 +465,13 @@ paths:
       - name: sort
         in: query
         required: false
+        description: 'Sorting criteria. Supported properties: level1, level2, utc.'
         schema:
           type: array
           items:
             type: string
+            pattern: '^(level1|level2|utc)(,(asc|desc))?$'
+          default: ['level1,asc']
         style: form
         explode: true
       responses:

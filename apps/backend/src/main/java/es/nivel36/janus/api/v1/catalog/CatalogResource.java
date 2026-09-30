@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import es.nivel36.janus.api.validation.SearchQuery;
-import es.nivel36.janus.service.catalog.TimeZoneSortBy;
-
 @RequestMapping("/api/v1/catalogs")
 public interface CatalogResource {
 
@@ -34,6 +32,5 @@ public interface CatalogResource {
 	@GetMapping("/time-zones")
 	ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones(
 			@RequestParam(required = false) @SearchQuery String query,
-			@RequestParam(value = "sortBy", defaultValue = "LEVEL1") TimeZoneSortBy sortBy,
-			@PageableDefault(size = 20) Pageable pageable);
+			@PageableDefault(size = 20, sort = "level1") Pageable pageable);
 }

@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.catalog.TimeZoneCatalogItem;
 import es.nivel36.janus.service.catalog.TimeZoneCatalogService;
-import es.nivel36.janus.service.catalog.TimeZoneSortBy;
 
 /**
  * REST controller exposing catalog endpoints.
@@ -59,16 +58,14 @@ public class CatalogController implements CatalogResource {
 	 * levels.
 	 *
 	 * @param query    optional search text over full zone id values
-	 * @param sortBy   sorting mode ({@code LEVEL1} or {@code UTC})
-	 * @param pageable Spring pagination information
+	 * @param pageable pagination and sorting information
 	 * @return a page with matching time zone catalog items
 	 */
 	@Override
 	public ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones( //
 			final String query, //
-			final TimeZoneSortBy sortBy, // 
 			final Pageable pageable) {
-		final Page<TimeZoneCatalogItemResponse> zones = this.timeZoneCatalogService.search(query, sortBy, pageable)
+		final Page<TimeZoneCatalogItemResponse> zones = this.timeZoneCatalogService.search(query, pageable)
 				.map(timeZoneCatalogItemResponseMapper::map);
 		return ResponseEntity.ok(zones);
 	}
