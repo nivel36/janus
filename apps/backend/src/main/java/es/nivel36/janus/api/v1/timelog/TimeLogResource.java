@@ -37,38 +37,34 @@ import jakarta.validation.constraints.Pattern;
 public interface TimeLogResource {
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #entryTime != null)")
-	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-in", "/employees/{employeeNumber}/timelogs/clock-in" })
-	ResponseEntity<TimeLogResponse> clockIn(
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
+	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-in" })
+	ResponseEntity<TimeLogResponse> clockIn(@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam(value = "entryTime", required = false) Instant entryTime,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #exitTime != null)")
-	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-out", "/employees/{employeeNumber}/timelogs/clock-out" })
-	ResponseEntity<TimeLogResponse> clockOut(
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
+	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-out" })
+	ResponseEntity<TimeLogResponse> clockOut(@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam(value = "exitTime", required = false) Instant exitTime,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			Authentication authentication) throws ClockOutWithoutClockInException;
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, true)")
-	@PostMapping({ "/employees/{employeeNumber}/time-logs", "/employees/{employeeNumber}/timelogs" })
-	ResponseEntity<TimeLogResponse> createTimeLog(
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
+	@PostMapping({ "/employees/{employeeNumber}/time-logs" })
+	ResponseEntity<TimeLogResponse> createTimeLog(@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
 			@Valid @RequestBody CreateTimeLogRequest timeLog, Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeNumber)")
-	@GetMapping({ "/employees/{employeeNumber}/time-logs/{entryTime}", "/employees/{employeeNumber}/timelogs/{entryTime}" })
+	@GetMapping({ "/employees/{employeeNumber}/time-logs/{entryTime}" })
 	ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime, Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
-	@DeleteMapping({ "/employees/{employeeNumber}/time-logs/{entryTime}", "/employees/{employeeNumber}/timelogs/{entryTime}" })
-	ResponseEntity<Void> deleteTimeLog(
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
+	@DeleteMapping({ "/employees/{employeeNumber}/time-logs/{entryTime}" })
+	ResponseEntity<Void> deleteTimeLog(@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@PathVariable("entryTime") Instant entryTime);
 
 }

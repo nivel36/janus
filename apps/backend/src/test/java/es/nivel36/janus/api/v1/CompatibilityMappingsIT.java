@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 class CompatibilityMappingsIT {
 
 	private static final String TIME = "2026-01-02T08:00:00Z";
-	private static final String EMAIL = "person@example.test";
 
 	private @Autowired MockMvc mvc;
 
