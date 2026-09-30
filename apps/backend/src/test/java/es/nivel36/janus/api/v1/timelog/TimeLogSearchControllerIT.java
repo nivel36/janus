@@ -58,7 +58,7 @@ class TimeLogSearchControllerIT {
 	private static final String OWN_EMAIL = "alice@example.test";
 	private static final String OTHER_EMAIL = "bob@example.test";
 	private static final String OWN_SUBJECT = "11111111-1111-4111-8111-111111111111";
-	private static final String OTHER_SEARCH = "/api/v1/employees/EMP-0101/time-logs/";
+	private static final String OWN_SEARCH = "/api/v1/employees/EMP-0101/time-logs/";
 
 	private @Autowired MockMvc mvc;
 	private @Autowired JdbcTemplate jdbc;
