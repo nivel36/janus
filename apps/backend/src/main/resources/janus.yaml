@@ -628,16 +628,21 @@ paths:
       responses:
         '204':
           description: No content
-  /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}:
+  /employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}:
     parameters: &id003
     - *id001
+    - name: worksiteCode
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[A-Za-z0-9_-]{1,50}$'
     - name: exitTime
       in: path
       required: true
       schema:
         type: string
         format: date-time
-    - *id002
     get:
       tags:
       - clock-out-without-clock-in-events
@@ -666,7 +671,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
-  /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/resolve:
+  /employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}/resolve:
     parameters: *id003
     post:
       tags:
@@ -686,12 +691,92 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ResolveClockOutWithoutClockInEventRequest'
-  /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/invalidate:
+  /employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}/invalidate:
     parameters: *id003
     post:
       tags:
       - clock-out-without-clock-in-events
       operationId: invalidateClockOutWithoutClockInEvent
+      deprecated: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvalidateClockOutWithoutClockInEventRequest'
+  /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}:
+    parameters: &id004
+    - *id001
+    - name: exitTime
+      in: path
+      required: true
+      schema:
+        type: string
+        format: date-time
+    - *id002
+    get:
+      tags:
+      - clock-out-without-clock-in-events
+      operationId: findClockOutWithoutClockInEventLegacy
+      deprecated: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
+    patch:
+      tags:
+      - clock-out-without-clock-in-events
+      operationId: transitionClockOutWithoutClockInEventLegacy
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransitionClockOutWithoutClockInEventRequest'
+      responses:
+        '200':
+          description: Event transitioned to its requested final state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
+  /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/resolve:
+    parameters: *id004
+    post:
+      tags:
+      - clock-out-without-clock-in-events
+      operationId: resolveClockOutWithoutClockInEventLegacy
+      deprecated: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClockOutWithoutClockInEventResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveClockOutWithoutClockInEventRequest'
+  /employees/{employeeNumber}/clock-out-without-clock-in-events/{exitTime}/invalidate:
+    parameters: *id004
+    post:
+      tags:
+      - clock-out-without-clock-in-events
+      operationId: invalidateClockOutWithoutClockInEventLegacy
       deprecated: true
       responses:
         '200':
