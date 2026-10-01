@@ -98,6 +98,17 @@ class OpenApiContractTest {
 		}
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	void openApiDoesNotPublishRetiredClockOutEventRequestSchemas() throws Exception {
+		final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
+				.get("schemas");
+
+		assertThat(schemas).containsKey("TransitionClockOutWithoutClockInEventRequest")
+				.doesNotContainKeys("ResolveClockOutWithoutClockInEventRequest",
+						"InvalidateClockOutWithoutClockInEventRequest");
+	}
+
 	private static Map<String, Object> contract() throws Exception {
 		try (var stream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
 				var reader = new InputStreamReader(stream)) {

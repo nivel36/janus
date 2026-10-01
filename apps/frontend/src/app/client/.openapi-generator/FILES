@@ -24,10 +24,8 @@ model/createTimeLogRequest.ts
 model/createWorksiteRequest.ts
 model/employeePage.ts
 model/employeeResponse.ts
-model/invalidateClockOutWithoutClockInEventRequest.ts
 model/models.ts
 model/pageMetadata.ts
-model/resolveClockOutWithoutClockInEventRequest.ts
 model/schedulePage.ts
 model/scheduleResponse.ts
 model/scheduleRuleRequest.ts
