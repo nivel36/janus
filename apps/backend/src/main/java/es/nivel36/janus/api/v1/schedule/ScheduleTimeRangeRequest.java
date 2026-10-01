@@ -28,8 +28,8 @@ import jakarta.validation.constraints.NotNull;
  * Defines the bounds of a {@link TimeRange} in schedule requests.
  *
  * @param startTime lower bound for the allowed time window; must not be {@code null}
- * @param endTime   upper bound for the allowed time window; must not be {@code null} and must be
- *                  after {@code startTime}
+ * @param endTime   upper bound for the allowed time window; must not be {@code null} or equal to
+ *                  {@code startTime}; an earlier value belongs to the following day
  */
 public record ScheduleTimeRangeRequest( //
 		
@@ -41,27 +41,35 @@ public record ScheduleTimeRangeRequest( //
 ) {
 
 	/**
-	 * Validates that {@code endTime} is after {@code startTime} when both are
-	 * provided.
+	 * Validates that the bounds do not describe a zero-length range. An end time
+	 * before the start time is valid and represents a range spanning midnight into
+	 * the following day.
 	 *
 	 * @return {@code true} if the time range is valid or incomplete, {@code false}
 	 *         otherwise
 	 */
 	@JsonIgnore
-	@AssertTrue(message = "endTime must be after startTime")
+	@AssertTrue(message = "startTime and endTime must not be equal; an earlier endTime is interpreted as the following day")
 	public boolean isTimeRangeValid() {
 		if (this.startTime == null || this.endTime == null) {
 			return true;
 		}
-		return this.endTime.isAfter(this.startTime);
+		return !this.endTime.equals(this.startTime);
 	}
 
-	/** Returns the duration represented by this request. */
+	/**
+	 * Returns the duration represented by this request, adding one day when the
+	 * range spans midnight.
+	 */
 	@JsonIgnore
 	public Duration duration() {
 		if (this.startTime == null || this.endTime == null || !isTimeRangeValid()) {
 			return Duration.ZERO;
 		}
-		return Duration.between(this.startTime, this.endTime);
+		Duration duration = Duration.between(this.startTime, this.endTime);
+		if (duration.isNegative()) {
+			duration = duration.plusDays(1);
+		}
+		return duration;
 	}
 }
