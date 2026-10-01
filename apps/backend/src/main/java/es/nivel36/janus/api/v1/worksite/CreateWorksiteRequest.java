@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.api.v1.worksite;
 
+import es.nivel36.janus.api.validation.WorksiteCode;
+
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteScope;
 import es.nivel36.janus.api.validation.ValidTimeZone;
@@ -37,9 +39,7 @@ import jakarta.validation.constraints.Size;
  * @param address     optional worksite address of at most 500 characters
  */
 public record CreateWorksiteRequest(@NotBlank(message = "code must not be blank") //
-@Pattern( //
-		regexp = "[A-Za-z0-9_-]{1,50}", //
-		message = "code must contain only letters, digits, underscores or hyphens (max 50)") //
+@WorksiteCode //
 String code, //
 
 		@NotBlank(message = "name must not be blank") //

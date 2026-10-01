@@ -8,14 +8,14 @@ package es.nivel36.janus.service.timelog;
 import java.time.Instant;
 
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Pattern;
+import es.nivel36.janus.api.validation.EmployeeNumber;
 
 /**
  * Optional client filters, independent of the authorized search scope. The
  * entry-time range includes {@code start} and excludes {@code end}.
  */
 public record TimeLogSearchCriteria(
-		@Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)") //
+		@EmployeeNumber //
 		String employeeNumber, //
 
 		Instant start, //

@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
+import es.nivel36.janus.api.validation.ScheduleCode;
+
 import java.time.Duration;
 import java.util.List;
 
@@ -39,10 +41,7 @@ import jakarta.validation.constraints.Pattern;
  */
 public record CreateScheduleRequest( //
 		@NotBlank(message = "code must not be blank") //
-		@Pattern( //
-				regexp = "[A-Za-z0-9_-]{1,50}", //
-				message = "code must contain only letters, digits, underscores or hyphens (max 50)" //
-		) //
+		@ScheduleCode //
 		String code, //
 
 		@NotBlank(message = "name must not be blank") //

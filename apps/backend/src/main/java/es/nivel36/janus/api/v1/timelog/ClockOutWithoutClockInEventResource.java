@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
+import es.nivel36.janus.api.validation.WorksiteCode;
+
 import java.time.Instant;
 
 import org.springframework.http.ResponseEntity;
@@ -27,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import es.nivel36.janus.api.validation.EmployeeNumber;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 
 @RequestMapping("/api/v1")
 public interface ClockOutWithoutClockInEventResource {
@@ -36,7 +37,7 @@ public interface ClockOutWithoutClockInEventResource {
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canTransition(authentication, #employeeNumber, #request.action())")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
-			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
 			@PathVariable("exitTime") Instant exitTime,
 			@Valid @RequestBody TransitionClockOutWithoutClockInEventRequest request);
 
@@ -44,7 +45,7 @@ public interface ClockOutWithoutClockInEventResource {
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canView(authentication, #employeeNumber)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEvent(
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
-			@PathVariable("worksiteCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
 			@PathVariable("exitTime") Instant exitTime);
 
 }

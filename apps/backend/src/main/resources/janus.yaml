@@ -707,6 +707,14 @@ components:
       type: string
       pattern: '^[A-Za-z0-9_-]{1,50}$'
       description: Stable employee identifier containing 1 to 50 letters, digits, underscores, or hyphens.
+    WorksiteCode:
+      type: string
+      pattern: '^[A-Za-z0-9_-]{1,50}$'
+      description: Stable worksite code containing 1 to 50 letters, digits, underscores, or hyphens.
+    ScheduleCode:
+      type: string
+      pattern: '^[A-Za-z0-9_-]{1,50}$'
+      description: Stable schedule code containing 1 to 50 letters, digits, underscores, or hyphens.
     EmployeeResponse:
       type: object
       required:
@@ -726,7 +734,7 @@ components:
           type: string
           format: email
         scheduleCode:
-          type: string
+          $ref: '#/components/schemas/ScheduleCode'
     EmployeePage:
       type: object
       required:
@@ -758,7 +766,7 @@ components:
           type: string
           format: email
         scheduleCode:
-          type: string
+          $ref: '#/components/schemas/ScheduleCode'
     UpdateEmployeeRequest:
       type: object
       required:
@@ -775,7 +783,7 @@ components:
           type: string
           format: email
         scheduleCode:
-          type: string
+          $ref: '#/components/schemas/ScheduleCode'
     Theme:
       type: string
       enum:
@@ -908,7 +916,7 @@ components:
       - active
       properties:
         code:
-          type: string
+          $ref: '#/components/schemas/WorksiteCode'
         name:
           type: string
         timeZone:
@@ -932,7 +940,7 @@ components:
       - scope
       properties:
         code:
-          type: string
+          $ref: '#/components/schemas/WorksiteCode'
         name:
           type: string
         timeZone:
@@ -973,7 +981,7 @@ components:
       - exitTolerance
       properties:
         code:
-          type: string
+          $ref: '#/components/schemas/ScheduleCode'
         name:
           type: string
         entryTolerance:
@@ -990,8 +998,7 @@ components:
       required: [code, name, entryTolerance, exitTolerance, rules]
       properties:
         code:
-          type: string
-          pattern: '^[A-Za-z0-9_-]{1,50}$'
+          $ref: '#/components/schemas/ScheduleCode'
         name:
           type: string
           pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
