@@ -1203,21 +1203,6 @@ components:
           type: string
           format: date-time
         exitTime: *id006
-    ResolveClockOutWithoutClockInEventRequest:
-      type: object
-      required:
-      - entryTime
-      properties:
-        entryTime: *id006
-        reason:
-          type: string
-          maxLength: 255
-    InvalidateClockOutWithoutClockInEventRequest:
-      type: object
-      properties:
-        reason:
-          type: string
-          maxLength: 255
     TransitionClockOutWithoutClockInEventRequest:
       type: object
       description: A RESOLVE action requires entryTime; an INVALIDATE action forbids entryTime.
