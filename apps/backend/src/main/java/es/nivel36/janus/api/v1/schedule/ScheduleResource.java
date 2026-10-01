@@ -15,6 +15,10 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
+import es.nivel36.janus.api.validation.ScheduleCode;
+
+import es.nivel36.janus.api.validation.EmployeeNumber;
+
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import org.springframework.data.domain.Page;
@@ -35,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import es.nivel36.janus.api.validation.SearchQuery;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 
 @RequestMapping("/api/v1/schedules")
 public interface ScheduleResource {
@@ -46,14 +49,14 @@ public interface ScheduleResource {
 	@PreAuthorize("@scheduleAuthorization.canSearch(authentication, #employeeNumber)")
 	ResponseEntity<Page<ScheduleResponse>> searchSchedules(
 			@RequestParam(required = false) @SearchQuery String query,
-			@RequestParam(required = false) @Pattern(regexp = "^[A-Za-z0-9_-]{1,50}$", message = "employeeNumber must be a valid employee number") String employeeNumber,
+			@RequestParam(required = false) @EmployeeNumber String employeeNumber,
 			@PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC) Pageable pageable,
 			Authentication authentication);
 
 	@PreAuthorize("@scheduleAuthorization.canView(authentication, #scheduleCode)")
 	@GetMapping("/{scheduleCode}")
 	ResponseEntity<ScheduleResponse> findSchedule(
-			@PathVariable("scheduleCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode);
+			@PathVariable("scheduleCode") @ScheduleCode String scheduleCode);
 
 	@PreAuthorize("@scheduleAuthorization.canCreate(authentication)")
 	@PostMapping
@@ -62,11 +65,11 @@ public interface ScheduleResource {
 	@PreAuthorize("@scheduleAuthorization.canUpdate(authentication)")
 	@PutMapping("/{scheduleCode}")
 	ResponseEntity<ScheduleResponse> updateSchedule(
-			@PathVariable("scheduleCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode,
+			@PathVariable("scheduleCode") @ScheduleCode String scheduleCode,
 			@Valid @RequestBody UpdateScheduleRequest request);
 
 	@PreAuthorize("@scheduleAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{scheduleCode}")
 	ResponseEntity<Void> deleteSchedule(
-			@PathVariable("scheduleCode") @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "code must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode);
+			@PathVariable("scheduleCode") @ScheduleCode String scheduleCode);
 }

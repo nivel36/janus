@@ -11,6 +11,9 @@ import { ScheduleRuleRequest } from './scheduleRuleRequest';
 
 
 export interface CreateScheduleRequest {
+    /**
+     * Stable schedule code containing 1 to 50 letters, digits, underscores, or hyphens.
+     */
     code: string;
     name: string;
     entryTolerance: string;

@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.api.v1.employee;
 
+import es.nivel36.janus.api.validation.ScheduleCode;
+
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.api.validation.EmployeeNumber;
 import jakarta.validation.constraints.NotBlank;
@@ -35,6 +37,7 @@ import jakarta.validation.constraints.Pattern;
  *                     blank and must be at most 50 characters
  */
 public record CreateEmployeeRequest( //
+		@NotNull(message = "employeeNumber must not be null") //
 		@EmployeeNumber //
 		String employeeNumber, //
 		
@@ -60,9 +63,6 @@ public record CreateEmployeeRequest( //
 		String email, //
 
 		@NotBlank(message = "scheduleCode must not be blank") //
-		@Pattern( //
-				regexp = "[A-Za-z0-9_-]{1,50}", //
-				message = "scheduleCode must contain only letters, digits, underscores or hyphens (max 50)" //
-		) //
+		@ScheduleCode //
 		String scheduleCode) {
 }

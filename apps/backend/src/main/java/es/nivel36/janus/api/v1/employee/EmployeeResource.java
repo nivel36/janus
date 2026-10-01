@@ -15,6 +15,10 @@
  */
 package es.nivel36.janus.api.v1.employee;
 
+import es.nivel36.janus.api.validation.WorksiteCode;
+
+import es.nivel36.janus.api.validation.ScheduleCode;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.validation.Valid;
 import es.nivel36.janus.api.validation.EmployeeNumber;
 import es.nivel36.janus.api.validation.SearchQuery;
-import jakarta.validation.constraints.Pattern;
 
 @RequestMapping("/api/v1/employees")
 public interface EmployeeResource {
@@ -41,8 +44,8 @@ public interface EmployeeResource {
 	@GetMapping
 	@PreAuthorize("@employeeAuthorization.canSearch(authentication)")
 	ResponseEntity<Page<EmployeeResponse>> searchEmployees(@RequestParam(required = false) @SearchQuery String query,
-			@RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "scheduleCode must contain only letters, digits, underscores or hyphens (max 50)") String scheduleCode,
-			@RequestParam(required = false) @Pattern(regexp = "[A-Za-z0-9_-]{1,50}", message = "worksiteCode must contain only letters, digits, underscores or hyphens (max 50)") String worksiteCode,
+			@RequestParam(required = false) @ScheduleCode String scheduleCode,
+			@RequestParam(required = false) @WorksiteCode String worksiteCode,
 			@PageableDefault(size = 20, sort = "employeeNumber", direction = Sort.Direction.ASC) Pageable pageable);
 
 	@PreAuthorize("@employeeAuthorization.canView(authentication, #employeeNumber)")

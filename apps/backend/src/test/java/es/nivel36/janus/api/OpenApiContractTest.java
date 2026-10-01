@@ -18,6 +18,7 @@ package es.nivel36.janus.api;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStreamReader;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.Instant;
@@ -198,9 +199,14 @@ class OpenApiContractTest {
 				.isEqualTo(openApiType(implementation.getType()));
 		if (implementation.getType() == Instant.class) assertThat(schema.get("format")).isEqualTo("date-time");
 		if (implementation.getType() == UUID.class) assertThat(schema.get("format")).isEqualTo("uuid");
-		final var pattern = implementation.getAnnotation(Pattern.class);
+		final var pattern = mergedPattern(implementation);
 		if (pattern != null) assertThat(schema.get("pattern")).as("validation for %s parameter %s", key, name)
 				.isEqualTo(fullValuePattern(pattern.regexp()));
+	}
+
+	/** Resolves both direct constraints and reusable composed constraints. */
+	private static Pattern mergedPattern(final AnnotatedElement element) {
+		return AnnotatedElementUtils.findMergedAnnotation(element, Pattern.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -245,7 +251,29 @@ class OpenApiContractTest {
 			final var content = (Map<String, Object>) documented.get("content");
 			final var json = (Map<String, Object>) content.get("application/json");
 			assertThat(schema(json).get("$ref")).isEqualTo("#/components/schemas/" + parameter.getType().getSimpleName());
+			assertBodyPatterns(key, parameter.getType());
 			if (parameter.isAnnotationPresent(Valid.class)) assertThat(documented).containsKey("required");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void assertBodyPatterns(final String key, final Class<?> bodyType) {
+		if (!bodyType.isRecord()) return;
+		final Map<String, Object> bodySchema;
+		try {
+			final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
+					.get("schemas");
+			bodySchema = schemas.get(bodyType.getSimpleName());
+		} catch (final Exception exception) {
+			throw new IllegalStateException("Could not resolve OpenAPI body schema " + bodyType.getSimpleName(), exception);
+		}
+		final var properties = (Map<String, Map<String, Object>>) bodySchema.get("properties");
+		for (final var component : bodyType.getRecordComponents()) {
+			final var pattern = mergedPattern(component);
+			if (pattern == null) continue;
+			final var property = resolveSchema(properties.get(component.getName()));
+			assertThat(property.get("pattern")).as("validation for %s body property %s", key, component.getName())
+					.isEqualTo(fullValuePattern(pattern.regexp()));
 		}
 	}
 

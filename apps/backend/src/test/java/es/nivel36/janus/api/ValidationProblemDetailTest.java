@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import es.nivel36.janus.api.validation.EmployeeNumber;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -72,6 +73,21 @@ class ValidationProblemDetailTest {
 				.andExpectAll(commonProblem("/validation/path/invalid%20value", "code", "Pattern"));
 	}
 
+	@Test
+	void composedIdentifierConstraintHasTheSameResultInPathQueryAndBody() throws Exception {
+		final var reason = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)";
+		this.mvc.perform(get("/validation/employee/{employeeNumber}", "invalid value"))
+				.andExpectAll(status().isBadRequest(), jsonPath("$.errors[0].code").value("EmployeeNumber"),
+						jsonPath("$.errors[0].reason").value(reason));
+		this.mvc.perform(get("/validation/employee").param("employeeNumber", "invalid value"))
+				.andExpectAll(status().isBadRequest(), jsonPath("$.errors[0].code").value("EmployeeNumber"),
+						jsonPath("$.errors[0].reason").value(reason));
+		this.mvc.perform(post("/validation/employee").contentType(MediaType.APPLICATION_JSON)
+				.content("{\"employeeNumber\":\"invalid value\"}"))
+				.andExpectAll(status().isBadRequest(), jsonPath("$.errors[0].code").value("EmployeeNumber"),
+						jsonPath("$.errors[0].reason").value(reason));
+	}
+
 	private static org.springframework.test.web.servlet.ResultMatcher[] commonProblem(final String instance,
 			final String name, final String code) {
 		return new org.springframework.test.web.servlet.ResultMatcher[] { status().isBadRequest(),
@@ -99,8 +115,23 @@ class ValidationProblemDetailTest {
 		@RequestMapping("/path/{code}")
 		void path(@PathVariable("code") @Pattern(regexp = "[a-z]+") final String code) {
 		}
+
+		@RequestMapping("/employee/{employeeNumber}")
+		void employeePath(@PathVariable("employeeNumber") @EmployeeNumber final String employeeNumber) {
+		}
+
+		@RequestMapping("/employee")
+		void employeeQuery(@RequestParam("employeeNumber") @EmployeeNumber final String employeeNumber) {
+		}
+
+		@PostMapping("/employee")
+		void employeeBody(@Valid @RequestBody final EmployeeNumberBody body) {
+		}
 	}
 
 	private record ValidationBody(@NotBlank String name) {
+	}
+
+	private record EmployeeNumberBody(@EmployeeNumber String employeeNumber) {
 	}
 }

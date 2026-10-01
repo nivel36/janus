@@ -10,6 +10,9 @@
 
 
 export interface ScheduleResponse {
+    /**
+     * Stable schedule code containing 1 to 50 letters, digits, underscores, or hyphens.
+     */
     code: string;
     name: string;
     entryTolerance: string;
