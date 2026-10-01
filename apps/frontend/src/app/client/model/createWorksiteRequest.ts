@@ -11,6 +11,9 @@ import { WorksiteScope } from './worksiteScope';
 
 
 export interface CreateWorksiteRequest {
+    /**
+     * Stable worksite code containing 1 to 50 letters, digits, underscores, or hyphens.
+     */
     code: string;
     name: string;
     timeZone: string;

@@ -13,6 +13,9 @@ export interface UpdateEmployeeRequest {
     name: string;
     surname: string;
     email: string;
+    /**
+     * Stable schedule code containing 1 to 50 letters, digits, underscores, or hyphens.
+     */
     scheduleCode: string;
 }
 
