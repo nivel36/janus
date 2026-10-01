@@ -18,6 +18,7 @@ package es.nivel36.janus.service.workshift;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
@@ -149,21 +150,38 @@ public class WorkShiftPrecomputeJob {
 		final ZoneId zone = worksite.getTimeZone();
 		final Instant firstEntry = first.getEntryTime();
 
-		final LocalDate day = firstEntry.atZone(zone).toLocalDate();
+		final LocalDate entryDay = firstEntry.atZone(zone).toLocalDate();
+		final LocalTime entryTime = firstEntry.atZone(zone).toLocalTime();
+		final LocalDate previousDay = entryDay.minusDays(1);
+		final Optional<TimeRange> previousTimeRange = this.scheduleService
+				.findTimeRangeForEmployeeByDate(employee, previousDay);
+		final boolean belongsToPreviousOvernightShift = previousTimeRange
+				.filter(WorkShiftPrecomputeJob::isOvernight)
+				.map(range -> entryTime.isBefore(range.getEndTime()))
+				.orElse(false);
+
+		final LocalDate day = belongsToPreviousOvernightShift ? previousDay : entryDay;
+		final Optional<TimeRange> timeRange = belongsToPreviousOvernightShift ? previousTimeRange
+				: this.scheduleService.findTimeRangeForEmployeeByDate(employee, day);
 		final Instant dayStart = day.atStartOfDay(zone).toInstant();
-		final Instant dayEndExclusive = day.plusDays(1).atStartOfDay(zone).toInstant();
+		final Instant dayEndExclusive = timeRange.filter(WorkShiftPrecomputeJob::isOvernight)
+				.map(range -> day.plusDays(1).atTime(range.getEndTime()).atZone(zone).toInstant())
+				.orElseGet(() -> day.plusDays(1).atStartOfDay(zone).toInstant());
 
 		log.trace("Bucket employee={}, worksite={}, zone={}, day={} window=[{} .. {})", employee, worksite, zone, day,
 				dayStart, dayEndExclusive);
 
 		final TimeLogs bucket = this.collectBucket(first, worksite, dayStart, dayEndExclusive, queue);
-		final Optional<TimeRange> timeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee, day);
 
 		final ShiftInferenceStrategyResolver resolver = new ShiftInferenceStrategyResolver();
 		final ShiftInferenceStrategy strategy = resolver.resolve(timeRange, zone, this.policy);
 		final WorkShift workShift = new WorkShiftComposer(strategy).compose(employee, day, bucket);
 		final WorkShift saved = this.workshiftRepository.save(workShift);
 		log.trace("WorkShift persisted with id {}", saved.getId());
+	}
+
+	private static boolean isOvernight(final TimeRange timeRange) {
+		return timeRange.getEndTime().isBefore(timeRange.getStartTime());
 	}
 
 	private TimeLogs collectBucket(final TimeLog first, final Worksite worksite, final Instant dayStart,
