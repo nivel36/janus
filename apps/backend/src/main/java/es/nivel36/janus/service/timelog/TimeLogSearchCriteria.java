@@ -7,28 +7,13 @@ package es.nivel36.janus.service.timelog;
 
 import java.time.Instant;
 
-import jakarta.validation.constraints.AssertTrue;
-import es.nivel36.janus.api.validation.EmployeeNumber;
-
 /**
  * Optional client filters, independent of the authorized search scope. The
  * entry-time range includes {@code start} and excludes {@code end}.
  */
 public record TimeLogSearchCriteria(
-		@EmployeeNumber //
 		String employeeNumber, //
 
 		Instant start, //
 
-		Instant end) {
-
-	@AssertTrue(message = "start and end must be provided together or omitted")
-	public boolean isRangeComplete() {
-		return (this.start == null) == (this.end == null);
-	}
-
-	@AssertTrue(message = "end must be after start")
-	public boolean isRangeOrdered() {
-		return this.start == null || this.end == null || this.start.isBefore(this.end);
-	}
-}
+		Instant end) { }

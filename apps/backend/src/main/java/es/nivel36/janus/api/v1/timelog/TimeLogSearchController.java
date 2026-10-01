@@ -53,7 +53,7 @@ public class TimeLogSearchController implements TimeLogSearchResource {
 	 * Searches time logs using the requested filters and the authenticated user's
 	 * authorization scope.
 	 *
-	 * @param criteria       validated optional filters; start and end must either
+	 * @param request        validated optional filters; start and end must either
 	 *                       both be present or both be absent
 	 * @param pageable       pagination and sorting information; must not be
 	 *                       {@code null}
@@ -62,10 +62,12 @@ public class TimeLogSearchController implements TimeLogSearchResource {
 	 */
 	@Override
 	public ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(//
-			final TimeLogSearchCriteria criteria, //
+			final TimeLogSearchRequest request, //
 			final Pageable pageable, //
 			final Authentication authentication) {
 		final TimeLogSearchScope searchScope = this.authorization.searchScope(authentication);
+		final TimeLogSearchCriteria criteria = new TimeLogSearchCriteria(request.employeeNumber(), request.start(),
+				request.end());
 		final Page<TimeLogResponse> response = this.timeLogs //
 				.searchTimeLogs(criteria, searchScope, pageable) //
 				.map(this.timeLogResponseMapper::map);

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import es.nivel36.janus.service.timelog.TimeLogSearchCriteria;
 import jakarta.validation.Valid;
 
 @RequestMapping({ "/api/v1/time-logs" })
@@ -25,10 +24,10 @@ public interface TimeLogSearchResource {
 
 	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
 	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
-	@PreAuthorize("@timeLogAuthorization.canSearch(authentication, #criteria.employeeNumber())")
+	@PreAuthorize("@timeLogAuthorization.canSearch(authentication, #request.employeeNumber())")
 	@GetMapping
 	ResponseEntity<Page<TimeLogResponse>> searchTimeLogs( //
-			@Valid @ModelAttribute TimeLogSearchCriteria criteria, //
+			@Valid @ModelAttribute TimeLogSearchRequest request, //
 			@PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable, //
 			Authentication authentication);
 }
