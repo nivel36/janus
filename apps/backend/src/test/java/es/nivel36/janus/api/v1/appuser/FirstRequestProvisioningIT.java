@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -73,12 +74,12 @@ class FirstRequestProvisioningIT {
 
 	@Test
 	void provisionsAndRetrievesUserWithLongOpaqueSubject() throws Exception {
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
+		this.mvc.perform(post("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
 						.claim("email", "opaque-subject@example.test"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isCreated());
 
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
+		this.mvc.perform(post("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
 						.claim("email", "ignored@example.test"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
@@ -92,7 +93,8 @@ class FirstRequestProvisioningIT {
 	void concurrentRequestsForSameSubjectAndUsernameAreIdempotent() throws Exception {
 		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "same-name", null, SUBJECT, "same-name", null);
 
-		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
+		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200
+				|| result.getResponse().getStatus() == 201);
 		assertThat(this.countProfiles()).isOne();
 	}
 
@@ -100,7 +102,8 @@ class FirstRequestProvisioningIT {
 	void concurrentRequestsForSameSubjectAndDifferentUsernamesReturnTheSubjectWinner() throws Exception {
 		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "first-name", null, SUBJECT, "second-name", null);
 
-		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
+		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200
+				|| result.getResponse().getStatus() == 201);
 		assertThat(this.countProfiles()).isOne();
 		assertThat(this.usernameForSubject(SUBJECT)).isIn("first-name@example.test", "second-name@example.test");
 	}
@@ -111,7 +114,7 @@ class FirstRequestProvisioningIT {
 		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "employee-one", LINK_EMAIL,
 				OTHER_SUBJECT, "employee-two", LINK_EMAIL);
 
-		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
+		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsOnly(201);
 		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE employee_id = :employeeId")
 				.param("employeeId", employeeId).query(Long.class).single()).isOne();
 		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject IN (:one, :two)")
@@ -123,7 +126,7 @@ class FirstRequestProvisioningIT {
 		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "occupied-name", null,
 				OTHER_SUBJECT, "occupied-name", null);
 
-		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsOnly(200);
+		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsOnly(201);
 		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE email = 'occupied-name@example.test'")
 				.query(Long.class).single()).isEqualTo(2L);
 	}
@@ -148,7 +151,7 @@ class FirstRequestProvisioningIT {
 			final CountDownLatch ready, final CountDownLatch start) throws Exception {
 		ready.countDown();
 		start.await();
-		return this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt().jwt(token -> {
+		return this.mvc.perform(post("/api/v1/app-users/me").with(verifiedJwt().jwt(token -> {
 			token.issuer(this.issuer).subject(subject).claim("email", email == null ? username + "@example.test" : email)
 					.claim("email_verified", true);
 			if (LINK_EMAIL.equals(email)) {
@@ -166,11 +169,11 @@ class FirstRequestProvisioningIT {
 	void employeeNumberClaimLinksTheOnlyUnlinkedEmployeeAfterNormalization() throws Exception {
 		final Long employeeId = this.insertEmployee();
 
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
+		this.mvc.perform(post("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", "linked-user")
 						.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ").claim("employeeNumber", "  EMP-0901  ")
 						.claim("email_verified", true))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isCreated());
 		assertThat(this.jdbcClient.sql("SELECT employee_id FROM app_user WHERE keycloak_subject = :subject")
 				.param("subject", SUBJECT).query(Long.class).single()).isEqualTo(employeeId);
 	}
@@ -181,13 +184,13 @@ class FirstRequestProvisioningIT {
 		this.provision(SUBJECT, "first-identity");
 
 		this.mvc.perform(
-				get("/api/v1/app-users/me")
+				post("/api/v1/app-users/me")
 						.with(verifiedJwt()
 								.jwt(token -> token.issuer(this.issuer).subject(OTHER_SUBJECT)
 										.claim("preferred_username", "second-identity").claim("email", LINK_EMAIL)
 										.claim("employeeNumber", "EMP-0901").claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk());
+				.andExpect(status().isCreated());
 		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject AND employee_id IS NULL")
 				.param("subject", OTHER_SUBJECT).query(Long.class).single()).isOne();
 
@@ -196,10 +199,10 @@ class FirstRequestProvisioningIT {
 	}
 
 	private void provision(final String subject, final String username) throws Exception {
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
+		this.mvc.perform(post("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(subject).claim("preferred_username", username)
 						.claim("email", LINK_EMAIL).claim("employeeNumber", "EMP-0901").claim("email_verified", true))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isCreated());
 	}
 
 	@Test
@@ -211,7 +214,7 @@ class FirstRequestProvisioningIT {
 
 		this.mvc.perform(get("/api/v1/time-logs").with(authentication)).andExpect(status().isForbidden());
 		assertThat(this.countProfiles()).isZero();
-		this.mvc.perform(get("/api/v1/app-users/me").with(authentication)).andExpect(status().isOk());
+		this.mvc.perform(post("/api/v1/app-users/me").with(authentication)).andExpect(status().isCreated());
 		this.mvc.perform(get("/api/v1/time-logs").with(authentication))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(0));
 	}
@@ -228,11 +231,11 @@ class FirstRequestProvisioningIT {
 
 	@Test
 	void unknownEmployeeNumberCreatesAnUnassociatedAccount() throws Exception {
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
+		this.mvc.perform(post("/api/v1/app-users/me").with(verifiedJwt()
 				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("email", USERNAME)
 						.claim("employeeNumber", "EMP-UNKNOWN").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk());
+				.andExpect(status().isCreated());
 
 		assertThat(this.jdbcClient.sql(
 				"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject AND employee_id IS NULL")
@@ -243,10 +246,10 @@ class FirstRequestProvisioningIT {
 	void firstAuthenticatedRequestProvisionsLocalProfile() throws Exception {
 		assertThat(this.countProfiles()).isZero();
 
-		this.mvc.perform(get("/api/v1/app-users/me").with(
+		this.mvc.perform(post("/api/v1/app-users/me").with(
 				verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("email", USERNAME))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value(USERNAME))
+				.andExpect(status().isCreated()).andExpect(jsonPath("$.email").value(USERNAME))
 				.andExpect(jsonPath("$.locale").value("es-ES")).andExpect(jsonPath("$.timeFormat").value("H24"))
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));
 

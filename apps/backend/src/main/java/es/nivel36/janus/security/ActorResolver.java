@@ -34,7 +34,7 @@ public class ActorResolver {
 
 	/**
 	 * Resolves a validated bearer JWT to a provisioned application actor. Automatic
-	 * provisioning is deliberately confined to the {@code GET /appusers/me}
+	 * provisioning is deliberately confined to the {@code POST /app-users/me}
 	 * endpoint; all operations that resolve an actor require a persistent account.
 	 */
 	@Transactional(readOnly = true)

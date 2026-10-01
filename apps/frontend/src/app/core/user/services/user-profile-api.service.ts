@@ -57,7 +57,7 @@ export class UserProfileApiService {
   private getProfile(
     retryPolicy: HttpRetryPolicy = PROFILE_LOAD_RETRY_POLICY,
   ): Observable<AppUserResponse> {
-    return this.api.findCurrentAppUser('body', false, {
+    return this.api.provisionCurrentAppUser('body', false, {
       context: new HttpContext().set(HTTP_RETRY_POLICY, retryPolicy),
     });
   }

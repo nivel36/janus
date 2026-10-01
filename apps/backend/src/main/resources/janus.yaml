@@ -123,11 +123,41 @@ paths:
       operationId: findCurrentAppUser
       responses:
         '200':
-          description: Current application user
+          description: Current, already-provisioned application user (read-only)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppUserResponse'
+        '403':
+          description: The authenticated identity has not been provisioned
+    post:
+      tags:
+      - app-users
+      operationId: provisionCurrentAppUser
+      description: Provisions the authenticated identity, or returns its existing profile.
+      responses:
+        '200':
+          description: Application user already existed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUserResponse'
+        '201':
+          description: Application user created
+          headers:
+            Location:
+              description: URI of the current application user
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUserResponse'
+        '400':
+          description: Required or valid identity claims are missing
+        '403':
+          description: The authenticated identity is not allowed to provision an account
   /app-users/{id}:
     parameters:
     - name: id

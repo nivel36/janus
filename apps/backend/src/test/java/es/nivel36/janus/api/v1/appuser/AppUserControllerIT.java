@@ -21,6 +21,7 @@ import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -122,20 +123,32 @@ class AppUserControllerIT {
 						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
 								.subject("11111111-1111-4111-8111-111111111111").claim("email", "changed@example.test"))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("changed@example.test"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("jdoe@example.test"));
 	}
 
 	@Test
-	void testMeCreatesUnprovisionedIdentityWithInitialPreferences() throws Exception {
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
+	void testMeDoesNotProvisionAnUnknownIdentity() throws Exception {
+		final String subject = "99999999-9999-4999-8999-999999999999";
+		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
+				.jwt(jwt -> jwt.subject(subject).claim("email", "new-user@example.test"))
+				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isForbidden());
+
+		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate.queryForObject(
+				"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?", Integer.class, subject)).isZero();
+	}
+
+	@Test
+	void provisionMeCreatesUnprovisionedIdentityWithInitialPreferences() throws Exception {
+		this.mvc.perform(post(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
 				.subject("99999999-9999-4999-8999-999999999999").claim("email", "new-user@example.test"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
+				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isCreated())
 				.andExpect(jsonPath("$.email").value("new-user@example.test"))
 				.andExpect(jsonPath("$.locale").value("en-US")).andExpect(jsonPath("$.theme").value("DARK"))
 				.andExpect(jsonPath("$.timeFormat").value("H24")).andExpect(jsonPath("$.defaultTimezone").value("UTC"));
 
 		this.mvc.perform(
-				get(BASE + "/me").with(verifiedJwt()
+				post(BASE + "/me").with(verifiedJwt()
 						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
 								.subject("99999999-9999-4999-8999-999999999999").claim("email", "renamed@example.test"))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
@@ -164,19 +177,19 @@ class AppUserControllerIT {
 	@Test
 	void testMeRejectsMissingEmail() throws Exception {
 		this.mvc.perform(
-				get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
+				post(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
 						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(
+		this.mvc.perform(post(BASE + "/me").with(verifiedJwt().jwt(
 				jwt -> jwt.subject("88888888-8888-4888-8888-888888888888").claim("preferred_username", "x".repeat(51)))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
+		this.mvc.perform(post(BASE + "/me").with(verifiedJwt()
 				.jwt(jwt -> jwt.subject("66666666-6666-4666-8666-666666666666").claim("preferred_username", "ab"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
+		this.mvc.perform(post(BASE + "/me").with(verifiedJwt()
 				.jwt(jwt -> jwt.subject("55555555-5555-4555-8555-555555555555").claim("preferred_username", "john/doe"))
 				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
 	}
@@ -184,7 +197,7 @@ class AppUserControllerIT {
 	@org.junit.jupiter.params.ParameterizedTest
 	@org.junit.jupiter.params.provider.ValueSource(strings = { "", " ", "\t", "not valid!" })
 	void testMeRejectsInvalidEmployeeNumberClaim(final String employeeNumber) throws Exception {
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt
+		this.mvc.perform(post(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt
 				.subject("55555555-5555-4555-8555-555555555555").claim("email", "valid@example.test")
 				.claim("employeeNumber", employeeNumber))
 				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
