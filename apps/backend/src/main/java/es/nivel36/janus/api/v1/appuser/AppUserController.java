@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
+import java.net.URI;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Objects;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,8 +71,7 @@ public class AppUserController implements AppUserResource {
 	}
 
 	/**
-	 * Retrieves the current authenticated {@link AppUser}, creating it from JWT
-	 * claims when provisioning is allowed.
+	 * Retrieves the current authenticated {@link AppUser} without modifying it.
 	 *
 	 * @param authentication the JWT authentication containing the current user's
 	 *                       identity claims; must not be {@code null}
@@ -78,6 +79,19 @@ public class AppUserController implements AppUserResource {
 	 */
 	@Override
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
+		final AppUser appUser = this.appUserService.findAppUserByKeycloakSubject(authentication.getToken().getSubject());
+		return ResponseEntity.ok(this.appUserResponseMapper.map(appUser));
+	}
+
+	/**
+	 * Provisions the current authenticated identity, or returns its existing profile.
+	 *
+	 * @param authentication the JWT authentication containing the identity claims
+	 * @return {@code 201 Created} for a new profile, or {@code 200 OK} when the
+	 *         profile already existed
+	 */
+	@Override
+	public ResponseEntity<AppUserResponse> provisionCurrentAppUser(final JwtAuthenticationToken authentication) {
 		final Jwt token = authentication.getToken();
 		final String email = token.getClaimAsString("email");
 		if (email == null || email.isBlank()) {
@@ -85,10 +99,21 @@ public class AppUserController implements AppUserResource {
 		}
 		final String subject = token.getSubject();
 		final String employeeNumber = normalizeEmployeeNumber(token.getClaimAsString("employeeNumber"));
+		final boolean existed = this.profileExists(subject);
 		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, EmailAddresses.canonicalize(email),
 				employeeNumber);
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(appUser);
-		return ResponseEntity.ok(appUserResponse);
+		return existed ? ResponseEntity.ok(appUserResponse)
+				: ResponseEntity.created(URI.create("/api/v1/app-users/me")).body(appUserResponse);
+	}
+
+	private boolean profileExists(final String subject) {
+		try {
+			this.appUserService.findAppUserByKeycloakSubject(subject);
+			return true;
+		} catch (final AccessDeniedException notProvisioned) {
+			return false;
+		}
 	}
 
 	private static String normalizeEmployeeNumber(final String claim) {

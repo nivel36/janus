@@ -16,13 +16,13 @@ import { UserProfileApiService } from './user-profile-api.service';
 describe('UserProfileApiService', () => {
   let service: UserProfileApiService;
   let transport: {
-    findCurrentAppUser: ReturnType<typeof vi.fn>;
+    provisionCurrentAppUser: ReturnType<typeof vi.fn>;
     updateAppUser: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     transport = {
-      findCurrentAppUser: vi
+      provisionCurrentAppUser: vi
         .fn()
         .mockReturnValue(of({ id: USER_ID, email: 'person@example.test', employeeNumber: 'EMP-0001', ...PREFERENCES })),
       updateAppUser: vi
@@ -41,7 +41,7 @@ describe('UserProfileApiService', () => {
 
     expect(result).toEqual(PREFERENCES);
     expect(service.employeeNumber()).toBe('EMP-0001');
-    const [, , options] = transport.findCurrentAppUser.mock.calls[0];
+    const [, , options] = transport.provisionCurrentAppUser.mock.calls[0];
     expect(options.context.get(HTTP_RETRY_POLICY)).toEqual({
       retries: 10,
       baseDelayMs: 1_000,
@@ -53,7 +53,7 @@ describe('UserProfileApiService', () => {
     service.getPreferences().subscribe();
     service.updatePreferences(PREFERENCES).subscribe((preferences) => (result = preferences));
 
-    expect(transport.findCurrentAppUser).toHaveBeenCalledTimes(1);
+    expect(transport.provisionCurrentAppUser).toHaveBeenCalledTimes(1);
     expect(transport.updateAppUser).toHaveBeenCalledWith(USER_ID, PREFERENCES);
     expect(result).toEqual(PREFERENCES);
   });
@@ -61,7 +61,7 @@ describe('UserProfileApiService', () => {
   it('uses the bounded active-screen retry policy when saving before a profile load', () => {
     service.updatePreferences(PREFERENCES).subscribe();
 
-    const [, , options] = transport.findCurrentAppUser.mock.calls[0];
+    const [, , options] = transport.provisionCurrentAppUser.mock.calls[0];
     expect(options.context.get(HTTP_RETRY_POLICY)).toEqual(ACTIVE_SCREEN_HTTP_RETRY_POLICY);
     expect(transport.updateAppUser).toHaveBeenCalledWith(USER_ID, PREFERENCES);
   });
