@@ -37,6 +37,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -182,11 +183,14 @@ class OpenApiContractTest {
 			final var requestParam = parameter.getAnnotation(RequestParam.class);
 			if (pathVariable != null) {
 				assertParameter(key, documented, annotationName(pathVariable.value(), pathVariable.name(), parameter),
-						"path", true, parameter);
+						"path", true, parameter.getType(), parameter);
 			} else if (requestParam != null) {
 				assertParameter(key, documented, annotationName(requestParam.value(), requestParam.name(), parameter),
 						"query", requestParam.required()
-								&& ValueConstants.DEFAULT_NONE.equals(requestParam.defaultValue()), parameter);
+								&& ValueConstants.DEFAULT_NONE.equals(requestParam.defaultValue()),
+						parameter.getType(), parameter);
+			} else if (parameter.isAnnotationPresent(ModelAttribute.class)) {
+				assertModelAttributeParameters(key, documented, parameter);
 			} else if (parameter.getType() == Pageable.class) {
 				assertSimpleParameter(key, documented, "page", "query", false, "integer");
 				assertSimpleParameter(key, documented, "size", "query", false, "integer");
@@ -195,9 +199,18 @@ class OpenApiContractTest {
 		}
 	}
 
+	private static void assertModelAttributeParameters(final String key,
+			final List<Map<String, Object>> documented, final Parameter parameter) {
+		assertThat(parameter.getType().isRecord()).as("model attribute for %s must be a record", key).isTrue();
+		for (final var component : parameter.getType().getRecordComponents()) {
+			assertParameter(key, documented, component.getName(), "query", false, component.getType(), component);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private static void assertParameter(final String key, final List<Map<String, Object>> documented,
-			final String name, final String location, final boolean required, final Parameter implementation) {
+			final String name, final String location, final boolean required, final Class<?> implementationType,
+			final AnnotatedElement implementation) {
 		final var parameter = findParameter(key, documented, name, location);
 		if (required) {
 			assertThat(parameter.get("required")).as("required flag for %s parameter %s", key, name).isEqualTo(true);
@@ -207,9 +220,9 @@ class OpenApiContractTest {
 		}
 		final var schema = resolveSchema((Map<String, Object>) parameter.get("schema"));
 		assertThat(schema.get("type")).as("type for %s parameter %s", key, name)
-				.isEqualTo(openApiType(implementation.getType()));
-		if (implementation.getType() == Instant.class) assertThat(schema.get("format")).isEqualTo("date-time");
-		if (implementation.getType() == UUID.class) assertThat(schema.get("format")).isEqualTo("uuid");
+				.isEqualTo(openApiType(implementationType));
+		if (implementationType == Instant.class) assertThat(schema.get("format")).isEqualTo("date-time");
+		if (implementationType == UUID.class) assertThat(schema.get("format")).isEqualTo("uuid");
 		final var pattern = mergedPattern(implementation);
 		if (pattern != null) assertThat(schema.get("pattern")).as("validation for %s parameter %s", key, name)
 				.isEqualTo(fullValuePattern(pattern.regexp()));
