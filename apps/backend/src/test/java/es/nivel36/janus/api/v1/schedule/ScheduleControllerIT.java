@@ -125,6 +125,27 @@ class ScheduleControllerIT {
 	}
 
 	@Test
+	void createScheduleAcceptsAnOvernightTimeRange() throws Exception {
+		final String body = scheduleCreateBody("NIGHT", "PT8H", "22:00", "06:00");
+
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].timeRange.startTime").value("22:00:00"))
+				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].timeRange.endTime").value("06:00:00"));
+	}
+
+	@Test
+	void createScheduleRejectsEqualTimeRangeBounds() throws Exception {
+		final String body = scheduleCreateBody("ZERO", "PT0S", "22:00", "22:00");
+
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()
+				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest())
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
+	}
+
+	@Test
 	void testCreateDuplicatedScheduleShouldReturn409() throws Exception {
 		final String body = """
 				{
@@ -342,6 +363,36 @@ class ScheduleControllerIT {
 	}
 
 	@Test
+	void updateScheduleAcceptsAnOvernightTimeRange() throws Exception {
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON)
+				.content(scheduleCreateBody("NIGHT", "PT8H", "09:00", "17:00"))
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isCreated());
+
+		this.mvc.perform(put(BASE + "/{code}", "NIGHT").contentType(APPLICATION_JSON)
+				.content(scheduleUpdateBody("PT8H", "22:00", "06:00"))
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].effectiveWorkHours").value("PT8H"))
+				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].timeRange.startTime").value("22:00:00"))
+				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].timeRange.endTime").value("06:00:00"));
+	}
+
+	@Test
+	void updateScheduleRejectsEqualTimeRangeBounds() throws Exception {
+		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON)
+				.content(scheduleCreateBody("ZERO", "PT8H", "09:00", "17:00"))
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isCreated());
+
+		this.mvc.perform(put(BASE + "/{code}", "ZERO").contentType(APPLICATION_JSON)
+				.content(scheduleUpdateBody("PT0S", "22:00", "22:00"))
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest())
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
+	}
+
+	@Test
 	void testDeleteScheduleShouldReturn204() throws Exception {
 		final String body = """
 				{
@@ -384,5 +435,44 @@ class ScheduleControllerIT {
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
 				.andExpect(status().isConflict()) //
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
+	}
+
+	private static String scheduleCreateBody(final String code, final String effectiveWorkHours,
+			final String startTime, final String endTime) {
+		return """
+				{
+				  "code": "%s",
+				  "name": "Schedule %s",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
+				  "rules": [{
+				    "name": "Rule",
+				    "dayOfWeekRanges": [{
+				      "dayOfWeek": "MONDAY",
+				      "effectiveWorkHours": "%s",
+				      "timeRange": { "startTime": "%s", "endTime": "%s" }
+				    }]
+				  }]
+				}
+				""".formatted(code, code, effectiveWorkHours, startTime, endTime);
+	}
+
+	private static String scheduleUpdateBody(final String effectiveWorkHours, final String startTime,
+			final String endTime) {
+		return """
+				{
+				  "name": "Updated schedule",
+				  "entryTolerance": "PT1H",
+				  "exitTolerance": "PT1H",
+				  "rules": [{
+				    "name": "Updated rule",
+				    "dayOfWeekRanges": [{
+				      "dayOfWeek": "MONDAY",
+				      "effectiveWorkHours": "%s",
+				      "timeRange": { "startTime": "%s", "endTime": "%s" }
+				    }]
+				  }]
+				}
+				""".formatted(effectiveWorkHours, startTime, endTime);
 	}
 }
