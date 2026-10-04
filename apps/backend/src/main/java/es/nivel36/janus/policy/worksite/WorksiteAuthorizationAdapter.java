@@ -78,17 +78,19 @@ public class WorksiteAuthorizationAdapter {
 	public boolean canCreate(final Authentication auth, final WorksiteScope scope) {
 		final Actor actor = this.actors.resolve(auth);
 		final boolean needsEmployeeFacts = !EmployeeAccessPolicy.hasElevatedAccess(actor);
-		return this.create.allows(actor, new CreateWorksitePolicy.Context(
-				needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
-				scope == WorksiteScope.ASSIGNED));
+		return this.create.allows(actor,
+				new CreateWorksitePolicy.Context(
+						needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
+						scope == WorksiteScope.ASSIGNED));
 	}
 
 	public boolean canUpdate(final Authentication auth, final String code, final WorksiteScope scope) {
 		final Actor actor = this.actors.resolve(auth);
 		final boolean needsEmployeeFacts = !EmployeeAccessPolicy.hasElevatedAccess(actor);
-		return this.update.allows(actor, new UpdateWorksitePolicy.Context(
-				needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
-				scope == WorksiteScope.ASSIGNED, needsEmployeeFacts && this.assigned(actor, code)));
+		return this.update.allows(actor,
+				new UpdateWorksitePolicy.Context(
+						needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
+						scope == WorksiteScope.ASSIGNED, needsEmployeeFacts && this.assigned(actor, code)));
 	}
 
 	public boolean canDelete(final Authentication auth) {

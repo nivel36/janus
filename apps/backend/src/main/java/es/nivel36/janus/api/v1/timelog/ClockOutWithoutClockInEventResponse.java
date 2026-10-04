@@ -36,7 +36,14 @@ import java.time.Instant;
  * @param resolvedTimeLogExitTime exit time of the resolving time log, if
  *                                present
  */
-public record ClockOutWithoutClockInEventResponse(String employeeNumber, String worksiteCode,
-		Instant exitTime, Instant detectedAt, boolean resolved, boolean invalidated, String reason,
-		Instant resolvedTimeLogEntry, Instant resolvedTimeLogExitTime) {
+public record ClockOutWithoutClockInEventResponse( //
+		String employeeNumber, //
+		String worksiteCode, //
+		Instant exitTime, //
+		Instant detectedAt, //
+		boolean resolved, //
+		boolean invalidated, //
+		String reason, //
+		Instant resolvedTimeLogEntry, //
+		Instant resolvedTimeLogExitTime) {
 }

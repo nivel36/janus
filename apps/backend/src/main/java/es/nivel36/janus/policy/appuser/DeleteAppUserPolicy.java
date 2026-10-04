@@ -5,7 +5,7 @@ import es.nivel36.janus.service.appuser.Role;
 
 /** Pure authorization policy for this resource operation. */
 public final class DeleteAppUserPolicy extends RolePolicy {
-	
+
 	public DeleteAppUserPolicy() {
 		super(Role.JANUS_ADMIN);
 	}

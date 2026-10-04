@@ -1,4 +1,4 @@
-package es.nivel36.janus.api.validation;
+package es.nivel36.janus.validation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

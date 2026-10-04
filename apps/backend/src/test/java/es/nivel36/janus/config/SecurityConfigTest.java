@@ -85,8 +85,8 @@ class SecurityConfigTest {
 
 	@Test
 	void shouldRejectTokenWithoutEmailVerifiedClaim() {
-		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api")
-				.validate(this.jwtWithEmailVerification(null)).hasErrors()).isTrue();
+		assertThat(new SecurityConfig().jwtValidator(ISSUER, "janus-api").validate(this.jwtWithEmailVerification(null))
+				.hasErrors()).isTrue();
 	}
 
 	@Test

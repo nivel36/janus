@@ -409,8 +409,7 @@ class WorkShiftServiceTest {
 				new TimeLogSearchCriteria(this.employee.getEmployeeNumber(), start, end),
 				new TimeLogSearchScope.Employee(this.employee.getId()), page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
-		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))
-				.thenReturn(Optional.empty());
+		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date)).thenReturn(Optional.empty());
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(7);
 
 		// Act

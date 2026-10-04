@@ -15,11 +15,11 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
-import es.nivel36.janus.api.validation.LanguageTag;
-import es.nivel36.janus.api.validation.ValidTimeZone;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.Theme;
+import es.nivel36.janus.validation.LanguageTag;
+import es.nivel36.janus.validation.ValidTimeZone;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -36,10 +36,9 @@ import jakarta.validation.constraints.NotNull;
  *                        example {@code "Europe/Madrid"}); must not be blank
  */
 public record UpdateAppUserRequest( //
-		
+
 		@NotBlank(message = "locale must not be blank") //
-		@LanguageTag
-		String locale, //
+		@LanguageTag String locale, //
 
 		@NotNull(message = "timeFormat must not be null") //
 		TimeFormat timeFormat, //

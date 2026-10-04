@@ -59,7 +59,7 @@ public class ApplicationSettingsService {
 	 *
 	 * @param daysUntilLocked                   number of days before an entity
 	 *                                          becomes locked.
-	 * @param employeeWorksiteCreationAllowed  whether employees are allowed to
+	 * @param employeeWorksiteCreationAllowed   whether employees are allowed to
 	 *                                          create workplaces.
 	 * @param worksiteChangeDuringShiftAllowed  whether worksite changes are allowed
 	 *                                          during a shift.

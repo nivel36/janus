@@ -35,9 +35,12 @@ class AuthorizationPolicyRegressionTest {
 	@Test
 	void worksiteVisibilityAndEditingRetainGlobalAndAssignmentRules() {
 		final ViewWorksitePolicy view = new ViewWorksitePolicy();
-		assertThat(view.allows(this.employee, new ViewWorksitePolicy.Context(true, WorksiteScope.GLOBAL, false))).isTrue();
-		assertThat(view.allows(this.employee, new ViewWorksitePolicy.Context(true, WorksiteScope.ASSIGNED, true))).isTrue();
-		assertThat(view.allows(this.employee, new ViewWorksitePolicy.Context(true, WorksiteScope.ASSIGNED, false))).isFalse();
+		assertThat(view.allows(this.employee, new ViewWorksitePolicy.Context(true, WorksiteScope.GLOBAL, false)))
+				.isTrue();
+		assertThat(view.allows(this.employee, new ViewWorksitePolicy.Context(true, WorksiteScope.ASSIGNED, true)))
+				.isTrue();
+		assertThat(view.allows(this.employee, new ViewWorksitePolicy.Context(true, WorksiteScope.ASSIGNED, false)))
+				.isFalse();
 		assertThat(view.allows(this.employee, new ViewWorksitePolicy.Context(false, null, false))).isFalse();
 		assertThat(view.allows(new Actor(UUID.randomUUID(), Set.of(Role.JANUS_EMPLOYEE), null),
 				new ViewWorksitePolicy.Context(true, WorksiteScope.GLOBAL, false))).isFalse();

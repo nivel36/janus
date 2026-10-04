@@ -104,11 +104,11 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 * </ul>
 	 * </p>
 	 *
-	 * @param query         the search text to match against worksite name, code,
-	 *                      description or address. Can't be {@code null}.
+	 * @param query          the search text to match against worksite name, code,
+	 *                       description or address. Can't be {@code null}.
 	 * @param employeeNumber the number of the employee used to filter visible
-	 *                      worksites. Can be {@code null}.
-	 * @param pageable      the pagination information. Can't be {@code null}.
+	 *                       worksites. Can be {@code null}.
+	 * @param pageable       the pagination information. Can't be {@code null}.
 	 * @return a {@link Page} of {@link Worksite} instances matching the criteria;
 	 *         never {@code null}.
 	 */

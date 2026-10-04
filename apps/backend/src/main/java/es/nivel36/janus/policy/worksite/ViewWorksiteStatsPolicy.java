@@ -12,7 +12,8 @@ public final class ViewWorksiteStatsPolicy implements Policy<ViewWorksiteStatsPo
 	public boolean allows(final Actor actor, final Context context) {
 		Objects.requireNonNull(actor, "actor can't be null");
 		Objects.requireNonNull(context, "context can't be null");
-		return EmployeeAccessPolicy.hasElevatedAccess(actor) || actor.hasRole(Role.JANUS_EMPLOYEE) && context.assignedToWorksite();
+		return EmployeeAccessPolicy.hasElevatedAccess(actor)
+				|| actor.hasRole(Role.JANUS_EMPLOYEE) && context.assignedToWorksite();
 	}
 
 	public record Context(boolean assignedToWorksite) {

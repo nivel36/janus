@@ -19,9 +19,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -140,9 +140,8 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * considered. The query returns distinct employee IDs.
 	 * </p>
 	 *
-	 * @param start the lower bound instant; only time logs with
-	 *                      {@code entryTime} greater than or equal to this value
-	 *                      are considered
+	 * @param start the lower bound instant; only time logs with {@code entryTime}
+	 *              greater than or equal to this value are considered
 	 * @return a list of unique employee IDs corresponding to employees with at
 	 *         least one unlinked time log since the given instant
 	 */
@@ -162,9 +161,9 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 *
 	 * <p>
 	 * This method checks for the existence of an {@link Employee} whose natural
-	 * internal identifier ({@code id}) matches the provided value and whose associated
-	 * {@link Schedule} has the given {@code code}. The comparison is performed at
-	 * the persistence layer without loading full entities into memory.
+	 * internal identifier ({@code id}) matches the provided value and whose
+	 * associated {@link Schedule} has the given {@code code}. The comparison is
+	 * performed at the persistence layer without loading full entities into memory.
 	 * </p>
 	 *
 	 * <p>
@@ -173,12 +172,11 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * is found.
 	 * </p>
 	 *
-	 * @param employeeId the internal id of the employee; must not be
-	 *                      {@code null}
-	 * @param scheduleCode  the business code of the schedule; must not be
-	 *                      {@code null}
-	 * @return {@code true} if the employee is assigned to the
-	 *         specified schedule; {@code false} otherwise
+	 * @param employeeId   the internal id of the employee; must not be {@code null}
+	 * @param scheduleCode the business code of the schedule; must not be
+	 *                     {@code null}
+	 * @return {@code true} if the employee is assigned to the specified schedule;
+	 *         {@code false} otherwise
 	 */
 	boolean existsByIdAndSchedule_Code(Long employeeId, String scheduleCode);
 

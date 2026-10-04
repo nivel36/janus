@@ -15,7 +15,7 @@
  */
 package es.nivel36.janus.api.v1.applicationsettings;
 
-import es.nivel36.janus.api.validation.ValidTimeZone;
+import es.nivel36.janus.validation.ValidTimeZone;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -43,7 +43,7 @@ import jakarta.validation.constraints.PositiveOrZero;
  *                                          as default; must not be blank
  */
 public record UpdateApplicationSettingsRequest(
-		
+
 		@PositiveOrZero(message = "daysUntilLocked must be greater than or equal to 0") //
 		@NotNull(message = "daysUntilLocked is required") //
 		Integer daysUntilLocked, //
@@ -57,7 +57,6 @@ public record UpdateApplicationSettingsRequest(
 		@NotNull(message = "employeeManualTimeLogEntryAllowed is required") //
 		Boolean employeeManualTimeLogEntryAllowed, //
 
-		@NotNull(message = "defaultTimezone is required") //
 		@NotBlank(message = "defaultTimezone is required") //
 		@ValidTimeZone(message = "defaultTimezone must be a valid time-zone identifier") //
 		String defaultTimezone) {

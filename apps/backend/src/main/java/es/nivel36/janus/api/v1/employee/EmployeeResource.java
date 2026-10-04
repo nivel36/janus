@@ -15,10 +15,6 @@
  */
 package es.nivel36.janus.api.v1.employee;
 
-import es.nivel36.janus.api.validation.WorksiteCode;
-
-import es.nivel36.janus.api.validation.ScheduleCode;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,9 +30,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.validation.ScheduleCode;
+import es.nivel36.janus.validation.SearchQuery;
+import es.nivel36.janus.validation.WorksiteCode;
 import jakarta.validation.Valid;
-import es.nivel36.janus.api.validation.EmployeeNumber;
-import es.nivel36.janus.api.validation.SearchQuery;
 
 @RequestMapping("/api/v1/employees")
 public interface EmployeeResource {

@@ -13,9 +13,8 @@ public final class ViewWorksitePolicy implements Policy<ViewWorksitePolicy.Conte
 	public boolean allows(final Actor actor, final Context context) {
 		Objects.requireNonNull(actor, "actor can't be null");
 		Objects.requireNonNull(context, "context can't be null");
-		return EmployeeAccessPolicy.hasElevatedAccess(actor)
-				|| EmployeeAccessPolicy.isRestrictedToOwnEmployee(actor) && actor.employeeId() != null
-				&& context.worksiteExists()
+		return EmployeeAccessPolicy.hasElevatedAccess(actor) || EmployeeAccessPolicy.isRestrictedToOwnEmployee(actor)
+				&& actor.employeeId() != null && context.worksiteExists()
 				&& (context.scope() == WorksiteScope.GLOBAL || context.assignedToWorksite());
 	}
 

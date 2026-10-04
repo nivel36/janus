@@ -70,8 +70,9 @@ class WorkShiftPrecomputeJobTest {
 	@Test
 	void precomputesLogsAcrossMidnightAsOneOvernightShift() {
 		final LocalDate shiftDay = LocalDate.of(2026, 9, 28);
-		final TimeLog beforeMidnight = timeLog(shiftDay, "22:00:00Z", shiftDay.plusDays(1), "00:00:00Z");
-		final TimeLog afterMidnight = timeLog(shiftDay.plusDays(1), "00:30:00Z", shiftDay.plusDays(1), "06:00:00Z");
+		final TimeLog beforeMidnight = this.timeLog(shiftDay, "22:00:00Z", shiftDay.plusDays(1), "00:00:00Z");
+		final TimeLog afterMidnight = this.timeLog(shiftDay.plusDays(1), "00:30:00Z", shiftDay.plusDays(1),
+				"06:00:00Z");
 		final TimeRange overnight = new TimeRange(LocalTime.of(22, 0), LocalTime.of(6, 0));
 
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(0);

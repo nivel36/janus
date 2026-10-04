@@ -20,14 +20,12 @@ import es.nivel36.janus.service.appuser.Role;
 class EmployeeSearchPolicyTest {
 	@ParameterizedTest
 	@MethodSource("searchCases")
-	void allSearchPoliciesRespectRolesAssociationAndExplicitFilters(final Set<Role> roles,
-			final Long employeeId, final boolean filterPresent, final boolean ownsEmployee,
-			final boolean expected) {
+	void allSearchPoliciesRespectRolesAssociationAndExplicitFilters(final Set<Role> roles, final Long employeeId,
+			final boolean filterPresent, final boolean ownsEmployee, final boolean expected) {
 		final Actor actor = new Actor(UUID.randomUUID(), roles, employeeId);
 		final EmployeeSearchPolicy.Context context = new EmployeeSearchPolicy.Context(filterPresent, ownsEmployee);
-		for (final Policy<EmployeeSearchPolicy.Context> policy : java.util.List.of(
-				new EmployeeSearchPolicy(), new SearchTimeLogPolicy(), new SearchSchedulePolicy(),
-				new SearchWorksitePolicy())) {
+		for (final Policy<EmployeeSearchPolicy.Context> policy : java.util.List.of(new EmployeeSearchPolicy(),
+				new SearchTimeLogPolicy(), new SearchSchedulePolicy(), new SearchWorksitePolicy())) {
 			assertThat(policy.allows(actor, context)).as(policy.getClass().getSimpleName()).isEqualTo(expected);
 		}
 	}
@@ -36,9 +34,15 @@ class EmployeeSearchPolicyTest {
 		final Stream.Builder<Arguments> cases = Stream.builder();
 		for (int mask = 0; mask < 8; mask++) {
 			final Set<Role> roles = new HashSet<>();
-			if ((mask & 1) != 0) roles.add(Role.JANUS_EMPLOYEE);
-			if ((mask & 2) != 0) roles.add(Role.JANUS_USER);
-			if ((mask & 4) != 0) roles.add(Role.JANUS_ADMIN);
+			if ((mask & 1) != 0) {
+				roles.add(Role.JANUS_EMPLOYEE);
+			}
+			if ((mask & 2) != 0) {
+				roles.add(Role.JANUS_USER);
+			}
+			if ((mask & 4) != 0) {
+				roles.add(Role.JANUS_ADMIN);
+			}
 			for (final Long id : new Long[] { null, -1L, 0L, 84L }) {
 				for (final boolean filter : new boolean[] { false, true }) {
 					for (final boolean owns : new boolean[] { false, true }) {

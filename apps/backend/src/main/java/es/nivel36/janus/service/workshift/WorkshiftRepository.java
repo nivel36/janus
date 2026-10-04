@@ -31,9 +31,9 @@ interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 	 * Retrieves the {@link WorkShift} for a specific employee and date if it has
 	 * already been materialized.
 	 *
-	 * @param employeeId internal id of the employee owning the work shift; must not be
-	 *                      {@code null}
-	 * @param date          the local date of the shift; must not be {@code null}
+	 * @param employeeId internal id of the employee owning the work shift; must not
+	 *                   be {@code null}
+	 * @param date       the local date of the shift; must not be {@code null}
 	 * @return the persisted {@link WorkShift} instance, or {@code null} if none
 	 *         exists
 	 */
@@ -43,13 +43,13 @@ interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 	 * Finds the {@link WorkShift} entries for an employee whose {@code date} falls
 	 * within the provided half-open range {@code [start, end)}.
 	 *
-	 * @param employeeId internal id of the employee whose shifts are requested; must
-	 *                      not be {@code null}
-	 * @param start         the inclusive lower bound of the date range; must not be
-	 *                      {@code null}
-	 * @param end           the exclusive upper bound of the date range; must not be
-	 *                      {@code null}
-	 * @param pageable      pagination information; must not be {@code null}
+	 * @param employeeId internal id of the employee whose shifts are requested;
+	 *                   must not be {@code null}
+	 * @param start      the inclusive lower bound of the date range; must not be
+	 *                   {@code null}
+	 * @param end        the exclusive upper bound of the date range; must not be
+	 *                   {@code null}
+	 * @param pageable   pagination information; must not be {@code null}
 	 * @return a {@link Page} containing the matching work shifts
 	 */
 	@Query("""
@@ -59,6 +59,5 @@ interface WorkshiftRepository extends CrudRepository<WorkShift, Long> {
 			AND w.date >= :start
 			AND w.date < :end
 			""")
-	Page<WorkShift> findByEmployeeIdAndRange(Long employeeId, LocalDate start, LocalDate end,
-			Pageable pageable);
+	Page<WorkShift> findByEmployeeIdAndRange(Long employeeId, LocalDate start, LocalDate end, Pageable pageable);
 }

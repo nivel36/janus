@@ -21,8 +21,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.UuidGenerator;
 
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
@@ -86,13 +86,12 @@ public class AppUser implements Serializable {
 	AppUser() {
 	}
 
-	public AppUser(final String email, final String keycloakSubject, final Locale locale,
-			final TimeFormat timeFormat) {
+	public AppUser(final String email, final String keycloakSubject, final Locale locale, final TimeFormat timeFormat) {
 		this(email, keycloakSubject, locale, timeFormat, DEFAULT_TIMEZONE);
 	}
 
-	public AppUser(final String email, final String keycloakSubject, final Locale locale,
-			final TimeFormat timeFormat, final ZoneId defaultTimezone) {
+	public AppUser(final String email, final String keycloakSubject, final Locale locale, final TimeFormat timeFormat,
+			final ZoneId defaultTimezone) {
 		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
 		this.keycloakSubject = validateKeycloakSubject(keycloakSubject);
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");

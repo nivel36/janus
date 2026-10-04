@@ -34,8 +34,8 @@ import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
-import es.nivel36.janus.util.Strings;
 import es.nivel36.janus.util.LikePatterns;
+import es.nivel36.janus.util.Strings;
 
 /**
  * Service responsible for managing {@link Employee} entities.
@@ -103,8 +103,8 @@ public class EmployeeService {
 	 * @return the {@link Employee} associated with the given email, or
 	 *         {@link Optional#empty()} when the valid email has no match
 	 *
-	 * @throws NullPointerException      if {@code email} is {@code null}
-	 * @throws IllegalArgumentException  if {@code email} is blank
+	 * @throws NullPointerException     if {@code email} is {@code null}
+	 * @throws IllegalArgumentException if {@code email} is blank
 	 */
 	@Transactional(readOnly = true)
 	public Optional<Employee> findEmployeeByEmail(final String email) {
@@ -128,8 +128,7 @@ public class EmployeeService {
 	 * Finds the identifiers of employees who have at least one {@link TimeLog}
 	 * since the specified instant but have no associated {@link WorkShift}.
 	 *
-	 * @param start         the lower bound instant (inclusive). Can't be
-	 *                      {@code null}.
+	 * @param start the lower bound instant (inclusive). Can't be {@code null}.
 	 *
 	 * @return a list of employee identifiers matching the criteria
 	 *
@@ -169,8 +168,8 @@ public class EmployeeService {
 	 *                                        already exists
 	 */
 	@Transactional
-	public Employee createEmployee(final String employeeNumber, final String name, final String surname, final String email,
-			final Schedule schedule) {
+	public Employee createEmployee(final String employeeNumber, final String name, final String surname,
+			final String email, final Schedule schedule) {
 		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
 		Strings.requireNonBlank(name, "name cannot be null or blank.");
 		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
@@ -261,8 +260,8 @@ public class EmployeeService {
 	 *
 	 * <p>
 	 * This method checks for the existence of an {@link Employee} whose natural
-	 * internal identifier ({@code id}) matches the provided value and whose associated
-	 * {@link Schedule} has the given {@code code}.
+	 * internal identifier ({@code id}) matches the provided value and whose
+	 * associated {@link Schedule} has the given {@code code}.
 	 * </p>
 	 *
 	 * <p>
@@ -271,12 +270,11 @@ public class EmployeeService {
 	 * is found.
 	 * </p>
 	 *
-	 * @param employeeId the internal id of the employee; must not be
-	 *                      {@code null}
-	 * @param scheduleCode  the business code of the schedule; must not be
-	 *                      {@code null}
-	 * @return {@code true} if the employee is assigned to the
-	 *         specified schedule; {@code false} otherwise
+	 * @param employeeId   the internal id of the employee; must not be {@code null}
+	 * @param scheduleCode the business code of the schedule; must not be
+	 *                     {@code null}
+	 * @return {@code true} if the employee is assigned to the specified schedule;
+	 *         {@code false} otherwise
 	 */
 	public boolean isAssignedToSchedule(final Long employeeId, final String scheduleCode) {
 		Objects.requireNonNull(employeeId, "employeeId cannot be null.");
@@ -292,8 +290,8 @@ public class EmployeeService {
 	 *
 	 * <p>
 	 * This method checks for the existence of an {@link Employee} whose natural
-	 * internal identifier ({@code id}) matches the provided value and whose associated
-	 * {@link Worksite} has the given {@code code}.
+	 * internal identifier ({@code id}) matches the provided value and whose
+	 * associated {@link Worksite} has the given {@code code}.
 	 * </p>
 	 *
 	 * <p>
@@ -302,12 +300,11 @@ public class EmployeeService {
 	 * is found.
 	 * </p>
 	 *
-	 * @param employeeId the internal id of the employee; must not be
-	 *                      {@code null}
-	 * @param worksiteCode  the business code of the worksite; must not be
-	 *                      {@code null}
-	 * @return {@code true} if the employee is assigned to the
-	 *         specified schedule; {@code false} otherwise
+	 * @param employeeId   the internal id of the employee; must not be {@code null}
+	 * @param worksiteCode the business code of the worksite; must not be
+	 *                     {@code null}
+	 * @return {@code true} if the employee is assigned to the specified schedule;
+	 *         {@code false} otherwise
 	 */
 	public boolean isAssignedToWorksite(final Long employeeId, final String worksiteCode) {
 		Objects.requireNonNull(employeeId, "employeeId cannot be null.");

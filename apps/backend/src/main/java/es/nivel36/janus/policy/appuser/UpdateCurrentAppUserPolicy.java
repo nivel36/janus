@@ -7,7 +7,10 @@ import es.nivel36.janus.policy.Policy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 
-/** Administrators may update any account; other recognized actors only their own. */
+/**
+ * Administrators may update any account; other recognized actors only their
+ * own.
+ */
 public final class UpdateCurrentAppUserPolicy implements Policy<UUID> {
 	@Override
 	public boolean allows(final Actor actor, final UUID targetUserId) {

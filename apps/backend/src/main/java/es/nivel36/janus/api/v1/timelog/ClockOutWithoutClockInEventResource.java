@@ -15,8 +15,6 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-import es.nivel36.janus.api.validation.WorksiteCode;
-
 import java.time.Instant;
 
 import org.springframework.http.ResponseEntity;
@@ -27,7 +25,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import es.nivel36.janus.api.validation.EmployeeNumber;
+import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.validation.WorksiteCode;
 import jakarta.validation.Valid;
 
 @RequestMapping("/api/v1")
@@ -36,16 +35,16 @@ public interface ClockOutWithoutClockInEventResource {
 	@PatchMapping("/employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}")
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canTransition(authentication, #employeeNumber, #request.action())")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent(
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
-			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
-			@PathVariable("exitTime") Instant exitTime,
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber, //
+			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode, //
+			@PathVariable("exitTime") Instant exitTime, //
 			@Valid @RequestBody TransitionClockOutWithoutClockInEventRequest request);
 
 	@GetMapping("/employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}")
 	@PreAuthorize("@clockOutWithoutClockInEventAuthorization.canView(authentication, #employeeNumber)")
 	ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEvent(
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
-			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
+			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber, //
+			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode, //
 			@PathVariable("exitTime") Instant exitTime);
 
 }

@@ -59,8 +59,8 @@ public record ScheduleRuleRequest( //
 	 * Validates that {@code endDate} is not before {@code startDate} when both are
 	 * provided.
 	 *
-	 * @return {@code true} if the validity period is valid or incomplete, {@code false}
-	 *         otherwise
+	 * @return {@code true} if the validity period is valid or incomplete,
+	 *         {@code false} otherwise
 	 */
 	@JsonIgnore
 	@AssertTrue(message = "endDate must be on or after startDate")

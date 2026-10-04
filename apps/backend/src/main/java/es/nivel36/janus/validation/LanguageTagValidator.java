@@ -1,4 +1,4 @@
-package es.nivel36.janus.api.validation;
+package es.nivel36.janus.validation;
 
 import java.util.IllformedLocaleException;
 import java.util.Locale;

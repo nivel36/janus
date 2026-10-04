@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.api.validation;
+package es.nivel36.janus.validation;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.RECORD_COMPONENT;
-import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
@@ -30,19 +28,25 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-/** Validates the stable identifier assigned to an employee. */
+/**
+ * Validates bounded, single-line free text used by repository search queries.
+ * Unicode letters, marks, numbers, spaces, punctuation and symbols are
+ * accepted; control characters are deliberately excluded.
+ */
 @Documented
 @Constraint(validatedBy = {})
-@Pattern(regexp = EmployeeNumber.PATTERN)
+@Pattern(regexp = "[\\p{L}\\p{M}\\p{N}\\p{Zs}\\p{P}\\p{S}]+")
+@Size(max = SearchQuery.MAX_LENGTH)
 @ReportAsSingleViolation
 @Retention(RUNTIME)
-@Target({ FIELD, PARAMETER, RECORD_COMPONENT, TYPE_USE, ANNOTATION_TYPE })
-public @interface EmployeeNumber {
+@Target({ FIELD, PARAMETER, ANNOTATION_TYPE })
+public @interface SearchQuery {
 
-	String PATTERN = "[A-Za-z0-9_-]{1,50}";
+	int MAX_LENGTH = 100;
 
-	String message() default "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)";
+	String message() default "query must be single-line text containing at most 100 characters";
 
 	Class<?>[] groups() default {};
 

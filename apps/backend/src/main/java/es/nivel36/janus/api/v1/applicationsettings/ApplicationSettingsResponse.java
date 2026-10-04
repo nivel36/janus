@@ -19,8 +19,8 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 
 /**
  * Response payload that represents global {@link ApplicationSettings} values.
- * Serialization always emits the canonical record component names. The
- * obsolete {@code employeeWorkplaceCreationAllowed} and
+ * Serialization always emits the canonical record component names. The obsolete
+ * {@code employeeWorkplaceCreationAllowed} and
  * {@code employeeManualTimelogEntryAllowed} names are temporary
  * deserialization-only aliases.
  *

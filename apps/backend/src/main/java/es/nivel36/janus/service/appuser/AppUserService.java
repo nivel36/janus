@@ -141,7 +141,8 @@ public class AppUserService {
 		try {
 			employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		} catch (final ResourceNotFoundException notFound) {
-			logger.info("No employee found for employeeNumber claim {}; provisioning an unlinked account", employeeNumber);
+			logger.info("No employee found for employeeNumber claim {}; provisioning an unlinked account",
+					employeeNumber);
 			return null;
 		}
 		final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);

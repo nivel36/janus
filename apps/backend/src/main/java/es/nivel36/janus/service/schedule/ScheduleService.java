@@ -268,9 +268,9 @@ public class ScheduleService {
 	 * an empty {@link Optional} is returned.
 	 * </p>
 	 *
-	 * @param employee employee whose working time is requested; can't
-	 *                      be {@code null}
-	 * @param date          date to evaluate; can't be {@code null}
+	 * @param employee employee whose working time is requested; can't be
+	 *                 {@code null}
+	 * @param date     date to evaluate; can't be {@code null}
 	 * @return an {@link Optional} containing the applicable {@link TimeRange}, or
 	 *         an empty {@code Optional} if none applies
 	 * @throws NullPointerException if {@code employee} or {@code date} is
@@ -294,11 +294,11 @@ public class ScheduleService {
 	 * If both parameters are empty, all schedules are returned. Otherwise, a
 	 * filtered search is performed.
 	 *
-	 * @param query         a text query to filter schedules; may be {@code null} or
-	 *                      blank
+	 * @param query          a text query to filter schedules; may be {@code null}
+	 *                       or blank
 	 * @param employeeNumber the employee number used to filter assigned schedules;
-	 *                      may be {@code null}
-	 * @param pageable      pagination information; must not be {@code null}
+	 *                       may be {@code null}
+	 * @param pageable       pagination information; must not be {@code null}
 	 * @return a {@link Page} of matching {@link Schedule} instances; never
 	 *         {@code null}
 	 */

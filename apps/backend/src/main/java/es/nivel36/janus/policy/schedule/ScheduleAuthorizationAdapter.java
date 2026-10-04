@@ -42,8 +42,8 @@ public class ScheduleAuthorizationAdapter {
 
 	public boolean canView(final Authentication auth, final String code) {
 		final Actor a = this.actors.resolve(auth);
-		return this.view.allows(a, new ViewSchedulePolicy.Context(a.employeeId() != null && this.employees
-				.isAssignedToSchedule(a.employeeId(), code)));
+		return this.view.allows(a, new ViewSchedulePolicy.Context(
+				a.employeeId() != null && this.employees.isAssignedToSchedule(a.employeeId(), code)));
 	}
 
 	public boolean canCreate(final Authentication a) {

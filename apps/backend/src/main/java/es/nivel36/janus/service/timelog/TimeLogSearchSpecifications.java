@@ -18,7 +18,7 @@ final class TimeLogSearchSpecifications {
 	static Specification<TimeLog> within(final TimeLogSearchScope scope) {
 		return switch (scope) {
 		case final TimeLogSearchScope.All _ -> (_, _, builder) -> builder.conjunction();
-		case TimeLogSearchScope.Employee(Long employeeId) ->
+		case TimeLogSearchScope.Employee(final Long employeeId) ->
 			(root, _, builder) -> builder.equal(root.get("employee").get("id"), employeeId);
 		case final TimeLogSearchScope.None _ -> (_, _, builder) -> builder.disjunction();
 		};

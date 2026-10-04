@@ -71,8 +71,7 @@ class ActorResolverTest {
 		final ActorResolver actorResolver = new ActorResolver(appUserService);
 		final JwtAuthenticationToken authentication = jwtAuthentication(List.of());
 
-		assertThatThrownBy(() -> actorResolver.resolve(authentication))
-				.isInstanceOf(AccessDeniedException.class);
+		assertThatThrownBy(() -> actorResolver.resolve(authentication)).isInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -84,8 +83,7 @@ class ActorResolverTest {
 		final JwtAuthenticationToken authentication = jwtAuthentication(
 				List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN")));
 
-		assertThatThrownBy(() -> actorResolver.resolve(authentication))
-				.isInstanceOf(AccessDeniedException.class);
+		assertThatThrownBy(() -> actorResolver.resolve(authentication)).isInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -94,8 +92,7 @@ class ActorResolverTest {
 				"ROLE_JANUS_ADMIN");
 		final ActorResolver actorResolver = new ActorResolver(mock(AppUserService.class));
 
-		assertThatThrownBy(() -> actorResolver.resolve(authentication))
-				.isInstanceOf(AccessDeniedException.class);
+		assertThatThrownBy(() -> actorResolver.resolve(authentication)).isInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -104,8 +101,7 @@ class ActorResolverTest {
 		authentication.setAuthenticated(false);
 		final ActorResolver actorResolver = new ActorResolver(mock(AppUserService.class));
 
-		assertThatThrownBy(() -> actorResolver.resolve(authentication))
-				.isInstanceOf(AccessDeniedException.class);
+		assertThatThrownBy(() -> actorResolver.resolve(authentication)).isInstanceOf(AccessDeniedException.class);
 	}
 
 	private static JwtAuthenticationToken jwtAuthentication(final List<SimpleGrantedAuthority> authorities) {

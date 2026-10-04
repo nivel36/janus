@@ -38,7 +38,10 @@ import es.nivel36.janus.service.worksite.Worksite;
 @Repository
 interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificationExecutor<TimeLog> {
 
-	/** Applies one specification to both the records and their total, before pagination. */
+	/**
+	 * Applies one specification to both the records and their total, before
+	 * pagination.
+	 */
 	@Override
 	@EntityGraph(attributePaths = { "employee", "worksite" })
 	Page<TimeLog> findAll(Specification<TimeLog> specification, Pageable page);
@@ -59,8 +62,8 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	 * matches the provided {@code entryTime}.
 	 *
 	 * @param employeeId the internal id of the employee whose time log is to be
-	 *                      retrieved
-	 * @param entryTime     the exact entry timestamp of the record
+	 *                   retrieved
+	 * @param entryTime  the exact entry timestamp of the record
 	 * @return an {@link Optional} containing the matching time log, or empty if not
 	 *         found
 	 */
@@ -72,7 +75,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	 * {@code entryTime}.
 	 *
 	 * @param employeeId the internal id of the employee to check for
-	 * @param entryTime     the exact entry timestamp to check
+	 * @param entryTime  the exact entry timestamp to check
 	 * @return {@code true} if a record exists for the given employee and entry
 	 *         time; {@code false} otherwise
 	 */
@@ -100,9 +103,10 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	 * first).</li>
 	 * </ul>
 	 * </p>
-	 * @param employeeId the internal id of the employee whose orphan time logs will be
-	 *                      returned
-	 * @param from          lower bound (inclusive) for {@code entryTime}
+	 *
+	 * @param employeeId the internal id of the employee whose orphan time logs will
+	 *                   be returned
+	 * @param from       lower bound (inclusive) for {@code entryTime}
 	 *
 	 * @return a list of orphan {@link TimeLog} entities (with {@link Employee} and
 	 *         {@link Worksite} initialized) since {@code from}, ordered most recent

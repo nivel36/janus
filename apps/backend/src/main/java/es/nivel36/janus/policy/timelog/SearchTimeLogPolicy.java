@@ -29,7 +29,8 @@ public final class SearchTimeLogPolicy implements Policy<EmployeeSearchPolicy.Co
 		if (this.view.allows(actor, new EmployeeAccessPolicy.Context(false))) {
 			return new TimeLogSearchScope.All();
 		}
-		if (this.view.allows(actor, new EmployeeAccessPolicy.Context(true)) && actor.employeeId() != null && actor.employeeId() > 0) {
+		if (this.view.allows(actor, new EmployeeAccessPolicy.Context(true)) && actor.employeeId() != null
+				&& actor.employeeId() > 0) {
 			return new TimeLogSearchScope.Employee(actor.employeeId());
 		}
 		return new TimeLogSearchScope.None();

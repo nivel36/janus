@@ -4,8 +4,6 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
 @RequestMapping({ "/api/v1/time-logs" })

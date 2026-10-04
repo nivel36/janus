@@ -127,8 +127,7 @@ class TimeLogServiceTest {
 		final Instant eightHoursBefore = fixedNow.minus(8, ChronoUnit.HOURS);
 
 		final TimeLog existingTimeLog = new TimeLog(this.employee, this.worksite, eightHoursBefore);
-		when(this.timeLogRepository
-				.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getId()))
+		when(this.timeLogRepository.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getId()))
 				.thenReturn(existingTimeLog);
 
 		// Act
@@ -145,8 +144,7 @@ class TimeLogServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 20, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
-		when(this.timeLogRepository
-				.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getId()))
+		when(this.timeLogRepository.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getId()))
 				.thenReturn(null);
 		final Instant now = this.now();
 		assertThrows(ClockOutWithoutClockInException.class, () -> {

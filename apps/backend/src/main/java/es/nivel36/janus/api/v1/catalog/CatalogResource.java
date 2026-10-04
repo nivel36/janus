@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import es.nivel36.janus.api.validation.SearchQuery;
+import es.nivel36.janus.validation.SearchQuery;
+
 @RequestMapping("/api/v1/catalogs")
 public interface CatalogResource {
 

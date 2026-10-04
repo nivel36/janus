@@ -83,7 +83,7 @@ public class WorksiteController implements WorksiteResource {
 	 * Retrieves all worksites registered in the system.
 	 *
 	 * @param query          optional worksite search query
-	 * @param employeeNumber  optional employee number filter
+	 * @param employeeNumber optional employee number filter
 	 * @param pageable       pagination and sorting information; must not be
 	 *                       {@code null}
 	 * @param authentication current authentication; must not be {@code null}
@@ -96,7 +96,8 @@ public class WorksiteController implements WorksiteResource {
 			final Pageable pageable, //
 			final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
-		final String effectiveEmployeeNumber = this.authorization.effectiveEmployeeNumber(authentication, employeeNumber);
+		final String effectiveEmployeeNumber = this.authorization.effectiveEmployeeNumber(authentication,
+				employeeNumber);
 
 		final Page<WorksiteResponse> worksites = this.worksiteService
 				.searchWorksites(query, effectiveEmployeeNumber, pageable).map(this.worksiteResponseMapper::map);
@@ -220,7 +221,7 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Adds a {@link Worksite} to an {@link Employee}.
 	 *
-	 * @param worksiteCode  the worksite business code; must not be {@code null}
+	 * @param worksiteCode   the worksite business code; must not be {@code null}
 	 * @param employeeNumber the number of the employee; must not be {@code null}
 	 *
 	 * @return an empty response with HTTP 204 status
@@ -244,7 +245,7 @@ public class WorksiteController implements WorksiteResource {
 	 * Removes a {@link Worksite} from an {@link Employee}.
 	 *
 	 * @param employeeNumber the number of the employee; must not be {@code null}
-	 * @param worksiteCode  the worksite business code; must not be {@code null}
+	 * @param worksiteCode   the worksite business code; must not be {@code null}
 	 * @return an empty response with HTTP 204 status
 	 */
 	@Override

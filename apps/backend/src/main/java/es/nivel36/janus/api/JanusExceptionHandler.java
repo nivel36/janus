@@ -394,10 +394,11 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_CONSTRAINT_VIOLATION);
 		pd.setTitle("Constraint violation");
 		pd.setDetail("One or more constraints were violated");
-		pd.setProperty("errors", ex.getConstraintViolations().stream()
-				.map(v -> new ValidationError(v.getPropertyPath().toString(), v.getMessage(),
-						v.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName()))
-				.toList());
+		pd.setProperty("errors",
+				ex.getConstraintViolations().stream()
+						.map(v -> new ValidationError(v.getPropertyPath().toString(), v.getMessage(),
+								v.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName()))
+						.toList());
 		this.addCommonProps(pd, request);
 		logger.warn("ConstraintViolationException error {}", pd);
 		return pd;
@@ -434,12 +435,8 @@ public class JanusExceptionHandler {
 	}
 
 	private static String firstCode(final MessageSourceResolvable error) {
-		return Arrays.stream(error.getCodes() == null ? new String[0] : error.getCodes())
-				.filter(Objects::nonNull)
-				.map(code -> code.split("\\.", 2)[0])
-				.filter(code -> !code.isBlank())
-				.findFirst()
-				.orElse("Validation");
+		return Arrays.stream(error.getCodes() == null ? new String[0] : error.getCodes()).filter(Objects::nonNull)
+				.map(code -> code.split("\\.", 2)[0]).filter(code -> !code.isBlank()).findFirst().orElse("Validation");
 	}
 
 	private static String parameterName(final ParameterValidationResult result) {

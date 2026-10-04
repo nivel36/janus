@@ -83,8 +83,7 @@ class AppUserServiceTest {
 		when(this.appUserCreator.create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, employee))
 				.thenThrow(new AppUserCreationConflict(new RuntimeException("employee claimed")));
 		when(this.appUserCreator.create(eq(email), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
-				isNull()))
-				.thenThrow(new AppUserCreationConflict(new RuntimeException("subject claimed")));
+				isNull())).thenThrow(new AppUserCreationConflict(new RuntimeException("subject claimed")));
 
 		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, email, "EMP-42"));
 	}
@@ -123,7 +122,6 @@ class AppUserServiceTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> new AppUser("oversized-subject", oversizedSubject, Locale.ENGLISH, TimeFormat.H24));
 	}
-
 
 	@Test
 	void unknownEmployeeNumberCreatesAnUnlinkedProfile() {

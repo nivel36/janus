@@ -30,12 +30,12 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.api.validation.EmployeeNumber;
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
 import es.nivel36.janus.service.appuser.Theme;
 import es.nivel36.janus.util.EmailAddresses;
+import es.nivel36.janus.validation.EmployeeNumber;
 
 /**
  * REST controller exposing CRUD operations for {@link AppUser} entities.
@@ -106,8 +106,8 @@ public class AppUserController implements AppUserResource {
 	/**
 	 * Updates the preferences of the current authenticated {@link AppUser}.
 	 *
-	 * @param request        the payload containing the new user preferences; must
-	 *                       not be {@code null}
+	 * @param request the payload containing the new user preferences; must not be
+	 *                {@code null}
 	 * @return the updated {@link AppUserResponse}
 	 */
 	@Override

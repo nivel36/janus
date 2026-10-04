@@ -4,8 +4,9 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-/** Actions supported when finalizing a clock-out-without-clock-in event. */
+/**
+ * Actions supported when finalizing a clock-out-without-clock-in event.
+ */
 public enum ClockOutWithoutClockInEventAction {
-	RESOLVE,
-	INVALIDATE
+	RESOLVE, INVALIDATE
 }

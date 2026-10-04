@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.nivel36.janus.api.validation;
+package es.nivel36.janus.validation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -24,15 +24,15 @@ import java.lang.annotation.Target;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-/** Validates that a string identifies a supported time zone. */
+/** Validates that a duration is zero or positive. */
 @Documented
-@Constraint(validatedBy = ValidTimeZoneValidator.class)
+@Constraint(validatedBy = NonNegativeDurationValidator.class)
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,
 		ElementType.TYPE_USE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidTimeZone {
+public @interface NonNegativeDuration {
 
-	String message() default "must be a valid time-zone identifier";
+	String message() default "must be greater than or equal to 0";
 
 	Class<?>[] groups() default {};
 

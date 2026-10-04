@@ -153,12 +153,10 @@ public class WorkShiftPrecomputeJob {
 		final LocalDate entryDay = firstEntry.atZone(zone).toLocalDate();
 		final LocalTime entryTime = firstEntry.atZone(zone).toLocalTime();
 		final LocalDate previousDay = entryDay.minusDays(1);
-		final Optional<TimeRange> previousTimeRange = this.scheduleService
-				.findTimeRangeForEmployeeByDate(employee, previousDay);
-		final boolean belongsToPreviousOvernightShift = previousTimeRange
-				.filter(WorkShiftPrecomputeJob::isOvernight)
-				.map(range -> entryTime.isBefore(range.getEndTime()))
-				.orElse(false);
+		final Optional<TimeRange> previousTimeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee,
+				previousDay);
+		final boolean belongsToPreviousOvernightShift = previousTimeRange.filter(WorkShiftPrecomputeJob::isOvernight)
+				.map(range -> entryTime.isBefore(range.getEndTime())).orElse(false);
 
 		final LocalDate day = belongsToPreviousOvernightShift ? previousDay : entryDay;
 		final Optional<TimeRange> timeRange = belongsToPreviousOvernightShift ? previousTimeRange

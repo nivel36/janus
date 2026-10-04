@@ -85,11 +85,11 @@ public class WorksiteService {
 	 * If both parameters are empty, all worksites are returned. Otherwise, a
 	 * filtered search is performed.
 	 *
-	 * @param query         a text query to filter worksites; may be {@code null} or
-	 *                      blank
+	 * @param query          a text query to filter worksites; may be {@code null}
+	 *                       or blank
 	 * @param employeeNumber the employee number used to filter assigned worksites;
-	 *                      may be {@code null}
-	 * @param pageable      pagination information; must not be {@code null}
+	 *                       may be {@code null}
+	 * @param pageable       pagination information; must not be {@code null}
 	 * @return a {@link Page} of matching {@link Worksite} instances; never
 	 *         {@code null}
 	 */
@@ -175,8 +175,8 @@ public class WorksiteService {
 	 * <li>{@code ASSIGNED}: allowed only if explicitly assigned</li>
 	 * </ul>
 	 *
-	 * @param employee      the employee; must not be {@code null}
-	 * @param worksite      the target worksite; must not be {@code null}
+	 * @param employee the employee; must not be {@code null}
+	 * @param worksite the target worksite; must not be {@code null}
 	 * @throws NullPointerException          if any parameter is {@code null}
 	 * @throws WorksiteAccessDeniedException if access is not permitted
 	 */

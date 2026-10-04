@@ -31,7 +31,7 @@ public final class LikePatterns {
 	 * @return text safe to place inside a parameterized {@code LIKE} pattern
 	 */
 	public static String escape(final String value) {
-		return value.replace(ESCAPE_CHARACTER, ESCAPE_CHARACTER + ESCAPE_CHARACTER)
-				.replace("%", ESCAPE_CHARACTER + "%").replace("_", ESCAPE_CHARACTER + "_");
+		return value.replace(ESCAPE_CHARACTER, ESCAPE_CHARACTER + ESCAPE_CHARACTER).replace("%", ESCAPE_CHARACTER + "%")
+				.replace("_", ESCAPE_CHARACTER + "_");
 	}
 }

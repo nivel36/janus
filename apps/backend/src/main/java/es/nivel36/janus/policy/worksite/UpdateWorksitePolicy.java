@@ -12,8 +12,8 @@ public final class UpdateWorksitePolicy implements Policy<UpdateWorksitePolicy.C
 	public boolean allows(final Actor actor, final UpdateWorksitePolicy.Context context) {
 		Objects.requireNonNull(actor, "actor can't be null");
 		Objects.requireNonNull(context, "context can't be null");
-		return EmployeeAccessPolicy.hasElevatedAccess(actor) || actor.hasRole(Role.JANUS_EMPLOYEE) && context.employeeCreationAllowed()
-				&& context.assignedScope() && context.assignedToWorksite();
+		return EmployeeAccessPolicy.hasElevatedAccess(actor) || actor.hasRole(Role.JANUS_EMPLOYEE)
+				&& context.employeeCreationAllowed() && context.assignedScope() && context.assignedToWorksite();
 	}
 
 	public record Context(boolean employeeCreationAllowed, boolean assignedScope, boolean assignedToWorksite) {

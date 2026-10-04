@@ -27,12 +27,14 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Defines the bounds of a {@link TimeRange} in schedule requests.
  *
- * @param startTime lower bound for the allowed time window; must not be {@code null}
- * @param endTime   upper bound for the allowed time window; must not be {@code null} or equal to
- *                  {@code startTime}; an earlier value belongs to the following day
+ * @param startTime lower bound for the allowed time window; must not be
+ *                  {@code null}
+ * @param endTime   upper bound for the allowed time window; must not be
+ *                  {@code null} or equal to {@code startTime}; an earlier value
+ *                  belongs to the following day
  */
 public record ScheduleTimeRangeRequest( //
-		
+
 		@NotNull(message = "startTime must not be null") //
 		LocalTime startTime, //
 
@@ -63,7 +65,7 @@ public record ScheduleTimeRangeRequest( //
 	 */
 	@JsonIgnore
 	public Duration duration() {
-		if (this.startTime == null || this.endTime == null || !isTimeRangeValid()) {
+		if (this.startTime == null || this.endTime == null || !this.isTimeRangeValid()) {
 			return Duration.ZERO;
 		}
 		Duration duration = Duration.between(this.startTime, this.endTime);

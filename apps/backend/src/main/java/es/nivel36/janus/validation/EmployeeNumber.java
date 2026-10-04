@@ -2,8 +2,18 @@
  * Copyright 2026 Abel Ferrer Jiménez
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package es.nivel36.janus.api.validation;
+package es.nivel36.janus.validation;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
@@ -21,18 +31,20 @@ import jakarta.validation.Payload;
 import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.constraints.Pattern;
 
-/** Validates the stable business code assigned to a worksite. */
+/**
+ * Validates the stable identifier assigned to an employee.
+ */
 @Documented
 @Constraint(validatedBy = {})
-@Pattern(regexp = WorksiteCode.PATTERN)
+@Pattern(regexp = EmployeeNumber.PATTERN)
 @ReportAsSingleViolation
 @Retention(RUNTIME)
 @Target({ FIELD, PARAMETER, RECORD_COMPONENT, TYPE_USE, ANNOTATION_TYPE })
-public @interface WorksiteCode {
+public @interface EmployeeNumber {
 
 	String PATTERN = "[A-Za-z0-9_-]{1,50}";
 
-	String message() default "worksiteCode must contain only letters, digits, underscores or hyphens (1-50 characters)";
+	String message() default "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)";
 
 	Class<?>[] groups() default {};
 

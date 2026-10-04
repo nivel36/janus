@@ -18,8 +18,8 @@ package es.nivel36.janus.api.v1.schedule;
 import java.time.DayOfWeek;
 import java.time.Duration;
 
-import es.nivel36.janus.api.validation.NonNegativeDuration;
 import es.nivel36.janus.service.schedule.DayOfWeekTimeRange;
+import es.nivel36.janus.validation.NonNegativeDuration;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -31,8 +31,9 @@ import jakarta.validation.constraints.NotNull;
  * @param dayOfWeek          day of the week when the shift starts; must not be
  *                           {@code null}
  * @param effectiveWorkHours effective working duration for the range as an
- *                           ISO-8601 {@link Duration}; must not be {@code null}, negative, or
- *                           greater than the time-range duration
+ *                           ISO-8601 {@link Duration}; must not be
+ *                           {@code null}, negative, or greater than the
+ *                           time-range duration
  * @param timeRange          allowed clock-in and clock-out bounds; must not be
  *                           {@code null}
  */

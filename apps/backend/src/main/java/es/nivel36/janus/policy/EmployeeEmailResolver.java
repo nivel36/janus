@@ -13,7 +13,9 @@ import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.util.EmailAddresses;
 
-/** Resolves API email parameters consistently for authorization and searches. */
+/**
+ * Resolves API email parameters consistently for authorization and searches.
+ */
 @Component
 public class EmployeeEmailResolver {
 

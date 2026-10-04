@@ -64,8 +64,7 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		final DurationResponse workDurationResponse = this.mapWorkDuration(workDurationValue);
 		final DurationResponse workTime = workDurationResponse;
 
-		return new TimeLogResponse(employeeNumber, worksiteCode, worksiteZoneId, entryTime, exitTime,
-				workTime);
+		return new TimeLogResponse(employeeNumber, worksiteCode, worksiteZoneId, entryTime, exitTime, workTime);
 	}
 
 	private DurationResponse mapWorkDuration(final Duration duration) {

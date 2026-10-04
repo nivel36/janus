@@ -15,13 +15,12 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
-import es.nivel36.janus.api.validation.ScheduleCode;
-
 import java.time.Duration;
 import java.util.List;
 
-import es.nivel36.janus.api.validation.NonNegativeDuration;
 import es.nivel36.janus.service.schedule.Schedule;
+import es.nivel36.janus.validation.NonNegativeDuration;
+import es.nivel36.janus.validation.ScheduleCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,12 +29,16 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload used to create a new {@link Schedule} aggregate.
  *
- * @param code           unique business identifier assigned to the schedule; must not be blank
- *                       and must follow the {@code [A-Za-z0-9_-]{1,50}} pattern
- * @param name           human-readable name describing the schedule; must not be blank and must
- *                       contain between 1 and 250 allowed characters
- * @param entryTolerance allowed tolerance for entry times; must not be {@code null} or negative
- * @param exitTolerance  allowed tolerance for exit times; must not be {@code null} or negative
+ * @param code           unique business identifier assigned to the schedule;
+ *                       must not be blank and must follow the
+ *                       {@code [A-Za-z0-9_-]{1,50}} pattern
+ * @param name           human-readable name describing the schedule; must not
+ *                       be blank and must contain between 1 and 250 allowed
+ *                       characters
+ * @param entryTolerance allowed tolerance for entry times; must not be
+ *                       {@code null} or negative
+ * @param exitTolerance  allowed tolerance for exit times; must not be
+ *                       {@code null} or negative
  * @param rules          collection of rule definitions associated with the
  *                       schedule; must not be {@code null}
  */

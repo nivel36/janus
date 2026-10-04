@@ -95,11 +95,11 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 	 * </p>
 	 *
 	 * @param employeeId the internal id of the employee whose time range is to be
-	 *                      retrieved; must not be {@code null}
-	 * @param date          the date for which the time range is to be retrieved;
-	 *                      must not be {@code null}
-	 * @param dayOfWeek     the {@link DayOfWeek} corresponding to {@code date};
-	 *                      must not be {@code null}
+	 *                   retrieved; must not be {@code null}
+	 * @param date       the date for which the time range is to be retrieved; must
+	 *                   not be {@code null}
+	 * @param dayOfWeek  the {@link DayOfWeek} corresponding to {@code date}; must
+	 *                   not be {@code null}
 	 * @return an {@link Optional} containing the {@link TimeRange} if one starts on
 	 *         that date, or an empty {@link Optional} if no shift starts on that
 	 *         date
@@ -153,11 +153,11 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 	 * are included.
 	 * </p>
 	 *
-	 * @param query         the search term to match against schedule name and code;
-	 *                      must not be {@code null}
-	 * @param employeeNumber the employee number used to filter schedules; may
-	 *                      be {@code null}
-	 * @param pageable      the pagination information; must not be {@code null}
+	 * @param query          the search term to match against schedule name and
+	 *                       code; must not be {@code null}
+	 * @param employeeNumber the employee number used to filter schedules; may be
+	 *                       {@code null}
+	 * @param pageable       the pagination information; must not be {@code null}
 	 * @return a {@link Page} of {@link Schedule} entities matching the criteria;
 	 *         never {@code null}
 	 */

@@ -54,7 +54,7 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 			final ApplicationSettingsService applicationSettingsService, //
 			final @Qualifier("appSettingsResponseMapper") Mapper<ApplicationSettings, ApplicationSettingsResponse> appSettingsResponseMapper) {
 		this.applicationSettingsService = Objects.requireNonNull( //
-				applicationSettingsService, //
+				applicationSettingsService,
 				"applicationSettingsService can't be null");
 		this.appSettingsResponseMapper = Objects.requireNonNull( //
 				appSettingsResponseMapper, //

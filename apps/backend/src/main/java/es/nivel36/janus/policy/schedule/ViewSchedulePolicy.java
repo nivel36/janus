@@ -12,7 +12,8 @@ public final class ViewSchedulePolicy implements Policy<ViewSchedulePolicy.Conte
 	public boolean allows(final Actor actor, final Context context) {
 		Objects.requireNonNull(actor, "actor can't be null");
 		Objects.requireNonNull(context, "context can't be null");
-		return EmployeeAccessPolicy.hasElevatedAccess(actor) || actor.hasRole(Role.JANUS_EMPLOYEE) && context.assignedToSchedule();
+		return EmployeeAccessPolicy.hasElevatedAccess(actor)
+				|| actor.hasRole(Role.JANUS_EMPLOYEE) && context.assignedToSchedule();
 	}
 
 	public record Context(boolean assignedToSchedule) {

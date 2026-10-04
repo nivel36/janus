@@ -22,6 +22,7 @@ class TimeLogSearchScopeTest {
 	@ParameterizedTest
 	@ValueSource(longs = { 0L, -1L })
 	void rejectsNonpersistentEmployeeIdentifiers(final long employeeId) {
-		assertThatThrownBy(() -> new TimeLogSearchScope.Employee(employeeId)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new TimeLogSearchScope.Employee(employeeId))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 }

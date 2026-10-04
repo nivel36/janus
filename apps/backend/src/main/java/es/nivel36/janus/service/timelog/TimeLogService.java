@@ -205,8 +205,7 @@ public class TimeLogService {
 	/**
 	 * Indicates whether the employee currently has an open {@link TimeLog}.
 	 *
-	 * @param employee the employee to inspect; must not be
-	 *                      {@code null}.
+	 * @param employee the employee to inspect; must not be {@code null}.
 	 * @return {@code true} when an open time log exists for the employee and
 	 *         worksite; {@code false} otherwise.
 	 */
@@ -307,9 +306,9 @@ public class TimeLogService {
 	/**
 	 * Finds a {@link TimeLog} by employee and entry time.
 	 *
-	 * @param employee employee associated with the time log.
-	 *                      Can't be {@code null}.
-	 * @param entryTime     entry time of the time log. Can't be {@code null}.
+	 * @param employee  employee associated with the time log. Can't be
+	 *                  {@code null}.
+	 * @param entryTime entry time of the time log. Can't be {@code null}.
 	 * @return the matching {@link TimeLog}.
 	 * @throws NullPointerException      if any argument is {@code null}.
 	 * @throws ResourceNotFoundException if no matching time log is found.
@@ -335,10 +334,10 @@ public class TimeLogService {
 	 * An orphan time log is a log that is not properly paired or finalized
 	 * according to business rules.
 	 * </p>
-	 * @param employee employee for whom orphan time logs are
-	 *                      searched. Can't be {@code null}.
-	 * @param from          lower bound instant for the search. Can't be
-	 *                      {@code null}.
+	 *
+	 * @param employee employee for whom orphan time logs are searched. Can't be
+	 *                 {@code null}.
+	 * @param from     lower bound instant for the search. Can't be {@code null}.
 	 *
 	 * @return a list of orphan {@link TimeLog} instances. Never {@code null}.
 	 * @throws NullPointerException if any argument is {@code null}.

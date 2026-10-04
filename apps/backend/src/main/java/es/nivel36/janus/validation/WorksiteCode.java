@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
-package es.nivel36.janus.api.validation;
+package es.nivel36.janus.validation;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
@@ -21,18 +21,18 @@ import jakarta.validation.Payload;
 import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.constraints.Pattern;
 
-/** Validates the stable business code assigned to a schedule. */
+/** Validates the stable business code assigned to a worksite. */
 @Documented
 @Constraint(validatedBy = {})
-@Pattern(regexp = ScheduleCode.PATTERN)
+@Pattern(regexp = WorksiteCode.PATTERN)
 @ReportAsSingleViolation
 @Retention(RUNTIME)
 @Target({ FIELD, PARAMETER, RECORD_COMPONENT, TYPE_USE, ANNOTATION_TYPE })
-public @interface ScheduleCode {
+public @interface WorksiteCode {
 
 	String PATTERN = "[A-Za-z0-9_-]{1,50}";
 
-	String message() default "scheduleCode must contain only letters, digits, underscores or hyphens (1-50 characters)";
+	String message() default "worksiteCode must contain only letters, digits, underscores or hyphens (1-50 characters)";
 
 	Class<?>[] groups() default {};
 

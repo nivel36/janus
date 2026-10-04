@@ -15,11 +15,7 @@
  */
 package es.nivel36.janus.api.v1.worksite;
 
-import es.nivel36.janus.api.validation.WorksiteCode;
-
 import java.time.Instant;
-
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +33,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import es.nivel36.janus.api.validation.EmployeeNumber;
-import es.nivel36.janus.api.validation.SearchQuery;
+import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.validation.SearchQuery;
+import es.nivel36.janus.validation.WorksiteCode;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
 @RequestMapping("/api/v1/worksites")
@@ -48,21 +46,18 @@ public interface WorksiteResource {
 	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
 	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
 	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeNumber)")
-	ResponseEntity<Page<WorksiteResponse>> searchWorksites(
-			@RequestParam(required = false) @SearchQuery String query,
+	ResponseEntity<Page<WorksiteResponse>> searchWorksites(@RequestParam(required = false) @SearchQuery String query,
 			@RequestParam(required = false) @EmployeeNumber String employeeNumber,
 			@PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC) Pageable pageable,
 			Authentication authentication);
 
 	@GetMapping("/{worksiteCode}")
 	@PreAuthorize("@worksiteAuthorization.canView(authentication, #worksiteCode)")
-	ResponseEntity<WorksiteResponse> findWorksite(
-			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode);
+	ResponseEntity<WorksiteResponse> findWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode);
 
 	@GetMapping("/{worksiteCode}/stats")
 	@PreAuthorize("@worksiteAuthorization.canViewStats(authentication, #worksiteCode)")
-	ResponseEntity<WorksiteStatsResponse> stats(
-			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
+	ResponseEntity<WorksiteStatsResponse> stats(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
 			@RequestParam("start") Instant start, @RequestParam("end") Instant end);
 
 	@PostMapping
@@ -71,25 +66,21 @@ public interface WorksiteResource {
 
 	@PreAuthorize("@worksiteAuthorization.canUpdate(authentication, #worksiteCode, #request.scope())")
 	@PutMapping("/{worksiteCode}")
-	ResponseEntity<WorksiteResponse> updateWorksite(
-			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
+	ResponseEntity<WorksiteResponse> updateWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
 			@Valid @RequestBody UpdateWorksiteRequest request);
 
 	@PreAuthorize("@worksiteAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{worksiteCode}")
-	ResponseEntity<Void> deleteWorksite(
-			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode);
+	ResponseEntity<Void> deleteWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode);
 
 	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
 	@PutMapping({ "/{worksiteCode}/employees/{employeeNumber}" })
-	ResponseEntity<Void> assignEmployeeToWorksite(
-			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
+	ResponseEntity<Void> assignEmployeeToWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
 
 	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
 	@DeleteMapping({ "/{worksiteCode}/employees/{employeeNumber}" })
-	ResponseEntity<Void> removeEmployeeFromWorksite(
-			@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
+	ResponseEntity<Void> removeEmployeeFromWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
 			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
 
 }

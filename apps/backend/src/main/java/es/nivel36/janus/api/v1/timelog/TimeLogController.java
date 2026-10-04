@@ -95,11 +95,11 @@ public class TimeLogController implements TimeLogResource {
 	 * none is provided.
 	 *
 	 * @param employeeNumber the number of the employee; must not be {@code null}
-	 * @param entryTime     the entry time as ISO-8601 string (e.g.,
-	 *                      "2025-08-04T09:30:00Z"); if {@code null}, the current
-	 *                      system time will be used
-	 * @param worksiteCode  the code of the worksite where the time log is created;
-	 *                      must not be {@code null}
+	 * @param entryTime      the entry time as ISO-8601 string (e.g.,
+	 *                       "2025-08-04T09:30:00Z"); if {@code null}, the current
+	 *                       system time will be used
+	 * @param worksiteCode   the code of the worksite where the time log is created;
+	 *                       must not be {@code null}
 	 * @param authentication current authentication; must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
@@ -134,11 +134,11 @@ public class TimeLogController implements TimeLogResource {
 	 * none is provided.
 	 *
 	 * @param employeeNumber the number of the employee; must not be {@code null}
-	 * @param exitTime      the exit time as ISO-8601 string (e.g.,
-	 *                      "2025-08-04T18:00:00Z"); if {@code null}, the current
-	 *                      system time will be used
-	 * @param worksiteCode  the code of the worksite where the time log is updated;
-	 *                      must not be {@code null}
+	 * @param exitTime       the exit time as ISO-8601 string (e.g.,
+	 *                       "2025-08-04T18:00:00Z"); if {@code null}, the current
+	 *                       system time will be used
+	 * @param worksiteCode   the code of the worksite where the time log is updated;
+	 *                       must not be {@code null}
 	 * @param authentication current authentication; must not be {@code null}
 	 * @return the updated {@link TimeLogResponse}
 	 * @throws ClockOutWithoutClockInException if the TimeLog record cannot be
@@ -154,8 +154,7 @@ public class TimeLogController implements TimeLogResource {
 		logger.debug("Clock-out ACTION performed");
 
 		final Employee employee = this.requireEmployee(employeeNumber);
-		final Worksite worksite = this.findWorksiteForClockOut(employee,
-				worksiteCode);
+		final Worksite worksite = this.findWorksiteForClockOut(employee, worksiteCode);
 		final TimeLog clockOut;
 		if (exitTime != null) {
 			clockOut = this.timeLogService.clockOut(employee, worksite, exitTime);
@@ -184,10 +183,10 @@ public class TimeLogController implements TimeLogResource {
 	 * Creates a new time log entry for a specific employee and worksite.
 	 *
 	 * @param employeeNumber the number of the employee; must not be {@code null}
-	 * @param worksiteCode  the code of the worksite where the time log is created;
-	 *                      must not be {@code null}
-	 * @param timeLog       the {@link CreateTimeLogRequest} payload containing the
-	 *                      entry and exit times; must not be {@code null}
+	 * @param worksiteCode   the code of the worksite where the time log is created;
+	 *                       must not be {@code null}
+	 * @param timeLog        the {@link CreateTimeLogRequest} payload containing the
+	 *                       entry and exit times; must not be {@code null}
 	 * @param authentication the current authentication; must not be {@code null}
 	 * @return the created {@link TimeLogResponse}
 	 */
@@ -212,7 +211,8 @@ public class TimeLogController implements TimeLogResource {
 	 * Finds a specific time log for an employee by its entry time.
 	 *
 	 * @param employeeNumber the number of the employee; must not be {@code null}
-	 * @param entryTime     the entry time of the time log; must not be {@code null}
+	 * @param entryTime      the entry time of the time log; must not be
+	 *                       {@code null}
 	 * @param authentication the current authentication; must not be {@code null}
 	 * @return the {@link TimeLogResponse} entry
 	 */
@@ -237,8 +237,8 @@ public class TimeLogController implements TimeLogResource {
 	 * Deletes a time log entry for an employee by its entry time.
 	 *
 	 * @param employeeNumber the number of the employee; must not be {@code null}
-	 * @param entryTime     the entry time of the time log to delete; must not be
-	 *                      {@code null}
+	 * @param entryTime      the entry time of the time log to delete; must not be
+	 *                       {@code null}
 	 * @return a {@link ResponseEntity} with no content (HTTP 204) if the deletion
 	 *         succeeds
 	 */

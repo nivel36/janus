@@ -28,7 +28,8 @@ public class EmployeeAuthorizationAdapter {
 	private final DeleteEmployeePolicy deletePolicy = new DeleteEmployeePolicy();
 	private final SearchEmployeePolicy searchPolicy = new SearchEmployeePolicy();
 
-	public EmployeeAuthorizationAdapter(final ActorResolver actorResolver, final EmployeeNumberResolver employeeNumbers) {
+	public EmployeeAuthorizationAdapter(final ActorResolver actorResolver,
+			final EmployeeNumberResolver employeeNumbers) {
 		this.actorResolver = Objects.requireNonNull(actorResolver, "actorResolver can't be null");
 		this.employeeNumbers = Objects.requireNonNull(employeeNumbers, "employeeNumbers can't be null");
 	}

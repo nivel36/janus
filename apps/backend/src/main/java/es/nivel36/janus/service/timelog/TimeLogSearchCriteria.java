@@ -11,9 +11,9 @@ import java.time.Instant;
  * Optional client filters, independent of the authorized search scope. The
  * entry-time range includes {@code start} and excludes {@code end}.
  */
-public record TimeLogSearchCriteria(
-		String employeeNumber, //
+public record TimeLogSearchCriteria(String employeeNumber, //
 
 		Instant start, //
 
-		Instant end) { }
+		Instant end) {
+}

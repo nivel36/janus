@@ -43,7 +43,6 @@ class EmployeeNumberResolverTest {
 				.isInstanceOf(ResourceNotFoundException.class);
 		when(this.employees.findEmployeeByEmployeeNumber("BROKEN"))
 				.thenThrow(new IllegalStateException("database unavailable"));
-		assertThatThrownBy(() -> this.resolver.employeeId("BROKEN"))
-				.isInstanceOf(IllegalStateException.class);
+		assertThatThrownBy(() -> this.resolver.employeeId("BROKEN")).isInstanceOf(IllegalStateException.class);
 	}
 }

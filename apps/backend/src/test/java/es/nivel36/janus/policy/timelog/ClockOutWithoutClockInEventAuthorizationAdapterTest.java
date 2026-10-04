@@ -30,13 +30,13 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	private final Authentication authentication = mock(Authentication.class);
 	private final ActorResolver actors = mock(ActorResolver.class);
 	private final EmployeeService employees = mock(EmployeeService.class);
-	private final ClockOutWithoutClockInEventAuthorizationAdapter adapter =
-			new ClockOutWithoutClockInEventAuthorizationAdapter(this.actors, this.employees, new EmployeeNumberResolver(this.employees));
+	private final ClockOutWithoutClockInEventAuthorizationAdapter adapter = new ClockOutWithoutClockInEventAuthorizationAdapter(
+			this.actors, this.employees, new EmployeeNumberResolver(this.employees));
 
 	@Test
 	void missingEmployeeIsDeniedWithoutDisclosingItsAbsence() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
-				UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_ADMIN), null));
+		when(this.actors.resolve(this.authentication)).thenReturn(
+				new Actor(UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_ADMIN), null));
 		when(this.employees.findEmployeeByEmployeeNumber("MISSING"))
 				.thenThrow(new ResourceNotFoundException("There is no employee with selector MISSING"));
 
@@ -49,10 +49,11 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	void resolveTransitionOnlyRequiresResolvePolicy() {
 		final Policy<Long> resolvePolicy = policyAllowing(true);
 		final Policy<Long> invalidatePolicy = policyAllowing(false);
-		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = adapterWith(resolvePolicy, invalidatePolicy);
+		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = this.adapterWith(resolvePolicy,
+				invalidatePolicy);
 
-		assertThat(adapter.canTransition(this.authentication, "EMP-0001",
-				ClockOutWithoutClockInEventAction.RESOLVE)).isTrue();
+		assertThat(adapter.canTransition(this.authentication, "EMP-0001", ClockOutWithoutClockInEventAction.RESOLVE))
+				.isTrue();
 		verify(resolvePolicy).allows(actor(), 42L);
 		verify(invalidatePolicy, never()).allows(actor(), 42L);
 	}
@@ -61,10 +62,11 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	void invalidateTransitionOnlyRequiresInvalidatePolicy() {
 		final Policy<Long> resolvePolicy = policyAllowing(false);
 		final Policy<Long> invalidatePolicy = policyAllowing(true);
-		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = adapterWith(resolvePolicy, invalidatePolicy);
+		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = this.adapterWith(resolvePolicy,
+				invalidatePolicy);
 
-		assertThat(adapter.canTransition(this.authentication, "EMP-0001",
-				ClockOutWithoutClockInEventAction.INVALIDATE)).isTrue();
+		assertThat(adapter.canTransition(this.authentication, "EMP-0001", ClockOutWithoutClockInEventAction.INVALIDATE))
+				.isTrue();
 		verify(invalidatePolicy).allows(actor(), 42L);
 		verify(resolvePolicy, never()).allows(actor(), 42L);
 	}
@@ -73,7 +75,8 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	void transitionWithoutActionIsDeniedWithoutConsultingPolicies() {
 		final Policy<Long> resolvePolicy = mock();
 		final Policy<Long> invalidatePolicy = mock();
-		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = adapterWith(resolvePolicy, invalidatePolicy);
+		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = this.adapterWith(resolvePolicy,
+				invalidatePolicy);
 
 		assertThat(adapter.canTransition(this.authentication, "EMP-0001", null)).isFalse();
 		verify(resolvePolicy, never()).allows(actor(), 42L);

@@ -39,9 +39,11 @@ public class CatalogController implements CatalogResource {
 	/**
 	 * Builds a controller with the required catalog service dependency.
 	 *
-	 * @param timeZoneCatalogService service used to retrieve time zone catalog data
+	 * @param timeZoneCatalogService            service used to retrieve time zone
+	 *                                          catalog data
 	 * @param timeZoneCatalogItemResponseMapper mapper converting catalog items to
-	 *                                         API responses; must not be {@code null}
+	 *                                          API responses; must not be
+	 *                                          {@code null}
 	 */
 	public CatalogController(final TimeZoneCatalogService timeZoneCatalogService,
 			final @Qualifier("timeZoneCatalogItemResponseMapper") Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper) {
@@ -66,7 +68,7 @@ public class CatalogController implements CatalogResource {
 			final String query, //
 			final Pageable pageable) {
 		final Page<TimeZoneCatalogItemResponse> zones = this.timeZoneCatalogService.search(query, pageable)
-				.map(timeZoneCatalogItemResponseMapper::map);
+				.map(this.timeZoneCatalogItemResponseMapper::map);
 		return ResponseEntity.ok(zones);
 	}
 }

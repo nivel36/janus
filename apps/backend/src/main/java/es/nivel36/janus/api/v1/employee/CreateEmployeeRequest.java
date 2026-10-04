@@ -15,10 +15,9 @@
  */
 package es.nivel36.janus.api.v1.employee;
 
-import es.nivel36.janus.api.validation.ScheduleCode;
-
 import es.nivel36.janus.service.employee.Employee;
-import es.nivel36.janus.api.validation.EmployeeNumber;
+import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.validation.ScheduleCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

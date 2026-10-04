@@ -54,8 +54,8 @@ public class ClockOutWithoutClockInEventResponseMapper
 		final Instant resolvedTimeLogEntry = resolvedTimeLog == null ? null : resolvedTimeLog.getEntryTime();
 		final Instant resolvedTimeLogExit = resolvedTimeLog == null ? null : resolvedTimeLog.getExitTime();
 
-		return new ClockOutWithoutClockInEventResponse(employeeNumber, worksiteCode, exitTime, detectedAt,
-				resolved, invalidated, reason, resolvedTimeLogEntry, resolvedTimeLogExit);
+		return new ClockOutWithoutClockInEventResponse(employeeNumber, worksiteCode, exitTime, detectedAt, resolved,
+				invalidated, reason, resolvedTimeLogEntry, resolvedTimeLogExit);
 	}
 
 }

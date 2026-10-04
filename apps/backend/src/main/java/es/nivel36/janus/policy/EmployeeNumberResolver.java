@@ -14,7 +14,9 @@ import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.employee.EmployeeService;
 
-/** Resolves employee-number filters consistently for authorization and searches. */
+/**
+ * Resolves employee-number filters consistently for authorization and searches.
+ */
 @Component
 public class EmployeeNumberResolver {
 
@@ -35,7 +37,9 @@ public class EmployeeNumberResolver {
 		}
 	}
 
-	/** Resolves an identifier, preserving resource-not-found errors for the caller. */
+	/**
+	 * Resolves an identifier, preserving resource-not-found errors for the caller.
+	 */
 	public long requireEmployeeId(final String employeeNumber) {
 		return this.employees.findEmployeeByEmployeeNumber(employeeNumber).getId();
 	}
@@ -52,13 +56,17 @@ public class EmployeeNumberResolver {
 		}
 	}
 
-	/** Builds filter facts without looking up references for unrestricted callers. */
+	/**
+	 * Builds filter facts without looking up references for unrestricted callers.
+	 */
 	public EmployeeSearchPolicy.Context searchContext(final Actor actor, final String requested,
 			final boolean restricted) {
 		return new EmployeeSearchPolicy.Context(requested != null, restricted && this.owns(actor, requested));
 	}
 
-	/** Supplies the linked employee only when an authorized request has no filter. */
+	/**
+	 * Supplies the linked employee only when an authorized request has no filter.
+	 */
 	public String effectiveNumber(final Actor actor, final String requested, final boolean restricted) {
 		return requested == null && restricted && actor.employeeId() != null
 				? this.employees.findEmployeeById(actor.employeeId()).getEmployeeNumber()

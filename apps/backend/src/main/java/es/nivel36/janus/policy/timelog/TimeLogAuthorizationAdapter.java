@@ -39,7 +39,7 @@ public class TimeLogAuthorizationAdapter {
 
 	public boolean canOperate(final Authentication authentication, final String employeeNumber,
 			final boolean manualEntry) {
-		final Actor actor = getActor(authentication);
+		final Actor actor = this.getActor(authentication);
 		final boolean employeeManualTimelogEntryAllowed = this.applicationSettingsService
 				.isEmployeeManualTimelogEntryAllowed();
 		final boolean owns = this.employeeNumberResolver.owns(actor, employeeNumber);
@@ -53,18 +53,18 @@ public class TimeLogAuthorizationAdapter {
 	}
 
 	public boolean canView(final Authentication authentication, final String employeeNumber) {
-		final Actor actor = getActor(authentication);
+		final Actor actor = this.getActor(authentication);
 		final boolean ownsEmployee = EmployeeAccessPolicy.isRestrictedToOwnEmployee(actor)
 				&& this.employeeNumberResolver.owns(actor, employeeNumber);
 		return this.viewTimeLogPolicy.allows(actor, new EmployeeAccessPolicy.Context(ownsEmployee));
 	}
 
 	public boolean canDelete(final Authentication authentication) {
-		return this.deleteTimeLogPolicy.allows(getActor(authentication), null);
+		return this.deleteTimeLogPolicy.allows(this.getActor(authentication), null);
 	}
 
 	public boolean canSearch(final Authentication authentication, final String employeeNumber) {
-		final Actor actor = getActor(authentication);
+		final Actor actor = this.getActor(authentication);
 		final boolean restrictedToOwnEmployee = EmployeeAccessPolicy.isRestrictedToOwnEmployee(actor);
 		final Context searchContext = this.employeeNumberResolver.searchContext(actor, employeeNumber,
 				restrictedToOwnEmployee);
@@ -72,7 +72,7 @@ public class TimeLogAuthorizationAdapter {
 	}
 
 	public TimeLogSearchScope searchScope(final Authentication authentication) {
-		final Actor actor = getActor(authentication);
+		final Actor actor = this.getActor(authentication);
 		return this.searchTimeLogPolicy.scope(actor);
 	}
 }

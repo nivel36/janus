@@ -15,8 +15,6 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-import es.nivel36.janus.api.validation.WorksiteCode;
-
 import java.time.Instant;
 
 import org.springframework.http.ResponseEntity;
@@ -31,7 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
-import es.nivel36.janus.api.validation.EmployeeNumber;
+import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.validation.WorksiteCode;
 import jakarta.validation.Valid;
 
 @RequestMapping("/api/v1")
@@ -41,15 +40,14 @@ public interface TimeLogResource {
 	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-in" })
 	ResponseEntity<TimeLogResponse> clockIn(@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam(value = "entryTime", required = false) Instant entryTime,
-			@RequestParam("worksiteCode") @WorksiteCode String worksiteCode,
-			Authentication authentication);
+			@RequestParam("worksiteCode") @WorksiteCode String worksiteCode, Authentication authentication);
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #exitTime != null)")
 	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-out" })
 	ResponseEntity<TimeLogResponse> clockOut(@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber,
 			@RequestParam(value = "exitTime", required = false) Instant exitTime,
-			@RequestParam("worksiteCode") @WorksiteCode String worksiteCode,
-			Authentication authentication) throws ClockOutWithoutClockInException;
+			@RequestParam("worksiteCode") @WorksiteCode String worksiteCode, Authentication authentication)
+			throws ClockOutWithoutClockInException;
 
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, true)")
 	@PostMapping({ "/employees/{employeeNumber}/time-logs" })

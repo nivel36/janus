@@ -43,6 +43,6 @@ import es.nivel36.janus.service.worksite.Worksite;
  * @param workTime       the elapsed work duration, represented in multiple
  *                       formats; absent if the time log is still open
  */
-public record TimeLogResponse(String employeeNumber, String worksiteCode, ZoneId worksiteZoneId,
-		Instant entryTime, Instant exitTime, DurationResponse workTime) {
+public record TimeLogResponse(String employeeNumber, String worksiteCode, ZoneId worksiteZoneId, Instant entryTime,
+		Instant exitTime, DurationResponse workTime) {
 }

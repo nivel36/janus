@@ -18,8 +18,8 @@ package es.nivel36.janus.api.v1.schedule;
 import java.time.Duration;
 import java.util.List;
 
-import es.nivel36.janus.api.validation.NonNegativeDuration;
 import es.nivel36.janus.service.schedule.Schedule;
+import es.nivel36.janus.validation.NonNegativeDuration;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,10 +28,13 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Request payload used to update an existing {@link Schedule} aggregate.
  *
- * @param name           new human-readable name describing the schedule; must not be blank and
- *                       must contain between 1 and 250 allowed characters
- * @param entryTolerance allowed tolerance for entry times; must not be {@code null} or negative
- * @param exitTolerance  allowed tolerance for exit times; must not be {@code null} or negative
+ * @param name           new human-readable name describing the schedule; must
+ *                       not be blank and must contain between 1 and 250 allowed
+ *                       characters
+ * @param entryTolerance allowed tolerance for entry times; must not be
+ *                       {@code null} or negative
+ * @param exitTolerance  allowed tolerance for exit times; must not be
+ *                       {@code null} or negative
  * @param rules          collection of rule definitions that replace the
  *                       previous ones; must not be {@code null}
  */

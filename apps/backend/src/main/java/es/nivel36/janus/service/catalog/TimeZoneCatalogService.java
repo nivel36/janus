@@ -112,9 +112,12 @@ public class TimeZoneCatalogService {
 			case "level1" -> Comparator.comparing(TimeZoneCatalogItem::level1);
 			case "level2" -> Comparator.comparing(TimeZoneCatalogItem::level2);
 			case "utc" -> Comparator.comparingInt(TimeZoneCatalogItem::offsetSeconds);
-			default -> throw new IllegalArgumentException("Unsupported time-zone sort property: " + order.getProperty());
+			default ->
+				throw new IllegalArgumentException("Unsupported time-zone sort property: " + order.getProperty());
 			};
-			if (order.isDescending()) propertyComparator = propertyComparator.reversed();
+			if (order.isDescending()) {
+				propertyComparator = propertyComparator.reversed();
+			}
 			comparator = comparator == null ? propertyComparator : comparator.thenComparing(propertyComparator);
 		}
 		return (comparator == null ? Comparator.comparing(TimeZoneCatalogItem::zoneId) : comparator)

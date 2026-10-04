@@ -18,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.security.core.Authentication;
 
+import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.ResourceNotFoundException;
@@ -25,7 +26,6 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
-import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 
 class TimeLogAuthorizationAdapterTest {
@@ -40,7 +40,8 @@ class TimeLogAuthorizationAdapterTest {
 	@ParameterizedTest
 	@EnumSource(value = Role.class, names = { "JANUS_USER", "JANUS_ADMIN" })
 	void elevatedSearchPermissionDoesNotRequireEmployeeAssociation(final Role role) {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(role), null));
+		when(this.actors.resolve(this.authentication)).thenReturn(
+				new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(role), null));
 
 		assertThat(this.adapter.canSearch(this.authentication, null)).isTrue();
 		verify(this.actors).resolve(this.authentication);
@@ -49,14 +50,16 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void actorsWithoutRolesCannotExecuteSearches() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(), 84L));
+		when(this.actors.resolve(this.authentication)).thenReturn(
+				new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(), 84L));
 
 		assertThat(this.adapter.canSearch(this.authentication, null)).isFalse();
 	}
 
 	@Test
 	void scopeUsesTheEmployeeAssociationOfTheResolvedActor() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
+		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
+				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
 
 		assertThat(this.adapter.searchScope(this.authentication)).isEqualTo(new TimeLogSearchScope.Employee(84L));
 		verify(this.actors).resolve(this.authentication);
@@ -65,7 +68,8 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void employeeWithoutAssociationCannotSearch() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), null));
+		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
+				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), null));
 
 		assertThat(this.adapter.canSearch(this.authentication, null)).isFalse();
 		assertThat(this.adapter.searchScope(this.authentication)).isEqualTo(new TimeLogSearchScope.None());
@@ -74,8 +78,8 @@ class TimeLogAuthorizationAdapterTest {
 	@Test
 	void employeeAccessUsesPersistentIdRatherThanNumberEquality() {
 		final Employee employee = mock(Employee.class);
-		when(this.actors.resolve(this.authentication))
-				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
+		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
+				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
 		when(employee.getId()).thenReturn(84L);
 		when(this.employees.findEmployeeByEmployeeNumber("EMP-0001")).thenReturn(employee);
 
@@ -85,8 +89,8 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void employeeWithoutAssociationCannotOperate() {
-		when(this.actors.resolve(this.authentication))
-				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), null));
+		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
+				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), null));
 
 		assertThat(this.adapter.canOperate(this.authentication, "old-address@internal.test", false)).isFalse();
 		verifyNoInteractions(this.employees);
@@ -94,18 +98,18 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void missingEmployeeIsDeniedWithoutDisclosingItsAbsence() {
-		when(this.actors.resolve(this.authentication))
-				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
-						Set.of(Role.JANUS_USER), 84L));
+		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
+				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_USER), 84L));
 		when(this.employees.findEmployeeByEmployeeNumber("MISSING"))
 				.thenThrow(new ResourceNotFoundException("There is no employee with selector missing@example.test"));
 
 		assertThat(this.adapter.canOperate(this.authentication, "MISSING", false)).isFalse();
 	}
+
 	@Test
 	void explicitOtherAndMissingEmployeesAreDenied() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
-				java.util.UUID.randomUUID(), Set.of(Role.JANUS_EMPLOYEE), 84L));
+		when(this.actors.resolve(this.authentication))
+				.thenReturn(new Actor(java.util.UUID.randomUUID(), Set.of(Role.JANUS_EMPLOYEE), 84L));
 		final Employee other = mock(Employee.class);
 		when(other.getId()).thenReturn(85L);
 		when(this.employees.findEmployeeByEmployeeNumber("OTHER")).thenReturn(other);
@@ -118,8 +122,8 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void technicalFailuresAreNotConvertedToDeniedAccess() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
-				java.util.UUID.randomUUID(), Set.of(Role.JANUS_EMPLOYEE), 84L));
+		when(this.actors.resolve(this.authentication))
+				.thenReturn(new Actor(java.util.UUID.randomUUID(), Set.of(Role.JANUS_EMPLOYEE), 84L));
 		when(this.employees.findEmployeeByEmployeeNumber("OWN"))
 				.thenThrow(new IllegalStateException("database unavailable"));
 		assertThatThrownBy(() -> this.adapter.canSearch(this.authentication, "OWN"))

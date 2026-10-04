@@ -12,13 +12,15 @@ import java.util.Locale;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import es.nivel36.janus.api.validation.LanguageTag;
 import es.nivel36.janus.service.TimeFormat;
+import es.nivel36.janus.validation.LanguageTag;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-/** Defaults applied whenever Janus provisions an application user. */
+/**
+ * Defaults applied whenever Janus provisions an application user.
+ */
 @Validated
 @ConfigurationProperties("janus.user-provisioning.defaults")
 public class UserProvisioningProperties {

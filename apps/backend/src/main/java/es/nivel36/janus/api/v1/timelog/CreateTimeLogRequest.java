@@ -32,7 +32,8 @@ import jakarta.validation.constraints.NotNull;
  * <p>
  * The entry time must be before the exit time.
  *
- * @param entryTime the entry instant in UTC (ISO-8601); must not be {@code null}
+ * @param entryTime the entry instant in UTC (ISO-8601); must not be
+ *                  {@code null}
  * @param exitTime  the exit instant in UTC (ISO-8601); must not be {@code null}
  *                  and must be after {@code entryTime}
  */
