@@ -153,7 +153,7 @@ export class AppUsersService extends BaseService {
      * @param email Literal partial email match, trimmed and case-insensitive. SQL wildcard characters are treated literally. Blank values are invalid.
      * @param employeeNumber Exact, case-sensitive employee number after trimming surrounding whitespace; must match ^[A-Za-z0-9_-]{1,50}$.
      * @param page
-     * @param size Values above 100 are capped at 100.
+     * @param size Values above spring.data.rest.max-page-size are capped at that configured limit (100 by default).
      * @param sort Allowed fields are id, email and employeeNumber. Defaults to email,asc. An ascending UUID tie-breaker is appended unless id is explicitly sorted. Unknown fields return 400.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

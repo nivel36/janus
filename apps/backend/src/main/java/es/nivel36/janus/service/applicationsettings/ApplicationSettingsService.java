@@ -22,12 +22,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 /**
  * Service responsible for managing and retrieving global
  * {@link ApplicationSettings}.
  */
 @Service
+@Validated
 public class ApplicationSettingsService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationSettingsService.class);
@@ -56,7 +61,8 @@ public class ApplicationSettingsService {
 	 * supplied parameters.
 	 *
 	 * @param  daysUntilLocked                   number of days before an entity
-	 *                                           becomes locked.
+	 *                                           becomes locked; must be greater
+	 *                                           than or equal to {@code 0}
 	 * @param  employeeWorksiteCreationAllowed   whether employees are allowed to
 	 *                                           create personal worksites.
 	 * @param  worksiteChangeDuringShiftAllowed  whether worksite changes are
@@ -64,22 +70,21 @@ public class ApplicationSettingsService {
 	 * @param  employeeManualTimeLogEntryAllowed whether employees are allowed to
 	 *                                           set custom entry/exit instants in
 	 *                                           timelog operations.
-	 * @param  defaultTimezone                   default application time zone.
+	 * @param  defaultTimezone                   default application time zone; must
+	 *                                           not be {@code null}
 	 * @return                                   the updated
 	 *                                           {@link ApplicationSettings}
 	 *                                           instance.
 	 * @throws IllegalStateException             if the global application settings
 	 *                                           entry does not exist.
-	 * @throws IllegalArgumentException          if daysUntilLocked is negative.
-	 * @throws NullPointerException              if defaultTimezone is null.
 	 */
 	@Transactional
 	public ApplicationSettings update(
-			final int daysUntilLocked,
+			final @PositiveOrZero int daysUntilLocked,
 			final boolean employeeWorksiteCreationAllowed,
 			final boolean worksiteChangeDuringShiftAllowed,
 			final boolean employeeManualTimeLogEntryAllowed,
-			final ZoneId defaultTimezone) {
+			final @NotNull ZoneId defaultTimezone) {
 		logger.debug("Updating application settings");
 		final ApplicationSettings applicationSettings = this.findById();
 		applicationSettings.update(
