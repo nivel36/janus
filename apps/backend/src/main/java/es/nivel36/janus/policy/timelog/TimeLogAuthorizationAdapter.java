@@ -42,13 +42,13 @@ public class TimeLogAuthorizationAdapter {
 			final String employeeNumber,
 			final boolean manualEntry) {
 		final Actor actor = this.getActor(authentication);
-		final boolean employeeManualTimelogEntryAllowed = this.applicationSettingsService
-				.isEmployeeManualTimelogEntryAllowed();
+		final boolean employeeManualTimeLogEntryAllowed = this.applicationSettingsService
+				.isEmployeeManualTimeLogEntryAllowed();
 		final boolean owns = this.employeeNumberResolver.owns(actor, employeeNumber);
 		final OperateTimeLogPolicy.Context context = new OperateTimeLogPolicy.Context(
 				owns,
 				manualEntry,
-				employeeManualTimelogEntryAllowed);
+				employeeManualTimeLogEntryAllowed);
 		return this.operateTimeLogPolicy.allows(actor, context);
 	}
 

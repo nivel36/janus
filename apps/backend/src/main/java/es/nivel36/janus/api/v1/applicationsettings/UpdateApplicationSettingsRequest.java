@@ -21,12 +21,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 /**
- * Request payload used to update global application settings.
- * <p>
- * For a temporary migration window, deserialization also accepts the obsolete
- * {@code employeeWorkplaceCreationAllowed} and
- * {@code employeeManualTimelogEntryAllowed} property names. Clients must use
- * the canonical record component names; the aliases will be removed.
+ * Request payload used to update global application settings. Uses only the
+ * canonical JSON property names shown below.
  *
  * @param daysUntilLocked                   number of days a time log remains
  *                                          editable; must be greater than or
@@ -38,8 +34,9 @@ import jakarta.validation.constraints.PositiveOrZero;
  * @param employeeManualTimeLogEntryAllowed whether employees can set custom
  *                                          entry/exit instants in timelog
  *                                          operations
- * @param defaultTimezone                   valid IANA time-zone identifier used
- *                                          as default; must not be blank
+ * @param defaultTimezone                   valid time-zone identifier accepted
+ *                                          by ZoneId; must not be blank;
+ *                                          surrounding spaces are trimmed
  */
 public record UpdateApplicationSettingsRequest(
 

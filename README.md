@@ -30,6 +30,7 @@ At this stage, `apps/frontend` provides the base needed to keep building the app
 The backend currently exposes endpoints for:
 
 - `appusers`: application user preferences and settings.
+- `application-settings`: global configuration ([behavior, permissions and migration](docs/application-settings.md)).
 - `employees`: employee management and worksite assignment.
 - `worksites`: worksite catalog and timezone management.
 - `schedules`: schedule definitions and schedule rules.

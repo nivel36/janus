@@ -20,6 +20,7 @@ import java.time.ZoneId;
 import java.util.Objects;
 
 import es.nivel36.janus.service.timelog.TimeLog;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -31,7 +32,7 @@ import jakarta.validation.constraints.PositiveOrZero;
  * <p>
  * This class is mapped to the {@code APPLICATION_SETTINGS} table and represents
  * global configuration parameters that affect the behavior of the application.
- * These settings are typically unique within the system and are used to control
+ * The single configuration has the fixed identifier 1 and is used to control
  * administrative rules such as modification limits and feature enablement.
  * </p>
  */
@@ -41,7 +42,7 @@ public class ApplicationSettings implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final Long GLOBAL_SETTINGS_ID = 1L;
+	static final Long GLOBAL_SETTINGS_ID = 1L;
 
 	/**
 	 * Unique identifier of the application settings entity.
@@ -51,6 +52,7 @@ public class ApplicationSettings implements Serializable {
 	 * </p>
 	 */
 	@Id
+	@Column(name = "ID", nullable = false, updatable = false)
 	private Long id = GLOBAL_SETTINGS_ID;
 
 	/**
@@ -61,16 +63,18 @@ public class ApplicationSettings implements Serializable {
 	 * </p>
 	 */
 	@PositiveOrZero
+	@Column(name = "DAYS_UNTIL_LOCKED", nullable = false)
 	private int daysUntilLocked;
 
 	/**
-	 * Indicates whether employees are allowed to create their own workplace.
+	 * Indicates whether employees are allowed to create their own worksite.
 	 * <p>
-	 * When {@code true}, employees can create workplace entries. When
+	 * When {@code true}, employees can create personal worksite entries. When
 	 * {@code false}, this action is restricted.
 	 * </p>
 	 */
-	private boolean employeeWorkplaceCreationAllowed;
+	@Column(name = "EMPLOYEE_WORKPLACE_CREATION_ALLOWED", nullable = false)
+	private boolean employeeWorksiteCreationAllowed;
 
 	/**
 	 * Indicates whether employees are allowed to change their worksite during an
@@ -81,6 +85,7 @@ public class ApplicationSettings implements Serializable {
 	 * the shift.
 	 * </p>
 	 */
+	@Column(name = "WORKSITE_CHANGE_DURING_SHIFT_ALLOWED", nullable = false)
 	private boolean worksiteChangeDuringShiftAllowed;
 
 	/**
@@ -92,13 +97,15 @@ public class ApplicationSettings implements Serializable {
 	 * only clock in/out using the current instant.
 	 * </p>
 	 */
-	private boolean employeeManualTimelogEntryAllowed;
+	@Column(name = "EMPLOYEE_MANUAL_TIMELOG_ENTRY_ALLOWED", nullable = false)
+	private boolean employeeManualTimeLogEntryAllowed;
 
 	/**
-	 * Default time zone used by the application when a specific value is not
-	 * provided.
+	 * Stored global time zone. Currently exposed for configuration; business
+	 * operations use worksite zones and account provisioning uses its own defaults.
 	 */
 	@NotNull
+	@Column(name = "DEFAULT_TIMEZONE", nullable = false, length = 64)
 	private ZoneId defaultTimezone = ZoneId.of("Europe/Madrid");
 
 	/**
@@ -108,21 +115,21 @@ public class ApplicationSettings implements Serializable {
 	 * solely to allow frameworks such as JPA to instantiate the entity.
 	 * </p>
 	 */
-	ApplicationSettings() {
+	protected ApplicationSettings() {
 	}
 
 	/**
-	 * Creates a new instance with the specified modification window.
+	 * Creates a global configuration with all five values validated.
 	 *
 	 * @param  daysUntilLocked                   number of days a {@link TimeLog}
 	 *                                           can be modified; must be greater
 	 *                                           than or equal to {@code 0}
-	 * @param  employeeWorkplaceCreationAllowed  whether employees are allowed to
-	 *                                           create their own workplace
+	 * @param  employeeWorksiteCreationAllowed   whether employees are allowed to
+	 *                                           create their own worksite
 	 * @param  worksiteChangeDuringShiftAllowed  whether employees are allowed to
 	 *                                           change their worksite during an
 	 *                                           active shift.
-	 * @param  employeeManualTimelogEntryAllowed whether employees are allowed to
+	 * @param  employeeManualTimeLogEntryAllowed whether employees are allowed to
 	 *                                           create manual timelog entries with
 	 *                                           explicit timestamps.
 	 * @param  defaultTimezone                   default application time zone.
@@ -132,23 +139,24 @@ public class ApplicationSettings implements Serializable {
 	 */
 	public ApplicationSettings(
 		final int daysUntilLocked,
-		final boolean employeeWorkplaceCreationAllowed,
+		final boolean employeeWorksiteCreationAllowed,
 		final boolean worksiteChangeDuringShiftAllowed,
-		final boolean employeeManualTimelogEntryAllowed,
+		final boolean employeeManualTimeLogEntryAllowed,
 		final ZoneId defaultTimezone) {
-		this.setDaysUntilLocked(daysUntilLocked);
-		this.employeeWorkplaceCreationAllowed = employeeWorkplaceCreationAllowed;
-		this.worksiteChangeDuringShiftAllowed = worksiteChangeDuringShiftAllowed;
-		this.employeeManualTimelogEntryAllowed = employeeManualTimelogEntryAllowed;
-		this.setDefaultTimezone(defaultTimezone);
+		this.update(
+				daysUntilLocked,
+				employeeWorksiteCreationAllowed,
+				worksiteChangeDuringShiftAllowed,
+				employeeManualTimeLogEntryAllowed,
+				defaultTimezone);
 	}
 
 	/**
 	 * Returns the number of days during which a {@link TimeLog} remains modifiable
 	 * before it becomes locked.
 	 *
-	 * @return the number of days left until the {@link TimeLog} can no longer be
-	 *         modified; always greater than or equal to {@code 0}
+	 * @return the configured modification window in days; always greater than or
+	 *         equal to {@code 0}
 	 */
 	public int getDaysUntilLocked() {
 		return this.daysUntilLocked;
@@ -157,21 +165,20 @@ public class ApplicationSettings implements Serializable {
 	/**
 	 * Returns the unique identifier of this entity.
 	 *
-	 * @return the identifier, or {@code null} if the entity has not yet been
-	 *         persisted
+	 * @return the fixed global identifier, {@code 1}
 	 */
 	public Long getId() {
 		return this.id;
 	}
 
 	/**
-	 * Indicates whether employees are allowed to create their own workplace.
+	 * Indicates whether employees are allowed to create their own worksite.
 	 *
-	 * @return {@code true} if workplace creation by employees is allowed;
+	 * @return {@code true} if personal worksite creation by employees is allowed;
 	 *         {@code false} otherwise
 	 */
-	public boolean isEmployeeWorkplaceCreationAllowed() {
-		return this.employeeWorkplaceCreationAllowed;
+	public boolean isEmployeeWorksiteCreationAllowed() {
+		return this.employeeWorksiteCreationAllowed;
 	}
 
 	/**
@@ -192,88 +199,51 @@ public class ApplicationSettings implements Serializable {
 	 * @return {@code true} if manual timelog entry is allowed; {@code false}
 	 *         otherwise
 	 */
-	public boolean isEmployeeManualTimelogEntryAllowed() {
-		return this.employeeManualTimelogEntryAllowed;
+	public boolean isEmployeeManualTimeLogEntryAllowed() {
+		return this.employeeManualTimeLogEntryAllowed;
 	}
 
 	/**
-	 * Returns the default time zone used by the application
+	 * Returns the stored global time zone; does not override worksite or account
+	 * zones.
 	 *
-	 * @return ZoneId with the default time zone
+	 * @return the stored global time zone
 	 */
 	public ZoneId getDefaultTimezone() {
 		return this.defaultTimezone;
 	}
 
 	/**
-	 * Sets the identifier of this application settings.
-	 * <p>
-	 * This method is intended for testing purposes only and should not be used in
-	 * production code. It exists to allow controlled assignment of the identifier
-	 * when creating or manipulating entity instances in tests.
-	 * </p>
+	 * Replaces all configuration values after validating the complete input.
+	 * Package access confines mutation to the application settings service.
 	 *
-	 * @param id the identifier to assign
+	 * @param  daysUntilLocked                   non-negative modification window in
+	 *                                           days
+	 * @param  employeeWorksiteCreationAllowed   whether personal worksite creation
+	 *                                           is allowed
+	 * @param  worksiteChangeDuringShiftAllowed  whether clock-out at another
+	 *                                           worksite is allowed
+	 * @param  employeeManualTimeLogEntryAllowed whether manual timestamps are
+	 *                                           allowed
+	 * @param  defaultTimezone                   stored global time zone
+	 * @throws IllegalArgumentException          if daysUntilLocked is negative
+	 * @throws NullPointerException              if defaultTimezone is null
 	 */
-	void setId(final Long id) {
-		this.id = id;
-	}
-
-	/**
-	 * Sets the number of days during which a {@link TimeLog} remains modifiable.
-	 *
-	 * @param  daysUntilLocked          number of days; must be greater than or
-	 *                                  equal to {@code 0}
-	 * @throws IllegalArgumentException if {@code daysUntilLocked} is negative
-	 */
-	public void setDaysUntilLocked(final int daysUntilLocked) {
+	void update(
+			final int daysUntilLocked,
+			final boolean employeeWorksiteCreationAllowed,
+			final boolean worksiteChangeDuringShiftAllowed,
+			final boolean employeeManualTimeLogEntryAllowed,
+			final ZoneId defaultTimezone) {
 		if (daysUntilLocked < 0) {
 			throw new IllegalArgumentException("daysUntilLocked cannot be negative");
 		}
+		Objects.requireNonNull(defaultTimezone, "defaultTimezone cannot be null");
 		this.daysUntilLocked = daysUntilLocked;
-	}
-
-	/**
-	 * Sets whether employees are allowed to create their own workplace.
-	 *
-	 * @param employeeWorkplaceCreationAllowed {@code true} to allow workplace
-	 *                                         creation by employees; {@code false}
-	 *                                         to restrict it
-	 */
-	public void setEmployeeWorkplaceCreationAllowed(final boolean employeeWorkplaceCreationAllowed) {
-		this.employeeWorkplaceCreationAllowed = employeeWorkplaceCreationAllowed;
-	}
-
-	/**
-	 * Sets whether employees are allowed to change their worksite during an active
-	 * shift.
-	 *
-	 * @param worksiteChangeDuringShiftAllowed {@code true} to allow worksite
-	 *                                         changes during a shift; {@code false}
-	 *                                         otherwise
-	 */
-	public void setWorksiteChangeDuringShiftAllowed(final boolean worksiteChangeDuringShiftAllowed) {
+		this.employeeWorksiteCreationAllowed = employeeWorksiteCreationAllowed;
 		this.worksiteChangeDuringShiftAllowed = worksiteChangeDuringShiftAllowed;
-	}
-
-	/**
-	 * Sets whether employees can provide manual entry/exit timestamps.
-	 *
-	 * @param employeeManualTimelogEntryAllowed {@code true} to allow manual
-	 *                                          timestamps; {@code false} otherwise
-	 */
-	public void setEmployeeManualTimelogEntryAllowed(final boolean employeeManualTimelogEntryAllowed) {
-		this.employeeManualTimelogEntryAllowed = employeeManualTimelogEntryAllowed;
-	}
-
-	/**
-	 * Sets the default time zone used by the application
-	 *
-	 * @param  defaultTimezone      default application time zone.
-	 * @throws NullPointerException if defaultTimezone is {@code null}
-	 */
-	public void setDefaultTimezone(final ZoneId defaultTimezone) {
-		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone cannot be null");
+		this.employeeManualTimeLogEntryAllowed = employeeManualTimeLogEntryAllowed;
+		this.defaultTimezone = defaultTimezone;
 	}
 
 	@Override

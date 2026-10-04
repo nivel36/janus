@@ -17,6 +17,7 @@ package es.nivel36.janus.service.timelog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -140,6 +142,30 @@ class TimeLogServiceTest {
 		// Assert
 		assertNotNull(result);
 		assertEquals(this.now(), result.getExitTime());
+	}
+
+	@ParameterizedTest
+	@CsvSource({ "false, false", "false, true", "true, false", "true, true" })
+	void clockOutRespectsWorksiteChangeSetting(final boolean changeAllowed, final boolean differentWorksite)
+			throws ClockOutWithoutClockInException {
+		final Instant fixedNow = Instant.parse("2025-08-29T20:00:00Z");
+		when(this.clock.instant()).thenReturn(fixedNow);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+		when(this.applicationSettingsService.isWorksiteChangeDuringShiftAllowed()).thenReturn(changeAllowed);
+		final Worksite exitWorksite = differentWorksite ? new Worksite("OTHER", "Other worksite", ZoneId.of("UTC"))
+				: this.worksite;
+		exitWorksite.assignEmployee(this.employee);
+		final TimeLog existing = new TimeLog(this.employee, this.worksite, fixedNow.minus(8, ChronoUnit.HOURS));
+		when(this.timeLogRepository.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(this.employee.getId()))
+				.thenReturn(existing);
+		if (differentWorksite && !changeAllowed) {
+			assertThrows(
+					WorksiteMismatchOnClockOutException.class,
+					() -> this.timeLogService.clockOut(this.employee, exitWorksite, fixedNow));
+			assertNull(existing.getExitTime());
+		} else {
+			assertEquals(fixedNow, this.timeLogService.clockOut(this.employee, exitWorksite, fixedNow).getExitTime());
+		}
 	}
 
 	@Test

@@ -292,7 +292,7 @@ public class TimeLogService {
 			throw new ClockOutWithoutClockInException();
 		}
 
-		if (this.applicationSettingsService.isWorksiteChangeDuringShiftAllowed()
+		if (!this.applicationSettingsService.isWorksiteChangeDuringShiftAllowed()
 				&& !lastTimeLog.getWorksite().equals(worksite)) {
 			throw new WorksiteMismatchOnClockOutException(lastTimeLog.getWorksite(), worksite);
 		}

@@ -10,16 +10,25 @@
 
 
 export interface UpdateApplicationSettingsRequest {
+    /**
+     * Modification window in days; also controls work shift lookup and precomputation.
+     */
     daysUntilLocked: number;
     /**
-     * Canonical name. During the migration window the API also accepts the obsolete employeeWorkplaceCreationAllowed input name; clients must migrate to this property.
+     * Whether employees can create personal worksites. Obsolete input names do not satisfy this required field.
      */
     employeeWorksiteCreationAllowed: boolean;
+    /**
+     * Whether clock-out may use a different worksite from clock-in.
+     */
     worksiteChangeDuringShiftAllowed: boolean;
     /**
-     * Canonical name. During the migration window the API also accepts the obsolete employeeManualTimelogEntryAllowed input name; clients must migrate to this property.
+     * Whether employees can supply explicit time log timestamps. Obsolete input names do not satisfy this required field.
      */
     employeeManualTimeLogEntryAllowed: boolean;
+    /**
+     * Stored global zone accepted by Java ZoneId, including UTC and offsets. Surrounding input spaces are trimmed. Does not override worksite or account zones.
+     */
     defaultTimezone: string;
 }
 

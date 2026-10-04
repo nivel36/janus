@@ -10,16 +10,25 @@
 
 
 export interface ApplicationSettingsResponse {
+    /**
+     * Modification window in days; also controls work shift lookup and precomputation.
+     */
     daysUntilLocked: number;
     /**
-     * Canonical name. The obsolete employeeWorkplaceCreationAllowed name is accepted only as a temporary deserialization alias.
+     * Whether employees can create personal worksites.
      */
     employeeWorksiteCreationAllowed: boolean;
+    /**
+     * Whether clock-out may use a different worksite from clock-in.
+     */
     worksiteChangeDuringShiftAllowed: boolean;
     /**
-     * Canonical name. The obsolete employeeManualTimelogEntryAllowed name is accepted only as a temporary deserialization alias.
+     * Whether employees can supply explicit time log timestamps.
      */
     employeeManualTimeLogEntryAllowed: boolean;
+    /**
+     * Stored global zone accepted by Java ZoneId, including UTC and offsets. Surrounding input spaces are trimmed. Does not override worksite or account zones.
+     */
     defaultTimezone: string;
 }
 

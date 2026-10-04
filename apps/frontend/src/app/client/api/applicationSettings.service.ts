@@ -38,6 +38,7 @@ export class ApplicationSettingsService extends BaseService {
     }
 
     /**
+     * Read the single global configuration. Requires a provisioned JWT identity with JANUS_EMPLOYEE, JANUS_USER or JANUS_ADMIN.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -87,6 +88,7 @@ export class ApplicationSettingsService extends BaseService {
     }
 
     /**
+     * Replace all five settings. Requires a provisioned JWT identity with JANUS_ADMIN. All fields are required; obsolete property names are not aliases.
      * @param updateApplicationSettingsRequest
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

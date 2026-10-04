@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import es.nivel36.janus.service.applicationsettings.MissingApplicationSettingsException;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
@@ -430,7 +431,7 @@ public class JanusExceptionHandler {
 		return pd;
 	}
 
-	@ExceptionHandler(Exception.class)
+	@ExceptionHandler({ MissingApplicationSettingsException.class, Exception.class })
 	ProblemDetail handleGeneric(final Exception ex, final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
 		pd.setType(TYPE_INTERNAL_ERROR);

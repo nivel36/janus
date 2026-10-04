@@ -88,7 +88,7 @@ public class WorksiteAuthorizationAdapter {
 		return this.create.allows(
 				actor,
 				new CreateWorksitePolicy.Context(
-						needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
+						needsEmployeeFacts && this.settings.isEmployeeWorksiteCreationAllowed(),
 						scope == WorksiteScope.ASSIGNED));
 	}
 
@@ -98,7 +98,7 @@ public class WorksiteAuthorizationAdapter {
 		return this.update.allows(
 				actor,
 				new UpdateWorksitePolicy.Context(
-						needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
+						needsEmployeeFacts && this.settings.isEmployeeWorksiteCreationAllowed(),
 						scope == WorksiteScope.ASSIGNED,
 						needsEmployeeFacts && this.assigned(actor, code)));
 	}

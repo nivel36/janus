@@ -33,9 +33,9 @@ public class ApplicationSettingsResponseMapper implements Mapper<ApplicationSett
 			return null;
 		}
 		final int daysUntilLocked = applicationSettings.getDaysUntilLocked();
-		final boolean employeeWorksiteCreationAllowed = applicationSettings.isEmployeeWorkplaceCreationAllowed();
+		final boolean employeeWorksiteCreationAllowed = applicationSettings.isEmployeeWorksiteCreationAllowed();
 		final boolean worksiteChangeDuringShiftAllowed = applicationSettings.isWorksiteChangeDuringShiftAllowed();
-		final boolean employeeManualTimeLogEntryAllowed = applicationSettings.isEmployeeManualTimelogEntryAllowed();
+		final boolean employeeManualTimeLogEntryAllowed = applicationSettings.isEmployeeManualTimeLogEntryAllowed();
 		final String zoneId = applicationSettings.getDefaultTimezone().getId();
 		return new ApplicationSettingsResponse(
 				daysUntilLocked,

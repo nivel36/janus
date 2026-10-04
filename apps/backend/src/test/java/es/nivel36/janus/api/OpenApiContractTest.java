@@ -111,6 +111,42 @@ class OpenApiContractTest {
 				"InvalidateClockOutWithoutClockInEventRequest");
 	}
 
+	@Test
+	@SuppressWarnings("unchecked")
+	void applicationSettingsDocumentsCanonicalFieldsValidationsAndErrors() throws Exception {
+		final var spec = contract();
+		final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) spec.get("components"))
+				.get("schemas");
+		final var fields = List.of(
+				"daysUntilLocked",
+				"employeeWorksiteCreationAllowed",
+				"worksiteChangeDuringShiftAllowed",
+				"employeeManualTimeLogEntryAllowed",
+				"defaultTimezone");
+		for (final String schemaName : List.of("ApplicationSettingsResponse", "UpdateApplicationSettingsRequest")) {
+			final var schema = schemas.get(schemaName);
+			assertThat((List<String>) schema.get("required")).containsExactlyInAnyOrderElementsOf(fields);
+			final var properties = (Map<String, Map<String, Object>>) schema.get("properties");
+			assertThat(properties.keySet()).containsExactlyInAnyOrderElementsOf(fields);
+			assertThat(properties.get("daysUntilLocked")).containsEntry("type", "integer").containsEntry("minimum", 0);
+			for (final String field : fields.subList(1, 4)) {
+				assertThat(properties.get(field)).containsEntry("type", "boolean");
+			}
+			assertThat(properties.get("defaultTimezone")).containsEntry("type", "string");
+		}
+		final var request = schemas.get("UpdateApplicationSettingsRequest");
+		final var properties = (Map<String, Map<String, Object>>) request.get("properties");
+		assertThat(properties.get("defaultTimezone")).containsEntry("minLength", 1);
+		final var operations = documentedOperations(spec);
+		for (final String verb : List.of("GET", "PUT")) {
+			final var operation = operations.get(verb + " /application-settings").operation();
+			assertThat((Map<String, Object>) operation.get("responses")).containsKeys("200", "401", "403", "500");
+			assertThat((String) operation.get("description")).contains("provisioned JWT identity", "JANUS_ADMIN");
+		}
+		assertThat((Map<String, Object>) operations.get("PUT /application-settings").operation().get("responses"))
+				.containsKey("400");
+	}
+
 	private static Map<String, Object> contract() throws Exception {
 		try (var stream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
 				var reader = new InputStreamReader(stream)) {

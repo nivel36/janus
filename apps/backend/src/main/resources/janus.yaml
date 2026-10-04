@@ -173,6 +173,7 @@ paths:
       tags:
       - application-settings
       operationId: findApplicationSettings
+      description: Read the single global configuration. Requires a provisioned JWT identity with JANUS_EMPLOYEE, JANUS_USER or JANUS_ADMIN.
       responses:
         '200':
           description: Current application settings
@@ -180,10 +181,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApplicationSettingsResponse'
+        '401':
+          description: Valid authentication credentials are required
+        '403':
+          description: Identity is not provisioned or has no permitted role
+        '500':
+          description: Global settings row is missing or an unexpected internal error occurred
     put:
       tags:
       - application-settings
       operationId: updateApplicationSettings
+      description: Replace all five settings. Requires a provisioned JWT identity with JANUS_ADMIN. All fields are required; obsolete property names are not aliases.
       requestBody:
         required: true
         content:
@@ -197,6 +205,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApplicationSettingsResponse'
+        '400':
+          description: Invalid or incomplete settings payload
+        '401':
+          description: Valid authentication credentials are required
+        '403':
+          description: Identity is not provisioned or is not an administrator
+        '500':
+          description: Global settings row is missing or an unexpected internal error occurred
   /worksites:
     get:
       tags:
@@ -851,16 +867,19 @@ components:
         daysUntilLocked:
           type: integer
           minimum: 0
+          description: Modification window in days; also controls work shift lookup and precomputation.
         employeeWorksiteCreationAllowed:
           type: boolean
-          description: Canonical name. The obsolete employeeWorkplaceCreationAllowed name is accepted only as a temporary deserialization alias.
+          description: Whether employees can create personal worksites.
         worksiteChangeDuringShiftAllowed:
           type: boolean
+          description: Whether clock-out may use a different worksite from clock-in.
         employeeManualTimeLogEntryAllowed:
           type: boolean
-          description: Canonical name. The obsolete employeeManualTimelogEntryAllowed name is accepted only as a temporary deserialization alias.
+          description: Whether employees can supply explicit time log timestamps.
         defaultTimezone:
           type: string
+          description: Stored global zone accepted by Java ZoneId, including UTC and offsets. Surrounding input spaces are trimmed. Does not override worksite or account zones.
     UpdateApplicationSettingsRequest:
       type: object
       required:
@@ -873,16 +892,19 @@ components:
         daysUntilLocked:
           type: integer
           minimum: 0
+          description: Modification window in days; also controls work shift lookup and precomputation.
         employeeWorksiteCreationAllowed:
           type: boolean
-          description: Canonical name. During the migration window the API also accepts the obsolete employeeWorkplaceCreationAllowed input name; clients must migrate to this property.
+          description: Whether employees can create personal worksites. Obsolete input names do not satisfy this required field.
         worksiteChangeDuringShiftAllowed:
           type: boolean
+          description: Whether clock-out may use a different worksite from clock-in.
         employeeManualTimeLogEntryAllowed:
           type: boolean
-          description: Canonical name. During the migration window the API also accepts the obsolete employeeManualTimelogEntryAllowed input name; clients must migrate to this property.
+          description: Whether employees can supply explicit time log timestamps. Obsolete input names do not satisfy this required field.
         defaultTimezone:
           type: string
+          description: Stored global zone accepted by Java ZoneId, including UTC and offsets. Surrounding input spaces are trimmed. Does not override worksite or account zones.
           minLength: 1
     PageMetadata:
       type: object

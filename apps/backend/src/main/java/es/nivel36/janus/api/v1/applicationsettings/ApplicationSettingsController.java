@@ -59,11 +59,6 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 				.requireNonNull(appSettingsResponseMapper, "appSettingsResponseMapper can't be null");
 	}
 
-	/**
-	 * Retrieves the global application settings.
-	 *
-	 * @return a {@link ResponseEntity} containing the current application settings
-	 */
 	@Override
 	public ResponseEntity<ApplicationSettingsResponse> findApplicationSettings() {
 		logger.debug("Find application settings ACTION performed");
@@ -72,14 +67,6 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 		return ResponseEntity.ok(appSettingsResponse);
 	}
 
-	/**
-	 * Updates the global application settings.
-	 *
-	 * @param  request the payload describing the new settings; must not be
-	 *                 {@code null}
-	 * @return         a {@link ResponseEntity} containing the updated application
-	 *                 settings
-	 */
 	@Override
 	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
 			final UpdateApplicationSettingsRequest request) {

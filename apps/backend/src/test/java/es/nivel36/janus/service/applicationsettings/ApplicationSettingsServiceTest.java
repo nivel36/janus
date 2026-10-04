@@ -15,46 +15,70 @@
  */
 package es.nivel36.janus.service.applicationsettings;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.ZoneId;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class ApplicationSettingsServiceTest {
 
-	private @Mock ApplicationSettingsRepository applicationSettingsRepository;
-	private @InjectMocks ApplicationSettingsService applicationSettingsService;
+	@Mock
+	private ApplicationSettingsRepository repository;
 
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.openMocks(this);
+	@InjectMocks
+	private ApplicationSettingsService service;
+
+	@Test
+	void findsGlobalApplicationSettings() {
+		final ApplicationSettings settings = new ApplicationSettings(7, true, false, false, ZoneId.of("Europe/Madrid"));
+
+		when(this.repository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID)).thenReturn(Optional.of(settings));
+
+		assertThat(this.service.findApplicationSettings()).isSameAs(settings);
+
+		verify(this.repository).findById(ApplicationSettings.GLOBAL_SETTINGS_ID);
 	}
 
 	@Test
-	void testGetDaysUntilLockedReturnsPersistedValue() {
-		when(this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID))
-				.thenReturn(Optional.of(new ApplicationSettings(7, false, false, false, ZoneId.of("Europe/Madrid"))));
+	void updateModifiesExistingApplicationSettings() {
+		final ApplicationSettings settings = new ApplicationSettings(7, true, false, false, ZoneId.of("Europe/Madrid"));
 
-		final int daysUntilLocked = this.applicationSettingsService.getDaysUntilLocked();
+		when(this.repository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID)).thenReturn(Optional.of(settings));
 
-		assertEquals(7, daysUntilLocked);
-		verify(this.applicationSettingsRepository).findById(ApplicationSettings.GLOBAL_SETTINGS_ID);
+		final ApplicationSettings result = this.service.update(30, false, true, true, ZoneId.of("UTC"));
+
+		assertThat(result).isSameAs(settings);
+		assertThat(settings.getDaysUntilLocked()).isEqualTo(30);
+		assertThat(settings.isEmployeeWorksiteCreationAllowed()).isFalse();
+		assertThat(settings.isWorksiteChangeDuringShiftAllowed()).isTrue();
+		assertThat(settings.isEmployeeManualTimeLogEntryAllowed()).isTrue();
+		assertThat(settings.getDefaultTimezone()).isEqualTo(ZoneId.of("UTC"));
 	}
 
 	@Test
-	void testGetDaysUntilLockedFallsBackToDefaultWhenSettingsAreMissing() {
-		when(this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID))
-				.thenReturn(Optional.empty());
+	void findFailsWhenGlobalSettingsAreMissing() {
+		when(this.repository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID)).thenReturn(Optional.empty());
 
-		assertThrows(IllegalStateException.class, () -> this.applicationSettingsService.getDaysUntilLocked());
+		assertThatThrownBy(() -> this.service.findApplicationSettings())
+				.isInstanceOf(MissingApplicationSettingsException.class)
+				.hasMessage("Global application settings row is missing");
+	}
+
+	@Test
+	void updateFailsWhenGlobalSettingsAreMissing() {
+		when(this.repository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID)).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> this.service.update(3, false, true, true, ZoneId.of("UTC")))
+				.isInstanceOf(MissingApplicationSettingsException.class);
 	}
 }

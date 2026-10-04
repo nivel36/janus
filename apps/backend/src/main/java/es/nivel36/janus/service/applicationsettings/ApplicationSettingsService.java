@@ -58,7 +58,7 @@ public class ApplicationSettingsService {
 	 * @param  daysUntilLocked                   number of days before an entity
 	 *                                           becomes locked.
 	 * @param  employeeWorksiteCreationAllowed   whether employees are allowed to
-	 *                                           create workplaces.
+	 *                                           create personal worksites.
 	 * @param  worksiteChangeDuringShiftAllowed  whether worksite changes are
 	 *                                           allowed during a shift.
 	 * @param  employeeManualTimeLogEntryAllowed whether employees are allowed to
@@ -70,6 +70,8 @@ public class ApplicationSettingsService {
 	 *                                           instance.
 	 * @throws IllegalStateException             if the global application settings
 	 *                                           entry does not exist.
+	 * @throws IllegalArgumentException          if daysUntilLocked is negative.
+	 * @throws NullPointerException              if defaultTimezone is null.
 	 */
 	@Transactional
 	public ApplicationSettings update(
@@ -80,11 +82,12 @@ public class ApplicationSettingsService {
 			final ZoneId defaultTimezone) {
 		logger.debug("Updating application settings");
 		final ApplicationSettings applicationSettings = this.findById();
-		applicationSettings.setDaysUntilLocked(daysUntilLocked);
-		applicationSettings.setEmployeeWorkplaceCreationAllowed(employeeWorksiteCreationAllowed);
-		applicationSettings.setWorksiteChangeDuringShiftAllowed(worksiteChangeDuringShiftAllowed);
-		applicationSettings.setEmployeeManualTimelogEntryAllowed(employeeManualTimeLogEntryAllowed);
-		applicationSettings.setDefaultTimezone(defaultTimezone);
+		applicationSettings.update(
+				daysUntilLocked,
+				employeeWorksiteCreationAllowed,
+				worksiteChangeDuringShiftAllowed,
+				employeeManualTimeLogEntryAllowed,
+				defaultTimezone);
 		return applicationSettings;
 	}
 
@@ -103,7 +106,7 @@ public class ApplicationSettingsService {
 
 	private ApplicationSettings findById() {
 		return this.applicationSettingsRepository.findById(ApplicationSettings.GLOBAL_SETTINGS_ID)
-				.orElseThrow(() -> new IllegalStateException("Global application settings row is missing"));
+				.orElseThrow(MissingApplicationSettingsException::new);
 	}
 
 	/**
@@ -115,20 +118,22 @@ public class ApplicationSettingsService {
 	 */
 	@Transactional(readOnly = true)
 	public int getDaysUntilLocked() {
+		logger.debug("Getting days until locked from application settings");
 		return this.findById().getDaysUntilLocked();
 	}
 
 	/**
-	 * Indicates whether employees are allowed to create workplaces.
+	 * Indicates whether employees are allowed to create personal worksites.
 	 *
-	 * @return                       {@code true} if workplace creation is allowed
-	 *                               for employees; {@code false} otherwise.
+	 * @return                       {@code true} if personal worksite creation is
+	 *                               allowed for employees; {@code false} otherwise.
 	 * @throws IllegalStateException if the global application settings entry does
 	 *                               not exist.
 	 */
 	@Transactional(readOnly = true)
-	public boolean isEmployeeWorkplaceCreationAllowed() {
-		return this.findById().isEmployeeWorkplaceCreationAllowed();
+	public boolean isEmployeeWorksiteCreationAllowed() {
+		logger.debug("Checking employee worksite creation permission in application settings");
+		return this.findById().isEmployeeWorksiteCreationAllowed();
 	}
 
 	/**
@@ -141,6 +146,7 @@ public class ApplicationSettingsService {
 	 */
 	@Transactional(readOnly = true)
 	public boolean isWorksiteChangeDuringShiftAllowed() {
+		logger.debug("Checking worksite change during shift permission in application settings");
 		return this.findById().isWorksiteChangeDuringShiftAllowed();
 	}
 
@@ -154,17 +160,21 @@ public class ApplicationSettingsService {
 	 *                               not exist.
 	 */
 	@Transactional(readOnly = true)
-	public boolean isEmployeeManualTimelogEntryAllowed() {
-		return this.findById().isEmployeeManualTimelogEntryAllowed();
+	public boolean isEmployeeManualTimeLogEntryAllowed() {
+		logger.debug("Checking employee manual time log entry permission in application settings");
+		return this.findById().isEmployeeManualTimeLogEntryAllowed();
 	}
 
 	/**
-	 * Returns the default time zone used by the application
+	 * Returns the stored global time zone; does not override worksite or account
+	 * zones.
 	 *
-	 * @return ZoneId with the default time zone
+	 * @return                       ZoneId with the stored global time zone
+	 * @throws IllegalStateException if the global settings row is missing
 	 */
 	@Transactional(readOnly = true)
 	public ZoneId getDefaultTimezone() {
+		logger.debug("Getting default timezone from application settings");
 		return this.findById().getDefaultTimezone();
 	}
 }

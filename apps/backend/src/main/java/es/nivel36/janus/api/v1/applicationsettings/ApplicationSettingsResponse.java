@@ -19,10 +19,7 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 
 /**
  * Response payload that represents global {@link ApplicationSettings} values.
- * Serialization always emits the canonical record component names. The obsolete
- * {@code employeeWorkplaceCreationAllowed} and
- * {@code employeeManualTimelogEntryAllowed} names are temporary
- * deserialization-only aliases.
+ * Uses only the canonical JSON property names shown below.
  *
  * @param daysUntilLocked                   number of days a time log remains
  *                                          editable
@@ -33,8 +30,7 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
  * @param employeeManualTimeLogEntryAllowed whether employees can set custom
  *                                          entry/exit instants in timelog
  *                                          operations
- * @param defaultTimezone                   IANA time zone identifier used as
- *                                          default
+ * @param defaultTimezone                   stored global time-zone identifier
  */
 public record ApplicationSettingsResponse(
 		int daysUntilLocked,

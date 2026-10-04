@@ -141,7 +141,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	}
 
 	private void assertManualTimeEntryAllowed() {
-		if (!this.applicationSettingsService.findApplicationSettings().isEmployeeManualTimelogEntryAllowed()) {
+		if (!this.applicationSettingsService.isEmployeeManualTimeLogEntryAllowed()) {
 			throw new AccessDeniedException("Manual timelog entry is disabled for employees");
 		}
 	}

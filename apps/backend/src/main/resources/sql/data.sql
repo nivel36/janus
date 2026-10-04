@@ -10,7 +10,7 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-INSERT INTO application_settings (days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (7, true, false, false, 'Europe/Madrid');
+INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid');
 
 INSERT INTO schedule (code, name, entry_tolerance, exit_tolerance) VALUES ('STD-WH-AUG-VAR', 'Standard Work Hours with August Variation', 3600, 3600);
 

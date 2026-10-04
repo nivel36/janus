@@ -24,13 +24,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.validation.Valid;
 
+/**
+ * HTTP contract for reading and replacing the single global configuration.
+ */
 @RequestMapping({ "/api/v1/application-settings" })
 public interface ApplicationSettingsResource {
 
+	/**
+	 * Retrieves the global application settings.
+	 *
+	 * @return a {@link ResponseEntity} containing the current application settings
+	 */
 	@PreAuthorize("@applicationSettingsAuthorization.canView(authentication)")
 	@GetMapping
 	ResponseEntity<ApplicationSettingsResponse> findApplicationSettings();
 
+	/**
+	 * Updates the global application settings.
+	 *
+	 * @param  request the payload describing the new settings; must not be
+	 *                 {@code null}
+	 * @return         a {@link ResponseEntity} containing the updated application
+	 *                 settings
+	 */
 	@PreAuthorize("@applicationSettingsAuthorization.canUpdate(authentication)")
 	@PutMapping
 	ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
