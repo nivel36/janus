@@ -15,33 +15,74 @@
  */
 package es.nivel36.janus.service.appuser;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import es.nivel36.janus.service.employee.Employee;
 
 /**
- * Repository class for managing {@link AppUser} entities.
+ * Internal persistence contract for application profiles. Callers supply
+ * validated identities and use a transaction for mutations. Queries return
+ * existing profiles without provisioning; subject and UUID lookups and search
+ * load the employee association for use outside the transaction. Uniqueness of
+ * subjects and employee links is enforced by database constraints.
  */
 @Repository
 interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 
-	List<AppUser> findByEmail(String email);
+	/**
+	 * Queries profiles using an already escaped literal email fragment. No profile
+	 * or association is changed. Email matches case-insensitively and filters
+	 * combine with AND; empty email disables the email restriction.
+	 *
+	 * @param  email          nonnull fragment escaped with LikePatterns.escape for
+	 *                        SQL LIKE
+	 * @param  employeeNumber exact validated number, or null to disable this filter
+	 * @param  pageable       nonnull paging with entity property paths for sorting
+	 * @return                matching page with employee associations loaded,
+	 *                        possibly empty
+	 */
+	@EntityGraph(attributePaths = "employee")
+	@Query("""
+			SELECT u FROM AppUser u LEFT JOIN u.employee e
+			WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%')) ESCAPE '!'
+			AND (:employeeNumber IS NULL OR e.employeeNumber = :employeeNumber)
+			""")
+	Page<AppUser> search(String email, String employeeNumber, Pageable pageable);
 
+	/**
+	 * Looks up an exact subject without creating or changing a profile.
+	 *
+	 * @param  keycloakSubject nonnull validated opaque subject
+	 * @return                 matching profile with employee loaded, or an empty
+	 *                         optional
+	 */
 	@EntityGraph(attributePaths = "employee")
 	Optional<AppUser> findByKeycloakSubject(String keycloakSubject);
 
+	/**
+	 * {@inheritDoc} The optional employee association is loaded with the returned
+	 * profile.
+	 */
 	@Override
 	@EntityGraph(attributePaths = "employee")
 	Optional<AppUser> findById(UUID id);
 
-	boolean existsByKeycloakSubject(String keycloakSubject);
-
+	/**
+	 * Looks up the profile owning an employee without changing its association. The
+	 * employee must be nonnull and have a persistence identifier.
+	 *
+	 * @param  employee persisted employee whose owner is requested
+	 * @return          owning profile, or an empty optional when the employee is
+	 *                  unlinked
+	 */
 	Optional<AppUser> findByEmployee(Employee employee);
 
 }

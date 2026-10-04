@@ -3,6 +3,17 @@
  */
 package es.nivel36.janus.service.appuser;
 
+/**
+ * Supported color preferences stored on a local profile. Assigning a value
+ * changes display preference only and grants no authorization.
+ */
 public enum Theme {
-	DARK, LIGHT
+	/**
+	 * Dark color scheme and the initial profile preference.
+	 */
+	DARK,
+	/**
+	 * Light color scheme.
+	 */
+	LIGHT
 }

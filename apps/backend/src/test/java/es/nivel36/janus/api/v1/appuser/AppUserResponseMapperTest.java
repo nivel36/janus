@@ -16,6 +16,10 @@ import org.junit.jupiter.api.Test;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.employee.Employee;
 
+/**
+ * Verifies that profile responses use the persisted employee number without
+ * changing the association.
+ */
 class AppUserResponseMapperTest {
 
 	@Test

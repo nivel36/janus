@@ -31,10 +31,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.nivel36.janus.config.UserProvisioningProperties;
 import es.nivel36.janus.service.ResourceNotFoundException;
@@ -42,18 +41,27 @@ import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 
+/**
+ * Verifies validated profile lookups, email refresh and first-access conflict
+ * reconciliation.
+ */
+@ExtendWith(MockitoExtension.class)
 class AppUserServiceTest {
 
 	private @Mock AppUserRepository appUserRepository;
 	private @Mock AppUserCreator appUserCreator;
 	private @Mock UserProvisioningProperties provisioningDefaults;
 	private @Mock EmployeeService employeeService;
-	private @Mock PasswordEncoder passwordEncoder;
-	private @InjectMocks AppUserService appUserService;
+	private AppUserService appUserService;
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.openMocks(this);
+		this.appUserService = new AppUserService(
+				this.appUserRepository,
+				this.appUserCreator,
+				this.provisioningDefaults,
+				this.employeeService,
+				100);
 	}
 
 	@Test
@@ -76,6 +84,7 @@ class AppUserServiceTest {
 		final String email = "person@example.test";
 		final ZoneId timezone = ZoneId.of("UTC");
 		final Employee employee = mock(Employee.class);
+		when(employee.getId()).thenReturn(42L);
 		final AppUser winner = new AppUser(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone);
 		when(this.provisioningDefaults.locale()).thenReturn(Locale.ENGLISH);
 		when(this.provisioningDefaults.getTimeFormat()).thenReturn(TimeFormat.H24);
@@ -84,7 +93,7 @@ class AppUserServiceTest {
 		when(this.appUserRepository.findByEmployee(employee)).thenReturn(Optional.empty());
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.empty())
 				.thenReturn(Optional.empty()).thenReturn(Optional.of(winner));
-		when(this.appUserCreator.create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, employee))
+		when(this.appUserCreator.create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, 42L))
 				.thenThrow(new AppUserCreationConflict(new RuntimeException("employee claimed")));
 		when(
 				this.appUserCreator
@@ -122,15 +131,6 @@ class AppUserServiceTest {
 	}
 
 	@Test
-	void rejectsSubjectLongerThanDatabaseColumnBeforePersistence() {
-		final String oversizedSubject = "x".repeat(256);
-
-		assertThrows(
-				IllegalArgumentException.class,
-				() -> new AppUser("oversized-subject", oversizedSubject, Locale.ENGLISH, TimeFormat.H24));
-	}
-
-	@Test
 	void unknownEmployeeNumberCreatesAnUnlinkedProfile() {
 		final String subject = "33333333-3333-4333-8333-333333333333";
 		final String email = "unknown@example.test";
@@ -154,8 +154,30 @@ class AppUserServiceTest {
 		final AppUser existing = new AppUser("old@example.test", subject, Locale.ENGLISH, TimeFormat.H24);
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(Optional.of(existing));
 
-		assertSame(existing, this.appUserService.findOrCreateAppUser(subject, "new@example.test", "EMP-99"));
+		assertSame(existing, this.appUserService.findOrCreateAppUser(subject, "  NEW@EXAMPLE.TEST  ", "  EMP-99  "));
 		assertEquals("new@example.test", existing.getEmail());
+		org.mockito.Mockito.verifyNoInteractions(this.employeeService, this.appUserCreator);
+	}
+
+	@Test
+	void subjectLookupReportsMissingProfileWithoutDependingOnSecurity() {
+		assertThrows(
+				ResourceNotFoundException.class,
+				() -> this.appUserService.findAppUserByKeycloakSubject("missing"));
+	}
+
+	@Test
+	void invalidClaimsAreRejectedBeforeLookingUpOrCreatingAProfile() {
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> this.appUserService.findOrCreateAppUser("x".repeat(256), "valid@example.test", null));
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> this.appUserService.findOrCreateAppUser("subject", "x".repeat(256), null));
+		assertThrows(
+				IllegalArgumentException.class,
+				() -> this.appUserService.findOrCreateAppUser("subject", "valid@example.test", "bad number"));
+		org.mockito.Mockito.verifyNoInteractions(this.appUserRepository, this.appUserCreator, this.employeeService);
 	}
 
 }

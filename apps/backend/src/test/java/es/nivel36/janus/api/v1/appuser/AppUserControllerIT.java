@@ -15,9 +15,9 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -25,6 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -39,6 +41,10 @@ import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 import jakarta.persistence.EntityManager;
 
+/**
+ * Exercises current-profile provisioning and validated preference updates
+ * through the secured HTTP API.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Import(SecurityTestConfiguration.class)
@@ -105,7 +111,7 @@ class AppUserControllerIT {
 	@Test
 	@Sql(statements = {
 			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
-	void testMeUpdatesBySubjectDespiteCopiedMutableClaims() throws Exception {
+	void updateUsesSubjectDespiteCopiedMutableClaims() throws Exception {
 		final String body = """
 				  {"locale":"en-CA","timeFormat":"H12","theme":"LIGHT","defaultTimezone":"America/Toronto"}
 				""";
@@ -196,37 +202,10 @@ class AppUserControllerIT {
 						verifiedJwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isBadRequest());
-
-		this.mvc.perform(
-				get(BASE + "/me").with(
-						verifiedJwt()
-								.jwt(
-										jwt -> jwt.subject("88888888-8888-4888-8888-888888888888")
-												.claim("preferred_username", "x".repeat(51)))
-								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isBadRequest());
-
-		this.mvc.perform(
-				get(BASE + "/me").with(
-						verifiedJwt()
-								.jwt(
-										jwt -> jwt.subject("66666666-6666-4666-8666-666666666666")
-												.claim("preferred_username", "ab"))
-								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isBadRequest());
-
-		this.mvc.perform(
-				get(BASE + "/me").with(
-						verifiedJwt()
-								.jwt(
-										jwt -> jwt.subject("55555555-5555-4555-8555-555555555555")
-												.claim("preferred_username", "john/doe"))
-								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isBadRequest());
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "", " ", "\t", "not valid!" })
+	@ParameterizedTest
+	@ValueSource(strings = { "", " ", "\t", "not valid!" })
 	void testMeRejectsInvalidEmployeeNumberClaim(final String employeeNumber) throws Exception {
 		this.mvc.perform(
 				get(BASE + "/me").with(
@@ -262,8 +241,8 @@ class AppUserControllerIT {
 				.isZero();
 	}
 
-	@org.junit.jupiter.params.ParameterizedTest
-	@org.junit.jupiter.params.provider.ValueSource(strings = { "", ",\"theme\":null", ",\"theme\":\"system\"" })
+	@ParameterizedTest
+	@ValueSource(strings = { "", ",\"theme\":null", ",\"theme\":\"system\"" })
 	@Sql(statements = {
 			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void rejectsMissingOrInvalidTheme(final String themeProperty) throws Exception {

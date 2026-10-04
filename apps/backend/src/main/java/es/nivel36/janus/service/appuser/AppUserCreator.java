@@ -16,17 +16,63 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
+import jakarta.persistence.EntityManager;
 
-/** Persists an automatically provisioned user in an independent transaction. */
+/**
+ * Internal first-access writer invoked through Spring's transactional proxy.
+ * Dependencies must be nonnull and inputs must satisfy the AppUser constructor
+ * contract. Each invocation uses a new transaction and resolves the employee
+ * inside it. Successful creation commits a new profile independently; a
+ * conflict rolls back that insert and never reassigns an existing employee
+ * link.
+ */
 @Service
 class AppUserCreator {
 
 	private final AppUserRepository appUserRepository;
+	private final EntityManager entityManager;
 
-	AppUserCreator(final AppUserRepository appUserRepository) {
+	/**
+	 * Creates the internal writer without database access. Both dependencies must
+	 * be nonnull; this constructor stores them without validation.
+	 *
+	 * @param appUserRepository profile repository
+	 * @param entityManager     transaction-bound persistence context
+	 */
+	AppUserCreator(final AppUserRepository appUserRepository, final EntityManager entityManager) {
 		this.appUserRepository = appUserRepository;
+		this.entityManager = entityManager;
 	}
 
+	/**
+	 * Inserts a profile in an independent transaction.
+	 * <p>
+	 * The caller must validate trusted claims and initial preferences and invoke
+	 * the Spring proxy. The optional employee must still be unclaimed.
+	 * </p>
+	 * <p>
+	 * A successful insert commits the new profile's UUID, preferences and optional
+	 * employee link. A missing employee row produces an unlinked profile. Conflicts
+	 * roll back this transaction without altering the outer transaction's employee
+	 * entities; the caller is responsible for reconciling the conflict.
+	 * </p>
+	 *
+	 * @param  email                    nonblank contact email, at most 255
+	 *                                  normalized characters
+	 * @param  keycloakSubject          nonblank opaque subject, at most 255
+	 *                                  characters
+	 * @param  locale                   nonnull initial locale
+	 * @param  timeFormat               nonnull initial time format
+	 * @param  defaultTimezone          nonnull initial timezone
+	 * @param  employeeId               optional employee database identifier; null
+	 *                                  creates unlinked
+	 * @return                          newly persisted profile with readable
+	 *                                  employee data
+	 * @throws NullPointerException     if a required profile value is null
+	 * @throws IllegalArgumentException if email or subject is blank or oversized
+	 * @throws AppUserCreationConflict  if the employee was claimed or insertion
+	 *                                  violates a database integrity constraint
+	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public AppUser create(
 			final String email,
@@ -34,9 +80,16 @@ class AppUserCreator {
 			final Locale locale,
 			final TimeFormat timeFormat,
 			final ZoneId defaultTimezone,
-			final Employee employee) {
+			final Long employeeId) {
 		final AppUser appUser = new AppUser(email, keycloakSubject, locale, timeFormat, defaultTimezone);
-		appUser.setEmployee(employee);
+		if (employeeId != null) {
+			// Resolve the association in this transaction, never mutate an outer entity.
+			final Employee employee = this.entityManager.find(Employee.class, employeeId);
+			if (employee != null && employee.getAppUser() != null) {
+				throw new AppUserCreationConflict(new IllegalStateException("Employee is already linked"));
+			}
+			appUser.setEmployee(employee);
+		}
 		try {
 			return this.appUserRepository.saveAndFlush(appUser);
 		} catch (final DataIntegrityViolationException conflict) {

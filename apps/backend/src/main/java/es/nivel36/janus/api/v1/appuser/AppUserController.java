@@ -23,7 +23,8 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -34,11 +35,13 @@ import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
 import es.nivel36.janus.service.appuser.Theme;
-import es.nivel36.janus.util.EmailAddresses;
-import es.nivel36.janus.validation.EmployeeNumber;
 
 /**
- * REST controller exposing CRUD operations for {@link AppUser} entities.
+ * Spring MVC implementation of {@link AppUserResource}. The resource interface
+ * defines endpoint behavior and authorization. This implementation extracts JWT
+ * claims, converts validated preferences and maps service results to responses;
+ * it requires nonnull service and mapper dependencies and delegates persistence
+ * to the service.
  */
 @RestController
 public class AppUserController implements AppUserResource {
@@ -49,13 +52,12 @@ public class AppUserController implements AppUserResource {
 	private final Mapper<AppUser, AppUserResponse> appUserResponseMapper;
 
 	/**
-	 * Creates a controller that exposes application user management endpoints.
+	 * Creates a controller ready to delegate resource operations without accessing
+	 * persistence during construction.
 	 *
-	 * @param appUserService        service handling {@link AppUser} domain
-	 *                              operations; must not be {@code null}
-	 * @param appUserResponseMapper mapper translating {@link AppUser} entities to
-	 *                              {@link AppUserResponse} DTOs; must not be
-	 *                              {@code null}
+	 * @param  appUserService        nonnull application-user service
+	 * @param  appUserResponseMapper nonnull response mapper
+	 * @throws NullPointerException  if either dependency is null
 	 */
 	public AppUserController(
 		final AppUserService appUserService,
@@ -65,49 +67,28 @@ public class AppUserController implements AppUserResource {
 				.requireNonNull(appUserResponseMapper, "appUserResponseMapper can't be null");
 	}
 
-	/**
-	 * Retrieves the current authenticated {@link AppUser}, creating it from JWT
-	 * claims when provisioning is allowed.
-	 *
-	 * @param  authentication the JWT authentication containing the current user's
-	 *                        identity claims; must not be {@code null}
-	 * @return                the current {@link AppUserResponse}
-	 */
 	@Override
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
 		logger.debug("Find app user ACTION performed");
 		final Jwt token = authentication.getToken();
 		final String email = token.getClaimAsString("email");
-		if (email == null || email.isBlank()) {
-			throw new IllegalArgumentException("email claim is required");
-		}
 		final String subject = token.getSubject();
-		final String employeeNumber = normalizeEmployeeNumber(token.getClaimAsString("employeeNumber"));
-		final AppUser appUser = this.appUserService
-				.findOrCreateAppUser(subject, EmailAddresses.canonicalize(email), employeeNumber);
+		final String employeeNumber = token.getClaimAsString("employeeNumber");
+		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, email, employeeNumber);
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(appUser);
 		return ResponseEntity.ok(appUserResponse);
 	}
 
-	private static String normalizeEmployeeNumber(final String claim) {
-		if (claim == null) {
-			return null;
-		}
-		final String normalized = claim.trim();
-		if (!normalized.matches(EmployeeNumber.PATTERN)) {
-			throw new IllegalArgumentException(
-					"employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)");
-		}
-		return normalized;
+	@Override
+	public ResponseEntity<Page<AppUserResponse>> searchAppUsers(
+			final String email,
+			final String employeeNumber,
+			final Pageable pageable) {
+		return ResponseEntity.ok(
+				this.appUserService.searchAppUsers(email, employeeNumber, pageable)
+						.map(this.appUserResponseMapper::map));
 	}
 
-	/**
-	 * Updates the preferences of the current authenticated {@link AppUser}.
-	 *
-	 * @param  request the payload containing the new user preferences; must not be
-	 *                 {@code null}
-	 * @return         the updated {@link AppUserResponse}
-	 */
 	@Override
 	public ResponseEntity<AppUserResponse> updateAppUser(final UUID id, final UpdateAppUserRequest request) {
 		logger.debug("Update app user ACTION performed");
@@ -120,18 +101,11 @@ public class AppUserController implements AppUserResource {
 		return ResponseEntity.ok(appUserResponse);
 	}
 
-	/**
-	 * Deletes an existing {@link AppUser}.
-	 *
-	 * @param  id the UUID of the app user; must not be {@code null}
-	 * @return    an empty response with status {@link HttpStatus#NO_CONTENT}
-	 */
 	@Override
 	public ResponseEntity<Void> deleteAppUser(final UUID id) {
 		logger.debug("Delete app user ACTION performed");
 
-		final AppUser appUser = this.appUserService.findAppUserById(id);
-		this.appUserService.deleteAppUser(appUser);
+		this.appUserService.deleteAppUser(id);
 		return ResponseEntity.noContent().build();
 	}
 

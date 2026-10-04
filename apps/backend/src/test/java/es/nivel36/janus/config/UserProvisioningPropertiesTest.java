@@ -12,6 +12,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Verifies binding and validation of the initial preferences consumed during
+ * provisioning.
+ */
 class UserProvisioningPropertiesTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()

@@ -16,7 +16,6 @@
 package es.nivel36.janus.api.v1.appuser;
 
 import es.nivel36.janus.service.TimeFormat;
-import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.Theme;
 import es.nivel36.janus.validation.LanguageTag;
 import es.nivel36.janus.validation.ValidTimeZone;
@@ -24,16 +23,19 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Request payload for updating an existing {@link AppUser}.
+ * Immutable payload for replacing all application-user preferences.
+ * Construction stores values without validation. Before resource execution,
+ * Bean Validation requires a nonblank valid BCP 47 tag, nonnull time format and
+ * theme, and a nonblank valid timezone. Successful application replaces all
+ * preferences while preserving identity, contact email and employee
+ * association.
  *
- * @param locale          the preferred locale of the user expressed as a BCP 47
- *                        language tag (e.g. {@code "en-US"}); must not be blank
- *                        and must identify a supported locale
- * @param timeFormat      the preferred {@link TimeFormat} of the user; must not
- *                        be {@code null}
- * @param theme           the preferred color theme
- * @param defaultTimezone the valid IANA time-zone identifier of the user (for
- *                        example {@code "Europe/Madrid"}); must not be blank
+ * @param locale          valid nonblank BCP 47 tag; surrounding whitespace is
+ *                        trimmed on use
+ * @param timeFormat      nonnull time display format
+ * @param defaultTimezone nonblank identifier accepted by java.time.ZoneId;
+ *                        surrounding whitespace is trimmed on use
+ * @param theme           nonnull color theme
  */
 public record UpdateAppUserRequest(
 

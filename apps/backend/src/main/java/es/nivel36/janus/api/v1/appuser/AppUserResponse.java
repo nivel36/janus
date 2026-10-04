@@ -18,21 +18,23 @@ package es.nivel36.janus.api.v1.appuser;
 import java.util.UUID;
 
 import es.nivel36.janus.service.TimeFormat;
-import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.Theme;
 
 /**
- * Response DTO exposing the public representation of an {@link AppUser}.
+ * Immutable public snapshot of a local application profile. The mapper supplies
+ * a persisted UUID and nonnull contact/preferences; employee number is nullable
+ * for an unlinked profile. Construction itself performs no validation. Reading
+ * this record has no persistence effects and never exposes the provider subject
+ * or credentials.
  *
- * @param id              the public UUID of the user
- * @param email           the user email (not necessarily unique)
- * @param employeeNumber  the stable number of the linked employee, or
- *                        {@code null}
- * @param locale          the user's preferred locale expressed as a BCP 47
- *                        language tag
- * @param timeFormat      the preferred {@link TimeFormat}
- * @param defaultTimezone the default timezone of the user
- * @param theme           the preferred color theme
+ * @param id              persistent public UUID
+ * @param email           normalized contact email; not necessarily unique
+ * @param employeeNumber  linked employee number, or null for an unlinked
+ *                        profile
+ * @param locale          preferred BCP 47 language tag
+ * @param timeFormat      preferred time display format
+ * @param defaultTimezone preferred timezone identifier
+ * @param theme           preferred color theme
  */
 public record AppUserResponse(
 		UUID id,

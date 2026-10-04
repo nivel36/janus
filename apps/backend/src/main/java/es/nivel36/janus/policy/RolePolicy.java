@@ -7,11 +7,23 @@ import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 
 /**
- * Pure policy for operations whose complete context is a set of accepted roles.
+ * Pure policy accepting actors with at least one configured role. Construction
+ * requires distinct nonnull roles; evaluation requires a nonnull actor and
+ * ignores its Void context. Evaluation never provisions an actor or changes
+ * domain state; a boolean result expresses role membership only.
  */
 public class RolePolicy implements Policy<Void> {
 	private final Set<Role> roles;
 
+	/**
+	 * Creates a policy with an immutable set of accepted roles.
+	 *
+	 * @param  roles                    nonnull array of distinct nonnull accepted
+	 *                                  roles; an empty array creates a policy that
+	 *                                  denies every actor
+	 * @throws NullPointerException     if the array or any role is null
+	 * @throws IllegalArgumentException if a role is repeated
+	 */
 	protected RolePolicy(final Role... roles) {
 		this.roles = Set.of(roles);
 	}

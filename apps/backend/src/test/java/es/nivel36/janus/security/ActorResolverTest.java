@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,11 +21,16 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
 import es.nivel36.janus.service.appuser.Role;
 import es.nivel36.janus.service.employee.Employee;
 
+/**
+ * Verifies read-only resolution of trusted JWTs and generic rejection of
+ * unsupported or unprovisioned identities.
+ */
 class ActorResolverTest {
 
 	private static final String SUBJECT = "stable-provider-subject";
@@ -35,7 +41,7 @@ class ActorResolverTest {
 		final AppUser appUser = mock(AppUser.class);
 		final Employee employee = mock(Employee.class);
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT)).thenReturn(appUser);
-		when(appUser.getId()).thenReturn(java.util.UUID.fromString("42424242-4242-4242-8242-424242424242"));
+		when(appUser.getId()).thenReturn(UUID.fromString("42424242-4242-4242-8242-424242424242"));
 		when(appUser.getEmployee()).thenReturn(employee);
 		when(employee.getId()).thenReturn(84L);
 		final JwtAuthenticationToken authentication = jwtAuthentication(
@@ -46,7 +52,7 @@ class ActorResolverTest {
 
 		final Actor actor = new ActorResolver(appUserService).resolve(authentication);
 
-		assertThat(actor.id()).isEqualTo(java.util.UUID.fromString("42424242-4242-4242-8242-424242424242"));
+		assertThat(actor.id()).isEqualTo(UUID.fromString("42424242-4242-4242-8242-424242424242"));
 		assertThat(actor.employeeId()).isEqualTo(84L);
 		assertThat(actor.roles()).containsExactly(Role.JANUS_ADMIN);
 		verify(appUserService).findAppUserByKeycloakSubject(SUBJECT);
@@ -57,7 +63,7 @@ class ActorResolverTest {
 		final AppUserService appUserService = mock(AppUserService.class);
 		final AppUser appUser = mock(AppUser.class);
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT)).thenReturn(appUser);
-		when(appUser.getId()).thenReturn(java.util.UUID.fromString("12121212-1212-4212-8212-121212121212"));
+		when(appUser.getId()).thenReturn(UUID.fromString("12121212-1212-4212-8212-121212121212"));
 
 		final Actor actor = new ActorResolver(appUserService).resolve(jwtAuthentication(List.of()));
 
@@ -66,26 +72,28 @@ class ActorResolverTest {
 	}
 
 	@Test
-	void shouldPropagateControlledDenialForUnprovisionedSubject() {
+	void shouldTranslateMissingProfileIntoGenericDenial() {
 		final AppUserService appUserService = mock(AppUserService.class);
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT))
-				.thenThrow(new AccessDeniedException("not provisioned"));
+				.thenThrow(new ResourceNotFoundException("sensitive subject or email"));
 		final ActorResolver actorResolver = new ActorResolver(appUserService);
 		final JwtAuthenticationToken authentication = jwtAuthentication(List.of());
 
-		assertThatThrownBy(() -> actorResolver.resolve(authentication)).isInstanceOf(AccessDeniedException.class);
+		assertThatThrownBy(() -> actorResolver.resolve(authentication)).isInstanceOf(AccessDeniedException.class)
+				.hasMessage("The authenticated identity has not been provisioned");
 	}
 
 	@Test
 	void shouldRejectUnprovisionedElevatedIdentity() {
 		final AppUserService appUserService = mock(AppUserService.class);
 		when(appUserService.findAppUserByKeycloakSubject(SUBJECT))
-				.thenThrow(new AccessDeniedException("not provisioned"));
+				.thenThrow(new ResourceNotFoundException("sensitive subject or email"));
 		final ActorResolver actorResolver = new ActorResolver(appUserService);
 		final JwtAuthenticationToken authentication = jwtAuthentication(
 				List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN")));
 
-		assertThatThrownBy(() -> actorResolver.resolve(authentication)).isInstanceOf(AccessDeniedException.class);
+		assertThatThrownBy(() -> actorResolver.resolve(authentication)).isInstanceOf(AccessDeniedException.class)
+				.hasMessage("The authenticated identity has not been provisioned");
 	}
 
 	@Test

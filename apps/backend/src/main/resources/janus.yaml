@@ -116,18 +116,83 @@ paths:
       responses:
         '204':
           description: Employee deleted
-  /app-users/me:
+  /app-users:
     get:
-      tags:
-      - app-users
-      operationId: findCurrentAppUser
+      tags: [app-users]
+      operationId: searchAppUsers
+      description: Requires JANUS_ADMIN and a provisioned profile. Missing filters list all profiles, including those without an employee. Filters combine with AND.
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: email
+        in: query
+        description: Literal partial email match, trimmed and case-insensitive. SQL wildcard characters are treated literally. Blank values are invalid.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[\p{L}\p{M}\p{N}\p{Zs}\p{P}\p{S}]+$'
+      - name: employeeNumber
+        in: query
+        description: "Exact, case-sensitive employee number after trimming surrounding whitespace; must match ^[A-Za-z0-9_-]{1,50}$."
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      - name: size
+        in: query
+        description: Values above spring.data.rest.max-page-size are capped at that configured limit (100 by default).
+        schema:
+          type: integer
+          minimum: 1
+          default: 20
+      - name: sort
+        in: query
+        description: Allowed fields are id, email and employeeNumber. Defaults to email,asc. An ascending UUID tie-breaker is appended unless id is explicitly sorted. Unknown fields return 400.
+        schema:
+          type: array
+          default: ['email,asc']
+          items:
+            type: string
+        style: form
+        explode: true
       responses:
         '200':
-          description: Current application user
+          description: Page of application users matching the filters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUserPage'
+        '400':
+          description: Invalid filter or unsupported sort field
+        '401':
+          description: Authentication required
+        '403':
+          description: Requires a provisioned administrator
+  /app-users/me:
+    get:
+      tags: [app-users]
+      operationId: findCurrentAppUser
+      description: Requires a validated JWT with a recognized Janus role and verified email. Finds or provisions the profile by opaque subject; refreshes contact email without changing an existing employee association.
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Current application user with configured initial preferences on first access
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppUserResponse'
+        '400':
+          description: Missing or invalid email, oversized subject, or malformed employeeNumber claim
+        '401':
+          description: Missing or invalid bearer token, including unverified email
+        '403':
+          description: No recognized Janus role
   /app-users/{id}:
     parameters:
     - name: id
@@ -137,9 +202,11 @@ paths:
         type: string
         format: uuid
     put:
-      tags:
-      - app-users
+      tags: [app-users]
       operationId: updateAppUser
+      description: A provisioned JANUS_ADMIN may edit any profile. JANUS_USER and JANUS_EMPLOYEE may edit only their own profile. Only preferences change; email, subject and employee association are preserved.
+      security:
+      - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -153,10 +220,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppUserResponse'
+        '400':
+          description: Invalid UUID or preferences
+        '401':
+          description: Authentication required
+        '403':
+          description: Unprovisioned identity or insufficient permissions
+        '404':
+          description: Application user not found
     delete:
-      tags:
-      - app-users
+      tags: [app-users]
       operationId: deleteAppUser
+      description: Requires a provisioned JANUS_ADMIN. Deletes the local profile and preserves the employee and Keycloak account.
       security:
       - bearerAuth: []
       responses:
@@ -164,8 +239,10 @@ paths:
           description: Application user deleted
         '400':
           description: Invalid UUID
+        '401':
+          description: Authentication required
         '403':
-          description: Insufficient permissions
+          description: Unprovisioned identity or insufficient permissions
         '404':
           description: Application user not found
   /application-settings:
@@ -811,6 +888,16 @@ components:
       enum:
       - H12
       - H24
+    AppUserPage:
+      type: object
+      required: [content, page]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppUserResponse'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
     AppUserResponse:
       type: object
       required:

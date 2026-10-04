@@ -26,10 +26,23 @@ import es.nivel36.janus.service.appuser.Theme;
 import es.nivel36.janus.service.employee.Employee;
 
 /**
- * Maps {@link AppUser} entities into {@link AppUserResponse} DTOs.
+ * Maps application profiles to immutable public snapshots under the
+ * {@link es.nivel36.janus.api.Mapper} contract. A nonnull source must have
+ * nonnull preferences and a readable employee association (initialized or
+ * accessible in an open persistence context). Mapping leaves the entity
+ * unchanged, converts locale/timezone to identifiers, and exposes only the
+ * employee number, never the provider subject. A null source produces null; an
+ * unlinked source produces a null employee number.
  */
 @Component
 public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
+
+	/**
+	 * Creates a stateless mapper with no dependencies or persistence effects. The
+	 * mapper is ready to map initialized profiles under the Mapper contract.
+	 */
+	public AppUserResponseMapper() {
+	}
 
 	@Override
 	public AppUserResponse map(final AppUser appUser) {

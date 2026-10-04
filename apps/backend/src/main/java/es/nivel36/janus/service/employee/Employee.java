@@ -264,10 +264,27 @@ public class Employee implements Serializable {
 		return Collections.unmodifiableSet(this.worksites);
 	}
 
+	/**
+	 * Returns the local profile association without changing it. Callers must have
+	 * an initialized relationship or an active persistence context when accessing
+	 * lazy profile data.
+	 *
+	 * @return associated profile, or null when this employee is unlinked
+	 */
 	public AppUser getAppUser() {
 		return this.appUser;
 	}
 
+	/**
+	 * Changes the local profile association and synchronizes both entity
+	 * references. The caller must authorize the change and ensure profile/employee
+	 * uniqueness. The previous profile is unlinked; the supplied profile points to
+	 * this employee and is detached from any previous employee. Null clears the
+	 * link and passing the current profile is a no-op. Persistence is deferred to
+	 * the caller's transaction; this method performs no database uniqueness check.
+	 *
+	 * @param appUser profile to associate, or null to clear the association
+	 */
 	public void setAppUser(final AppUser appUser) {
 		if (this.appUser == appUser) {
 			return;

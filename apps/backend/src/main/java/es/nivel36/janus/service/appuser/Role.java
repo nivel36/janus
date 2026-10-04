@@ -16,8 +16,21 @@
 package es.nivel36.janus.service.appuser;
 
 /**
- * Roles supported by the application.
+ * Recognized Janus authorities granted by the trusted identity provider. A role
+ * alone does not provision an actor or imply employee ownership; operation
+ * policies combine these values with persisted profile context.
  */
 public enum Role {
-	JANUS_ADMIN, JANUS_USER, JANUS_EMPLOYEE
+	/**
+	 * Administrative role; resource policies define the permitted operations.
+	 */
+	JANUS_ADMIN,
+	/**
+	 * General application role; personal operations require profile ownership.
+	 */
+	JANUS_USER,
+	/**
+	 * Employee role; employee operations require a persisted employee link.
+	 */
+	JANUS_EMPLOYEE
 }
