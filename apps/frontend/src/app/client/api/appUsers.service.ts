@@ -17,6 +17,8 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
+import { AppUserPage } from '../model/appUserPage';
+// @ts-ignore
 import { AppUserResponse } from '../model/appUserResponse';
 // @ts-ignore
 import { UpdateAppUserRequest } from '../model/updateAppUserRequest';
@@ -38,6 +40,7 @@ export class AppUsersService extends BaseService {
     }
 
     /**
+     * Requires a provisioned JANUS_ADMIN. Deletes the local profile and preserves the employee and Keycloak account.
      * @param id
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -93,6 +96,7 @@ export class AppUsersService extends BaseService {
     }
 
     /**
+     * Requires a validated JWT with a recognized Janus role and verified email. Finds or provisions the profile by opaque subject; refreshes contact email without changing an existing employee association.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -102,6 +106,9 @@ export class AppUsersService extends BaseService {
     public findCurrentAppUser(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
             'application/json'
@@ -142,6 +149,82 @@ export class AppUsersService extends BaseService {
     }
 
     /**
+     * Requires JANUS_ADMIN and a provisioned profile. Missing filters list all profiles, including those without an employee. Filters combine with AND.
+     * @param email Literal partial email match, trimmed and case-insensitive. SQL wildcard characters are treated literally. Blank values are invalid.
+     * @param employeeNumber Exact, case-sensitive employee number after trimming surrounding whitespace; must match ^[A-Za-z0-9_-]{1,50}$.
+     * @param page
+     * @param size Values above 100 are capped at 100.
+     * @param sort Allowed fields are id, email and employeeNumber. Defaults to email,asc. An ascending UUID tie-breaker is appended unless id is explicitly sorted. Unknown fields return 400.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public searchAppUsers(email?: string, employeeNumber?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AppUserPage>;
+    public searchAppUsers(email?: string, employeeNumber?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AppUserPage>>;
+    public searchAppUsers(email?: string, employeeNumber?: string, page?: number, size?: number, sort?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AppUserPage>>;
+    public searchAppUsers(email?: string, employeeNumber?: string, page?: number, size?: number, sort?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>email, 'email');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>employeeNumber, 'employeeNumber');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>size, 'size');
+        if (sort) {
+            sort.forEach((element) => {
+                localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+                  <any>element, 'sort');
+            })
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/app-users`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<AppUserPage>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * A provisioned JANUS_ADMIN may edit any profile. JANUS_USER and JANUS_EMPLOYEE may edit only their own profile. Only preferences change; email, subject and employee association are preserved.
      * @param id
      * @param updateAppUserRequest
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -159,6 +242,9 @@ export class AppUsersService extends BaseService {
         }
 
         let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
             'application/json'

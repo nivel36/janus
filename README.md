@@ -29,7 +29,7 @@ At this stage, `apps/frontend` provides the base needed to keep building the app
 
 The backend currently exposes endpoints for:
 
-- `appusers`: application user preferences and settings.
+- `app-users`: JWT-based profile provisioning, user preferences, and administrative paginated search and deletion ([identity lifecycle and permissions](docs/security/external-identity.md)).
 - `application-settings`: global configuration ([behavior, permissions and migration](docs/application-settings.md)).
 - `employees`: employee management and worksite assignment.
 - `worksites`: worksite catalog and timezone management.

@@ -1,3 +1,4 @@
+export * from './appUserPage';
 export * from './appUserResponse';
 export * from './applicationSettingsResponse';
 export * from './clockOutWithoutClockInEventResponse';

@@ -1,118 +1,113 @@
 # External identity and AppUser provisioning
 
-Janus authenticates an application user by the OpenID Connect `sub` claim. The
-accepted issuer is fixed by `spring.security.oauth2.resourceserver.jwt.issuer-uri`,
-so `AppUser` stores only the stable Keycloak account UUID as `keycloakSubject`.
-`username` is a functional/display name and `email` is a contact attribute; neither
-is the persistent identity key or used to authorize an `AppUser`. The dedicated
-`employeeNumber` claim is the only claim used to suggest an employee link.
+Janus authenticates users by the validated OpenID Connect `sub` claim. The issuer
+is fixed by `spring.security.oauth2.resourceserver.jwt.issuer-uri`, so the local
+`keycloakSubject` stores the subject within that issuer. Subjects are opaque,
+nonblank strings of at most 255 characters; they need not be UUIDs. Keycloak
+normally emits account UUIDs. Username and email never identify or authorize a
+local profile. The verified email is mutable contact information and is not unique.
 
 ## Identity and profile lifecycle
 
-A Keycloak account and a local `AppUser` are different records with different
-responsibilities:
+Keycloak owns credentials, account status and client roles. Janus owns the local
+AppUser preferences and optional one-to-one Employee association. Neither record
+is created or deleted automatically when the other is managed administratively.
 
-* Keycloak owns credentials, login, account status, and client-role assignments.
-* Janus owns the local profile (`AppUser`), including preferences and the optional
-  employee association. It does not store credentials or use this profile to
-  authenticate the request.
+The first `GET /api/v1/app-users/me` finds or creates the profile by `sub`. It
+requires a validated JWT with a recognized Janus client role, the configured
+issuer and audience, and `email_verified=true`. A missing or blank email claim
+returns 400; the email is trimmed, lowercased and limited to 255 characters.
+Initial locale, time format and timezone come from `janus.user-provisioning.defaults`;
+the initial theme is DARK. `preferred_username` is not stored or used to link users.
 
-Creating an account in Keycloak does not immediately insert an `AppUser`. On the
-first authenticated `GET /api/v1/appusers/me`, Janus accepts only a validated JWT
-with at least one supported Janus client role. It looks up the profile by `sub` and,
-when none exists, creates it with `preferred_username` as its initial display name
-and the configured `janus.user-provisioning.defaults`. The response returns that
-new profile. Janus normalizes the optional `employeeNumber` claim by trimming it and validates
-it with the OpenAPI rule (`^[A-Za-z0-9_-]{1,50}$`). A malformed claim rejects the
-request with `400 Bad Request`. A valid claim links the matching employee when it is
-not already linked. The explicit product policy for a missing or unknown claim is to
-create an unassociated account; administrative linking can be performed later. If the employee belongs to another
-identity, Janus preserves that association, creates the new profile without an
-employee, and logs the conflict. Later requests find the same profile by `sub`; they update its contact email from
-the verified `email` claim but never relink it when `employeeNumber` changes. Concurrent first requests converge
-on the single profile protected by the unique subject constraint.
+The optional `employeeNumber` claim is trimmed and must match
+`^[A-Za-z0-9_-]{1,50}$`. A malformed claim returns 400, including when the profile
+already exists. During creation, a known, unlinked employee is associated with the
+profile. Missing or unknown numbers create an unlinked profile; unknown numbers
+are logged. If an employee already belongs to another subject, Janus preserves
+that association, creates an unlinked profile and logs the conflict.
 
-The development realm still contains the example Keycloak account with the stable
-UUID `9a60b9f4-7436-4d93-9c25-08e08f3dfc58` and its `janus-api` client roles. Its
-local `AppUser` is deliberately absent at startup and is created by the first
-authorized request. Keycloak's standard `iss` and `sub` claims must remain
-unchanged; in particular, no mapper may replace `sub` with email.
+Later `/me` requests refresh the contact email while preserving preferences and
+the employee association, even when the employeeNumber claim changes. Concurrent
+creation uses an independent insert transaction and reconciles the unique subject
+constraint to return a single profile. Competing subjects can share an email but
+only one can claim an employee; the other profile remains unlinked. The creator
+resolves the employee inside its own transaction so a failed insert cannot change
+the employee relationship held by the outer transaction.
 
-`POST /api/v1/appusers` remains restricted to `JANUS_ADMIN` for explicit profile
-management, for example associating an employee before that person first accesses
-Janus. It is not a required bootstrap step. An administrator must obtain the
-account UUID from Keycloak and send it as `keycloakSubject`; Janus validates it as
-a UUID and permits each subject to be linked only once. Personal `GET` and `PUT`
-operations use `/api/v1/appusers/me` and never accept an identity selector.
+The development realm includes the example Keycloak account with subject
+`9a60b9f4-7436-4d93-9c25-08e08f3dfc58`. Its local profile is absent at startup and
+created on first authorized `/me` access. Standard `iss` and `sub` claims must
+remain unchanged; no mapper may replace `sub` with email.
 
-Disabling or deleting either record does not automatically modify the other:
-Keycloak controls whether future tokens can be issued, while retention or deletion
-of the `AppUser` follows Janus's application-data policy.
+## API and permissions
 
-## Recovering a recreated Keycloak account
+All endpoints use `/api/v1/app-users`. Operations other than `/me` require an
+already provisioned local profile, including operations by administrators.
 
-`username` remains unique. Consequently, if Keycloak deletes and recreates an
-account, its new `sub` is **not** linked automatically even when
-`preferred_username` or verified email matches the old profile. First access with
-the new token returns `409 Conflict` with problem type
-`urn:problem:external-identity-conflict`; the old profile and employee link remain
-unchanged.
+| Operation | Permission | Effect |
+| --- | --- | --- |
+| `GET /me` | Valid JWT with JANUS_ADMIN, JANUS_USER or JANUS_EMPLOYEE | Retrieve or provision own profile and refresh email |
+| `GET /app-users` (collection) | JANUS_ADMIN | Search local profiles |
+| `PUT /{id}` | JANUS_ADMIN for any profile; JANUS_USER or JANUS_EMPLOYEE for own UUID | Update locale, timeFormat, defaultTimezone and theme |
+| `DELETE /{id}` | JANUS_ADMIN | Delete local profile; preserve Employee and Keycloak account |
 
-Recovery is an exceptional database-administration procedure; Janus deliberately
-does not expose an API or application service for changing a linked subject:
+There is no POST endpoint, individual GET by UUID, PUT `/me`, or API for changing
+subject or employee associations. Preference updates require every preference and
+preserve contact email, identity and employee association. Missing update/delete
+targets return 404 after authorization; denials return a generic 403. Anonymous
+requests receive 401. Deleting a local profile does not revoke Keycloak tokens:
+a later authorized `/me` request can create a fresh profile with initial preferences.
 
-1. Disable the old Keycloak account and verify, outside Janus, that the owner of
-   the new account is the same person (using the organization's authoritative
-   identity records, not username or email alone).
-2. Verify that the new Keycloak UUID is not assigned to any other Janus profile.
-3. Replace `APP_USER.KEYCLOAK_SUBJECT` directly in the database inside a controlled
-   transaction.
-4. Ask the user to retry `GET /api/v1/appusers/me` with a token issued for the new
-   account, and audit the administrative change according to local policy.
+Search accepts optional `email` and `employeeNumber` query parameters. Email is a
+trimmed, case-insensitive partial match of at most 255 characters of single-line,
+nonblank text. `%`, `_` and `!` are literal characters. Employee number matches
+exactly, case-sensitively, after trimming, and follows the claim syntax above.
+Filters combine with AND. Without filters, the search includes all local profiles,
+including unlinked ones. Emails can match multiple profiles.
 
-The database unique constraint rejects a subject already owned by another profile.
-The operation must change only `KEYCLOAK_SUBJECT`, preserving preferences and the
-employee association, and must be recorded according to local audit policy.
+Pagination starts at `page=0`, defaults to `size=20` and caps size at
+`spring.data.rest.max-page-size` (100 by default). Public
+sort fields are `id`, `email` and `employeeNumber`; the default is `email,asc` with
+an ascending UUID tie-breaker. Explicit id sorting supplies its own tie-breaker.
+Unsupported sort fields or invalid filters return 400. The response uses the
+existing `{content, page}` shape and AppUserResponse; it does not expose the
+provider subject. The OpenAPI source is `apps/backend/src/main/resources/janus.yaml`.
 
-## Identity-provider claim rollout
+## Recreated accounts and existing installations
 
-Before deploying this version, configure the identity provider/client scope to emit
-an `employeeNumber` string claim in access tokens. Its value must be copied from the
-authoritative immutable personnel identifier and match the value stored in
-`EMPLOYEE.EMPLOYEE_NUMBER`; do not derive it from email or username. Roll out and
-verify the mapper before the application deployment when automatic linking is
-required. During a staged rollout, tokens without the claim remain usable but create
-unassociated accounts. Unknown numbers do the same and are logged for operations;
-malformed values are rejected. Existing `AppUser` employee links are preserved and
-must not be backfilled by email. After rollout, test one matching, one missing, and
-one unknown identifier, and monitor unassociated accounts for administrative review.
+A recreated Keycloak account has a new subject. Janus does not attach it to an old
+profile by matching username or email. First access creates a separate profile,
+even with the same email; an employee held by the old profile remains with it.
 
-## Existing installations
+Changing a subject is an exceptional database-administration procedure, not an
+application API. Disable the old Keycloak account, verify ownership using
+authoritative identity records, confirm that the new subject is unused, then
+replace `APP_USER.KEYCLOAK_SUBJECT` in a controlled, audited transaction. Preserve
+preferences and employee association. Retry `/api/v1/app-users/me` with the new
+token. The unique subject constraint prevents assigning an already-owned subject.
 
-Do not backfill identities by matching email or username. For every existing row:
+For existing rows without subjects, identify the corresponding provider accounts
+administratively, verify unique subjects, backfill KEYCLOAK_SUBJECT, then enforce
+NOT NULL and uniqueness. Never backfill by matching email or username. The checked-in
+schemas rebuild databases and declare these constraints immediately; retained
+installations require a staged backfill before applying them. Employee uniqueness
+is enforced by `UK_APP_USER_EMPLOYEE`, and subject uniqueness by
+`UK_APP_USER_KEYCLOAK_SUBJECT`. Administrative employee linking requires a controlled
+database procedure; no creation or update payload accepts employeeId.
 
-1. locate and verify the corresponding Keycloak account administratively;
-2. obtain its UUID;
-3. verify that no UUID occurs more than once;
-4. populate `KEYCLOAK_SUBJECT`; and
-5. add the unique constraint and convert the column to `NOT NULL`.
+## Employee authorization and claim rollout
 
-The checked-in schemas rebuild databases and therefore declare the columns as
-required immediately. Deployments that retain data must perform the staged backfill
-above before applying those final constraints.
+JANUS_EMPLOYEE operations resolve the persisted employee association from the
+validated subject and compare internal employee identity. Token email, username
+and changes to employeeNumber never replace that association. A provisioned
+profile without an employee association receives a generic 403 for operations
+requiring an employee.
 
-## Employee authorization
-
-Administrative creation and update payloads accept `employeeId`. Janus resolves
-that database identifier and persists the one-to-one association with
-`AppUser.setEmployee`; omitting `employeeId` on update preserves the current association. Both the
-subject and employee foreign key are protected by `UK_APP_USER_KEYCLOAK_SUBJECT`
-and `UK_APP_USER_EMPLOYEE`, and the service rejects an already-linked value before
-the database constraint is reached.
-
-Requests made with the restricted `JANUS_EMPLOYEE` role resolve the employee from
-`Authentication.getName()` (the validated OIDC `sub`) and the persisted `AppUser`
-association. Authorization compares the employee database identity; token email,
-username and other mutable claims are ignored. A provisioned account without an
-employee association receives `403 Forbidden` with a generic message that does not
-disclose subjects or internal email addresses.
+Configure the identity provider to emit employeeNumber from the authoritative
+personnel identifier, matching `EMPLOYEE.EMPLOYEE_NUMBER`. Deploy and verify that
+mapper before the application when automatic linking is required. Missing or
+unknown claims remain usable and create unlinked profiles; malformed values are
+rejected. Existing profiles are not backfilled or relinked. Test matching, missing,
+unknown and conflicting numbers, and monitor unlinked profiles and conflict logs
+for administrative review.

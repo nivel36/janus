@@ -15,6 +15,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/appUserPage.ts
 model/appUserResponse.ts
 model/applicationSettingsResponse.ts
 model/clockOutWithoutClockInEventResponse.ts
