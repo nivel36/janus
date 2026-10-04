@@ -26,7 +26,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
-import es.nivel36.janus.util.EmailAddresses;
+import es.nivel36.janus.util.Email;
 import es.nivel36.janus.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -247,11 +247,7 @@ public class AppUser implements Serializable {
 	 * @throws IllegalArgumentException if normalized email is blank or oversized
 	 */
 	static String validateEmail(final String email) {
-		final String normalized = EmailAddresses.canonicalize(email);
-		if (normalized.length() > 255) {
-			throw new IllegalArgumentException("email can't exceed 255 characters");
-		}
-		return normalized;
+		return Email.of(email).value();
 	}
 
 	/**

@@ -50,4 +50,11 @@ class AppUserTest {
 		assertThatThrownBy(() -> user.setEmail("x".repeat(256))).isInstanceOf(IllegalArgumentException.class);
 		assertThat(user.getEmail()).isEqualTo("user@example.test");
 	}
+
+	@Test
+	void acceptsIdentityProviderEmailWithValidLocalPartPunctuation() {
+		final AppUser user = new AppUser("flow%_!literal@example.test", "subject", Locale.ENGLISH, TimeFormat.H24);
+
+		assertThat(user.getEmail()).isEqualTo("flow%_!literal@example.test");
+	}
 }

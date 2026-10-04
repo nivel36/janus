@@ -31,7 +31,7 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
-import es.nivel36.janus.util.EmailAddresses;
+import es.nivel36.janus.util.Email;
 
 /**
  * REST controller exposing CRUD operations and ancillary actions for
@@ -110,7 +110,7 @@ public class EmployeeController implements EmployeeResource {
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
 		final String name = request.name().trim();
 		final String surname = request.surname().trim();
-		final String email = EmailAddresses.canonicalize(request.email());
+		final String email = Email.of(request.email()).value();
 		final String employeeNumber = request.employeeNumber().trim();
 		final Employee createdEmployee = this.employeeService
 				.createEmployee(employeeNumber, name, surname, email, schedule);
@@ -132,7 +132,7 @@ public class EmployeeController implements EmployeeResource {
 			final String employeeNumber,
 			final UpdateEmployeeRequest request) {
 		logger.debug("Update employee ACTION performed");
-		final String email = EmailAddresses.canonicalize(request.email());
+		final String email = Email.of(request.email()).value();
 		final String name = request.name().trim();
 		final String surname = request.surname().trim();
 		final String scheduleCode = request.scheduleCode().trim();

@@ -27,6 +27,7 @@ import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.util.Email;
 import es.nivel36.janus.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,7 +41,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -108,7 +108,6 @@ public class Employee implements Serializable {
 	 * </p>
 	 */
 	@NotBlank
-	@Email
 	@Column(nullable = false, unique = true, length = 254)
 	private String email;
 
@@ -182,7 +181,7 @@ public class Employee implements Serializable {
 		this.employeeNumber = Strings.requireNonBlank(employeeNumber, "employeeNumber can't be null or blank");
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
-		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
+		this.email = Email.of(email).value();
 		this.schedule = Objects.requireNonNull(schedule, "schedule can't be null");
 	}
 
@@ -229,7 +228,7 @@ public class Employee implements Serializable {
 
 	/** Changes the mutable contact email after validating the domain invariant. */
 	public void changeEmail(final String email) {
-		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
+		this.email = Email.of(email).value();
 	}
 
 	/**

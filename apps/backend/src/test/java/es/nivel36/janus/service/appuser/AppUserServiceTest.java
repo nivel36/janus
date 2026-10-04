@@ -68,7 +68,7 @@ class AppUserServiceTest {
 	void testFindAppUserByKeycloakSubjectUsesSubjectClaim() {
 		final String subject = "oidc-provider|tenant:customers|user:aferrer:opaque-identity";
 		final AppUser appUser = new AppUser(
-				"aferrer",
+				"aferrer@example.test",
 				subject,
 				Locale.ENGLISH,
 				TimeFormat.H24,
