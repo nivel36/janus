@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.employee.EmployeeService;
-import es.nivel36.janus.util.EmailAddresses;
+import es.nivel36.janus.util.Email;
 
 /**
  * Resolves API email parameters consistently for authorization and searches.
@@ -26,7 +26,7 @@ public class EmployeeEmailResolver {
 	}
 
 	public String canonicalize(final String email) {
-		return email == null ? null : EmailAddresses.canonicalize(email);
+		return email == null ? null : Email.of(email).value();
 	}
 
 	public boolean owns(final Actor actor, final String email) {

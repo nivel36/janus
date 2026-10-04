@@ -8,6 +8,7 @@ package es.nivel36.janus.service.employee;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -27,6 +28,15 @@ class EmployeeServiceTest {
 		when(this.repository.findByEmail("person@example.test")).thenReturn(Optional.of(employee));
 
 		assertThat(this.service.findEmployeeByEmail("person@example.test")).containsSame(employee);
+	}
+
+	@Test
+	void canonicalizesEmailBeforeFindingEmployee() {
+		when(this.repository.findByEmail("person@example.test")).thenReturn(Optional.empty());
+
+		this.service.findEmployeeByEmail("  PERSON@EXAMPLE.TEST ");
+
+		verify(this.repository).findByEmail("person@example.test");
 	}
 
 	@Test

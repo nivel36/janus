@@ -39,6 +39,7 @@ import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.util.LikePatterns;
+import es.nivel36.janus.util.Strings;
 import es.nivel36.janus.validation.EmployeeNumber;
 
 /**
@@ -353,7 +354,7 @@ public class AppUserService {
 			throw new IllegalArgumentException(
 					"email filter must be single-line text containing at most 255 characters");
 		}
-		return AppUser.validateEmail(email);
+		return Strings.requireNonBlank(email, "email filter cannot be blank").trim().toLowerCase(Locale.ROOT);
 	}
 
 	private static String normalizeEmployeeNumber(final String employeeNumber) {

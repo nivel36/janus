@@ -34,6 +34,7 @@ import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.util.Email;
 import es.nivel36.janus.util.LikePatterns;
 import es.nivel36.janus.util.Strings;
 
@@ -105,10 +106,10 @@ public class EmployeeService {
 	 */
 	@Transactional(readOnly = true)
 	public Optional<Employee> findEmployeeByEmail(final String email) {
-		Strings.requireNonBlank(email, "email cannot be null or blank.");
-		logger.debug("Finding Employee by email {}", email);
+		final String canonicalEmail = Email.of(email).value();
+		logger.debug("Finding Employee by email {}", canonicalEmail);
 
-		return this.employeeRepository.findByEmail(email);
+		return this.employeeRepository.findByEmail(canonicalEmail);
 	}
 
 	@Transactional(readOnly = true, noRollbackFor = ResourceNotFoundException.class)
@@ -172,21 +173,21 @@ public class EmployeeService {
 		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
 		Strings.requireNonBlank(name, "name cannot be null or blank.");
 		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
-		Strings.requireNonBlank(email, "email cannot be null or blank.");
+		final String canonicalEmail = Email.of(email).value();
 		Objects.requireNonNull(schedule, "schedule cannot be null.");
 
-		logger.debug("Creating new employee {}", email);
+		logger.debug("Creating new employee {}", canonicalEmail);
 
 		if (this.employeeRepository.existsByEmployeeNumber(employeeNumber)) {
 			throw new ResourceAlreadyExistsException("Employee with number " + employeeNumber + " already exists");
 		}
-		final boolean emailInUse = this.employeeRepository.existsByEmail(email);
+		final boolean emailInUse = this.employeeRepository.existsByEmail(canonicalEmail);
 		if (emailInUse) {
-			logger.warn("Employee with email {} already exists", email);
-			throw new ResourceAlreadyExistsException("Employee with email " + email + " already exists");
+			logger.warn("Employee with email {} already exists", canonicalEmail);
+			throw new ResourceAlreadyExistsException("Employee with email " + canonicalEmail + " already exists");
 		}
 
-		final Employee employee = new Employee(employeeNumber, name, surname, email, schedule);
+		final Employee employee = new Employee(employeeNumber, name, surname, canonicalEmail, schedule);
 
 		return this.employeeRepository.save(employee);
 	}
@@ -219,7 +220,7 @@ public class EmployeeService {
 			final String newEmail,
 			final String scheduleCode) {
 		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
-		Strings.requireNonBlank(newEmail, "newEmail cannot be null or blank.");
+		final String canonicalEmail = Email.of(newEmail).value();
 		Strings.requireNonBlank(newName, "newName cannot be null or blank.");
 		Strings.requireNonBlank(newSurname, "newSurname cannot be null or blank.");
 		Strings.requireNonBlank(scheduleCode, "scheduleCode cannot be null or blank.");
@@ -228,11 +229,11 @@ public class EmployeeService {
 
 		final Schedule newSchedule = this.scheduleService.findScheduleByCode(scheduleCode);
 		final Employee employee = this.findEmployeeByEmployeeNumber(employeeNumber);
-		if (!employee.getEmail().equals(newEmail) && this.employeeRepository.existsByEmail(newEmail)) {
-			throw new ResourceAlreadyExistsException("Employee with email " + newEmail + " already exists");
+		if (!employee.getEmail().equals(canonicalEmail) && this.employeeRepository.existsByEmail(canonicalEmail)) {
+			throw new ResourceAlreadyExistsException("Employee with email " + canonicalEmail + " already exists");
 		}
 		employee.setFullName(newName, newSurname);
-		employee.changeEmail(newEmail);
+		employee.changeEmail(canonicalEmail);
 		employee.setSchedule(newSchedule);
 
 		return employee;

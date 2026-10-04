@@ -30,9 +30,19 @@ class EmployeeTest {
 	@Test
 	void employeeNumberAndChangedEmailMustNotBeBlank() {
 		final Schedule schedule = mock(Schedule.class);
-		assertThatThrownBy(() -> new Employee(" ", "Ada", "Lovelace", "ada@test", schedule))
+		assertThatThrownBy(() -> new Employee(" ", "Ada", "Lovelace", "ada@example.test", schedule))
 				.isInstanceOf(IllegalArgumentException.class);
-		final Employee employee = new Employee("EMP-0042", "Ada", "Lovelace", "ada@test", schedule);
+		final Employee employee = new Employee("EMP-0042", "Ada", "Lovelace", "ada@example.test", schedule);
 		assertThatThrownBy(() -> employee.changeEmail(" ")).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	void emailIsValidatedAndCanonicalizedInsideTheAggregate() {
+		final Schedule schedule = mock(Schedule.class);
+		final Employee employee = new Employee("EMP-0042", "Ada", "Lovelace", " ADA@EXAMPLE.TEST ", schedule);
+
+		assertThat(employee.getEmail()).isEqualTo("ada@example.test");
+		assertThatThrownBy(() -> employee.changeEmail("invalid")).isInstanceOf(IllegalArgumentException.class);
+		assertThat(employee.getEmail()).isEqualTo("ada@example.test");
 	}
 }
