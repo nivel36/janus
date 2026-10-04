@@ -138,18 +138,20 @@ public class Schedule implements Serializable {
 	 * Creates a new {@code Schedule} with the given business code, name and
 	 * tolerances.
 	 *
-	 * @param  code                 the unique business code of the schedule; must
-	 *                              not be {@code null}
-	 * @param  name                 the human-readable name of the schedule; must
-	 *                              not be {@code null}
-	 * @param  entryTolerance       allowed tolerance for entry times; must not be
-	 *                              {@code null}
-	 * @param  exitTolerance        allowed tolerance for exit times; must not be
-	 *                              {@code null}
-	 * @throws NullPointerException if any argument is {@code null}
+	 * @param  code                     the unique business code of the schedule;
+	 *                                  must not be {@code null} or blank
+	 * @param  name                     the human-readable name of the schedule;
+	 *                                  must not be {@code null}
+	 * @param  entryTolerance           allowed tolerance for entry times; must not
+	 *                                  be {@code null}
+	 * @param  exitTolerance            allowed tolerance for exit times; must not
+	 *                                  be {@code null}
+	 * @throws NullPointerException     if a tolerance is {@code null}
+	 * @throws IllegalArgumentException if {@code code} or {@code name} is
+	 *                                  {@code null} or blank
 	 */
 	public Schedule(final String code, final String name, final Duration entryTolerance, final Duration exitTolerance) {
-		this.code = Objects.requireNonNull(code, "code can't be null");
+		this.code = Strings.requireNonBlank(code, "code can't be null or blank");
 		this.setName(name);
 		this.setEntryTolerance(entryTolerance);
 		this.setExitTolerance(exitTolerance);
