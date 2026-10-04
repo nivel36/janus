@@ -1,16 +1,15 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.config;
 
@@ -30,13 +29,24 @@ import org.springframework.core.io.ClassPathResource;
 
 class ProductionConfigurationTest {
 
-	private static final Map<String, String> REQUIRED_CONFIGURATION = Map.of("JANUS_DATASOURCE_USERNAME", "janus",
-			"JANUS_DATASOURCE_PASSWORD", "secret", "JWT_ISSUER_URL", "https://identity.example/realms/janus",
-			"JANUS_SECURITY_CLIENT_ID", "janus-api");
+	private static final Map<String, String> REQUIRED_CONFIGURATION = Map.of(
+			"JANUS_DATASOURCE_USERNAME",
+			"janus",
+			"JANUS_DATASOURCE_PASSWORD",
+			"secret",
+			"JWT_ISSUER_URL",
+			"https://identity.example/realms/janus",
+			"JANUS_SECURITY_CLIENT_ID",
+			"janus-api");
 
-	private static final Map<String, String> CRITICAL_PROPERTIES = Map.of("JANUS_DATASOURCE_USERNAME",
-			"spring.datasource.username", "JANUS_DATASOURCE_PASSWORD", "spring.datasource.password", "JWT_ISSUER_URL",
-			"spring.security.oauth2.resourceserver.jwt.issuer-uri", "JANUS_SECURITY_CLIENT_ID",
+	private static final Map<String, String> CRITICAL_PROPERTIES = Map.of(
+			"JANUS_DATASOURCE_USERNAME",
+			"spring.datasource.username",
+			"JANUS_DATASOURCE_PASSWORD",
+			"spring.datasource.password",
+			"JWT_ISSUER_URL",
+			"spring.security.oauth2.resourceserver.jwt.issuer-uri",
+			"JANUS_SECURITY_CLIENT_ID",
 			"janus.security.client-id");
 
 	@Test

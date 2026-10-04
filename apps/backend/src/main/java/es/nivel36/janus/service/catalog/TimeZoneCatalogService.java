@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.catalog;
 
@@ -55,10 +55,11 @@ public class TimeZoneCatalogService {
 	 * string.
 	 * </p>
 	 *
-	 * @param query    optional search text applied to the full zone id
-	 * @param pageable pagination and sorting information; supported sort properties
-	 *                 are {@code level1}, {@code level2}, and {@code utc}
-	 * @return a page of catalog items matching the input filters
+	 * @param  query    optional search text applied to the full zone id
+	 * @param  pageable pagination and sorting information; supported sort
+	 *                  properties are {@code level1}, {@code level2}, and
+	 *                  {@code utc}
+	 * @return          a page of catalog items matching the input filters
 	 */
 	public Page<TimeZoneCatalogItem> search(final String query, final Pageable pageable) {
 		Objects.requireNonNull(pageable, "pageable can't be null");
@@ -68,8 +69,9 @@ public class TimeZoneCatalogService {
 
 		final List<TimeZoneCatalogItem> filtered = ZoneId.getAvailableZoneIds().stream().sorted()
 				.map(zoneId -> this.map(zoneId, now))
-				.filter(item -> normalizedQuery == null || normalizedQuery.isBlank()
-						|| item.zoneId().toLowerCase(Locale.ROOT).contains(normalizedQuery))
+				.filter(
+						item -> normalizedQuery == null || normalizedQuery.isBlank()
+								|| item.zoneId().toLowerCase(Locale.ROOT).contains(normalizedQuery))
 				.sorted(this.resolveSort(pageable.getSort())).toList();
 
 		final int start = Math.toIntExact(pageable.getOffset());

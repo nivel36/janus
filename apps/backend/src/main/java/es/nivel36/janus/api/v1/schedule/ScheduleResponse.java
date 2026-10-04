@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.schedule;
 
@@ -32,11 +32,11 @@ import es.nivel36.janus.service.schedule.Schedule;
  * @param exitTolerance  allowed tolerance for exit times
  * @param rules          rules associated with the schedule
  */
-public record ScheduleResponse( //
-		String code, //
-		String name, //
-		Duration entryTolerance, //
-		Duration exitTolerance, //
+public record ScheduleResponse(
+		String code,
+		String name,
+		Duration entryTolerance,
+		Duration exitTolerance,
 		List<ScheduleRuleResponse> rules) {
 
 	/**
@@ -49,10 +49,10 @@ public record ScheduleResponse( //
 	 *                        active
 	 * @param dayOfWeekRanges day specific working ranges belonging to the rule
 	 */
-	public record ScheduleRuleResponse( //
-			String name, //
-			LocalDate startDate, //
-			LocalDate endDate, //
+	public record ScheduleRuleResponse(
+			String name,
+			LocalDate startDate,
+			LocalDate endDate,
 			List<DayOfWeekTimeRangeResponse> dayOfWeekRanges) {
 	}
 
@@ -66,9 +66,9 @@ public record ScheduleResponse( //
 	 * @param timeRange          start-inclusive and end-exclusive time range for
 	 *                           the shift, or {@code null} when no range is set
 	 */
-	public record DayOfWeekTimeRangeResponse( //
-			DayOfWeek dayOfWeek, //
-			Duration effectiveWorkHours, //
+	public record DayOfWeekTimeRangeResponse(
+			DayOfWeek dayOfWeek,
+			Duration effectiveWorkHours,
 			TimeRangeResponse timeRange) {
 	}
 

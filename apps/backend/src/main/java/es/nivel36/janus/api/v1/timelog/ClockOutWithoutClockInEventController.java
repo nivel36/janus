@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.timelog;
 
@@ -72,34 +72,28 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 *                                            {@link ClockOutWithoutClockInEventResponse}
 	 *                                            DTOs; must not be {@code null}
 	 */
-	public ClockOutWithoutClockInEventController( //
-			final ClockOutWithoutClockInEventService clockOutWithoutClockInEventService, //
-			final EmployeeService employeeService, //
-			final ApplicationSettingsService applicationSettingsService, //
-			final WorksiteService worksiteService, //
-			final @Qualifier("clockOutWithoutClockInEventResponseMapper") Mapper<ClockOutWithoutClockInEvent, ClockOutWithoutClockInEventResponse> clockOutWithoutClockInEventResponseMapper) {
-		this.clockOutWithoutClockInEventService = Objects.requireNonNull( //
-				clockOutWithoutClockInEventService, //
-				"clockOutWithoutClockInEventService can't be null"); //
-		this.employeeService = Objects.requireNonNull( //
-				employeeService, //
-				"employeeService can't be null"); //
-		this.applicationSettingsService = Objects.requireNonNull( //
-				applicationSettingsService, //
-				"applicationSettingsService can't be null"); //
-		this.worksiteService = Objects.requireNonNull( //
-				worksiteService, //
-				"worksiteService can't be null"); //
-		this.clockOutWithoutClockInEventResponseMapper = Objects.requireNonNull( //
-				clockOutWithoutClockInEventResponseMapper, //
+	public ClockOutWithoutClockInEventController(
+		final ClockOutWithoutClockInEventService clockOutWithoutClockInEventService,
+		final EmployeeService employeeService,
+		final ApplicationSettingsService applicationSettingsService,
+		final WorksiteService worksiteService,
+		final @Qualifier("clockOutWithoutClockInEventResponseMapper") Mapper<ClockOutWithoutClockInEvent, ClockOutWithoutClockInEventResponse> clockOutWithoutClockInEventResponseMapper) {
+		this.clockOutWithoutClockInEventService = Objects
+				.requireNonNull(clockOutWithoutClockInEventService, "clockOutWithoutClockInEventService can't be null");
+		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.applicationSettingsService = Objects
+				.requireNonNull(applicationSettingsService, "applicationSettingsService can't be null");
+		this.worksiteService = Objects.requireNonNull(worksiteService, "worksiteService can't be null");
+		this.clockOutWithoutClockInEventResponseMapper = Objects.requireNonNull(
+				clockOutWithoutClockInEventResponseMapper,
 				"clockOutWithoutClockInEventResponseMapper can't be null");
 	}
 
 	@Override
-	public ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent( //
-			final String employeeNumber, //
-			final String worksiteCode, //
-			final Instant exitTime, //
+	public ResponseEntity<ClockOutWithoutClockInEventResponse> transitionClockOutWithoutClockInEvent(
+			final String employeeNumber,
+			final String worksiteCode,
+			final Instant exitTime,
 			final TransitionClockOutWithoutClockInEventRequest request) {
 		logger.debug("Transition clock-out-without-clock-in event ACTION performed");
 		final Employee employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
@@ -123,16 +117,17 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 * Retrieves a {@link ClockOutWithoutClockInEvent} by employee, worksite, and
 	 * exit time.
 	 *
-	 * @param employeeNumber the number of the employee; must not be {@code null}
-	 * @param worksiteCode   the code of the worksite where the event was recorded;
-	 *                       must not be {@code null}
-	 * @param exitTime       the exit time of the event; must not be {@code null}
-	 * @return the requested {@link ClockOutWithoutClockInEventResponse}
+	 * @param  employeeNumber the number of the employee; must not be {@code null}
+	 * @param  worksiteCode   the code of the worksite where the event was recorded;
+	 *                        must not be {@code null}
+	 * @param  exitTime       the exit time of the event; must not be {@code null}
+	 * @return                the requested
+	 *                        {@link ClockOutWithoutClockInEventResponse}
 	 */
 	@Override
-	public ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEvent( //
-			final String employeeNumber, //
-			final String worksiteCode, //
+	public ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEvent(
+			final String employeeNumber,
+			final String worksiteCode,
 			final Instant exitTime) {
 		logger.debug("Find clock-out-without-clock-in event ACTION performed");
 

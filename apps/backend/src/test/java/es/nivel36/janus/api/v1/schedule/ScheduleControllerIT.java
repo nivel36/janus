@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.schedule;
 
@@ -56,22 +56,29 @@ class ScheduleControllerIT {
 
 	@Test
 	void searchSchedulesShouldEnforceSearchQueryContract() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("query", "a".repeat(100)).with(verifiedJwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk());
-		this.mvc.perform(get(BASE).queryParam("query", "").with(verifiedJwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isBadRequest());
-		this.mvc.perform(get(BASE).queryParam("query", "a".repeat(101)).with(verifiedJwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isBadRequest());
-		this.mvc.perform(get(BASE).queryParam("query", "Turno\nMañana").with(verifiedJwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isBadRequest());
+		this.mvc.perform(
+				get(BASE).queryParam("query", "a".repeat(100))
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk());
+		this.mvc.perform(
+				get(BASE).queryParam("query", "")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
+		this.mvc.perform(
+				get(BASE).queryParam("query", "a".repeat(101))
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
+		this.mvc.perform(
+				get(BASE).queryParam("query", "Turno\nMañana")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testElevatedRolesWithoutVerifiedEmailAreUnauthorized() throws Exception {
-		this.mvc.perform(get(BASE).header("Authorization", "Bearer email-unverified")) //
+		this.mvc.perform(get(BASE).header("Authorization", "Bearer email-unverified"))
 				.andExpect(status().isUnauthorized());
 	}
-
 
 	@Test
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES "
@@ -113,14 +120,13 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isCreated()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.code").value("STD-WH")) //
-				.andExpect(jsonPath("$.entryTolerance").value("PT1H")) //
-				.andExpect(jsonPath("$.exitTolerance").value("PT1H")) //
-				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].effectiveWorkHours").value("PT8H")) //
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.code").value("STD-WH")).andExpect(jsonPath("$.entryTolerance").value("PT1H"))
+				.andExpect(jsonPath("$.exitTolerance").value("PT1H"))
+				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].effectiveWorkHours").value("PT8H"))
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].timeRange.startTime").value("09:00:00"));
 	}
 
@@ -128,8 +134,9 @@ class ScheduleControllerIT {
 	void createScheduleAcceptsAnOvernightTimeRange() throws Exception {
 		final String body = scheduleCreateBody("NIGHT", "PT8H", "22:00", "06:00");
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].timeRange.startTime").value("22:00:00"))
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].timeRange.endTime").value("06:00:00"));
@@ -139,8 +146,9 @@ class ScheduleControllerIT {
 	void createScheduleRejectsEqualTimeRangeBounds() throws Exception {
 		final String body = scheduleCreateBody("ZERO", "PT0S", "22:00", "22:00");
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
@@ -171,13 +179,15 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isConflict()) //
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isConflict())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
 
@@ -207,8 +217,9 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isCreated());
 
 		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
@@ -237,28 +248,31 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isCreated());
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(BASE).param("query", query).with(verifiedJwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				get(BASE).param("query", query)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
 				.andExpect(jsonPath("$.content[0].code").value("TURNO_MANANA"));
 
-		this.mvc.perform(get(BASE).param("query", "%").with(verifiedJwt()
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				get(BASE).param("query", "%").with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
 	}
 
 	@ParameterizedTest
 	@CsvSource({ "ROLE_JANUS_EMPLOYEE,aferrer@nivel36.es", "ROLE_JANUS_USER,user" })
-	@Sql(statements = {
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
+	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" })
-	void employeeNumberFilterIsAppliedForRestrictedAndPrivilegedUsers(final String role,
-			final String subject) throws Exception {
-		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0001")
-				.with(verifiedJwt().jwt(jwt -> jwt.subject(subject)).authorities(createAuthorityList(role))))
+	void employeeNumberFilterIsAppliedForRestrictedAndPrivilegedUsers(final String role, final String subject)
+			throws Exception {
+		this.mvc.perform(
+				get(BASE).param("employeeNumber", "EMP-0001")
+						.with(verifiedJwt().jwt(jwt -> jwt.subject(subject)).authorities(createAuthorityList(role))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
 				.andExpect(jsonPath("$.content[0].code").value("STD-WH"));
 	}
@@ -289,15 +303,16 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(BASE + "/{code}", "STD-WH").with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.name").value("Standard Work Hours")) //
+		this.mvc.perform(
+				get(BASE + "/{code}", "STD-WH")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.name").value("Standard Work Hours"))
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].dayOfWeek").value("MONDAY"));
 	}
 
@@ -327,8 +342,9 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(createBody).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(createBody)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isCreated());
 
 		final String updateBody = """
@@ -354,24 +370,25 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(put(BASE + "/{code}", "STD-WH").contentType(APPLICATION_JSON).content(updateBody).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.name").value("Updated Work Hours")) //
+		this.mvc.perform(
+				put(BASE + "/{code}", "STD-WH").contentType(APPLICATION_JSON).content(updateBody)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.name").value("Updated Work Hours"))
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].dayOfWeek").value("SATURDAY"));
 	}
 
 	@Test
 	void updateScheduleAcceptsAnOvernightTimeRange() throws Exception {
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON)
-				.content(scheduleCreateBody("NIGHT", "PT8H", "09:00", "17:00"))
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(scheduleCreateBody("NIGHT", "PT8H", "09:00", "17:00"))
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(put(BASE + "/{code}", "NIGHT").contentType(APPLICATION_JSON)
-				.content(scheduleUpdateBody("PT8H", "22:00", "06:00"))
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				put(BASE + "/{code}", "NIGHT").contentType(APPLICATION_JSON)
+						.content(scheduleUpdateBody("PT8H", "22:00", "06:00"))
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].effectiveWorkHours").value("PT8H"))
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].timeRange.startTime").value("22:00:00"))
@@ -380,14 +397,15 @@ class ScheduleControllerIT {
 
 	@Test
 	void updateScheduleRejectsEqualTimeRangeBounds() throws Exception {
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON)
-				.content(scheduleCreateBody("ZERO", "PT8H", "09:00", "17:00"))
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(scheduleCreateBody("ZERO", "PT8H", "09:00", "17:00"))
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(put(BASE + "/{code}", "ZERO").contentType(APPLICATION_JSON)
-				.content(scheduleUpdateBody("PT0S", "22:00", "22:00"))
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				put(BASE + "/{code}", "ZERO").contentType(APPLICATION_JSON)
+						.content(scheduleUpdateBody("PT0S", "22:00", "22:00"))
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
@@ -418,12 +436,14 @@ class ScheduleControllerIT {
 				}
 				""";
 
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(body).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(delete(BASE + "/{code}", "STD-WH").with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				delete(BASE + "/{code}", "STD-WH")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isNoContent());
 	}
 
@@ -431,14 +451,18 @@ class ScheduleControllerIT {
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES (1,'IN-USE','In Use Schedule')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void testDeleteScheduleWithAssignedEmployeesShouldReturn409() throws Exception {
-		this.mvc.perform(delete(BASE + "/{code}", "IN-USE").with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isConflict()) //
+		this.mvc.perform(
+				delete(BASE + "/{code}", "IN-USE")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isConflict())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
 
-	private static String scheduleCreateBody(final String code, final String effectiveWorkHours,
-			final String startTime, final String endTime) {
+	private static String scheduleCreateBody(
+			final String code,
+			final String effectiveWorkHours,
+			final String startTime,
+			final String endTime) {
 		return """
 				{
 				  "code": "%s",
@@ -457,7 +481,9 @@ class ScheduleControllerIT {
 				""".formatted(code, code, effectiveWorkHours, startTime, endTime);
 	}
 
-	private static String scheduleUpdateBody(final String effectiveWorkHours, final String startTime,
+	private static String scheduleUpdateBody(
+			final String effectiveWorkHours,
+			final String startTime,
 			final String endTime) {
 		return """
 				{

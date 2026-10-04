@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.schedule;
 
@@ -36,7 +36,6 @@ import jakarta.validation.constraints.NotNull;
  * Represents a time range for a specific day of the week within a schedule
  * rule, where the work shift can start on the specified day and extend into the
  * next day if necessary.
- *
  * <p>
  * A {@code DayOfWeekTimeRange} defines the working hours or other time
  * configurations for a specific {@link DayOfWeek} within a
@@ -45,14 +44,12 @@ import jakarta.validation.constraints.NotNull;
  * that the shift may start late in the day (e.g., 8:00 PM) and end on the
  * following day.
  * </p>
- *
  * <p>
  * Within a single {@link ScheduleRule}, only one {@code DayOfWeekTimeRange} is
  * allowed for each {@link DayOfWeek}. This ensures that for any given day of
  * the week there is at most one shift starting on that day, avoiding
  * ambiguities when retrieving the applicable time range for a specific date.
  * </p>
- *
  * <p>
  * This class is part of a schedule rule, allowing flexible time definitions for
  * different days of the week (e.g., different work hours on Mondays versus
@@ -82,7 +79,6 @@ public class DayOfWeekTimeRange implements Serializable {
 
 	/**
 	 * Specifies the actual number of working hours within the allowed time range.
-	 *
 	 * <p>
 	 * For example, if the shift allows clock-in between 08:00–10:00 and clock-out
 	 * between 17:00–19:00, the employee may still be required to work only 8
@@ -103,7 +99,6 @@ public class DayOfWeekTimeRange implements Serializable {
 
 	/**
 	 * The {@link ScheduleRule} to which this day-of-week time range belongs.
-	 *
 	 * <p>
 	 * Each {@code DayOfWeekTimeRange} is associated with exactly one
 	 * {@link ScheduleRule}, which groups together the time ranges for different
@@ -117,7 +112,6 @@ public class DayOfWeekTimeRange implements Serializable {
 
 	/**
 	 * Default constructor required by JPA.
-	 *
 	 * <p>
 	 * This constructor is intentionally package-private and should not be used
 	 * directly by application code. The state of the entity is expected to be
@@ -131,29 +125,31 @@ public class DayOfWeekTimeRange implements Serializable {
 	 * Creates a new {@code DayOfWeekTimeRange} associated with the given
 	 * {@link ScheduleRule}, defining the time range and effective working hours for
 	 * a specific day of the week.
-	 *
 	 * <p>
 	 * The shift is considered to start on the specified {@link DayOfWeek} and may
 	 * extend into the next calendar day depending on the provided
 	 * {@link TimeRange}.
 	 * </p>
 	 *
-	 * @param scheduleRule       the {@link ScheduleRule} to which this time range
-	 *                           belongs. Can't be {@code null}.
-	 * @param dayOfWeek          the day of the week on which the shift starts.
-	 *                           Can't be {@code null}.
-	 * @param timeRange          the allowed start and end time range for the shift.
-	 *                           Can't be {@code null}.
-	 * @param effectiveWorkHours the actual amount of working time required within
-	 *                           the given time range. Can't be {@code null}.
-	 *
+	 * @param  scheduleRule             the {@link ScheduleRule} to which this time
+	 *                                  range belongs. Can't be {@code null}.
+	 * @param  dayOfWeek                the day of the week on which the shift
+	 *                                  starts. Can't be {@code null}.
+	 * @param  timeRange                the allowed start and end time range for the
+	 *                                  shift. Can't be {@code null}.
+	 * @param  effectiveWorkHours       the actual amount of working time required
+	 *                                  within the given time range. Can't be
+	 *                                  {@code null}.
 	 * @throws NullPointerException     if scheduleRule, dayOfWeek, timeRange or
 	 *                                  effectiveWorkHours is {@code null}
 	 * @throws IllegalArgumentException if {@code effectiveWorkHours} is greater
 	 *                                  than the duration of {@code timeRange}
 	 */
-	public DayOfWeekTimeRange(final ScheduleRule scheduleRule, final DayOfWeek dayOfWeek, final TimeRange timeRange,
-			final Duration effectiveWorkHours) {
+	public DayOfWeekTimeRange(
+		final ScheduleRule scheduleRule,
+		final DayOfWeek dayOfWeek,
+		final TimeRange timeRange,
+		final Duration effectiveWorkHours) {
 		this.scheduleRule = Objects.requireNonNull(scheduleRule, "scheduleRule can't be null");
 		this.defineTimeRange(dayOfWeek, timeRange, effectiveWorkHours);
 	}
@@ -170,7 +166,6 @@ public class DayOfWeekTimeRange implements Serializable {
 
 	/**
 	 * Returns the effective number of working hours within the allowed time range.
-	 *
 	 * <p>
 	 * This value represents the actual working duration (e.g., 8 hours) that the
 	 * employee must complete, regardless of the wider time window defined by
@@ -222,25 +217,26 @@ public class DayOfWeekTimeRange implements Serializable {
 
 	/**
 	 * Defines or updates the time range configuration for this day of the week.
-	 *
 	 * <p>
 	 * This method associates a {@link DayOfWeek}, a {@link TimeRange}, and an
 	 * effective working duration with this instance. The effective working hours
 	 * must not exceed the total duration of the provided time range.
 	 * </p>
 	 *
-	 * @param dayOfWeek          the day of the week on which the shift starts.
-	 *                           Can't be {@code null}.
-	 * @param timeRange          the allowed start and end time range for the shift.
-	 *                           Can't be {@code null}.
-	 * @param effectiveWorkHours the actual amount of working time required within
-	 *                           the given time range. Can't be {@code null}.
-	 *
+	 * @param  dayOfWeek                the day of the week on which the shift
+	 *                                  starts. Can't be {@code null}.
+	 * @param  timeRange                the allowed start and end time range for the
+	 *                                  shift. Can't be {@code null}.
+	 * @param  effectiveWorkHours       the actual amount of working time required
+	 *                                  within the given time range. Can't be
+	 *                                  {@code null}.
 	 * @throws NullPointerException     if any argument is {@code null}
 	 * @throws IllegalArgumentException if {@code effectiveWorkHours} is greater
 	 *                                  than the duration of {@code timeRange}
 	 */
-	public void defineTimeRange(final DayOfWeek dayOfWeek, final TimeRange timeRange,
+	public void defineTimeRange(
+			final DayOfWeek dayOfWeek,
+			final TimeRange timeRange,
 			final Duration effectiveWorkHours) {
 		Objects.requireNonNull(dayOfWeek, "dayOfWeek can't be null");
 		Objects.requireNonNull(timeRange, "timeRange can't be null");

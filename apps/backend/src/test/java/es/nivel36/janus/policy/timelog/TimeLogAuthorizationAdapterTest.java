@@ -1,6 +1,6 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License");
  */
 package es.nivel36.janus.policy.timelog;
 
@@ -34,7 +34,9 @@ class TimeLogAuthorizationAdapterTest {
 	private final ActorResolver actors = mock(ActorResolver.class);
 	private final EmployeeService employees = mock(EmployeeService.class);
 	private final ApplicationSettingsService settings = mock(ApplicationSettingsService.class);
-	private final TimeLogAuthorizationAdapter adapter = new TimeLogAuthorizationAdapter(this.actors, this.settings,
+	private final TimeLogAuthorizationAdapter adapter = new TimeLogAuthorizationAdapter(
+			this.actors,
+			this.settings,
 			new EmployeeNumberResolver(this.employees));
 
 	@ParameterizedTest
@@ -58,8 +60,11 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void scopeUsesTheEmployeeAssociationOfTheResolvedActor() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
-				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
+		when(this.actors.resolve(this.authentication)).thenReturn(
+				new Actor(
+						java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+						Set.of(Role.JANUS_EMPLOYEE),
+						84L));
 
 		assertThat(this.adapter.searchScope(this.authentication)).isEqualTo(new TimeLogSearchScope.Employee(84L));
 		verify(this.actors).resolve(this.authentication);
@@ -68,8 +73,11 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void employeeWithoutAssociationCannotSearch() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
-				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), null));
+		when(this.actors.resolve(this.authentication)).thenReturn(
+				new Actor(
+						java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+						Set.of(Role.JANUS_EMPLOYEE),
+						null));
 
 		assertThat(this.adapter.canSearch(this.authentication, null)).isFalse();
 		assertThat(this.adapter.searchScope(this.authentication)).isEqualTo(new TimeLogSearchScope.None());
@@ -78,8 +86,11 @@ class TimeLogAuthorizationAdapterTest {
 	@Test
 	void employeeAccessUsesPersistentIdRatherThanNumberEquality() {
 		final Employee employee = mock(Employee.class);
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
-				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), 84L));
+		when(this.actors.resolve(this.authentication)).thenReturn(
+				new Actor(
+						java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+						Set.of(Role.JANUS_EMPLOYEE),
+						84L));
 		when(employee.getId()).thenReturn(84L);
 		when(this.employees.findEmployeeByEmployeeNumber("EMP-0001")).thenReturn(employee);
 
@@ -89,8 +100,11 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void employeeWithoutAssociationCannotOperate() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
-				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_EMPLOYEE), null));
+		when(this.actors.resolve(this.authentication)).thenReturn(
+				new Actor(
+						java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+						Set.of(Role.JANUS_EMPLOYEE),
+						null));
 
 		assertThat(this.adapter.canOperate(this.authentication, "old-address@internal.test", false)).isFalse();
 		verifyNoInteractions(this.employees);
@@ -98,8 +112,11 @@ class TimeLogAuthorizationAdapterTest {
 
 	@Test
 	void missingEmployeeIsDeniedWithoutDisclosingItsAbsence() {
-		when(this.actors.resolve(this.authentication)).thenReturn(new Actor(
-				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_USER), 84L));
+		when(this.actors.resolve(this.authentication)).thenReturn(
+				new Actor(
+						java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+						Set.of(Role.JANUS_USER),
+						84L));
 		when(this.employees.findEmployeeByEmployeeNumber("MISSING"))
 				.thenThrow(new ResourceNotFoundException("There is no employee with selector missing@example.test"));
 

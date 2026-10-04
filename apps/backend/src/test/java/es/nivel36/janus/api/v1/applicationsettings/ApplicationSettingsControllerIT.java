@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.applicationsettings;
 
@@ -71,9 +71,10 @@ class ApplicationSettingsControllerIT {
 				{"daysUntilLocked":3,"employeeWorksiteCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimeLogEntryAllowed":true,"defaultTimezone":"UTC"}
 				""";
 
-		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.employeeWorksiteCreationAllowed").value(false))
+		this.mvc.perform(
+				put(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.employeeWorksiteCreationAllowed").value(false))
 				.andExpect(jsonPath("$.employeeManualTimeLogEntryAllowed").value(true))
 				.andExpect(jsonPath("$.employeeWorkplaceCreationAllowed").doesNotExist())
 				.andExpect(jsonPath("$.employeeManualTimelogEntryAllowed").doesNotExist());
@@ -86,8 +87,10 @@ class ApplicationSettingsControllerIT {
 				{"daysUntilLocked":5,"employeeWorksiteCreationAllowed":true,"worksiteChangeDuringShiftAllowed":false,"employeeManualTimeLogEntryAllowed":false,"defaultTimezone":"Europe/Madrid"}
 				""";
 
-		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isForbidden());
+		this.mvc.perform(
+				put(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -97,9 +100,10 @@ class ApplicationSettingsControllerIT {
 				{"daysUntilLocked":3,"employeeWorksiteCreationAllowed":false,"worksiteChangeDuringShiftAllowed":true,"employeeManualTimeLogEntryAllowed":true,"defaultTimezone":"UTC"}
 				""";
 
-		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.daysUntilLocked").value(3))
+		this.mvc.perform(
+				put(BASE).contentType(APPLICATION_JSON).content(body)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.daysUntilLocked").value(3))
 				.andExpect(jsonPath("$.employeeWorksiteCreationAllowed").value(false))
 				.andExpect(jsonPath("$.worksiteChangeDuringShiftAllowed").value(true))
 				.andExpect(jsonPath("$.employeeManualTimeLogEntryAllowed").value(true))
@@ -107,12 +111,8 @@ class ApplicationSettingsControllerIT {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { //
-			"\"daysUntilLocked\":3,", //
-			"\"employeeWorksiteCreationAllowed\":false,", //
-			"\"worksiteChangeDuringShiftAllowed\":true,", //
-			"\"employeeManualTimeLogEntryAllowed\":true," //
-	})
+	@ValueSource(strings = { "\"daysUntilLocked\":3,", "\"employeeWorksiteCreationAllowed\":false,",
+			"\"worksiteChangeDuringShiftAllowed\":true,", "\"employeeManualTimeLogEntryAllowed\":true," })
 	@Sql(statements = "INSERT INTO application_settings(id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')")
 	void testUpdateShouldRejectMissingRequiredSettingWithoutChangingStoredSettings(final String fieldToOmit)
 			throws Exception {
@@ -121,8 +121,9 @@ class ApplicationSettingsControllerIT {
 				""";
 		final String incompleteBody = completeBody.replace(fieldToOmit, "");
 
-		this.mvc.perform(put(BASE).contentType(APPLICATION_JSON).content(incompleteBody)
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				put(BASE).contentType(APPLICATION_JSON).content(incompleteBody)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest());
 
 		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))

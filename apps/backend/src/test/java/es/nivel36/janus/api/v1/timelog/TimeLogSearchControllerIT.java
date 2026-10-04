@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.timelog;
 
@@ -64,26 +64,33 @@ class TimeLogSearchControllerIT {
 
 	@Test
 	void employeeNumberFilterSurvivesEmployeeEmailChange() throws Exception {
-		this.jdbc.update("UPDATE employee SET email = ? WHERE employee_number = ?", "alice.changed@example.test",
+		this.jdbc.update(
+				"UPDATE employee SET email = ? WHERE employee_number = ?",
+				"alice.changed@example.test",
 				"EMP-0101");
 
-		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0101")
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.content.length()").value(5))
+		this.mvc.perform(
+				get(BASE).param("employeeNumber", "EMP-0101")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(5))
 				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is("alice.changed@example.test"))));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void searchWithoutFiltersReturnsOnlyVisibleRecords(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).param("sort", "entryTime,asc").with(employee()))
-				.andExpect(status().isOk())
+		this.mvc.perform(get(endpoint).param("sort", "entryTime,asc").with(employee())).andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(5))
 				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))))
-				.andExpect(jsonPath("$.content[*].entryTime", contains("2025-07-01T08:00:00Z",
-						"2025-07-02T08:00:00Z", "2025-07-03T08:00:00Z", "2025-07-04T08:00:00Z",
-						"2025-07-05T08:00:00Z")))
+				.andExpect(
+						jsonPath(
+								"$.content[*].entryTime",
+								contains(
+										"2025-07-01T08:00:00Z",
+										"2025-07-02T08:00:00Z",
+										"2025-07-03T08:00:00Z",
+										"2025-07-04T08:00:00Z",
+										"2025-07-05T08:00:00Z")))
 				.andExpect(jsonPath("$.page.totalElements").value(5));
 	}
 
@@ -98,99 +105,96 @@ class TimeLogSearchControllerIT {
 
 	@Test
 	void clientCanFilterByOwnEmployeeNumberWithoutExpandingScope() throws Exception {
-		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0101").param("page", "1")
-				.param("size", "2").param("sort", "entryTime,desc").with(employee()))
+		this.mvc.perform(
+				get(BASE).param("employeeNumber", "EMP-0101").param("page", "1").param("size", "2")
+						.param("sort", "entryTime,desc").with(employee()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))))
-				.andExpect(jsonPath("$.content[*].entryTime", contains("2025-07-03T08:00:00Z",
-						"2025-07-02T08:00:00Z")))
-				.andExpect(jsonPath("$.page.totalElements").value(5))
-				.andExpect(jsonPath("$.page.totalPages").value(3));
+				.andExpect(jsonPath("$.content[*].entryTime", contains("2025-07-03T08:00:00Z", "2025-07-02T08:00:00Z")))
+				.andExpect(jsonPath("$.page.totalElements").value(5)).andExpect(jsonPath("$.page.totalPages").value(3));
 	}
 
 	@ParameterizedTest
 	@CsvSource({ "ROLE_JANUS_EMPLOYEE," + OWN_SUBJECT, "ROLE_JANUS_USER,user" })
-	void employeeNumberFilterWorksForRestrictedAndPrivilegedUsers(final String role,
-			final String subject) throws Exception {
-		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0101")
-				.with(verifiedJwt().jwt(token -> token.subject(subject)).authorities(createAuthorityList(role))))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.content.length()").value(5))
+	void employeeNumberFilterWorksForRestrictedAndPrivilegedUsers(final String role, final String subject)
+			throws Exception {
+		this.mvc.perform(
+				get(BASE).param("employeeNumber", "EMP-0101").with(
+						verifiedJwt().jwt(token -> token.subject(subject)).authorities(createAuthorityList(role))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(5))
 				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void clientCannotExpandScopeByFilteringAnotherEmployee(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).param("employeeNumber", "EMP-0102")
-				.param("size", "1").with(employee())).andExpect(status().isForbidden());
+		this.mvc.perform(get(endpoint).param("employeeNumber", "EMP-0102").param("size", "1").with(employee()))
+				.andExpect(status().isForbidden());
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void dateRangeIsInclusiveAtStartExclusiveAtEndAndStillScoped(final String endpoint) throws Exception {
 		for (int page = 0; page < 2; page++) {
-			this.mvc.perform(get(endpoint).param("start", "2025-07-02T08:00:00Z")
-					.param("end", "2025-07-04T08:00:00Z").param("page", Integer.toString(page))
-					.param("size", "1").param("sort", "entryTime,asc").with(employee()))
-					.andExpect(status().isOk())
-					.andExpect(jsonPath("$.content.length()").value(1))
+			this.mvc.perform(
+					get(endpoint).param("start", "2025-07-02T08:00:00Z").param("end", "2025-07-04T08:00:00Z")
+							.param("page", Integer.toString(page)).param("size", "1").param("sort", "entryTime,asc")
+							.with(employee()))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
 					.andExpect(jsonPath("$.content[0].employeeNumber").value("EMP-0101"))
-					.andExpect(jsonPath("$.content[0].entryTime").value(
-							page == 0 ? "2025-07-02T08:00:00Z" : "2025-07-03T08:00:00Z"))
+					.andExpect(
+							jsonPath("$.content[0].entryTime")
+									.value(page == 0 ? "2025-07-02T08:00:00Z" : "2025-07-03T08:00:00Z"))
 					.andExpect(jsonPath("$.page.totalElements").value(2))
 					.andExpect(jsonPath("$.page.totalPages").value(2));
 		}
 	}
 
 	@ParameterizedTest
-	@CsvSource({ "ROLE_JANUS_USER,false", "ROLE_JANUS_ADMIN,false", "ROLE_JANUS_USER,true",
-			"ROLE_JANUS_ADMIN,true" })
-	void elevatedRolesCanSeeEveryEmployeeIncludingWhenAlsoEmployee(final String role,
-			final boolean alsoEmployee) throws Exception {
-		final String[] roles = alsoEmployee ? new String[] { role, "ROLE_JANUS_EMPLOYEE" }
-				: new String[] { role };
-		this.mvc.perform(get(BASE).param("size", "20").param("sort", "entryTime,asc")
-				.with(verifiedJwt().jwt(token -> token.subject(OWN_SUBJECT)).authorities(createAuthorityList(roles))))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.content.length()").value(11))
-				.andExpect(jsonPath("$.content[*].employeeNumber",
-						hasItems("EMP-0101", "EMP-0102", "EMP-0103")))
+	@CsvSource({ "ROLE_JANUS_USER,false", "ROLE_JANUS_ADMIN,false", "ROLE_JANUS_USER,true", "ROLE_JANUS_ADMIN,true" })
+	void elevatedRolesCanSeeEveryEmployeeIncludingWhenAlsoEmployee(final String role, final boolean alsoEmployee)
+			throws Exception {
+		final String[] roles = alsoEmployee ? new String[] { role, "ROLE_JANUS_EMPLOYEE" } : new String[] { role };
+		this.mvc.perform(
+				get(BASE).param("size", "20").param("sort", "entryTime,asc").with(
+						verifiedJwt().jwt(token -> token.subject(OWN_SUBJECT)).authorities(createAuthorityList(roles))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(11))
+				.andExpect(jsonPath("$.content[*].employeeNumber", hasItems("EMP-0101", "EMP-0102", "EMP-0103")))
 				.andExpect(jsonPath("$.page.totalElements").value(11));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { "ROLE_JANUS_USER", "ROLE_JANUS_ADMIN" })
 	void elevatedScopeStillRespectsEmployeeFilterAndPagination(final String role) throws Exception {
-		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0102").param("page", "1")
-				.param("size", "2").param("sort", "entryTime,asc")
-				.with(verifiedJwt().authorities(createAuthorityList(role))))
+		this.mvc.perform(
+				get(BASE).param("employeeNumber", "EMP-0102").param("page", "1").param("size", "2")
+						.param("sort", "entryTime,asc").with(verifiedJwt().authorities(createAuthorityList(role))))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0102"))))
-				.andExpect(jsonPath("$.content[*].entryTime", contains("2025-07-03T07:00:00Z",
-						"2025-07-04T07:00:00Z")))
-				.andExpect(jsonPath("$.page.totalElements").value(4))
-				.andExpect(jsonPath("$.page.totalPages").value(2));
+				.andExpect(jsonPath("$.content[*].entryTime", contains("2025-07-03T07:00:00Z", "2025-07-04T07:00:00Z")))
+				.andExpect(jsonPath("$.page.totalElements").value(4)).andExpect(jsonPath("$.page.totalPages").value(2));
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void employeeWithoutPersistentEmployeeAssociationCannotSearch(final String endpoint) throws Exception {
 		for (int page : new int[] { 0, 3 }) {
-			this.mvc.perform(get(endpoint).param("page", Integer.toString(page)).param("size", "2")
-					.with(verifiedJwt().jwt(token -> token.claim("email", OWN_EMAIL).claim("email_verified", true))
-							.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+			this.mvc.perform(
+					get(endpoint).param("page", Integer.toString(page)).param("size", "2").with(
+							verifiedJwt().jwt(token -> token.claim("email", OWN_EMAIL).claim("email_verified", true))
+									.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 					.andExpect(status().isForbidden());
 		}
 	}
 
 	@Test
 	void scopeUsesPersistentEmployeeIdentityInsteadOfJwtEmail() throws Exception {
-		this.mvc.perform(get(BASE)
-				.with(employee().jwt(token -> token.subject(OWN_SUBJECT).claim("email", OTHER_EMAIL)
-						.claim("email_verified", true))))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.content.length()").value(5))
+		this.mvc.perform(
+				get(BASE).with(
+						employee().jwt(
+								token -> token.subject(OWN_SUBJECT).claim("email", OTHER_EMAIL)
+										.claim("email_verified", true))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(5))
 				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))))
 				.andExpect(jsonPath("$.page.totalElements").value(5));
 	}
@@ -204,8 +208,7 @@ class TimeLogSearchControllerIT {
 
 	@Test
 	void individualViewIsScopedToTheLinkedEmployee() throws Exception {
-		this.mvc.perform(get(OWN_SEARCH + "2025-07-01T08:00:00Z").with(employee()))
-				.andExpect(status().isOk())
+		this.mvc.perform(get(OWN_SEARCH + "2025-07-01T08:00:00Z").with(employee())).andExpect(status().isOk())
 				.andExpect(jsonPath("$.employeeNumber").value("EMP-0101"));
 	}
 
@@ -218,8 +221,10 @@ class TimeLogSearchControllerIT {
 	@ParameterizedTest
 	@ValueSource(strings = { BASE })
 	void bothDateRangeBoundsMayBePresent(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).param("start", "2025-07-02T08:00:00Z")
-				.param("end", "2025-07-04T08:00:00Z").with(employee())).andExpect(status().isOk());
+		this.mvc.perform(
+				get(endpoint).param("start", "2025-07-02T08:00:00Z").param("end", "2025-07-04T08:00:00Z")
+						.with(employee()))
+				.andExpect(status().isOk());
 	}
 
 	@ParameterizedTest
@@ -229,11 +234,13 @@ class TimeLogSearchControllerIT {
 				.andExpect(status().isBadRequest());
 		this.mvc.perform(get(endpoint).param("end", "2025-07-04T08:00:00Z").with(employee()))
 				.andExpect(status().isBadRequest());
-		this.mvc.perform(get(endpoint).param("start", "2025-07-04T08:00:00Z")
-				.param("end", "2025-07-02T08:00:00Z").with(employee()))
+		this.mvc.perform(
+				get(endpoint).param("start", "2025-07-04T08:00:00Z").param("end", "2025-07-02T08:00:00Z")
+						.with(employee()))
 				.andExpect(status().isBadRequest());
-		this.mvc.perform(get(endpoint).param("start", "2025-07-04T08:00:00Z")
-				.param("end", "2025-07-04T08:00:00Z").with(employee()))
+		this.mvc.perform(
+				get(endpoint).param("start", "2025-07-04T08:00:00Z").param("end", "2025-07-04T08:00:00Z")
+						.with(employee()))
 				.andExpect(status().isBadRequest());
 	}
 
@@ -247,14 +254,11 @@ class TimeLogSearchControllerIT {
 			throws Exception {
 		final MockHttpServletRequestBuilder request = get(endpoint).param("page", Integer.toString(page))
 				.param("size", "2").param("sort", "entryTime,asc").with(employee());
-		final ResultActions result = this.mvc.perform(request)
-				.andExpect(status().isOk())
+		final ResultActions result = this.mvc.perform(request).andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(expectedEntries.length))
 				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))))
-				.andExpect(jsonPath("$.page.number").value(page))
-				.andExpect(jsonPath("$.page.size").value(2))
-				.andExpect(jsonPath("$.page.totalElements").value(5))
-				.andExpect(jsonPath("$.page.totalPages").value(3));
+				.andExpect(jsonPath("$.page.number").value(page)).andExpect(jsonPath("$.page.size").value(2))
+				.andExpect(jsonPath("$.page.totalElements").value(5)).andExpect(jsonPath("$.page.totalPages").value(3));
 		if (expectedEntries.length > 0) {
 			result.andExpect(jsonPath("$.content[*].entryTime", contains(expectedEntries)));
 		}

@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.employee;
 
@@ -103,19 +103,18 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	/**
 	 * Checks whether a {@link Employee} exists for the specified email.
 	 *
-	 *
-	 * @param email the email to check for
-	 * @return {@code true} if the employee with the specified email exists, or
-	 *         {@code false} if no employee is found
+	 * @param  email the email to check for
+	 * @return       {@code true} if the employee with the specified email exists,
+	 *               or {@code false} if no employee is found
 	 */
 	boolean existsByEmail(final String email);
 
 	/**
 	 * Finds an {@link Employee} by email.
 	 *
-	 * @param email the email of the employee to find
-	 * @return the employee with the specified email, or {@link Optional#empty()} if
-	 *         no employee is found
+	 * @param  email the email of the employee to find
+	 * @return       the employee with the specified email, or
+	 *               {@link Optional#empty()} if no employee is found
 	 */
 	@EntityGraph(attributePaths = "schedule")
 	Optional<Employee> findByEmail(final String email);
@@ -132,7 +131,6 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	/**
 	 * Finds the IDs of employees who have at least one {@link TimeLog} entry since
 	 * the given instant that is not associated with any {@link WorkShift}.
-	 *
 	 * <p>
 	 * A time log is considered "not associated" when its {@code workshift_id}
 	 * foreign key is {@code null} and it has a non-null exit time. Only time logs
@@ -140,10 +138,10 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * considered. The query returns distinct employee IDs.
 	 * </p>
 	 *
-	 * @param start the lower bound instant; only time logs with {@code entryTime}
-	 *              greater than or equal to this value are considered
-	 * @return a list of unique employee IDs corresponding to employees with at
-	 *         least one unlinked time log since the given instant
+	 * @param  start the lower bound instant; only time logs with {@code entryTime}
+	 *               greater than or equal to this value are considered
+	 * @return       a list of unique employee IDs corresponding to employees with
+	 *               at least one unlinked time log since the given instant
 	 */
 	@Query(value = """
 			SELECT DISTINCT t.employee_id
@@ -158,25 +156,24 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	/**
 	 * Determines whether an employee identified by the given email address is
 	 * assigned to a schedule with the specified business code.
-	 *
 	 * <p>
 	 * This method checks for the existence of an {@link Employee} whose natural
 	 * internal identifier ({@code id}) matches the provided value and whose
 	 * associated {@link Schedule} has the given {@code code}. The comparison is
 	 * performed at the persistence layer without loading full entities into memory.
 	 * </p>
-	 *
 	 * <p>
 	 * The employee id is an internal key and the schedule code is a business
 	 * identifier. The method returns {@code true} as soon as a matching assignment
 	 * is found.
 	 * </p>
 	 *
-	 * @param employeeId   the internal id of the employee; must not be {@code null}
-	 * @param scheduleCode the business code of the schedule; must not be
-	 *                     {@code null}
-	 * @return {@code true} if the employee is assigned to the specified schedule;
-	 *         {@code false} otherwise
+	 * @param  employeeId   the internal id of the employee; must not be
+	 *                      {@code null}
+	 * @param  scheduleCode the business code of the schedule; must not be
+	 *                      {@code null}
+	 * @return              {@code true} if the employee is assigned to the
+	 *                      specified schedule; {@code false} otherwise
 	 */
 	boolean existsByIdAndSchedule_Code(Long employeeId, String scheduleCode);
 
@@ -184,10 +181,10 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	 * Indicates whether an employee identified by the given email is assigned to a
 	 * worksite identified by the given code.
 	 *
-	 * @param email        the employee email
-	 * @param worksiteCode the worksite code
-	 * @return {@code true} if the employee is assigned to the worksite;
-	 *         {@code false} otherwise
+	 * @param  email        the employee email
+	 * @param  worksiteCode the worksite code
+	 * @return              {@code true} if the employee is assigned to the
+	 *                      worksite; {@code false} otherwise
 	 */
 	boolean existsByIdAndWorksites_Code(Long employeeId, String worksiteCode);
 }

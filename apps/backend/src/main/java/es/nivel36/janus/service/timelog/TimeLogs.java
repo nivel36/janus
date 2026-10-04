@@ -10,7 +10,6 @@ import java.util.Objects;
 /**
  * Immutable value object representing a validated, ordered collection of closed
  * {@link TimeLog} entries.
- *
  * <p>
  * This class guarantees by construction that:
  * </p>
@@ -31,7 +30,7 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	/**
 	 * Creates a {@code TimeLogs} instance from the given collection.
 	 *
-	 * @param timeLogsList the collection of {@link TimeLog} entries
+	 * @param  timeLogsList             the collection of {@link TimeLog} entries
 	 * @throws NullPointerException     if the collection or any element is
 	 *                                  {@code null}
 	 * @throws IllegalArgumentException if any time log is open or overlaps with
@@ -44,10 +43,8 @@ public final class TimeLogs implements Iterable<TimeLog> {
 			throw new NullPointerException("timeLogsList contains null elements");
 		}
 
-		final List<TimeLog> sorted = timeLogs.stream() //
-				.filter(TimeLog::isClosed) //
-				.sorted(Comparator.comparing(TimeLog::getEntryTime)) //
-				.toList();
+		final List<TimeLog> sorted = timeLogs.stream().filter(TimeLog::isClosed)
+				.sorted(Comparator.comparing(TimeLog::getEntryTime)).toList();
 
 		if (sorted.size() != timeLogs.size()) {
 			throw new IllegalArgumentException("All TimeLogs must be closed");
@@ -76,13 +73,14 @@ public final class TimeLogs implements Iterable<TimeLog> {
 
 	/**
 	 * Returns the index of the specified {@link TimeLog} in this collection.
-	 *
 	 * <p>
 	 * Equality is determined using {@link TimeLog#equals(Object)}.
 	 * </p>
 	 *
-	 * @param timeLog the {@link TimeLog} to locate; must not be {@code null}
-	 * @return the index of the time log, or {@code -1} if not present
+	 * @param  timeLog              the {@link TimeLog} to locate; must not be
+	 *                              {@code null}
+	 * @return                      the index of the time log, or {@code -1} if not
+	 *                              present
 	 * @throws NullPointerException if {@code timeLog} is {@code null}
 	 */
 	public int indexOf(final TimeLog timeLog) {
@@ -114,9 +112,9 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	 * Creates a new {@code TimeLogs} instance containing the elements in the
 	 * specified range.
 	 *
-	 * @param fromIndex the starting index (inclusive)
-	 * @param toIndex   the ending index (exclusive)
-	 * @return a new {@code TimeLogs} instance
+	 * @param  fromIndex                 the starting index (inclusive)
+	 * @param  toIndex                   the ending index (exclusive)
+	 * @return                           a new {@code TimeLogs} instance
 	 * @throws IndexOutOfBoundsException if indices are out of range
 	 * @throws IllegalArgumentException  if {@code fromIndex > toIndex}
 	 */
@@ -134,7 +132,6 @@ public final class TimeLogs implements Iterable<TimeLog> {
 
 	/**
 	 * Returns an empty {@code TimeLogs} instance.
-	 *
 	 * <p>
 	 * The returned instance represents a valid, immutable collection with no
 	 * {@link TimeLog} elements.

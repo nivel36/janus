@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.employee;
 
@@ -57,40 +57,35 @@ public class EmployeeController implements EmployeeResource {
 	 *                               {@link EmployeeResponse} DTOs; must not be
 	 *                               {@code null}
 	 */
-	public EmployeeController( //
-			final EmployeeService employeeService, //
-			final ScheduleService scheduleService, //
-			final @Qualifier("employeeResponseMapper") Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
-		this.employeeService = Objects.requireNonNull( //
-				employeeService, //
-				"employeeService can't be null");
-		this.scheduleService = Objects.requireNonNull( //
-				scheduleService, //
-				"scheduleService can't be null");
-		this.employeeResponseMapper = Objects.requireNonNull( //
-				employeeResponseMapper, //
-				"employeeResponseMapper can't be null");
+	public EmployeeController(
+		final EmployeeService employeeService,
+		final ScheduleService scheduleService,
+		final @Qualifier("employeeResponseMapper") Mapper<Employee, EmployeeResponse> employeeResponseMapper) {
+		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
+		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
+		this.employeeResponseMapper = Objects
+				.requireNonNull(employeeResponseMapper, "employeeResponseMapper can't be null");
 	}
 
 	@Override
-	public ResponseEntity<Page<EmployeeResponse>> searchEmployees( //
-			final String query, //
-			final String scheduleCode, //
-			final String worksiteCode, //
+	public ResponseEntity<Page<EmployeeResponse>> searchEmployees(
+			final String query,
+			final String scheduleCode,
+			final String worksiteCode,
 			final Pageable pageable) {
 		logger.debug("Search employees ACTION performed");
-		final Page<EmployeeResponse> employees = this.employeeService //
-				.searchEmployees(query, scheduleCode, worksiteCode, pageable) //
-				.map(this.employeeResponseMapper::map);
+		final Page<EmployeeResponse> employees = this.employeeService
+				.searchEmployees(query, scheduleCode, worksiteCode, pageable).map(this.employeeResponseMapper::map);
 		return ResponseEntity.ok(employees);
 	}
 
 	/**
 	 * Retrieves an {@link Employee} by its employee number.
 	 *
-	 * @param employeeNumber the stable employee number of the employee; must not be
-	 *                       {@code null}
-	 * @return the {@link EmployeeResponse} matching the employee number
+	 * @param  employeeNumber the stable employee number of the employee; must not
+	 *                        be {@code null}
+	 * @return                the {@link EmployeeResponse} matching the employee
+	 *                        number
 	 */
 	@Override
 	public ResponseEntity<EmployeeResponse> findEmployee(final String employeeNumber) {
@@ -103,9 +98,9 @@ public class EmployeeController implements EmployeeResource {
 	/**
 	 * Creates a new {@link Employee} using the provided payload.
 	 *
-	 * @param request the data describing the employee to create; must not be
-	 *                {@code null}
-	 * @return the created {@link EmployeeResponse}
+	 * @param  request the data describing the employee to create; must not be
+	 *                 {@code null}
+	 * @return         the created {@link EmployeeResponse}
 	 */
 	@Override
 	public ResponseEntity<EmployeeResponse> createEmployee(final CreateEmployeeRequest request) {
@@ -117,12 +112,8 @@ public class EmployeeController implements EmployeeResource {
 		final String surname = request.surname().trim();
 		final String email = EmailAddresses.canonicalize(request.email());
 		final String employeeNumber = request.employeeNumber().trim();
-		final Employee createdEmployee = this.employeeService.createEmployee( //
-				employeeNumber, //
-				name, //
-				surname, //
-				email, //
-				schedule);
+		final Employee createdEmployee = this.employeeService
+				.createEmployee(employeeNumber, name, surname, email, schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(createdEmployee);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
@@ -130,27 +121,23 @@ public class EmployeeController implements EmployeeResource {
 	/**
 	 * Updates an existing {@link Employee} identified by its identifier.
 	 *
-	 * @param employeeNumber the stable number of the employee to update; must not
-	 *                       be {@code null}
-	 * @param request        the payload containing the new employee data; must not
-	 *                       be {@code null}
-	 * @return the updated {@link EmployeeResponse}
+	 * @param  employeeNumber the stable number of the employee to update; must not
+	 *                        be {@code null}
+	 * @param  request        the payload containing the new employee data; must not
+	 *                        be {@code null}
+	 * @return                the updated {@link EmployeeResponse}
 	 */
 	@Override
-	public ResponseEntity<EmployeeResponse> updateEmployee(//
-			final String employeeNumber, //
+	public ResponseEntity<EmployeeResponse> updateEmployee(
+			final String employeeNumber,
 			final UpdateEmployeeRequest request) {
 		logger.debug("Update employee ACTION performed");
 		final String email = EmailAddresses.canonicalize(request.email());
 		final String name = request.name().trim();
 		final String surname = request.surname().trim();
 		final String scheduleCode = request.scheduleCode().trim();
-		final Employee updatedEmployee = this.employeeService.updateEmployee( //
-				employeeNumber, //
-				name, //
-				surname, //
-				email, //
-				scheduleCode);
+		final Employee updatedEmployee = this.employeeService
+				.updateEmployee(employeeNumber, name, surname, email, scheduleCode);
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
 		return ResponseEntity.ok(response);
 	}
@@ -158,13 +145,13 @@ public class EmployeeController implements EmployeeResource {
 	/**
 	 * Deletes an existing {@link Employee}.
 	 *
-	 * @param employeeNumber the stable number of the employee; must not be
-	 *                       {@code null}
-	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
+	 * @param  employeeNumber the stable number of the employee; must not be
+	 *                        {@code null}
+	 * @return                an empty response with status
+	 *                        {@link HttpStatus#NO_CONTENT}
 	 */
 	@Override
-	public ResponseEntity<Void> deleteEmployee(//
-			final String employeeNumber) {
+	public ResponseEntity<Void> deleteEmployee(final String employeeNumber) {
 		logger.debug("Delete employee ACTION performed");
 		final Employee employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		this.employeeService.deleteEmployee(employee);

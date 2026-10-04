@@ -1,6 +1,6 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License");
  */
 package es.nivel36.janus.policy.employee;
 
@@ -35,13 +35,16 @@ class EmployeeAuthorizationAdapterTest {
 		final ActorResolver actorResolver = mock(ActorResolver.class);
 		final EmployeeService employeeService = mock(EmployeeService.class);
 		final Employee employee = mock(Employee.class);
-		when(actorResolver.resolve(authentication))
-				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
-						Set.of(Role.JANUS_EMPLOYEE), EMPLOYEE_ID));
+		when(actorResolver.resolve(authentication)).thenReturn(
+				new Actor(
+						java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+						Set.of(Role.JANUS_EMPLOYEE),
+						EMPLOYEE_ID));
 		when(employeeService.findEmployeeByEmployeeNumber(EMPLOYEE_NUMBER)).thenReturn(employee);
 		when(employee.getId()).thenReturn(EMPLOYEE_ID);
 
-		final EmployeeAuthorizationAdapter adapter = new EmployeeAuthorizationAdapter(actorResolver,
+		final EmployeeAuthorizationAdapter adapter = new EmployeeAuthorizationAdapter(
+				actorResolver,
 				new EmployeeNumberResolver(employeeService));
 
 		assertThat(adapter.canView(authentication, EMPLOYEE_NUMBER)).isTrue();
@@ -56,13 +59,16 @@ class EmployeeAuthorizationAdapterTest {
 		final ActorResolver actorResolver = mock(ActorResolver.class);
 		final EmployeeService employeeService = mock(EmployeeService.class);
 		final Employee employee = mock(Employee.class);
-		when(actorResolver.resolve(authentication))
-				.thenReturn(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
-						Set.of(Role.JANUS_EMPLOYEE), EMPLOYEE_ID));
+		when(actorResolver.resolve(authentication)).thenReturn(
+				new Actor(
+						java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+						Set.of(Role.JANUS_EMPLOYEE),
+						EMPLOYEE_ID));
 		when(employeeService.findEmployeeByEmployeeNumber(EMPLOYEE_NUMBER)).thenReturn(employee);
 		when(employee.getId()).thenReturn(12L);
 
-		final EmployeeAuthorizationAdapter adapter = new EmployeeAuthorizationAdapter(actorResolver,
+		final EmployeeAuthorizationAdapter adapter = new EmployeeAuthorizationAdapter(
+				actorResolver,
 				new EmployeeNumberResolver(employeeService));
 
 		assertThat(adapter.canView(authentication, EMPLOYEE_NUMBER)).isFalse();
@@ -73,7 +79,8 @@ class EmployeeAuthorizationAdapterTest {
 		final Authentication authentication = mock(Authentication.class);
 		final ActorResolver actors = mock(ActorResolver.class);
 		final EmployeeService employees = mock(EmployeeService.class);
-		final EmployeeAuthorizationAdapter adapter = new EmployeeAuthorizationAdapter(actors,
+		final EmployeeAuthorizationAdapter adapter = new EmployeeAuthorizationAdapter(
+				actors,
 				new EmployeeNumberResolver(employees));
 		when(employees.findEmployeeByEmployeeNumber("MISSING")).thenThrow(new ResourceNotFoundException("missing"));
 		when(actors.resolve(authentication))

@@ -1,6 +1,6 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License");
  */
 package es.nivel36.janus.policy.timelog;
 
@@ -31,7 +31,9 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	private final ActorResolver actors = mock(ActorResolver.class);
 	private final EmployeeService employees = mock(EmployeeService.class);
 	private final ClockOutWithoutClockInEventAuthorizationAdapter adapter = new ClockOutWithoutClockInEventAuthorizationAdapter(
-			this.actors, this.employees, new EmployeeNumberResolver(this.employees));
+			this.actors,
+			this.employees,
+			new EmployeeNumberResolver(this.employees));
 
 	@Test
 	void missingEmployeeIsDeniedWithoutDisclosingItsAbsence() {
@@ -49,8 +51,8 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	void resolveTransitionOnlyRequiresResolvePolicy() {
 		final Policy<Long> resolvePolicy = policyAllowing(true);
 		final Policy<Long> invalidatePolicy = policyAllowing(false);
-		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = this.adapterWith(resolvePolicy,
-				invalidatePolicy);
+		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = this
+				.adapterWith(resolvePolicy, invalidatePolicy);
 
 		assertThat(adapter.canTransition(this.authentication, "EMP-0001", ClockOutWithoutClockInEventAction.RESOLVE))
 				.isTrue();
@@ -62,8 +64,8 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	void invalidateTransitionOnlyRequiresInvalidatePolicy() {
 		final Policy<Long> resolvePolicy = policyAllowing(false);
 		final Policy<Long> invalidatePolicy = policyAllowing(true);
-		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = this.adapterWith(resolvePolicy,
-				invalidatePolicy);
+		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = this
+				.adapterWith(resolvePolicy, invalidatePolicy);
 
 		assertThat(adapter.canTransition(this.authentication, "EMP-0001", ClockOutWithoutClockInEventAction.INVALIDATE))
 				.isTrue();
@@ -75,21 +77,26 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	void transitionWithoutActionIsDeniedWithoutConsultingPolicies() {
 		final Policy<Long> resolvePolicy = mock();
 		final Policy<Long> invalidatePolicy = mock();
-		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = this.adapterWith(resolvePolicy,
-				invalidatePolicy);
+		final ClockOutWithoutClockInEventAuthorizationAdapter adapter = this
+				.adapterWith(resolvePolicy, invalidatePolicy);
 
 		assertThat(adapter.canTransition(this.authentication, "EMP-0001", null)).isFalse();
 		verify(resolvePolicy, never()).allows(actor(), 42L);
 		verify(invalidatePolicy, never()).allows(actor(), 42L);
 	}
 
-	private ClockOutWithoutClockInEventAuthorizationAdapter adapterWith(final Policy<Long> resolvePolicy,
+	private ClockOutWithoutClockInEventAuthorizationAdapter adapterWith(
+			final Policy<Long> resolvePolicy,
 			final Policy<Long> invalidatePolicy) {
 		final var employee = employee();
 		when(this.actors.resolve(this.authentication)).thenReturn(actor());
 		when(this.employees.findEmployeeByEmployeeNumber("EMP-0001")).thenReturn(employee);
-		return new ClockOutWithoutClockInEventAuthorizationAdapter(this.actors, this.employees,
-				new EmployeeNumberResolver(this.employees), resolvePolicy, invalidatePolicy);
+		return new ClockOutWithoutClockInEventAuthorizationAdapter(
+				this.actors,
+				this.employees,
+				new EmployeeNumberResolver(this.employees),
+				resolvePolicy,
+				invalidatePolicy);
 	}
 
 	@SuppressWarnings("unchecked")

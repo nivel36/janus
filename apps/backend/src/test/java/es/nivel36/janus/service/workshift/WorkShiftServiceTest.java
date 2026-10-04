@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.workshift;
 
@@ -73,7 +73,11 @@ class WorkShiftServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		this.employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es",
+		this.employee = new Employee(
+				"EMP-0001",
+				"Abel",
+				"Ferrer",
+				"aferrer@nivel36.es",
 				new Schedule("CODE", "Name", Duration.ofMinutes(5), Duration.ofMinutes(5)));
 		ReflectionTestUtils.setField(this.employee, "id", 1L);
 		final ZoneId utcZone = ZoneId.of("UTC");
@@ -85,7 +89,11 @@ class WorkShiftServiceTest {
 		final LocalDate date = LocalDate.of(2024, 10, 10);
 		final LocalDate previousDay = date.minusDays(1);
 		final LocalDate nextDay = date.plusDays(1);
-		final Employee employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es",
+		final Employee employee = new Employee(
+				"EMP-0001",
+				"Abel",
+				"Ferrer",
+				"aferrer@nivel36.es",
 				new Schedule("CODE", "Name", Duration.ofMinutes(5), Duration.ofMinutes(5)));
 		final ZoneId utcZone = ZoneId.of("UTC");
 		final Worksite worksite = new Worksite("BCN-HQ", "Barcelona Headquarters", utcZone);
@@ -141,7 +149,7 @@ class WorkShiftServiceTest {
 				buildInstant(nextDay, 11, 30), // 7
 				buildInstant(nextDay, 12, 30), // 8
 				buildInstant(nextDay, 16, 30), // 9
-		}; //
+		};
 
 		final Instant[] halfDayWithCrunch = {
 				//
@@ -157,7 +165,7 @@ class WorkShiftServiceTest {
 				buildInstant(nextDay, 11, 30), // 9
 				buildInstant(nextDay, 12, 30), // 10
 				buildInstant(nextDay, 16, 30), // 11
-		}; //
+		};
 
 		final Instant[] frydayWithHalfDayAndCrunch = {
 				//
@@ -169,7 +177,7 @@ class WorkShiftServiceTest {
 				buildInstant(date, 13, 30), // 5
 				buildInstant(date, 16, 30), // 6
 				buildInstant(date, 22, 30), // 7
-		}; //
+		};
 
 		final Instant[] monday = {
 				//
@@ -213,139 +221,140 @@ class WorkShiftServiceTest {
 						//
 						Arrays.asList(
 								//
-								new TimeLog(employee, worksite, normalDay[0], normalDay[1]), //
-								new TimeLog(employee, worksite, normalDay[2], normalDay[3]), //
-								new TimeLog(employee, worksite, normalDay[4], normalDay[5]), //
-								new TimeLog(employee, worksite, normalDay[6], normalDay[7]), //
-								new TimeLog(employee, worksite, normalDay[8], normalDay[9]), //
-								new TimeLog(employee, worksite, normalDay[10], normalDay[11]), //
-								new TimeLog(employee, worksite, normalDay[12], normalDay[13]) //
-						), //
-						Duration.ofHours(8).plusMinutes(45), //
-						Duration.ofHours(1).plusMinutes(15), //
-						normalDay[4], //
-						normalDay[9], //
-						LocalTime.of(8, 0), //
-						LocalTime.of(18, 0) //
-				), //
+								new TimeLog(employee, worksite, normalDay[0], normalDay[1]),
+								new TimeLog(employee, worksite, normalDay[2], normalDay[3]),
+								new TimeLog(employee, worksite, normalDay[4], normalDay[5]),
+								new TimeLog(employee, worksite, normalDay[6], normalDay[7]),
+								new TimeLog(employee, worksite, normalDay[8], normalDay[9]),
+								new TimeLog(employee, worksite, normalDay[10], normalDay[11]),
+								new TimeLog(employee, worksite, normalDay[12], normalDay[13])),
+						Duration.ofHours(8).plusMinutes(45),
+						Duration.ofHours(1).plusMinutes(15),
+						normalDay[4],
+						normalDay[9],
+						LocalTime.of(8, 0),
+						LocalTime.of(18, 0)),
 				Arguments.of(
 						//
 						Arrays.asList(
 								//
-								new TimeLog(employee, worksite, crunchDay[0], crunchDay[1]), //
-								new TimeLog(employee, worksite, crunchDay[2], crunchDay[3]), //
-								new TimeLog(employee, worksite, crunchDay[4], crunchDay[5]), //
-								new TimeLog(employee, worksite, crunchDay[6], crunchDay[7]), //
-								new TimeLog(employee, worksite, crunchDay[8], crunchDay[9]), //
-								new TimeLog(employee, worksite, crunchDay[10], crunchDay[11]), //
-								new TimeLog(employee, worksite, crunchDay[12], crunchDay[13]), //
-								new TimeLog(employee, worksite, crunchDay[14], crunchDay[15]) //
-						), //
-						Duration.ofHours(16).plusMinutes(45), //
+								new TimeLog(employee, worksite, crunchDay[0], crunchDay[1]),
+								new TimeLog(employee, worksite, crunchDay[2], crunchDay[3]),
+								new TimeLog(employee, worksite, crunchDay[4], crunchDay[5]),
+								new TimeLog(employee, worksite, crunchDay[6], crunchDay[7]),
+								new TimeLog(employee, worksite, crunchDay[8], crunchDay[9]),
+								new TimeLog(employee, worksite, crunchDay[10], crunchDay[11]),
+								new TimeLog(employee, worksite, crunchDay[12], crunchDay[13]),
+								new TimeLog(employee, worksite, crunchDay[14], crunchDay[15])),
+						Duration.ofHours(16).plusMinutes(45),
 						Duration.ofHours(2).plusMinutes(15), // ECTZone
-						crunchDay[4], //
-						crunchDay[11], //
-						LocalTime.of(8, 0), //
-						LocalTime.of(18, 0) //
-				), Arguments.of(
+						crunchDay[4],
+						crunchDay[11],
+						LocalTime.of(8, 0),
+						LocalTime.of(18, 0)),
+				Arguments.of(
 						//
 						Arrays.asList(
 								//
-								new TimeLog(employee, worksite, halfDay[0], halfDay[1]), //
-								new TimeLog(employee, worksite, halfDay[2], halfDay[3]), //
-								new TimeLog(employee, worksite, halfDay[4], halfDay[5]), //
-								new TimeLog(employee, worksite, halfDay[6], halfDay[7]), //
-								new TimeLog(employee, worksite, halfDay[8], halfDay[9]) //
-						), //
-						Duration.ofHours(5), //
-						Duration.ofHours(0), //
-						halfDay[4], //
-						halfDay[5], //
-						LocalTime.of(8, 0), //
-						LocalTime.of(18, 0) //
-				), Arguments.of(
+								new TimeLog(employee, worksite, halfDay[0], halfDay[1]),
+								new TimeLog(employee, worksite, halfDay[2], halfDay[3]),
+								new TimeLog(employee, worksite, halfDay[4], halfDay[5]),
+								new TimeLog(employee, worksite, halfDay[6], halfDay[7]),
+								new TimeLog(employee, worksite, halfDay[8], halfDay[9])),
+						Duration.ofHours(5),
+						Duration.ofHours(0),
+						halfDay[4],
+						halfDay[5],
+						LocalTime.of(8, 0),
+						LocalTime.of(18, 0)),
+				Arguments.of(
 						//
 						Arrays.asList(
 								//
-								new TimeLog(employee, worksite, halfDayWithCrunch[0], halfDayWithCrunch[1]), //
-								new TimeLog(employee, worksite, halfDayWithCrunch[2], halfDayWithCrunch[3]), //
-								new TimeLog(employee, worksite, halfDayWithCrunch[4], halfDayWithCrunch[5]), //
-								new TimeLog(employee, worksite, halfDayWithCrunch[6], halfDayWithCrunch[7]), //
-								new TimeLog(employee, worksite, halfDayWithCrunch[8], halfDayWithCrunch[9]), //
-								new TimeLog(employee, worksite, halfDayWithCrunch[10], halfDayWithCrunch[11]) //
-						), //
-						Duration.ofHours(11), //
-						Duration.ofHours(3), //
-						halfDayWithCrunch[4], //
-						halfDayWithCrunch[7], //
-						LocalTime.of(8, 0), //
-						LocalTime.of(18, 0) //
-				), Arguments.of(
+								new TimeLog(employee, worksite, halfDayWithCrunch[0], halfDayWithCrunch[1]),
+								new TimeLog(employee, worksite, halfDayWithCrunch[2], halfDayWithCrunch[3]),
+								new TimeLog(employee, worksite, halfDayWithCrunch[4], halfDayWithCrunch[5]),
+								new TimeLog(employee, worksite, halfDayWithCrunch[6], halfDayWithCrunch[7]),
+								new TimeLog(employee, worksite, halfDayWithCrunch[8], halfDayWithCrunch[9]),
+								new TimeLog(employee, worksite, halfDayWithCrunch[10], halfDayWithCrunch[11])),
+						Duration.ofHours(11),
+						Duration.ofHours(3),
+						halfDayWithCrunch[4],
+						halfDayWithCrunch[7],
+						LocalTime.of(8, 0),
+						LocalTime.of(18, 0)),
+				Arguments.of(
 						//
 						Arrays.asList(
 								//
-								new TimeLog(employee, worksite, frydayWithHalfDayAndCrunch[0],
-										frydayWithHalfDayAndCrunch[1]), //
-								new TimeLog(employee, worksite, frydayWithHalfDayAndCrunch[2],
-										frydayWithHalfDayAndCrunch[3]), //
-								new TimeLog(employee, worksite, frydayWithHalfDayAndCrunch[4],
-										frydayWithHalfDayAndCrunch[5]), //
-								new TimeLog(employee, worksite, frydayWithHalfDayAndCrunch[6],
-										frydayWithHalfDayAndCrunch[7]) //
-						), //
-						Duration.ofHours(11), //
-						Duration.ofHours(3), //
-						frydayWithHalfDayAndCrunch[4], //
-						frydayWithHalfDayAndCrunch[7], //
-						LocalTime.of(8, 0), //
-						LocalTime.of(18, 0) //
-				), Arguments.of(
+								new TimeLog(
+										employee,
+										worksite,
+										frydayWithHalfDayAndCrunch[0],
+										frydayWithHalfDayAndCrunch[1]),
+								new TimeLog(
+										employee,
+										worksite,
+										frydayWithHalfDayAndCrunch[2],
+										frydayWithHalfDayAndCrunch[3]),
+								new TimeLog(
+										employee,
+										worksite,
+										frydayWithHalfDayAndCrunch[4],
+										frydayWithHalfDayAndCrunch[5]),
+								new TimeLog(
+										employee,
+										worksite,
+										frydayWithHalfDayAndCrunch[6],
+										frydayWithHalfDayAndCrunch[7])),
+						Duration.ofHours(11),
+						Duration.ofHours(3),
+						frydayWithHalfDayAndCrunch[4],
+						frydayWithHalfDayAndCrunch[7],
+						LocalTime.of(8, 0),
+						LocalTime.of(18, 0)),
+				Arguments.of(
 						//
 						Arrays.asList(
 								//
-								new TimeLog(employee, worksite, monday[0], monday[1]), //
-								new TimeLog(employee, worksite, monday[2], monday[3]), //
-								new TimeLog(employee, worksite, monday[4], monday[5]), //
-								new TimeLog(employee, worksite, monday[6], monday[7]), //
-								new TimeLog(employee, worksite, monday[8], monday[9]) //
-						), //
-						Duration.ofHours(8).plusMinutes(45), //
-						Duration.ofHours(1).plusMinutes(15), //
-						monday[0], //
-						monday[5], //
-						LocalTime.of(8, 0), //
-						LocalTime.of(18, 0) //
-				), Arguments.of(
+								new TimeLog(employee, worksite, monday[0], monday[1]),
+								new TimeLog(employee, worksite, monday[2], monday[3]),
+								new TimeLog(employee, worksite, monday[4], monday[5]),
+								new TimeLog(employee, worksite, monday[6], monday[7]),
+								new TimeLog(employee, worksite, monday[8], monday[9])),
+						Duration.ofHours(8).plusMinutes(45),
+						Duration.ofHours(1).plusMinutes(15),
+						monday[0],
+						monday[5],
+						LocalTime.of(8, 0),
+						LocalTime.of(18, 0)),
+				Arguments.of(
 						//
 						Arrays.asList(
 								//
-								new TimeLog(employee, worksite, friday[0], friday[1]), //
-								new TimeLog(employee, worksite, friday[2], friday[3]), //
-								new TimeLog(employee, worksite, friday[4], friday[5]), //
-								new TimeLog(employee, worksite, friday[6], friday[7]), //
-								new TimeLog(employee, worksite, friday[8], friday[9]) //
-						), //
-						Duration.ofHours(8).plusMinutes(45), //
-						Duration.ofHours(1).plusMinutes(15), //
-						friday[4], //
-						friday[9], //
-						LocalTime.of(8, 0), //
-						LocalTime.of(18, 0) //
-				), Arguments.of(
+								new TimeLog(employee, worksite, friday[0], friday[1]),
+								new TimeLog(employee, worksite, friday[2], friday[3]),
+								new TimeLog(employee, worksite, friday[4], friday[5]),
+								new TimeLog(employee, worksite, friday[6], friday[7]),
+								new TimeLog(employee, worksite, friday[8], friday[9])),
+						Duration.ofHours(8).plusMinutes(45),
+						Duration.ofHours(1).plusMinutes(15),
+						friday[4],
+						friday[9],
+						LocalTime.of(8, 0),
+						LocalTime.of(18, 0)),
+				Arguments.of(
 						//
 						Arrays.asList(
 								//
-								new TimeLog(employee, worksite, isolatedDay[0], isolatedDay[1]), //
-								new TimeLog(employee, worksite, isolatedDay[2], isolatedDay[3]) //
-						), //
-						Duration.ofHours(8), //
-						Duration.ofHours(1), //
-						isolatedDay[0], //
-						isolatedDay[3], //
-						LocalTime.of(8, 0), //
-						LocalTime.of(18, 0) //
-				) //
-		); //
+								new TimeLog(employee, worksite, isolatedDay[0], isolatedDay[1]),
+								new TimeLog(employee, worksite, isolatedDay[2], isolatedDay[3])),
+						Duration.ofHours(8),
+						Duration.ofHours(1),
+						isolatedDay[0],
+						isolatedDay[3],
+						LocalTime.of(8, 0),
+						LocalTime.of(18, 0)));
 	}
 
 	private static Instant buildInstant(final LocalDate date, final int hour, final int minutes) {
@@ -355,9 +364,14 @@ class WorkShiftServiceTest {
 
 	@ParameterizedTest
 	@MethodSource("provideTimeLogArguments")
-	void testFindWorkShiftForWorkingDay(final List<TimeLog> timeLogs, final Duration expectedTotalWorkTime,
-			final Duration expectedTotalPauseTime, final Instant startWorkShiftTime, final Instant endWorkShiftTime,
-			final LocalTime startTime, final LocalTime endTime) {
+	void testFindWorkShiftForWorkingDay(
+			final List<TimeLog> timeLogs,
+			final Duration expectedTotalWorkTime,
+			final Duration expectedTotalPauseTime,
+			final Instant startWorkShiftTime,
+			final Instant endWorkShiftTime,
+			final LocalTime startTime,
+			final LocalTime endTime) {
 		logger.info("Test find work shift for working day");
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
@@ -371,9 +385,11 @@ class WorkShiftServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(this.timeLogService.searchTimeLogs(
-				new TimeLogSearchCriteria(this.employee.getEmployeeNumber(), start, end),
-				new TimeLogSearchScope.Employee(this.employee.getId()), page))
+		when(
+				this.timeLogService.searchTimeLogs(
+						new TimeLogSearchCriteria(this.employee.getEmployeeNumber(), start, end),
+						new TimeLogSearchScope.Employee(this.employee.getId()),
+						page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date))
 				.thenReturn(Optional.of(timeRange));
@@ -391,8 +407,12 @@ class WorkShiftServiceTest {
 
 	@ParameterizedTest
 	@MethodSource("provideTimeLogArguments")
-	void testFindWorkShiftForNonWorkingDay(final List<TimeLog> timeLogs, final Duration expectedTotalWorkTime,
-			final Duration expectedTotalPauseTime, final Instant startWorkShiftTime, final Instant endWorkShiftTime) {
+	void testFindWorkShiftForNonWorkingDay(
+			final List<TimeLog> timeLogs,
+			final Duration expectedTotalWorkTime,
+			final Duration expectedTotalPauseTime,
+			final Instant startWorkShiftTime,
+			final Instant endWorkShiftTime) {
 		logger.info("Test find work shift for non working day");
 		// Arrange
 		final LocalDate date = LocalDate.of(2024, 10, 10);
@@ -405,9 +425,11 @@ class WorkShiftServiceTest {
 		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
 		when(this.clock.instant()).thenReturn(fixedNow);
 
-		when(this.timeLogService.searchTimeLogs(
-				new TimeLogSearchCriteria(this.employee.getEmployeeNumber(), start, end),
-				new TimeLogSearchScope.Employee(this.employee.getId()), page))
+		when(
+				this.timeLogService.searchTimeLogs(
+						new TimeLogSearchCriteria(this.employee.getEmployeeNumber(), start, end),
+						new TimeLogSearchScope.Employee(this.employee.getId()),
+						page))
 				.thenReturn(new PageImpl<>(timeLogs, page, timeLogs.size()));
 		when(this.scheduleService.findTimeRangeForEmployeeByDate(this.employee, date)).thenReturn(Optional.empty());
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(7);

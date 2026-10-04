@@ -52,8 +52,10 @@ class EmployeePoliciesTest {
 
 	@Test
 	void ownershipWithoutAnEmployeeRoleDoesNotGrantAccess() {
-		final Actor ownerWithoutRoles = new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
-				Set.of(), OWN_EMPLOYEE_ID);
+		final Actor ownerWithoutRoles = new Actor(
+				java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+				Set.of(),
+				OWN_EMPLOYEE_ID);
 
 		assertThat(this.viewPolicy.allows(ownerWithoutRoles, OWN_EMPLOYEE_ID)).isFalse();
 		assertThat(this.updatePolicy.allows(ownerWithoutRoles, OWN_EMPLOYEE_ID)).isFalse();

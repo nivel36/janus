@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.applicationsettings;
 
@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service responsible for managing and retrieving global
  * {@link ApplicationSettings}.
- *
  */
 @Service
 public class ApplicationSettingsService {
@@ -38,45 +37,46 @@ public class ApplicationSettingsService {
 	/**
 	 * Constructs the service with the required repository.
 	 *
-	 * @param applicationSettingsRepository repository used to manage application
-	 *                                      settings. Can't be {@code null}.
-	 * @throws NullPointerException if {@code applicationSettingsRepository} is
-	 *                              {@code null}.
+	 * @param  applicationSettingsRepository repository used to manage application
+	 *                                       settings. Can't be {@code null}.
+	 * @throws NullPointerException          if
+	 *                                       {@code applicationSettingsRepository}
+	 *                                       is {@code null}.
 	 */
 	public ApplicationSettingsService(final ApplicationSettingsRepository applicationSettingsRepository) {
-		this.applicationSettingsRepository = Objects.requireNonNull( //
-				applicationSettingsRepository, //
-				"applicationSettingsRepository cannot be null");
+		this.applicationSettingsRepository = Objects
+				.requireNonNull(applicationSettingsRepository, "applicationSettingsRepository cannot be null");
 	}
 
 	/**
 	 * Updates the global {@link ApplicationSettings} with the provided values.
-	 *
 	 * <p>
 	 * The existing settings are retrieved using
 	 * {@link ApplicationSettings#GLOBAL_SETTINGS_ID} and then updated with the
 	 * supplied parameters.
 	 *
-	 * @param daysUntilLocked                   number of days before an entity
-	 *                                          becomes locked.
-	 * @param employeeWorksiteCreationAllowed   whether employees are allowed to
-	 *                                          create workplaces.
-	 * @param worksiteChangeDuringShiftAllowed  whether worksite changes are allowed
-	 *                                          during a shift.
-	 * @param employeeManualTimeLogEntryAllowed whether employees are allowed to set
-	 *                                          custom entry/exit instants in
-	 *                                          timelog operations.
-	 * @param defaultTimezone                   default application time zone.
-	 * @return the updated {@link ApplicationSettings} instance.
-	 * @throws IllegalStateException if the global application settings entry does
-	 *                               not exist.
+	 * @param  daysUntilLocked                   number of days before an entity
+	 *                                           becomes locked.
+	 * @param  employeeWorksiteCreationAllowed   whether employees are allowed to
+	 *                                           create workplaces.
+	 * @param  worksiteChangeDuringShiftAllowed  whether worksite changes are
+	 *                                           allowed during a shift.
+	 * @param  employeeManualTimeLogEntryAllowed whether employees are allowed to
+	 *                                           set custom entry/exit instants in
+	 *                                           timelog operations.
+	 * @param  defaultTimezone                   default application time zone.
+	 * @return                                   the updated
+	 *                                           {@link ApplicationSettings}
+	 *                                           instance.
+	 * @throws IllegalStateException             if the global application settings
+	 *                                           entry does not exist.
 	 */
 	@Transactional
-	public ApplicationSettings update( //
-			final int daysUntilLocked, //
-			final boolean employeeWorksiteCreationAllowed, //
-			final boolean worksiteChangeDuringShiftAllowed, //
-			final boolean employeeManualTimeLogEntryAllowed, //
+	public ApplicationSettings update(
+			final int daysUntilLocked,
+			final boolean employeeWorksiteCreationAllowed,
+			final boolean worksiteChangeDuringShiftAllowed,
+			final boolean employeeManualTimeLogEntryAllowed,
 			final ZoneId defaultTimezone) {
 		logger.debug("Updating application settings");
 		final ApplicationSettings applicationSettings = this.findById();
@@ -91,7 +91,7 @@ public class ApplicationSettingsService {
 	/**
 	 * Retrieves the global {@link ApplicationSettings}.
 	 *
-	 * @return the current global {@link ApplicationSettings}.
+	 * @return                       the current global {@link ApplicationSettings}.
 	 * @throws IllegalStateException if the global application settings entry does
 	 *                               not exist.
 	 */
@@ -109,7 +109,7 @@ public class ApplicationSettingsService {
 	/**
 	 * Retrieves the number of days before entities become locked.
 	 *
-	 * @return the number of days until locked.
+	 * @return                       the number of days until locked.
 	 * @throws IllegalStateException if the global application settings entry does
 	 *                               not exist.
 	 */
@@ -121,8 +121,8 @@ public class ApplicationSettingsService {
 	/**
 	 * Indicates whether employees are allowed to create workplaces.
 	 *
-	 * @return {@code true} if workplace creation is allowed for employees;
-	 *         {@code false} otherwise.
+	 * @return                       {@code true} if workplace creation is allowed
+	 *                               for employees; {@code false} otherwise.
 	 * @throws IllegalStateException if the global application settings entry does
 	 *                               not exist.
 	 */
@@ -134,8 +134,8 @@ public class ApplicationSettingsService {
 	/**
 	 * Indicates whether worksite changes are allowed during a shift.
 	 *
-	 * @return {@code true} if worksite changes during a shift are allowed;
-	 *         {@code false} otherwise.
+	 * @return                       {@code true} if worksite changes during a shift
+	 *                               are allowed; {@code false} otherwise.
 	 * @throws IllegalStateException if the global application settings entry does
 	 *                               not exist.
 	 */
@@ -148,8 +148,8 @@ public class ApplicationSettingsService {
 	 * Indicates whether employees are allowed to create manual timelog entries with
 	 * explicit timestamps.
 	 *
-	 * @return {@code true} if manual timelog entry is allowed; {@code false}
-	 *         otherwise.
+	 * @return                       {@code true} if manual timelog entry is
+	 *                               allowed; {@code false} otherwise.
 	 * @throws IllegalStateException if the global application settings entry does
 	 *                               not exist.
 	 */

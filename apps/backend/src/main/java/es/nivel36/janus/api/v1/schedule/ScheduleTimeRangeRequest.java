@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.schedule;
 
@@ -33,14 +33,13 @@ import jakarta.validation.constraints.NotNull;
  *                  {@code null} or equal to {@code startTime}; an earlier value
  *                  belongs to the following day
  */
-public record ScheduleTimeRangeRequest( //
+public record ScheduleTimeRangeRequest(
 
-		@NotNull(message = "startTime must not be null") //
-		LocalTime startTime, //
+		@NotNull(message = "startTime must not be null")
+		LocalTime startTime,
 
-		@NotNull(message = "endTime must not be null") //
-		LocalTime endTime //
-) {
+		@NotNull(message = "endTime must not be null")
+		LocalTime endTime) {
 
 	/**
 	 * Validates that the bounds do not describe a zero-length range. An end time

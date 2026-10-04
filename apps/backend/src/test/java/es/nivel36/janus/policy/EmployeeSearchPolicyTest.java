@@ -20,12 +20,19 @@ import es.nivel36.janus.service.appuser.Role;
 class EmployeeSearchPolicyTest {
 	@ParameterizedTest
 	@MethodSource("searchCases")
-	void allSearchPoliciesRespectRolesAssociationAndExplicitFilters(final Set<Role> roles, final Long employeeId,
-			final boolean filterPresent, final boolean ownsEmployee, final boolean expected) {
+	void allSearchPoliciesRespectRolesAssociationAndExplicitFilters(
+			final Set<Role> roles,
+			final Long employeeId,
+			final boolean filterPresent,
+			final boolean ownsEmployee,
+			final boolean expected) {
 		final Actor actor = new Actor(UUID.randomUUID(), roles, employeeId);
 		final EmployeeSearchPolicy.Context context = new EmployeeSearchPolicy.Context(filterPresent, ownsEmployee);
-		for (final Policy<EmployeeSearchPolicy.Context> policy : java.util.List.of(new EmployeeSearchPolicy(),
-				new SearchTimeLogPolicy(), new SearchSchedulePolicy(), new SearchWorksitePolicy())) {
+		for (final Policy<EmployeeSearchPolicy.Context> policy : java.util.List.of(
+				new EmployeeSearchPolicy(),
+				new SearchTimeLogPolicy(),
+				new SearchSchedulePolicy(),
+				new SearchWorksitePolicy())) {
 			assertThat(policy.allows(actor, context)).as(policy.getClass().getSimpleName()).isEqualTo(expected);
 		}
 	}
@@ -47,8 +54,13 @@ class EmployeeSearchPolicyTest {
 				for (final boolean filter : new boolean[] { false, true }) {
 					for (final boolean owns : new boolean[] { false, true }) {
 						final boolean elevated = (mask & 6) != 0;
-						cases.add(Arguments.of(roles, id, filter, owns,
-								elevated || mask == 1 && id != null && id > 0 && (!filter || owns)));
+						cases.add(
+								Arguments.of(
+										roles,
+										id,
+										filter,
+										owns,
+										elevated || mask == 1 && id != null && id > 0 && (!filter || owns)));
 					}
 				}
 			}

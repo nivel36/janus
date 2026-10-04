@@ -1,8 +1,8 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.
  */
 package es.nivel36.janus.service.appuser;
 
@@ -28,8 +28,13 @@ class AppUserCreator {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public AppUser create(final String email, final String keycloakSubject, final Locale locale,
-			final TimeFormat timeFormat, final ZoneId defaultTimezone, final Employee employee) {
+	public AppUser create(
+			final String email,
+			final String keycloakSubject,
+			final Locale locale,
+			final TimeFormat timeFormat,
+			final ZoneId defaultTimezone,
+			final Employee employee) {
 		final AppUser appUser = new AppUser(email, keycloakSubject, locale, timeFormat, defaultTimezone);
 		appUser.setEmployee(employee);
 		try {

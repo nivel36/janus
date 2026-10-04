@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.appuser;
 
@@ -90,8 +90,12 @@ public class AppUser implements Serializable {
 		this(email, keycloakSubject, locale, timeFormat, DEFAULT_TIMEZONE);
 	}
 
-	public AppUser(final String email, final String keycloakSubject, final Locale locale, final TimeFormat timeFormat,
-			final ZoneId defaultTimezone) {
+	public AppUser(
+		final String email,
+		final String keycloakSubject,
+		final Locale locale,
+		final TimeFormat timeFormat,
+		final ZoneId defaultTimezone) {
 		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
 		this.keycloakSubject = validateKeycloakSubject(keycloakSubject);
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");

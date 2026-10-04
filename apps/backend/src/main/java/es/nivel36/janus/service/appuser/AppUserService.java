@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.appuser;
 
@@ -35,13 +35,11 @@ import es.nivel36.janus.util.Strings;
 
 /**
  * Service responsible for managing {@link AppUser} entities.
- *
  * <p>
  * This service acts as the application-layer entry point for operations related
  * to {@link AppUser} lifecycle management, such as creation, retrieval, update,
  * and deletion.
  * </p>
- *
  * <p>
  * It encapsulates validation rules and delegates persistence operations to the
  * underlying {@link AppUserRepository}.
@@ -63,28 +61,20 @@ public class AppUserService {
 	/**
 	 * Creates a new {@code AppUserService}.
 	 *
-	 * @param appUserRepository repository used to manage {@link AppUser} entities.
-	 *                          Can't be {@code null}.
-	 *
+	 * @param  appUserRepository    repository used to manage {@link AppUser}
+	 *                              entities. Can't be {@code null}.
 	 * @throws NullPointerException if {@code appUserRepository} is {@code null}
 	 */
-	public AppUserService( //
-			final AppUserRepository appUserRepository, //
-			final AppUserCreator appUserCreator, //
-			final UserProvisioningProperties provisioningDefaults, //
-			final EmployeeService employeeService) {
-		this.appUserRepository = Objects.requireNonNull( //
-				appUserRepository, //
-				"AppUserRepository cannot be null.");
-		this.appUserCreator = Objects.requireNonNull( //
-				appUserCreator, //
-				"AppUserCreator cannot be null.");
-		this.provisioningDefaults = Objects.requireNonNull( //
-				provisioningDefaults, //
-				"UserProvisioningProperties cannot be null.");
-		this.employeeService = Objects.requireNonNull( //
-				employeeService, //
-				"EmployeeService cannot be null.");
+	public AppUserService(
+		final AppUserRepository appUserRepository,
+		final AppUserCreator appUserCreator,
+		final UserProvisioningProperties provisioningDefaults,
+		final EmployeeService employeeService) {
+		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
+		this.appUserCreator = Objects.requireNonNull(appUserCreator, "AppUserCreator cannot be null.");
+		this.provisioningDefaults = Objects
+				.requireNonNull(provisioningDefaults, "UserProvisioningProperties cannot be null.");
+		this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService cannot be null.");
 	}
 
 	/**
@@ -95,10 +85,7 @@ public class AppUserService {
 	 * an account without an employee association.
 	 */
 	@Transactional
-	public AppUser findOrCreateAppUser( //
-			final String keycloakSubject, //
-			final String email, //
-			final String employeeNumber) {
+	public AppUser findOrCreateAppUser(final String keycloakSubject, final String email, final String employeeNumber) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
 		Strings.requireNonBlank(email, "email cannot be null or blank.");
 		final Optional<AppUser> existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
@@ -114,8 +101,13 @@ public class AppUserService {
 
 	private AppUser insertAndReconcile(final String email, final String keycloakSubject, final Employee employee) {
 		try {
-			return this.appUserCreator.create(email, keycloakSubject, this.provisioningDefaults.locale(),
-					this.provisioningDefaults.getTimeFormat(), this.provisioningDefaults.defaultTimezone(), employee);
+			return this.appUserCreator.create(
+					email,
+					keycloakSubject,
+					this.provisioningDefaults.locale(),
+					this.provisioningDefaults.getTimeFormat(),
+					this.provisioningDefaults.defaultTimezone(),
+					employee);
 		} catch (final AppUserCreationConflict conflict) {
 			final Optional<AppUser> subjectWinner = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 			if (subjectWinner.isPresent()) {
@@ -141,7 +133,8 @@ public class AppUserService {
 		try {
 			employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		} catch (final ResourceNotFoundException notFound) {
-			logger.info("No employee found for employeeNumber claim {}; provisioning an unlinked account",
+			logger.info(
+					"No employee found for employeeNumber claim {}; provisioning an unlinked account",
 					employeeNumber);
 			return null;
 		}
@@ -156,8 +149,10 @@ public class AppUserService {
 	}
 
 	private void logEmployeeConflict(final Employee employee, final String keycloakSubject) {
-		logger.warn("Employee identity link conflict for employeeId={} and keycloakSubject={}; keeping existing link",
-				employee.getId(), keycloakSubject);
+		logger.warn(
+				"Employee identity link conflict for employeeId={} and keycloakSubject={}; keeping existing link",
+				employee.getId(),
+				keycloakSubject);
 	}
 
 	@Transactional(readOnly = true)
@@ -170,17 +165,17 @@ public class AppUserService {
 	@Transactional(readOnly = true)
 	public AppUser findAppUserByKeycloakSubject(final String keycloakSubject) {
 		Strings.requireNonBlank(keycloakSubject, "keycloakSubject cannot be null or blank.");
-		return this.appUserRepository.findByKeycloakSubject(keycloakSubject)
-				.orElseThrow(() -> new org.springframework.security.access.AccessDeniedException(
+		return this.appUserRepository.findByKeycloakSubject(keycloakSubject).orElseThrow(
+				() -> new org.springframework.security.access.AccessDeniedException(
 						"The authenticated identity has not been provisioned"));
 	}
 
 	@Transactional
-	public AppUser updateAppUser( //
-			final UUID id, //
-			final Locale newLocale, //
-			final TimeFormat newTimeFormat, //
-			final ZoneId newDefaultTimezone, //
+	public AppUser updateAppUser(
+			final UUID id,
+			final Locale newLocale,
+			final TimeFormat newTimeFormat,
+			final ZoneId newDefaultTimezone,
 			final Theme newTheme) {
 		final AppUser appUser = this.findAppUserById(id);
 		appUser.setLocale(newLocale);
@@ -193,8 +188,7 @@ public class AppUserService {
 	/**
 	 * Deletes the given {@link AppUser}.
 	 *
-	 * @param appUser the user to delete. Can't be {@code null}.
-	 *
+	 * @param  appUser              the user to delete. Can't be {@code null}.
 	 * @throws NullPointerException if {@code appUser} is {@code null}
 	 */
 	@Transactional

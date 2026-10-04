@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.timelog;
 
@@ -35,7 +35,6 @@ import jakarta.validation.constraints.NotNull;
 /**
  * JPA entity that represents a domain event triggered when an employee clocks
  * out without having previously clocked in.
- *
  * <p>
  * This event is created when the system detects an exit action that cannot be
  * matched to an existing clock-in record. Once created, the event can be
@@ -43,7 +42,6 @@ import jakarta.validation.constraints.NotNull;
  * or {@link #invalidate() invalidated} if it is deemed incorrect or not
  * applicable.
  * </p>
- *
  * <p>
  * An event is considered <em>finalized</em> once it has been resolved or
  * invalidated. After finalization, no further state changes are allowed.
@@ -127,32 +125,33 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 
 	/**
 	 * Creates a new {@code ClockOutWithoutClockInEvent}.
-	 *
 	 * <p>
 	 * This constructor initializes an event representing a clock-out action
 	 * performed by an {@link Employee} at a given {@link Worksite} without a
 	 * corresponding clock-in. The event records both the instant when the clock-out
 	 * occurred and the instant when the anomaly was detected.
 	 * </p>
-	 *
 	 * <p>
 	 * The {@code exitTime} must not be after {@code detectedAt}. If this condition
 	 * is violated, an {@link IllegalArgumentException} is thrown.
 	 * </p>
 	 *
-	 * @param employee   the employee who performed the clock-out. Can't be
-	 *                   {@code null}.
-	 * @param worksite   the worksite where the clock-out occurred. Can't be
-	 *                   {@code null}.
-	 * @param exitTime   the instant when the clock-out occurred. Can't be
-	 *                   {@code null}.
-	 * @param detectedAt the instant when the event was detected by the system.
-	 *                   Can't be {@code null}.
+	 * @param  employee                 the employee who performed the clock-out.
+	 *                                  Can't be {@code null}.
+	 * @param  worksite                 the worksite where the clock-out occurred.
+	 *                                  Can't be {@code null}.
+	 * @param  exitTime                 the instant when the clock-out occurred.
+	 *                                  Can't be {@code null}.
+	 * @param  detectedAt               the instant when the event was detected by
+	 *                                  the system. Can't be {@code null}.
 	 * @throws IllegalArgumentException if {@code exitTime} is after
 	 *                                  {@code detectedAt}.
 	 */
-	public ClockOutWithoutClockInEvent(final Employee employee, final Worksite worksite, final Instant exitTime,
-			final Instant detectedAt) {
+	public ClockOutWithoutClockInEvent(
+		final Employee employee,
+		final Worksite worksite,
+		final Instant exitTime,
+		final Instant detectedAt) {
 		this.employee = Objects.requireNonNull(employee);
 		this.worksite = Objects.requireNonNull(worksite);
 		this.exitTime = Objects.requireNonNull(exitTime);
@@ -239,7 +238,6 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 
 	/**
 	 * Indicates whether this event is finalized.
-	 *
 	 * <p>
 	 * An event is finalized if it has been either resolved or invalidated.
 	 * </p>
@@ -270,7 +268,6 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 
 	/**
 	 * Invalidates this event.
-	 *
 	 * <p>
 	 * Once invalidated, the event becomes finalized and cannot be resolved or
 	 * invalidated again.
@@ -286,7 +283,8 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	/**
 	 * Invalidates this event and associates a reason with the invalidation.
 	 *
-	 * @param reason explanation for the invalidation. Can't be {@code null}.
+	 * @param  reason                         explanation for the invalidation.
+	 *                                        Can't be {@code null}.
 	 * @throws EventAlreadyFinalizedException if the event is already finalized.
 	 */
 	public void invalidate(final String reason) {
@@ -297,13 +295,12 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 
 	/**
 	 * Resolves this event by associating it with an existing {@link TimeLog}.
-	 *
 	 * <p>
 	 * Once resolved, the event becomes finalized and cannot be invalidated.
 	 * </p>
 	 *
-	 * @param resolvedTimeLog the time log that resolves this event. Can't be
-	 *                        {@code null}.
+	 * @param  resolvedTimeLog                the time log that resolves this event.
+	 *                                        Can't be {@code null}.
 	 * @throws EventAlreadyFinalizedException if the event is already finalized.
 	 */
 	public void resolve(final TimeLog resolvedTimeLog) {
@@ -316,9 +313,10 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * Resolves this event by associating it with an existing {@link TimeLog} and a
 	 * resolution reason.
 	 *
-	 * @param resolvedTimeLog the time log that resolves this event. Can't be
-	 *                        {@code null}.
-	 * @param reason          explanation for the resolution. Can't be {@code null}.
+	 * @param  resolvedTimeLog                the time log that resolves this event.
+	 *                                        Can't be {@code null}.
+	 * @param  reason                         explanation for the resolution. Can't
+	 *                                        be {@code null}.
 	 * @throws EventAlreadyFinalizedException if the event is already finalized.
 	 */
 	public void resolve(final TimeLog resolvedTimeLog, final String reason) {

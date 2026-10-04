@@ -11,11 +11,7 @@ import jakarta.validation.Payload;
 
 @Documented
 @Constraint(validatedBy = LanguageTagValidator.class)
-@Target({ //
-		ElementType.FIELD, //
-		ElementType.PARAMETER, //
-		ElementType.METHOD, //
-		ElementType.ANNOTATION_TYPE, //
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD, ElementType.ANNOTATION_TYPE,
 		ElementType.TYPE_USE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LanguageTag {

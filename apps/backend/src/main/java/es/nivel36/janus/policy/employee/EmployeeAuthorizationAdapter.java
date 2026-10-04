@@ -1,6 +1,6 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License");
  */
 package es.nivel36.janus.policy.employee;
 
@@ -28,8 +28,9 @@ public class EmployeeAuthorizationAdapter {
 	private final DeleteEmployeePolicy deletePolicy = new DeleteEmployeePolicy();
 	private final SearchEmployeePolicy searchPolicy = new SearchEmployeePolicy();
 
-	public EmployeeAuthorizationAdapter(final ActorResolver actorResolver,
-			final EmployeeNumberResolver employeeNumbers) {
+	public EmployeeAuthorizationAdapter(
+		final ActorResolver actorResolver,
+		final EmployeeNumberResolver employeeNumbers) {
 		this.actorResolver = Objects.requireNonNull(actorResolver, "actorResolver can't be null");
 		this.employeeNumbers = Objects.requireNonNull(employeeNumbers, "employeeNumbers can't be null");
 	}

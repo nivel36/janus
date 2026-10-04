@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api;
 
@@ -62,7 +62,6 @@ import jakarta.validation.ConstraintViolationException;
 /**
  * Exception handler that translates common exceptions into RFC 7807 problem
  * details.
- *
  * <p>
  * It centralizes error responses for controllers, providing consistent status
  * codes and payloads.
@@ -130,7 +129,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(ResourceAlreadyExistsException.class)
-	ProblemDetail handleResourceAlreadyExists(final ResourceAlreadyExistsException ex,
+	ProblemDetail handleResourceAlreadyExists(
+			final ResourceAlreadyExistsException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
 		pd.setType(TYPE_RESOURCE_ALREADY_EXISTS);
@@ -175,7 +175,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(TimeLogModificationNotAllowedException.class)
-	ProblemDetail handleTimeLogModificationNotAllowed(final TimeLogModificationNotAllowedException ex,
+	ProblemDetail handleTimeLogModificationNotAllowed(
+			final TimeLogModificationNotAllowedException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
 		pd.setType(TYPE_OPERATION_CONFLICT);
@@ -198,7 +199,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(ClockOutWithoutClockInException.class)
-	ProblemDetail handleClockOutWithoutClockIn(final ClockOutWithoutClockInException ex,
+	ProblemDetail handleClockOutWithoutClockIn(
+			final ClockOutWithoutClockInException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
 		pd.setType(TYPE_CLOCK_OUT_WITHOUT_CLOCK_IN);
@@ -210,7 +212,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(WorksiteMismatchOnClockOutException.class)
-	ProblemDetail handleWorksiteMismatchOnClockOut(final WorksiteMismatchOnClockOutException ex,
+	ProblemDetail handleWorksiteMismatchOnClockOut(
+			final WorksiteMismatchOnClockOutException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
 		pd.setType(TYPE_WORKSITE_MISMATCH);
@@ -233,7 +236,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(EventAlreadyFinalizedException.class)
-	ProblemDetail handleEventAlreadyFinalized(final EventAlreadyFinalizedException ex,
+	ProblemDetail handleEventAlreadyFinalized(
+			final EventAlreadyFinalizedException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
 		pd.setType(TYPE_EVENT_ALREADY_FINALIZED);
@@ -333,7 +337,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(MissingServletRequestParameterException.class)
-	ProblemDetail handleMissingParam(final MissingServletRequestParameterException ex,
+	ProblemDetail handleMissingParam(
+			final MissingServletRequestParameterException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_MISSING_PARAMETER);
@@ -356,14 +361,18 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	ProblemDetail handleMethodArgumentNotValid(final MethodArgumentNotValidException ex,
+	ProblemDetail handleMethodArgumentNotValid(
+			final MethodArgumentNotValidException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 		pd.setType(TYPE_VALIDATION_FAILED);
 		pd.setTitle("Validation failed");
 		pd.setDetail("Request contains invalid fields");
-		pd.setProperty("errors", ex.getBindingResult().getFieldErrors().stream()
-				.map(err -> new ValidationError(err.getField(), err.getDefaultMessage(), firstCode(err))).toList());
+		pd.setProperty(
+				"errors",
+				ex.getBindingResult().getFieldErrors().stream()
+						.map(err -> new ValidationError(err.getField(), err.getDefaultMessage(), firstCode(err)))
+						.toList());
 		this.addCommonProps(pd, request);
 		logger.warn("MethodArgumentNotValidException error {}", pd);
 		return pd;
@@ -394,10 +403,14 @@ public class JanusExceptionHandler {
 		pd.setType(TYPE_CONSTRAINT_VIOLATION);
 		pd.setTitle("Constraint violation");
 		pd.setDetail("One or more constraints were violated");
-		pd.setProperty("errors",
+		pd.setProperty(
+				"errors",
 				ex.getConstraintViolations().stream()
-						.map(v -> new ValidationError(v.getPropertyPath().toString(), v.getMessage(),
-								v.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName()))
+						.map(
+								v -> new ValidationError(
+										v.getPropertyPath().toString(),
+										v.getMessage(),
+										v.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName()))
 						.toList());
 		this.addCommonProps(pd, request);
 		logger.warn("ConstraintViolationException error {}", pd);
@@ -405,7 +418,8 @@ public class JanusExceptionHandler {
 	}
 
 	@ExceptionHandler(AuthorizationDeniedException.class)
-	ProblemDetail handleAuthorizationDeniedException(final AuthorizationDeniedException ex,
+	ProblemDetail handleAuthorizationDeniedException(
+			final AuthorizationDeniedException ex,
 			final HttpServletRequest request) {
 		final ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
 		pd.setType(TYPE_ACCESS_DENIED);

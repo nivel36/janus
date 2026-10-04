@@ -1,6 +1,6 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License");
  */
 package es.nivel36.janus.api.v1.timelog;
 
@@ -25,8 +25,11 @@ public interface TimeLogSearchResource {
 	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
 	@PreAuthorize("@timeLogAuthorization.canSearch(authentication, #request.employeeNumber())")
 	@GetMapping
-	ResponseEntity<Page<TimeLogResponse>> searchTimeLogs( //
-			@Valid @ModelAttribute TimeLogSearchRequest request, //
-			@PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC) Pageable pageable, //
+	ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(
+			@Valid
+			@ModelAttribute
+			TimeLogSearchRequest request,
+			@PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC)
+			Pageable pageable,
 			Authentication authentication);
 }

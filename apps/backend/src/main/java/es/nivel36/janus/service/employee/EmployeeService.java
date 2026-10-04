@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.employee;
 
@@ -39,13 +39,11 @@ import es.nivel36.janus.util.Strings;
 
 /**
  * Service responsible for managing {@link Employee} entities.
- *
  * <p>
  * This service provides application-level operations for retrieving, creating,
  * updating and deleting {@link Employee} instances, as well as managing their
  * associations with {@link Worksite}s.
  * </p>
- *
  * <p>
  * Persistence concerns are delegated to the {@link EmployeeRepository}.
  * </p>
@@ -64,10 +62,10 @@ public class EmployeeService {
 	/**
 	 * Creates a new {@code EmployeeService}.
 	 *
-	 * @param employeeRepository repository used to manage {@link Employee} entities
-	 * @param scheduleService    service used to resolve schedules inside secured
-	 *                           employee operations
-	 *
+	 * @param  employeeRepository   repository used to manage {@link Employee}
+	 *                              entities
+	 * @param  scheduleService      service used to resolve schedules inside secured
+	 *                              employee operations
 	 * @throws NullPointerException if either dependency is {@code null}
 	 */
 	public EmployeeService(final EmployeeRepository employeeRepository, final ScheduleService scheduleService) {
@@ -78,10 +76,10 @@ public class EmployeeService {
 	/**
 	 * Retrieves an {@link Employee} by its primary identifier.
 	 *
-	 * @param id the unique identifier of the employee. Can't be {@code null}.
-	 *
-	 * @return the {@link Employee} with the given identifier
-	 *
+	 * @param  id                        the unique identifier of the employee.
+	 *                                   Can't be {@code null}.
+	 * @return                           the {@link Employee} with the given
+	 *                                   identifier
 	 * @throws NullPointerException      if {@code id} is {@code null}
 	 * @throws ResourceNotFoundException if no employee exists with the given id
 	 */
@@ -97,12 +95,11 @@ public class EmployeeService {
 	/**
 	 * Retrieves an {@link Employee} identified by its email address.
 	 *
-	 * @param email the email of the employee to retrieve. Can't be {@code null} or
-	 *              blank.
-	 *
-	 * @return the {@link Employee} associated with the given email, or
-	 *         {@link Optional#empty()} when the valid email has no match
-	 *
+	 * @param  email                    the email of the employee to retrieve. Can't
+	 *                                  be {@code null} or blank.
+	 * @return                          the {@link Employee} associated with the
+	 *                                  given email, or {@link Optional#empty()}
+	 *                                  when the valid email has no match
 	 * @throws NullPointerException     if {@code email} is {@code null}
 	 * @throws IllegalArgumentException if {@code email} is blank
 	 */
@@ -128,10 +125,10 @@ public class EmployeeService {
 	 * Finds the identifiers of employees who have at least one {@link TimeLog}
 	 * since the specified instant but have no associated {@link WorkShift}.
 	 *
-	 * @param start the lower bound instant (inclusive). Can't be {@code null}.
-	 *
-	 * @return a list of employee identifiers matching the criteria
-	 *
+	 * @param  start                the lower bound instant (inclusive). Can't be
+	 *                              {@code null}.
+	 * @return                      a list of employee identifiers matching the
+	 *                              criteria
 	 * @throws NullPointerException if {@code start} is {@code null}
 	 */
 	@Transactional(readOnly = true)
@@ -147,29 +144,31 @@ public class EmployeeService {
 
 	/**
 	 * Creates and persists a new {@link Employee}.
-	 *
 	 * <p>
 	 * The employee email must be unique across the system.
 	 * </p>
 	 *
-	 * @param name     the first name of the employee. Can't be {@code null} or
-	 *                 blank.
-	 * @param surname  the surname of the employee. Can't be {@code null} or blank.
-	 * @param email    the unique email of the employee. Can't be {@code null} or
-	 *                 blank.
-	 * @param schedule the {@link Schedule} assigned to the employee. Can't be
-	 *                 {@code null}.
-	 *
-	 * @return the newly created {@link Employee}
-	 *
+	 * @param  name                           the first name of the employee. Can't
+	 *                                        be {@code null} or blank.
+	 * @param  surname                        the surname of the employee. Can't be
+	 *                                        {@code null} or blank.
+	 * @param  email                          the unique email of the employee.
+	 *                                        Can't be {@code null} or blank.
+	 * @param  schedule                       the {@link Schedule} assigned to the
+	 *                                        employee. Can't be {@code null}.
+	 * @return                                the newly created {@link Employee}
 	 * @throws NullPointerException           if any parameter is {@code null}
 	 * @throws IllegalArgumentException       if any string parameter is blank
 	 * @throws ResourceAlreadyExistsException if an employee with the given email
 	 *                                        already exists
 	 */
 	@Transactional
-	public Employee createEmployee(final String employeeNumber, final String name, final String surname,
-			final String email, final Schedule schedule) {
+	public Employee createEmployee(
+			final String employeeNumber,
+			final String name,
+			final String surname,
+			final String email,
+			final Schedule schedule) {
 		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
 		Strings.requireNonBlank(name, "name cannot be null or blank.");
 		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
@@ -194,27 +193,31 @@ public class EmployeeService {
 
 	/**
 	 * Updates an existing {@link Employee} identified by its email.
-	 *
 	 * <p>
 	 * Replaces the employee's personal information and schedule atomically.
 	 * </p>
 	 *
-	 * @param email        the unique email of the employee to update. Can't be
-	 *                     {@code null} or blank.
-	 * @param newName      the new first name. Can't be {@code null} or blank.
-	 * @param newSurname   the new surname. Can't be {@code null} or blank.
-	 * @param scheduleCode code of the new {@link Schedule}. Can't be {@code null}.
-	 *
-	 * @return the updated {@link Employee}
-	 *
+	 * @param  email                     the unique email of the employee to update.
+	 *                                   Can't be {@code null} or blank.
+	 * @param  newName                   the new first name. Can't be {@code null}
+	 *                                   or blank.
+	 * @param  newSurname                the new surname. Can't be {@code null} or
+	 *                                   blank.
+	 * @param  scheduleCode              code of the new {@link Schedule}. Can't be
+	 *                                   {@code null}.
+	 * @return                           the updated {@link Employee}
 	 * @throws NullPointerException      if any parameter is {@code null}
 	 * @throws IllegalArgumentException  if any string parameter is blank
 	 * @throws ResourceNotFoundException if no employee exists with the given email
 	 *                                   or no schedule exists with the given code
 	 */
 	@Transactional
-	public Employee updateEmployee(final String employeeNumber, final String newName, final String newSurname,
-			final String newEmail, final String scheduleCode) {
+	public Employee updateEmployee(
+			final String employeeNumber,
+			final String newName,
+			final String newSurname,
+			final String newEmail,
+			final String scheduleCode) {
 		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
 		Strings.requireNonBlank(newEmail, "newEmail cannot be null or blank.");
 		Strings.requireNonBlank(newName, "newName cannot be null or blank.");
@@ -237,13 +240,11 @@ public class EmployeeService {
 
 	/**
 	 * Deletes the given {@link Employee}.
-	 *
 	 * <p>
 	 * After deletion, the employee will no longer be available in the system.
 	 * </p>
 	 *
-	 * @param employee the employee to delete. Can't be {@code null}.
-	 *
+	 * @param  employee             the employee to delete. Can't be {@code null}.
 	 * @throws NullPointerException if {@code employee} is {@code null}
 	 */
 	@Transactional
@@ -257,24 +258,23 @@ public class EmployeeService {
 	/**
 	 * Determines whether an employee identified by the given email address is
 	 * assigned to a schedule with the specified business code.
-	 *
 	 * <p>
 	 * This method checks for the existence of an {@link Employee} whose natural
 	 * internal identifier ({@code id}) matches the provided value and whose
 	 * associated {@link Schedule} has the given {@code code}.
 	 * </p>
-	 *
 	 * <p>
 	 * The employee id is an internal key and the schedule code is a business
 	 * identifier. The method returns {@code true} as soon as a matching assignment
 	 * is found.
 	 * </p>
 	 *
-	 * @param employeeId   the internal id of the employee; must not be {@code null}
-	 * @param scheduleCode the business code of the schedule; must not be
-	 *                     {@code null}
-	 * @return {@code true} if the employee is assigned to the specified schedule;
-	 *         {@code false} otherwise
+	 * @param  employeeId   the internal id of the employee; must not be
+	 *                      {@code null}
+	 * @param  scheduleCode the business code of the schedule; must not be
+	 *                      {@code null}
+	 * @return              {@code true} if the employee is assigned to the
+	 *                      specified schedule; {@code false} otherwise
 	 */
 	public boolean isAssignedToSchedule(final Long employeeId, final String scheduleCode) {
 		Objects.requireNonNull(employeeId, "employeeId cannot be null.");
@@ -287,24 +287,23 @@ public class EmployeeService {
 	/**
 	 * Determines whether an employee identified by the given email address is
 	 * assigned to a worksite with the specified business code.
-	 *
 	 * <p>
 	 * This method checks for the existence of an {@link Employee} whose natural
 	 * internal identifier ({@code id}) matches the provided value and whose
 	 * associated {@link Worksite} has the given {@code code}.
 	 * </p>
-	 *
 	 * <p>
 	 * The employee id is an internal key and the worksite code is a business
 	 * identifier. The method returns {@code true} as soon as a matching assignment
 	 * is found.
 	 * </p>
 	 *
-	 * @param employeeId   the internal id of the employee; must not be {@code null}
-	 * @param worksiteCode the business code of the worksite; must not be
-	 *                     {@code null}
-	 * @return {@code true} if the employee is assigned to the specified schedule;
-	 *         {@code false} otherwise
+	 * @param  employeeId   the internal id of the employee; must not be
+	 *                      {@code null}
+	 * @param  worksiteCode the business code of the worksite; must not be
+	 *                      {@code null}
+	 * @return              {@code true} if the employee is assigned to the
+	 *                      specified schedule; {@code false} otherwise
 	 */
 	public boolean isAssignedToWorksite(final Long employeeId, final String worksiteCode) {
 		Objects.requireNonNull(employeeId, "employeeId cannot be null.");
@@ -321,7 +320,9 @@ public class EmployeeService {
 	}
 
 	@Transactional(readOnly = true)
-	public long countDistinctEmployeesWithTimeLogsInRange(final String worksiteCode, final Instant start,
+	public long countDistinctEmployeesWithTimeLogsInRange(
+			final String worksiteCode,
+			final Instant start,
 			final Instant end) {
 		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
 		Objects.requireNonNull(start, "start cannot be null.");
@@ -358,12 +359,15 @@ public class EmployeeService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<Employee> searchEmployees(final String query, final String scheduleCode, final String worksiteCode,
+	public Page<Employee> searchEmployees(
+			final String query,
+			final String scheduleCode,
+			final String worksiteCode,
 			final Pageable pageable) {
 		Objects.requireNonNull(pageable, "pageable cannot be null.");
 		logger.debug("Searching employees by query {}, schedule {} and worksite {}", query, scheduleCode, worksiteCode);
-		return this.employeeRepository.search(query == null ? "" : LikePatterns.escape(query), scheduleCode,
-				worksiteCode, pageable);
+		return this.employeeRepository
+				.search(query == null ? "" : LikePatterns.escape(query), scheduleCode, worksiteCode, pageable);
 	}
 
 	private static void validateRange(final Instant start, final Instant end) {

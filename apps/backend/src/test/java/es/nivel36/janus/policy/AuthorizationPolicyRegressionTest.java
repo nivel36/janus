@@ -28,8 +28,11 @@ class AuthorizationPolicyRegressionTest {
 		assertThat(policy.allows(this.employee, new OperateTimeLogPolicy.Context(true, true, false))).isFalse();
 		assertThat(policy.allows(this.employee, new OperateTimeLogPolicy.Context(true, true, true))).isTrue();
 		assertThat(policy.allows(this.employee, new OperateTimeLogPolicy.Context(false, false, true))).isFalse();
-		assertThat(policy.allows(new Actor(UUID.randomUUID(), Set.of(Role.JANUS_ADMIN), 84L),
-				new OperateTimeLogPolicy.Context(true, false, true))).isFalse();
+		assertThat(
+				policy.allows(
+						new Actor(UUID.randomUUID(), Set.of(Role.JANUS_ADMIN), 84L),
+						new OperateTimeLogPolicy.Context(true, false, true)))
+				.isFalse();
 	}
 
 	@Test
@@ -42,8 +45,11 @@ class AuthorizationPolicyRegressionTest {
 		assertThat(view.allows(this.employee, new ViewWorksitePolicy.Context(true, WorksiteScope.ASSIGNED, false)))
 				.isFalse();
 		assertThat(view.allows(this.employee, new ViewWorksitePolicy.Context(false, null, false))).isFalse();
-		assertThat(view.allows(new Actor(UUID.randomUUID(), Set.of(Role.JANUS_EMPLOYEE), null),
-				new ViewWorksitePolicy.Context(true, WorksiteScope.GLOBAL, false))).isFalse();
+		assertThat(
+				view.allows(
+						new Actor(UUID.randomUUID(), Set.of(Role.JANUS_EMPLOYEE), null),
+						new ViewWorksitePolicy.Context(true, WorksiteScope.GLOBAL, false)))
+				.isFalse();
 		final CreateWorksitePolicy create = new CreateWorksitePolicy();
 		assertThat(create.allows(this.employee, new CreateWorksitePolicy.Context(true, true))).isTrue();
 		assertThat(create.allows(this.employee, new CreateWorksitePolicy.Context(true, false))).isFalse();

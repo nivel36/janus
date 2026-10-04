@@ -31,9 +31,9 @@ public final class Roles {
 	/**
 	 * Determines whether the given authorities contain the administrator role.
 	 *
-	 * @param authorities the authorities to inspect
-	 * @return {@code true} if the administrator role is present; {@code false}
-	 *         otherwise
+	 * @param  authorities the authorities to inspect
+	 * @return             {@code true} if the administrator role is present;
+	 *                     {@code false} otherwise
 	 */
 	public static boolean hasAdminRole(final Collection<? extends GrantedAuthority> authorities) {
 		return hasRole(authorities, ADMIN);
@@ -42,8 +42,9 @@ public final class Roles {
 	/**
 	 * Determines whether the given authorities contain the user role.
 	 *
-	 * @param authorities the authorities to inspect
-	 * @return {@code true} if the user role is present; {@code false} otherwise
+	 * @param  authorities the authorities to inspect
+	 * @return             {@code true} if the user role is present; {@code false}
+	 *                     otherwise
 	 */
 	public static boolean hasUserRole(final Collection<? extends GrantedAuthority> authorities) {
 		return hasRole(authorities, USER);
@@ -52,8 +53,9 @@ public final class Roles {
 	/**
 	 * Determines whether the given authorities contain the employee role.
 	 *
-	 * @param authorities the authorities to inspect
-	 * @return {@code true} if the employee role is present; {@code false} otherwise
+	 * @param  authorities the authorities to inspect
+	 * @return             {@code true} if the employee role is present;
+	 *                     {@code false} otherwise
 	 */
 	public static boolean hasEmployeeRole(final Collection<? extends GrantedAuthority> authorities) {
 		return hasRole(authorities, EMPLOYEE);
@@ -68,9 +70,9 @@ public final class Roles {
 	 * restrictions.
 	 * </p>
 	 *
-	 * @param authorities the authorities to inspect
-	 * @return {@code true} if employee is present without a recognized elevated
-	 *         role; {@code false} otherwise
+	 * @param  authorities the authorities to inspect
+	 * @return             {@code true} if employee is present without a recognized
+	 *                     elevated role; {@code false} otherwise
 	 */
 	public static boolean isRestrictedEmployee(final Collection<? extends GrantedAuthority> authorities) {
 		return hasEmployeeRole(authorities) && !hasUserRole(authorities) && !hasAdminRole(authorities);
@@ -84,9 +86,9 @@ public final class Roles {
 	 * authorities, such as OAuth scopes, are ignored.
 	 * </p>
 	 *
-	 * @param authorities the authorities to inspect
-	 * @return {@code true} if the only role present is user; {@code false}
-	 *         otherwise
+	 * @param  authorities the authorities to inspect
+	 * @return             {@code true} if the only role present is user;
+	 *                     {@code false} otherwise
 	 */
 	public static boolean hasOnlyUserRole(final Collection<? extends GrantedAuthority> authorities) {
 		return toRoleSet(authorities).equals(Set.of(USER));

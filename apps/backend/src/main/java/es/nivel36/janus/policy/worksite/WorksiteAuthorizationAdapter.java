@@ -30,9 +30,12 @@ public class WorksiteAuthorizationAdapter {
 	private final DeleteWorksitePolicy delete = new DeleteWorksitePolicy();
 	private final ManageWorksiteAssignmentsPolicy assignments = new ManageWorksiteAssignmentsPolicy();
 
-	public WorksiteAuthorizationAdapter(final ActorResolver actors, final EmployeeService employees,
-			final WorksiteService worksites, final ApplicationSettingsService settings,
-			final EmployeeNumberResolver employeeNumbers) {
+	public WorksiteAuthorizationAdapter(
+		final ActorResolver actors,
+		final EmployeeService employees,
+		final WorksiteService worksites,
+		final ApplicationSettingsService settings,
+		final EmployeeNumberResolver employeeNumbers) {
 		this.actors = Objects.requireNonNull(actors);
 		this.employees = Objects.requireNonNull(employees);
 		this.worksites = Objects.requireNonNull(worksites);
@@ -42,8 +45,10 @@ public class WorksiteAuthorizationAdapter {
 
 	public boolean canSearch(final Authentication auth, final String employeeNumber) {
 		final Actor a = this.actors.resolve(auth);
-		return this.search.allows(a, this.employeeNumbers.searchContext(a, employeeNumber,
-				EmployeeAccessPolicy.isRestrictedToOwnEmployee(a)));
+		return this.search.allows(
+				a,
+				this.employeeNumbers
+						.searchContext(a, employeeNumber, EmployeeAccessPolicy.isRestrictedToOwnEmployee(a)));
 	}
 
 	public String effectiveEmployeeNumber(final Authentication auth, final String requested) {
@@ -63,7 +68,9 @@ public class WorksiteAuthorizationAdapter {
 		}
 		try {
 			final WorksiteScope scope = this.worksites.findWorksiteByCode(code).getScope();
-			return new ViewWorksitePolicy.Context(true, scope,
+			return new ViewWorksitePolicy.Context(
+					true,
+					scope,
 					scope == WorksiteScope.ASSIGNED && this.assigned(actor, code));
 		} catch (final ResourceNotFoundException ex) {
 			return missing;
@@ -78,7 +85,8 @@ public class WorksiteAuthorizationAdapter {
 	public boolean canCreate(final Authentication auth, final WorksiteScope scope) {
 		final Actor actor = this.actors.resolve(auth);
 		final boolean needsEmployeeFacts = !EmployeeAccessPolicy.hasElevatedAccess(actor);
-		return this.create.allows(actor,
+		return this.create.allows(
+				actor,
 				new CreateWorksitePolicy.Context(
 						needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
 						scope == WorksiteScope.ASSIGNED));
@@ -87,10 +95,12 @@ public class WorksiteAuthorizationAdapter {
 	public boolean canUpdate(final Authentication auth, final String code, final WorksiteScope scope) {
 		final Actor actor = this.actors.resolve(auth);
 		final boolean needsEmployeeFacts = !EmployeeAccessPolicy.hasElevatedAccess(actor);
-		return this.update.allows(actor,
+		return this.update.allows(
+				actor,
 				new UpdateWorksitePolicy.Context(
 						needsEmployeeFacts && this.settings.isEmployeeWorkplaceCreationAllowed(),
-						scope == WorksiteScope.ASSIGNED, needsEmployeeFacts && this.assigned(actor, code)));
+						scope == WorksiteScope.ASSIGNED,
+						needsEmployeeFacts && this.assigned(actor, code)));
 	}
 
 	public boolean canDelete(final Authentication auth) {

@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under this License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under this License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.timelog;
 
@@ -37,7 +37,6 @@ import es.nivel36.janus.service.worksite.Worksite;
 
 /**
  * Service responsible for managing {@link TimeLog} lifecycle operations.
- *
  * <p>
  * This service provides operations to create, update, search and delete time
  * logs associated with an {@link Employee} and a {@link Worksite}. It enforces
@@ -45,7 +44,6 @@ import es.nivel36.janus.service.worksite.Worksite;
  * editability windows, prevention of duplicates, and handling clock-out
  * operations without a prior clock-in.
  * </p>
- *
  * <p>
  * All write operations are transactional to ensure data consistency. Read-only
  * operations are explicitly marked as such.
@@ -64,62 +62,76 @@ public class TimeLogService {
 	/**
 	 * Creates a new {@code TimeLogService} instance.
 	 *
-	 * @param timeLogRepository                     repository used to manage
-	 *                                              {@link TimeLog} persistence.
-	 *                                              Can't be {@code null}.
-	 * @param clockOutWithoutClockInEventRepository repository used to store
-	 *                                              {@link ClockOutWithoutClockInEvent}
-	 *                                              instances. Can't be
-	 *                                              {@code null}.
-	 * @param applicationSettingsService            service providing administrative
-	 *                                              configuration. Can't be
-	 *                                              {@code null}.
-	 * @param clock                                 clock used to retrieve the
-	 *                                              current time. Can't be
-	 *                                              {@code null}.
-	 * @throws NullPointerException if any argument is {@code null}.
+	 * @param  timeLogRepository                     repository used to manage
+	 *                                               {@link TimeLog} persistence.
+	 *                                               Can't be {@code null}.
+	 * @param  clockOutWithoutClockInEventRepository repository used to store
+	 *                                               {@link ClockOutWithoutClockInEvent}
+	 *                                               instances. Can't be
+	 *                                               {@code null}.
+	 * @param  applicationSettingsService            service providing
+	 *                                               administrative configuration.
+	 *                                               Can't be {@code null}.
+	 * @param  clock                                 clock used to retrieve the
+	 *                                               current time. Can't be
+	 *                                               {@code null}.
+	 * @throws NullPointerException                  if any argument is
+	 *                                               {@code null}.
 	 */
-	public TimeLogService(final TimeLogRepository timeLogRepository,
-			final ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository,
-			final ApplicationSettingsService applicationSettingsService, final Clock clock) {
+	public TimeLogService(
+		final TimeLogRepository timeLogRepository,
+		final ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository,
+		final ApplicationSettingsService applicationSettingsService,
+		final Clock clock) {
 		this.timeLogRepository = Objects.requireNonNull(timeLogRepository, "timeLogRepository can't be null");
-		this.clockOutWithoutClockInEventRepository = Objects.requireNonNull(clockOutWithoutClockInEventRepository,
+		this.clockOutWithoutClockInEventRepository = Objects.requireNonNull(
+				clockOutWithoutClockInEventRepository,
 				"clockOutWithoutClockInEventRepository can't be null");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
-				"applicationSettingsService can't be null");
+		this.applicationSettingsService = Objects
+				.requireNonNull(applicationSettingsService, "applicationSettingsService can't be null");
 		this.clock = Objects.requireNonNull(clock, "clock can't be null");
 	}
 
 	/**
 	 * Creates and persists a closed {@link TimeLog} with both entry and exit times.
-	 *
 	 * <p>
 	 * The provided times are validated to ensure they are not in the future, fall
 	 * within the editable window, and do not conflict with an existing
 	 * {@link TimeLog} for the same employee and entry time.
 	 * </p>
 	 *
-	 * @param employee  employee associated with the time log. Can't be
-	 *                  {@code null}.
-	 * @param worksite  worksite where the employee worked. Can't be {@code null}.
-	 * @param entryTime entry time of the time log. Can't be {@code null}.
-	 * @param exitTime  exit time of the time log. Can't be {@code null}.
-	 * @return the persisted {@link TimeLog}.
+	 * @param  employee                               employee associated with the
+	 *                                                time log. Can't be
+	 *                                                {@code null}.
+	 * @param  worksite                               worksite where the employee
+	 *                                                worked. Can't be {@code null}.
+	 * @param  entryTime                              entry time of the time log.
+	 *                                                Can't be {@code null}.
+	 * @param  exitTime                               exit time of the time log.
+	 *                                                Can't be {@code null}.
+	 * @return                                        the persisted {@link TimeLog}.
 	 * @throws NullPointerException                   if any argument is
 	 *                                                {@code null}.
 	 * @throws TimeLogModificationNotAllowedException if the time log cannot be
 	 *                                                created due to business rules.
 	 */
 	@Transactional
-	public TimeLog createTimeLog(final Employee employee, final Worksite worksite, final Instant entryTime,
+	public TimeLog createTimeLog(
+			final Employee employee,
+			final Worksite worksite,
+			final Instant entryTime,
 			final Instant exitTime) {
 		Objects.requireNonNull(employee, "employee cannot be null.");
 		Objects.requireNonNull(worksite, "worksite cannot be null.");
 		Objects.requireNonNull(entryTime, "entryTime request cannot be null.");
 		Objects.requireNonNull(exitTime, "exitTime request cannot be null.");
 
-		logger.debug("Creating closed time log for employee {} at worksite {} with entry time {} and exit time {}",
-				employee, worksite, entryTime, exitTime);
+		logger.debug(
+				"Creating closed time log for employee {} at worksite {} with entry time {} and exit time {}",
+				employee,
+				worksite,
+				entryTime,
+				exitTime);
 		final Instant now = this.clock.instant();
 
 		final Instant lockThreshold = this.getModificationLowerBound(now);
@@ -151,8 +163,11 @@ public class TimeLogService {
 		final boolean timeLogExists = this.timeLogRepository
 				.existsByEmployeeIdAndEntryTimeAndDeletedFalse(employee.getId(), entryTime);
 		if (timeLogExists) {
-			throw new TimeLogModificationNotAllowedException(String
-					.format("A time log with entryTime %s already exists for the employee %s.", entryTime, employee));
+			throw new TimeLogModificationNotAllowedException(
+					String.format(
+							"A time log with entryTime %s already exists for the employee %s.",
+							entryTime,
+							employee));
 		}
 	}
 
@@ -164,18 +179,21 @@ public class TimeLogService {
 
 	/**
 	 * Creates and persists an open {@link TimeLog} by clocking in an employee.
-	 *
 	 * <p>
 	 * The entry time is validated to ensure it is not in the future, falls within
 	 * the editable window, and does not conflict with an existing {@link TimeLog}
 	 * for the same employee and entry time.
 	 * </p>
 	 *
-	 * @param employee  employee clocking in. Can't be {@code null}.
-	 * @param worksite  worksite where the employee is clocking in. Can't be
-	 *                  {@code null}.
-	 * @param entryTime entry time of the time log. Can't be {@code null}.
-	 * @return the persisted open {@link TimeLog}.
+	 * @param  employee                               employee clocking in. Can't be
+	 *                                                {@code null}.
+	 * @param  worksite                               worksite where the employee is
+	 *                                                clocking in. Can't be
+	 *                                                {@code null}.
+	 * @param  entryTime                              entry time of the time log.
+	 *                                                Can't be {@code null}.
+	 * @return                                        the persisted open
+	 *                                                {@link TimeLog}.
 	 * @throws NullPointerException                   if any argument is
 	 *                                                {@code null}.
 	 * @throws TimeLogModificationNotAllowedException if the time log cannot be
@@ -187,7 +205,10 @@ public class TimeLogService {
 		Objects.requireNonNull(worksite, "worksite cannot be null.");
 		Objects.requireNonNull(entryTime, "entryTime request cannot be null.");
 
-		logger.debug("Creating open time log for employee {} at worksite {} with entry time {}", employee, worksite,
+		logger.debug(
+				"Creating open time log for employee {} at worksite {} with entry time {}",
+				employee,
+				worksite,
 				entryTime);
 		final Instant now = this.clock.instant();
 
@@ -205,9 +226,9 @@ public class TimeLogService {
 	/**
 	 * Indicates whether the employee currently has an open {@link TimeLog}.
 	 *
-	 * @param employee the employee to inspect; must not be {@code null}.
-	 * @return {@code true} when an open time log exists for the employee and
-	 *         worksite; {@code false} otherwise.
+	 * @param  employee the employee to inspect; must not be {@code null}.
+	 * @return          {@code true} when an open time log exists for the employee
+	 *                  and worksite; {@code false} otherwise.
 	 */
 	@Transactional(readOnly = true)
 	public boolean hasOpenTimeLog(final Employee employee) {
@@ -220,17 +241,20 @@ public class TimeLogService {
 	/**
 	 * Closes the most recent open {@link TimeLog} for the given employee and
 	 * worksite.
-	 *
 	 * <p>
 	 * If no open {@link TimeLog} exists, a {@link ClockOutWithoutClockInEvent} is
 	 * recorded and a {@link ClockOutWithoutClockInException} is thrown.
 	 * </p>
 	 *
-	 * @param employee employee clocking out. Can't be {@code null}.
-	 * @param worksite worksite where the employee is clocking out. Can't be
-	 *                 {@code null}.
-	 * @param exitTime exit time to set on the open time log. Can't be {@code null}.
-	 * @return the updated {@link TimeLog}.
+	 * @param  employee                               employee clocking out. Can't
+	 *                                                be {@code null}.
+	 * @param  worksite                               worksite where the employee is
+	 *                                                clocking out. Can't be
+	 *                                                {@code null}.
+	 * @param  exitTime                               exit time to set on the open
+	 *                                                time log. Can't be
+	 *                                                {@code null}.
+	 * @return                                        the updated {@link TimeLog}.
 	 * @throws NullPointerException                   if any argument is
 	 *                                                {@code null}.
 	 * @throws ClockOutWithoutClockInException        if no open time log exists.
@@ -245,7 +269,10 @@ public class TimeLogService {
 		Objects.requireNonNull(exitTime, "exitTime request cannot be null.");
 
 		final Instant truncatedExitTime = exitTime.truncatedTo(ChronoUnit.SECONDS);
-		logger.debug("Closing time log for employee {} at worksite {} and time {}", employee, worksite,
+		logger.debug(
+				"Closing time log for employee {} at worksite {} and time {}",
+				employee,
+				worksite,
 				truncatedExitTime);
 
 		final Instant now = this.clock.instant();
@@ -256,8 +283,11 @@ public class TimeLogService {
 				.findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(employee.getId());
 
 		if (lastTimeLog == null) {
-			final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = new ClockOutWithoutClockInEvent(employee,
-					worksite, truncatedExitTime, now);
+			final ClockOutWithoutClockInEvent clockOutWithoutClockInEvent = new ClockOutWithoutClockInEvent(
+					employee,
+					worksite,
+					truncatedExitTime,
+					now);
 			this.clockOutWithoutClockInEventRepository.save(clockOutWithoutClockInEvent);
 			throw new ClockOutWithoutClockInException();
 		}
@@ -274,13 +304,13 @@ public class TimeLogService {
 
 	/**
 	 * Deletes the specified {@link TimeLog}.
-	 *
 	 * <p>
 	 * Deletion is only allowed while the time log is still within the editable
 	 * window defined by the administrative configuration.
 	 * </p>
 	 *
-	 * @param timeLog time log to delete. Can't be {@code null}.
+	 * @param  timeLog                                time log to delete. Can't be
+	 *                                                {@code null}.
 	 * @throws NullPointerException                   if {@code timeLog} is
 	 *                                                {@code null}.
 	 * @throws TimeLogModificationNotAllowedException if deletion is locked.
@@ -295,8 +325,12 @@ public class TimeLogService {
 
 		if (!timeLog.getEntryTime().plus(lockDuration).isAfter(now)) {
 			throw new TimeLogModificationNotAllowedException(
-					String.format("Deletion locked for TimeLog %s with entryTime %s after %s days. Now: %s",
-							timeLog.getId(), timeLog.getEntryTime(), lockDuration.toDays(), now));
+					String.format(
+							"Deletion locked for TimeLog %s with entryTime %s after %s days. Now: %s",
+							timeLog.getId(),
+							timeLog.getEntryTime(),
+							lockDuration.toDays(),
+							now));
 		}
 
 		this.timeLogRepository.delete(timeLog);
@@ -306,10 +340,11 @@ public class TimeLogService {
 	/**
 	 * Finds a {@link TimeLog} by employee and entry time.
 	 *
-	 * @param employee  employee associated with the time log. Can't be
-	 *                  {@code null}.
-	 * @param entryTime entry time of the time log. Can't be {@code null}.
-	 * @return the matching {@link TimeLog}.
+	 * @param  employee                  employee associated with the time log.
+	 *                                   Can't be {@code null}.
+	 * @param  entryTime                 entry time of the time log. Can't be
+	 *                                   {@code null}.
+	 * @return                           the matching {@link TimeLog}.
 	 * @throws NullPointerException      if any argument is {@code null}.
 	 * @throws ResourceNotFoundException if no matching time log is found.
 	 */
@@ -329,17 +364,17 @@ public class TimeLogService {
 
 	/**
 	 * Finds orphan {@link TimeLog} instances for an employee since a given instant.
-	 *
 	 * <p>
 	 * An orphan time log is a log that is not properly paired or finalized
 	 * according to business rules.
 	 * </p>
 	 *
-	 * @param employee employee for whom orphan time logs are searched. Can't be
-	 *                 {@code null}.
-	 * @param from     lower bound instant for the search. Can't be {@code null}.
-	 *
-	 * @return a list of orphan {@link TimeLog} instances. Never {@code null}.
+	 * @param  employee             employee for whom orphan time logs are searched.
+	 *                              Can't be {@code null}.
+	 * @param  from                 lower bound instant for the search. Can't be
+	 *                              {@code null}.
+	 * @return                      a list of orphan {@link TimeLog} instances.
+	 *                              Never {@code null}.
 	 * @throws NullPointerException if any argument is {@code null}.
 	 */
 	@Transactional(readOnly = true)
@@ -359,21 +394,22 @@ public class TimeLogService {
 	 * criteria. Their intersection is applied to both results and the total in the
 	 * database, before pagination.
 	 *
-	 * @param criteria optional filters; must not be {@code null}
-	 * @param scope    authorized records; must not be {@code null}
-	 * @param page     pagination and sorting; must not be {@code null}
-	 * @return a page containing only matching, authorized time logs
+	 * @param  criteria optional filters; must not be {@code null}
+	 * @param  scope    authorized records; must not be {@code null}
+	 * @param  page     pagination and sorting; must not be {@code null}
+	 * @return          a page containing only matching, authorized time logs
 	 */
 	@Transactional(readOnly = true)
-	public Page<TimeLog> searchTimeLogs(final TimeLogSearchCriteria criteria, final TimeLogSearchScope scope,
+	public Page<TimeLog> searchTimeLogs(
+			final TimeLogSearchCriteria criteria,
+			final TimeLogSearchScope scope,
 			final Pageable page) {
 		Objects.requireNonNull(criteria, "criteria can't be null");
 		Objects.requireNonNull(scope, "scope can't be null");
 		Objects.requireNonNull(page, "page can't be null");
 
 		final Specification<TimeLog> searchCriteria = TimeLogSearchSpecifications.matching(criteria);
-		final Specification<TimeLog> searchCriteriaWithScope = TimeLogSearchSpecifications //
-				.within(scope) //
+		final Specification<TimeLog> searchCriteriaWithScope = TimeLogSearchSpecifications.within(scope)
 				.and(searchCriteria);
 		return this.timeLogRepository.findAll(searchCriteriaWithScope, page);
 	}

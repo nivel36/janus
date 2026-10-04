@@ -1,6 +1,6 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License");
  */
 package es.nivel36.janus.policy.timelog;
 
@@ -29,34 +29,50 @@ class SearchTimeLogPolicyTest {
 	@ParameterizedTest
 	@MethodSource("elevatedRoles")
 	void elevatedRolesCanSearchAllTimeLogsRegardlessOfEmployeeAssociation(final Set<Role> roles) {
-		assertThat(this.policy
-				.scope(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), roles, null)))
+		assertThat(
+				this.policy.scope(
+						new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), roles, null)))
 				.isEqualTo(new TimeLogSearchScope.All());
-		assertThat(this.policy
-				.scope(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), roles, 84L)))
+		assertThat(
+				this.policy.scope(
+						new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), roles, 84L)))
 				.isEqualTo(new TimeLogSearchScope.All());
 	}
 
 	@Test
 	void employeesCanSearchOnlyTheirOwnTimeLogs() {
-		assertThat(this.policy.scope(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
-				Set.of(Role.JANUS_EMPLOYEE), 84L))).isEqualTo(new TimeLogSearchScope.Employee(84L));
+		assertThat(
+				this.policy.scope(
+						new Actor(
+								java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+								Set.of(Role.JANUS_EMPLOYEE),
+								84L)))
+				.isEqualTo(new TimeLogSearchScope.Employee(84L));
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(longs = { 0L, -1L })
 	void employeesWithoutAPersistentEmployeeHaveNoVisibleTimeLogs(final Long employeeId) {
-		assertThat(this.policy.scope(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
-				Set.of(Role.JANUS_EMPLOYEE), employeeId))).isEqualTo(new TimeLogSearchScope.None());
+		assertThat(
+				this.policy.scope(
+						new Actor(
+								java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+								Set.of(Role.JANUS_EMPLOYEE),
+								employeeId)))
+				.isEqualTo(new TimeLogSearchScope.None());
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(longs = { 84L })
 	void actorsWithoutRolesHaveNoVisibleTimeLogs(final Long employeeId) {
-		assertThat(this.policy.scope(
-				new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(), employeeId)))
+		assertThat(
+				this.policy.scope(
+						new Actor(
+								java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+								Set.of(),
+								employeeId)))
 				.isEqualTo(new TimeLogSearchScope.None());
 	}
 
@@ -82,16 +98,22 @@ class SearchTimeLogPolicyTest {
 	}
 
 	private static Stream<Set<Role>> elevatedRoles() {
-		return Stream.of(Set.of(Role.JANUS_USER), Set.of(Role.JANUS_ADMIN),
-				Set.of(Role.JANUS_EMPLOYEE, Role.JANUS_USER), Set.of(Role.JANUS_EMPLOYEE, Role.JANUS_ADMIN),
-				Set.of(Role.JANUS_USER, Role.JANUS_ADMIN), Set.of(Role.values()));
+		return Stream.of(
+				Set.of(Role.JANUS_USER),
+				Set.of(Role.JANUS_ADMIN),
+				Set.of(Role.JANUS_EMPLOYEE, Role.JANUS_USER),
+				Set.of(Role.JANUS_EMPLOYEE, Role.JANUS_ADMIN),
+				Set.of(Role.JANUS_USER, Role.JANUS_ADMIN),
+				Set.of(Role.values()));
 	}
 
 	private static Stream<Arguments> actors() {
-		return Stream.concat(elevatedRoles(), Stream.of(Set.<Role>of(), Set.of(Role.JANUS_EMPLOYEE)))
-				.flatMap(roles -> Stream.of(null, -1L, 0L, 84L)
-						.map(employeeId -> Arguments
-								.of(new Actor(java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"), roles,
+		return Stream.concat(elevatedRoles(), Stream.of(Set.<Role>of(), Set.of(Role.JANUS_EMPLOYEE))).flatMap(
+				roles -> Stream.of(null, -1L, 0L, 84L).map(
+						employeeId -> Arguments.of(
+								new Actor(
+										java.util.UUID.fromString("11111111-1111-4111-8111-111111111111"),
+										roles,
 										employeeId))));
 	}
 }

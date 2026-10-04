@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
 >
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -134,6 +134,27 @@
 				</executions>
 				<configuration>
 					<argLine>${jacocoArgLine}</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>3.10.3</version>
+
+				<configuration>
+					<upToDateChecking>
+						<enabled>false</enabled>
+					</upToDateChecking>
+					<java>
+						<eclipse>
+							<file>
+								${project.basedir}/config/eclipse-formatter.xml</file>
+						</eclipse>
+						<removeUnusedImports />
+
+						<trimTrailingWhitespace />
+						<endWithNewline />
+					</java>
 				</configuration>
 			</plugin>
 		</plugins>

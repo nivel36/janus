@@ -17,9 +17,9 @@ public class ScheduleRuleDefinitionMapper implements Mapper<ScheduleRuleRequest,
 	private final Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper;
 
 	public ScheduleRuleDefinitionMapper(
-			final @Qualifier("scheduleRuleTimeRangeDefinitionMapper") Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper) {
-		this.scheduleRuleTimeRangeDefinitionMapper = Objects.requireNonNull( //
-				scheduleRuleTimeRangeDefinitionMapper, //
+		final @Qualifier("scheduleRuleTimeRangeDefinitionMapper") Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> scheduleRuleTimeRangeDefinitionMapper) {
+		this.scheduleRuleTimeRangeDefinitionMapper = Objects.requireNonNull(
+				scheduleRuleTimeRangeDefinitionMapper,
 				"scheduleRuleTimeRangeDefinitionMapper can't be null");
 	}
 

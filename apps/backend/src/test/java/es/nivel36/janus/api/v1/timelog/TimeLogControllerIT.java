@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.timelog;
 
@@ -62,12 +62,11 @@ class TimeLogControllerIT {
 	private static final String SEARCH_BASE = "/api/v1/time-logs";
 
 	@Test
-	@Sql(statements = { //
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
-			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-	})
+	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)", })
 	void testElevatedRolesWithoutVerifiedEmailAreUnauthorized() throws Exception {
-		this.mvc.perform(get(SEARCH_BASE).param("employeeNumber", "EMP-0001").header("Authorization", "Bearer email-unverified")) //
+		this.mvc.perform(
+				get(SEARCH_BASE).param("employeeNumber", "EMP-0001").header("Authorization", "Bearer email-unverified"))
 				.andExpect(status().isUnauthorized());
 	}
 
@@ -79,258 +78,240 @@ class TimeLogControllerIT {
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testClockInShouldAllowGlobalWorksite() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isCreated()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001")) //
-				.andExpect(jsonPath("$.entryTime").value(entry)) //
-				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001"))
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-PROJ','Barcelona Project Site','UTC+2','ASSIGNED')",
-			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)"//
-	})
+			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" })
 	void testClockInShouldAllowAssignedWorksiteWhenEmployeeIsAssigned() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-PROJ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isCreated()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.entryTime").value(entry)) //
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-PROJ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.entryTime").value(entry))
 				.andExpect(jsonPath("$.worksiteCode").value("BCN-PROJ"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-PROJ','Barcelona Project Site','UTC+2','ASSIGNED')"//
-	})
+			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-PROJ','Barcelona Project Site','UTC+2','ASSIGNED')" })
 	void testClockInShouldRejectAssignedWorksiteWhenEmployeeIsNotAssigned() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-PROJ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isForbidden()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
-				.andExpect(jsonPath("$.title").value("Worksite access denied")) //
-				.andExpect(jsonPath("$.detail").value(
-						"Employee EMP-0001 cannot use assigned worksite BCN-PROJ because it is not assigned"));
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-PROJ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isForbidden())
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
+				.andExpect(jsonPath("$.title").value("Worksite access denied")).andExpect(
+						jsonPath("$.detail").value(
+								"Employee EMP-0001 cannot use assigned worksite BCN-PROJ because it is not assigned"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testClockInWithManualEntryTimeShouldReturnForbiddenWhenDisabledBySettings() throws Exception {
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", "2025-08-04T09:30:00Z")
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ")
+						.param("entryTime", "2025-08-04T09:30:00Z").with(
+								verifiedJwt().jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+										.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testClockInShouldReturn201AndBody() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isCreated()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.entryTime").value(entry)) //
-				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testClockInWithDuplicatedEntryTimeShouldFail409() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isConflict()) //
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isConflict())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" //
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testClockInWithFutureEntryTimeShouldFail400() throws Exception {
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", "2025-08-09T09:30:00Z")
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true)) //
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isBadRequest()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ")
+						.param("entryTime", "2025-08-09T09:30:00Z").with(
+								verifiedJwt().jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+										.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isBadRequest())
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
 				.andExpect(jsonPath("$.type").value("urn:problem:invalid-time-log-time"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testClockInWithDuplicatedDeletedEntryTimeShouldReturn201AndBody() throws Exception {
 		final String entry = "2025-08-04T09:30:00Z";
 
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(delete(BASE + "/{entryTime}", "EMP-0001", entry).with(verifiedJwt()//
-				.jwt(token -> token.subject("aferrer@nivel36.es"))
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				delete(BASE + "/{entryTime}", "EMP-0001", entry).with(
+						verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))
+								.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isNoContent());
 
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isCreated()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.entryTime").value(entry)) //
-				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')", //
-			"INSERT INTO employee(id, employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)", //
-			"INSERT INTO worksite(id, code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')", //
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+			"INSERT INTO employee(id, employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
+			"INSERT INTO worksite(id, code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')",
 			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES (1,1,'2025-08-04T07:30:00Z'::timestamp)" })
 	void testClockOutShouldReturn200AndBody() throws Exception {
 		final String entry = "2025-08-04T07:30:00Z";
 		final String exit = "2025-08-04T16:00:00Z";
 
-		this.mvc.perform(post(BASE + "/clock-out", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("exitTime", exit)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.entryTime").value(entry)) //
-				.andExpect(jsonPath("$.exitTime").value(exit)) //
+		this.mvc.perform(
+				post(BASE + "/clock-out", "EMP-0001").param("worksiteCode", "BCN-HQ").param("exitTime", exit).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.exitTime").value(exit))
 				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" //
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testClockOutWithoutClockInShouldReturn409() throws Exception {
-		this.mvc.perform(post(BASE + "/clock-out", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("exitTime", "2025-08-04T16:00:00Z")
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true)) //
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isConflict()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON)) //
-				.andExpect(jsonPath("$.type").value("urn:problem:clock-out-without-clock-in")) //
+		this.mvc.perform(
+				post(BASE + "/clock-out", "EMP-0001").param("worksiteCode", "BCN-HQ")
+						.param("exitTime", "2025-08-04T16:00:00Z").with(
+								verifiedJwt().jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+										.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isConflict())
+				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON))
+				.andExpect(jsonPath("$.type").value("urn:problem:clock-out-without-clock-in"))
 				.andExpect(jsonPath("$.title").value("Invalid clock-out"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testCreateTimeLogShouldReturn201AndBody() throws Exception {
 		final String entry = "2025-08-05T07:30:00Z";
 		final String exit = "2025-08-05T16:00:00Z";
@@ -338,28 +319,25 @@ class TimeLogControllerIT {
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
 
-		this.mvc.perform(post(BASE, "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
-				.andExpect(status().isCreated()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.entryTime").value(entry)) //
-				.andExpect(jsonPath("$.exitTime").value(exit)) //
-				.andExpect(jsonPath("$.workTime.iso8601").value("PT8H30M")) //
+		this.mvc.perform(
+				post(BASE, "EMP-0001").param("worksiteCode", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.exitTime").value(exit))
+				.andExpect(jsonPath("$.workTime.iso8601").value("PT8H30M"))
 				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testCreateDuplicatedTimeLogShouldReturn409() throws Exception {
 		final String entry = "2025-08-05T09:00:00Z";
 		final String exit = "2025-08-05T17:30:00Z";
@@ -367,161 +345,156 @@ class TimeLogControllerIT {
 				  {"entryTime":"%s","exitTime":"%s"}
 				""".formatted(entry, exit);
 
-		this.mvc.perform(post(BASE, "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+		this.mvc.perform(
+				post(BASE, "EMP-0001").param("worksiteCode", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(post(BASE, "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+		this.mvc.perform(
+				post(BASE, "EMP-0001").param("worksiteCode", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isConflict());
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testSearchByEmployeeShouldReturn200() throws Exception {
 		// seed: one log //
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", "2025-08-06T08:00:00Z")
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ")
+						.param("entryTime", "2025-08-06T08:00:00Z").with(
+								verifiedJwt().jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+										.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(SEARCH_BASE).param("employeeNumber", "EMP-0001").with(verifiedJwt()
-				.jwt(token -> token.subject("aferrer@nivel36.es"))//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON));
+		this.mvc.perform(
+				get(SEARCH_BASE).param("employeeNumber", "EMP-0001").with(
+						verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))
+								.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testSearchByEmployeeWithInvalidRangeShouldFail400() throws Exception {
-		this.mvc.perform(get(SEARCH_BASE).param("employeeNumber", "EMP-0001") //
-				.param("start", "2025-08-10T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				get(SEARCH_BASE).param("employeeNumber", "EMP-0001").param("start", "2025-08-10T10:00:00Z").with(
+						verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))
+								.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(SEARCH_BASE).param("employeeNumber", "EMP-0001") //
-				.param("start", "2025-08-10T10:00:00Z") //
-				.param("end", "2025-08-09T10:00:00Z").with(verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))//
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				get(SEARCH_BASE).param("employeeNumber", "EMP-0001").param("start", "2025-08-10T10:00:00Z")
+						.param("end", "2025-08-09T10:00:00Z").with(
+								verifiedJwt().jwt(token -> token.subject("aferrer@nivel36.es"))
+										.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testFindTimeLogByEmployeeAndEntryTimeShouldReturnBody() throws Exception {
 		final String entry = "2025-08-07T07:45:00Z";
 
 		// seed //
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated());
 
-		this.mvc.perform(get(BASE + "/{entryTime}", "EMP-0001", entry).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.entryTime").value(entry)) //
-				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+		this.mvc.perform(
+				get(BASE + "/{entryTime}", "EMP-0001", entry)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
 	}
 
 	@Test
-	@Sql(statements = { //
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(2,'EMP-0002','Ada','Lovelace','ada@nivel36.es',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')",
 			"INSERT INTO time_log(employee_id,worksite_id,entry_time) VALUES(1,1,'2025-08-07T07:45:00Z'::timestamp)" })
 	void employeeCannotUseAnotherEmployeeNumberToAccessTimeLogs() throws Exception {
 		final String entry = "2025-08-07T07:45:00Z";
-		final var employee = verifiedJwt()
-				.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+		final var employee = verifiedJwt().jwt(
+				jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
 						.claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
 
-		this.mvc.perform(get(BASE + "/{entryTime}", "EMP-0001", entry).with(employee))
-				.andExpect(status().isOk());
+		this.mvc.perform(get(BASE + "/{entryTime}", "EMP-0001", entry).with(employee)).andExpect(status().isOk());
 		this.mvc.perform(get(BASE + "/{entryTime}", "EMP-0002", entry).with(employee))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email, schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
-			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')"//
-	})
+			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testDeleteShouldReturn204AndFindReturns404() throws Exception {
 		final String entry = "2025-08-07T06:30:00Z";
 
 		// seed //
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BCN-HQ") //
-				.param("entryTime", entry)
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
-								.claim("email_verified", true))//
-						.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE")))) //
+		this.mvc.perform(
+				post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BCN-HQ").param("entryTime", entry).with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated());
 
 		// delete //
-		this.mvc.perform(delete(BASE + "/{entryTime}", "EMP-0001", entry).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				delete(BASE + "/{entryTime}", "EMP-0001", entry)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isNoContent());
 
 		// verify //
-		this.mvc.perform(get(BASE + "/{entryTime}", "EMP-0001", entry).with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))//
+		this.mvc.perform(
+				get(BASE + "/{entryTime}", "EMP-0001", entry)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isNotFound());
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { " ", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "bad employee!" })
 	void clockInWithInvalidEmployeeNumberShouldFail400(final String employeeNumber) throws Exception {
-		this.mvc.perform(post(BASE + "/clock-in", employeeNumber) //
-				.param("worksiteCode", "BCN-HQ").with(verifiedJwt())) //
+		this.mvc.perform(post(BASE + "/clock-in", employeeNumber).param("worksiteCode", "BCN-HQ").with(verifiedJwt()))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testClockInWithInvalidWorksiteCodeShouldFail400() throws Exception {
-		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001") //
-				.param("worksiteCode", "BAD CODE").with(verifiedJwt())) //
+		this.mvc.perform(post(BASE + "/clock-in", "EMP-0001").param("worksiteCode", "BAD CODE").with(verifiedJwt()))
 				.andExpect(status().isBadRequest());
 	}
 }

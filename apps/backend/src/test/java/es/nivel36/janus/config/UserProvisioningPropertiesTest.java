@@ -1,7 +1,7 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License"); you may not use this file except in compliance with the
+ * License.
  */
 package es.nivel36.janus.config;
 
@@ -16,7 +16,8 @@ class UserProvisioningPropertiesTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withUserConfiguration(PropertiesConfiguration.class).withPropertyValues(
-					"janus.user-provisioning.defaults.locale=en-US", "janus.user-provisioning.defaults.time-format=H24",
+					"janus.user-provisioning.defaults.locale=en-US",
+					"janus.user-provisioning.defaults.time-format=H24",
 					"janus.user-provisioning.defaults.default-timezone=UTC");
 
 	@Test

@@ -1,16 +1,15 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.appuser;
 
@@ -65,7 +64,8 @@ class FirstRequestProvisioningIT {
 		this.jdbcClient.sql("DELETE FROM app_user WHERE keycloak_subject IN (:subject, :otherSubject, :opaqueSubject)")
 				.param("subject", SUBJECT).param("otherSubject", OTHER_SUBJECT).param("opaqueSubject", OPAQUE_SUBJECT)
 				.update();
-		this.jdbcClient.sql("DELETE FROM app_user WHERE email IN ('subject-target-one', 'subject-target-two', :adminUsername)")
+		this.jdbcClient
+				.sql("DELETE FROM app_user WHERE email IN ('subject-target-one', 'subject-target-two', :adminUsername)")
 				.param("adminUsername", ADMIN_USERNAME).update();
 		this.jdbcClient.sql("DELETE FROM employee WHERE email = :email").param("email", LINK_EMAIL).update();
 		this.jdbcClient.sql("DELETE FROM schedule WHERE id = 901").update();
@@ -73,24 +73,34 @@ class FirstRequestProvisioningIT {
 
 	@Test
 	void provisionsAndRetrievesUserWithLongOpaqueSubject() throws Exception {
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
-				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
-						.claim("email", "opaque-subject@example.test"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
+		this.mvc.perform(
+				get("/api/v1/app-users/me").with(
+						verifiedJwt()
+								.jwt(
+										token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
+												.claim("email", "opaque-subject@example.test"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk());
 
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
-				.jwt(token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
-						.claim("email", "ignored@example.test"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+		this.mvc.perform(
+				get("/api/v1/app-users/me").with(
+						verifiedJwt()
+								.jwt(
+										token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
+												.claim("email", "ignored@example.test"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("ignored@example.test"));
 
-		assertThat(this.jdbcClient.sql("SELECT email FROM app_user WHERE keycloak_subject = :subject")
-				.param("subject", OPAQUE_SUBJECT).query(String.class).single()).isEqualTo("ignored@example.test");
+		assertThat(
+				this.jdbcClient.sql("SELECT email FROM app_user WHERE keycloak_subject = :subject")
+						.param("subject", OPAQUE_SUBJECT).query(String.class).single())
+				.isEqualTo("ignored@example.test");
 	}
 
 	@Test
 	void concurrentRequestsForSameSubjectAndUsernameAreIdempotent() throws Exception {
-		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "same-name", null, SUBJECT, "same-name", null);
+		final List<MvcResult> results = this
+				.provisionConcurrently(SUBJECT, "same-name", null, SUBJECT, "same-name", null);
 
 		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
 		assertThat(this.countProfiles()).isOne();
@@ -98,7 +108,8 @@ class FirstRequestProvisioningIT {
 
 	@Test
 	void concurrentRequestsForSameSubjectAndDifferentUsernamesReturnTheSubjectWinner() throws Exception {
-		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "first-name", null, SUBJECT, "second-name", null);
+		final List<MvcResult> results = this
+				.provisionConcurrently(SUBJECT, "first-name", null, SUBJECT, "second-name", null);
 
 		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
 		assertThat(this.countProfiles()).isOne();
@@ -108,49 +119,63 @@ class FirstRequestProvisioningIT {
 	@Test
 	void concurrentRequestsForSameEmployeeAndDifferentSubjectsOnlyLinkOneProfile() throws Exception {
 		final Long employeeId = this.insertEmployee();
-		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "employee-one", LINK_EMAIL,
-				OTHER_SUBJECT, "employee-two", LINK_EMAIL);
+		final List<MvcResult> results = this
+				.provisionConcurrently(SUBJECT, "employee-one", LINK_EMAIL, OTHER_SUBJECT, "employee-two", LINK_EMAIL);
 
 		assertThat(results).isNotEmpty().allMatch(result -> result.getResponse().getStatus() == 200);
-		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE employee_id = :employeeId")
-				.param("employeeId", employeeId).query(Long.class).single()).isOne();
-		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject IN (:one, :two)")
-				.param("one", SUBJECT).param("two", OTHER_SUBJECT).query(Long.class).single()).isEqualTo(2L);
+		assertThat(
+				this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE employee_id = :employeeId")
+						.param("employeeId", employeeId).query(Long.class).single())
+				.isOne();
+		assertThat(
+				this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject IN (:one, :two)")
+						.param("one", SUBJECT).param("two", OTHER_SUBJECT).query(Long.class).single())
+				.isEqualTo(2L);
 	}
 
 	@Test
 	void concurrentRequestsForSameEmailAndDifferentSubjectsCreateBothIdentities() throws Exception {
-		final List<MvcResult> results = this.provisionConcurrently(SUBJECT, "occupied-name", null,
-				OTHER_SUBJECT, "occupied-name", null);
+		final List<MvcResult> results = this
+				.provisionConcurrently(SUBJECT, "occupied-name", null, OTHER_SUBJECT, "occupied-name", null);
 
 		assertThat(results).extracting(result -> result.getResponse().getStatus()).containsOnly(200);
-		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE email = 'occupied-name@example.test'")
-				.query(Long.class).single()).isEqualTo(2L);
+		assertThat(
+				this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE email = 'occupied-name@example.test'")
+						.query(Long.class).single())
+				.isEqualTo(2L);
 	}
 
-	private List<MvcResult> provisionConcurrently(final String firstSubject, final String firstUsername,
-			final String firstEmail, final String secondSubject, final String secondUsername, final String secondEmail)
-			throws Exception {
+	private List<MvcResult> provisionConcurrently(
+			final String firstSubject,
+			final String firstUsername,
+			final String firstEmail,
+			final String secondSubject,
+			final String secondUsername,
+			final String secondEmail) throws Exception {
 		final CountDownLatch ready = new CountDownLatch(2);
 		final CountDownLatch start = new CountDownLatch(1);
 		try (var executor = Executors.newFixedThreadPool(2)) {
-			final Future<MvcResult> first = executor.submit(() -> this.performProvisioning(firstSubject, firstUsername,
-					firstEmail, ready, start));
-			final Future<MvcResult> second = executor.submit(() -> this.performProvisioning(secondSubject, secondUsername,
-					secondEmail, ready, start));
+			final Future<MvcResult> first = executor
+					.submit(() -> this.performProvisioning(firstSubject, firstUsername, firstEmail, ready, start));
+			final Future<MvcResult> second = executor
+					.submit(() -> this.performProvisioning(secondSubject, secondUsername, secondEmail, ready, start));
 			ready.await();
 			start.countDown();
 			return List.of(first.get(), second.get());
 		}
 	}
 
-	private MvcResult performProvisioning(final String subject, final String username, final String email,
-			final CountDownLatch ready, final CountDownLatch start) throws Exception {
+	private MvcResult performProvisioning(
+			final String subject,
+			final String username,
+			final String email,
+			final CountDownLatch ready,
+			final CountDownLatch start) throws Exception {
 		ready.countDown();
 		start.await();
 		return this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt().jwt(token -> {
-			token.issuer(this.issuer).subject(subject).claim("email", email == null ? username + "@example.test" : email)
-					.claim("email_verified", true);
+			token.issuer(this.issuer).subject(subject)
+					.claim("email", email == null ? username + "@example.test" : email).claim("email_verified", true);
 			if (LINK_EMAIL.equals(email)) {
 				token.claim("employeeNumber", "EMP-0901");
 			}
@@ -166,13 +191,20 @@ class FirstRequestProvisioningIT {
 	void employeeNumberClaimLinksTheOnlyUnlinkedEmployeeAfterNormalization() throws Exception {
 		final Long employeeId = this.insertEmployee();
 
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
-				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", "linked-user")
-						.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ").claim("employeeNumber", "  EMP-0901  ")
-						.claim("email_verified", true))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
-		assertThat(this.jdbcClient.sql("SELECT employee_id FROM app_user WHERE keycloak_subject = :subject")
-				.param("subject", SUBJECT).query(Long.class).single()).isEqualTo(employeeId);
+		this.mvc.perform(
+				get("/api/v1/app-users/me").with(
+						verifiedJwt()
+								.jwt(
+										token -> token.issuer(this.issuer).subject(SUBJECT)
+												.claim("preferred_username", "linked-user")
+												.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ")
+												.claim("employeeNumber", "  EMP-0901  ").claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk());
+		assertThat(
+				this.jdbcClient.sql("SELECT employee_id FROM app_user WHERE keycloak_subject = :subject")
+						.param("subject", SUBJECT).query(Long.class).single())
+				.isEqualTo(employeeId);
 	}
 
 	@Test
@@ -181,71 +213,89 @@ class FirstRequestProvisioningIT {
 		this.provision(SUBJECT, "first-identity");
 
 		this.mvc.perform(
-				get("/api/v1/app-users/me")
-						.with(verifiedJwt()
-								.jwt(token -> token.issuer(this.issuer).subject(OTHER_SUBJECT)
+				get("/api/v1/app-users/me").with(
+						verifiedJwt().jwt(
+								token -> token.issuer(this.issuer).subject(OTHER_SUBJECT)
 										.claim("preferred_username", "second-identity").claim("email", LINK_EMAIL)
 										.claim("employeeNumber", "EMP-0901").claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk());
-		assertThat(this.jdbcClient.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject AND employee_id IS NULL")
-				.param("subject", OTHER_SUBJECT).query(Long.class).single()).isOne();
+		assertThat(
+				this.jdbcClient
+						.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject AND employee_id IS NULL")
+						.param("subject", OTHER_SUBJECT).query(Long.class).single())
+				.isOne();
 
-		assertThat(this.jdbcClient.sql("SELECT keycloak_subject FROM app_user WHERE employee_id = :employeeId")
-				.param("employeeId", employeeId).query(String.class).single()).isEqualTo(SUBJECT);
+		assertThat(
+				this.jdbcClient.sql("SELECT keycloak_subject FROM app_user WHERE employee_id = :employeeId")
+						.param("employeeId", employeeId).query(String.class).single())
+				.isEqualTo(SUBJECT);
 	}
 
 	private void provision(final String subject, final String username) throws Exception {
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
-				.jwt(token -> token.issuer(this.issuer).subject(subject).claim("preferred_username", username)
-						.claim("email", LINK_EMAIL).claim("employeeNumber", "EMP-0901").claim("email_verified", true))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk());
+		this.mvc.perform(
+				get("/api/v1/app-users/me").with(
+						verifiedJwt()
+								.jwt(
+										token -> token.issuer(this.issuer).subject(subject)
+												.claim("preferred_username", username).claim("email", LINK_EMAIL)
+												.claim("employeeNumber", "EMP-0901").claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk());
 	}
 
 	@Test
 	void firstEmployeeVisitCanSearchTimeLogsAfterLoadingProfile() throws Exception {
 		this.insertEmployee();
-		final var authentication = verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT)
-				.claim("preferred_username", "first-employee").claim("email", LINK_EMAIL)
-				.claim("employeeNumber", "EMP-0901").claim("email_verified", true)).authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
+		final var authentication = verifiedJwt().jwt(
+				token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", "first-employee")
+						.claim("email", LINK_EMAIL).claim("employeeNumber", "EMP-0901").claim("email_verified", true))
+				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
 
 		this.mvc.perform(get("/api/v1/time-logs").with(authentication)).andExpect(status().isForbidden());
 		assertThat(this.countProfiles()).isZero();
 		this.mvc.perform(get("/api/v1/app-users/me").with(authentication)).andExpect(status().isOk());
-		this.mvc.perform(get("/api/v1/time-logs").with(authentication))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(0));
+		this.mvc.perform(get("/api/v1/time-logs").with(authentication)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.page.totalElements").value(0));
 	}
 
 	private Long insertEmployee() {
-		this.jdbcClient.sql("INSERT INTO schedule(id, code, name) VALUES (901, 'FIRST-ACCESS', 'First access')").update();
+		this.jdbcClient.sql("INSERT INTO schedule(id, code, name) VALUES (901, 'FIRST-ACCESS', 'First access')")
+				.update();
 		this.jdbcClient.sql("""
 				INSERT INTO employee (employee_number, name, surname, email, schedule_id)
 				VALUES ('EMP-0901', 'First', 'Access', :email, 901)
 				""").param("email", LINK_EMAIL).update();
-		return this.jdbcClient.sql("SELECT id FROM employee WHERE email = :email")
-				.param("email", LINK_EMAIL).query(Long.class).single();
+		return this.jdbcClient.sql("SELECT id FROM employee WHERE email = :email").param("email", LINK_EMAIL)
+				.query(Long.class).single();
 	}
 
 	@Test
 	void unknownEmployeeNumberCreatesAnUnassociatedAccount() throws Exception {
-		this.mvc.perform(get("/api/v1/app-users/me").with(verifiedJwt()
-				.jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("email", USERNAME)
-						.claim("employeeNumber", "EMP-UNKNOWN").claim("email_verified", true))
-				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+		this.mvc.perform(
+				get("/api/v1/app-users/me").with(
+						verifiedJwt()
+								.jwt(
+										token -> token.issuer(this.issuer).subject(SUBJECT).claim("email", USERNAME)
+												.claim("employeeNumber", "EMP-UNKNOWN").claim("email_verified", true))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk());
 
-		assertThat(this.jdbcClient.sql(
-				"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject AND employee_id IS NULL")
-				.param("subject", SUBJECT).query(Long.class).single()).isOne();
+		assertThat(
+				this.jdbcClient
+						.sql("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = :subject AND employee_id IS NULL")
+						.param("subject", SUBJECT).query(Long.class).single())
+				.isOne();
 	}
 
 	@Test
 	void firstAuthenticatedRequestProvisionsLocalProfile() throws Exception {
 		assertThat(this.countProfiles()).isZero();
 
-		this.mvc.perform(get("/api/v1/app-users/me").with(
-				verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("email", USERNAME))
-						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+		this.mvc.perform(
+				get("/api/v1/app-users/me").with(
+						verifiedJwt().jwt(token -> token.issuer(this.issuer).subject(SUBJECT).claim("email", USERNAME))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value(USERNAME))
 				.andExpect(jsonPath("$.locale").value("es-ES")).andExpect(jsonPath("$.timeFormat").value("H24"))
 				.andExpect(jsonPath("$.defaultTimezone").value("Europe/Madrid"));

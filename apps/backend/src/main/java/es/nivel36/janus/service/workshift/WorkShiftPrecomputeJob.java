@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under this License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under this License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.workshift;
 
@@ -68,29 +68,34 @@ public class WorkShiftPrecomputeJob {
 	 * Constructs the scheduled job that materializes historical work-shift
 	 * summaries.
 	 *
-	 * @param workshiftRepository        repository that persists {@link WorkShift}
-	 *                                   aggregates; never {@code null}
-	 * @param timeLogService             service that queries {@link TimeLog} data;
-	 *                                   never {@code null}
-	 * @param employeeService            service that provides employees pending
-	 *                                   precomputation; never {@code null}
-	 * @param scheduleService            Service used to obtain scheduled time
-	 *                                   ranges. Can't be {@code null}.
-	 * @param applicationSettingsService service that provides admin policies (e.g.,
-	 *                                   locking horizon); never {@code null}
-	 * @param clock                      clock used to derive the target anchor;
-	 *                                   never {@code null}
-	 * @throws NullPointerException if any argument is {@code null}
+	 * @param  workshiftRepository        repository that persists {@link WorkShift}
+	 *                                    aggregates; never {@code null}
+	 * @param  timeLogService             service that queries {@link TimeLog} data;
+	 *                                    never {@code null}
+	 * @param  employeeService            service that provides employees pending
+	 *                                    precomputation; never {@code null}
+	 * @param  scheduleService            Service used to obtain scheduled time
+	 *                                    ranges. Can't be {@code null}.
+	 * @param  applicationSettingsService service that provides admin policies
+	 *                                    (e.g., locking horizon); never
+	 *                                    {@code null}
+	 * @param  clock                      clock used to derive the target anchor;
+	 *                                    never {@code null}
+	 * @throws NullPointerException       if any argument is {@code null}
 	 */
-	public WorkShiftPrecomputeJob(final WorkshiftRepository workshiftRepository, final TimeLogService timeLogService,
-			final ScheduleService scheduleService, final EmployeeService employeeService,
-			final ApplicationSettingsService applicationSettingsService, final Clock clock) {
+	public WorkShiftPrecomputeJob(
+		final WorkshiftRepository workshiftRepository,
+		final TimeLogService timeLogService,
+		final ScheduleService scheduleService,
+		final EmployeeService employeeService,
+		final ApplicationSettingsService applicationSettingsService,
+		final Clock clock) {
 		this.workshiftRepository = Objects.requireNonNull(workshiftRepository, "workshiftRepository must not be null");
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService must not be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService must not be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService must not be null");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
-				"applicationSettingsService must not be null");
+		this.applicationSettingsService = Objects
+				.requireNonNull(applicationSettingsService, "applicationSettingsService must not be null");
 		this.clock = Objects.requireNonNull(clock, "clock must not be null");
 		this.policy = ShiftPolicy.defaultPolicy();
 	}
@@ -153,8 +158,8 @@ public class WorkShiftPrecomputeJob {
 		final LocalDate entryDay = firstEntry.atZone(zone).toLocalDate();
 		final LocalTime entryTime = firstEntry.atZone(zone).toLocalTime();
 		final LocalDate previousDay = entryDay.minusDays(1);
-		final Optional<TimeRange> previousTimeRange = this.scheduleService.findTimeRangeForEmployeeByDate(employee,
-				previousDay);
+		final Optional<TimeRange> previousTimeRange = this.scheduleService
+				.findTimeRangeForEmployeeByDate(employee, previousDay);
 		final boolean belongsToPreviousOvernightShift = previousTimeRange.filter(WorkShiftPrecomputeJob::isOvernight)
 				.map(range -> entryTime.isBefore(range.getEndTime())).orElse(false);
 
@@ -166,8 +171,14 @@ public class WorkShiftPrecomputeJob {
 				.map(range -> day.plusDays(1).atTime(range.getEndTime()).atZone(zone).toInstant())
 				.orElseGet(() -> day.plusDays(1).atStartOfDay(zone).toInstant());
 
-		log.trace("Bucket employee={}, worksite={}, zone={}, day={} window=[{} .. {})", employee, worksite, zone, day,
-				dayStart, dayEndExclusive);
+		log.trace(
+				"Bucket employee={}, worksite={}, zone={}, day={} window=[{} .. {})",
+				employee,
+				worksite,
+				zone,
+				day,
+				dayStart,
+				dayEndExclusive);
 
 		final TimeLogs bucket = this.collectBucket(first, worksite, dayStart, dayEndExclusive, queue);
 
@@ -182,8 +193,12 @@ public class WorkShiftPrecomputeJob {
 		return timeRange.getEndTime().isBefore(timeRange.getStartTime());
 	}
 
-	private TimeLogs collectBucket(final TimeLog first, final Worksite worksite, final Instant dayStart,
-			final Instant dayEndExclusive, final Deque<TimeLog> queue) {
+	private TimeLogs collectBucket(
+			final TimeLog first,
+			final Worksite worksite,
+			final Instant dayStart,
+			final Instant dayEndExclusive,
+			final Deque<TimeLog> queue) {
 
 		final List<TimeLog> bucket = new ArrayList<>();
 		bucket.add(first);

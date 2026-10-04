@@ -1,8 +1,8 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.
  */
 package es.nivel36.janus.service.timelog;
 
@@ -33,15 +33,18 @@ class TimeLogSearchIT {
 
 	@Test
 	void searchRequiresExplicitScope() {
-		assertThatNullPointerException().isThrownBy(() -> this.service
-				.searchTimeLogs(new TimeLogSearchCriteria(null, null, null), null, PageRequest.of(0, 2)));
+		assertThatNullPointerException().isThrownBy(
+				() -> this.service
+						.searchTimeLogs(new TimeLogSearchCriteria(null, null, null), null, PageRequest.of(0, 2)));
 	}
 
 	@Test
 	void noneScopeReturnsNoRecordsOrCountEvenBeyondFirstPage() {
 		for (final int page : new int[] { 0, 3 }) {
-			final Page<TimeLog> result = this.service.searchTimeLogs(new TimeLogSearchCriteria(null, null, null),
-					new TimeLogSearchScope.None(), PageRequest.of(page, 2));
+			final Page<TimeLog> result = this.service.searchTimeLogs(
+					new TimeLogSearchCriteria(null, null, null),
+					new TimeLogSearchScope.None(),
+					PageRequest.of(page, 2));
 			assertThat(result.getContent()).isEmpty();
 			assertThat(result.getTotalElements()).isZero();
 			assertThat(result.getTotalPages()).isZero();
@@ -65,9 +68,13 @@ class TimeLogSearchIT {
 
 	@Test
 	void employeeScopeAndDateCriteriaRestrictContentAndCountBeforePagination() {
-		final TimeLogSearchCriteria criteria = new TimeLogSearchCriteria(null, Instant.parse("2025-07-02T08:00:00Z"),
+		final TimeLogSearchCriteria criteria = new TimeLogSearchCriteria(
+				null,
+				Instant.parse("2025-07-02T08:00:00Z"),
 				Instant.parse("2025-07-04T08:00:00Z"));
-		final Page<TimeLog> result = this.service.searchTimeLogs(criteria, new TimeLogSearchScope.Employee(101L),
+		final Page<TimeLog> result = this.service.searchTimeLogs(
+				criteria,
+				new TimeLogSearchScope.Employee(101L),
 				PageRequest.of(1, 1, Sort.by("entryTime")));
 
 		assertThat(result.getContent()).extracting(TimeLog::getEntryTime)

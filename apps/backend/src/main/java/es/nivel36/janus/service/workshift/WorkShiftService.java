@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.workshift;
 
@@ -43,19 +43,16 @@ import es.nivel36.janus.service.worksite.Worksite;
 
 /**
  * Service responsible for retrieving {@link WorkShift} instances.
- *
  * <p>
  * This service coordinates persistence, scheduling information and time log
  * aggregation in order to compose a {@link WorkShift} for a given employee and
  * date.
- *
  * <p>
  * Depending on business rules, a work shift may be:
  * <ul>
  * <li>retrieved directly from persistence if it is already locked, or</li>
  * <li>dynamically inferred from time logs and scheduling data.</li>
  * </ul>
- *
  * <p>
  * The service relies on multiple collaborators to ensure that shifts are built
  * consistently and according to administrative constraints.
@@ -75,27 +72,29 @@ public class WorkShiftService {
 	/**
 	 * Creates a new {@code WorkShiftService} with all required dependencies.
 	 *
-	 * @param workshiftRepository        Repository used to persist and retrieve
-	 *                                   work shifts. Can't be {@code null}.
-	 * @param timeLogService             Service used to retrieve employee time
-	 *                                   logs. Can't be {@code null}.
-	 * @param scheduleService            Service used to obtain scheduled time
-	 *                                   ranges. Can't be {@code null}.
-	 * @param applicationSettingsService Service providing administrative
-	 *                                   configuration. Can't be {@code null}.
-	 * @param clock                      Clock used to determine the current date
-	 *                                   and time. Can't be {@code null}.
-	 *
-	 * @throws NullPointerException if any dependency is {@code null}
+	 * @param  workshiftRepository        Repository used to persist and retrieve
+	 *                                    work shifts. Can't be {@code null}.
+	 * @param  timeLogService             Service used to retrieve employee time
+	 *                                    logs. Can't be {@code null}.
+	 * @param  scheduleService            Service used to obtain scheduled time
+	 *                                    ranges. Can't be {@code null}.
+	 * @param  applicationSettingsService Service providing administrative
+	 *                                    configuration. Can't be {@code null}.
+	 * @param  clock                      Clock used to determine the current date
+	 *                                    and time. Can't be {@code null}.
+	 * @throws NullPointerException       if any dependency is {@code null}
 	 */
-	public WorkShiftService(final WorkshiftRepository workshiftRepository, final TimeLogService timeLogService,
-			final ScheduleService scheduleService, final ApplicationSettingsService applicationSettingsService,
-			final Clock clock) {
+	public WorkShiftService(
+		final WorkshiftRepository workshiftRepository,
+		final TimeLogService timeLogService,
+		final ScheduleService scheduleService,
+		final ApplicationSettingsService applicationSettingsService,
+		final Clock clock) {
 		this.workshiftRepository = Objects.requireNonNull(workshiftRepository, "workshiftRepository must not be null");
 		this.timeLogService = Objects.requireNonNull(timeLogService, "timeLogService must not be null");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService must not be null");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
-				"applicationSettingsService must not be null");
+		this.applicationSettingsService = Objects
+				.requireNonNull(applicationSettingsService, "applicationSettingsService must not be null");
 		this.clock = Objects.requireNonNull(clock, "clock must not be null");
 		this.policy = ShiftPolicy.defaultPolicy();
 	}
@@ -103,11 +102,9 @@ public class WorkShiftService {
 	/**
 	 * Retrieves or composes a {@link WorkShift} for the given employee, worksite
 	 * and date.
-	 *
 	 * <p>
 	 * If the requested date is already locked according to administrative rules and
 	 * a persisted shift exists, that shift is returned.
-	 *
 	 * <p>
 	 * Otherwise, the shift is inferred by:
 	 * <ul>
@@ -116,15 +113,13 @@ public class WorkShiftService {
 	 * <li>delegating composition to the {@link WorkShiftFactory}.</li>
 	 * </ul>
 	 *
-	 * @param employee Employee for whom the work shift is requested. Can't be
-	 *                 {@code null}.
-	 * @param worksite Worksite defining the time zone context. Can't be
-	 *                 {@code null}.
-	 * @param date     Date for which the work shift is requested. Can't be
-	 *                 {@code null}.
-	 *
-	 * @return the existing or newly composed {@link WorkShift}
-	 *
+	 * @param  employee             Employee for whom the work shift is requested.
+	 *                              Can't be {@code null}.
+	 * @param  worksite             Worksite defining the time zone context. Can't
+	 *                              be {@code null}.
+	 * @param  date                 Date for which the work shift is requested.
+	 *                              Can't be {@code null}.
+	 * @return                      the existing or newly composed {@link WorkShift}
 	 * @throws NullPointerException if {@code employee}, {@code worksite},
 	 *                              {@code worksite} time zone or {@code date} is
 	 *                              {@code null}
@@ -166,7 +161,9 @@ public class WorkShiftService {
 		final Instant to = startOfDay.plus(2, ChronoUnit.DAYS); // We add two days to ensure that we cover the 24-hour
 																// shifts of certain professions.
 		final Pageable unpaged = Pageable.unpaged();
-		return this.timeLogService.searchTimeLogs(new TimeLogSearchCriteria(employee.getEmployeeNumber(), from, to),
-				new TimeLogSearchScope.Employee(employee.getId()), unpaged);
+		return this.timeLogService.searchTimeLogs(
+				new TimeLogSearchCriteria(employee.getEmployeeNumber(), from, to),
+				new TimeLogSearchScope.Employee(employee.getId()),
+				unpaged);
 	}
 }

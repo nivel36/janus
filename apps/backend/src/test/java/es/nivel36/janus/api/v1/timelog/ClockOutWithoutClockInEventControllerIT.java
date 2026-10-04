@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.timelog;
 
@@ -65,8 +65,9 @@ class ClockOutWithoutClockInEventControllerIT {
 	@ParameterizedTest
 	@ValueSource(strings = { " ", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "bad employee!" })
 	void eventLookupWithInvalidEmployeeNumberShouldFail400(final String employeeNumber) throws Exception {
-		this.mvc.perform(get(BASE + "/{exitTime}", employeeNumber, "BCN-HQ", "2025-08-04T16:00:00Z").with(verifiedJwt()
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				get(BASE + "/{exitTime}", employeeNumber, "BCN-HQ", "2025-08-04T16:00:00Z")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest());
 	}
 
@@ -89,34 +90,55 @@ class ClockOutWithoutClockInEventControllerIT {
 				.authorities(createAuthorityList("ROLE_JANUS_ADMIN"));
 		final var outsider = verifiedJwt().jwt(jwt -> jwt.subject("outsider-subject"));
 
-		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").with(employee)).andExpect(status().isOk());
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
-				.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isOk());
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-05T16:00:00Z").contentType(APPLICATION_JSON).content("{\"action\":\"INVALIDATE\"}").with(employee))
+		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").with(employee))
+				.andExpect(status().isOk());
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+						.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee))
+				.andExpect(status().isOk());
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-05T16:00:00Z").contentType(APPLICATION_JSON)
+						.content("{\"action\":\"INVALIDATE\"}").with(employee))
 				.andExpect(status().isOk());
 
-		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").with(employee)).andExpect(status().isForbidden());
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
-				.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isForbidden());
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON).content("{\"action\":\"INVALIDATE\"}").with(employee))
+		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").with(employee))
 				.andExpect(status().isForbidden());
-		this.mvc.perform(get(BASE + "/{exitTime}", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").with(employee)).andExpect(status().isForbidden())
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+						.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0002", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+						.content("{\"action\":\"INVALIDATE\"}").with(employee))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get(BASE + "/{exitTime}", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").with(employee))
+				.andExpect(status().isForbidden())
 				.andExpect(jsonPath("$.detail").value("You are not authorized to perform this operation"));
-		this.mvc.perform(patch(BASE + "/{exitTime}", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
-				.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee)).andExpect(status().isForbidden());
-		this.mvc.perform(patch(BASE + "/{exitTime}", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON).content("{\"action\":\"INVALIDATE\"}").with(employee))
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+						.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(employee))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "UNKNOWN", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+						.content("{\"action\":\"INVALIDATE\"}").with(employee))
 				.andExpect(status().isForbidden());
 
-		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").with(admin)).andExpect(status().isOk());
-		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").with(outsider)).andExpect(status().isForbidden());
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
-				.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(outsider)).andExpect(status().isForbidden());
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON).content("{\"action\":\"INVALIDATE\"}").with(outsider))
+		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").with(admin))
+				.andExpect(status().isOk());
+		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").with(outsider))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+						.content("{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}").with(outsider))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
+						.content("{\"action\":\"INVALIDATE\"}").with(outsider))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
@@ -127,20 +149,18 @@ class ClockOutWithoutClockInEventControllerIT {
 	void testFindClockOutWithoutClockInEventShouldAllowTransferredPersonalWorksite() throws Exception {
 		final String exit = "2025-08-04T16:00:00Z";
 
-		this.mvc.perform(get(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit)
-				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001")) //
-				.andExpect(jsonPath("$.worksiteCode").value("HOME-AF")) //
-				.andExpect(jsonPath("$.exitTime").value(exit)) //
-				.andExpect(jsonPath("$.resolved").value(false)) //
-				.andExpect(jsonPath("$.invalidated").value(false));
+		this.mvc.perform(
+				get(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit).with(
+						verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
+								.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001"))
+				.andExpect(jsonPath("$.worksiteCode").value("HOME-AF")).andExpect(jsonPath("$.exitTime").value(exit))
+				.andExpect(jsonPath("$.resolved").value(false)).andExpect(jsonPath("$.invalidated").value(false));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
@@ -155,31 +175,31 @@ class ClockOutWithoutClockInEventControllerIT {
 				  {"action":"RESOLVE","entryTime":"%s","reason":"Worked from home before the transfer"}
 				""".formatted(entry);
 
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit) //
-				.contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001")) //
-				.andExpect(jsonPath("$.resolved").value(true)) //
-				.andExpect(jsonPath("$.invalidated").value(false)) //
-				.andExpect(jsonPath("$.reason").value("Worked from home before the transfer")) //
-				.andExpect(jsonPath("$.resolvedTimeLogEntry").value(entry)) //
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit).contentType(APPLICATION_JSON).content(body)
+						.with(
+								verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
+										.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001")).andExpect(jsonPath("$.resolved").value(true))
+				.andExpect(jsonPath("$.invalidated").value(false))
+				.andExpect(jsonPath("$.reason").value("Worked from home before the transfer"))
+				.andExpect(jsonPath("$.resolvedTimeLogEntry").value(entry))
 				.andExpect(jsonPath("$.resolvedTimeLogExitTime").value(exit));
 
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit) //
-				.contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isConflict()) //
-				.andExpect(content().contentTypeCompatibleWith("application/problem+json")) //
-				.andExpect(jsonPath("$.type").value("urn:problem:event-already-finalized")) //
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit).contentType(APPLICATION_JSON).content(body)
+						.with(
+								verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
+										.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isConflict())
+				.andExpect(content().contentTypeCompatibleWith("application/problem+json"))
+				.andExpect(jsonPath("$.type").value("urn:problem:event-already-finalized"))
 				.andExpect(jsonPath("$.title").value("Event already finalized"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, true, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
@@ -193,19 +213,18 @@ class ClockOutWithoutClockInEventControllerIT {
 				  {"action":"INVALIDATE","reason":"Handled manually after transfer"}
 				""";
 
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit) //
-				.contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.resolved").value(false)) //
-				.andExpect(jsonPath("$.invalidated").value(true)) //
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit).contentType(APPLICATION_JSON).content(body)
+						.with(
+								verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
+										.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.resolved").value(false)).andExpect(jsonPath("$.invalidated").value(true))
 				.andExpect(jsonPath("$.reason").value("Handled manually after transfer"));
 	}
 
 	@Test
-	@Sql(statements = { //
+	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email, schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
@@ -220,10 +239,11 @@ class ClockOutWithoutClockInEventControllerIT {
 				  {"action":"RESOLVE","entryTime":"%s","reason":"Worked from home before the transfer"}
 				""".formatted(entry);
 
-		this.mvc.perform(patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit) //
-				.contentType(APPLICATION_JSON).content(body)
-				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit).contentType(APPLICATION_JSON).content(body)
+						.with(
+								verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
+										.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isForbidden());
 	}
 
@@ -236,15 +256,15 @@ class ClockOutWithoutClockInEventControllerIT {
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'OFFICE','Office','UTC','GLOBAL')",
 			"INSERT INTO clock_out_without_clock_in_event(id,employee_id,worksite_id,exit_time,detected_at,resolved,invalidated) VALUES (1,1,1,'2025-08-04T16:00:00Z','2025-08-04T16:00:00Z',false,false)" })
 	void uniformTransitionRejectsInvalidRequestsAndRepeatedFinalization() throws Exception {
-		final var request = patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z").contentType(APPLICATION_JSON)
-				.with(verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN")));
+		final var request = patch(BASE + "/{exitTime}", "EMP-0001", "OFFICE", "2025-08-04T16:00:00Z")
+				.contentType(APPLICATION_JSON).with(
+						verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
+								.authorities(createAuthorityList("ROLE_JANUS_ADMIN")));
 
 		this.mvc.perform(request).andExpect(status().isBadRequest());
 		this.mvc.perform(request.content("{\"action\":\"DELETE\"}")).andExpect(status().isBadRequest());
 		this.mvc.perform(request.content("{\"action\":\"RESOLVE\"}")).andExpect(status().isBadRequest());
-		this.mvc.perform(request.content(
-				"{\"action\":\"INVALIDATE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}"))
+		this.mvc.perform(request.content("{\"action\":\"INVALIDATE\",\"entryTime\":\"2025-08-04T09:00:00Z\"}"))
 				.andExpect(status().isBadRequest());
 
 		final String transition = "{\"action\":\"RESOLVE\",\"entryTime\":\"2025-08-04T09:00:00Z\",\"reason\":\"Recovered entry\"}";

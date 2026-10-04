@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.schedule;
 
@@ -39,14 +39,12 @@ import es.nivel36.janus.util.Strings;
 /**
  * Service class responsible for managing {@link Schedule} aggregates and
  * retrieving {@link TimeRange time ranges} for employees.
- *
  * <p>
  * {@code ScheduleService} provides operations to create, update, delete and
  * query schedules, as well as to determine the working hours of an
  * {@link Employee} on a specific {@link LocalDate}. It acts as the application
  * layer façade for schedule-related use cases.
  * </p>
- *
  * <p>
  * Persistence operations are delegated to {@link ScheduleRepository}. All
  * modifying operations are executed within a transactional context.
@@ -65,8 +63,8 @@ public class ScheduleService {
 	/**
 	 * Creates a new {@code ScheduleService} instance.
 	 *
-	 * @param scheduleRepository repository used to manage schedules; can't be
-	 *                           {@code null}
+	 * @param  scheduleRepository   repository used to manage schedules; can't be
+	 *                              {@code null}
 	 * @throws NullPointerException if {@code scheduleRepository} is {@code null}
 	 */
 	public ScheduleService(final ScheduleRepository scheduleRepository) {
@@ -75,21 +73,22 @@ public class ScheduleService {
 
 	/**
 	 * Creates and persists a new {@link Schedule}.
-	 *
 	 * <p>
 	 * The schedule is created using the provided code, name and rule definitions.
 	 * The schedule code must be unique in the system.
 	 * </p>
 	 *
-	 * @param code           unique schedule code; can't be {@code null} or blank
-	 * @param name           human-readable schedule name; can't be {@code null} or
-	 *                       blank
-	 * @param entryTolerance allowed tolerance for entry times; can't be
-	 *                       {@code null}
-	 * @param exitTolerance  allowed tolerance for exit times; can't be {@code null}
-	 * @param rules          rule definitions associated with the schedule; can't be
-	 *                       {@code null}
-	 * @return the persisted {@link Schedule}
+	 * @param  code                           unique schedule code; can't be
+	 *                                        {@code null} or blank
+	 * @param  name                           human-readable schedule name; can't be
+	 *                                        {@code null} or blank
+	 * @param  entryTolerance                 allowed tolerance for entry times;
+	 *                                        can't be {@code null}
+	 * @param  exitTolerance                  allowed tolerance for exit times;
+	 *                                        can't be {@code null}
+	 * @param  rules                          rule definitions associated with the
+	 *                                        schedule; can't be {@code null}
+	 * @return                                the persisted {@link Schedule}
 	 * @throws NullPointerException           if {@code rules} is {@code null}
 	 * @throws IllegalArgumentException       if {@code code} or {@code name} is
 	 *                                        blank
@@ -97,11 +96,11 @@ public class ScheduleService {
 	 *                                        already exists
 	 */
 	@Transactional
-	public Schedule createSchedule( //
-			final String code, //
-			final String name, //
-			final Duration entryTolerance, //
-			final Duration exitTolerance, //
+	public Schedule createSchedule(
+			final String code,
+			final String name,
+			final Duration entryTolerance,
+			final Duration exitTolerance,
 			final List<ScheduleRuleDefinition> rules) {
 		Strings.requireNonBlank(code, "code can't be null or blank");
 		Strings.requireNonBlank(name, "name can't be null or blank");
@@ -124,11 +123,11 @@ public class ScheduleService {
 		}
 	}
 
-	private Schedule buildSchedule( //
-			final String code, //
-			final String name, //
-			final Duration entryTolerance, //
-			final Duration exitTolerance, //
+	private Schedule buildSchedule(
+			final String code,
+			final String name,
+			final Duration entryTolerance,
+			final Duration exitTolerance,
 			final List<ScheduleRuleDefinition> rules) {
 		final Schedule schedule = new Schedule(code, name, entryTolerance, exitTolerance);
 		for (final ScheduleRuleDefinition ruleDefinition : rules) {
@@ -138,9 +137,7 @@ public class ScheduleService {
 		return schedule;
 	}
 
-	private ScheduleRule buildRule( //
-			final Schedule schedule, //
-			final ScheduleRuleDefinition ruleDefinition) {
+	private ScheduleRule buildRule(final Schedule schedule, final ScheduleRuleDefinition ruleDefinition) {
 		final ScheduleRule rule = new ScheduleRule(ruleDefinition.name(), schedule);
 		rule.setActivePeriod(ruleDefinition.startDate(), ruleDefinition.endDate());
 
@@ -152,8 +149,8 @@ public class ScheduleService {
 		return rule;
 	}
 
-	private DayOfWeekTimeRange buildDayOfWeekTimeRange( //
-			final ScheduleRule rule, //
+	private DayOfWeekTimeRange buildDayOfWeekTimeRange(
+			final ScheduleRule rule,
 			final ScheduleRuleTimeRangeDefinition timeRangeDefinition) {
 		final DayOfWeek dayOfWeek = timeRangeDefinition.dayOfWeek();
 		final LocalTime startTime = timeRangeDefinition.startTime();
@@ -165,31 +162,32 @@ public class ScheduleService {
 
 	/**
 	 * Updates an existing {@link Schedule} identified by its code.
-	 *
 	 * <p>
 	 * The schedule name and rule set are replaced by the provided values. Existing
 	 * rules not present in the new definition are removed due to
 	 * {@code orphanRemoval=true} configuration in {@link Schedule#getRules()}.
 	 * </p>
 	 *
-	 * @param code           code of the schedule to update; can't be {@code null}
-	 *                       or blank
-	 * @param name           new schedule name; can't be {@code null} or blank
-	 * @param entryTolerance allowed tolerance for entry times; can't be
-	 *                       {@code null}
-	 * @param exitTolerance  allowed tolerance for exit times; can't be {@code null}
-	 * @param rules          new rule definitions; can't be {@code null}
-	 * @return the updated {@link Schedule}
+	 * @param  code                      code of the schedule to update; can't be
+	 *                                   {@code null} or blank
+	 * @param  name                      new schedule name; can't be {@code null} or
+	 *                                   blank
+	 * @param  entryTolerance            allowed tolerance for entry times; can't be
+	 *                                   {@code null}
+	 * @param  exitTolerance             allowed tolerance for exit times; can't be
+	 *                                   {@code null}
+	 * @param  rules                     new rule definitions; can't be {@code null}
+	 * @return                           the updated {@link Schedule}
 	 * @throws NullPointerException      if {@code rules} is {@code null}
 	 * @throws IllegalArgumentException  if {@code code} or {@code name} is blank
 	 * @throws ResourceNotFoundException if the schedule does not exist
 	 */
 	@Transactional
-	public Schedule updateSchedule( //
-			final String code, //
-			final String name, //
-			final Duration entryTolerance, //
-			final Duration exitTolerance, //
+	public Schedule updateSchedule(
+			final String code,
+			final String name,
+			final Duration entryTolerance,
+			final Duration exitTolerance,
 			final List<ScheduleRuleDefinition> rules) {
 		Strings.requireNonBlank(code, "code can't be null or blank");
 		Strings.requireNonBlank(name, "name can't be null or blank");
@@ -213,12 +211,11 @@ public class ScheduleService {
 
 	/**
 	 * Deletes an existing {@link Schedule}.
-	 *
 	 * <p>
 	 * A schedule can only be deleted if it has no employees assigned.
 	 * </p>
 	 *
-	 * @param schedule schedule to delete; can't be {@code null}
+	 * @param  schedule              schedule to delete; can't be {@code null}
 	 * @throws NullPointerException  if {@code schedule} is {@code null}
 	 * @throws IllegalStateException if the schedule has assigned employees
 	 */
@@ -238,8 +235,9 @@ public class ScheduleService {
 	/**
 	 * Retrieves a {@link Schedule} by its unique code.
 	 *
-	 * @param code unique schedule code; can't be {@code null}
-	 * @return the {@link Schedule} associated with the given code
+	 * @param  code                      unique schedule code; can't be {@code null}
+	 * @return                           the {@link Schedule} associated with the
+	 *                                   given code
 	 * @throws NullPointerException      if {@code code} is {@code null}
 	 * @throws ResourceNotFoundException if no schedule exists with the given code
 	 */
@@ -262,17 +260,17 @@ public class ScheduleService {
 	/**
 	 * Finds the {@link TimeRange} applicable to an {@link Employee} on a given
 	 * {@link LocalDate}.
-	 *
 	 * <p>
 	 * If no time range applies for the given date (for example, non-working days),
 	 * an empty {@link Optional} is returned.
 	 * </p>
 	 *
-	 * @param employee employee whose working time is requested; can't be
-	 *                 {@code null}
-	 * @param date     date to evaluate; can't be {@code null}
-	 * @return an {@link Optional} containing the applicable {@link TimeRange}, or
-	 *         an empty {@code Optional} if none applies
+	 * @param  employee             employee whose working time is requested; can't
+	 *                              be {@code null}
+	 * @param  date                 date to evaluate; can't be {@code null}
+	 * @return                      an {@link Optional} containing the applicable
+	 *                              {@link TimeRange}, or an empty {@code Optional}
+	 *                              if none applies
 	 * @throws NullPointerException if {@code employee} or {@code date} is
 	 *                              {@code null}
 	 */
@@ -289,18 +287,17 @@ public class ScheduleService {
 	/**
 	 * Searches {@link Schedule} entities using an optional query and employee
 	 * filter.
-	 *
 	 * <p>
 	 * If both parameters are empty, all schedules are returned. Otherwise, a
 	 * filtered search is performed.
 	 *
-	 * @param query          a text query to filter schedules; may be {@code null}
-	 *                       or blank
-	 * @param employeeNumber the employee number used to filter assigned schedules;
-	 *                       may be {@code null}
-	 * @param pageable       pagination information; must not be {@code null}
-	 * @return a {@link Page} of matching {@link Schedule} instances; never
-	 *         {@code null}
+	 * @param  query          a text query to filter schedules; may be {@code null}
+	 *                        or blank
+	 * @param  employeeNumber the employee number used to filter assigned schedules;
+	 *                        may be {@code null}
+	 * @param  pageable       pagination information; must not be {@code null}
+	 * @return                a {@link Page} of matching {@link Schedule} instances;
+	 *                        never {@code null}
 	 */
 	@Transactional(readOnly = true)
 	public Page<Schedule> searchSchedules(final String query, final String employeeNumber, final Pageable pageable) {

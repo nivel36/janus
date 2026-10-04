@@ -27,8 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Import(SecurityTestConfiguration.class)
-@TestExecutionListeners(listeners = EmployeeIdentityTestExecutionListener.class,
-		mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = EmployeeIdentityTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 class CompatibilityMappingsIT {
 
 	private static final String TIME = "2026-01-02T08:00:00Z";
@@ -36,23 +35,24 @@ class CompatibilityMappingsIT {
 	private @Autowired MockMvc mvc;
 
 	@Test
-	@Sql(statements = {
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Compatibility','User','person@example.test',1)",
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(1,'WS-1','Compatibility site','UTC','ASSIGNED')" })
 	@Transactional
 	void canonicalOperationsRejectAnEmail() throws Exception {
-		this.mvc.perform(MockMvcRequestBuilders.get("/api/v1/employees/person@example.test/time-logs/" + TIME)
-				.with(adminJwt()))
+		this.mvc.perform(
+				MockMvcRequestBuilders.get("/api/v1/employees/person@example.test/time-logs/" + TIME).with(adminJwt()))
 				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(MockMvcRequestBuilders
-				.get("/api/v1/employees/person@example.test/worksites/WS-1/clock-out-without-clock-in-events/" + TIME)
-				.param("worksiteCode", "WS-1").with(adminJwt()))
+		this.mvc.perform(
+				MockMvcRequestBuilders.get(
+						"/api/v1/employees/person@example.test/worksites/WS-1/clock-out-without-clock-in-events/"
+								+ TIME)
+						.param("worksiteCode", "WS-1").with(adminJwt()))
 				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(MockMvcRequestBuilders.put("/api/v1/worksites/WS-1/employees/person@example.test")
-				.with(adminJwt()))
+		this.mvc.perform(
+				MockMvcRequestBuilders.put("/api/v1/worksites/WS-1/employees/person@example.test").with(adminJwt()))
 				.andExpect(status().isBadRequest());
 
 	}

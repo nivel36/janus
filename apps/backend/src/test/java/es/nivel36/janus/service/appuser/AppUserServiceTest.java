@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.appuser;
 
@@ -59,7 +59,11 @@ class AppUserServiceTest {
 	@Test
 	void testFindAppUserByKeycloakSubjectUsesSubjectClaim() {
 		final String subject = "oidc-provider|tenant:customers|user:aferrer:opaque-identity";
-		final AppUser appUser = new AppUser("aferrer", subject, Locale.ENGLISH, TimeFormat.H24,
+		final AppUser appUser = new AppUser(
+				"aferrer",
+				subject,
+				Locale.ENGLISH,
+				TimeFormat.H24,
 				ZoneId.of("Europe/Madrid"));
 		when(this.appUserRepository.findByKeycloakSubject(subject)).thenReturn(java.util.Optional.of(appUser));
 
@@ -82,8 +86,10 @@ class AppUserServiceTest {
 				.thenReturn(Optional.empty()).thenReturn(Optional.of(winner));
 		when(this.appUserCreator.create(email, subject, Locale.ENGLISH, TimeFormat.H24, timezone, employee))
 				.thenThrow(new AppUserCreationConflict(new RuntimeException("employee claimed")));
-		when(this.appUserCreator.create(eq(email), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone),
-				isNull())).thenThrow(new AppUserCreationConflict(new RuntimeException("subject claimed")));
+		when(
+				this.appUserCreator
+						.create(eq(email), eq(subject), eq(Locale.ENGLISH), eq(TimeFormat.H24), eq(timezone), isNull()))
+				.thenThrow(new AppUserCreationConflict(new RuntimeException("subject claimed")));
 
 		assertSame(winner, this.appUserService.findOrCreateAppUser(subject, email, "EMP-42"));
 	}
@@ -119,7 +125,8 @@ class AppUserServiceTest {
 	void rejectsSubjectLongerThanDatabaseColumnBeforePersistence() {
 		final String oversizedSubject = "x".repeat(256);
 
-		assertThrows(IllegalArgumentException.class,
+		assertThrows(
+				IllegalArgumentException.class,
 				() -> new AppUser("oversized-subject", oversizedSubject, Locale.ENGLISH, TimeFormat.H24));
 	}
 

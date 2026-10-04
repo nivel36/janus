@@ -31,15 +31,24 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 	private final Policy<Long> invalidatePolicy;
 
 	@Autowired
-	public ClockOutWithoutClockInEventAuthorizationAdapter(final ActorResolver actorResolver,
-			final EmployeeService employeeService, final EmployeeNumberResolver employeeNumbers) {
-		this(actorResolver, employeeService, employeeNumbers, new ResolveClockOutWithoutClockInEventPolicy(),
-				new InvalidateClockOutWithoutClockInEventPolicy());
+	public ClockOutWithoutClockInEventAuthorizationAdapter(
+		final ActorResolver actorResolver,
+		final EmployeeService employeeService,
+		final EmployeeNumberResolver employeeNumbers) {
+		this(
+			actorResolver,
+			employeeService,
+			employeeNumbers,
+			new ResolveClockOutWithoutClockInEventPolicy(),
+			new InvalidateClockOutWithoutClockInEventPolicy());
 	}
 
-	ClockOutWithoutClockInEventAuthorizationAdapter(final ActorResolver actorResolver,
-			final EmployeeService employeeService, final EmployeeNumberResolver employeeNumbers,
-			final Policy<Long> resolvePolicy, final Policy<Long> invalidatePolicy) {
+	ClockOutWithoutClockInEventAuthorizationAdapter(
+		final ActorResolver actorResolver,
+		final EmployeeService employeeService,
+		final EmployeeNumberResolver employeeNumbers,
+		final Policy<Long> resolvePolicy,
+		final Policy<Long> invalidatePolicy) {
 		this.actorResolver = Objects.requireNonNull(actorResolver, "actorResolver can't be null");
 		this.employeeService = Objects.requireNonNull(employeeService, "employeeService can't be null");
 		this.employeeNumbers = Objects.requireNonNull(employeeNumbers, "employeeNumbers can't be null");
@@ -70,7 +79,9 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 	 *
 	 * @return {@code false} when no action was supplied
 	 */
-	public boolean canTransition(final Authentication authentication, final String employeeNumber,
+	public boolean canTransition(
+			final Authentication authentication,
+			final String employeeNumber,
 			final ClockOutWithoutClockInEventAction action) {
 		if (action == null) {
 			return false;

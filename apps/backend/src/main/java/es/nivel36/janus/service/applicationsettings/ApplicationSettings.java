@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.applicationsettings;
 
@@ -28,7 +28,6 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 /**
  * Entity that stores application-wide administrative configuration values.
- *
  * <p>
  * This class is mapped to the {@code APPLICATION_SETTINGS} table and represents
  * global configuration parameters that affect the behavior of the application.
@@ -104,7 +103,6 @@ public class ApplicationSettings implements Serializable {
 
 	/**
 	 * Protected no-argument constructor required by persistence frameworks.
-	 *
 	 * <p>
 	 * This constructor should not be used directly in application code. It exists
 	 * solely to allow frameworks such as JPA to instantiate the entity.
@@ -116,28 +114,28 @@ public class ApplicationSettings implements Serializable {
 	/**
 	 * Creates a new instance with the specified modification window.
 	 *
-	 * @param daysUntilLocked                   number of days a {@link TimeLog} can
-	 *                                          be modified; must be greater than or
-	 *                                          equal to {@code 0}
-	 * @param employeeWorkplaceCreationAllowed  whether employees are allowed to
-	 *                                          create their own workplace
-	 * @param worksiteChangeDuringShiftAllowed  whether employees are allowed to
-	 *                                          change their worksite during an
-	 *                                          active shift.
-	 * @param employeeManualTimelogEntryAllowed whether employees are allowed to
-	 *                                          create manual timelog entries with
-	 *                                          explicit timestamps.
-	 * @param defaultTimezone                   default application time zone.
-	 *
-	 * @throws IllegalArgumentException if {@code daysUntilLocked} is negative
-	 * @throws NullPointerException     if defaultTimezone is {@code null}
+	 * @param  daysUntilLocked                   number of days a {@link TimeLog}
+	 *                                           can be modified; must be greater
+	 *                                           than or equal to {@code 0}
+	 * @param  employeeWorkplaceCreationAllowed  whether employees are allowed to
+	 *                                           create their own workplace
+	 * @param  worksiteChangeDuringShiftAllowed  whether employees are allowed to
+	 *                                           change their worksite during an
+	 *                                           active shift.
+	 * @param  employeeManualTimelogEntryAllowed whether employees are allowed to
+	 *                                           create manual timelog entries with
+	 *                                           explicit timestamps.
+	 * @param  defaultTimezone                   default application time zone.
+	 * @throws IllegalArgumentException          if {@code daysUntilLocked} is
+	 *                                           negative
+	 * @throws NullPointerException              if defaultTimezone is {@code null}
 	 */
-	public ApplicationSettings( //
-			final int daysUntilLocked, //
-			final boolean employeeWorkplaceCreationAllowed, //
-			final boolean worksiteChangeDuringShiftAllowed, //
-			final boolean employeeManualTimelogEntryAllowed, //
-			final ZoneId defaultTimezone) {
+	public ApplicationSettings(
+		final int daysUntilLocked,
+		final boolean employeeWorkplaceCreationAllowed,
+		final boolean worksiteChangeDuringShiftAllowed,
+		final boolean employeeManualTimelogEntryAllowed,
+		final ZoneId defaultTimezone) {
 		this.setDaysUntilLocked(daysUntilLocked);
 		this.employeeWorkplaceCreationAllowed = employeeWorkplaceCreationAllowed;
 		this.worksiteChangeDuringShiftAllowed = worksiteChangeDuringShiftAllowed;
@@ -209,7 +207,6 @@ public class ApplicationSettings implements Serializable {
 
 	/**
 	 * Sets the identifier of this application settings.
-	 *
 	 * <p>
 	 * This method is intended for testing purposes only and should not be used in
 	 * production code. It exists to allow controlled assignment of the identifier
@@ -225,8 +222,8 @@ public class ApplicationSettings implements Serializable {
 	/**
 	 * Sets the number of days during which a {@link TimeLog} remains modifiable.
 	 *
-	 * @param daysUntilLocked number of days; must be greater than or equal to
-	 *                        {@code 0}
+	 * @param  daysUntilLocked          number of days; must be greater than or
+	 *                                  equal to {@code 0}
 	 * @throws IllegalArgumentException if {@code daysUntilLocked} is negative
 	 */
 	public void setDaysUntilLocked(final int daysUntilLocked) {
@@ -272,8 +269,7 @@ public class ApplicationSettings implements Serializable {
 	/**
 	 * Sets the default time zone used by the application
 	 *
-	 * @param defaultTimezone default application time zone.
-	 *
+	 * @param  defaultTimezone      default application time zone.
 	 * @throws NullPointerException if defaultTimezone is {@code null}
 	 */
 	public void setDefaultTimezone(final ZoneId defaultTimezone) {

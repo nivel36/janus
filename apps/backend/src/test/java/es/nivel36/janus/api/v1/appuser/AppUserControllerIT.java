@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.appuser;
 
@@ -53,16 +53,18 @@ class AppUserControllerIT {
 	private static final String BASE = "/api/v1/app-users";
 
 	@Test
-	@Sql(statements = {
-			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
+	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH','Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Jane','Doe','jdoe@example.test',1)",
 			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone,employee_id) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','account@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid',1)" })
 	void currentProfileIncludesLinkedEmployeeNumber() throws Exception {
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
-				.jwt(jwt -> jwt.subject("11111111-1111-4111-8111-111111111111").claim("email", "account@example.test"))
-				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER"))))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001"));
+		this.mvc.perform(
+				get(BASE + "/me").with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("11111111-1111-4111-8111-111111111111")
+												.claim("email", "account@example.test"))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "ROLE_JANUS_USER"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.employeeNumber").value("EMP-0001"));
 	}
 
 	@Test
@@ -73,26 +75,31 @@ class AppUserControllerIT {
 				  {"locale":"en-CA","timeFormat":"H12","theme":"LIGHT","defaultTimezone":"America/Toronto"}
 				""";
 
-		this.mvc.perform(put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
-				.with(verifiedJwt().jwt(token -> token.subject("11111111-1111-4111-8111-111111111111"))//
-						.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))) //
-				.contentType(APPLICATION_JSON).content(body)) //
-				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$.email").value("jdoe@example.test")) //
-				.andExpect(jsonPath("$.locale").value("en-CA")) //
-				.andExpect(jsonPath("$.timeFormat").value("H12")) //
-				.andExpect(jsonPath("$.theme").value("LIGHT")) //
+		this.mvc.perform(
+				put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+						.with(
+								verifiedJwt().jwt(token -> token.subject("11111111-1111-4111-8111-111111111111"))
+										.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))
+						.contentType(APPLICATION_JSON).content(body))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("jdoe@example.test"))
+				.andExpect(jsonPath("$.locale").value("en-CA")).andExpect(jsonPath("$.timeFormat").value("H12"))
+				.andExpect(jsonPath("$.theme").value("LIGHT"))
 				.andExpect(jsonPath("$.defaultTimezone").value("America/Toronto"));
 		this.entityManager.flush();
 		this.entityManager.clear();
-		org.assertj.core.api.Assertions
-				.assertThat(this.jdbcTemplate.queryForObject(
-						"SELECT THEME FROM APP_USER WHERE ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'", String.class))
+		org.assertj.core.api.Assertions.assertThat(
+				this.jdbcTemplate.queryForObject(
+						"SELECT THEME FROM APP_USER WHERE ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'",
+						String.class))
 				.isEqualTo("LIGHT");
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
-				.jwt(jwt -> jwt.subject("11111111-1111-4111-8111-111111111111").claim("email", "jdoe@example.test"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.theme").value("LIGHT"));
+		this.mvc.perform(
+				get(BASE + "/me").with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("11111111-1111-4111-8111-111111111111")
+												.claim("email", "jdoe@example.test"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.theme").value("LIGHT"));
 	}
 
 	@Test
@@ -103,14 +110,18 @@ class AppUserControllerIT {
 				  {"locale":"en-CA","timeFormat":"H12","theme":"LIGHT","defaultTimezone":"America/Toronto"}
 				""";
 
-		this.mvc.perform(put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
-				.with(verifiedJwt()
-						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
-								.subject("11111111-1111-4111-8111-111111111111")
-								.claim("email", "someone-else@example.com").claim("preferred_username", "someone-else"))
-						.authorities(createAuthorityList("ROLE_JANUS_USER")))
-				.contentType(APPLICATION_JSON).content(body)).andExpect(status().isOk())
-				.andExpect(jsonPath("$.email").value("jdoe@example.test"));
+		this.mvc.perform(
+				put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+						.with(
+								verifiedJwt()
+										.jwt(
+												jwt -> jwt.issuer("https://issuer.example.test")
+														.subject("11111111-1111-4111-8111-111111111111")
+														.claim("email", "someone-else@example.com")
+														.claim("preferred_username", "someone-else"))
+										.authorities(createAuthorityList("ROLE_JANUS_USER")))
+						.contentType(APPLICATION_JSON).content(body))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("jdoe@example.test"));
 	}
 
 	@Test
@@ -118,32 +129,45 @@ class AppUserControllerIT {
 			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testMeFindsProvisionedIdentity() throws Exception {
 		this.mvc.perform(
-				get(BASE + "/me").with(verifiedJwt()
-						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
-								.subject("11111111-1111-4111-8111-111111111111").claim("email", "changed@example.test"))
-						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				get(BASE + "/me").with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.issuer("https://issuer.example.test")
+												.subject("11111111-1111-4111-8111-111111111111")
+												.claim("email", "changed@example.test"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("changed@example.test"));
 	}
 
 	@Test
 	void testMeCreatesUnprovisionedIdentityWithInitialPreferences() throws Exception {
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.issuer("https://issuer.example.test")
-				.subject("99999999-9999-4999-8999-999999999999").claim("email", "new-user@example.test"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.email").value("new-user@example.test"))
+		this.mvc.perform(
+				get(BASE + "/me").with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.issuer("https://issuer.example.test")
+												.subject("99999999-9999-4999-8999-999999999999")
+												.claim("email", "new-user@example.test"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("new-user@example.test"))
 				.andExpect(jsonPath("$.locale").value("en-US")).andExpect(jsonPath("$.theme").value("DARK"))
 				.andExpect(jsonPath("$.timeFormat").value("H24")).andExpect(jsonPath("$.defaultTimezone").value("UTC"));
 
 		this.mvc.perform(
-				get(BASE + "/me").with(verifiedJwt()
-						.jwt(jwt -> jwt.issuer("https://issuer.example.test")
-								.subject("99999999-9999-4999-8999-999999999999").claim("email", "renamed@example.test"))
-						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				get(BASE + "/me").with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.issuer("https://issuer.example.test")
+												.subject("99999999-9999-4999-8999-999999999999")
+												.claim("email", "renamed@example.test"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("renamed@example.test"));
 
-		org.assertj.core.api.Assertions
-				.assertThat(this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?",
-						Integer.class, "99999999-9999-4999-8999-999999999999"))
+		org.assertj.core.api.Assertions.assertThat(
+				this.jdbcTemplate.queryForObject(
+						"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?",
+						Integer.class,
+						"99999999-9999-4999-8999-999999999999"))
 				.isEqualTo(1);
 	}
 
@@ -151,61 +175,90 @@ class AppUserControllerIT {
 	void testMeRejectsTokenWithoutJanusRolesWithoutCreatingAccount() throws Exception {
 		final String subject = "44444444-4444-4444-8444-444444444444";
 
-		this.mvc.perform(get(BASE + "/me")
-				.with(verifiedJwt().jwt(jwt -> jwt.subject(subject).claim("preferred_username", "unauthorized-user"))
-						.authorities(createAuthorityList("SCOPE_openid", "ROLE_OTHER_CLIENT"))))
+		this.mvc.perform(
+				get(BASE + "/me").with(
+						verifiedJwt().jwt(jwt -> jwt.subject(subject).claim("preferred_username", "unauthorized-user"))
+								.authorities(createAuthorityList("SCOPE_openid", "ROLE_OTHER_CLIENT"))))
 				.andExpect(status().isForbidden());
 
-		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate
-				.queryForObject("SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?", Integer.class, subject))
+		org.assertj.core.api.Assertions.assertThat(
+				this.jdbcTemplate.queryForObject(
+						"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?",
+						Integer.class,
+						subject))
 				.isZero();
 	}
 
 	@Test
 	void testMeRejectsMissingEmail() throws Exception {
 		this.mvc.perform(
-				get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
-						.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				get(BASE + "/me").with(
+						verifiedJwt().jwt(jwt -> jwt.subject("77777777-7777-4777-8777-777777777777"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(
-				jwt -> jwt.subject("88888888-8888-4888-8888-888888888888").claim("preferred_username", "x".repeat(51)))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
+		this.mvc.perform(
+				get(BASE + "/me").with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("88888888-8888-4888-8888-888888888888")
+												.claim("preferred_username", "x".repeat(51)))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
-				.jwt(jwt -> jwt.subject("66666666-6666-4666-8666-666666666666").claim("preferred_username", "ab"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
+		this.mvc.perform(
+				get(BASE + "/me").with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("66666666-6666-4666-8666-666666666666")
+												.claim("preferred_username", "ab"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isBadRequest());
 
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt()
-				.jwt(jwt -> jwt.subject("55555555-5555-4555-8555-555555555555").claim("preferred_username", "john/doe"))
-				.authorities(createAuthorityList("ROLE_JANUS_USER")))).andExpect(status().isBadRequest());
+		this.mvc.perform(
+				get(BASE + "/me").with(
+						verifiedJwt()
+								.jwt(
+										jwt -> jwt.subject("55555555-5555-4555-8555-555555555555")
+												.claim("preferred_username", "john/doe"))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+				.andExpect(status().isBadRequest());
 	}
 
 	@org.junit.jupiter.params.ParameterizedTest
 	@org.junit.jupiter.params.provider.ValueSource(strings = { "", " ", "\t", "not valid!" })
 	void testMeRejectsInvalidEmployeeNumberClaim(final String employeeNumber) throws Exception {
-		this.mvc.perform(get(BASE + "/me").with(verifiedJwt().jwt(jwt -> jwt
-				.subject("55555555-5555-4555-8555-555555555555").claim("email", "valid@example.test")
-				.claim("employeeNumber", employeeNumber))
-				.authorities(createAuthorityList("ROLE_JANUS_USER"))))
+		this.mvc.perform(
+				get(BASE + "/me").with(
+						verifiedJwt().jwt(
+								jwt -> jwt.subject("55555555-5555-4555-8555-555555555555")
+										.claim("email", "valid@example.test").claim("employeeNumber", employeeNumber))
+								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isBadRequest());
 
-		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate.queryForObject(
-				"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?", Integer.class,
-				"55555555-5555-4555-8555-555555555555")).isZero();
+		org.assertj.core.api.Assertions.assertThat(
+				this.jdbcTemplate.queryForObject(
+						"SELECT COUNT(*) FROM app_user WHERE keycloak_subject = ?",
+						Integer.class,
+						"55555555-5555-4555-8555-555555555555"))
+				.isZero();
 	}
 
 	@Test
 	@Sql(statements = {
 			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
 	void testDeleteShouldReturn204AndRemoveAccount() throws Exception {
-		this.mvc.perform(delete(BASE + "/{id}", "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa").with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				delete(BASE + "/{id}", "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isNoContent());
 
 		this.entityManager.flush();
-		org.assertj.core.api.Assertions.assertThat(this.jdbcTemplate
-				.queryForObject("SELECT COUNT(*) FROM app_user WHERE email = ?", Integer.class, "jdoe@example.test"))
+		org.assertj.core.api.Assertions.assertThat(
+				this.jdbcTemplate.queryForObject(
+						"SELECT COUNT(*) FROM app_user WHERE email = ?",
+						Integer.class,
+						"jdoe@example.test"))
 				.isZero();
 	}
 
@@ -216,11 +269,16 @@ class AppUserControllerIT {
 	void rejectsMissingOrInvalidTheme(final String themeProperty) throws Exception {
 		final String body = "{\"locale\":\"en-CA\",\"timeFormat\":\"H12\",\"defaultTimezone\":\"UTC\"" + themeProperty
 				+ "}";
-		this.mvc.perform(put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
-				.with(verifiedJwt().jwt(
-						jwt -> jwt.subject("11111111-1111-4111-8111-111111111111").claim("email", "jdoe@example.test"))
-						.authorities(createAuthorityList("ROLE_JANUS_USER")))
-				.contentType(APPLICATION_JSON).content(body)).andExpect(status().isBadRequest());
+		this.mvc.perform(
+				put(BASE + "/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+						.with(
+								verifiedJwt()
+										.jwt(
+												jwt -> jwt.subject("11111111-1111-4111-8111-111111111111")
+														.claim("email", "jdoe@example.test"))
+										.authorities(createAuthorityList("ROLE_JANUS_USER")))
+						.contentType(APPLICATION_JSON).content(body))
+				.andExpect(status().isBadRequest());
 	}
 
 }

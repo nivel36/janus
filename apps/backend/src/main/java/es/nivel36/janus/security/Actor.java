@@ -13,7 +13,6 @@ import es.nivel36.janus.service.appuser.Role;
 
 /**
  * Application-owned representation of an authenticated caller.
- *
  * <p>
  * This type deliberately has no dependency on Spring Security. Policy code can
  * use the persistent application-user identifier, the optional associated

@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.config;
 
@@ -52,17 +52,14 @@ import es.nivel36.janus.util.KeycloakJwtRolesConverter;
 
 /**
  * Security configuration for Janus.
- *
  * <p>
  * This configuration defines the HTTP security rules applied to incoming
  * requests, including stateless session management, CORS handling, CSRF
  * disabling, security headers, OAuth2 resource server support with JWT
  * authentication, and request authorization rules.
- *
  * <p>
  * All requests targeting {@code /api/**} require authentication, while any
  * other request is allowed without authentication.
- *
  * <p>
  * This configuration also customizes JWT authority extraction by combining the
  * default scope-based authorities with role-based authorities extracted from
@@ -74,7 +71,6 @@ public class SecurityConfig {
 
 	/**
 	 * Content Security Policy applied to API responses.
-	 *
 	 * <p>
 	 * This policy denies all resource loading and disables potentially unsafe
 	 * browser behaviors such as embedding, form submission, and base URI usage.
@@ -83,7 +79,6 @@ public class SecurityConfig {
 
 	/**
 	 * Permissions Policy applied to API responses.
-	 *
 	 * <p>
 	 * This policy disables access to a set of browser features for API endpoints,
 	 * reducing the exposed surface for client-side capabilities.
@@ -92,7 +87,6 @@ public class SecurityConfig {
 
 	/**
 	 * Creates the main {@link SecurityFilterChain} used to secure HTTP requests.
-	 *
 	 * <p>
 	 * This filter chain enables CORS with default handling, disables CSRF
 	 * protection, configures stateless session management, applies several
@@ -101,59 +95,56 @@ public class SecurityConfig {
 	 * {@link HttpStatus#UNAUTHORIZED} when authentication is required but missing
 	 * or invalid.
 	 *
-	 * @param http the {@link HttpSecurity} builder used to configure web security.
-	 *             Can't be {@code null}.
-	 * @return the configured {@link SecurityFilterChain}.
+	 * @param  http      the {@link HttpSecurity} builder used to configure web
+	 *                   security. Can't be {@code null}.
+	 * @return           the configured {@link SecurityFilterChain}.
 	 * @throws Exception if the security configuration cannot be built.
 	 */
 	@Bean
-	SecurityFilterChain securityFilterChain(final HttpSecurity http,
+	SecurityFilterChain securityFilterChain(
+			final HttpSecurity http,
 			final JwtAuthenticationConverter jwtAuthenticationConverter) {
-		return http.cors(Customizer.withDefaults()) //
-				.csrf(CsrfConfigurer::disable) //
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //
-				.headers(headers -> { //
-					headers.contentTypeOptions(Customizer.withDefaults()); //
-					headers.frameOptions(FrameOptionsConfig::deny); //
-					headers.referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.NO_REFERRER)); //
-					headers.permissionsPolicyHeader(permissions -> permissions.policy(API_PERMISSIONS_POLICY)); //
-					headers.contentSecurityPolicy(csp -> csp.policyDirectives(API_CONTENT_SECURITY_POLICY)); //
-					headers.cacheControl(Customizer.withDefaults()); //
-				}) //
-				.authorizeHttpRequests(this::getAuthorizations) //
+		return http.cors(Customizer.withDefaults()).csrf(CsrfConfigurer::disable)
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.headers(headers -> {
+					headers.contentTypeOptions(Customizer.withDefaults());
+					headers.frameOptions(FrameOptionsConfig::deny);
+					headers.referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.NO_REFERRER));
+					headers.permissionsPolicyHeader(permissions -> permissions.policy(API_PERMISSIONS_POLICY));
+					headers.contentSecurityPolicy(csp -> csp.policyDirectives(API_CONTENT_SECURITY_POLICY));
+					headers.cacheControl(Customizer.withDefaults());
+				}).authorizeHttpRequests(this::getAuthorizations)
 				.oauth2ResourceServer(
-						oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))) //
-				.exceptionHandling(exception -> exception
-						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))) //
+						oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
+				.exceptionHandling(
+						exception -> exception
+								.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 				.build();
 	}
 
 	private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry getAuthorizations(
 			final AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
-		return auth.requestMatchers("/api/**").authenticated() //
-				.anyRequest().permitAll();
+		return auth.requestMatchers("/api/**").authenticated().anyRequest().permitAll();
 	}
 
 	/**
 	 * Creates the {@link CorsConfigurationSource} used for API endpoints.
-	 *
 	 * <p>
 	 * The resulting configuration restricts cross-origin requests to the provided
 	 * origins, allows a fixed set of HTTP methods and headers, exposes retry timing
 	 * guidance, disables credential sharing, and caches preflight responses for
 	 * {@code 3600} seconds.
-	 *
 	 * <p>
 	 * The CORS configuration is applied only to requests matching {@code /api/**}.
 	 *
-	 * @param allowedOrigins the list of allowed origins for cross-origin requests.
-	 *                       Can be empty, but not expected to be {@code null}.
-	 * @return a {@link CorsConfigurationSource} containing the configured CORS
-	 *         rules.
+	 * @param  allowedOrigins the list of allowed origins for cross-origin requests.
+	 *                        Can be empty, but not expected to be {@code null}.
+	 * @return                a {@link CorsConfigurationSource} containing the
+	 *                        configured CORS rules.
 	 */
 	@Bean
-	CorsConfigurationSource corsConfigurationSource(
-			@Value("${janus.cors.allowed-origins}") final List<String> allowedOrigins) {
+	CorsConfigurationSource corsConfigurationSource(@Value("${janus.cors.allowed-origins}")
+	final List<String> allowedOrigins) {
 		final CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOrigins(allowedOrigins);
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
@@ -170,7 +161,6 @@ public class SecurityConfig {
 	/**
 	 * Creates the {@link JwtAuthenticationConverter} used to derive authorities
 	 * from a JWT.
-	 *
 	 * <p>
 	 * The returned converter combines authorities produced by the default
 	 * {@link JwtGrantedAuthoritiesConverter} with additional authorities extracted
@@ -182,12 +172,14 @@ public class SecurityConfig {
 	 *         authorities.
 	 */
 	@Bean
-	JwtAuthenticationConverter jwtAuthenticationConverter(@Value("${janus.security.client-id}") final String clientId) {
+	JwtAuthenticationConverter jwtAuthenticationConverter(@Value("${janus.security.client-id}")
+	final String clientId) {
 		final JwtGrantedAuthoritiesConverter scopesConverter = new JwtGrantedAuthoritiesConverter();
 
 		final JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
-		authenticationConverter
-				.setJwtGrantedAuthoritiesConverter(jwt -> Stream.concat(scopesConverter.convert(jwt).stream(),
+		authenticationConverter.setJwtGrantedAuthoritiesConverter(
+				jwt -> Stream.concat(
+						scopesConverter.convert(jwt).stream(),
 						KeycloakJwtRolesConverter.extract(jwt, clientId).stream()).distinct().toList());
 		// The principal is the provider-stable subject. AppUser authorization further
 		// scopes it by the validated issuer.
@@ -196,13 +188,17 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	OAuth2TokenValidator<Jwt> jwtValidator(
-			@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String issuer,
-			@Value("${janus.security.client-id}") final String clientId) {
+	OAuth2TokenValidator<Jwt> jwtValidator(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+	final String issuer, @Value("${janus.security.client-id}")
+	final String clientId) {
 		final OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience() != null
-				&& jwt.getAudience().contains(clientId) ? OAuth2TokenValidatorResult.success()
-						: OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
-								"The token audience does not contain the Janus client", null));
+				&& jwt.getAudience().contains(clientId)
+						? OAuth2TokenValidatorResult.success()
+						: OAuth2TokenValidatorResult.failure(
+								new OAuth2Error(
+										"invalid_token",
+										"The token audience does not contain the Janus client",
+										null));
 		final OAuth2TokenValidator<Jwt> identityValidator = jwt -> StringUtils.hasText(jwt.getClaimAsString("iss"))
 				&& StringUtils.hasText(jwt.getSubject()) ? OAuth2TokenValidatorResult.success()
 						: OAuth2TokenValidatorResult.failure(
@@ -211,15 +207,18 @@ public class SecurityConfig {
 				.equals(jwt.getClaim("email_verified")) ? OAuth2TokenValidatorResult.success()
 						: OAuth2TokenValidatorResult.failure(
 								new OAuth2Error("invalid_token", "The token must contain email_verified=true", null));
-		return new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefaultWithIssuer(issuer), audienceValidator,
-				identityValidator, verifiedEmailValidator);
+		return new DelegatingOAuth2TokenValidator<>(
+				JwtValidators.createDefaultWithIssuer(issuer),
+				audienceValidator,
+				identityValidator,
+				verifiedEmailValidator);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(JwtDecoder.class)
-	JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") final String issuer,
-			@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}") final String jwkSetUri,
-			final OAuth2TokenValidator<Jwt> jwtValidator) {
+	JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+	final String issuer, @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}")
+	final String jwkSetUri, final OAuth2TokenValidator<Jwt> jwtValidator) {
 		final NimbusJwtDecoder decoder = StringUtils.hasText(jwkSetUri)
 				? NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
 				: NimbusJwtDecoder.withIssuerLocation(issuer).build();

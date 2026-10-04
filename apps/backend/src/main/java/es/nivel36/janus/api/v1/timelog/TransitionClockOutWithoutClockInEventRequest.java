@@ -1,6 +1,6 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License");
  */
 package es.nivel36.janus.api.v1.timelog;
 
@@ -18,12 +18,12 @@ import jakarta.validation.constraints.Size;
  */
 public record TransitionClockOutWithoutClockInEventRequest(
 
-		@NotNull(message = "action must not be null") //
-		ClockOutWithoutClockInEventAction action, //
+		@NotNull(message = "action must not be null")
+		ClockOutWithoutClockInEventAction action,
 
-		Instant entryTime, //
+		Instant entryTime,
 
-		@Size(max = 255, message = "reason must not exceed 255 characters") //
+		@Size(max = 255, message = "reason must not exceed 255 characters")
 		String reason) {
 
 	@JsonIgnore

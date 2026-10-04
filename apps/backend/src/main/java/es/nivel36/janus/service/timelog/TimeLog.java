@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.timelog;
 
@@ -38,23 +38,19 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Entity representing a time log entry for an {@link Employee}.
- *
  * <p>
  * A time log records the clock-in ({@code entryTime}) and optional clock-out
  * ({@code exitTime}) instants of an employee at a specific {@link Worksite}.
  * </p>
- *
  * <p>
  * Each time log is uniquely identified by the combination of the employee and
  * the entry time, which together form the natural key. This constraint is
  * enforced at the database level.
  * </p>
- *
  * <p>
  * For calculation efficiency reasons, the duration of the object is calculated
  * automatically once it is closed using the {@link #close(Instant)} method.
  * </p>
- *
  * <p>
  * The entity supports logical deletion via the {@code deleted} flag, allowing
  * records to remain stored for auditing purposes even after being deleted from
@@ -154,7 +150,6 @@ public class TimeLog implements Serializable {
 
 	/**
 	 * Protected no-argument constructor required by persistence frameworks.
-	 *
 	 * <p>
 	 * This constructor should not be used directly in application code. It exists
 	 * solely to allow frameworks such as JPA to instantiate the entity.
@@ -167,12 +162,11 @@ public class TimeLog implements Serializable {
 	 * Creates a new open {@link TimeLog} with the given employee, worksite and
 	 * entry time.
 	 *
-	 * @param employee  the employee associated with this time log; can't be
-	 *                  {@code null}
-	 * @param worksite  the worksite associated with this time log; can't be
-	 *                  {@code null}
-	 * @param entryTime the clock-in time; can't be {@code null}
-	 *
+	 * @param  employee             the employee associated with this time log;
+	 *                              can't be {@code null}
+	 * @param  worksite             the worksite associated with this time log;
+	 *                              can't be {@code null}
+	 * @param  entryTime            the clock-in time; can't be {@code null}
 	 * @throws NullPointerException if any argument is {@code null}
 	 */
 	public TimeLog(final Employee employee, final Worksite worksite, final Instant entryTime) {
@@ -185,13 +179,12 @@ public class TimeLog implements Serializable {
 	 * Creates a new closed {@link TimeLog} with the given employee, worksite, entry
 	 * time and exit time.
 	 *
-	 * @param employee  the employee associated with this time log; can't be
-	 *                  {@code null}
-	 * @param worksite  the worksite associated with this time log; can't be
-	 *                  {@code null}
-	 * @param entryTime the clock-in time; can't be {@code null}
-	 * @param exitTime  the clock-out time; can't be {@code null}
-	 *
+	 * @param  employee             the employee associated with this time log;
+	 *                              can't be {@code null}
+	 * @param  worksite             the worksite associated with this time log;
+	 *                              can't be {@code null}
+	 * @param  entryTime            the clock-in time; can't be {@code null}
+	 * @param  exitTime             the clock-out time; can't be {@code null}
 	 * @throws NullPointerException if {@code employee}, {@code worksite} or
 	 *                              {@code entryTime} is {@code null}
 	 */
@@ -279,7 +272,8 @@ public class TimeLog implements Serializable {
 	/**
 	 * Assigns this time log to a {@link WorkShift}.
 	 *
-	 * @param workShift the {@link WorkShift} to associate; must not be {@code null}
+	 * @param  workShift             the {@link WorkShift} to associate; must not be
+	 *                               {@code null}
 	 * @throws NullPointerException  if {@code workShift} is {@code null}
 	 * @throws IllegalStateException if already assigned to a different work shift
 	 */
@@ -293,7 +287,6 @@ public class TimeLog implements Serializable {
 
 	/**
 	 * Sets the identifier of this time log.
-	 *
 	 * <p>
 	 * This method is intended for testing purposes only and should not be used in
 	 * production code. It exists to allow controlled assignment of the identifier
@@ -308,7 +301,6 @@ public class TimeLog implements Serializable {
 
 	/**
 	 * Marks this time log as logically deleted or not.
-	 *
 	 * <p>
 	 * This method is intended for testing purposes only and should not be used in
 	 * production code. It exists to allow controlled assignment of the identifier
@@ -327,8 +319,8 @@ public class TimeLog implements Serializable {
 	 * Once closed, a time log cannot be reopened.
 	 * </p>
 	 *
-	 * @param exitTime the clock-out time; can't be {@code null}
-	 *
+	 * @param  exitTime                      the clock-out time; can't be
+	 *                                       {@code null}
 	 * @throws NullPointerException          if {@code exitTime} is {@code null}
 	 * @throws TimeLogAlreadyClosedException if the time log is already closed
 	 * @throws TimeLogDeletedException       if the time log is logically deleted

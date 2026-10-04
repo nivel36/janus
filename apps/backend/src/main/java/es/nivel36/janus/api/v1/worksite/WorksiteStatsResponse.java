@@ -25,13 +25,13 @@ import java.time.Instant;
  *                                                   with a time log in the
  *                                                   interval
  */
-public record WorksiteStatsResponse( //
-		String worksiteCode, //
-		Instant start, //
-		Instant end, //
-		long employeesWhoClockedIn, //
-		long erroneousTimeLogs, //
-		long totalTimeLogs, //
-		long employeesAllowedToClockIn, //
+public record WorksiteStatsResponse(
+		String worksiteCode,
+		Instant start,
+		Instant end,
+		long employeesWhoClockedIn,
+		long erroneousTimeLogs,
+		long totalTimeLogs,
+		long employeesAllowedToClockIn,
 		long distinctSchedulesFromEmployeesWhoClockedIn) {
 }

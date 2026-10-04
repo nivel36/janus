@@ -22,8 +22,10 @@ public class ScheduleAuthorizationAdapter {
 	private final UpdateSchedulePolicy update = new UpdateSchedulePolicy();
 	private final DeleteSchedulePolicy delete = new DeleteSchedulePolicy();
 
-	public ScheduleAuthorizationAdapter(final ActorResolver actors, final EmployeeService employees,
-			final EmployeeNumberResolver employeeNumbers) {
+	public ScheduleAuthorizationAdapter(
+		final ActorResolver actors,
+		final EmployeeService employees,
+		final EmployeeNumberResolver employeeNumbers) {
 		this.actors = Objects.requireNonNull(actors);
 		this.employees = Objects.requireNonNull(employees);
 		this.employeeNumbers = Objects.requireNonNull(employeeNumbers);
@@ -31,8 +33,10 @@ public class ScheduleAuthorizationAdapter {
 
 	public boolean canSearch(final Authentication auth, final String employeeNumber) {
 		final Actor a = this.actors.resolve(auth);
-		return this.search.allows(a, this.employeeNumbers.searchContext(a, employeeNumber,
-				EmployeeAccessPolicy.isRestrictedToOwnEmployee(a)));
+		return this.search.allows(
+				a,
+				this.employeeNumbers
+						.searchContext(a, employeeNumber, EmployeeAccessPolicy.isRestrictedToOwnEmployee(a)));
 	}
 
 	public String effectiveEmployeeNumber(final Authentication auth, final String requested) {
@@ -42,8 +46,10 @@ public class ScheduleAuthorizationAdapter {
 
 	public boolean canView(final Authentication auth, final String code) {
 		final Actor a = this.actors.resolve(auth);
-		return this.view.allows(a, new ViewSchedulePolicy.Context(
-				a.employeeId() != null && this.employees.isAssignedToSchedule(a.employeeId(), code)));
+		return this.view.allows(
+				a,
+				new ViewSchedulePolicy.Context(
+						a.employeeId() != null && this.employees.isAssignedToSchedule(a.employeeId(), code)));
 	}
 
 	public boolean canCreate(final Authentication a) {

@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.applicationsettings;
 
@@ -50,15 +50,13 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	 *                                   {@link ApplicationSettingsResponse} DTOs;
 	 *                                   must not be {@code null}
 	 */
-	public ApplicationSettingsController( //
-			final ApplicationSettingsService applicationSettingsService, //
-			final @Qualifier("appSettingsResponseMapper") Mapper<ApplicationSettings, ApplicationSettingsResponse> appSettingsResponseMapper) {
-		this.applicationSettingsService = Objects.requireNonNull( //
-				applicationSettingsService,
-				"applicationSettingsService can't be null");
-		this.appSettingsResponseMapper = Objects.requireNonNull( //
-				appSettingsResponseMapper, //
-				"appSettingsResponseMapper can't be null");
+	public ApplicationSettingsController(
+		final ApplicationSettingsService applicationSettingsService,
+		final @Qualifier("appSettingsResponseMapper") Mapper<ApplicationSettings, ApplicationSettingsResponse> appSettingsResponseMapper) {
+		this.applicationSettingsService = Objects
+				.requireNonNull(applicationSettingsService, "applicationSettingsService can't be null");
+		this.appSettingsResponseMapper = Objects
+				.requireNonNull(appSettingsResponseMapper, "appSettingsResponseMapper can't be null");
 	}
 
 	/**
@@ -77,9 +75,10 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	/**
 	 * Updates the global application settings.
 	 *
-	 * @param request the payload describing the new settings; must not be
-	 *                {@code null}
-	 * @return a {@link ResponseEntity} containing the updated application settings
+	 * @param  request the payload describing the new settings; must not be
+	 *                 {@code null}
+	 * @return         a {@link ResponseEntity} containing the updated application
+	 *                 settings
 	 */
 	@Override
 	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
@@ -90,11 +89,11 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 		final boolean worksiteChangeDuringShiftAllowed = request.worksiteChangeDuringShiftAllowed().booleanValue();
 		final boolean employeeManualTimeLogEntryAllowed = request.employeeManualTimeLogEntryAllowed().booleanValue();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
-		final ApplicationSettings updatedSettings = this.applicationSettingsService.update( //
-				daysUntilLocked, //
-				employeeWorksiteCreationAllowed, //
-				worksiteChangeDuringShiftAllowed, //
-				employeeManualTimeLogEntryAllowed, //
+		final ApplicationSettings updatedSettings = this.applicationSettingsService.update(
+				daysUntilLocked,
+				employeeWorksiteCreationAllowed,
+				worksiteChangeDuringShiftAllowed,
+				employeeManualTimeLogEntryAllowed,
 				zoneId);
 		final ApplicationSettingsResponse appSettingsResponse = this.appSettingsResponseMapper.map(updatedSettings);
 		return ResponseEntity.ok(appSettingsResponse);

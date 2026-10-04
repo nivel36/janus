@@ -27,23 +27,27 @@ public class TimeLogAuthorizationAdapter {
 	private final SearchTimeLogPolicy searchTimeLogPolicy = new SearchTimeLogPolicy();
 	private final DeleteTimeLogPolicy deleteTimeLogPolicy = new DeleteTimeLogPolicy();
 
-	public TimeLogAuthorizationAdapter( //
-			final ActorResolver actorResolver, //
-			final ApplicationSettingsService applicationSettingsService, //
-			final EmployeeNumberResolver employeeNumberResolver) {
+	public TimeLogAuthorizationAdapter(
+		final ActorResolver actorResolver,
+		final ApplicationSettingsService applicationSettingsService,
+		final EmployeeNumberResolver employeeNumberResolver) {
 		this.actorResolver = Objects.requireNonNull(actorResolver, "actorResolver");
-		this.applicationSettingsService = Objects.requireNonNull(applicationSettingsService,
-				"applicationSettingsService");
+		this.applicationSettingsService = Objects
+				.requireNonNull(applicationSettingsService, "applicationSettingsService");
 		this.employeeNumberResolver = Objects.requireNonNull(employeeNumberResolver, "employeeNumberResolver");
 	}
 
-	public boolean canOperate(final Authentication authentication, final String employeeNumber,
+	public boolean canOperate(
+			final Authentication authentication,
+			final String employeeNumber,
 			final boolean manualEntry) {
 		final Actor actor = this.getActor(authentication);
 		final boolean employeeManualTimelogEntryAllowed = this.applicationSettingsService
 				.isEmployeeManualTimelogEntryAllowed();
 		final boolean owns = this.employeeNumberResolver.owns(actor, employeeNumber);
-		final OperateTimeLogPolicy.Context context = new OperateTimeLogPolicy.Context(owns, manualEntry,
+		final OperateTimeLogPolicy.Context context = new OperateTimeLogPolicy.Context(
+				owns,
+				manualEntry,
 				employeeManualTimelogEntryAllowed);
 		return this.operateTimeLogPolicy.allows(actor, context);
 	}
@@ -66,8 +70,8 @@ public class TimeLogAuthorizationAdapter {
 	public boolean canSearch(final Authentication authentication, final String employeeNumber) {
 		final Actor actor = this.getActor(authentication);
 		final boolean restrictedToOwnEmployee = EmployeeAccessPolicy.isRestrictedToOwnEmployee(actor);
-		final Context searchContext = this.employeeNumberResolver.searchContext(actor, employeeNumber,
-				restrictedToOwnEmployee);
+		final Context searchContext = this.employeeNumberResolver
+				.searchContext(actor, employeeNumber, restrictedToOwnEmployee);
 		return this.searchTimeLogPolicy.allows(actor, searchContext);
 	}
 

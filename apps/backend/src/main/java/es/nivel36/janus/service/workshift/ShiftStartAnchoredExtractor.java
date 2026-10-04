@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.workshift;
 
@@ -28,20 +28,17 @@ import es.nivel36.janus.service.workshift.UnscheduledShiftStrategy.PauseInfo;
 /**
  * {@link TimeLogsExtractor} implementation that extracts a contiguous segment
  * of {@link TimeLog} entries anchored to the start of a work shift.
- *
  * <p>
  * The extractor identifies the first {@link TimeLog} whose entry time falls on
  * the specified {@link LocalDate}, using the local date derived from the
  * configured {@link ZoneId}. This log is used as the anchor point.
  * </p>
- *
  * <p>
  * Once the anchor is found, the extractor determines the segment boundaries by
  * using long pauses (represented by {@link PauseInfo}) as separators. The
  * resulting segment includes all {@link TimeLog} entries between the closest
  * separator before the anchor and the closest separator at or after the anchor.
  * </p>
- *
  * <p>
  * If no anchor can be found for the given date, or if the calculated segment is
  * empty, an empty list is returned.
@@ -58,8 +55,8 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	/**
 	 * Creates a new extractor bound to the given time zone.
 	 *
-	 * @param zoneId the time zone used to resolve local dates from entry times;
-	 *               can't be {@code null}
+	 * @param  zoneId               the time zone used to resolve local dates from
+	 *                              entry times; can't be {@code null}
 	 * @throws NullPointerException if {@code zoneId} is {@code null}
 	 */
 	ShiftStartAnchoredExtractor(final ZoneId zoneId) {
@@ -69,7 +66,6 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	/**
 	 * Extracts a list of {@link TimeLog} entries for the work shift anchored on the
 	 * specified date.
-	 *
 	 * <p>
 	 * The method locates the first {@link TimeLog} whose entry time falls on the
 	 * given {@code date} (according to the configured {@link ZoneId}). This log
@@ -77,24 +73,23 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	 * long pause before the anchor and the nearest long pause at or after the
 	 * anchor.
 	 * </p>
-	 *
 	 * <p>
 	 * If no anchor is found, if the input list is empty, or if the computed range
 	 * is invalid, an empty list is returned.
 	 * </p>
-	 *
 	 * Precondition:</br>
 	 * - pauses must contain at least two pause</br>
 	 * - timeLogs must contain at least two timeLog
 	 *
-	 * @param date     the date used to determine the shift start; can't be
-	 *                 {@code null}
-	 * @param timeLogs ordered list of time logs to extract from; can't be
-	 *                 {@code null}
-	 * @param pauses   list of long pauses used as segment separators; can't be
-	 *                 {@code null}
-	 * @return a list containing the extracted {@link TimeLog} segment, or an empty
-	 *         list if no segment can be determined
+	 * @param  date                  the date used to determine the shift start;
+	 *                               can't be {@code null}
+	 * @param  timeLogs              ordered list of time logs to extract from;
+	 *                               can't be {@code null}
+	 * @param  pauses                list of long pauses used as segment separators;
+	 *                               can't be {@code null}
+	 * @return                       a list containing the extracted {@link TimeLog}
+	 *                               segment, or an empty list if no segment can be
+	 *                               determined
 	 * @throws NullPointerException  if any argument is {@code null}
 	 * @throws IllegalStateException if preconditions are not met
 	 */

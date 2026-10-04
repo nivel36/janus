@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api;
 
@@ -48,8 +48,7 @@ class JanusExceptionHandlerTest {
 		final ProblemDetail problem = this.handler
 				.handleResourceAlreadyExists(new ResourceAlreadyExistsException("duplicate"), null);
 
-		assertProblem(problem, HttpStatus.CONFLICT, "urn:problem:resource-already-exists",
-				"Resource already exists");
+		assertProblem(problem, HttpStatus.CONFLICT, "urn:problem:resource-already-exists", "Resource already exists");
 	}
 
 	@Test
@@ -57,16 +56,14 @@ class JanusExceptionHandlerTest {
 		final ProblemDetail problem = this.handler
 				.handleTimeLogChronology(new TimeLogChronologyException("exit precedes entry"), null);
 
-		assertProblem(problem, HttpStatus.BAD_REQUEST, "urn:problem:invalid-chronology",
-				"Invalid chronological order");
+		assertProblem(problem, HttpStatus.BAD_REQUEST, "urn:problem:invalid-chronology", "Invalid chronological order");
 	}
 
 	@Test
 	void futureClientSuppliedTimesAreBadRequests() {
 		final ProblemDetail problem = this.handler.handleTimeLogFutureTime(new TimeLogFutureTimeException(), null);
 
-		assertProblem(problem, HttpStatus.BAD_REQUEST, "urn:problem:invalid-time-log-time",
-				"Invalid time log time");
+		assertProblem(problem, HttpStatus.BAD_REQUEST, "urn:problem:invalid-time-log-time", "Invalid time log time");
 	}
 
 	@Test
@@ -74,42 +71,54 @@ class JanusExceptionHandlerTest {
 		final ProblemDetail closed = this.handler.handleTimeLogAlreadyClosed(new TimeLogAlreadyClosedException(), null);
 		final ProblemDetail missingClockIn = this.handler
 				.handleClockOutWithoutClockIn(new ClockOutWithoutClockInException(), null);
-		final ProblemDetail finalized = this.handler.handleEventAlreadyFinalized(new EventAlreadyFinalizedException(),
-				null);
+		final ProblemDetail finalized = this.handler
+				.handleEventAlreadyFinalized(new EventAlreadyFinalizedException(), null);
 
 		assertProblem(closed, HttpStatus.CONFLICT, "urn:problem:operation-conflict", "Time log already closed");
-		assertProblem(missingClockIn, HttpStatus.CONFLICT, "urn:problem:clock-out-without-clock-in",
+		assertProblem(
+				missingClockIn,
+				HttpStatus.CONFLICT,
+				"urn:problem:clock-out-without-clock-in",
 				"Invalid clock-out");
-		assertProblem(finalized, HttpStatus.CONFLICT, "urn:problem:event-already-finalized",
-				"Event already finalized");
+		assertProblem(finalized, HttpStatus.CONFLICT, "urn:problem:event-already-finalized", "Event already finalized");
 	}
 
 	@Test
 	void authorizationDeniedDoesNotExposeExceptionMessage() {
-		final AuthorizationDeniedException exception = new AuthorizationDeniedException(SENSITIVE_DETAIL,
+		final AuthorizationDeniedException exception = new AuthorizationDeniedException(
+				SENSITIVE_DETAIL,
 				new AuthorizationDecision(false));
 
 		final ProblemDetail problem = this.handler.handleAuthorizationDeniedException(exception, null);
 
-		assertSafeProblem(problem, HttpStatus.FORBIDDEN, ACCESS_DENIED_TYPE,
+		assertSafeProblem(
+				problem,
+				HttpStatus.FORBIDDEN,
+				ACCESS_DENIED_TYPE,
 				"You are not authorized to perform this operation");
 	}
 
 	@Test
 	void accessDeniedDoesNotExposeExceptionMessage() {
-		final ProblemDetail problem = this.handler.handleAccessDenied(new AccessDeniedException(SENSITIVE_DETAIL),
-				null);
+		final ProblemDetail problem = this.handler
+				.handleAccessDenied(new AccessDeniedException(SENSITIVE_DETAIL), null);
 
-		assertSafeProblem(problem, HttpStatus.FORBIDDEN, ACCESS_DENIED_TYPE,
+		assertSafeProblem(
+				problem,
+				HttpStatus.FORBIDDEN,
+				ACCESS_DENIED_TYPE,
 				"You are not authorized to perform this operation");
 	}
 
 	@Test
 	void authenticationDoesNotExposeProviderMessage() {
-		final ProblemDetail problem = this.handler.handleAuthentication(new BadCredentialsException(SENSITIVE_DETAIL),
-				null);
+		final ProblemDetail problem = this.handler
+				.handleAuthentication(new BadCredentialsException(SENSITIVE_DETAIL), null);
 
-		assertSafeProblem(problem, HttpStatus.UNAUTHORIZED, ACCESS_DENIED_TYPE,
+		assertSafeProblem(
+				problem,
+				HttpStatus.UNAUTHORIZED,
+				ACCESS_DENIED_TYPE,
 				"Valid authentication credentials are required");
 	}
 
@@ -117,20 +126,29 @@ class JanusExceptionHandlerTest {
 	void genericExceptionDoesNotExposeExceptionMessage() {
 		final ProblemDetail problem = this.handler.handleGeneric(new Exception(SENSITIVE_DETAIL), null);
 
-		assertSafeProblem(problem, HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_TYPE,
+		assertSafeProblem(
+				problem,
+				HttpStatus.INTERNAL_SERVER_ERROR,
+				INTERNAL_ERROR_TYPE,
 				"An unexpected internal error occurred");
 		assertThat(problem.getTitle()).isEqualTo("Internal server error");
 	}
 
-	private static void assertSafeProblem(final ProblemDetail problem, final HttpStatus expectedStatus,
-			final URI expectedType, final String expectedDetail) {
+	private static void assertSafeProblem(
+			final ProblemDetail problem,
+			final HttpStatus expectedStatus,
+			final URI expectedType,
+			final String expectedDetail) {
 		assertThat(problem.getStatus()).isEqualTo(expectedStatus.value());
 		assertThat(problem.getType()).isEqualTo(expectedType);
 		assertThat(problem.getDetail()).isEqualTo(expectedDetail).doesNotContain(SENSITIVE_DETAIL);
 	}
 
-	private static void assertProblem(final ProblemDetail problem, final HttpStatus expectedStatus,
-			final String expectedType, final String expectedTitle) {
+	private static void assertProblem(
+			final ProblemDetail problem,
+			final HttpStatus expectedStatus,
+			final String expectedType,
+			final String expectedTitle) {
 		assertThat(problem.getStatus()).isEqualTo(expectedStatus.value());
 		assertThat(problem.getType()).isEqualTo(URI.create(expectedType));
 		assertThat(problem.getTitle()).isEqualTo(expectedTitle);

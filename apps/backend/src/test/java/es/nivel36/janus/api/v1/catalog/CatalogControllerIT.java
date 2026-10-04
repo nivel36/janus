@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.catalog;
 
@@ -52,38 +52,40 @@ class CatalogControllerIT {
 		final var request = get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")));
 
 		this.mvc.perform(request.queryParam("query", "a".repeat(100))).andExpect(status().isOk());
-		this.mvc.perform(get(BASE).queryParam("query", "")
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				get(BASE).queryParam("query", "")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest());
-		this.mvc.perform(get(BASE).queryParam("query", "a".repeat(101))
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				get(BASE).queryParam("query", "a".repeat(101))
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest());
-		this.mvc.perform(get(BASE).queryParam("query", "Europe\nMadrid")
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+		this.mvc.perform(
+				get(BASE).queryParam("query", "Europe\nMadrid")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testSearchTimeZonesShouldReturn200AndPageData() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("query", "Europe/Madrid").with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON)) //
-				.andExpect(jsonPath("$.content[0].literal").value(Matchers.containsString("Europe/Madrid"))) //
-				.andExpect(jsonPath("$.content[0].level1").value("Europe")) //
-				.andExpect(jsonPath("$.content[0].level2").value("Madrid")) //
+		this.mvc.perform(
+				get(BASE).queryParam("query", "Europe/Madrid")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+				.andExpect(jsonPath("$.content[0].literal").value(Matchers.containsString("Europe/Madrid")))
+				.andExpect(jsonPath("$.content[0].level1").value("Europe"))
+				.andExpect(jsonPath("$.content[0].level2").value("Madrid"))
 				.andExpect(jsonPath("$.content[0].utc").value(Matchers.matchesPattern("UTC[+-]\\d{1,2}(:\\d{2})?")));
 	}
 
 	@Test
 	void testSearchTimeZonesShouldBePaginated() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("page", "0").queryParam("size", "5").with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$.content.length()").value(5)) //
+		this.mvc.perform(
+				get(BASE).queryParam("page", "0").queryParam("size", "5")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(5))
 				.andExpect(jsonPath("$.page.size").value(5));
 	}
-
 
 	@Test
 	void testSearchTimeZonesShouldUseStandardDefaultPageSize() throws Exception {
@@ -94,41 +96,43 @@ class CatalogControllerIT {
 
 	@Test
 	void testSearchTimeZonesShouldSortByUtcWhenRequested() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("sort", "utc,asc").queryParam("page", "0").queryParam("size", "20")
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$.content[0].utc").value(Matchers.startsWith("UTC-")));
+		this.mvc.perform(
+				get(BASE).queryParam("sort", "utc,asc").queryParam("page", "0").queryParam("size", "20")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content[0].utc").value(Matchers.startsWith("UTC-")));
 	}
 
 	@Test
 	void testSearchTimeZonesShouldRejectUnknownSortProperty() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("sort", "unknown,asc")
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				get(BASE).queryParam("sort", "unknown,asc")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	void testSearchTimeZonesShouldIgnoreLegacySortByParameter() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("sortBy", "UNKNOWN")
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
+		this.mvc.perform(
+				get(BASE).queryParam("sortBy", "UNKNOWN")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk());
 	}
 
 	@Test
 	void testSearchTimeZonesShouldUsePageableSortWhenLegacySortByIsAlsoSent() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("sortBy", "LEVEL1").queryParam("sort", "utc,asc")
-				.queryParam("page", "0").queryParam("size", "20")
-				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$.content[0].utc").value(Matchers.startsWith("UTC-")));
+		this.mvc.perform(
+				get(BASE).queryParam("sortBy", "LEVEL1").queryParam("sort", "utc,asc").queryParam("page", "0")
+						.queryParam("size", "20")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content[0].utc").value(Matchers.startsWith("UTC-")));
 	}
 
 	@Test
 	void testSearchTimeZonesShouldKeepRemainingSegmentsInSecondLevel() throws Exception {
-		this.mvc.perform(get(BASE).queryParam("query", "America/Argentina/Buenos_Aires").with(verifiedJwt()//
-				.authorities(createAuthorityList("ROLE_JANUS_ADMIN")))) //
-				.andExpect(status().isOk()) //
-				.andExpect(jsonPath("$.content[0].level1").value("America")) //
+		this.mvc.perform(
+				get(BASE).queryParam("query", "America/Argentina/Buenos_Aires")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content[0].level1").value("America"))
 				.andExpect(jsonPath("$.content[0].level2").value("Argentina/Buenos_Aires"));
 	}
 }

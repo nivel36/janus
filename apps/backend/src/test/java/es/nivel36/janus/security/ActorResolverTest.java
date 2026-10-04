@@ -1,6 +1,6 @@
 /*
- * Copyright 2026 Abel Ferrer Jiménez
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright 2026 Abel Ferrer Jiménez Licensed under the Apache License, Version
+ * 2.0 (the "License");
  */
 package es.nivel36.janus.security;
 
@@ -39,7 +39,9 @@ class ActorResolverTest {
 		when(appUser.getEmployee()).thenReturn(employee);
 		when(employee.getId()).thenReturn(84L);
 		final JwtAuthenticationToken authentication = jwtAuthentication(
-				List.of(new SimpleGrantedAuthority("ROLE_JANUS_ADMIN"), new SimpleGrantedAuthority("ROLE_UNKNOWN"),
+				List.of(
+						new SimpleGrantedAuthority("ROLE_JANUS_ADMIN"),
+						new SimpleGrantedAuthority("ROLE_UNKNOWN"),
 						new SimpleGrantedAuthority("SCOPE_openid")));
 
 		final Actor actor = new ActorResolver(appUserService).resolve(authentication);
@@ -88,7 +90,9 @@ class ActorResolverTest {
 
 	@Test
 	void shouldRejectAuthenticationTypesNotIssuedByTheResourceServer() {
-		final TestingAuthenticationToken authentication = new TestingAuthenticationToken("client-value", "password",
+		final TestingAuthenticationToken authentication = new TestingAuthenticationToken(
+				"client-value",
+				"password",
 				"ROLE_JANUS_ADMIN");
 		final ActorResolver actorResolver = new ActorResolver(mock(AppUserService.class));
 

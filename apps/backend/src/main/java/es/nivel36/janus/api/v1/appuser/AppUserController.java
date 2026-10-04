@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.appuser;
 
@@ -57,27 +57,25 @@ public class AppUserController implements AppUserResource {
 	 *                              {@link AppUserResponse} DTOs; must not be
 	 *                              {@code null}
 	 */
-	public AppUserController( //
-			final AppUserService appUserService, //
-			final @Qualifier("appUserResponseMapper") Mapper<AppUser, AppUserResponse> appUserResponseMapper) {
-		this.appUserService = Objects.requireNonNull( //
-				appUserService, //
-				"appUserService can't be null");
-		this.appUserResponseMapper = Objects.requireNonNull( //
-				appUserResponseMapper, //
-				"appUserResponseMapper can't be null");
+	public AppUserController(
+		final AppUserService appUserService,
+		final @Qualifier("appUserResponseMapper") Mapper<AppUser, AppUserResponse> appUserResponseMapper) {
+		this.appUserService = Objects.requireNonNull(appUserService, "appUserService can't be null");
+		this.appUserResponseMapper = Objects
+				.requireNonNull(appUserResponseMapper, "appUserResponseMapper can't be null");
 	}
 
 	/**
 	 * Retrieves the current authenticated {@link AppUser}, creating it from JWT
 	 * claims when provisioning is allowed.
 	 *
-	 * @param authentication the JWT authentication containing the current user's
-	 *                       identity claims; must not be {@code null}
-	 * @return the current {@link AppUserResponse}
+	 * @param  authentication the JWT authentication containing the current user's
+	 *                        identity claims; must not be {@code null}
+	 * @return                the current {@link AppUserResponse}
 	 */
 	@Override
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
+		logger.debug("Find app user ACTION performed");
 		final Jwt token = authentication.getToken();
 		final String email = token.getClaimAsString("email");
 		if (email == null || email.isBlank()) {
@@ -85,8 +83,8 @@ public class AppUserController implements AppUserResource {
 		}
 		final String subject = token.getSubject();
 		final String employeeNumber = normalizeEmployeeNumber(token.getClaimAsString("employeeNumber"));
-		final AppUser appUser = this.appUserService.findOrCreateAppUser(subject, EmailAddresses.canonicalize(email),
-				employeeNumber);
+		final AppUser appUser = this.appUserService
+				.findOrCreateAppUser(subject, EmailAddresses.canonicalize(email), employeeNumber);
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(appUser);
 		return ResponseEntity.ok(appUserResponse);
 	}
@@ -106,14 +104,13 @@ public class AppUserController implements AppUserResource {
 	/**
 	 * Updates the preferences of the current authenticated {@link AppUser}.
 	 *
-	 * @param request the payload containing the new user preferences; must not be
-	 *                {@code null}
-	 * @return the updated {@link AppUserResponse}
+	 * @param  request the payload containing the new user preferences; must not be
+	 *                 {@code null}
+	 * @return         the updated {@link AppUserResponse}
 	 */
 	@Override
-	public ResponseEntity<AppUserResponse> updateAppUser( //
-			final UUID id, //
-			final UpdateAppUserRequest request) {
+	public ResponseEntity<AppUserResponse> updateAppUser(final UUID id, final UpdateAppUserRequest request) {
+		logger.debug("Update app user ACTION performed");
 		final Locale forLanguageTag = Locale.forLanguageTag(request.locale().trim());
 		final TimeFormat timeFormat = request.timeFormat();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
@@ -126,8 +123,8 @@ public class AppUserController implements AppUserResource {
 	/**
 	 * Deletes an existing {@link AppUser}.
 	 *
-	 * @param id the UUID of the app user; must not be {@code null}
-	 * @return an empty response with status {@link HttpStatus#NO_CONTENT}
+	 * @param  id the UUID of the app user; must not be {@code null}
+	 * @return    an empty response with status {@link HttpStatus#NO_CONTENT}
 	 */
 	@Override
 	public ResponseEntity<Void> deleteAppUser(final UUID id) {

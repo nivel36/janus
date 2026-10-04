@@ -28,11 +28,13 @@ final class TimeLogSearchSpecifications {
 		return (root, _, builder) -> {
 			Predicate predicate = builder.conjunction();
 			if (criteria.employeeNumber() != null) {
-				predicate = builder.and(predicate,
+				predicate = builder.and(
+						predicate,
 						builder.equal(root.get("employee").get("employeeNumber"), criteria.employeeNumber()));
 			}
 			if (criteria.start() != null) {
-				predicate = builder.and(predicate,
+				predicate = builder.and(
+						predicate,
 						builder.greaterThanOrEqualTo(root.get("entryTime"), criteria.start()),
 						builder.lessThan(root.get("entryTime"), criteria.end()));
 			}

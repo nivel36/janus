@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.workshift;
 
@@ -31,14 +31,12 @@ import es.nivel36.janus.service.worksite.Worksite;
 /**
  * {@link ShiftInferenceStrategy} implementation that infers a work shift when
  * no scheduled shift information is available.
- *
  * <p>
  * This strategy analyzes an ordered list of {@link TimeLog} entries and
  * identifies long pauses between consecutive logs based on the configured
  * {@link ShiftPolicy}. Depending on the number and position of these pauses,
  * the strategy determines which segment of logs belongs to the inferred shift
  * for a given {@link LocalDate}.
- *
  * <p>
  * The inference rules are:
  * <ul>
@@ -78,17 +76,16 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 	/**
 	 * Infers the {@link TimeLog} entries that belong to the shift for the given
 	 * date.
-	 *
 	 * <p>
 	 * The input logs must be ordered chronologically. The method detects long
 	 * pauses according to the configured {@link ShiftPolicy} and delegates the
 	 * selection of the appropriate segment to specialized extractors.
 	 *
-	 * @param date        date for which the shift is being inferred; can't be
-	 *                    {@code null}
-	 * @param orderedLogs chronologically ordered time logs; can't be {@code null}
-	 * @return an immutable list of {@link TimeLog} entries belonging to the
-	 *         inferred shift; never {@code null}
+	 * @param  date        date for which the shift is being inferred; can't be
+	 *                     {@code null}
+	 * @param  orderedLogs chronologically ordered time logs; can't be {@code null}
+	 * @return             an immutable list of {@link TimeLog} entries belonging to
+	 *                     the inferred shift; never {@code null}
 	 */
 	@Override
 	public TimeLogs infer(final LocalDate date, final TimeLogs orderedLogs) {

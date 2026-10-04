@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.employee;
 
@@ -35,33 +35,24 @@ import jakarta.validation.constraints.Pattern;
  * @param scheduleCode the code of the schedule of the employee; must not be
  *                     blank and must be at most 50 characters
  */
-public record CreateEmployeeRequest( //
-		@NotNull(message = "employeeNumber must not be null") //
-		@EmployeeNumber //
-		String employeeNumber, //
-		
-		@NotBlank(message = "name must not be blank") //
-		@Pattern( //
-				regexp = "^[\\p{L} .,'-]{1,255}$", //
-				message = "name must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)" //
-		) //
-		String name, //
+public record CreateEmployeeRequest(
+		@NotNull(message = "employeeNumber must not be null")
+		@EmployeeNumber
+		String employeeNumber,
 
-		@NotBlank(message = "surname must not be blank") //
-		@Pattern( //
-				regexp = "^[\\p{L} .,'-]{1,255}$", //
-				message = "surname must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)" //
-		) //
-		String surname, //
+		@NotBlank(message = "name must not be blank")
+		@Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", message = "name must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)")
+		String name,
 
-		@NotNull(message = "email must not be null") //
-		@Pattern( //
-				regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", //
-				message = "must be a valid and safe email address (max 254)" //
-		) //
-		String email, //
+		@NotBlank(message = "surname must not be blank")
+		@Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", message = "surname must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)")
+		String surname,
 
-		@NotBlank(message = "scheduleCode must not be blank") //
-		@ScheduleCode //
+		@NotNull(message = "email must not be null")
+		@Pattern(regexp = "^(?=.{1,254}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "must be a valid and safe email address (max 254)")
+		String email,
+
+		@NotBlank(message = "scheduleCode must not be blank")
+		@ScheduleCode
 		String scheduleCode) {
 }

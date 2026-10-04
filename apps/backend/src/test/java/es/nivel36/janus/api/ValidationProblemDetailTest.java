@@ -1,11 +1,11 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  */
 package es.nivel36.janus.api;
 
@@ -74,19 +74,26 @@ class ValidationProblemDetailTest {
 	void composedIdentifierConstraintHasTheSameResultInPathQueryAndBody() throws Exception {
 		final var reason = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)";
 		this.mvc.perform(get("/validation/employee/{employeeNumber}", "invalid value")).andExpectAll(
-				status().isBadRequest(), jsonPath("$.errors[0].code").value("EmployeeNumber"),
+				status().isBadRequest(),
+				jsonPath("$.errors[0].code").value("EmployeeNumber"),
 				jsonPath("$.errors[0].reason").value(reason));
 		this.mvc.perform(get("/validation/employee").param("employeeNumber", "invalid value")).andExpectAll(
-				status().isBadRequest(), jsonPath("$.errors[0].code").value("EmployeeNumber"),
+				status().isBadRequest(),
+				jsonPath("$.errors[0].code").value("EmployeeNumber"),
 				jsonPath("$.errors[0].reason").value(reason));
-		this.mvc.perform(post("/validation/employee").contentType(MediaType.APPLICATION_JSON)
-				.content("{\"employeeNumber\":\"invalid value\"}")).andExpectAll(status().isBadRequest(),
+		this.mvc.perform(
+				post("/validation/employee").contentType(MediaType.APPLICATION_JSON)
+						.content("{\"employeeNumber\":\"invalid value\"}"))
+				.andExpectAll(
+						status().isBadRequest(),
 						jsonPath("$.errors[0].code").value("EmployeeNumber"),
 						jsonPath("$.errors[0].reason").value(reason));
 	}
 
-	private static org.springframework.test.web.servlet.ResultMatcher[] commonProblem(final String instance,
-			final String name, final String code) {
+	private static org.springframework.test.web.servlet.ResultMatcher[] commonProblem(
+			final String instance,
+			final String name,
+			final String code) {
 		return new org.springframework.test.web.servlet.ResultMatcher[] { status().isBadRequest(),
 				content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON),
 				jsonPath("$.type").value("urn:problem:validation-failed"),
@@ -102,33 +109,53 @@ class ValidationProblemDetailTest {
 	private static final class ValidationController {
 
 		@PostMapping("/body")
-		void body(@Valid @RequestBody final ValidationBody body) {
+		void body(
+				@Valid
+				@RequestBody
+				final ValidationBody body) {
 		}
 
 		@RequestMapping("/query")
-		void query(@RequestParam("query") @Pattern(regexp = "[a-z]+") final String query) {
+		void query(
+				@RequestParam("query")
+				@Pattern(regexp = "[a-z]+")
+				final String query) {
 		}
 
 		@RequestMapping("/path/{code}")
-		void path(@PathVariable("code") @Pattern(regexp = "[a-z]+") final String code) {
+		void path(
+				@PathVariable("code")
+				@Pattern(regexp = "[a-z]+")
+				final String code) {
 		}
 
 		@RequestMapping("/employee/{employeeNumber}")
-		void employeePath(@PathVariable("employeeNumber") @EmployeeNumber final String employeeNumber) {
+		void employeePath(
+				@PathVariable("employeeNumber")
+				@EmployeeNumber
+				final String employeeNumber) {
 		}
 
 		@RequestMapping("/employee")
-		void employeeQuery(@RequestParam("employeeNumber") @EmployeeNumber final String employeeNumber) {
+		void employeeQuery(
+				@RequestParam("employeeNumber")
+				@EmployeeNumber
+				final String employeeNumber) {
 		}
 
 		@PostMapping("/employee")
-		void employeeBody(@Valid @RequestBody final EmployeeNumberBody body) {
+		void employeeBody(
+				@Valid
+				@RequestBody
+				final EmployeeNumberBody body) {
 		}
 	}
 
-	private record ValidationBody(@NotBlank String name) {
+	private record ValidationBody(@NotBlank
+	String name) {
 	}
 
-	private record EmployeeNumberBody(@EmployeeNumber String employeeNumber) {
+	private record EmployeeNumberBody(@EmployeeNumber
+	String employeeNumber) {
 	}
 }

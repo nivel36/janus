@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.schedule;
 
@@ -39,21 +39,17 @@ import jakarta.validation.constraints.Pattern;
  * @param dayOfWeekRanges day-specific working ranges that compose the rule;
  *                        must not be {@code null}; each item must be valid
  */
-public record ScheduleRuleRequest( //
-		@NotBlank(message = "name must not be blank") //
-		@Pattern( //
-				regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", //
-				message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)" //
-		) //
-		String name, //
+public record ScheduleRuleRequest(
+		@NotBlank(message = "name must not be blank")
+		@Pattern(regexp = "^[\\p{L}0-9 _'.,-]{1,250}$", message = "name must contain only letters, digits, spaces, and basic punctuation (max 250)")
+		String name,
 
-		LocalDate startDate, //
+		LocalDate startDate,
 
-		LocalDate endDate, //
+		LocalDate endDate,
 
-		@NotNull(message = "dayOfWeekRanges must not be null") //
-		List<@Valid ScheduleRuleTimeRangeRequest> dayOfWeekRanges //
-) {
+		@NotNull(message = "dayOfWeekRanges must not be null")
+		List<@Valid ScheduleRuleTimeRangeRequest> dayOfWeekRanges) {
 
 	/**
 	 * Validates that {@code endDate} is not before {@code startDate} when both are

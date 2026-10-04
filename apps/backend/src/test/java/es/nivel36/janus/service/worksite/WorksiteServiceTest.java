@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.worksite;
 
@@ -47,10 +47,16 @@ class WorksiteServiceTest {
 
 	@Test
 	void assertEmployeeCanUseWorksiteShouldAllowAssignedScopeWhenEmployeeIsAssigned() {
-		final Schedule schedule = new Schedule("STD-WH", "Standard Work Hours", Duration.ofMinutes(5),
+		final Schedule schedule = new Schedule(
+				"STD-WH",
+				"Standard Work Hours",
+				Duration.ofMinutes(5),
 				Duration.ofMinutes(5));
 		final Employee employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es", schedule);
-		final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
+		final Worksite worksite = new Worksite(
+				"BCN-PROJ",
+				"Barcelona Project Site",
+				ZoneId.of("UTC+2"),
 				WorksiteScope.ASSIGNED);
 		when(this.employeeService.isAssignedToWorksite(employee.getId(), "BCN-PROJ")).thenReturn(true);
 
@@ -60,14 +66,21 @@ class WorksiteServiceTest {
 
 	@Test
 	void assertEmployeeCanUseWorksiteShouldRejectAssignedScopeWhenEmployeeIsNotAssigned() {
-		final Schedule schedule = new Schedule("STD-WH", "Standard Work Hours", Duration.ofMinutes(5),
+		final Schedule schedule = new Schedule(
+				"STD-WH",
+				"Standard Work Hours",
+				Duration.ofMinutes(5),
 				Duration.ofMinutes(5));
 		final Employee employee = new Employee("EMP-0001", "Abel", "Ferrer", "aferrer@nivel36.es", schedule);
-		final Worksite worksite = new Worksite("BCN-PROJ", "Barcelona Project Site", ZoneId.of("UTC+2"),
+		final Worksite worksite = new Worksite(
+				"BCN-PROJ",
+				"Barcelona Project Site",
+				ZoneId.of("UTC+2"),
 				WorksiteScope.ASSIGNED);
 		when(this.employeeService.isAssignedToWorksite(employee.getId(), "BCN-PROJ")).thenReturn(false);
 
-		assertThrows(WorksiteAccessDeniedException.class,
+		assertThrows(
+				WorksiteAccessDeniedException.class,
 				() -> this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite));
 		verify(this.employeeService).isAssignedToWorksite(employee.getId(), "BCN-PROJ");
 	}

@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.worksite;
 
@@ -46,41 +46,77 @@ public interface WorksiteResource {
 	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
 	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
 	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeNumber)")
-	ResponseEntity<Page<WorksiteResponse>> searchWorksites(@RequestParam(required = false) @SearchQuery String query,
-			@RequestParam(required = false) @EmployeeNumber String employeeNumber,
-			@PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC) Pageable pageable,
+	ResponseEntity<Page<WorksiteResponse>> searchWorksites(
+			@RequestParam(required = false)
+			@SearchQuery
+			String query,
+			@RequestParam(required = false)
+			@EmployeeNumber
+			String employeeNumber,
+			@PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC)
+			Pageable pageable,
 			Authentication authentication);
 
 	@GetMapping("/{worksiteCode}")
 	@PreAuthorize("@worksiteAuthorization.canView(authentication, #worksiteCode)")
-	ResponseEntity<WorksiteResponse> findWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode);
+	ResponseEntity<WorksiteResponse> findWorksite(
+			@PathVariable("worksiteCode")
+			@WorksiteCode
+			String worksiteCode);
 
 	@GetMapping("/{worksiteCode}/stats")
 	@PreAuthorize("@worksiteAuthorization.canViewStats(authentication, #worksiteCode)")
-	ResponseEntity<WorksiteStatsResponse> stats(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
-			@RequestParam("start") Instant start, @RequestParam("end") Instant end);
+	ResponseEntity<WorksiteStatsResponse> stats(
+			@PathVariable("worksiteCode")
+			@WorksiteCode
+			String worksiteCode,
+			@RequestParam("start")
+			Instant start,
+			@RequestParam("end")
+			Instant end);
 
 	@PostMapping
 	@PreAuthorize("@worksiteAuthorization.canCreate(authentication, #request.scope())")
-	ResponseEntity<WorksiteResponse> createWorksite(@Valid @RequestBody CreateWorksiteRequest request);
+	ResponseEntity<WorksiteResponse> createWorksite(
+			@Valid
+			@RequestBody
+			CreateWorksiteRequest request);
 
 	@PreAuthorize("@worksiteAuthorization.canUpdate(authentication, #worksiteCode, #request.scope())")
 	@PutMapping("/{worksiteCode}")
-	ResponseEntity<WorksiteResponse> updateWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
-			@Valid @RequestBody UpdateWorksiteRequest request);
+	ResponseEntity<WorksiteResponse> updateWorksite(
+			@PathVariable("worksiteCode")
+			@WorksiteCode
+			String worksiteCode,
+			@Valid
+			@RequestBody
+			UpdateWorksiteRequest request);
 
 	@PreAuthorize("@worksiteAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{worksiteCode}")
-	ResponseEntity<Void> deleteWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode);
+	ResponseEntity<Void> deleteWorksite(
+			@PathVariable("worksiteCode")
+			@WorksiteCode
+			String worksiteCode);
 
 	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
 	@PutMapping({ "/{worksiteCode}/employees/{employeeNumber}" })
-	ResponseEntity<Void> assignEmployeeToWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
+	ResponseEntity<Void> assignEmployeeToWorksite(
+			@PathVariable("worksiteCode")
+			@WorksiteCode
+			String worksiteCode,
+			@PathVariable("employeeNumber")
+			@EmployeeNumber
+			String employeeNumber);
 
 	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
 	@DeleteMapping({ "/{worksiteCode}/employees/{employeeNumber}" })
-	ResponseEntity<Void> removeEmployeeFromWorksite(@PathVariable("worksiteCode") @WorksiteCode String worksiteCode,
-			@PathVariable("employeeNumber") @EmployeeNumber String employeeNumber);
+	ResponseEntity<Void> removeEmployeeFromWorksite(
+			@PathVariable("worksiteCode")
+			@WorksiteCode
+			String worksiteCode,
+			@PathVariable("employeeNumber")
+			@EmployeeNumber
+			String employeeNumber);
 
 }

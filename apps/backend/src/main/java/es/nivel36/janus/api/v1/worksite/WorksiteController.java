@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.worksite;
 
@@ -64,40 +64,38 @@ public class WorksiteController implements WorksiteResource {
 	 *                               into {@link WorksiteResponse} DTOs; must not be
 	 *                               {@code null}
 	 */
-	public WorksiteController( //
-			final WorksiteService worksiteService, //
-			final EmployeeService employeeService, //
-			final WorksiteAuthorizationAdapter authorization, //
-			final @Qualifier("worksiteResponseMapper") Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
-		this.worksiteService = //
-				Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
-		this.employeeService = //
-				Objects.requireNonNull(employeeService, "EmployeeService can't be null");
-		this.authorization = //
-				Objects.requireNonNull(authorization, "authorization can't be null");
-		this.worksiteResponseMapper = //
-				Objects.requireNonNull(worksiteResponseMapper, "WorksiteResponseMapper can't be null");
+	public WorksiteController(
+		final WorksiteService worksiteService,
+		final EmployeeService employeeService,
+		final WorksiteAuthorizationAdapter authorization,
+		final @Qualifier("worksiteResponseMapper") Mapper<Worksite, WorksiteResponse> worksiteResponseMapper) {
+		this.worksiteService = Objects.requireNonNull(worksiteService, "WorksiteService can't be null");
+		this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService can't be null");
+		this.authorization = Objects.requireNonNull(authorization, "authorization can't be null");
+		this.worksiteResponseMapper = Objects
+				.requireNonNull(worksiteResponseMapper, "WorksiteResponseMapper can't be null");
 	}
 
 	/**
 	 * Retrieves all worksites registered in the system.
 	 *
-	 * @param query          optional worksite search query
-	 * @param employeeNumber optional employee number filter
-	 * @param pageable       pagination and sorting information; must not be
-	 *                       {@code null}
-	 * @param authentication current authentication; must not be {@code null}
-	 * @return a {@link ResponseEntity} containing the list of worksites
+	 * @param  query          optional worksite search query
+	 * @param  employeeNumber optional employee number filter
+	 * @param  pageable       pagination and sorting information; must not be
+	 *                        {@code null}
+	 * @param  authentication current authentication; must not be {@code null}
+	 * @return                a {@link ResponseEntity} containing the list of
+	 *                        worksites
 	 */
 	@Override
-	public ResponseEntity<Page<WorksiteResponse>> searchWorksites( //
-			final String query, //
-			final String employeeNumber, //
-			final Pageable pageable, //
+	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(
+			final String query,
+			final String employeeNumber,
+			final Pageable pageable,
 			final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
-		final String effectiveEmployeeNumber = this.authorization.effectiveEmployeeNumber(authentication,
-				employeeNumber);
+		final String effectiveEmployeeNumber = this.authorization
+				.effectiveEmployeeNumber(authentication, employeeNumber);
 
 		final Page<WorksiteResponse> worksites = this.worksiteService
 				.searchWorksites(query, effectiveEmployeeNumber, pageable).map(this.worksiteResponseMapper::map);
@@ -107,8 +105,10 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Retrieves a specific worksite by its unique code.
 	 *
-	 * @param worksiteCode the unique code of the worksite; must not be {@code null}
-	 * @return a {@link ResponseEntity} containing the requested worksite
+	 * @param  worksiteCode the unique code of the worksite; must not be
+	 *                      {@code null}
+	 * @return              a {@link ResponseEntity} containing the requested
+	 *                      worksite
 	 */
 	@Override
 	public ResponseEntity<WorksiteResponse> findWorksite(final String worksiteCode) {
@@ -122,44 +122,54 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Retrieves statistics for a worksite over the requested time range.
 	 *
-	 * @param worksiteCode the unique code of the worksite; must not be {@code null}
-	 * @param start        start of the time range; must not be {@code null}
-	 * @param end          end of the time range; must not be {@code null} and must
-	 *                     not precede {@code start}
-	 * @return the requested worksite statistics
+	 * @param  worksiteCode             the unique code of the worksite; must not be
+	 *                                  {@code null}
+	 * @param  start                    start of the time range; must not be
+	 *                                  {@code null}
+	 * @param  end                      end of the time range; must not be
+	 *                                  {@code null} and must not precede
+	 *                                  {@code start}
+	 * @return                          the requested worksite statistics
 	 * @throws IllegalArgumentException if {@code end} precedes {@code start}
 	 */
 	@Override
-	public ResponseEntity<WorksiteStatsResponse> stats( //
-			final String worksiteCode, //
-			final Instant start, //
+	public ResponseEntity<WorksiteStatsResponse> stats(
+			final String worksiteCode,
+			final Instant start,
 			final Instant end) {
 		if (!start.isBefore(end)) {
 			throw new IllegalArgumentException("end must be after start");
 		}
 
 		this.worksiteService.findWorksiteByCode(worksiteCode);
-		final long employeesWhoClockedIn = this.employeeService.countDistinctEmployeesWithTimeLogsInRange(worksiteCode,
-				start, end);
+		final long employeesWhoClockedIn = this.employeeService
+				.countDistinctEmployeesWithTimeLogsInRange(worksiteCode, start, end);
 		final long erroneousTimeLogs = this.employeeService.countOpenTimeLogsInRange(worksiteCode, start, end);
 		final long totalTimeLogs = this.employeeService.countTimeLogsInRange(worksiteCode, start, end);
 		final long employeesAllowedToClockIn = this.employeeService.countEmployeesAssignedToWorksite(worksiteCode);
 		final long distinctSchedules = this.employeeService.countDistinctSchedulesInRange(worksiteCode, start, end);
-		return ResponseEntity.ok(new WorksiteStatsResponse(worksiteCode, start, end, employeesWhoClockedIn,
-				erroneousTimeLogs, totalTimeLogs, employeesAllowedToClockIn, distinctSchedules));
+		return ResponseEntity.ok(
+				new WorksiteStatsResponse(
+						worksiteCode,
+						start,
+						end,
+						employeesWhoClockedIn,
+						erroneousTimeLogs,
+						totalTimeLogs,
+						employeesAllowedToClockIn,
+						distinctSchedules));
 	}
 
 	/**
 	 * Creates a new worksite.
-	 *
 	 * <p>
 	 * The request defines the worksite scope together with its identifying and
 	 * descriptive data.
 	 * </p>
 	 *
-	 * @param request the payload describing the worksite to create; must not be
-	 *                {@code null}
-	 * @return a {@link ResponseEntity} containing the created worksite
+	 * @param  request the payload describing the worksite to create; must not be
+	 *                 {@code null}
+	 * @return         a {@link ResponseEntity} containing the created worksite
 	 */
 	@Override
 	public ResponseEntity<WorksiteResponse> createWorksite(final CreateWorksiteRequest request) {
@@ -180,14 +190,15 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Updates an existing worksite identified by its code.
 	 *
-	 * @param worksiteCode the code of the worksite to update; must not be
-	 *                     {@code null}
-	 * @param request      the payload describing the new worksite data; must not be
-	 *                     {@code null}
-	 * @return a {@link ResponseEntity} containing the updated worksite
+	 * @param  worksiteCode the code of the worksite to update; must not be
+	 *                      {@code null}
+	 * @param  request      the payload describing the new worksite data; must not
+	 *                      be {@code null}
+	 * @return              a {@link ResponseEntity} containing the updated worksite
 	 */
 	@Override
-	public ResponseEntity<WorksiteResponse> updateWorksite(final String worksiteCode,
+	public ResponseEntity<WorksiteResponse> updateWorksite(
+			final String worksiteCode,
 			final UpdateWorksiteRequest request) {
 		logger.debug("Update worksite ACTION performed");
 
@@ -196,8 +207,8 @@ public class WorksiteController implements WorksiteResource {
 		final WorksiteScope scope = request.scope();
 		final String description = request.description() == null ? null : request.description().trim();
 		final String address = request.address() == null ? null : request.address().trim();
-		final Worksite worksite = this.worksiteService.updateWorksite(worksiteCode, name, zoneId, scope, description,
-				address);
+		final Worksite worksite = this.worksiteService
+				.updateWorksite(worksiteCode, name, zoneId, scope, description, address);
 
 		final WorksiteResponse response = this.worksiteResponseMapper.map(worksite);
 		return ResponseEntity.ok(response);
@@ -206,8 +217,10 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Deletes the worksite identified by the given code.
 	 *
-	 * @param worksiteCode the unique code of the worksite; must not be {@code null}
-	 * @return a {@link ResponseEntity} with an empty body and HTTP 204 status
+	 * @param  worksiteCode the unique code of the worksite; must not be
+	 *                      {@code null}
+	 * @return              a {@link ResponseEntity} with an empty body and HTTP 204
+	 *                      status
 	 */
 	@Override
 	public ResponseEntity<Void> deleteWorksite(final String worksiteCode) {
@@ -221,10 +234,9 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Adds a {@link Worksite} to an {@link Employee}.
 	 *
-	 * @param worksiteCode   the worksite business code; must not be {@code null}
-	 * @param employeeNumber the number of the employee; must not be {@code null}
-	 *
-	 * @return an empty response with HTTP 204 status
+	 * @param  worksiteCode   the worksite business code; must not be {@code null}
+	 * @param  employeeNumber the number of the employee; must not be {@code null}
+	 * @return                an empty response with HTTP 204 status
 	 */
 	@Override
 	public ResponseEntity<Void> assignEmployeeToWorksite(final String worksiteCode, final String employeeNumber) {
@@ -244,14 +256,12 @@ public class WorksiteController implements WorksiteResource {
 	/**
 	 * Removes a {@link Worksite} from an {@link Employee}.
 	 *
-	 * @param employeeNumber the number of the employee; must not be {@code null}
-	 * @param worksiteCode   the worksite business code; must not be {@code null}
-	 * @return an empty response with HTTP 204 status
+	 * @param  employeeNumber the number of the employee; must not be {@code null}
+	 * @param  worksiteCode   the worksite business code; must not be {@code null}
+	 * @return                an empty response with HTTP 204 status
 	 */
 	@Override
-	public ResponseEntity<Void> removeEmployeeFromWorksite( //
-			final String worksiteCode, //
-			final String employeeNumber) {
+	public ResponseEntity<Void> removeEmployeeFromWorksite(final String worksiteCode, final String employeeNumber) {
 		logger.debug("Remove worksite from employee ACTION performed");
 
 		final Employee employee = this.requireEmployee(employeeNumber);

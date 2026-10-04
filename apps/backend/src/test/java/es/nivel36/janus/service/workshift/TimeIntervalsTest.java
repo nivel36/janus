@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.service.workshift;
 
@@ -36,8 +36,8 @@ class TimeIntervalsTest {
 
 	@Test
 	void testCreateTimeIntervalsWithSingleIntervalSuccess() {
-		final TimeInterval interval = new TimeInterval( //
-				Instant.parse("2025-01-01T10:00:00Z"), //
+		final TimeInterval interval = new TimeInterval(
+				Instant.parse("2025-01-01T10:00:00Z"),
 				Instant.parse("2025-01-01T11:00:00Z"));
 
 		final TimeIntervals intervals = TimeIntervals.of(List.of(interval));
@@ -53,11 +53,11 @@ class TimeIntervalsTest {
 
 	@Test
 	void testMergeOverlappingIntervalsSuccess() {
-		final TimeInterval a = new TimeInterval( //
-				Instant.parse("2025-01-01T10:00:00Z"), //
+		final TimeInterval a = new TimeInterval(
+				Instant.parse("2025-01-01T10:00:00Z"),
 				Instant.parse("2025-01-01T11:00:00Z"));
-		final TimeInterval b = new TimeInterval( //
-				Instant.parse("2025-01-01T10:30:00Z"), //
+		final TimeInterval b = new TimeInterval(
+				Instant.parse("2025-01-01T10:30:00Z"),
 				Instant.parse("2025-01-01T12:00:00Z"));
 
 		final TimeIntervals intervals = TimeIntervals.of(List.of(a, b));
@@ -68,11 +68,11 @@ class TimeIntervalsTest {
 
 	@Test
 	void testMergeTouchingIntervalsSuccess() {
-		final TimeInterval a = new TimeInterval( //
-				Instant.parse("2025-01-01T10:00:00Z"), //
+		final TimeInterval a = new TimeInterval(
+				Instant.parse("2025-01-01T10:00:00Z"),
 				Instant.parse("2025-01-01T11:00:00Z"));
-		final TimeInterval b = new TimeInterval( //
-				Instant.parse("2025-01-01T11:00:00Z"), //
+		final TimeInterval b = new TimeInterval(
+				Instant.parse("2025-01-01T11:00:00Z"),
 				Instant.parse("2025-01-01T12:00:00Z"));
 
 		final TimeIntervals intervals = TimeIntervals.of(List.of(a, b));
@@ -83,11 +83,11 @@ class TimeIntervalsTest {
 
 	@Test
 	void testMergeUnorderedIntervalsSuccess() {
-		final TimeInterval a = new TimeInterval( //
-				Instant.parse("2025-01-01T12:00:00Z"), //
+		final TimeInterval a = new TimeInterval(
+				Instant.parse("2025-01-01T12:00:00Z"),
 				Instant.parse("2025-01-01T13:00:00Z"));
-		final TimeInterval b = new TimeInterval( //
-				Instant.parse("2025-01-01T10:00:00Z"), //
+		final TimeInterval b = new TimeInterval(
+				Instant.parse("2025-01-01T10:00:00Z"),
 				Instant.parse("2025-01-01T11:00:00Z"));
 
 		final TimeIntervals intervals = TimeIntervals.of(List.of(a, b));
@@ -98,11 +98,11 @@ class TimeIntervalsTest {
 
 	@Test
 	void testTotalCoveredDurationWithMultipleIntervalsSuccess() {
-		final TimeInterval a = new TimeInterval( //
-				Instant.parse("2025-01-01T08:00:00Z"), //
+		final TimeInterval a = new TimeInterval(
+				Instant.parse("2025-01-01T08:00:00Z"),
 				Instant.parse("2025-01-01T09:00:00Z"));
-		final TimeInterval b = new TimeInterval( //
-				Instant.parse("2025-01-01T10:00:00Z"), //
+		final TimeInterval b = new TimeInterval(
+				Instant.parse("2025-01-01T10:00:00Z"),
 				Instant.parse("2025-01-01T12:00:00Z"));
 
 		final TimeIntervals intervals = TimeIntervals.of(List.of(a, b));
@@ -112,11 +112,11 @@ class TimeIntervalsTest {
 
 	@Test
 	void testTotalGapDurationWithTwoIntervalsSuccess() {
-		final TimeInterval a = new TimeInterval( //
-				Instant.parse("2025-01-01T08:00:00Z"), //
+		final TimeInterval a = new TimeInterval(
+				Instant.parse("2025-01-01T08:00:00Z"),
 				Instant.parse("2025-01-01T09:00:00Z"));
-		final TimeInterval b = new TimeInterval( //
-				Instant.parse("2025-01-01T10:30:00Z"), //
+		final TimeInterval b = new TimeInterval(
+				Instant.parse("2025-01-01T10:30:00Z"),
 				Instant.parse("2025-01-01T11:30:00Z"));
 
 		final TimeIntervals intervals = TimeIntervals.of(List.of(a, b));
@@ -126,14 +126,14 @@ class TimeIntervalsTest {
 
 	@Test
 	void testTotalGapDurationWithMultipleIntervalsSuccess() {
-		final TimeInterval a = new TimeInterval( //
-				Instant.parse("2025-01-01T08:00:00Z"), //
+		final TimeInterval a = new TimeInterval(
+				Instant.parse("2025-01-01T08:00:00Z"),
 				Instant.parse("2025-01-01T09:00:00Z"));
-		final TimeInterval b = new TimeInterval( //
-				Instant.parse("2025-01-01T10:00:00Z"), //
+		final TimeInterval b = new TimeInterval(
+				Instant.parse("2025-01-01T10:00:00Z"),
 				Instant.parse("2025-01-01T11:00:00Z"));
-		final TimeInterval c = new TimeInterval( //
-				Instant.parse("2025-01-01T12:30:00Z"), //
+		final TimeInterval c = new TimeInterval(
+				Instant.parse("2025-01-01T12:30:00Z"),
 				Instant.parse("2025-01-01T13:00:00Z"));
 
 		final TimeIntervals intervals = TimeIntervals.of(List.of(a, b, c));
@@ -143,11 +143,11 @@ class TimeIntervalsTest {
 
 	@Test
 	void testTotalGapDurationWithMergedIntervalsReturnsZero() {
-		final TimeInterval a = new TimeInterval( //
-				Instant.parse("2025-01-01T08:00:00Z"), //
+		final TimeInterval a = new TimeInterval(
+				Instant.parse("2025-01-01T08:00:00Z"),
 				Instant.parse("2025-01-01T10:00:00Z"));
-		final TimeInterval b = new TimeInterval( //
-				Instant.parse("2025-01-01T09:30:00Z"), //
+		final TimeInterval b = new TimeInterval(
+				Instant.parse("2025-01-01T09:30:00Z"),
 				Instant.parse("2025-01-01T11:00:00Z"));
 
 		final TimeIntervals intervals = TimeIntervals.of(List.of(a, b));

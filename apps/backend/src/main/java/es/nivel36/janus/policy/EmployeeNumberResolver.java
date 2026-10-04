@@ -59,7 +59,9 @@ public class EmployeeNumberResolver {
 	/**
 	 * Builds filter facts without looking up references for unrestricted callers.
 	 */
-	public EmployeeSearchPolicy.Context searchContext(final Actor actor, final String requested,
+	public EmployeeSearchPolicy.Context searchContext(
+			final Actor actor,
+			final String requested,
 			final boolean restricted) {
 		return new EmployeeSearchPolicy.Context(requested != null, restricted && this.owns(actor, requested));
 	}

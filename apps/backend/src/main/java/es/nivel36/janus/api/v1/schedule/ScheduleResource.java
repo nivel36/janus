@@ -1,17 +1,17 @@
 /*
  * Copyright 2026 Abel Ferrer Jiménez
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package es.nivel36.janus.api.v1.schedule;
 
@@ -44,25 +44,45 @@ public interface ScheduleResource {
 	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
 	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
 	@PreAuthorize("@scheduleAuthorization.canSearch(authentication, #employeeNumber)")
-	ResponseEntity<Page<ScheduleResponse>> searchSchedules(@RequestParam(required = false) @SearchQuery String query,
-			@RequestParam(required = false) @EmployeeNumber String employeeNumber,
-			@PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC) Pageable pageable,
+	ResponseEntity<Page<ScheduleResponse>> searchSchedules(
+			@RequestParam(required = false)
+			@SearchQuery
+			String query,
+			@RequestParam(required = false)
+			@EmployeeNumber
+			String employeeNumber,
+			@PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC)
+			Pageable pageable,
 			Authentication authentication);
 
 	@PreAuthorize("@scheduleAuthorization.canView(authentication, #scheduleCode)")
 	@GetMapping("/{scheduleCode}")
-	ResponseEntity<ScheduleResponse> findSchedule(@PathVariable("scheduleCode") @ScheduleCode String scheduleCode);
+	ResponseEntity<ScheduleResponse> findSchedule(
+			@PathVariable("scheduleCode")
+			@ScheduleCode
+			String scheduleCode);
 
 	@PreAuthorize("@scheduleAuthorization.canCreate(authentication)")
 	@PostMapping
-	ResponseEntity<ScheduleResponse> createSchedule(@Valid @RequestBody CreateScheduleRequest request);
+	ResponseEntity<ScheduleResponse> createSchedule(
+			@Valid
+			@RequestBody
+			CreateScheduleRequest request);
 
 	@PreAuthorize("@scheduleAuthorization.canUpdate(authentication)")
 	@PutMapping("/{scheduleCode}")
-	ResponseEntity<ScheduleResponse> updateSchedule(@PathVariable("scheduleCode") @ScheduleCode String scheduleCode,
-			@Valid @RequestBody UpdateScheduleRequest request);
+	ResponseEntity<ScheduleResponse> updateSchedule(
+			@PathVariable("scheduleCode")
+			@ScheduleCode
+			String scheduleCode,
+			@Valid
+			@RequestBody
+			UpdateScheduleRequest request);
 
 	@PreAuthorize("@scheduleAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{scheduleCode}")
-	ResponseEntity<Void> deleteSchedule(@PathVariable("scheduleCode") @ScheduleCode String scheduleCode);
+	ResponseEntity<Void> deleteSchedule(
+			@PathVariable("scheduleCode")
+			@ScheduleCode
+			String scheduleCode);
 }
