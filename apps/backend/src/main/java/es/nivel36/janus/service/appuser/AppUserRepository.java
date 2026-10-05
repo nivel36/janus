@@ -42,7 +42,7 @@ interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 	 * or association is changed. Email matches case-insensitively and filters
 	 * combine with AND; empty email disables the email restriction.
 	 *
-	 * @param  email          nonnull fragment escaped with LikePatterns.escape for
+	 * @param  emailFilter    nonnull fragment escaped with LikePatterns.escape for
 	 *                        SQL LIKE
 	 * @param  employeeNumber exact validated number, or null to disable this filter
 	 * @param  pageable       nonnull paging with entity property paths for sorting
@@ -52,10 +52,10 @@ interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 	@EntityGraph(attributePaths = "employee")
 	@Query("""
 			SELECT u FROM AppUser u LEFT JOIN u.employee e
-			WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%')) ESCAPE '!'
+			WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :emailFilter, '%')) ESCAPE '!'
 			AND (:employeeNumber IS NULL OR e.employeeNumber = :employeeNumber)
 			""")
-	Page<AppUser> search(String email, String employeeNumber, Pageable pageable);
+	Page<AppUser> search(String emailFilter, String employeeNumber, Pageable pageable);
 
 	/**
 	 * Looks up an exact subject without creating or changing a profile.

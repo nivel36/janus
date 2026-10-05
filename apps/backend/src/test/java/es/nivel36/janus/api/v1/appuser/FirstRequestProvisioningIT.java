@@ -55,7 +55,7 @@ class FirstRequestProvisioningIT {
 
 	private static final String SUBJECT = "9a60b9f4-7436-4d93-9c25-08e08f3dfc58";
 	private static final String OTHER_SUBJECT = "b9b0c670-b030-4ce2-8a48-516a86cb80e2";
-	private static final String OPAQUE_SUBJECT = "oidc-provider|tenant:customers|user:aferrer:opaque-identity";
+	private static final String OPAQUE_SUBJECT = "x".repeat(255);
 	private static final String EMAIL = "aferrer@nivel36.es";
 	private static final String LINK_EMAIL = "first-access-link@example.test";
 
@@ -91,12 +91,12 @@ class FirstRequestProvisioningIT {
 										token -> token.issuer(this.issuer).subject(OPAQUE_SUBJECT)
 												.claim("email", "ignored@example.test"))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("ignored@example.test"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("opaque-subject@example.test"));
 
 		assertThat(
 				this.jdbcClient.sql("SELECT email FROM app_user WHERE keycloak_subject = :subject")
 						.param("subject", OPAQUE_SUBJECT).query(String.class).single())
-				.isEqualTo("ignored@example.test");
+				.isEqualTo("opaque-subject@example.test");
 	}
 
 	@Test
@@ -195,7 +195,7 @@ class FirstRequestProvisioningIT {
 	}
 
 	@Test
-	void employeeNumberClaimLinksTheOnlyUnlinkedEmployeeAfterNormalization() throws Exception {
+	void validEmployeeNumberClaimLinksUnclaimedEmployeeAndNormalizesEmailCase() throws Exception {
 		final Long employeeId = this.insertEmployee();
 
 		this.mvc.perform(
@@ -204,14 +204,15 @@ class FirstRequestProvisioningIT {
 								.jwt(
 										token -> token.issuer(this.issuer).subject(SUBJECT)
 												.claim("preferred_username", "linked-user")
-												.claim("email", "  FIRST-ACCESS-LINK@EXAMPLE.TEST ")
-												.claim("employeeNumber", "  EMP-0901  ").claim("email_verified", true))
+												.claim("email", "FIRST-ACCESS-LINK@EXAMPLE.TEST")
+												.claim("employeeNumber", "EMP-0901").claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk());
 		assertThat(
 				this.jdbcClient.sql("SELECT employee_id FROM app_user WHERE keycloak_subject = :subject")
 						.param("subject", SUBJECT).query(Long.class).single())
 				.isEqualTo(employeeId);
+		assertThat(this.emailForSubject(SUBJECT)).isEqualTo(LINK_EMAIL);
 	}
 
 	@Test

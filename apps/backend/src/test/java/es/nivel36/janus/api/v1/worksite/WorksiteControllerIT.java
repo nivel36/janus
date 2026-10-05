@@ -147,7 +147,7 @@ class WorksiteControllerIT {
 	}
 
 	@ParameterizedTest
-	@CsvSource({ "ROLE_JANUS_EMPLOYEE,aferrer@nivel36.es", "ROLE_JANUS_USER,user" })
+	@CsvSource({ "ROLE_JANUS_EMPLOYEE,employee-EMP-0001", "ROLE_JANUS_USER,user" })
 	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
@@ -204,7 +204,7 @@ class WorksiteControllerIT {
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(2,'OUTSIDE','Outside Worksite','UTC','ASSIGNED')",
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" })
 	void employeeCanFindVisibleWorksiteButNotOneOutsideTheirScope() throws Exception {
-		final var employeeJwt = verifiedJwt().jwt(jwt -> jwt.subject("aferrer@nivel36.es"))
+		final var employeeJwt = verifiedJwt().jwt(jwt -> jwt.subject("employee-EMP-0001"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
 
 		this.mvc.perform(get(BASE + "/{code}", "VISIBLE").with(employeeJwt)).andExpect(status().isOk())
@@ -324,7 +324,7 @@ class WorksiteControllerIT {
 				put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(
 						verifiedJwt().jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 								.jwt(
-										jwt -> jwt.subject("aferrer@nivel36.es").claim("email", "aferrer@nivel36.es")
+										jwt -> jwt.subject("employee-EMP-0001").claim("email", "aferrer@nivel36.es")
 												.claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Barcelona Assigned"))
@@ -334,7 +334,7 @@ class WorksiteControllerIT {
 				put(BASE + "/{code}", "BCN-HQ").contentType(APPLICATION_JSON).content(body).with(
 						verifiedJwt().jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
 								.jwt(
-										jwt -> jwt.subject("bperson@nivel36.es").claim("email", "bperson@nivel36.es")
+										jwt -> jwt.subject("employee-EMP-0002").claim("email", "bperson@nivel36.es")
 												.claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());

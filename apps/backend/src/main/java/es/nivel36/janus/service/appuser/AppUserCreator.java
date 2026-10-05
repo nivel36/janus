@@ -8,15 +8,21 @@ package es.nivel36.janus.service.appuser;
 
 import java.time.ZoneId;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.validation.KeycloakSubject;
 import jakarta.persistence.EntityManager;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Internal first-access writer invoked through Spring's transactional proxy.
@@ -26,6 +32,7 @@ import jakarta.persistence.EntityManager;
  * conflict rolls back that insert and never reassigns an existing employee
  * link.
  */
+@Validated
 @Service
 class AppUserCreator {
 
@@ -36,12 +43,15 @@ class AppUserCreator {
 	 * Creates the internal writer without database access. Both dependencies must
 	 * be nonnull; this constructor stores them without validation.
 	 *
-	 * @param appUserRepository profile repository
-	 * @param entityManager     transaction-bound persistence context
+	 * @param  appUserRepository    profile repository. Must be nonnull.
+	 * @param  entityManager        transaction-bound persistence context Must be
+	 *                              nonnull
+	 * @throws NullPointerException if entityManager or appUserRepository are
+	 *                              {@code null}
 	 */
 	AppUserCreator(final AppUserRepository appUserRepository, final EntityManager entityManager) {
-		this.appUserRepository = appUserRepository;
-		this.entityManager = entityManager;
+		this.appUserRepository = Objects.requireNonNull(appUserRepository);
+		this.entityManager = Objects.requireNonNull(entityManager);
 	}
 
 	/**
@@ -75,11 +85,11 @@ class AppUserCreator {
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public AppUser create(
-			final String email,
-			final String keycloakSubject,
-			final Locale locale,
-			final TimeFormat timeFormat,
-			final ZoneId defaultTimezone,
+			final @NotEmpty @Email String email,
+			final @NotEmpty @KeycloakSubject String keycloakSubject,
+			final @NotNull Locale locale,
+			final @NotNull TimeFormat timeFormat,
+			final @NotNull ZoneId defaultTimezone,
 			final Long employeeId) {
 		final AppUser appUser = new AppUser(email, keycloakSubject, locale, timeFormat, defaultTimezone);
 		if (employeeId != null) {

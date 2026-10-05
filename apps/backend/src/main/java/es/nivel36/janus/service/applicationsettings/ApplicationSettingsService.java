@@ -31,8 +31,8 @@ import jakarta.validation.constraints.PositiveOrZero;
  * Service responsible for managing and retrieving global
  * {@link ApplicationSettings}.
  */
-@Service
 @Validated
+@Service
 public class ApplicationSettingsService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationSettingsService.class);

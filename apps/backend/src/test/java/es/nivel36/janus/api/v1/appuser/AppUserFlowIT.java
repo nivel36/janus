@@ -111,10 +111,10 @@ class AppUserFlowIT {
 	}
 
 	@Test
-	void combinesPartialEmailAndExactTrimmedEmployeeNumber() throws Exception {
-		this.mvc.perform(get(BASE).param("email", "  FLOW-SHARED  ").with(actor(ADMIN, Role.JANUS_ADMIN)))
+	void combinesPartialEmailAndExactEmployeeNumber() throws Exception {
+		this.mvc.perform(get(BASE).param("email", "FLOW-SHARED").with(actor(ADMIN, Role.JANUS_ADMIN)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(2));
-		this.mvc.perform(get(BASE).param("employeeNumber", "  FLOW-001  ").with(actor(ADMIN, Role.JANUS_ADMIN)))
+		this.mvc.perform(get(BASE).param("employeeNumber", "FLOW-001").with(actor(ADMIN, Role.JANUS_ADMIN)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content[0].id").value(OWNER_ID.toString()))
 				.andExpect(jsonPath("$.content[0].employeeNumber").value("FLOW-001"));
 		this.mvc.perform(
@@ -124,6 +124,24 @@ class AppUserFlowIT {
 		this.mvc.perform(
 				get(BASE).param("email", "flow-admin").param("employeeNumber", "FLOW-001")
 						.with(actor(ADMIN, Role.JANUS_ADMIN)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
+	}
+
+	@Test
+	void emptyEmailDisablesFilterAndWhitespaceIsNotTrimmed() throws Exception {
+		final Integer count = this.jdbc.queryForObject("SELECT COUNT(*) FROM app_user", Integer.class);
+		this.mvc.perform(get(BASE).param("email", "").with(actor(ADMIN, Role.JANUS_ADMIN))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.page.totalElements").value(count));
+		this.mvc.perform(get(BASE).param("email", "  FLOW-SHARED  ").with(actor(ADMIN, Role.JANUS_ADMIN)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
+		this.mvc.perform(get(BASE).param("employeeNumber", "  FLOW-001  ").with(actor(ADMIN, Role.JANUS_ADMIN)))
+				.andExpect(status().isBadRequest());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { " ", "bad\nline" })
+	void arbitraryEmailFragmentsAreAcceptedLiterally(final String fragment) throws Exception {
+		this.mvc.perform(get(BASE).param("email", fragment).with(actor(ADMIN, Role.JANUS_ADMIN)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
 	}
 
@@ -162,10 +180,6 @@ class AppUserFlowIT {
 
 	@Test
 	void rejectsInvalidFiltersAndInternalSortFields() throws Exception {
-		for (final String email : new String[] { "", " ", "bad\nline", "x".repeat(256) }) {
-			this.mvc.perform(get(BASE).param("email", email).with(actor(ADMIN, Role.JANUS_ADMIN)))
-					.andExpect(status().isBadRequest());
-		}
 		this.mvc.perform(get(BASE).param("employeeNumber", "bad number").with(actor(ADMIN, Role.JANUS_ADMIN)))
 				.andExpect(status().isBadRequest());
 		this.mvc.perform(get(BASE).param("sort", "keycloakSubject,asc").with(actor(ADMIN, Role.JANUS_ADMIN)))
@@ -246,10 +260,10 @@ class AppUserFlowIT {
 				get(BASE + "/me").with(
 						verifiedJwt()
 								.jwt(
-										token -> token.subject(OWNER).claim("email", "  UPDATED@EXAMPLE.TEST  ")
+										token -> token.subject(OWNER).claim("email", "UPDATED@EXAMPLE.TEST")
 												.claim("employeeNumber", "UNKNOWN"))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.employeeNumber").value("FLOW-001"))
-				.andExpect(jsonPath("$.email").value("updated@example.test"));
+				.andExpect(jsonPath("$.email").value("flow-shared@example.test"));
 	}
 }

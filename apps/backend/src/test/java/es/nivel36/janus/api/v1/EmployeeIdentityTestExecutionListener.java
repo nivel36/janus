@@ -17,7 +17,7 @@ public class EmployeeIdentityTestExecutionListener extends AbstractTestExecution
 		final JdbcTemplate jdbc = testContext.getApplicationContext().getBean(JdbcTemplate.class);
 		jdbc.update("""
 				INSERT INTO app_user(email,keycloak_subject,locale,time_format,default_timezone,employee_id)
-				SELECT email,email,'en-US','H24','UTC',id FROM employee e
+				SELECT email,CONCAT('employee-',employee_number),'en-US','H24','UTC',id FROM employee e
 				WHERE NOT EXISTS (SELECT 1 FROM app_user u WHERE u.employee_id=e.id)
 				""");
 		jdbc.update("""

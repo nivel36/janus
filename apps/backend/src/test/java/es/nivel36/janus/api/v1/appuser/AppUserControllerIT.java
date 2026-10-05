@@ -133,7 +133,7 @@ class AppUserControllerIT {
 	@Test
 	@Sql(statements = {
 			"INSERT INTO app_user(id,email,keycloak_subject,locale,time_format,default_timezone) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','jdoe@example.test','11111111-1111-4111-8111-111111111111','en-US','H24','Europe/Madrid')" })
-	void testMeFindsProvisionedIdentity() throws Exception {
+	void currentProfilePreservesStoredEmailDespiteChangedClaim() throws Exception {
 		this.mvc.perform(
 				get(BASE + "/me").with(
 						verifiedJwt()
@@ -142,7 +142,7 @@ class AppUserControllerIT {
 												.subject("11111111-1111-4111-8111-111111111111")
 												.claim("email", "changed@example.test"))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("changed@example.test"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("jdoe@example.test"));
 	}
 
 	@Test
@@ -167,7 +167,7 @@ class AppUserControllerIT {
 												.subject("99999999-9999-4999-8999-999999999999")
 												.claim("email", "renamed@example.test"))
 								.authorities(createAuthorityList("ROLE_JANUS_USER"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("renamed@example.test"));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("new-user@example.test"));
 
 		org.assertj.core.api.Assertions.assertThat(
 				this.jdbcTemplate.queryForObject(

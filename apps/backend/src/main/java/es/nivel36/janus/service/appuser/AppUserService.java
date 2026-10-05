@@ -30,8 +30,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import es.nivel36.janus.config.UserProvisioningProperties;
 import es.nivel36.janus.service.ResourceNotFoundException;
@@ -40,6 +42,11 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.util.LikePatterns;
 import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.validation.KeycloakSubject;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Transactional entry point for provisioning, lookup, search, preference
@@ -47,9 +54,13 @@ import es.nivel36.janus.validation.EmployeeNumber;
  * nonnull and provisioning defaults validated before use. Method contracts
  * define input validation and database effects; authorization belongs to the
  * resource policies and is not performed by this service. Provisioning alone
- * uses an independent insert transaction to reconcile races; lookup and search
- * never provision profiles or change associations.
+ * uses an independent insert transaction to reconcile races. Parameter
+ * constraints are enforced when invoked through Spring's validated proxy, which
+ * rejects invalid arguments with {@link ConstraintViolationException}; direct
+ * Java calls do not activate this validation. Lookup and search never provision
+ * profiles or change associations.
  */
+@Validated
 @Service
 public class AppUserService {
 
@@ -83,8 +94,7 @@ public class AppUserService {
 		final AppUserCreator appUserCreator,
 		final UserProvisioningProperties provisioningDefaults,
 		final EmployeeService employeeService,
-		@Value("${spring.data.rest.max-page-size}")
-		final int maxPageSize) {
+		final @Value("${spring.data.rest.max-page-size}") int maxPageSize) {
 		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
 		this.appUserCreator = Objects.requireNonNull(appUserCreator, "AppUserCreator cannot be null.");
 		this.provisioningDefaults = Objects
@@ -100,73 +110,45 @@ public class AppUserService {
 	 * Finds a subject profile or provisions one on first access.
 	 * <p>
 	 * The caller must supply a trusted, verified email and subject and authorize
-	 * provisioning. Subject is nonnull, nonblank and at most 255 characters;
-	 * normalized email is nonblank and at most 255 characters. An optional employee
-	 * number must match {@code [A-Za-z0-9_-]{1,50}} after trimming.
+	 * provisioning. Subject must match {@code [A-Za-z0-9_-]{1,255}}; email must be
+	 * nonblank and satisfy {@code @Email}. An optional employee number must match
+	 * {@code [A-Za-z0-9_-]{1,50}} without trimming.
 	 * </p>
 	 * <p>
-	 * An existing profile refreshes email and preserves preferences and employee
-	 * association. A new profile uses configured defaults and DARK theme, and links
-	 * only a known unclaimed employee. A competing subject insert returns the
-	 * winning profile; a competing employee claim falls back to an unlinked
-	 * profile. Successful inserts commit independently of the caller's transaction.
+	 * An existing profile is returned unchanged, including its email, preferences
+	 * and employee association. On creation, AppUser trims and lowercases the email
+	 * and limits it to 255 normalized characters. A new profile uses configured
+	 * defaults and DARK theme, and links only a known unclaimed employee. A
+	 * competing subject insert returns the winning profile; a competing employee
+	 * claim falls back to an unlinked profile. Successful inserts commit
+	 * independently of the caller's transaction.
 	 * </p>
 	 *
-	 * @param  keycloakSubject          immutable opaque provider subject
-	 * @param  email                    verified contact email, trimmed and
-	 *                                  lowercased
-	 * @param  employeeNumber           optional initial employee number; null omits
-	 *                                  association
-	 * @return                          persisted profile belonging to the subject,
-	 *                                  with employee data readable
-	 * @throws NullPointerException     if subject is null
-	 * @throws IllegalArgumentException if email, subject or employee number is
-	 *                                  invalid
-	 * @throws AppUserCreationConflict  if an insert conflict cannot be reconciled
+	 * @param  keycloakSubject              immutable opaque provider subject
+	 * @param  email                        verified contact email; normalized only
+	 *                                      when creating a profile
+	 * @param  employeeNumber               optional initial employee number; null
+	 *                                      omits association
+	 * @return                              persisted profile belonging to the
+	 *                                      subject, with employee data readable
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
+	 * @throws IllegalArgumentException     if the email exceeds the normalized
+	 *                                      length limit when creating a profile
+	 * @throws AppUserCreationConflict      if an insert conflict cannot be
+	 *                                      reconciled
 	 */
 	@Transactional
-	public AppUser findOrCreateAppUser(final String keycloakSubject, final String email, final String employeeNumber) {
-		if (email == null || email.isBlank()) {
-			throw new IllegalArgumentException("email claim is required");
-		}
-		AppUser.validateKeycloakSubject(keycloakSubject);
-		final String normalizedEmail = AppUser.validateEmail(email);
-		final String normalizedEmployeeNumber = normalizeEmployeeNumber(employeeNumber);
+	public AppUser findOrCreateAppUser(
+			final @NotBlank @KeycloakSubject String keycloakSubject,
+			final @NotBlank @Email String email,
+			final @EmployeeNumber String employeeNumber) {
 		final Optional<AppUser> existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 		if (existing.isPresent()) {
-			final AppUser appUser = existing.get();
-			appUser.setEmail(normalizedEmail);
-			return appUser;
+			return existing.get();
 		}
-
-		final Employee employee = this.findUnlinkedEmployee(normalizedEmployeeNumber, keycloakSubject);
-		return this.insertAndReconcile(normalizedEmail, keycloakSubject, employee);
-	}
-
-	private AppUser insertAndReconcile(final String email, final String keycloakSubject, final Employee employee) {
-		try {
-			return this.appUserCreator.create(
-					email,
-					keycloakSubject,
-					this.provisioningDefaults.locale(),
-					this.provisioningDefaults.getTimeFormat(),
-					this.provisioningDefaults.defaultTimezone(),
-					employee == null ? null : employee.getId());
-		} catch (final AppUserCreationConflict conflict) {
-			final Optional<AppUser> subjectWinner = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
-			if (subjectWinner.isPresent()) {
-				final AppUser appUser = subjectWinner.get();
-				if (!keycloakSubject.equals(appUser.getKeycloakSubject())) {
-					throw new IllegalStateException("Subject lookup returned a profile for a different identity");
-				}
-				return appUser;
-			}
-			if (employee != null) {
-				this.logEmployeeConflict(employee, keycloakSubject);
-				return this.insertAndReconcile(email, keycloakSubject, null);
-			}
-			throw conflict;
-		}
+		final Employee employee = this.findUnlinkedEmployee(employeeNumber, keycloakSubject);
+		return this.insertAndReconcile(email, keycloakSubject, employee);
 	}
 
 	private Employee findUnlinkedEmployee(final String employeeNumber, final String keycloakSubject) {
@@ -177,63 +159,69 @@ public class AppUserService {
 		try {
 			employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		} catch (final ResourceNotFoundException notFound) {
-			logger.info(
-					"No employee found for employeeNumber claim {}; provisioning an unlinked account",
-					employeeNumber);
+			logger.info("No employee {} found; provisioning an unlinked account", employeeNumber);
 			return null;
 		}
 		final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
-
 		if (linkedUser.isPresent()) {
-			this.logEmployeeConflict(employee, keycloakSubject);
+			// Ops. We have another user linked to this employee
+			logger.warn(
+					"Employee link conflict for employee {} and keycloakSubject {}; keeping existing link",
+					employee,
+					keycloakSubject);
 			return null;
 		}
-
 		return employee;
 	}
 
-	private void logEmployeeConflict(final Employee employee, final String keycloakSubject) {
-		logger.warn(
-				"Employee identity link conflict for employeeId={} and keycloakSubject={}; keeping existing link",
-				employee.getId(),
-				keycloakSubject);
+	private AppUser insertAndReconcile(final String email, final String keycloakSubject, final Employee employee) {
+		try {
+			// We delegate to another bean so creation runs in its own transaction
+			// and a conflict does not roll back ours.
+			return this.appUserCreator.create(
+					email,
+					keycloakSubject,
+					this.provisioningDefaults.locale(),
+					this.provisioningDefaults.getTimeFormat(),
+					this.provisioningDefaults.defaultTimezone(),
+					employee == null ? null : employee.getId());
+		} catch (final AppUserCreationConflict conflict) {
+			// Somehow, we’re experiencing a conflict when creating the user.
+			// Another request may have created the profile while we were checking.
+			// Let's see whether a profile now exists for the same subject.
+			final Optional<AppUser> subjectWinner = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
+			if (subjectWinner.isPresent()) {
+				return subjectWinner.get();
+			}
+
+			if (employee != null) {
+				// Let's try it again, but now without trying to link the user to an employee.
+				logger.warn(
+						"User creation conflict with employee {} and keycloakSubject {}; retrying without linking the employee",
+						employee,
+						keycloakSubject);
+				return this.insertAndReconcile(email, keycloakSubject, null);
+			}
+			throw conflict;
+		}
 	}
 
 	/**
-	 * Looks up an existing profile without changing or provisioning it. The id must
-	 * be nonnull. A successful lookup loads the optional employee association so it
-	 * remains readable after the transaction ends.
-	 *
-	 * @param  id                        persistent profile UUID
-	 * @return                           matching profile with its optional employee
-	 *                                   association loaded
-	 * @throws NullPointerException      if id is null
-	 * @throws ResourceNotFoundException if no profile exists
-	 */
-	@Transactional(readOnly = true)
-	public AppUser findAppUserById(final UUID id) {
-		Objects.requireNonNull(id, "id cannot be null.");
-		return this.appUserRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("There is no application user with id " + id));
-	}
-
-	/**
-	 * Looks up a profile by its exact immutable provider subject. Subject must be
-	 * nonnull, nonblank and at most 255 characters. A successful lookup loads the
-	 * employee association without modifying or provisioning a profile.
+	 * Looks up a profile by its exact immutable provider subject. Subject must
+	 * match {@code [A-Za-z0-9_-]{1,255}} without trimming. A successful lookup
+	 * loads the employee association without modifying or provisioning a profile.
 	 * Authorization callers must translate absence into their own denial contract.
 	 *
-	 * @param  keycloakSubject           opaque subject scoped to the configured
-	 *                                   issuer
-	 * @return                           matching profile with its optional employee
-	 *                                   association loaded
-	 * @throws NullPointerException      if subject is null
-	 * @throws IllegalArgumentException  if subject is blank or oversized
-	 * @throws ResourceNotFoundException if no profile exists
+	 * @param  keycloakSubject              opaque subject scoped to the configured
+	 *                                      issuer
+	 * @return                              matching profile with its optional
+	 *                                      employee association loaded
+	 * @throws ConstraintViolationException if subject is invalid when invoked
+	 *                                      through the Spring proxy
+	 * @throws ResourceNotFoundException    if no profile exists
 	 */
 	@Transactional(readOnly = true)
-	public AppUser findAppUserByKeycloakSubject(final String keycloakSubject) {
-		AppUser.validateKeycloakSubject(keycloakSubject);
+	public AppUser findAppUserByKeycloakSubject(final @NotBlank @KeycloakSubject String keycloakSubject) {
 		return this.appUserRepository.findByKeycloakSubject(keycloakSubject)
 				.orElseThrow(() -> new ResourceNotFoundException("There is no application user for this subject"));
 	}
@@ -245,26 +233,32 @@ public class AppUserService {
 	 * returned profile has the new preferences; subject, email and employee
 	 * association are preserved. Invalid values leave preferences unchanged.
 	 *
-	 * @param  id                        persistent UUID of the target profile
-	 * @param  newLocale                 replacement locale
-	 * @param  newTimeFormat             replacement time display format
-	 * @param  newDefaultTimezone        replacement timezone
-	 * @param  newTheme                  replacement color theme
-	 * @return                           updated profile whose changes commit with
-	 *                                   the transaction
-	 * @throws NullPointerException      if id or any preference is null
-	 * @throws ResourceNotFoundException if the target is absent
+	 * @param  id                           persistent UUID of the target profile
+	 * @param  newLocale                    replacement locale
+	 * @param  newTimeFormat                replacement time display format
+	 * @param  newDefaultTimezone           replacement timezone
+	 * @param  newTheme                     replacement color theme
+	 * @return                              updated profile whose changes commit
+	 *                                      with the transaction
+	 * @throws ConstraintViolationException if id or a preference is null when
+	 *                                      invoked through the Spring proxy
+	 * @throws ResourceNotFoundException    if the target is absent
 	 */
 	@Transactional
-	public AppUser updateAppUser(
-			final UUID id,
-			final Locale newLocale,
-			final TimeFormat newTimeFormat,
-			final ZoneId newDefaultTimezone,
-			final Theme newTheme) {
+	public AppUser updatePreferences(
+			final @NotNull UUID id,
+			final @NotNull Locale newLocale,
+			final @NotNull TimeFormat newTimeFormat,
+			final @NotNull ZoneId newDefaultTimezone,
+			final @NotNull Theme newTheme) {
 		final AppUser appUser = this.findAppUserById(id);
 		appUser.updatePreferences(newLocale, newTimeFormat, newDefaultTimezone, newTheme);
 		return appUser;
+	}
+	
+	private AppUser findAppUserById(final UUID id) {
+		return this.appUserRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("There is no application user with id " + id));
 	}
 
 	/**
@@ -273,12 +267,13 @@ public class AppUserService {
 	 * a successful transaction the profile is absent while the employee and
 	 * identity-provider account remain unchanged.
 	 *
-	 * @param  id                        persistent UUID of the profile to delete
-	 * @throws NullPointerException      if id is null
-	 * @throws ResourceNotFoundException if the target is absent
+	 * @param  id                           persistent UUID of the profile to delete
+	 * @throws ConstraintViolationException if id is null when invoked through the
+	 *                                      Spring proxy
+	 * @throws ResourceNotFoundException    if the target is absent
 	 */
 	@Transactional
-	public void deleteAppUser(final UUID id) {
+	public void deleteAppUser(final @NotNull UUID id) {
 		final AppUser appUser = this.findAppUserById(id);
 		appUser.setEmployee(null);
 		this.appUserRepository.delete(appUser);
@@ -288,53 +283,75 @@ public class AppUserService {
 	/**
 	 * Searches profiles without changing them or provisioning an account.
 	 * <p>
-	 * The caller must authorize the search and supply a nonnull, paged request.
-	 * Optional filters must satisfy the rules below. Only id, email and
-	 * employeeNumber may be used as public sort fields.
+	 * The caller must authorize the search and supply a nonnull, paged request. The
+	 * optional employee number must satisfy its declared constraint. Only id, email
+	 * and employeeNumber may be used as public sort fields.
 	 * </p>
 	 * <p>
 	 * Filters combine with AND. Absent filters include every profile, including
 	 * unlinked ones. Email matching is literal, partial and case-insensitive;
-	 * employee number matches exactly after trimming. Page size is capped at the
+	 * employee number matches exactly without trimming. Page size is capped at the
 	 * configured {@code spring.data.rest.max-page-size}. Default ordering is email
 	 * ascending, with ascending UUID as tie-breaker unless UUID is explicitly
 	 * ordered. Employee associations are loaded.
 	 * </p>
 	 *
-	 * @param  email                    optional nonblank single-line fragment of at
-	 *                                  most 255 characters
-	 * @param  employeeNumber           optional employee number matching
-	 *                                  {@code [A-Za-z0-9_-]{1,50}} after trimming
-	 * @param  pageable                 requested page and public ordering
-	 * @return                          page of matching profiles, possibly empty,
-	 *                                  with employee data readable
-	 * @throws NullPointerException     if pageable is null
-	 * @throws IllegalArgumentException if a filter or sort field is invalid
+	 * @param  emailFilter                  optional literal fragment, used without
+	 *                                      trimming or length validation; null or
+	 *                                      empty disables the email restriction
+	 * @param  employeeNumber               optional employee number matching
+	 *                                      {@code [A-Za-z0-9_-]{1,50}} without
+	 *                                      trimming
+	 * @param  pageable                     requested page and public ordering
+	 * @return                              page of matching profiles, possibly
+	 *                                      empty, with employee data readable
+	 * @throws ConstraintViolationException if employeeNumber is invalid or pageable
+	 *                                      is null when invoked through the Spring
+	 *                                      proxy
+	 * @throws IllegalArgumentException     if pageable is unpaged or a sort field
+	 *                                      is unsupported
 	 */
 	@Transactional(readOnly = true)
-	public Page<AppUser> searchAppUsers(final String email, final String employeeNumber, final Pageable pageable) {
-		final String normalizedEmail = normalizeEmailFilter(email);
-		final String normalizedEmployeeNumber = normalizeEmployeeNumber(employeeNumber);
-		Objects.requireNonNull(pageable, "pageable can't be null");
-		final List<Sort.Order> orders = new ArrayList<>();
-		for (final Sort.Order order : pageable.getSort()) {
-			final String property = this.resolveSortProperty(order.getProperty());
-			orders.add(order.withProperty(property));
+	public Page<AppUser> searchAppUsers(
+			final String emailFilter,
+			final @EmployeeNumber String employeeNumber,
+			final @NotNull Pageable pageable) {
+		final Pageable normalizedPageable = this.normalizePageable(pageable);
+		final String escapedEmailFilter = this.escapeEmailFilter(emailFilter);
+		return this.appUserRepository.search(escapedEmailFilter, employeeNumber, normalizedPageable);
+	}
+
+	private String escapeEmailFilter(final String emailFilter) {
+		return emailFilter == null ? "" : LikePatterns.escape(emailFilter);
+	}
+
+	private Sort normalizeSort(final Sort sort) {
+		final List<Order> orders = new ArrayList<>();
+		for (final Order sortOrder : sort) {
+			final String property = this.resolveSortProperty(sortOrder.getProperty());
+			final Order normalizedSortProperty = sortOrder.withProperty(property);
+			orders.add(normalizedSortProperty);
 		}
 		if (orders.isEmpty()) {
-			orders.add(Sort.Order.asc("email"));
+			orders.add(Order.asc("email"));
 		}
+		// Add the ID as a secondary sort criterion to ensure deterministic ordering
+		// when multiple records have the same value for the primary sort field.
 		if (orders.stream().noneMatch(order -> "id".equals(order.getProperty()))) {
-			orders.add(Sort.Order.asc("id"));
+			orders.add(Order.asc("id"));
+		}
+		return Sort.by(orders);
+	}
+
+	private Pageable normalizePageable(final Pageable pageable) {
+		if (pageable.isUnpaged()) {
+			throw new IllegalArgumentException("Must be paged");
 		}
 		final int pageNumber = pageable.getPageNumber();
 		final int pageSize = Math.min(pageable.getPageSize(), this.maxPageSize);
-		final Sort by = Sort.by(orders);
-		final Pageable sorted = PageRequest.of(pageNumber, pageSize, by);
-		return this.appUserRepository.search(
-				normalizedEmail == null ? "" : LikePatterns.escape(normalizedEmail),
-				normalizedEmployeeNumber,
-				sorted);
+		final Sort normalizedSort = this.normalizeSort(pageable.getSort());
+		return PageRequest.of(pageNumber, pageSize, normalizedSort);
+
 	}
 
 	private String resolveSortProperty(final String property) {
@@ -343,28 +360,5 @@ public class AppUserService {
 		case "employeeNumber" -> "employee.employeeNumber";
 		default -> throw new IllegalArgumentException("Unsupported AppUser sort field: " + property);
 		};
-	}
-
-	private static String normalizeEmailFilter(final String email) {
-		if (email == null) {
-			return null;
-		}
-		if (email.length() > 255 || !email.matches("[\\p{L}\\p{M}\\p{N}\\p{Zs}\\p{P}\\p{S}]+")) {
-			throw new IllegalArgumentException(
-					"email filter must be single-line text containing at most 255 characters");
-		}
-		return AppUser.validateEmail(email);
-	}
-
-	private static String normalizeEmployeeNumber(final String employeeNumber) {
-		if (employeeNumber == null) {
-			return null;
-		}
-		final String normalized = employeeNumber.trim();
-		if (!normalized.matches(EmployeeNumber.PATTERN)) {
-			throw new IllegalArgumentException(
-					"employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)");
-		}
-		return normalized;
 	}
 }

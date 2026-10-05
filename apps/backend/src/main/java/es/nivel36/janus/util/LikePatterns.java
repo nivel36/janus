@@ -15,7 +15,9 @@
  */
 package es.nivel36.janus.util;
 
-/** Utilities for safely constructing literal {@code LIKE} patterns. */
+/**
+ * Utilities for safely constructing literal {@code LIKE} patterns.
+ */
 public final class LikePatterns {
 
 	private static final String ESCAPE_CHARACTER = "!";

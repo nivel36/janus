@@ -81,12 +81,12 @@ public class AppUserController implements AppUserResource {
 
 	@Override
 	public ResponseEntity<Page<AppUserResponse>> searchAppUsers(
-			final String email,
+			final String emailFilter,
 			final String employeeNumber,
 			final Pageable pageable) {
-		return ResponseEntity.ok(
-				this.appUserService.searchAppUsers(email, employeeNumber, pageable)
-						.map(this.appUserResponseMapper::map));
+		final Page<AppUser> appUsers = this.appUserService.searchAppUsers(emailFilter, employeeNumber, pageable);
+		final Page<AppUserResponse> response = appUsers.map(this.appUserResponseMapper::map);
+		return ResponseEntity.ok(response);
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class AppUserController implements AppUserResource {
 		final TimeFormat timeFormat = request.timeFormat();
 		final ZoneId zoneId = ZoneId.of(request.defaultTimezone().trim());
 		final Theme theme = request.theme();
-		final AppUser updated = this.appUserService.updateAppUser(id, forLanguageTag, timeFormat, zoneId, theme);
+		final AppUser updated = this.appUserService.updatePreferences(id, forLanguageTag, timeFormat, zoneId, theme);
 		final AppUserResponse appUserResponse = this.appUserResponseMapper.map(updated);
 		return ResponseEntity.ok(appUserResponse);
 	}

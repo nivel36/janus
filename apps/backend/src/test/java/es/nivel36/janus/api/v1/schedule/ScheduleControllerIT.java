@@ -265,7 +265,7 @@ class ScheduleControllerIT {
 	}
 
 	@ParameterizedTest
-	@CsvSource({ "ROLE_JANUS_EMPLOYEE,aferrer@nivel36.es", "ROLE_JANUS_USER,user" })
+	@CsvSource({ "ROLE_JANUS_EMPLOYEE,employee-EMP-0001", "ROLE_JANUS_USER,user" })
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void employeeNumberFilterIsAppliedForRestrictedAndPrivilegedUsers(final String role, final String subject)

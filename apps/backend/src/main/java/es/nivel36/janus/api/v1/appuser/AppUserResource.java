@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 
 /**
@@ -48,10 +49,10 @@ public interface AppUserResource {
 	/**
 	 * Returns a page of local profiles for a provisioned {@code JANUS_ADMIN}.
 	 * <p>
-	 * Optional filters must satisfy their documented syntax and {@code pageable}
-	 * must be nonnull and paged. Email is nonblank single-line text of at most 255
-	 * characters; employee number must match {@code [A-Za-z0-9_-]{1,50}} after
-	 * trimming. Sort fields are {@code id}, {@code email} and
+	 * The optional employee number must match {@code [A-Za-z0-9_-]{1,50}} without
+	 * trimming and {@code pageable} must be nonnull and paged. Email fragments are
+	 * used literally without trimming or length validation; null or empty email
+	 * disables the email restriction. Sort fields are {@code id}, {@code email} and
 	 * {@code employeeNumber}.
 	 * </p>
 	 * <p>
@@ -64,21 +65,22 @@ public interface AppUserResource {
 	 * explicitly sorted.
 	 * </p>
 	 *
-	 * @param  email                    optional email fragment; null disables this
-	 *                                  filter
-	 * @param  employeeNumber           optional employee number; null disables this
-	 *                                  filter
-	 * @param  pageable                 requested page and ordering; HTTP defaults
-	 *                                  are page 0 and size 20
-	 * @return                          HTTP 200 containing profile responses and
-	 *                                  page metadata, possibly empty
-	 * @throws IllegalArgumentException if a filter or sort field is invalid
-	 * @throws AccessDeniedException    if the caller is unprovisioned or lacks the
-	 *                                  administrator role
+	 * @param  email                        optional email fragment; null disables
+	 *                                      this filter
+	 * @param  employeeNumber               optional employee number; null disables
+	 *                                      this filter
+	 * @param  pageable                     requested page and ordering; HTTP
+	 *                                      defaults are page 0 and size 20
+	 * @return                              HTTP 200 containing profile responses
+	 *                                      and page metadata, possibly empty
+	 * @throws ConstraintViolationException if employee number is invalid
+	 * @throws IllegalArgumentException     if paging or a sort field is unsupported
+	 * @throws AccessDeniedException        if the caller is unprovisioned or lacks
+	 *                                      the administrator role
 	 */
 	@GetMapping
 	@PreAuthorize("@appUserAuthorization.canSearch(authentication)")
-	ResponseEntity<Page<AppUserResponse>> searchAppUsers(@RequestParam(required = false)
+	ResponseEntity<Page<AppUserResponse>> searchAppUsers(@RequestParam(name = "email", required = false)
 	String email, @RequestParam(required = false)
 	String employeeNumber, @PageableDefault(size = 20, sort = "email")
 	Pageable pageable);
@@ -87,27 +89,30 @@ public interface AppUserResource {
 	 * Retrieves or provisions the profile identified by the authenticated subject.
 	 * <p>
 	 * Authentication must be a nonnull validated JWT with a recognized Janus role
-	 * and verified email. Its subject is nonblank and at most 255 characters, its
-	 * email is nonblank and at most 255 characters after normalization, and an
-	 * optional employee-number claim must match {@code [A-Za-z0-9_-]{1,50}} after
-	 * trimming.
+	 * and verified email. Its subject must match {@code [A-Za-z0-9_-]{1,255}}, its
+	 * email must be nonblank and satisfy {@code @Email}, and an optional
+	 * employee-number claim must match {@code [A-Za-z0-9_-]{1,50}} without
+	 * trimming. Creation trims and lowercases email and limits it to 255 normalized
+	 * characters.
 	 * </p>
 	 * <p>
 	 * Returns HTTP 200 for the subject's unique local profile. Existing profiles
-	 * refresh their normalized contact email and retain preferences and employee
-	 * association. New profiles use configured preferences and DARK theme; they
-	 * link only a known, unclaimed employee. Missing, unknown or already claimed
-	 * employee numbers yield an unlinked profile. Concurrent creation returns the
-	 * winning subject profile without reassigning another profile's employee.
+	 * retain their contact email, preferences and employee association. New
+	 * profiles use configured preferences and DARK theme; they link only a known,
+	 * unclaimed employee. Missing, unknown or already claimed employee numbers
+	 * yield an unlinked profile. Concurrent creation returns the winning subject
+	 * profile without reassigning another profile's employee.
 	 * </p>
 	 *
-	 * @param  authentication           trusted JWT authentication of the current
-	 *                                  caller
-	 * @return                          HTTP 200 containing the current profile; the
-	 *                                  provider subject is omitted
-	 * @throws IllegalArgumentException if email, subject length or employee number
-	 *                                  is invalid
-	 * @throws AccessDeniedException    if provisioning is not authorized
+	 * @param  authentication               trusted JWT authentication of the
+	 *                                      current caller
+	 * @return                              HTTP 200 containing the current profile;
+	 *                                      the provider subject is omitted
+	 * @throws ConstraintViolationException if a claim violates the service
+	 *                                      parameter constraints
+	 * @throws IllegalArgumentException     if a new profile's normalized email is
+	 *                                      oversized
+	 * @throws AccessDeniedException        if provisioning is not authorized
 	 */
 	@PreAuthorize("@appUserProvisioningPolicy.canProvision(authentication)")
 	@GetMapping("/me")
