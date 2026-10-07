@@ -27,11 +27,6 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Internal first-access writer invoked through Spring's transactional proxy.
- * Dependencies must be nonnull and inputs must satisfy the AppUser constructor
- * contract. Each invocation uses a new transaction and resolves the employee
- * inside it. Successful creation commits a new profile independently; a
- * conflict rolls back that insert and never reassigns an existing employee
- * link.
  */
 @Validated
 @Service

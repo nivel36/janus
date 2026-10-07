@@ -28,11 +28,7 @@ import org.springframework.stereotype.Repository;
 import es.nivel36.janus.service.employee.Employee;
 
 /**
- * Internal persistence contract for application profiles. Callers supply
- * validated identities and use a transaction for mutations. Queries return
- * existing profiles without provisioning; subject and UUID lookups and search
- * load the employee association for use outside the transaction. Uniqueness of
- * subjects and employee links is enforced by database constraints.
+ * Internal persistence contract for application profiles.
  */
 @Repository
 interface AppUserRepository extends JpaRepository<AppUser, UUID> {
@@ -72,7 +68,6 @@ interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 	 * profile.
 	 */
 	@Override
-	@EntityGraph(attributePaths = "employee")
 	Optional<AppUser> findById(UUID id);
 
 	/**

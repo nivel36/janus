@@ -37,11 +37,7 @@ import es.nivel36.janus.service.appuser.AppUserService;
 import es.nivel36.janus.service.appuser.Theme;
 
 /**
- * Spring MVC implementation of {@link AppUserResource}. The resource interface
- * defines endpoint behavior and authorization. This implementation extracts JWT
- * claims, converts validated preferences and maps service results to responses;
- * it requires nonnull service and mapper dependencies and delegates persistence
- * to the service.
+ * Spring MVC implementation of {@link AppUserResource}.
  */
 @RestController
 public class AppUserController implements AppUserResource {

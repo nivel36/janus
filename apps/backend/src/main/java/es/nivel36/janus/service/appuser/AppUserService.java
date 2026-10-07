@@ -51,15 +51,7 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Transactional entry point for provisioning, lookup, search, preference
- * changes and deletion of local application profiles. Dependencies must be
- * nonnull and provisioning defaults validated before use. Method contracts
- * define input validation and database effects; authorization belongs to the
- * resource policies and is not performed by this service. Provisioning alone
- * uses an independent insert transaction to reconcile races. Parameter
- * constraints are enforced when invoked through Spring's validated proxy, which
- * rejects invalid arguments with {@link ConstraintViolationException}; direct
- * Java calls do not activate this validation. Lookup and search never provision
- * profiles or change associations.
+ * changes and deletion of local application profiles.
  */
 @Validated
 @Service
@@ -67,9 +59,6 @@ public class AppUserService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AppUserService.class);
 
-	/**
-	 * Repository used to access {@link AppUser} persistence operations.
-	 */
 	private final AppUserRepository appUserRepository;
 	private final AppUserCreator appUserCreator;
 	private final UserProvisioningProperties provisioningDefaults;
@@ -142,7 +131,7 @@ public class AppUserService {
 	@Transactional
 	public AppUser findOrCreateAppUser(
 			final @NotBlank @KeycloakSubject String keycloakSubject,
-			final @NotBlank @Email @Size(max = 254) String email,
+			final @NotBlank @Size(max = 254) @Email String email,
 			final @EmployeeNumber String employeeNumber) {
 		final Optional<AppUser> existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 		if (existing.isPresent()) {
@@ -211,7 +200,6 @@ public class AppUserService {
 	 * Looks up a profile by its exact immutable provider subject. Subject must
 	 * match {@code [A-Za-z0-9_-]{1,255}} without trimming. A successful lookup
 	 * loads the employee association without modifying or provisioning a profile.
-	 * Authorization callers must translate absence into their own denial contract.
 	 *
 	 * @param  keycloakSubject              opaque subject scoped to the configured
 	 *                                      issuer
