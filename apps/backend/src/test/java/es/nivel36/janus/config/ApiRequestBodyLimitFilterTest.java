@@ -48,7 +48,7 @@ class ApiRequestBodyLimitFilterTest {
 	void allowsExactlyOneMiBAndReplaysTheCompleteBody(final boolean knownLength) throws Exception {
 		final var request = request(ApiRequestBodyLimitFilter.MAX_BODY_BYTES, knownLength);
 		final AtomicInteger received = new AtomicInteger();
-		this.filter.doFilter(request, new MockHttpServletResponse(), (wrapped, response) -> {
+		this.filter.doFilter(request, new MockHttpServletResponse(), (wrapped, _) -> {
 			received.set(wrapped.getInputStream().readAllBytes().length);
 			assertThat(wrapped.getInputStream().isFinished()).isTrue();
 		});
@@ -73,7 +73,7 @@ class ApiRequestBodyLimitFilterTest {
 		final var request = new MockHttpServletRequest("PUT", "/api/v1/app-users/id");
 		request.setCharacterEncoding("UTF-8");
 		request.setContent("Descripción 😀".getBytes(StandardCharsets.UTF_8));
-		this.filter.doFilter(request, new MockHttpServletResponse(), (wrapped, response) -> {
+		this.filter.doFilter(request, new MockHttpServletResponse(), (wrapped, _) -> {
 			assertThat(((HttpServletRequest) wrapped).getReader().readLine()).isEqualTo("Descripción 😀");
 		});
 		request.setContent(
@@ -140,7 +140,7 @@ class ApiRequestBodyLimitFilterTest {
 		final var request = request(ApiRequestBodyLimitFilter.MAX_BODY_BYTES + 1, true);
 		request.setRequestURI("/assets/example.json");
 		final AtomicInteger calls = new AtomicInteger();
-		this.filter.doFilter(request, new MockHttpServletResponse(), (wrapped, response) -> calls.incrementAndGet());
+		this.filter.doFilter(request, new MockHttpServletResponse(), (_, _) -> calls.incrementAndGet());
 		assertThat(calls.get()).isEqualTo(1);
 	}
 }
