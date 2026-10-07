@@ -68,6 +68,7 @@ interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 	 * profile.
 	 */
 	@Override
+	@EntityGraph(attributePaths = "employee")
 	Optional<AppUser> findById(UUID id);
 
 	/**
