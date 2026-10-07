@@ -41,6 +41,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -80,6 +81,7 @@ public class Employee implements Serializable {
 	 * </p>
 	 */
 	@NotBlank
+	@Column(columnDefinition = "text")
 	private String name;
 
 	/**
@@ -89,6 +91,7 @@ public class Employee implements Serializable {
 	 * </p>
 	 */
 	@NotBlank
+	@Column(columnDefinition = "text")
 	private String surname;
 
 	/**
@@ -96,7 +99,7 @@ public class Employee implements Serializable {
 	 */
 	@NaturalId
 	@NotBlank
-	@Column(name = "employee_number", nullable = false, unique = true, updatable = false, length = 50)
+	@Column(name = "employee_number", nullable = false, unique = true, updatable = false, columnDefinition = "text")
 	private String employeeNumber;
 
 	/**
@@ -109,7 +112,8 @@ public class Employee implements Serializable {
 	 */
 	@NotBlank
 	@Email
-	@Column(nullable = false, unique = true, length = 254)
+	@Size(max = 254)
+	@Column(nullable = false, unique = true, columnDefinition = "text")
 	private String email;
 
 	/**

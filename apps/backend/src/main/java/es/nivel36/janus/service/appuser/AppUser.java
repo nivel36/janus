@@ -74,6 +74,8 @@ public class AppUser implements Serializable {
 	 */
 	@NotBlank
 	@Email
+	@Size(max = 254)
+	@Column(columnDefinition = "text")
 	private String email;
 
 	/**
@@ -82,13 +84,14 @@ public class AppUser implements Serializable {
 	@NaturalId
 	@NotBlank
 	@Size(max = 255)
-	@Column(updatable = false, unique = true)
+	@Column(updatable = false, unique = true, columnDefinition = "text")
 	private String keycloakSubject;
 
 	/**
 	 * Nonnull preferred locale once constructed or hydrated.
 	 */
 	@NotNull
+	@Column(columnDefinition = "text")
 	private Locale locale;
 
 	/**
@@ -96,6 +99,7 @@ public class AppUser implements Serializable {
 	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "text")
 	private TimeFormat timeFormat;
 
 	/**
@@ -103,12 +107,14 @@ public class AppUser implements Serializable {
 	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "text")
 	private Theme theme = Theme.DARK;
 
 	/**
 	 * Nonnull preferred timezone once constructed or hydrated.
 	 */
 	@NotNull
+	@Column(columnDefinition = "text")
 	private ZoneId defaultTimezone;
 
 	/**
@@ -128,8 +134,9 @@ public class AppUser implements Serializable {
 
 	/**
 	 * Creates an unpersisted, unlinked DARK profile with UTC timezone. All
-	 * arguments must be nonnull; email and subject must be nonblank and at most 255
-	 * characters after email normalization. Subject is opaque and retained exactly.
+	 * arguments must be nonnull; email must be nonblank and at most 254 characters
+	 * after normalization. Subject must be nonblank and at most 255 characters, is
+	 * opaque and is retained exactly.
 	 *
 	 * @param  email                    contact email to trim and lowercase
 	 * @param  keycloakSubject          immutable provider subject
@@ -144,9 +151,10 @@ public class AppUser implements Serializable {
 
 	/**
 	 * Creates an unpersisted, unlinked DARK profile with the supplied preferences.
-	 * All arguments must be nonnull; contact email and subject must be nonblank and
-	 * at most 255 characters after email normalization. This constructor does not
-	 * reserve the subject or employee in the database.
+	 * All arguments must be nonnull. Contact email must be nonblank and at most 254
+	 * characters after normalization; subject must be nonblank and at most 255
+	 * characters. This constructor does not reserve the subject or employee in the
+	 * database.
 	 *
 	 * @param  email                    contact email to trim and lowercase
 	 * @param  keycloakSubject          opaque immutable subject retained exactly as
@@ -200,7 +208,7 @@ public class AppUser implements Serializable {
 
 	/**
 	 * Replaces contact information after normalization without changing identity.
-	 * The input must be nonnull, nonblank and at most 255 normalized characters.
+	 * The input must be nonnull, nonblank and at most 254 normalized characters.
 	 * Invalid input leaves the previous email unchanged.
 	 *
 	 * @param  email                    contact email to trim and lowercase
@@ -242,17 +250,13 @@ public class AppUser implements Serializable {
 	 *
 	 * @param  email                    nonnull, nonblank email to trim and
 	 *                                  lowercase
-	 * @return                          normalized nonblank email of at most 255
+	 * @return                          normalized nonblank email of at most 254
 	 *                                  characters
 	 * @throws NullPointerException     if email is null
 	 * @throws IllegalArgumentException if normalized email is blank or oversized
 	 */
 	static String validateEmail(final String email) {
-		final String normalized = EmailAddresses.canonicalize(email);
-		if (normalized.length() > 255) {
-			throw new IllegalArgumentException("email can't exceed 255 characters");
-		}
-		return normalized;
+		return EmailAddresses.canonicalize(email);
 	}
 
 	/**

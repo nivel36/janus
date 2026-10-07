@@ -20,6 +20,7 @@ import es.nivel36.janus.service.appuser.Theme;
 import es.nivel36.janus.validation.LanguageTag;
 import es.nivel36.janus.validation.ValidTimeZone;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -41,6 +42,7 @@ public record UpdateAppUserRequest(
 
 		@NotBlank(message = "locale must not be blank")
 		@LanguageTag
+		@Size(max = 64, message = "locale must not exceed 64 characters")
 		String locale,
 
 		@NotNull(message = "timeFormat must not be null")
@@ -48,6 +50,7 @@ public record UpdateAppUserRequest(
 
 		@NotBlank(message = "defaultTimezone must not be blank")
 		@ValidTimeZone(message = "defaultTimezone must be a valid time-zone identifier")
+		@Size(max = 64, message = "defaultTimezone must not exceed 64 characters")
 		String defaultTimezone,
 
 		@NotNull(message = "theme must not be null")

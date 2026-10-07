@@ -45,6 +45,7 @@ import es.nivel36.janus.validation.EmployeeNumber;
 import es.nivel36.janus.validation.KeycloakSubject;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -117,7 +118,7 @@ public class AppUserService {
 	 * <p>
 	 * An existing profile is returned unchanged, including its email, preferences
 	 * and employee association. On creation, AppUser trims and lowercases the email
-	 * and limits it to 255 normalized characters. A new profile uses configured
+	 * and limits it to 254 normalized characters. A new profile uses configured
 	 * defaults and DARK theme, and links only a known unclaimed employee. A
 	 * competing subject insert returns the winning profile; a competing employee
 	 * claim falls back to an unlinked profile. Successful inserts commit
@@ -141,7 +142,7 @@ public class AppUserService {
 	@Transactional
 	public AppUser findOrCreateAppUser(
 			final @NotBlank @KeycloakSubject String keycloakSubject,
-			final @NotBlank @Email String email,
+			final @NotBlank @Email @Size(max = 254) String email,
 			final @EmployeeNumber String employeeNumber) {
 		final Optional<AppUser> existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 		if (existing.isPresent()) {
@@ -255,7 +256,7 @@ public class AppUserService {
 		appUser.updatePreferences(newLocale, newTimeFormat, newDefaultTimezone, newTheme);
 		return appUser;
 	}
-	
+
 	private AppUser findAppUserById(final UUID id) {
 		return this.appUserRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("There is no application user with id " + id));
@@ -297,8 +298,9 @@ public class AppUserService {
 	 * </p>
 	 *
 	 * @param  emailFilter                  optional literal fragment, used without
-	 *                                      trimming or length validation; null or
-	 *                                      empty disables the email restriction
+	 *                                      trimming and limited to 254 characters;
+	 *                                      null or empty disables the email
+	 *                                      restriction
 	 * @param  employeeNumber               optional employee number matching
 	 *                                      {@code [A-Za-z0-9_-]{1,50}} without
 	 *                                      trimming
@@ -313,7 +315,7 @@ public class AppUserService {
 	 */
 	@Transactional(readOnly = true)
 	public Page<AppUser> searchAppUsers(
-			final String emailFilter,
+			final @Size(max = 254) String emailFilter,
 			final @EmployeeNumber String employeeNumber,
 			final @NotNull Pageable pageable) {
 		final Pageable normalizedPageable = this.normalizePageable(pageable);

@@ -74,6 +74,7 @@ public class Schedule implements Serializable {
 	 * </p>
 	 */
 	@NotBlank
+	@Column(columnDefinition = "text")
 	private String name;
 
 	/**
@@ -85,7 +86,7 @@ public class Schedule implements Serializable {
 	 */
 	@NaturalId
 	@NotBlank
-	@Column(updatable = false)
+	@Column(updatable = false, columnDefinition = "text")
 	private String code;
 
 	/**

@@ -105,7 +105,7 @@ public class ApplicationSettings implements Serializable {
 	 * operations use worksite zones and account provisioning uses its own defaults.
 	 */
 	@NotNull
-	@Column(name = "DEFAULT_TIMEZONE", nullable = false, length = 64)
+	@Column(name = "DEFAULT_TIMEZONE", nullable = false, columnDefinition = "text")
 	private ZoneId defaultTimezone = ZoneId.of("Europe/Madrid");
 
 	/**

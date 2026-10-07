@@ -20,6 +20,7 @@ import es.nivel36.janus.validation.EmployeeNumber;
 import es.nivel36.janus.validation.ScheduleCode;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
@@ -49,8 +50,9 @@ public record CreateEmployeeRequest(
 		@Pattern(regexp = "^[\\p{L} .,'-]{1,255}$", message = "surname must contain only letters, spaces, dots, commas, apostrophes or hyphens (max 255)")
 		String surname,
 
-		@NotBlank(message = "name must not be blank")
+		@NotBlank(message = "email must not be blank")
 		@Email
+		@Size(max = 254, message = "email must not exceed 254 characters")
 		String email,
 
 		@NotBlank(message = "scheduleCode must not be blank")

@@ -99,6 +99,10 @@ class AppUserServiceValidationTest {
 				Arguments.of("subject", "", null),
 				Arguments.of("subject", " ", null),
 				Arguments.of("subject", "not-an-email", null),
+				Arguments.of(
+						"subject",
+						"a".repeat(64) + "@" + "b".repeat(63) + "." + "c".repeat(63) + "." + "d".repeat(62),
+						null),
 				Arguments.of("subject", " user@example.test ", null),
 				Arguments.of("subject", "valid@example.test", ""),
 				Arguments.of("subject", "valid@example.test", "bad number"),
@@ -170,6 +174,13 @@ class AppUserServiceValidationTest {
 	@ValueSource(strings = { "", " ", "bad number", " EMP-42 ", "!" })
 	void invalidEmployeeSearchFilterIsRejectedBeforeSearching(final String employee) {
 		assertThatThrownBy(() -> this.service.searchAppUsers(null, employee, PageRequest.of(0, 10)))
+				.isInstanceOf(ConstraintViolationException.class);
+		verifyNoInteractions(this.repository, this.creator, this.employees);
+	}
+
+	@Test
+	void oversizedEmailFilterIsRejectedBeforeSearching() {
+		assertThatThrownBy(() -> this.service.searchAppUsers("a".repeat(255), null, PageRequest.of(0, 10)))
 				.isInstanceOf(ConstraintViolationException.class);
 		verifyNoInteractions(this.repository, this.creator, this.employees);
 	}

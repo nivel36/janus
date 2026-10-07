@@ -21,10 +21,17 @@ export const WORKSITE_NAME_VALIDATORS: ValidatorFn[] = [
   Validators.pattern(/^[\p{L}0-9 _'.,-]+$/u),
 ];
 
-export const WORKSITE_TIME_ZONE_VALIDATORS: ValidatorFn[] = [Validators.required];
+export const WORKSITE_TIME_ZONE_VALIDATORS: ValidatorFn[] = [
+  Validators.required,
+  Validators.maxLength(64),
+];
 export const WORKSITE_SCOPE_VALIDATORS: ValidatorFn[] = [Validators.required];
-export const WORKSITE_DESCRIPTION_VALIDATORS: ValidatorFn[] = [Validators.maxLength(500)];
-export const WORKSITE_ADDRESS_VALIDATORS: ValidatorFn[] = [Validators.maxLength(500)];
+export const WORKSITE_DESCRIPTION_VALIDATORS: ValidatorFn[] = [
+  Validators.maxLength(500),
+  // eslint-disable-next-line no-control-regex -- Reject NUL, which PostgreSQL cannot store.
+  Validators.pattern(/^[^\x00]*$/),
+];
+export const WORKSITE_ADDRESS_VALIDATORS: ValidatorFn[] = WORKSITE_DESCRIPTION_VALIDATORS;
 
 export interface WorksiteFormControls {
   name: FormControl<string>;

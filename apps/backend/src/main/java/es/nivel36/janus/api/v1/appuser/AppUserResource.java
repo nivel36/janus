@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 /**
  * HTTP contract for local application profiles at {@code /api/v1/app-users}.
@@ -51,9 +52,9 @@ public interface AppUserResource {
 	 * <p>
 	 * The optional employee number must match {@code [A-Za-z0-9_-]{1,50}} without
 	 * trimming and {@code pageable} must be nonnull and paged. Email fragments are
-	 * used literally without trimming or length validation; null or empty email
-	 * disables the email restriction. Sort fields are {@code id}, {@code email} and
-	 * {@code employeeNumber}.
+	 * used literally without trimming and limited to 254 characters; null or empty
+	 * email disables the email restriction. Sort fields are {@code id},
+	 * {@code email} and {@code employeeNumber}.
 	 * </p>
 	 * <p>
 	 * Returns HTTP 200 without changing profiles. Filters combine with AND; absent
@@ -80,10 +81,14 @@ public interface AppUserResource {
 	 */
 	@GetMapping
 	@PreAuthorize("@appUserAuthorization.canSearch(authentication)")
-	ResponseEntity<Page<AppUserResponse>> searchAppUsers(@RequestParam(name = "email", required = false)
-	String email, @RequestParam(required = false)
-	String employeeNumber, @PageableDefault(size = 20, sort = "email")
-	Pageable pageable);
+	ResponseEntity<Page<AppUserResponse>> searchAppUsers(
+			@RequestParam(name = "email", required = false)
+			@Size(max = 254)
+			String email,
+			@RequestParam(required = false)
+			String employeeNumber,
+			@PageableDefault(size = 20, sort = "email")
+			Pageable pageable);
 
 	/**
 	 * Retrieves or provisions the profile identified by the authenticated subject.
@@ -92,7 +97,7 @@ public interface AppUserResource {
 	 * and verified email. Its subject must match {@code [A-Za-z0-9_-]{1,255}}, its
 	 * email must be nonblank and satisfy {@code @Email}, and an optional
 	 * employee-number claim must match {@code [A-Za-z0-9_-]{1,50}} without
-	 * trimming. Creation trims and lowercases email and limits it to 255 normalized
+	 * trimming. Creation trims and lowercases email and limits it to 254 normalized
 	 * characters.
 	 * </p>
 	 * <p>
@@ -110,8 +115,8 @@ public interface AppUserResource {
 	 *                                      the provider subject is omitted
 	 * @throws ConstraintViolationException if a claim violates the service
 	 *                                      parameter constraints
-	 * @throws IllegalArgumentException     if a new profile's normalized email is
-	 *                                      oversized
+	 * @throws IllegalArgumentException     if a new profile's normalized email
+	 *                                      exceeds 254 characters
 	 * @throws AccessDeniedException        if provisioning is not authorized
 	 */
 	@PreAuthorize("@appUserProvisioningPolicy.canProvision(authentication)")

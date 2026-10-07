@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.util.Objects;
 
 import jakarta.persistence.Embedded;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -75,6 +76,7 @@ public class DayOfWeekTimeRange implements Serializable {
 	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "text")
 	private DayOfWeek dayOfWeek;
 
 	/**

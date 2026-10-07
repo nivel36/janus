@@ -21,6 +21,7 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.validation.KeycloakSubject;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -67,7 +68,7 @@ class AppUserCreator {
 	 * entities; the caller is responsible for reconciling the conflict.
 	 * </p>
 	 *
-	 * @param  email                    nonblank contact email, at most 255
+	 * @param  email                    nonblank contact email, at most 254
 	 *                                  normalized characters
 	 * @param  keycloakSubject          nonblank opaque subject, at most 255
 	 *                                  characters
@@ -85,7 +86,7 @@ class AppUserCreator {
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public AppUser create(
-			final @NotEmpty @Email String email,
+			final @NotEmpty @Email @Size(max = 254) String email,
 			final @NotEmpty @KeycloakSubject String keycloakSubject,
 			final @NotNull Locale locale,
 			final @NotNull TimeFormat timeFormat,

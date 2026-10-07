@@ -47,7 +47,7 @@ class AppUserTest {
 				.isInstanceOf(IllegalArgumentException.class);
 		final AppUser user = new AppUser("  USER@EXAMPLE.TEST  ", "x".repeat(255), Locale.ENGLISH, TimeFormat.H24);
 		assertThat(user.getEmail()).isEqualTo("user@example.test");
-		assertThatThrownBy(() -> user.setEmail("x".repeat(256))).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> user.setEmail("x".repeat(255))).isInstanceOf(IllegalArgumentException.class);
 		assertThat(user.getEmail()).isEqualTo("user@example.test");
 	}
 }

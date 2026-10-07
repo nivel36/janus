@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import es.nivel36.janus.util.Strings;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -77,6 +78,7 @@ public class ScheduleRule implements Serializable {
 	 * </p>
 	 */
 	@NotBlank
+	@Column(columnDefinition = "text")
 	private String name;
 
 	/**

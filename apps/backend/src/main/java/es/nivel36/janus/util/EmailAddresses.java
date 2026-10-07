@@ -10,8 +10,9 @@ import java.util.Locale;
 /**
  * Normalizes contact email consistently without selecting or authorizing
  * identity. Inputs must be nonnull and nonblank. The result is trimmed and
- * lowercased with Locale.ROOT; normalization itself does not validate email
- * syntax, column length or uniqueness and does not change a profile.
+ * lowercased with Locale.ROOT and limited to 254 characters; normalization
+ * itself does not validate email syntax or uniqueness and does not change a
+ * profile.
  */
 public final class EmailAddresses {
 
@@ -24,9 +25,15 @@ public final class EmailAddresses {
 	 * @param  email                    nonnull, nonblank contact email
 	 * @return                          trimmed, lowercase email using Locale.ROOT
 	 * @throws NullPointerException     if email is null
-	 * @throws IllegalArgumentException if email is blank
+	 * @throws IllegalArgumentException if email is blank or its normalized length
+	 *                                  exceeds 254
 	 */
 	public static String canonicalize(final String email) {
-		return Strings.requireNonBlank(email, "email cannot be null or blank").trim().toLowerCase(Locale.ROOT);
+		final String normalized = Strings.requireNonBlank(email, "email cannot be null or blank").trim()
+				.toLowerCase(Locale.ROOT);
+		if (normalized.length() > 254) {
+			throw new IllegalArgumentException("email can't exceed 254 characters");
+		}
+		return normalized;
 	}
 }

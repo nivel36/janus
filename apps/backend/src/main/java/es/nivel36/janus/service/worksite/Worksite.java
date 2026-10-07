@@ -97,6 +97,7 @@ public class Worksite implements Serializable {
 	 * </p>
 	 */
 	@NotBlank
+	@Column(columnDefinition = "text")
 	private String name;
 
 	/**
@@ -108,7 +109,7 @@ public class Worksite implements Serializable {
 	 */
 	@NaturalId
 	@NotBlank
-	@Column(updatable = false)
+	@Column(updatable = false, columnDefinition = "text")
 	private String code;
 
 	/**
@@ -120,6 +121,7 @@ public class Worksite implements Serializable {
 	 * </p>
 	 */
 	@NotNull
+	@Column(columnDefinition = "text")
 	private ZoneId timeZone;
 
 	/**
@@ -129,6 +131,7 @@ public class Worksite implements Serializable {
 	 * details.
 	 * </p>
 	 */
+	@Column(columnDefinition = "text")
 	private String description;
 
 	/**
@@ -138,6 +141,7 @@ public class Worksite implements Serializable {
 	 * when applicable.
 	 * </p>
 	 */
+	@Column(columnDefinition = "text")
 	private String address;
 
 	/**
@@ -149,6 +153,7 @@ public class Worksite implements Serializable {
 	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "text")
 	private WorksiteScope scope;
 
 	/**

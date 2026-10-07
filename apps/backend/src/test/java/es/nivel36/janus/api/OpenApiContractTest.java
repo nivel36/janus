@@ -46,6 +46,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 class OpenApiContractTest {
 
@@ -291,6 +292,11 @@ class OpenApiContractTest {
 		if (pattern != null)
 			assertThat(schema.get("pattern")).as("validation for %s parameter %s", key, name)
 					.isEqualTo(fullValuePattern(pattern.regexp()));
+		final var size = AnnotatedElementUtils.findMergedAnnotation(implementation, Size.class);
+		if (size != null && implementationType == String.class) {
+			assertThat(schema.get("maxLength")).as("maximum length for %s parameter %s", key, name)
+					.isEqualTo(size.max());
+		}
 	}
 
 	/** Resolves both direct constraints and reusable composed constraints. */
@@ -373,12 +379,17 @@ class OpenApiContractTest {
 		}
 		final var properties = (Map<String, Map<String, Object>>) bodySchema.get("properties");
 		for (final var component : bodyType.getRecordComponents()) {
-			final var pattern = mergedPattern(component);
-			if (pattern == null)
-				continue;
+			final var pattern = mergedPattern(component.getAccessor());
 			final var property = resolveSchema(properties.get(component.getName()));
-			assertThat(property.get("pattern")).as("validation for %s body property %s", key, component.getName())
-					.isEqualTo(fullValuePattern(pattern.regexp()));
+			if (pattern != null) {
+				assertThat(property.get("pattern")).as("validation for %s body property %s", key, component.getName())
+						.isEqualTo(fullValuePattern(pattern.regexp()));
+			}
+			final var size = AnnotatedElementUtils.findMergedAnnotation(component.getAccessor(), Size.class);
+			if (size != null) {
+				assertThat(property.get("maxLength"))
+						.as("maximum length for %s body property %s", key, component.getName()).isEqualTo(size.max());
+			}
 		}
 	}
 

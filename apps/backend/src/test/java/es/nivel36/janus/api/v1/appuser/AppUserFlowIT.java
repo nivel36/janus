@@ -128,6 +128,14 @@ class AppUserFlowIT {
 	}
 
 	@Test
+	void emailFilterLengthIsEnforcedOverHttp() throws Exception {
+		this.mvc.perform(get(BASE).param("email", "a".repeat(254)).with(actor(ADMIN, Role.JANUS_ADMIN)))
+				.andExpect(status().isOk());
+		this.mvc.perform(get(BASE).param("email", "a".repeat(255)).with(actor(ADMIN, Role.JANUS_ADMIN)))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
 	void emptyEmailDisablesFilterAndWhitespaceIsNotTrimmed() throws Exception {
 		final Integer count = this.jdbc.queryForObject("SELECT COUNT(*) FROM app_user", Integer.class);
 		this.mvc.perform(get(BASE).param("email", "").with(actor(ADMIN, Role.JANUS_ADMIN))).andExpect(status().isOk())

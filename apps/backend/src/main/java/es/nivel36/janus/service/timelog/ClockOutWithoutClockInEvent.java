@@ -108,6 +108,7 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	/**
 	 * Optional reason explaining why the event was resolved or invalidated.
 	 */
+	@Column(columnDefinition = "text")
 	private String reason;
 
 	/**

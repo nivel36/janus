@@ -2,6 +2,7 @@ openapi: 3.0.3
 info:
   title: Janus API
   version: 1.0.0
+  description: API request bodies are limited to 1048576 bytes (1 MiB). Oversized bodies return HTTP 413.
 servers:
 - url: /api/v1
 paths:
@@ -23,11 +24,15 @@ paths:
         schema:
           type: string
           pattern: '^[A-Za-z0-9_-]{1,50}$'
+          minLength: 1
+          maxLength: 50
       - name: worksiteCode
         in: query
         schema:
           type: string
           pattern: '^[A-Za-z0-9_-]{1,50}$'
+          minLength: 1
+          maxLength: 50
       - name: page
         in: query
         schema:
@@ -68,6 +73,8 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateEmployeeRequest'
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '201':
           description: Created employee
           content:
@@ -103,6 +110,8 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateEmployeeRequest'
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '200':
           description: Updated employee
           content:
@@ -126,15 +135,13 @@ paths:
       parameters:
       - name: email
         in: query
-        description: Literal partial email match, trimmed and case-insensitive. SQL wildcard characters are treated literally. Blank values are invalid.
+        description: Literal, case-insensitive partial email match without trimming. SQL wildcards are treated literally. Missing or empty values disable this filter.
         schema:
           type: string
-          minLength: 1
-          maxLength: 255
-          pattern: '^[\p{L}\p{M}\p{N}\p{Zs}\p{P}\p{S}]+$'
+          maxLength: 254
       - name: employeeNumber
         in: query
-        description: "Exact, case-sensitive employee number after trimming surrounding whitespace; must match ^[A-Za-z0-9_-]{1,50}$."
+        description: "Exact, case-sensitive employee number without trimming surrounding whitespace; must match ^[A-Za-z0-9_-]{1,50}$."
         schema:
           type: string
       - name: page
@@ -214,6 +221,8 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateAppUserRequest'
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '200':
           description: Updated application user
           content:
@@ -276,6 +285,8 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateApplicationSettingsRequest'
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '200':
           description: Updated application settings
           content:
@@ -346,6 +357,8 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateWorksiteRequest'
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '201':
           description: Created
           content:
@@ -360,6 +373,8 @@ paths:
       schema:
         type: string
         pattern: '^[A-Za-z0-9_-]{1,50}$'
+        minLength: 1
+        maxLength: 50
     get:
       tags:
       - worksites
@@ -382,6 +397,8 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateWorksiteRequest'
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '200':
           description: Updated
           content:
@@ -403,6 +420,8 @@ paths:
       schema:
         type: string
         pattern: '^[A-Za-z0-9_-]{1,50}$'
+        minLength: 1
+        maxLength: 50
     - name: start
       in: query
       required: true
@@ -484,6 +503,8 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateScheduleRequest'
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '201':
           description: Created schedule
           content:
@@ -498,6 +519,8 @@ paths:
       schema:
         type: string
         pattern: '^[A-Za-z0-9_-]{1,50}$'
+        minLength: 1
+        maxLength: 50
     get:
       tags: [schedules]
       operationId: findSchedule
@@ -518,6 +541,8 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateScheduleRequest'
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '200':
           description: Updated schedule
           content:
@@ -650,6 +675,8 @@ paths:
         schema:
           type: string
           pattern: '^[A-Za-z0-9_-]{1,50}$'
+          minLength: 1
+          maxLength: 50
       - name: entryTime
         in: query
         schema:
@@ -681,6 +708,8 @@ paths:
       - time-logs
       operationId: createTimeLog
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '201':
           description: Created
           content:
@@ -732,6 +761,8 @@ paths:
       schema:
         type: string
         pattern: '^[A-Za-z0-9_-]{1,50}$'
+        minLength: 1
+        maxLength: 50
     - name: exitTime
       in: path
       required: true
@@ -760,6 +791,8 @@ paths:
             schema:
               $ref: '#/components/schemas/TransitionClockOutWithoutClockInEventRequest'
       responses:
+        '413':
+          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
         '200':
           description: Event transitioned to its requested final state
           content:
@@ -774,6 +807,8 @@ paths:
       schema:
         type: string
         pattern: '^[A-Za-z0-9_-]{1,50}$'
+        minLength: 1
+        maxLength: 50
     - *id001
     put:
       tags:
@@ -799,14 +834,20 @@ components:
     EmployeeNumber:
       type: string
       pattern: '^[A-Za-z0-9_-]{1,50}$'
+      minLength: 1
+      maxLength: 50
       description: Stable employee identifier containing 1 to 50 letters, digits, underscores, or hyphens.
     WorksiteCode:
       type: string
       pattern: '^[A-Za-z0-9_-]{1,50}$'
+      minLength: 1
+      maxLength: 50
       description: Stable worksite code containing 1 to 50 letters, digits, underscores, or hyphens.
     ScheduleCode:
       type: string
       pattern: '^[A-Za-z0-9_-]{1,50}$'
+      minLength: 1
+      maxLength: 50
       description: Stable schedule code containing 1 to 50 letters, digits, underscores, or hyphens.
     EmployeeResponse:
       type: object
@@ -853,11 +894,16 @@ components:
           $ref: '#/components/schemas/EmployeeNumber'
         name:
           type: string
+          pattern: "^[\\p{L} .,'-]{1,255}$"
+          maxLength: 255
         surname:
           type: string
+          pattern: "^[\\p{L} .,'-]{1,255}$"
+          maxLength: 255
         email:
           type: string
           format: email
+          maxLength: 254
         scheduleCode:
           $ref: '#/components/schemas/ScheduleCode'
     UpdateEmployeeRequest:
@@ -870,11 +916,16 @@ components:
       properties:
         name:
           type: string
+          pattern: "^[\\p{L} .,'-]{1,255}$"
+          maxLength: 255
         surname:
           type: string
+          pattern: "^[\\p{L} .,'-]{1,255}$"
+          maxLength: 255
         email:
           type: string
           format: email
+          maxLength: 254
         scheduleCode:
           $ref: '#/components/schemas/ScheduleCode'
     Theme:
@@ -935,6 +986,7 @@ components:
         locale:
           type: string
           description: Supported BCP 47 language tag, such as en-US or en
+          maxLength: 64
         timeFormat:
           $ref: '#/components/schemas/TimeFormat'
         theme:
@@ -942,6 +994,7 @@ components:
         defaultTimezone:
           type: string
           minLength: 1
+          maxLength: 64
     ApplicationSettingsResponse:
       type: object
       required:
@@ -993,6 +1046,7 @@ components:
           type: string
           description: Stored global zone accepted by Java ZoneId, including UTC and offsets. Surrounding input spaces are trimmed. Does not override worksite or account zones.
           minLength: 1
+          maxLength: 64
     PageMetadata:
       type: object
       required:
@@ -1052,16 +1106,24 @@ components:
           $ref: '#/components/schemas/WorksiteCode'
         name:
           type: string
+          pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
+          maxLength: 250
         timeZone:
           type: string
+          pattern: "^[A-Za-z0-9_./+:-]{1,64}$"
+          maxLength: 64
         scope:
           $ref: '#/components/schemas/WorksiteScope'
         description:
           type: string
           nullable: true
+          pattern: "^[^\\x00]*$"
+          maxLength: 500
         address:
           type: string
           nullable: true
+          pattern: "^[^\\x00]*$"
+          maxLength: 500
     UpdateWorksiteRequest:
       type: object
       required:
@@ -1071,16 +1133,24 @@ components:
       properties:
         name:
           type: string
+          pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
+          maxLength: 250
         timeZone:
           type: string
+          pattern: "^[A-Za-z0-9_./+:-]{1,64}$"
+          maxLength: 64
         scope:
           $ref: '#/components/schemas/WorksiteScope'
         description:
           type: string
           nullable: true
+          pattern: "^[^\\x00]*$"
+          maxLength: 500
         address:
           type: string
           nullable: true
+          pattern: "^[^\\x00]*$"
+          maxLength: 500
     ScheduleResponse:
       type: object
       required:
@@ -1111,6 +1181,7 @@ components:
         name:
           type: string
           pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
+          maxLength: 250
         entryTolerance:
           type: string
           format: duration
@@ -1130,6 +1201,7 @@ components:
         name:
           type: string
           pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
+          maxLength: 250
         entryTolerance:
           type: string
           format: duration
@@ -1150,6 +1222,7 @@ components:
         name:
           type: string
           pattern: "^[\\p{L}0-9 _'.,-]{1,250}$"
+          maxLength: 250
         startDate:
           type: string
           format: date
@@ -1325,6 +1398,7 @@ components:
         reason:
           type: string
           maxLength: 255
+          pattern: "^[^\\x00]*$"
     ClockOutWithoutClockInEventResponse:
       type: object
       required:

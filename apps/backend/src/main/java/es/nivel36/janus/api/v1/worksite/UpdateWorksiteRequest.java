@@ -52,9 +52,11 @@ public record UpdateWorksiteRequest(
 		WorksiteScope scope,
 
 		@Size(max = 500, message = "description must not exceed 500 characters")
+		@Pattern(regexp = "^[^\\x00]*$", message = "description must not contain NUL")
 		String description,
 
 		@Size(max = 500, message = "address must not exceed 500 characters")
+		@Pattern(regexp = "^[^\\x00]*$", message = "address must not contain NUL")
 		String address) {
 
 }

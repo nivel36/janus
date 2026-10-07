@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Uniform payload for either final transition of a clock-out-without-clock-in
@@ -24,6 +25,7 @@ public record TransitionClockOutWithoutClockInEventRequest(
 		Instant entryTime,
 
 		@Size(max = 255, message = "reason must not exceed 255 characters")
+		@Pattern(regexp = "^[^\\x00]*$", message = "reason must not contain NUL")
 		String reason) {
 
 	@JsonIgnore

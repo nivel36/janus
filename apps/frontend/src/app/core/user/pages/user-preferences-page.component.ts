@@ -78,7 +78,7 @@ export class UserPreferencesPageComponent {
    */
   readonly form = this.fb.group({
     locale: this.fb.nonNullable.control('es-ES', {
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.maxLength(64)],
     }),
     timeFormat: this.fb.nonNullable.control('H24' as TimeFormat, {
       validators: [Validators.required],
@@ -87,7 +87,7 @@ export class UserPreferencesPageComponent {
       validators: [Validators.required],
     }),
     defaultTimezone: this.fb.control<string | null>(null, {
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.maxLength(64)],
     }),
   });
 

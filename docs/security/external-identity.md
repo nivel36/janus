@@ -16,7 +16,7 @@ is created or deleted automatically when the other is managed administratively.
 The first `GET /api/v1/app-users/me` finds or creates the profile by `sub`. It
 requires a validated JWT with a recognized Janus client role, the configured
 issuer and audience, and `email_verified=true`. A missing or blank email claim
-returns 400; the email is trimmed, lowercased and limited to 255 characters.
+returns 400; the email is trimmed, lowercased and limited to 254 characters.
 Initial locale, time format and timezone come from `janus.user-provisioning.defaults`;
 the initial theme is DARK. `preferred_username` is not stored or used to link users.
 
@@ -60,11 +60,12 @@ requests receive 401. Deleting a local profile does not revoke Keycloak tokens:
 a later authorized `/me` request can create a fresh profile with initial preferences.
 
 Search accepts optional `email` and `employeeNumber` query parameters. Email is a
-trimmed, case-insensitive partial match of at most 255 characters of single-line,
-nonblank text. `%`, `_` and `!` are literal characters. Employee number matches
-exactly, case-sensitively, after trimming, and follows the claim syntax above.
-Filters combine with AND. Without filters, the search includes all local profiles,
-including unlinked ones. Emails can match multiple profiles.
+literal, case-insensitive partial match of at most 254 characters without trimming.
+Missing or empty input disables this filter. `%`, `_` and `!` are literal characters.
+Employee number matches exactly and case-sensitively, without trimming, and follows
+the claim syntax above. Filters combine with AND. Without filters, the search
+includes all local profiles, including unlinked ones. Emails can match multiple
+profiles.
 
 Pagination starts at `page=0`, defaults to `size=20` and caps size at
 `spring.data.rest.max-page-size` (100 by default). Public

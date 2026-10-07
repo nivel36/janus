@@ -68,7 +68,7 @@ export class ApplicationSettingsPageComponent {
     employeeWorksiteCreationAllowed: [false],
     worksiteChangeDuringShiftAllowed: [false],
     employeeManualTimeLogEntryAllowed: [false],
-    defaultTimezone: ['Europe/Madrid', Validators.required],
+    defaultTimezone: ['Europe/Madrid', [Validators.required, Validators.maxLength(64)]],
   });
 
   /**

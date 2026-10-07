@@ -44,6 +44,17 @@ describe('createWorksiteFormControls', () => {
         expect.objectContaining({ maxlength: expect.anything() }),
       );
 
+      controls.timeZone.setValue('a'.repeat(65));
+      expect(controls.timeZone.errors).toEqual(
+        expect.objectContaining({ maxlength: expect.anything() }),
+      );
+      controls.description.setValue('Información\n追加 😀');
+      expect(controls.description.valid).toBe(true);
+      controls.description.setValue('before\u0000after');
+      expect(controls.description.hasError('pattern')).toBe(true);
+      controls.address.setValue('before\u0000after');
+      expect(controls.address.hasError('pattern')).toBe(true);
+
       controls.timeZone.setValue(null);
       expect(controls.timeZone.errors).toEqual(expect.objectContaining({ required: true }));
 

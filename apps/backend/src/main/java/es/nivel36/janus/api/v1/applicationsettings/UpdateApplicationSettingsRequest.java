@@ -17,6 +17,7 @@ package es.nivel36.janus.api.v1.applicationsettings;
 
 import es.nivel36.janus.validation.ValidTimeZone;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -55,5 +56,6 @@ public record UpdateApplicationSettingsRequest(
 
 		@NotBlank(message = "defaultTimezone is required")
 		@ValidTimeZone(message = "defaultTimezone must be a valid time-zone identifier")
+		@Size(max = 64, message = "defaultTimezone must not exceed 64 characters")
 		String defaultTimezone) {
 }
