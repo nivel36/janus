@@ -15,7 +15,6 @@
  */
 package es.nivel36.janus.config;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -42,7 +41,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.util.StringUtils;
@@ -51,7 +49,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import es.nivel36.janus.util.KeycloakJwtRolesConverter;
-import tools.jackson.databind.ObjectMapper;
 
 /**
  * Security configuration for Janus.
@@ -106,9 +103,7 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain securityFilterChain(
 			final HttpSecurity http,
-			final JwtAuthenticationConverter jwtAuthenticationConverter,
-			final ObjectMapper objectMapper,
-			final Clock clock) {
+			final JwtAuthenticationConverter jwtAuthenticationConverter) {
 		return http.cors(Customizer.withDefaults()).csrf(CsrfConfigurer::disable)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.headers(headers -> {
@@ -124,7 +119,7 @@ public class SecurityConfig {
 				.exceptionHandling(
 						exception -> exception
 								.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-				.addFilterAfter(new ApiRequestBodyLimitFilter(objectMapper, clock), AuthorizationFilter.class).build();
+				.build();
 	}
 
 	private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry getAuthorizations(

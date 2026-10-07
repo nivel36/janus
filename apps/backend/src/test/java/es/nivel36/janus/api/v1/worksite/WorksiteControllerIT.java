@@ -62,41 +62,6 @@ class WorksiteControllerIT {
 	private static final String BASE = "/api/v1/worksites";
 
 	@Test
-	void bodyLimitRunsAfterAuthenticationAndBeforeJsonParsing() throws Exception {
-		final String oversized = " ".repeat(1_048_577);
-		this.mvc.perform(post(BASE).contentType(APPLICATION_JSON).content(oversized))
-				.andExpect(status().isUnauthorized());
-		this.mvc.perform(
-				post(BASE).contentType(APPLICATION_JSON).content(oversized)
-						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
-				.andExpect(status().is(413)).andExpect(jsonPath("$.status").value(413))
-				.andExpect(jsonPath("$.type").value("urn:problem:request-body-too-large"));
-	}
-
-	@ParameterizedTest
-	@ValueSource(strings = { "whitespace", "unknownProperty" })
-	@Sql(statements = {
-			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'UTC')" })
-	void bodyBoundaryIncludesIgnoredPropertiesAndWhitespace(final String padding) throws Exception {
-		final String payload = "{\"code\":\"BODY-BOUNDARY\",\"name\":\"Boundary\",\"timeZone\":\"UTC\",\"scope\":\"GLOBAL\"}";
-		final String body = padding.equals("whitespace") ? payload + " ".repeat(1_048_576 - payload.length())
-				: payload.substring(0, payload.length() - 1) + ",\"extra\":\""
-						+ "a".repeat(1_048_576 - payload.length() - 11) + "\"}";
-		assertThat(body).hasSize(1_048_576);
-		this.mvc.perform(
-				post(BASE).contentType(APPLICATION_JSON).content(body + " ")
-						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
-				.andExpect(status().is(413));
-		this.mvc.perform(
-				get(BASE + "/BODY-BOUNDARY").with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
-				.andExpect(status().isNotFound());
-		this.mvc.perform(
-				post(BASE).contentType(APPLICATION_JSON).content(body)
-						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
-				.andExpect(status().isCreated());
-	}
-
-	@Test
 	void searchShouldEnforceSearchQueryContract() throws Exception {
 		this.mvc.perform(
 				get(BASE).queryParam("query", "a".repeat(100))

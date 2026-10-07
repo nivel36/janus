@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Janus API
   version: 1.0.0
-  description: API request bodies are limited to 1048576 bytes (1 MiB). Oversized bodies return HTTP 413.
+  description: Nginx limits request bodies for /api/ to 1048576 bytes (1 MiB) before backend authentication. Oversized bodies receive the native nginx HTTP 413 response. Direct backend access does not enforce this global body limit.
 servers:
 - url: /api/v1
 paths:
@@ -74,7 +74,7 @@ paths:
               $ref: '#/components/schemas/CreateEmployeeRequest'
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '201':
           description: Created employee
           content:
@@ -111,7 +111,7 @@ paths:
               $ref: '#/components/schemas/UpdateEmployeeRequest'
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '200':
           description: Updated employee
           content:
@@ -222,7 +222,7 @@ paths:
               $ref: '#/components/schemas/UpdateAppUserRequest'
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '200':
           description: Updated application user
           content:
@@ -286,7 +286,7 @@ paths:
               $ref: '#/components/schemas/UpdateApplicationSettingsRequest'
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '200':
           description: Updated application settings
           content:
@@ -358,7 +358,7 @@ paths:
               $ref: '#/components/schemas/CreateWorksiteRequest'
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '201':
           description: Created
           content:
@@ -398,7 +398,7 @@ paths:
               $ref: '#/components/schemas/UpdateWorksiteRequest'
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '200':
           description: Updated
           content:
@@ -504,7 +504,7 @@ paths:
               $ref: '#/components/schemas/CreateScheduleRequest'
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '201':
           description: Created schedule
           content:
@@ -542,7 +542,7 @@ paths:
               $ref: '#/components/schemas/UpdateScheduleRequest'
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '200':
           description: Updated schedule
           content:
@@ -709,7 +709,7 @@ paths:
       operationId: createTimeLog
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '201':
           description: Created
           content:
@@ -792,7 +792,7 @@ paths:
               $ref: '#/components/schemas/TransitionClockOutWithoutClockInEventRequest'
       responses:
         '413':
-          description: Request body exceeds the API limit of 1048576 bytes (1 MiB).
+          description: Request body exceeds the nginx limit of 1048576 bytes (1 MiB); nginx returns its native HTTP 413 response.
         '200':
           description: Event transitioned to its requested final state
           content:

@@ -44,9 +44,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import es.nivel36.janus.service.applicationsettings.MissingApplicationSettingsException;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
+import es.nivel36.janus.service.applicationsettings.MissingApplicationSettingsException;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInException;
 import es.nivel36.janus.service.timelog.EventAlreadyFinalizedException;
 import es.nivel36.janus.service.timelog.TimeLogAlreadyClosedException;
@@ -445,7 +445,7 @@ public class JanusExceptionHandler {
 	private void addCommonProps(final ProblemDetail pd, final HttpServletRequest request) {
 		pd.setProperty("timestamp", this.clock.instant().toString());
 		if (request != null) {
-			pd.setProperty("instance", request.getRequestURI());
+			pd.setInstance(URI.create(request.getRequestURI()));
 		}
 	}
 

@@ -16,12 +16,13 @@ requests are capped at 254, with another check after normalization. Descriptions
 addresses and reasons reject NUL, which PostgreSQL cannot store; multiline and
 Unicode text remain allowed.
 
-Authenticated API request bodies are limited to 1,048,576 bytes (1 MiB), before
-MVC deserialization. The backend bounds the full body even without Content-Length;
-unknown properties and trailing whitespace count toward the limit. Oversized
-bodies return 413 with ProblemDetail. Nginx declares the same limit for `/api/` in
-Docker and Helm. Field validation failures return 400. API limits are documented
-in OpenAPI and mirrored by the existing forms.
+Nginx limits request bodies for `/api/` to 1,048,576 bytes (1 MiB) using
+`client_max_body_size 1m` in Docker and Helm. The limit applies before backend
+authentication, including requests without Content-Length; unknown properties
+and trailing whitespace count toward it. Oversized bodies receive nginx's native
+HTTP 413 response. Direct backend access, including development without nginx,
+does not enforce this global body limit. Field validation failures return 400.
+API limits are documented in OpenAPI and mirrored by the existing forms.
 
 These changes update creation schemas only. No migration is added or executed;
 existing databases are recreated through the project's current initialization

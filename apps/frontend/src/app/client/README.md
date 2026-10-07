@@ -1,6 +1,6 @@
 # @
 
-API request bodies are limited to 1048576 bytes (1 MiB). Oversized bodies return HTTP 413.
+Nginx limits request bodies for /api/ to 1048576 bytes (1 MiB) before backend authentication. Oversized bodies receive the native nginx HTTP 413 response. Direct backend access does not enforce this global body limit.
 
 The version of the OpenAPI document: 1.0.0
 
