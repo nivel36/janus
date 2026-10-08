@@ -85,8 +85,13 @@ public class ApplicationSettingsService {
 			final boolean worksiteChangeDuringShiftAllowed,
 			final boolean employeeManualTimeLogEntryAllowed,
 			final @NotNull ZoneId defaultTimezone) {
-		logger.debug("Updating application settings");
+		logger.atDebug().addKeyValue("daysUntilLocked", daysUntilLocked)
+				.addKeyValue("employeeWorksiteCreationAllowed", employeeWorksiteCreationAllowed)
+				.addKeyValue("worksiteChangeDuringShiftAllowed", worksiteChangeDuringShiftAllowed)
+				.addKeyValue("employeeManualTimeLogEntryAllowed", employeeManualTimeLogEntryAllowed)
+				.addKeyValue("defaultTimezone", defaultTimezone).log("Updating application settings");
 		final ApplicationSettings applicationSettings = this.findById();
+
 		applicationSettings.update(
 				daysUntilLocked,
 				employeeWorksiteCreationAllowed,
@@ -105,7 +110,6 @@ public class ApplicationSettingsService {
 	 */
 	@Transactional(readOnly = true)
 	public ApplicationSettings findApplicationSettings() {
-		logger.debug("Finding application settings");
 		return this.findById();
 	}
 
@@ -123,7 +127,6 @@ public class ApplicationSettingsService {
 	 */
 	@Transactional(readOnly = true)
 	public int getDaysUntilLocked() {
-		logger.debug("Getting days until locked from application settings");
 		return this.findById().getDaysUntilLocked();
 	}
 
@@ -137,7 +140,6 @@ public class ApplicationSettingsService {
 	 */
 	@Transactional(readOnly = true)
 	public boolean isEmployeeWorksiteCreationAllowed() {
-		logger.debug("Checking employee worksite creation permission in application settings");
 		return this.findById().isEmployeeWorksiteCreationAllowed();
 	}
 
@@ -151,7 +153,6 @@ public class ApplicationSettingsService {
 	 */
 	@Transactional(readOnly = true)
 	public boolean isWorksiteChangeDuringShiftAllowed() {
-		logger.debug("Checking worksite change during shift permission in application settings");
 		return this.findById().isWorksiteChangeDuringShiftAllowed();
 	}
 
@@ -166,7 +167,6 @@ public class ApplicationSettingsService {
 	 */
 	@Transactional(readOnly = true)
 	public boolean isEmployeeManualTimeLogEntryAllowed() {
-		logger.debug("Checking employee manual time log entry permission in application settings");
 		return this.findById().isEmployeeManualTimeLogEntryAllowed();
 	}
 
@@ -179,7 +179,6 @@ public class ApplicationSettingsService {
 	 */
 	@Transactional(readOnly = true)
 	public ZoneId getDefaultTimezone() {
-		logger.debug("Getting default timezone from application settings");
 		return this.findById().getDefaultTimezone();
 	}
 }

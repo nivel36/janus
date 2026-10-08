@@ -21,9 +21,9 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.validation.KeycloakSubject;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * Internal first-access writer invoked through Spring's transactional proxy.
@@ -46,8 +46,8 @@ class AppUserCreator {
 	 *                              {@code null}
 	 */
 	AppUserCreator(final AppUserRepository appUserRepository, final EntityManager entityManager) {
-		this.appUserRepository = Objects.requireNonNull(appUserRepository);
-		this.entityManager = Objects.requireNonNull(entityManager);
+		this.appUserRepository = Objects.requireNonNull(appUserRepository, "appUserRepository cannot be null");
+		this.entityManager = Objects.requireNonNull(entityManager, "entityManager cannot be null");
 	}
 
 	/**

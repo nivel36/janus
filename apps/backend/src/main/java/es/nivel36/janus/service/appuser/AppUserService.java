@@ -85,11 +85,11 @@ public class AppUserService {
 		final UserProvisioningProperties provisioningDefaults,
 		final EmployeeService employeeService,
 		final @Value("${spring.data.rest.max-page-size}") int maxPageSize) {
-		this.appUserRepository = Objects.requireNonNull(appUserRepository, "AppUserRepository cannot be null.");
-		this.appUserCreator = Objects.requireNonNull(appUserCreator, "AppUserCreator cannot be null.");
+		this.appUserRepository = Objects.requireNonNull(appUserRepository, "appUserRepository cannot be null.");
+		this.appUserCreator = Objects.requireNonNull(appUserCreator, "appUserCreator cannot be null.");
 		this.provisioningDefaults = Objects
-				.requireNonNull(provisioningDefaults, "UserProvisioningProperties cannot be null.");
-		this.employeeService = Objects.requireNonNull(employeeService, "EmployeeService cannot be null.");
+				.requireNonNull(provisioningDefaults, "provisioningDefaults cannot be null.");
+		this.employeeService = Objects.requireNonNull(employeeService, "employeeService cannot be null.");
 		if (maxPageSize < 1) {
 			throw new IllegalArgumentException("maxPageSize must be positive");
 		}
@@ -133,10 +133,15 @@ public class AppUserService {
 			final @NotBlank @KeycloakSubject String keycloakSubject,
 			final @NotBlank @Size(max = 254) @Email String email,
 			final @EmployeeNumber String employeeNumber) {
+		logger.debug(
+				"Finding or creating application user with Keycloak subject {} and employee number {}",
+				keycloakSubject,
+				employeeNumber);
 		final Optional<AppUser> existing = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 		if (existing.isPresent()) {
 			return existing.get();
 		}
+		logger.debug("No application user found with Keycloak subject {}; creating a new profile", keycloakSubject);
 		final Employee employee = this.findUnlinkedEmployee(employeeNumber, keycloakSubject);
 		return this.insertAndReconcile(email, keycloakSubject, employee);
 	}
@@ -149,15 +154,18 @@ public class AppUserService {
 		try {
 			employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		} catch (final ResourceNotFoundException notFound) {
-			logger.info("No employee {} found; provisioning an unlinked account", employeeNumber);
+			logger.info(
+					"No employee found with employee number {}; provisioning application user with Keycloak subject {} without an employee link",
+					employeeNumber,
+					keycloakSubject);
 			return null;
 		}
 		final Optional<AppUser> linkedUser = this.appUserRepository.findByEmployee(employee);
 		if (linkedUser.isPresent()) {
 			// Ops. We have another user linked to this employee
 			logger.warn(
-					"Employee link conflict for employee {} and keycloakSubject {}; keeping existing link",
-					employee,
+					"Employee link skipped: reason=already_linked, employeeNumber={}, subject={}",
+					employeeNumber,
 					keycloakSubject);
 			return null;
 		}
@@ -168,28 +176,38 @@ public class AppUserService {
 		try {
 			// We delegate to another bean so creation runs in its own transaction
 			// and a conflict does not roll back ours.
-			return this.appUserCreator.create(
+			final AppUser created = this.appUserCreator.create(
 					email,
 					keycloakSubject,
 					this.provisioningDefaults.locale(),
 					this.provisioningDefaults.getTimeFormat(),
 					this.provisioningDefaults.defaultTimezone(),
 					employee == null ? null : employee.getId());
+			final Employee linkedEmployee = created.getEmployee();
+
+			logger.info(
+					"Application user created: userId={}, employeeId={}",
+					created.getId(),
+					linkedEmployee == null ? null : linkedEmployee.getId());
+			return created;
 		} catch (final AppUserCreationConflict conflict) {
 			// Somehow, we’re experiencing a conflict when creating the user.
 			// Another request may have created the profile while we were checking.
 			// Let's see whether a profile now exists for the same subject.
 			final Optional<AppUser> subjectWinner = this.appUserRepository.findByKeycloakSubject(keycloakSubject);
 			if (subjectWinner.isPresent()) {
+				logger.debug(
+						"Application user creation conflict for Keycloak subject {}; returning the existing profile",
+						keycloakSubject);
 				return subjectWinner.get();
 			}
 
 			if (employee != null) {
 				// Let's try it again, but now without trying to link the user to an employee.
 				logger.warn(
-						"User creation conflict with employee {} and keycloakSubject {}; retrying without linking the employee",
-						employee,
-						keycloakSubject);
+						"Application user creation conflict for Keycloak subject {} with employee id {}; retrying without an employee link",
+						keycloakSubject,
+						employee.getId());
 				return this.insertAndReconcile(email, keycloakSubject, null);
 			}
 			throw conflict;
@@ -240,6 +258,9 @@ public class AppUserService {
 			final @NotNull TimeFormat newTimeFormat,
 			final @NotNull ZoneId newDefaultTimezone,
 			final @NotNull Theme newTheme) {
+		logger.atDebug().addKeyValue("userId", id).addKeyValue("locale", newLocale)
+				.addKeyValue("timeFormat", newTimeFormat).addKeyValue("defaultTimezone", newDefaultTimezone)
+				.addKeyValue("theme", newTheme).log("Updating application user preferences");
 		final AppUser appUser = this.findAppUserById(id);
 		appUser.updatePreferences(newLocale, newTimeFormat, newDefaultTimezone, newTheme);
 		return appUser;
@@ -263,10 +284,10 @@ public class AppUserService {
 	 */
 	@Transactional
 	public void deleteAppUser(final @NotNull UUID id) {
+		logger.debug("Application user with id {} marked for deletion", id);
 		final AppUser appUser = this.findAppUserById(id);
 		appUser.setEmployee(null);
 		this.appUserRepository.delete(appUser);
-		logger.debug("Deleted AppUser {}", id);
 	}
 
 	/**
@@ -306,8 +327,16 @@ public class AppUserService {
 			final @Size(max = 254) String emailFilter,
 			final @EmployeeNumber String employeeNumber,
 			final @NotNull Pageable pageable) {
+
 		final Pageable normalizedPageable = this.normalizePageable(pageable);
 		final String escapedEmailFilter = this.escapeEmailFilter(emailFilter);
+
+		final String sort = normalizedPageable.getSort().toString();
+		logger.atDebug().addKeyValue("emailFilter", emailFilter).addKeyValue("employeeNumber", employeeNumber)
+				.addKeyValue("page", normalizedPageable.getPageNumber())
+				.addKeyValue("pageSize", normalizedPageable.getPageSize()).addKeyValue("sort", sort)
+				.log("Searching application users");
+
 		return this.appUserRepository.search(escapedEmailFilter, employeeNumber, normalizedPageable);
 	}
 

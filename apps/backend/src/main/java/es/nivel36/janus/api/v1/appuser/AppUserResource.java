@@ -19,10 +19,8 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,8 +32,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import es.nivel36.janus.service.ResourceNotFoundException;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 
 /**
  * HTTP contract for local application profiles at {@code /api/v1/app-users}.
@@ -80,15 +76,9 @@ public interface AppUserResource {
 	 *                                      the administrator role
 	 */
 	@GetMapping
-	@PreAuthorize("@appUserAuthorization.canSearch(authentication)")
-	ResponseEntity<Page<AppUserResponse>> searchAppUsers(
-			@RequestParam(name = "email", required = false)
-			@Size(max = 254)
-			String email,
-			@RequestParam(required = false)
-			String employeeNumber,
-			@PageableDefault(size = 20, sort = "email")
-			Pageable pageable);
+	ResponseEntity<Page<AppUserResponse>> searchAppUsers(@RequestParam(name = "email", required = false)
+	String email, @RequestParam(required = false)
+	String employeeNumber, Pageable pageable);
 
 	/**
 	 * Retrieves or provisions the profile identified by the authenticated subject.
@@ -119,7 +109,6 @@ public interface AppUserResource {
 	 *                                      exceeds 254 characters
 	 * @throws AccessDeniedException        if provisioning is not authorized
 	 */
-	@PreAuthorize("@appUserProvisioningPolicy.canProvision(authentication)")
 	@GetMapping("/me")
 	ResponseEntity<AppUserResponse> findCurrentAppUser(JwtAuthenticationToken authentication);
 
@@ -142,13 +131,10 @@ public interface AppUserResource {
 	 * @throws ResourceNotFoundException if the target is absent
 	 * @throws AccessDeniedException     if the caller cannot update the target
 	 */
-	@PreAuthorize("@appUserAuthorization.canUpdate(authentication, #id)")
 	@PutMapping("/{id}")
 	ResponseEntity<AppUserResponse> updateAppUser(@PathVariable
-	UUID id,
-			@Valid
-			@RequestBody
-			UpdateAppUserRequest request);
+	UUID id, @RequestBody
+	UpdateAppUserRequest request);
 
 	/**
 	 * Deletes a local profile as a provisioned administrator.
@@ -169,7 +155,6 @@ public interface AppUserResource {
 	 * @throws AccessDeniedException     if the caller is not a provisioned
 	 *                                   administrator
 	 */
-	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
 	@DeleteMapping("/{id}")
 	ResponseEntity<Void> deleteAppUser(@PathVariable
 	UUID id);

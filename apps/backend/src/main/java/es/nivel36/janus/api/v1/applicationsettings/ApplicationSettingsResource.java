@@ -16,13 +16,10 @@
 package es.nivel36.janus.api.v1.applicationsettings;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import jakarta.validation.Valid;
 
 /**
  * HTTP contract for reading and replacing the single global configuration.
@@ -35,7 +32,6 @@ public interface ApplicationSettingsResource {
 	 *
 	 * @return a {@link ResponseEntity} containing the current application settings
 	 */
-	@PreAuthorize("@applicationSettingsAuthorization.canView(authentication)")
 	@GetMapping
 	ResponseEntity<ApplicationSettingsResponse> findApplicationSettings();
 
@@ -47,10 +43,7 @@ public interface ApplicationSettingsResource {
 	 * @return         a {@link ResponseEntity} containing the updated application
 	 *                 settings
 	 */
-	@PreAuthorize("@applicationSettingsAuthorization.canUpdate(authentication)")
 	@PutMapping
-	ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
-			@Valid
-			@RequestBody
-			UpdateApplicationSettingsRequest request);
+	ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(@RequestBody
+	UpdateApplicationSettingsRequest request);
 }

@@ -32,11 +32,13 @@ public class ApplicationSettingsResponseMapper implements Mapper<ApplicationSett
 		if (applicationSettings == null) {
 			return null;
 		}
+
 		final int daysUntilLocked = applicationSettings.getDaysUntilLocked();
 		final boolean employeeWorksiteCreationAllowed = applicationSettings.isEmployeeWorksiteCreationAllowed();
 		final boolean worksiteChangeDuringShiftAllowed = applicationSettings.isWorksiteChangeDuringShiftAllowed();
 		final boolean employeeManualTimeLogEntryAllowed = applicationSettings.isEmployeeManualTimeLogEntryAllowed();
 		final String zoneId = applicationSettings.getDefaultTimezone().getId();
+
 		return new ApplicationSettingsResponse(
 				daysUntilLocked,
 				employeeWorksiteCreationAllowed,

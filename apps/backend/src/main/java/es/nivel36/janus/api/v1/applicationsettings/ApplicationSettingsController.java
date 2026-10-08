@@ -22,11 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
+import jakarta.validation.Valid;
 
 /**
  * REST controller exposing read and update operations for global application
@@ -60,17 +62,22 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	}
 
 	@Override
+	@PreAuthorize("@applicationSettingsAuthorization.canView(authentication)")
 	public ResponseEntity<ApplicationSettingsResponse> findApplicationSettings() {
 		logger.debug("Find application settings ACTION performed");
+
 		final ApplicationSettings applicationSettings = this.applicationSettingsService.findApplicationSettings();
 		final ApplicationSettingsResponse appSettingsResponse = this.appSettingsResponseMapper.map(applicationSettings);
+
 		return ResponseEntity.ok(appSettingsResponse);
 	}
 
 	@Override
+	@PreAuthorize("@applicationSettingsAuthorization.canUpdate(authentication)")
 	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
-			final UpdateApplicationSettingsRequest request) {
+			final @Valid UpdateApplicationSettingsRequest request) {
 		logger.debug("Update application settings ACTION performed");
+
 		final int daysUntilLocked = request.daysUntilLocked().intValue();
 		final boolean employeeWorksiteCreationAllowed = request.employeeWorksiteCreationAllowed().booleanValue();
 		final boolean worksiteChangeDuringShiftAllowed = request.worksiteChangeDuringShiftAllowed().booleanValue();
@@ -83,6 +90,7 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 				employeeManualTimeLogEntryAllowed,
 				zoneId);
 		final ApplicationSettingsResponse appSettingsResponse = this.appSettingsResponseMapper.map(updatedSettings);
+
 		return ResponseEntity.ok(appSettingsResponse);
 	}
 }
