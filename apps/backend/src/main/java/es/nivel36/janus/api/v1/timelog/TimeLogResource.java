@@ -35,9 +35,8 @@ import jakarta.validation.Valid;
 
 @RequestMapping("/api/v1")
 public interface TimeLogResource {
-
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #entryTime != null)")
 	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-in" })
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #entryTime != null)")
 	ResponseEntity<TimeLogResponse> clockIn(
 			@PathVariable("employeeNumber")
 			@EmployeeNumber
@@ -49,8 +48,8 @@ public interface TimeLogResource {
 			String worksiteCode,
 			Authentication authentication);
 
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #exitTime != null)")
 	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-out" })
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #exitTime != null)")
 	ResponseEntity<TimeLogResponse> clockOut(
 			@PathVariable("employeeNumber")
 			@EmployeeNumber
@@ -62,8 +61,8 @@ public interface TimeLogResource {
 			String worksiteCode,
 			Authentication authentication) throws ClockOutWithoutClockInException;
 
-	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, true)")
 	@PostMapping({ "/employees/{employeeNumber}/time-logs" })
+	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, true)")
 	ResponseEntity<TimeLogResponse> createTimeLog(
 			@PathVariable("employeeNumber")
 			@EmployeeNumber
@@ -71,13 +70,13 @@ public interface TimeLogResource {
 			@RequestParam("worksiteCode")
 			@WorksiteCode
 			String worksiteCode,
-			@Valid
 			@RequestBody
+			@Valid
 			CreateTimeLogRequest timeLog,
 			Authentication authentication);
 
-	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeNumber)")
 	@GetMapping({ "/employees/{employeeNumber}/time-logs/{entryTime}" })
+	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeNumber)")
 	ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
 			@PathVariable("employeeNumber")
 			@EmployeeNumber
@@ -85,8 +84,8 @@ public interface TimeLogResource {
 			@PathVariable("entryTime")
 			Instant entryTime);
 
-	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
 	@DeleteMapping({ "/employees/{employeeNumber}/time-logs/{entryTime}" })
+	@PreAuthorize("@timeLogAuthorization.canDelete(authentication)")
 	ResponseEntity<Void> deleteTimeLog(
 			@PathVariable("employeeNumber")
 			@EmployeeNumber

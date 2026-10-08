@@ -24,11 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
@@ -37,10 +35,6 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteScope;
 import es.nivel36.janus.service.worksite.WorksiteService;
-import es.nivel36.janus.validation.EmployeeNumber;
-import es.nivel36.janus.validation.SearchQuery;
-import es.nivel36.janus.validation.WorksiteCode;
-import jakarta.validation.Valid;
 
 /**
  * Spring MVC implementation of {@link WorksiteResource}.
@@ -78,11 +72,10 @@ public class WorksiteController implements WorksiteResource {
 	}
 
 	@Override
-	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeNumber)")
 	public ResponseEntity<Page<WorksiteResponse>> searchWorksites(
-			final @SearchQuery String query,
-			final @EmployeeNumber String employeeNumber,
-			final @PageableDefault(size = 20, sort = "code") Pageable pageable,
+			final String query,
+			final String employeeNumber,
+			final Pageable pageable,
 			final Authentication authentication) {
 		logger.debug("Search worksites ACTION performed");
 
@@ -95,8 +88,7 @@ public class WorksiteController implements WorksiteResource {
 	}
 
 	@Override
-	@PreAuthorize("@worksiteAuthorization.canView(authentication, #worksiteCode)")
-	public ResponseEntity<WorksiteResponse> findWorksite(final @WorksiteCode String worksiteCode) {
+	public ResponseEntity<WorksiteResponse> findWorksite(final String worksiteCode) {
 		logger.debug("Find worksite ACTION performed");
 
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
@@ -105,9 +97,8 @@ public class WorksiteController implements WorksiteResource {
 	}
 
 	@Override
-	@PreAuthorize("@worksiteAuthorization.canViewStats(authentication, #worksiteCode)")
 	public ResponseEntity<WorksiteStatsResponse> stats(
-			final @WorksiteCode String worksiteCode,
+			final String worksiteCode,
 			final Instant start,
 			final Instant end) {
 		logger.debug("Worksite statistics ACTION performed");
@@ -136,8 +127,7 @@ public class WorksiteController implements WorksiteResource {
 	}
 
 	@Override
-	@PreAuthorize("@worksiteAuthorization.canCreate(authentication, #request.scope())")
-	public ResponseEntity<WorksiteResponse> createWorksite(final @Valid CreateWorksiteRequest request) {
+	public ResponseEntity<WorksiteResponse> createWorksite(final CreateWorksiteRequest request) {
 		logger.debug("Create worksite ACTION performed");
 
 		final String code = request.code().trim();
@@ -153,10 +143,9 @@ public class WorksiteController implements WorksiteResource {
 	}
 
 	@Override
-	@PreAuthorize("@worksiteAuthorization.canUpdate(authentication, #worksiteCode, #request.scope())")
 	public ResponseEntity<WorksiteResponse> updateWorksite(
-			final @WorksiteCode String worksiteCode,
-			final @Valid UpdateWorksiteRequest request) {
+			final String worksiteCode,
+			final UpdateWorksiteRequest request) {
 		logger.debug("Update worksite ACTION performed");
 
 		final String name = request.name().trim();
@@ -172,8 +161,7 @@ public class WorksiteController implements WorksiteResource {
 	}
 
 	@Override
-	@PreAuthorize("@worksiteAuthorization.canDelete(authentication)")
-	public ResponseEntity<Void> deleteWorksite(final @WorksiteCode String worksiteCode) {
+	public ResponseEntity<Void> deleteWorksite(final String worksiteCode) {
 		logger.debug("Delete worksite ACTION performed");
 
 		this.worksiteService.deleteWorksite(worksiteCode);
@@ -181,10 +169,7 @@ public class WorksiteController implements WorksiteResource {
 	}
 
 	@Override
-	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
-	public ResponseEntity<Void> assignEmployeeToWorksite(
-			final @WorksiteCode String worksiteCode,
-			final @EmployeeNumber String employeeNumber) {
+	public ResponseEntity<Void> assignEmployeeToWorksite(final String worksiteCode, final String employeeNumber) {
 		logger.debug("Add worksite to employee ACTION performed");
 
 		this.worksiteService.addEmployeeToWorksite(worksiteCode, employeeNumber);
@@ -192,10 +177,7 @@ public class WorksiteController implements WorksiteResource {
 	}
 
 	@Override
-	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
-	public ResponseEntity<Void> removeEmployeeFromWorksite(
-			final @WorksiteCode String worksiteCode,
-			final @EmployeeNumber String employeeNumber) {
+	public ResponseEntity<Void> removeEmployeeFromWorksite(final String worksiteCode, final String employeeNumber) {
 		logger.debug("Remove worksite from employee ACTION performed");
 
 		this.worksiteService.removeEmployeeFromWorksite(worksiteCode, employeeNumber);

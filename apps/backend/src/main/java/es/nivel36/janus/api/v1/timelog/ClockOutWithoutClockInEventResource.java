@@ -43,8 +43,8 @@ public interface ClockOutWithoutClockInEventResource {
 			String worksiteCode,
 			@PathVariable("exitTime")
 			Instant exitTime,
-			@Valid
 			@RequestBody
+			@Valid
 			TransitionClockOutWithoutClockInEventRequest request);
 
 	@GetMapping("/employees/{employeeNumber}/worksites/{worksiteCode}/clock-out-without-clock-in-events/{exitTime}")

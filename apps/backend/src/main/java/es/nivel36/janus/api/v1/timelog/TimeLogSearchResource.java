@@ -23,11 +23,11 @@ public interface TimeLogSearchResource {
 
 	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
 	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
-	@PreAuthorize("@timeLogAuthorization.canSearch(authentication, #request.employeeNumber())")
 	@GetMapping
+	@PreAuthorize("@timeLogAuthorization.canSearch(authentication, #request.employeeNumber())")
 	ResponseEntity<Page<TimeLogResponse>> searchTimeLogs(
-			@Valid
 			@ModelAttribute
+			@Valid
 			TimeLogSearchRequest request,
 			@PageableDefault(sort = "entryTime", direction = Sort.Direction.DESC)
 			Pageable pageable,

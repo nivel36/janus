@@ -22,13 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
-import jakarta.validation.Valid;
 
 /**
  * REST controller exposing read and update operations for global application
@@ -62,7 +60,6 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	}
 
 	@Override
-	@PreAuthorize("@applicationSettingsAuthorization.canView(authentication)")
 	public ResponseEntity<ApplicationSettingsResponse> findApplicationSettings() {
 		logger.debug("Find application settings ACTION performed");
 
@@ -73,9 +70,8 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	}
 
 	@Override
-	@PreAuthorize("@applicationSettingsAuthorization.canUpdate(authentication)")
 	public ResponseEntity<ApplicationSettingsResponse> updateApplicationSettings(
-			final @Valid UpdateApplicationSettingsRequest request) {
+			final UpdateApplicationSettingsRequest request) {
 		logger.debug("Update application settings ACTION performed");
 
 		final int daysUntilLocked = request.daysUntilLocked().intValue();

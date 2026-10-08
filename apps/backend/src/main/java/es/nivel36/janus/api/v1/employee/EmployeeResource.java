@@ -17,8 +17,10 @@ package es.nivel36.janus.api.v1.employee;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,13 +30,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
+import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.validation.EmployeeNumber;
-import jakarta.validation.ConstraintViolationException;
 import es.nivel36.janus.validation.ScheduleCode;
 import es.nivel36.janus.validation.SearchQuery;
 import es.nivel36.janus.validation.WorksiteCode;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 
 /**
@@ -77,6 +79,7 @@ public interface EmployeeResource {
 	 * @throws AccessDeniedException        if the caller cannot search employees
 	 */
 	@GetMapping
+	@PreAuthorize("@employeeAuthorization.canSearch(authentication)")
 	ResponseEntity<Page<EmployeeResponse>> searchEmployees(
 			@RequestParam(required = false)
 			@SearchQuery
@@ -87,6 +90,7 @@ public interface EmployeeResource {
 			@RequestParam(required = false)
 			@WorksiteCode
 			String worksiteCode,
+			@PageableDefault(size = 20, sort = "employeeNumber")
 			Pageable pageable);
 
 	/**
@@ -105,6 +109,7 @@ public interface EmployeeResource {
 	 * @throws AccessDeniedException        if the caller cannot view the employee
 	 */
 	@GetMapping("/{employeeNumber}")
+	@PreAuthorize("@employeeAuthorization.canView(authentication, #employeeNumber)")
 	ResponseEntity<EmployeeResponse> findEmployee(
 			@PathVariable("employeeNumber")
 			@EmployeeNumber
@@ -133,9 +138,10 @@ public interface EmployeeResource {
 	 * @throws AccessDeniedException          if the caller cannot create employees
 	 */
 	@PostMapping
+	@PreAuthorize("@employeeAuthorization.canCreate(authentication)")
 	ResponseEntity<EmployeeResponse> createEmployee(
-			@Valid
 			@RequestBody
+			@Valid
 			CreateEmployeeRequest request);
 
 	/**
@@ -166,12 +172,13 @@ public interface EmployeeResource {
 	 *                                        employee
 	 */
 	@PutMapping("/{employeeNumber}")
+	@PreAuthorize("@employeeAuthorization.canUpdate(authentication, #employeeNumber)")
 	ResponseEntity<EmployeeResponse> updateEmployee(
 			@PathVariable("employeeNumber")
 			@EmployeeNumber
 			String employeeNumber,
-			@Valid
 			@RequestBody
+			@Valid
 			UpdateEmployeeRequest request);
 
 	/**
@@ -189,6 +196,7 @@ public interface EmployeeResource {
 	 * @throws AccessDeniedException        if the caller cannot delete employees
 	 */
 	@DeleteMapping("/{employeeNumber}")
+	@PreAuthorize("@employeeAuthorization.canDelete(authentication)")
 	ResponseEntity<Void> deleteEmployee(
 			@PathVariable("employeeNumber")
 			@EmployeeNumber

@@ -19,8 +19,10 @@ import java.time.Instant;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,11 +35,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Valid;
+import es.nivel36.janus.validation.EmployeeNumber;
 import es.nivel36.janus.validation.SearchQuery;
 import es.nivel36.janus.validation.WorksiteCode;
-import es.nivel36.janus.validation.EmployeeNumber;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 
 /**
  * HTTP contract for worksites at {@code /api/v1/worksites}. Requests require a
@@ -81,6 +83,7 @@ public interface WorksiteResource {
 	 *                                      requested scope
 	 */
 	@GetMapping
+	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeNumber)")
 	ResponseEntity<Page<WorksiteResponse>> searchWorksites(
 			@RequestParam(required = false)
 			@SearchQuery
@@ -88,6 +91,7 @@ public interface WorksiteResource {
 			@RequestParam(required = false)
 			@EmployeeNumber
 			String employeeNumber,
+			@PageableDefault(size = 20, sort = "code")
 			Pageable pageable,
 			Authentication authentication);
 
@@ -104,6 +108,7 @@ public interface WorksiteResource {
 	 * @throws AccessDeniedException     if the caller cannot view the target
 	 */
 	@GetMapping("/{worksiteCode}")
+	@PreAuthorize("@worksiteAuthorization.canView(authentication, #worksiteCode)")
 	ResponseEntity<WorksiteResponse> findWorksite(
 			@PathVariable
 			@WorksiteCode
@@ -128,6 +133,7 @@ public interface WorksiteResource {
 	 * @throws AccessDeniedException     if the caller cannot query its statistics
 	 */
 	@GetMapping("/{worksiteCode}/stats")
+	@PreAuthorize("@worksiteAuthorization.canViewStats(authentication, #worksiteCode)")
 	ResponseEntity<WorksiteStatsResponse> stats(
 			@PathVariable
 			@WorksiteCode
@@ -153,6 +159,7 @@ public interface WorksiteResource {
 	 * @throws AccessDeniedException          if creation is not authorized
 	 */
 	@PostMapping
+	@PreAuthorize("@worksiteAuthorization.canCreate(authentication, #request.scope())")
 	ResponseEntity<WorksiteResponse> createWorksite(
 			@RequestBody
 			@Valid
@@ -175,6 +182,7 @@ public interface WorksiteResource {
 	 * @throws AccessDeniedException     if the caller cannot update the target
 	 */
 	@PutMapping("/{worksiteCode}")
+	@PreAuthorize("@worksiteAuthorization.canUpdate(authentication, #worksiteCode, #request.scope())")
 	ResponseEntity<WorksiteResponse> updateWorksite(
 			@PathVariable
 			@WorksiteCode
@@ -196,6 +204,7 @@ public interface WorksiteResource {
 	 * @throws AccessDeniedException     if the caller cannot delete worksites
 	 */
 	@DeleteMapping("/{worksiteCode}")
+	@PreAuthorize("@worksiteAuthorization.canDelete(authentication)")
 	ResponseEntity<Void> deleteWorksite(
 			@PathVariable
 			@WorksiteCode
@@ -215,6 +224,7 @@ public interface WorksiteResource {
 	 * @throws AccessDeniedException     if the caller cannot manage assignments
 	 */
 	@PutMapping("/{worksiteCode}/employees/{employeeNumber}")
+	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
 	ResponseEntity<Void> assignEmployeeToWorksite(
 			@PathVariable
 			@WorksiteCode
@@ -237,6 +247,7 @@ public interface WorksiteResource {
 	 * @throws AccessDeniedException     if the caller cannot manage assignments
 	 */
 	@DeleteMapping("/{worksiteCode}/employees/{employeeNumber}")
+	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
 	ResponseEntity<Void> removeEmployeeFromWorksite(
 			@PathVariable
 			@WorksiteCode

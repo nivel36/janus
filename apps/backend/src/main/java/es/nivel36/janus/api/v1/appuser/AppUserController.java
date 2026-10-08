@@ -25,9 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,9 +35,6 @@ import es.nivel36.janus.service.TimeFormat;
 import es.nivel36.janus.service.appuser.AppUser;
 import es.nivel36.janus.service.appuser.AppUserService;
 import es.nivel36.janus.service.appuser.Theme;
-import es.nivel36.janus.validation.EmployeeNumber;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 
 /**
  * Spring MVC implementation of {@link AppUserResource}.
@@ -69,7 +64,6 @@ public class AppUserController implements AppUserResource {
 	}
 
 	@Override
-	@PreAuthorize("@appUserProvisioningPolicy.canProvision(authentication)")
 	public ResponseEntity<AppUserResponse> findCurrentAppUser(final JwtAuthenticationToken authentication) {
 		logger.debug("Find app user ACTION performed");
 
@@ -84,11 +78,10 @@ public class AppUserController implements AppUserResource {
 	}
 
 	@Override
-	@PreAuthorize("@appUserAuthorization.canSearch(authentication)")
 	public ResponseEntity<Page<AppUserResponse>> searchAppUsers(
-			final @Size(max = 254) String emailFilter,
-			final @EmployeeNumber String employeeNumber,
-			final @PageableDefault(size = 20, sort = "email") Pageable pageable) {
+			final String emailFilter,
+			final String employeeNumber,
+			final Pageable pageable) {
 		logger.debug("Search app users ACTION performed");
 
 		final Page<AppUser> appUsers = this.appUserService.searchAppUsers(emailFilter, employeeNumber, pageable);
@@ -98,8 +91,7 @@ public class AppUserController implements AppUserResource {
 	}
 
 	@Override
-	@PreAuthorize("@appUserAuthorization.canUpdate(authentication, #id)")
-	public ResponseEntity<AppUserResponse> updateAppUser(final UUID id, final @Valid UpdateAppUserRequest request) {
+	public ResponseEntity<AppUserResponse> updateAppUser(final UUID id, final UpdateAppUserRequest request) {
 		logger.debug("Update app user ACTION performed");
 
 		final Locale forLanguageTag = Locale.forLanguageTag(request.locale().trim());
@@ -113,7 +105,6 @@ public class AppUserController implements AppUserResource {
 	}
 
 	@Override
-	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
 	public ResponseEntity<Void> deleteAppUser(final UUID id) {
 		logger.debug("Delete app user ACTION performed");
 

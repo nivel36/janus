@@ -19,8 +19,10 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,10 +33,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import es.nivel36.janus.service.ResourceNotFoundException;
+import es.nivel36.janus.validation.EmployeeNumber;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
-import es.nivel36.janus.validation.EmployeeNumber;
 
 /**
  * HTTP contract for local application profiles at {@code /api/v1/app-users}.
@@ -79,6 +81,7 @@ public interface AppUserResource {
 	 *                                      the administrator role
 	 */
 	@GetMapping
+	@PreAuthorize("@appUserAuthorization.canSearch(authentication)")
 	ResponseEntity<Page<AppUserResponse>> searchAppUsers(
 			@RequestParam(name = "email", required = false)
 			@Size(max = 254)
@@ -86,6 +89,7 @@ public interface AppUserResource {
 			@RequestParam(required = false)
 			@EmployeeNumber
 			String employeeNumber,
+			@PageableDefault(size = 20, sort = "email")
 			Pageable pageable);
 
 	/**
@@ -118,6 +122,7 @@ public interface AppUserResource {
 	 * @throws AccessDeniedException        if provisioning is not authorized
 	 */
 	@GetMapping("/me")
+	@PreAuthorize("@appUserProvisioningPolicy.canProvision(authentication)")
 	ResponseEntity<AppUserResponse> findCurrentAppUser(JwtAuthenticationToken authentication);
 
 	/**
@@ -140,6 +145,7 @@ public interface AppUserResource {
 	 * @throws AccessDeniedException     if the caller cannot update the target
 	 */
 	@PutMapping("/{id}")
+	@PreAuthorize("@appUserAuthorization.canUpdate(authentication, #id)")
 	ResponseEntity<AppUserResponse> updateAppUser(@PathVariable
 	UUID id,
 			@RequestBody
@@ -166,6 +172,7 @@ public interface AppUserResource {
 	 *                                   administrator
 	 */
 	@DeleteMapping("/{id}")
+	@PreAuthorize("@appUserAuthorization.canDelete(authentication)")
 	ResponseEntity<Void> deleteAppUser(@PathVariable
 	UUID id);
 }

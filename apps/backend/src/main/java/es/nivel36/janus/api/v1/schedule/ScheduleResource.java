@@ -17,8 +17,10 @@ package es.nivel36.janus.api.v1.schedule;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +37,8 @@ import es.nivel36.janus.validation.EmployeeNumber;
 import es.nivel36.janus.validation.ScheduleCode;
 import es.nivel36.janus.validation.SearchQuery;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.validation.Valid;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 
 /**
  * HTTP contract for schedules at {@code /api/v1/schedules}. Requests require a
@@ -82,6 +84,7 @@ public interface ScheduleResource {
 	@GetMapping
 	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
 	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
+	@PreAuthorize("@scheduleAuthorization.canSearch(authentication, #employeeNumber)")
 	ResponseEntity<Page<ScheduleSummaryResponse>> searchSchedules(
 			@RequestParam(required = false)
 			@SearchQuery
@@ -89,6 +92,7 @@ public interface ScheduleResource {
 			@RequestParam(required = false)
 			@EmployeeNumber
 			String employeeNumber,
+			@PageableDefault(size = 20, sort = "code")
 			Pageable pageable,
 			Authentication authentication);
 
@@ -105,6 +109,7 @@ public interface ScheduleResource {
 	 * @throws AccessDeniedException        if the caller cannot view the schedule
 	 */
 	@GetMapping("/{scheduleCode}")
+	@PreAuthorize("@scheduleAuthorization.canView(authentication, #scheduleCode)")
 	ResponseEntity<ScheduleResponse> findSchedule(
 			@PathVariable("scheduleCode")
 			@ScheduleCode
@@ -127,9 +132,10 @@ public interface ScheduleResource {
 	 * @throws AccessDeniedException          if the caller cannot create schedules
 	 */
 	@PostMapping
+	@PreAuthorize("@scheduleAuthorization.canCreate(authentication)")
 	ResponseEntity<ScheduleResponse> createSchedule(
-			@Valid
 			@RequestBody
+			@Valid
 			CreateScheduleRequest request);
 
 	/**
@@ -149,12 +155,13 @@ public interface ScheduleResource {
 	 * @throws AccessDeniedException        if the caller cannot update schedules
 	 */
 	@PutMapping("/{scheduleCode}")
+	@PreAuthorize("@scheduleAuthorization.canUpdate(authentication)")
 	ResponseEntity<ScheduleResponse> updateSchedule(
 			@PathVariable("scheduleCode")
 			@ScheduleCode
 			String scheduleCode,
-			@Valid
 			@RequestBody
+			@Valid
 			UpdateScheduleRequest request);
 
 	/**
@@ -172,6 +179,7 @@ public interface ScheduleResource {
 	 * @throws AccessDeniedException        if the caller cannot delete schedules
 	 */
 	@DeleteMapping("/{scheduleCode}")
+	@PreAuthorize("@scheduleAuthorization.canDelete(authentication)")
 	ResponseEntity<Void> deleteSchedule(
 			@PathVariable("scheduleCode")
 			@ScheduleCode

@@ -28,9 +28,8 @@ import es.nivel36.janus.validation.SearchQuery;
 
 @RequestMapping("/api/v1/catalogs")
 public interface CatalogResource {
-
-	@PreAuthorize("@catalogAuthorization.canView(authentication)")
 	@GetMapping("/time-zones")
+	@PreAuthorize("@catalogAuthorization.canView(authentication)")
 	ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones(
 			@RequestParam(required = false)
 			@SearchQuery

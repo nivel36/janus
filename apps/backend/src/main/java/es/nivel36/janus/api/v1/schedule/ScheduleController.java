@@ -24,23 +24,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.policy.schedule.ScheduleAuthorizationAdapter;
-
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
 import es.nivel36.janus.service.schedule.ScheduleService;
-import es.nivel36.janus.validation.EmployeeNumber;
-import es.nivel36.janus.validation.ScheduleCode;
-import es.nivel36.janus.validation.SearchQuery;
-import jakarta.validation.Valid;
 
 /**
  * Spring MVC implementation of {@link ScheduleResource}.
@@ -90,11 +83,10 @@ public class ScheduleController implements ScheduleResource {
 	}
 
 	@Override
-	@PreAuthorize("@scheduleAuthorization.canSearch(authentication, #employeeNumber)")
 	public ResponseEntity<Page<ScheduleSummaryResponse>> searchSchedules(
-			final @SearchQuery String query,
-			final @EmployeeNumber String employeeNumber,
-			final @PageableDefault(size = 20, sort = "code") Pageable pageable,
+			final String query,
+			final String employeeNumber,
+			final Pageable pageable,
 			final Authentication authentication) {
 		logger.debug("Search schedules ACTION performed");
 		final String effectiveEmployeeNumber = this.authorization
@@ -106,8 +98,7 @@ public class ScheduleController implements ScheduleResource {
 	}
 
 	@Override
-	@PreAuthorize("@scheduleAuthorization.canView(authentication, #scheduleCode)")
-	public ResponseEntity<ScheduleResponse> findSchedule(final @ScheduleCode String scheduleCode) {
+	public ResponseEntity<ScheduleResponse> findSchedule(final String scheduleCode) {
 		logger.debug("Find schedule ACTION performed");
 
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
@@ -116,8 +107,7 @@ public class ScheduleController implements ScheduleResource {
 	}
 
 	@Override
-	@PreAuthorize("@scheduleAuthorization.canCreate(authentication)")
-	public ResponseEntity<ScheduleResponse> createSchedule(final @Valid CreateScheduleRequest request) {
+	public ResponseEntity<ScheduleResponse> createSchedule(final CreateScheduleRequest request) {
 		logger.debug("Create schedule ACTION performed");
 
 		final String code = request.code().trim();
@@ -136,10 +126,9 @@ public class ScheduleController implements ScheduleResource {
 	}
 
 	@Override
-	@PreAuthorize("@scheduleAuthorization.canUpdate(authentication)")
 	public ResponseEntity<ScheduleResponse> updateSchedule(
-			final @ScheduleCode String scheduleCode,
-			final @Valid UpdateScheduleRequest request) {
+			final String scheduleCode,
+			final UpdateScheduleRequest request) {
 		logger.debug("Update schedule ACTION performed");
 
 		final String name = request.name().trim();
@@ -153,8 +142,7 @@ public class ScheduleController implements ScheduleResource {
 	}
 
 	@Override
-	@PreAuthorize("@scheduleAuthorization.canDelete(authentication)")
-	public ResponseEntity<Void> deleteSchedule(final @ScheduleCode String scheduleCode) {
+	public ResponseEntity<Void> deleteSchedule(final String scheduleCode) {
 		logger.debug("Delete schedule ACTION performed");
 
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
