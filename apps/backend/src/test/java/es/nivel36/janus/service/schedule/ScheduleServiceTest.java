@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.DayOfWeek;
@@ -88,7 +89,6 @@ class ScheduleServiceTest {
 		when(this.repository.search("", "EMP-42", normalized)).thenReturn(page);
 		assertThat(this.service.searchSchedules(query, "EMP-42", PageRequest.of(3, 20))).isSameAs(page);
 		verify(this.repository, never()).findAll(any(Pageable.class));
-		verify(this.repository, never()).findWithRulesByIdIn(any());
 	}
 
 	@Test
@@ -132,12 +132,13 @@ class ScheduleServiceTest {
 	}
 
 	@Test
-	void onlyResultPageAssociationsAreLoadedWithoutChangingItsMetadata() {
+	void searchPreservesPageMetadataWithoutLoadingAssociations() {
 		final Pageable normalized = PageRequest.of(2, 1, Sort.by("code"));
 		final Page<Schedule> page = new PageImpl<>(List.of(schedule()), normalized, 7);
 		when(this.repository.search("", null, normalized)).thenReturn(page);
 		assertThat(this.service.searchSchedules(null, null, normalized)).isSameAs(page);
-		verify(this.repository).findWithRulesByIdIn(List.of(42L));
+		verify(this.repository).search("", null, normalized);
+		verifyNoMoreInteractions(this.repository);
 	}
 
 	@Test

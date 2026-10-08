@@ -61,7 +61,7 @@ class ScheduleSearchIT {
 	private static final String BASE = "/api/v1/schedules";
 	private @Autowired MockMvc mvc;
 	private @Autowired ScheduleService service;
-	private @Autowired ScheduleResponseMapper mapper;
+	private @Autowired ScheduleSummaryResponseMapper mapper;
 	private @Autowired EntityManager entityManager;
 	private @Autowired JdbcTemplate jdbc;
 
@@ -73,25 +73,33 @@ class ScheduleSearchIT {
 				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(6))
 				.andExpect(jsonPath("$.page.totalPages").value(3)).andExpect(jsonPath("$.content.length()").value(2))
 				.andExpect(jsonPath("$.content[0].code").value("SCH-A"))
-				.andExpect(jsonPath("$.content[0].rules[0].dayOfWeekRanges.length()").value(2))
+				.andExpect(jsonPath("$.content[0].name").value("Alpha shift"))
+				.andExpect(jsonPath("$.content[0].entryTolerance").value("PT0S"))
+				.andExpect(jsonPath("$.content[0].exitTolerance").value("PT0S"))
+				.andExpect(jsonPath("$.content[0].rules").doesNotExist())
 				.andExpect(jsonPath("$.content[1].code").value("SCH-B"))
-				.andExpect(jsonPath("$.content[1].rules[0].dayOfWeekRanges").isEmpty());
+				.andExpect(jsonPath("$.content[1].rules").doesNotExist());
 		this.mvc.perform(
 				get(BASE).param("query", "shift").param("size", "2").param("page", "1")
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(6))
 				.andExpect(jsonPath("$.content[0].code").value("SCH-C"))
-				.andExpect(jsonPath("$.content[0].rules").isEmpty())
+				.andExpect(jsonPath("$.content[0].rules").doesNotExist())
 				.andExpect(jsonPath("$.content[1].code").value("SCH-D"));
 	}
 
 	@Test
-	void rulesAreReadableAfterLeavingThePersistenceContext() {
+	void summariesAreReadableAfterLeavingThePersistenceContextWithoutLoadingRules() {
 		final Page<Schedule> page = this.service.searchSchedules("shift", null, PageRequest.of(0, 2));
+		final var persistenceUnit = this.entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+		assertThat(page.getContent())
+				.allSatisfy(schedule -> assertThat(persistenceUnit.isLoaded(schedule, "rules")).isFalse());
 		this.entityManager.clear();
-		assertThat(page.map(this.mapper::map).getContent()).hasSize(2);
-		assertThat(this.mapper.map(page.getContent().getFirst()).rules().getFirst().dayOfWeekRanges()).hasSize(2);
-		assertThat(this.mapper.map(page.getContent().get(1)).rules().getFirst().dayOfWeekRanges()).isEmpty();
+		assertThat(page.map(this.mapper::map).getContent()).containsExactly(
+				new ScheduleSummaryResponse("SCH-A", "Alpha shift", java.time.Duration.ZERO, java.time.Duration.ZERO),
+				new ScheduleSummaryResponse("SCH-B", "Beta shift", java.time.Duration.ZERO, java.time.Duration.ZERO));
+		assertThat(page.getContent())
+				.allSatisfy(schedule -> assertThat(persistenceUnit.isLoaded(schedule, "rules")).isFalse());
 	}
 
 	@ParameterizedTest
@@ -155,7 +163,7 @@ class ScheduleSearchIT {
 				get(BASE + "/SCH-B").with(
 						verifiedJwt().jwt(jwt -> jwt.subject("employee-EMP-0102"))
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
-				.andExpect(status().isOk());
+				.andExpect(status().isOk()).andExpect(jsonPath("$.rules[0].name").value("Empty rule"));
 		this.mvc.perform(
 				get(BASE + "/SCH-A").with(
 						verifiedJwt().jwt(jwt -> jwt.subject("employee-EMP-0102"))

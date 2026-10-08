@@ -297,8 +297,8 @@ public class ScheduleService {
 	 * schedules without employees, rules or time ranges. Public sort fields are
 	 * code and name; code ascending is the default and is added as a unique
 	 * tie-breaker unless explicitly sorted. Page size is capped at
-	 * spring.data.rest.max-page-size. Pagination runs in the database; rules and
-	 * their time ranges are loaded only for the resulting page.
+	 * spring.data.rest.max-page-size. Pagination runs in the database without
+	 * loading rules or their time ranges.
 	 * </p>
 	 *
 	 * @param  query                        optional single-line fragment of at most
@@ -306,8 +306,8 @@ public class ScheduleService {
 	 * @param  employeeNumber               optional number matching
 	 *                                      [A-Za-z0-9_-]{1,50}
 	 * @param  pageable                     requested page and public ordering
-	 * @return                              possibly empty page with rules and time
-	 *                                      ranges readable
+	 * @return                              possibly empty page of schedules for
+	 *                                      summary mapping
 	 * @throws ConstraintViolationException if a filter is invalid or pageable is
 	 *                                      null through the Spring proxy; an empty
 	 *                                      query is invalid there
@@ -326,14 +326,7 @@ public class ScheduleService {
 				.addKeyValue("pageSize", normalizedPageable.getPageSize())
 				.addKeyValue("sort", normalizedPageable.getSort().toString()).log("Searching schedules");
 
-		final Page<Schedule> schedules = this.scheduleRepository
-				.search(escapedQuery, employeeNumber, normalizedPageable);
-		if (schedules.hasContent()) {
-			// Initialize collections in the same persistence context without paging a fetch
-			// join.
-			this.scheduleRepository.findWithRulesByIdIn(schedules.stream().map(Schedule::getId).toList());
-		}
-		return schedules;
+		return this.scheduleRepository.search(escapedQuery, employeeNumber, normalizedPageable);
 	}
 
 	private Pageable normalizePageable(final Pageable pageable) {

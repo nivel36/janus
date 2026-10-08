@@ -18,8 +18,6 @@ package es.nivel36.janus.service.schedule;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.List;
-import java.util.Collection;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -154,8 +152,8 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 	 *                        {@code null}
 	 * @param  pageable       the pagination information; must not be {@code null}
 	 * @return                a {@link Page} of {@link Schedule} entities matching
-	 *                        the criteria; never {@code null}; collections are
-	 *                        loaded separately
+	 *                        the criteria; never {@code null}; rule collections
+	 *                        remain uninitialized
 	 */
 	@Query("""
 			SELECT s
@@ -171,14 +169,4 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 			""")
 	Page<Schedule> search(String query, String employeeNumber, Pageable pageable);
 
-	/**
-	 * Loads rules and their time ranges for the already paged schedule ids. Empty
-	 * associations are retained. Call in the same transaction as search to
-	 * initialize the page's managed entities without an in-memory pagination.
-	 *
-	 * @param  ids nonempty ids belonging to the requested page
-	 * @return     schedules with their nested rule collections initialized
-	 */
-	@EntityGraph(attributePaths = { "rules", "rules.dayOfWeekRanges" })
-	List<Schedule> findWithRulesByIdIn(Collection<Long> ids);
 }

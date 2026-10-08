@@ -48,7 +48,8 @@ import jakarta.validation.ConstraintViolationException;
 public interface ScheduleResource {
 
 	/**
-	 * Returns a page of schedules within the caller's authorized employee scope.
+	 * Returns a page of schedule summaries without rules within the caller's
+	 * authorized employee scope.
 	 * <p>
 	 * Query is optional single-line text with 1-100 characters, used literally
 	 * without trimming against code and name, partially and case-insensitively.
@@ -71,7 +72,7 @@ public interface ScheduleResource {
 	 * @param  pageable                     requested page and ordering; HTTP
 	 *                                      defaults are page 0, size 20
 	 * @param  authentication               current validated authentication
-	 * @return                              HTTP 200 containing schedule responses
+	 * @return                              HTTP 200 containing schedule summaries
 	 *                                      and page metadata, possibly empty
 	 * @throws ConstraintViolationException if a filter violates its constraint
 	 * @throws IllegalArgumentException     if paging or sorting is unsupported
@@ -81,7 +82,7 @@ public interface ScheduleResource {
 	@GetMapping
 	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
 	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
-	ResponseEntity<Page<ScheduleResponse>> searchSchedules(
+	ResponseEntity<Page<ScheduleSummaryResponse>> searchSchedules(
 			@RequestParam(required = false)
 			@SearchQuery
 			String query,

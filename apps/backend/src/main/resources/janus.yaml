@@ -478,7 +478,7 @@ paths:
         '403':
           description: Employee association missing, employee filter outside the authorized scope, or actor without a permitted role.
         '200':
-          description: Paginated schedules
+          description: Paginated schedule summaries without rules
           content:
             application/json:
               schema:
@@ -1134,6 +1134,22 @@ components:
           nullable: true
           pattern: "^[^\\x00]*$"
           maxLength: 500
+    ScheduleSummaryResponse:
+      type: object
+      required:
+      - code
+      - name
+      - entryTolerance
+      - exitTolerance
+      properties:
+        code:
+          $ref: '#/components/schemas/ScheduleCode'
+        name:
+          type: string
+        entryTolerance:
+          type: string
+        exitTolerance:
+          type: string
     ScheduleResponse:
       type: object
       required:
@@ -1343,7 +1359,7 @@ components:
         content:
           type: array
           items:
-            $ref: '#/components/schemas/ScheduleResponse'
+            $ref: '#/components/schemas/ScheduleSummaryResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     TimeLogPage:
