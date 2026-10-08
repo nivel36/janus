@@ -327,7 +327,6 @@ public class AppUserService {
 			final @Size(max = 254) String emailFilter,
 			final @EmployeeNumber String employeeNumber,
 			final @NotNull Pageable pageable) {
-
 		final Pageable normalizedPageable = this.normalizePageable(pageable);
 		final String escapedEmailFilter = this.escapeEmailFilter(emailFilter);
 
