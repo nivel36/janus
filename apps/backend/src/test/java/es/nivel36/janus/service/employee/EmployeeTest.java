@@ -35,4 +35,22 @@ class EmployeeTest {
 		final Employee employee = new Employee("EMP-0042", "Ada", "Lovelace", "ada@test", schedule);
 		assertThatThrownBy(() -> employee.changeEmail(" ")).isInstanceOf(IllegalArgumentException.class);
 	}
+
+	@Test
+	void invalidSurnameLeavesBothNamesUnchanged() {
+		final Employee employee = new Employee("EMP-42", "Ada", "Lovelace", "ada@example.test", mock(Schedule.class));
+		assertThatThrownBy(() -> employee.setFullName("New", " ")).isInstanceOf(IllegalArgumentException.class);
+		assertThat(employee.getName()).isEqualTo("Ada");
+		assertThat(employee.getSurname()).isEqualTo("Lovelace");
+	}
+
+	@Test
+	void contactEmailIsNormalizedAndOversizedReplacementLeavesPreviousValueUnchanged() {
+		final Employee employee = new Employee("EMP-42", "Ada", "Lovelace", " ADA@EXAMPLE.TEST ", mock(Schedule.class));
+		assertThat(employee.getEmail()).isEqualTo("ada@example.test");
+		employee.changeEmail(" NEW@EXAMPLE.TEST ");
+		assertThat(employee.getEmail()).isEqualTo("new@example.test");
+		assertThatThrownBy(() -> employee.changeEmail("a".repeat(255))).isInstanceOf(IllegalArgumentException.class);
+		assertThat(employee.getEmail()).isEqualTo("new@example.test");
+	}
 }

@@ -214,8 +214,8 @@ export class EmployeesService extends BaseService {
      * @param scheduleCode
      * @param worksiteCode
      * @param page
-     * @param size
-     * @param sort Sort criteria; defaults to employeeNumber,asc.
+     * @param size Values above spring.data.rest.max-page-size are capped at that configured limit (100 by default).
+     * @param sort Allowed fields are employeeNumber, name, surname, email and scheduleCode. Defaults to employeeNumber,asc. An ascending employeeNumber tie-breaker is appended unless explicitly sorted. Unknown fields return 400.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

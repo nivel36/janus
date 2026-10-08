@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,10 +34,14 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.util.EmailAddresses;
+import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.validation.ScheduleCode;
+import es.nivel36.janus.validation.WorksiteCode;
+import es.nivel36.janus.validation.SearchQuery;
+import jakarta.validation.Valid;
 
 /**
- * REST controller exposing CRUD operations and ancillary actions for
- * {@link Employee} entities.
+ * Spring MVC implementation of {@link EmployeeResource}.
  */
 @RestController
 public class EmployeeController implements EmployeeResource {
@@ -47,15 +53,17 @@ public class EmployeeController implements EmployeeResource {
 	private final Mapper<Employee, EmployeeResponse> employeeResponseMapper;
 
 	/**
-	 * Creates a controller that exposes employee management endpoints.
+	 * Creates a controller without accessing persistence. All dependencies must be
+	 * nonnull.
 	 *
-	 * @param employeeService        service handling {@link Employee} domain
-	 *                               operations; must not be {@code null}
-	 * @param scheduleService        service retrieving {@link Schedule}
-	 *                               information; must not be {@code null}
-	 * @param employeeResponseMapper mapper converting {@link Employee} entities to
-	 *                               {@link EmployeeResponse} DTOs; must not be
-	 *                               {@code null}
+	 * @param  employeeService        service handling {@link Employee} domain
+	 *                                operations; must not be {@code null}
+	 * @param  scheduleService        service retrieving {@link Schedule}
+	 *                                information; must not be {@code null}
+	 * @param  employeeResponseMapper mapper converting {@link Employee} entities to
+	 *                                {@link EmployeeResponse} DTOs; must not be
+	 *                                {@code null}
+	 * @throws NullPointerException   if any dependency is null
 	 */
 	public EmployeeController(
 		final EmployeeService employeeService,
@@ -68,90 +76,62 @@ public class EmployeeController implements EmployeeResource {
 	}
 
 	@Override
+	@PreAuthorize("@employeeAuthorization.canSearch(authentication)")
 	public ResponseEntity<Page<EmployeeResponse>> searchEmployees(
-			final String query,
-			final String scheduleCode,
-			final String worksiteCode,
-			final Pageable pageable) {
+			final @SearchQuery String query,
+			final @ScheduleCode String scheduleCode,
+			final @WorksiteCode String worksiteCode,
+			final @PageableDefault(size = 20, sort = "employeeNumber") Pageable pageable) {
 		logger.debug("Search employees ACTION performed");
 		final Page<EmployeeResponse> employees = this.employeeService
 				.searchEmployees(query, scheduleCode, worksiteCode, pageable).map(this.employeeResponseMapper::map);
 		return ResponseEntity.ok(employees);
 	}
 
-	/**
-	 * Retrieves an {@link Employee} by its employee number.
-	 *
-	 * @param  employeeNumber the stable employee number of the employee; must not
-	 *                        be {@code null}
-	 * @return                the {@link EmployeeResponse} matching the employee
-	 *                        number
-	 */
 	@Override
-	public ResponseEntity<EmployeeResponse> findEmployee(final String employeeNumber) {
+	@PreAuthorize("@employeeAuthorization.canView(authentication, #employeeNumber)")
+	public ResponseEntity<EmployeeResponse> findEmployee(final @EmployeeNumber String employeeNumber) {
 		logger.debug("Find employee by number ACTION performed");
 		final Employee employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		final EmployeeResponse response = this.employeeResponseMapper.map(employee);
 		return ResponseEntity.ok(response);
 	}
 
-	/**
-	 * Creates a new {@link Employee} using the provided payload.
-	 *
-	 * @param  request the data describing the employee to create; must not be
-	 *                 {@code null}
-	 * @return         the created {@link EmployeeResponse}
-	 */
 	@Override
-	public ResponseEntity<EmployeeResponse> createEmployee(final CreateEmployeeRequest request) {
+	@PreAuthorize("@employeeAuthorization.canCreate(authentication)")
+	public ResponseEntity<EmployeeResponse> createEmployee(final @Valid CreateEmployeeRequest request) {
 		logger.debug("Create employee ACTION performed");
-
-		final String scheduleCode = request.scheduleCode().trim();
+		final String scheduleCode = request.scheduleCode();
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
 		final String name = request.name().trim();
 		final String surname = request.surname().trim();
 		final String email = EmailAddresses.canonicalize(request.email());
-		final String employeeNumber = request.employeeNumber().trim();
+		final String employeeNumber = request.employeeNumber();
 		final Employee createdEmployee = this.employeeService
 				.createEmployee(employeeNumber, name, surname, email, schedule);
 		final EmployeeResponse response = this.employeeResponseMapper.map(createdEmployee);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	/**
-	 * Updates an existing {@link Employee} identified by its identifier.
-	 *
-	 * @param  employeeNumber the stable number of the employee to update; must not
-	 *                        be {@code null}
-	 * @param  request        the payload containing the new employee data; must not
-	 *                        be {@code null}
-	 * @return                the updated {@link EmployeeResponse}
-	 */
 	@Override
+	@PreAuthorize("@employeeAuthorization.canUpdate(authentication, #employeeNumber)")
 	public ResponseEntity<EmployeeResponse> updateEmployee(
-			final String employeeNumber,
-			final UpdateEmployeeRequest request) {
+			final @EmployeeNumber String employeeNumber,
+			final @Valid UpdateEmployeeRequest request) {
 		logger.debug("Update employee ACTION performed");
 		final String email = EmailAddresses.canonicalize(request.email());
 		final String name = request.name().trim();
 		final String surname = request.surname().trim();
-		final String scheduleCode = request.scheduleCode().trim();
+		final String scheduleCode = request.scheduleCode();
 		final Employee updatedEmployee = this.employeeService
 				.updateEmployee(employeeNumber, name, surname, email, scheduleCode);
 		final EmployeeResponse response = this.employeeResponseMapper.map(updatedEmployee);
 		return ResponseEntity.ok(response);
 	}
 
-	/**
-	 * Deletes an existing {@link Employee}.
-	 *
-	 * @param  employeeNumber the stable number of the employee; must not be
-	 *                        {@code null}
-	 * @return                an empty response with status
-	 *                        {@link HttpStatus#NO_CONTENT}
-	 */
 	@Override
-	public ResponseEntity<Void> deleteEmployee(final String employeeNumber) {
+	@PreAuthorize("@employeeAuthorization.canDelete(authentication)")
+	public ResponseEntity<Void> deleteEmployee(final @EmployeeNumber String employeeNumber) {
 		logger.debug("Delete employee ACTION performed");
 		final Employee employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 		this.employeeService.deleteEmployee(employee);

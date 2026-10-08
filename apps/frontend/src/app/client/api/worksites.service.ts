@@ -327,8 +327,8 @@ export class WorksitesService extends BaseService {
      * @param query
      * @param employeeNumber
      * @param page
-     * @param size
-     * @param sort
+     * @param size Values above spring.data.rest.max-page-size are capped at that configured limit (100 by default).
+     * @param sort Sort by code, name, timeZone, scope, description or address. Ascending code breaks ties unless code is explicitly ordered.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

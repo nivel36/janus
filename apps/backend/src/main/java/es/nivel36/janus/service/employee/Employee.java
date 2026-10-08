@@ -28,6 +28,8 @@ import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.util.Strings;
+import es.nivel36.janus.util.EmailAddresses;
+import es.nivel36.janus.validation.EmployeeNumber;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -98,6 +100,7 @@ public class Employee implements Serializable {
 	 * Stable business identifier assigned when the employee is created.
 	 */
 	@NaturalId
+	@EmployeeNumber
 	@NotBlank
 	@Column(name = "employee_number", nullable = false, unique = true, updatable = false, columnDefinition = "text")
 	private String employeeNumber;
@@ -105,9 +108,9 @@ public class Employee implements Serializable {
 	/**
 	 * The email address of the employee.
 	 * <p>
-	 * This field is mandatory and remains unique so identity provisioning by email
-	 * cannot produce an ambiguous association. It may be changed through
-	 * {@link #changeEmail(String)}.
+	 * This field is mandatory and remains unique so contact information remains
+	 * unambiguous. Identity and profile links are determined by employee number and
+	 * provider subject. It may be changed through {@link #changeEmail(String)}.
 	 * </p>
 	 */
 	@NotBlank
@@ -153,7 +156,7 @@ public class Employee implements Serializable {
 	private AppUser appUser;
 
 	/**
-	 * Protected no-argument constructor required by persistence frameworks.
+	 * Creates the empty persistence shell required by JPA.
 	 * <p>
 	 * This constructor must not be used directly in application code. It exists
 	 * solely to allow frameworks such as JPA to instantiate the entity.
@@ -163,8 +166,13 @@ public class Employee implements Serializable {
 	}
 
 	/**
-	 * Constructs a new {@code Employee} with the given personal data and schedule.
+	 * Creates an unpersisted, unlinked employee with empty worksites and time logs.
+	 * Employee number and names are nonblank and retained exactly; email is
+	 * trimmed, lowercased and limited to 254 normalized characters. Schedule is
+	 * nonnull. Database uniqueness and Bean Validation are checked on persistence.
 	 *
+	 * @param  employeeNumber           immutable stable employee number; must not
+	 *                                  be null or blank
 	 * @param  name                     the first name of the employee; must not be
 	 *                                  {@code null} or blank
 	 * @param  surname                  the surname of the employee; must not be
@@ -173,9 +181,9 @@ public class Employee implements Serializable {
 	 *                                  must not be {@code null} or blank
 	 * @param  schedule                 the work schedule assigned to the employee;
 	 *                                  must not be {@code null}
-	 * @throws NullPointerException     if name, surname, email or schedule is
-	 *                                  {@code null}
-	 * @throws IllegalArgumentException if name, surname, email is empty
+	 * @throws NullPointerException     if any argument is {@code null}
+	 * @throws IllegalArgumentException if a string is blank or normalized email
+	 *                                  exceeds 254 characters
 	 */
 	public Employee(
 		final String employeeNumber,
@@ -186,7 +194,7 @@ public class Employee implements Serializable {
 		this.employeeNumber = Strings.requireNonBlank(employeeNumber, "employeeNumber can't be null or blank");
 		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
 		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
-		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
+		this.email = EmailAddresses.canonicalize(email);
 		this.schedule = Objects.requireNonNull(schedule, "schedule can't be null");
 	}
 
@@ -209,6 +217,11 @@ public class Employee implements Serializable {
 		return this.name;
 	}
 
+	/**
+	 * Returns the immutable business identity without changing the employee.
+	 *
+	 * @return nonblank stable employee number
+	 */
 	public String getEmployeeNumber() {
 		return this.employeeNumber;
 	}
@@ -231,9 +244,18 @@ public class Employee implements Serializable {
 		return this.email;
 	}
 
-	/** Changes the mutable contact email after validating the domain invariant. */
+	/**
+	 * Replaces normalized contact information without changing identity or links.
+	 * Invalid input leaves the previous email unchanged; uniqueness is checked by
+	 * the service and persistence layer.
+	 *
+	 * @param  email                    contact email to trim and lowercase
+	 * @throws NullPointerException     if email is null
+	 * @throws IllegalArgumentException if email is blank or exceeds 254 normalized
+	 *                                  characters
+	 */
 	public void changeEmail(final String email) {
-		this.email = Strings.requireNonBlank(email, "email can't be null or blank");
+		this.email = EmailAddresses.canonicalize(email);
 	}
 
 	/**
@@ -367,7 +389,8 @@ public class Employee implements Serializable {
 	}
 
 	/**
-	 * Updates the full name of the employee.
+	 * Replaces both names after validating them. Invalid input leaves both names
+	 * unchanged; persistence is deferred to the caller's transaction.
 	 *
 	 * @param  name                     the new first name; must not be {@code null}
 	 *                                  or blank
@@ -377,8 +400,10 @@ public class Employee implements Serializable {
 	 * @throws IllegalArgumentException if name or surname is blank
 	 */
 	public void setFullName(final String name, final String surname) {
-		this.name = Strings.requireNonBlank(name, "name can't be null or blank");
-		this.surname = Strings.requireNonBlank(surname, "surname can't be null or blank");
+		Strings.requireNonBlank(name, "name can't be null or blank");
+		Strings.requireNonBlank(surname, "surname can't be null or blank");
+		this.name = name;
+		this.surname = surname;
 	}
 
 	/**

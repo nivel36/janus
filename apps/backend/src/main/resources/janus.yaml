@@ -40,13 +40,14 @@ paths:
           default: 0
       - name: size
         in: query
+        description: Values above spring.data.rest.max-page-size are capped at that configured limit (100 by default).
         schema:
           type: integer
           minimum: 1
           default: 20
       - name: sort
         in: query
-        description: Sort criteria; defaults to employeeNumber,asc.
+        description: Allowed fields are employeeNumber, name, surname, email and scheduleCode. Defaults to employeeNumber,asc. An ascending employeeNumber tie-breaker is appended unless explicitly sorted. Unknown fields return 400.
         schema:
           type: array
           default: ['employeeNumber,asc']

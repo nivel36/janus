@@ -133,7 +133,7 @@ class EmployeeControllerIT {
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isForbidden());
 
-		// A nonexistent email produces the same generic denial and cannot be
+		// A nonexistent employee number produces the same generic denial and cannot be
 		// enumerated.
 		this.mvc.perform(
 				get(BASE + "/{employeeNumber}", "UNKNOWN").with(
@@ -160,7 +160,7 @@ class EmployeeControllerIT {
 	@Test
 	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" })
-	void testFindByEmailShouldReturn200() throws Exception {
+	void findByEmployeeNumberReturnsPublicData() throws Exception {
 		this.mvc.perform(
 				get(BASE + "/{employeeNumber}", "EMP-0001")
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
@@ -180,7 +180,7 @@ class EmployeeControllerIT {
 	}
 
 	@Test
-	void testFindByUnknownEmailShouldReturn404() throws Exception {
+	void unknownEmployeeNumberReturnsNotFound() throws Exception {
 		this.mvc.perform(
 				get(BASE + "/{employeeNumber}", "EMP-0001")
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
@@ -188,7 +188,7 @@ class EmployeeControllerIT {
 	}
 
 	@Test
-	void testFindByInvalidEmailShouldReturn400() throws Exception {
+	void invalidEmployeeNumberReturnsBadRequest() throws Exception {
 		this.mvc.perform(
 				get(BASE + "/{employeeNumber}", "not valid!")
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
@@ -323,14 +323,19 @@ class EmployeeControllerIT {
 			"INSERT INTO employee(employee_number,name,surname,email,schedule_id) VALUES('EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void testUpdateShouldReturn200AndUpdatedBody() throws Exception {
 		final String body = """
-				{"name":"Abel","surname":"Ferrer Jiménez","email":"new@nivel36.es","scheduleCode":"STD-WH"}
+				{"name":"Abel","surname":"Ferrer Jiménez","email":"new@nivel36.es","scheduleCode":"STD-WH-AUG-VAR"}
 				""";
 		this.mvc.perform(
 				put(BASE + "/{employeeNumber}", "EMP-0001").contentType(APPLICATION_JSON).content(body)
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("new@nivel36.es"))
 				.andExpect(jsonPath("$.name").value("Abel")).andExpect(jsonPath("$.surname").value("Ferrer Jiménez"))
-				.andExpect(jsonPath("$.scheduleCode").value("STD-WH"));
+				.andExpect(jsonPath("$.scheduleCode").value("STD-WH-AUG-VAR"));
+		this.mvc.perform(
+				get(BASE + "/{employeeNumber}", "EMP-0001")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("new@nivel36.es"))
+				.andExpect(jsonPath("$.scheduleCode").value("STD-WH-AUG-VAR"));
 	}
 
 	@Test
@@ -405,5 +410,33 @@ class EmployeeControllerIT {
 				get(BASE + "/{employeeNumber}", "EMP-0001")
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'DAY','Day'),(2,'NIGHT','Night')",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(10,'EMP-0010','Alice','One','alice@test.invalid',1),(11,'EMP-0011','Bob','Two','bob@test.invalid',1)" })
+	void conflictingEmailUpdateReturnsConflictAndPreservesPersistedEmployee() throws Exception {
+		this.mvc.perform(put(BASE + "/EMP-0010").contentType(APPLICATION_JSON).content("""
+				{"name":"Changed","surname":"Name","email":"BOB@TEST.INVALID","scheduleCode":"NIGHT"}
+				""").with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isConflict());
+		assertRelationshipCount(
+				"SELECT COUNT(*) FROM employee WHERE id=10 AND name='Alice' AND surname='One' AND email='alice@test.invalid' AND schedule_id=1",
+				1);
+	}
+
+	@Test
+	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'DAY','Day')",
+			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(10,'EMP-0010','Alice','One','alice@test.invalid',1)" })
+	void duplicateNumberCreationReturnsConflictWithoutInsertingEmployee() throws Exception {
+		this.mvc.perform(
+				post(BASE).contentType(APPLICATION_JSON)
+						.content(
+								"""
+										{"employeeNumber":"EMP-0010","name":"Other","surname":"Person","email":"other@test.invalid","scheduleCode":"DAY"}
+										""")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isConflict());
+		assertRelationshipCount("SELECT COUNT(*) FROM employee", 1);
 	}
 }

@@ -35,6 +35,19 @@ import es.nivel36.janus.service.workshift.WorkShift;
  */
 @Repository
 interface EmployeeRepository extends CrudRepository<Employee, Long> {
+	/**
+	 * Searches employees using a literal fragment already escaped with
+	 * LikePatterns. Text matches employee number, names and email
+	 * case-insensitively; optional exact schedule and worksite filters combine with
+	 * AND. EXISTS avoids duplicate employees with multiple worksite assignments.
+	 * Schedules are loaded.
+	 *
+	 * @param  query        nonnull escaped text fragment; empty matches all text
+	 * @param  scheduleCode optional exact schedule code
+	 * @param  worksiteCode optional exact worksite code
+	 * @param  pageable     validated, bounded page and persistence sort fields
+	 * @return              matching page including its total count
+	 */
 	@EntityGraph(attributePaths = "schedule")
 	@Query("""
 			SELECT e
@@ -154,13 +167,13 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	List<Long> findWithoutWorkshiftsSince(Instant start);
 
 	/**
-	 * Determines whether an employee identified by the given email address is
+	 * Determines whether an employee identified by its internal persistence ID is
 	 * assigned to a schedule with the specified business code.
 	 * <p>
-	 * This method checks for the existence of an {@link Employee} whose natural
-	 * internal identifier ({@code id}) matches the provided value and whose
-	 * associated {@link Schedule} has the given {@code code}. The comparison is
-	 * performed at the persistence layer without loading full entities into memory.
+	 * This method checks for the existence of an {@link Employee} whose internal
+	 * identifier ({@code id}) matches the provided value and whose associated
+	 * {@link Schedule} has the given {@code code}. The comparison is performed at
+	 * the persistence layer without loading full entities into memory.
 	 * </p>
 	 * <p>
 	 * The employee id is an internal key and the schedule code is a business
@@ -178,10 +191,10 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 	boolean existsByIdAndSchedule_Code(Long employeeId, String scheduleCode);
 
 	/**
-	 * Indicates whether an employee identified by the given email is assigned to a
-	 * worksite identified by the given code.
+	 * Indicates whether an employee identified by its internal persistence ID is
+	 * assigned to a worksite identified by the given code.
 	 *
-	 * @param  email        the employee email
+	 * @param  employeeId   the internal employee ID
 	 * @param  worksiteCode the worksite code
 	 * @return              {@code true} if the employee is assigned to the
 	 *                      worksite; {@code false} otherwise

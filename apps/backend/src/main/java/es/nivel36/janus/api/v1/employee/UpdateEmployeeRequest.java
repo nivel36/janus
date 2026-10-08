@@ -31,6 +31,8 @@ import jakarta.validation.constraints.Pattern;
  * @param surname      the new surname of the employee; must not be blank and
  *                     must be between 1 and 255 characters using the allowed
  *                     characters
+ * @param email        new contact email; valid, nonblank and at most 254
+ *                     characters
  * @param scheduleCode the code of the new schedule of the employee; must not be
  *                     blank and must be at most 50 characters
  */

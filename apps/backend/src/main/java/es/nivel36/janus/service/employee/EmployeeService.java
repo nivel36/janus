@@ -16,16 +16,22 @@
 package es.nivel36.janus.service.employee;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import es.nivel36.janus.service.ResourceAlreadyExistsException;
 import es.nivel36.janus.service.ResourceNotFoundException;
@@ -34,20 +40,26 @@ import es.nivel36.janus.service.schedule.ScheduleService;
 import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.workshift.WorkShift;
 import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.util.EmailAddresses;
 import es.nivel36.janus.util.LikePatterns;
-import es.nivel36.janus.util.Strings;
+import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.validation.ScheduleCode;
+import es.nivel36.janus.validation.SearchQuery;
+import es.nivel36.janus.validation.WorksiteCode;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 /**
- * Service responsible for managing {@link Employee} entities.
- * <p>
- * This service provides application-level operations for retrieving, creating,
- * updating and deleting {@link Employee} instances, as well as managing their
- * associations with {@link Worksite}s.
- * </p>
- * <p>
- * Persistence concerns are delegated to the {@link EmployeeRepository}.
- * </p>
+ * Transactional entry point for employee creation, lookup, search, replacement,
+ * deletion and working-time counts. Callers authorize operations before
+ * invoking this service. Parameter constraints are enforced through the Spring
+ * proxy.
  */
+@Validated
 @Service
 public class EmployeeService {
 
@@ -58,36 +70,48 @@ public class EmployeeService {
 	 */
 	private final EmployeeRepository employeeRepository;
 	private final ScheduleService scheduleService;
+	private final int maxPageSize;
 
 	/**
-	 * Creates a new {@code EmployeeService}.
+	 * Creates a service without accessing persistence. Dependencies must be nonnull
+	 * and the configured page-size limit must be positive.
 	 *
-	 * @param  employeeRepository   repository used to manage {@link Employee}
-	 *                              entities
-	 * @param  scheduleService      service used to resolve schedules inside secured
-	 *                              employee operations
-	 * @throws NullPointerException if either dependency is {@code null}
+	 * @param  employeeRepository       repository used to manage {@link Employee}
+	 *                                  entities
+	 * @param  scheduleService          service used to resolve schedules inside
+	 *                                  secured employee operations
+	 * @param  maxPageSize              positive limit from
+	 *                                  spring.data.rest.max-page-size
+	 * @throws NullPointerException     if either dependency is {@code null}
+	 * @throws IllegalArgumentException if maxPageSize is not positive
 	 */
-	public EmployeeService(final EmployeeRepository employeeRepository, final ScheduleService scheduleService) {
+	public EmployeeService(
+		final EmployeeRepository employeeRepository,
+		final ScheduleService scheduleService,
+		final @Value("${spring.data.rest.max-page-size}") int maxPageSize) {
 		this.employeeRepository = Objects.requireNonNull(employeeRepository, "employeeRepository cannot be null.");
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService cannot be null.");
+		if (maxPageSize < 1) {
+			throw new IllegalArgumentException("maxPageSize must be positive");
+		}
+		this.maxPageSize = maxPageSize;
 	}
 
 	/**
 	 * Retrieves an {@link Employee} by its primary identifier.
 	 *
-	 * @param  id                        the unique identifier of the employee.
-	 *                                   Can't be {@code null}.
-	 * @return                           the {@link Employee} with the given
-	 *                                   identifier
-	 * @throws NullPointerException      if {@code id} is {@code null}
-	 * @throws ResourceNotFoundException if no employee exists with the given id
+	 * @param  id                           the unique identifier of the employee.
+	 *                                      Can't be {@code null}.
+	 * @return                              the {@link Employee} with the given
+	 *                                      identifier
+	 * @throws NullPointerException         if {@code id} is {@code null}
+	 * @throws ResourceNotFoundException    if no employee exists with the given id
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
 	 */
 	@Transactional(readOnly = true)
-	public Employee findEmployeeById(final Long id) {
-		Objects.requireNonNull(id, "id can't be null");
+	public Employee findEmployeeById(final @NotNull Long id) {
 		logger.debug("Finding employee by id {}", id);
-
 		return this.employeeRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("There is no employee with id " + id));
 	}
@@ -95,25 +119,36 @@ public class EmployeeService {
 	/**
 	 * Retrieves an {@link Employee} identified by its email address.
 	 *
-	 * @param  email                    the email of the employee to retrieve. Can't
-	 *                                  be {@code null} or blank.
-	 * @return                          the {@link Employee} associated with the
-	 *                                  given email, or {@link Optional#empty()}
-	 *                                  when the valid email has no match
-	 * @throws NullPointerException     if {@code email} is {@code null}
-	 * @throws IllegalArgumentException if {@code email} is blank
+	 * @param  email                        the email of the employee to retrieve.
+	 *                                      Can't be {@code null} or blank.
+	 * @return                              the {@link Employee} associated with the
+	 *                                      given email, or {@link Optional#empty()}
+	 *                                      when the valid email has no match
+	 * @throws NullPointerException         if {@code email} is {@code null}
+	 * @throws IllegalArgumentException     if {@code email} is blank
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
 	 */
 	@Transactional(readOnly = true)
-	public Optional<Employee> findEmployeeByEmail(final String email) {
-		Strings.requireNonBlank(email, "email cannot be null or blank.");
-		logger.debug("Finding Employee by email {}", email);
-
+	public Optional<Employee> findEmployeeByEmail(final @NotBlank @Email @Size(max = 254) String email) {
 		return this.employeeRepository.findByEmail(email);
 	}
 
+	/**
+	 * Looks up an employee by its exact immutable number without changing it.
+	 * Number must match [A-Za-z0-9_-]{1,50} without trimming. The schedule is
+	 * loaded. A missing employee does not mark the caller's transaction for
+	 * rollback.
+	 *
+	 * @param  employeeNumber               exact stable employee number
+	 * @return                              matching employee with readable schedule
+	 * @throws ConstraintViolationException if the number is invalid through the
+	 *                                      Spring proxy
+	 * @throws ResourceNotFoundException    if no employee exists with this number
+	 */
 	@Transactional(readOnly = true, noRollbackFor = ResourceNotFoundException.class)
-	public Employee findEmployeeByEmployeeNumber(final String employeeNumber) {
-		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
+	public Employee findEmployeeByEmployeeNumber(final @NotBlank @EmployeeNumber String employeeNumber) {
+		logger.debug("Finding employee with employee number {}", employeeNumber);
 		final Employee employee = this.employeeRepository.findByEmployeeNumber(employeeNumber);
 		if (employee == null) {
 			throw new ResourceNotFoundException("There is no employee with number " + employeeNumber);
@@ -122,8 +157,9 @@ public class EmployeeService {
 	}
 
 	/**
-	 * Finds the identifiers of employees who have at least one {@link TimeLog}
-	 * since the specified instant but have no associated {@link WorkShift}.
+	 * Finds the identifiers of employees who have at least one closed, nondeleted
+	 * {@link TimeLog} entered since the specified instant and not associated with a
+	 * {@link WorkShift}.
 	 *
 	 * @param  start                the lower bound instant (inclusive). Can't be
 	 *                              {@code null}.
@@ -132,8 +168,7 @@ public class EmployeeService {
 	 * @throws NullPointerException if {@code start} is {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public List<Long> findEmployeesWithoutWorkshiftsSince(final Instant start) {
-		Objects.requireNonNull(start, "start must not be null");
+	public List<Long> findEmployeesWithoutWorkshiftsSince(final @NotNull Instant start) {
 		logger.debug("Finding employees without workshift from date: {}", start);
 
 		final List<Long> employeesWithoutWorkshift = this.employeeRepository.findWithoutWorkshiftsSince(start);
@@ -145,9 +180,15 @@ public class EmployeeService {
 	/**
 	 * Creates and persists a new {@link Employee}.
 	 * <p>
-	 * The employee email must be unique across the system.
+	 * The caller must authorize creation. Employee number must match
+	 * [A-Za-z0-9_-]{1,50}; names must be nonblank and contain 1-255 letters,
+	 * spaces, dots, commas, apostrophes or hyphens. Email must satisfy @Email and
+	 * have at most 254 characters; schedule must be nonnull. Employee number and
+	 * normalized email must be unique. Creation trims and lowercases email, retains
+	 * the number and names as supplied and does not link a local profile.
 	 * </p>
 	 *
+	 * @param  employeeNumber                 immutable unique employee number
 	 * @param  name                           the first name of the employee. Can't
 	 *                                        be {@code null} or blank.
 	 * @param  surname                        the surname of the employee. Can't be
@@ -159,80 +200,87 @@ public class EmployeeService {
 	 * @return                                the newly created {@link Employee}
 	 * @throws NullPointerException           if any parameter is {@code null}
 	 * @throws IllegalArgumentException       if any string parameter is blank
-	 * @throws ResourceAlreadyExistsException if an employee with the given email
-	 *                                        already exists
+	 * @throws ResourceAlreadyExistsException if employee number or normalized email
+	 *                                        is in use
+	 * @throws ConstraintViolationException   if a parameter constraint fails
+	 *                                        through the Spring proxy
 	 */
 	@Transactional
 	public Employee createEmployee(
-			final String employeeNumber,
-			final String name,
-			final String surname,
-			final String email,
-			final Schedule schedule) {
-		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
-		Strings.requireNonBlank(name, "name cannot be null or blank.");
-		Strings.requireNonBlank(surname, "surname cannot be null or blank.");
-		Strings.requireNonBlank(email, "email cannot be null or blank.");
-		Objects.requireNonNull(schedule, "schedule cannot be null.");
-
-		logger.debug("Creating new employee {}", email);
+			final @NotBlank @EmployeeNumber String employeeNumber,
+			final @NotBlank @Pattern(regexp = "^[\\p{L} .,'-]{1,255}$") String name,
+			final @NotBlank @Pattern(regexp = "^[\\p{L} .,'-]{1,255}$") String surname,
+			final @NotBlank @Email @Size(max = 254) String email,
+			final @NotNull Schedule schedule) {
+		final String normalizedEmail = EmailAddresses.canonicalize(email);
+		logger.debug("Creating employee with employee number {}", employeeNumber);
 
 		if (this.employeeRepository.existsByEmployeeNumber(employeeNumber)) {
+			logger.warn("Employee creation rejected: reason=number_in_use, employeeNumber={}", employeeNumber);
 			throw new ResourceAlreadyExistsException("Employee with number " + employeeNumber + " already exists");
 		}
-		final boolean emailInUse = this.employeeRepository.existsByEmail(email);
+		final boolean emailInUse = this.employeeRepository.existsByEmail(normalizedEmail);
 		if (emailInUse) {
-			logger.warn("Employee with email {} already exists", email);
-			throw new ResourceAlreadyExistsException("Employee with email " + email + " already exists");
+			logger.warn("Employee creation rejected: reason=email_in_use, employeeNumber={}", employeeNumber);
+			throw new ResourceAlreadyExistsException("Employee with email " + normalizedEmail + " already exists");
 		}
 
-		final Employee employee = new Employee(employeeNumber, name, surname, email, schedule);
+		final Employee employee = new Employee(employeeNumber, name, surname, normalizedEmail, schedule);
 
-		return this.employeeRepository.save(employee);
+		final Employee savedEmployee = this.employeeRepository.save(employee);
+		logger.info("Employee created: employeeId={}, employeeNumber={}", savedEmployee.getId(), employeeNumber);
+		return savedEmployee;
 	}
 
 	/**
-	 * Updates an existing {@link Employee} identified by its email.
+	 * Replaces personal data and schedule of an employee identified by its
+	 * immutable number.
 	 * <p>
-	 * Replaces the employee's personal information and schedule atomically.
+	 * The caller must authorize the change and supply arguments satisfying the same
+	 * number, name and email constraints as creation, plus a valid schedule code.
+	 * Employee and schedule must exist. Email is trimmed and lowercased before
+	 * checking uniqueness. All checks precede mutation. Employee number and
+	 * profile, worksite and time-record associations are preserved.
 	 * </p>
 	 *
-	 * @param  email                     the unique email of the employee to update.
-	 *                                   Can't be {@code null} or blank.
-	 * @param  newName                   the new first name. Can't be {@code null}
-	 *                                   or blank.
-	 * @param  newSurname                the new surname. Can't be {@code null} or
-	 *                                   blank.
-	 * @param  scheduleCode              code of the new {@link Schedule}. Can't be
-	 *                                   {@code null}.
-	 * @return                           the updated {@link Employee}
-	 * @throws NullPointerException      if any parameter is {@code null}
-	 * @throws IllegalArgumentException  if any string parameter is blank
-	 * @throws ResourceNotFoundException if no employee exists with the given email
-	 *                                   or no schedule exists with the given code
+	 * @param  employeeNumber                 the immutable employee number to
+	 *                                        update. Can't be {@code null} or
+	 *                                        blank.
+	 * @param  newName                        the new first name. Can't be
+	 *                                        {@code null} or blank.
+	 * @param  newSurname                     the new surname. Can't be {@code null}
+	 *                                        or blank.
+	 * @param  newEmail                       replacement unique contact email
+	 * @param  scheduleCode                   code of the new {@link Schedule}.
+	 *                                        Can't be {@code null}.
+	 * @return                                the updated {@link Employee}
+	 * @throws NullPointerException           if any parameter is {@code null}
+	 * @throws IllegalArgumentException       if any string parameter is blank
+	 * @throws ResourceNotFoundException      if no employee exists with the given
+	 *                                        number or no schedule exists with the
+	 *                                        given code
+	 * @throws ResourceAlreadyExistsException if the replacement email is in use
+	 * @throws ConstraintViolationException   if a parameter constraint fails
+	 *                                        through the Spring proxy
 	 */
 	@Transactional
 	public Employee updateEmployee(
-			final String employeeNumber,
-			final String newName,
-			final String newSurname,
-			final String newEmail,
-			final String scheduleCode) {
-		Strings.requireNonBlank(employeeNumber, "employeeNumber cannot be null or blank.");
-		Strings.requireNonBlank(newEmail, "newEmail cannot be null or blank.");
-		Strings.requireNonBlank(newName, "newName cannot be null or blank.");
-		Strings.requireNonBlank(newSurname, "newSurname cannot be null or blank.");
-		Strings.requireNonBlank(scheduleCode, "scheduleCode cannot be null or blank.");
-
-		logger.debug("Updating employee {}", employeeNumber);
+			final @NotBlank @EmployeeNumber String employeeNumber,
+			final @NotBlank @Pattern(regexp = "^[\\p{L} .,'-]{1,255}$") String newName,
+			final @NotBlank @Pattern(regexp = "^[\\p{L} .,'-]{1,255}$") String newSurname,
+			final @NotBlank @Size(max = 254) @Email String newEmail,
+			final @NotBlank @ScheduleCode String scheduleCode) {
+		final String normalizedEmail = EmailAddresses.canonicalize(newEmail);
+		logger.atDebug().addKeyValue("employeeNumber", employeeNumber).addKeyValue("scheduleCode", scheduleCode)
+				.log("Updating employee");
 
 		final Schedule newSchedule = this.scheduleService.findScheduleByCode(scheduleCode);
 		final Employee employee = this.findEmployeeByEmployeeNumber(employeeNumber);
-		if (!employee.getEmail().equals(newEmail) && this.employeeRepository.existsByEmail(newEmail)) {
-			throw new ResourceAlreadyExistsException("Employee with email " + newEmail + " already exists");
+		if (!employee.getEmail().equals(normalizedEmail) && this.employeeRepository.existsByEmail(normalizedEmail)) {
+			throw new ResourceAlreadyExistsException("Employee with email " + normalizedEmail + " already exists");
 		}
 		employee.setFullName(newName, newSurname);
-		employee.changeEmail(newEmail);
+		employee.changeEmail(normalizedEmail);
 		employee.setSchedule(newSchedule);
 
 		return employee;
@@ -241,27 +289,32 @@ public class EmployeeService {
 	/**
 	 * Deletes the given {@link Employee}.
 	 * <p>
-	 * After deletion, the employee will no longer be available in the system.
+	 * The caller must authorize deletion. Removal is committed with the
+	 * transaction; references from profiles or time records may prevent it through
+	 * persistence constraints. This operation does not cascade deletion to a local
+	 * profile or a provider account.
 	 * </p>
 	 *
-	 * @param  employee             the employee to delete. Can't be {@code null}.
-	 * @throws NullPointerException if {@code employee} is {@code null}
+	 * @param  employee                     the employee to delete. Can't be
+	 *                                      {@code null}.
+	 * @throws NullPointerException         if {@code employee} is {@code null}
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
 	 */
 	@Transactional
-	public void deleteEmployee(final Employee employee) {
-		Objects.requireNonNull(employee, "employee cannot be null.");
-		logger.debug("Deleting employee {}", employee);
+	public void deleteEmployee(final @NotNull Employee employee) {
+		logger.debug("Employee with employee number {} marked for deletion", employee.getEmployeeNumber());
 
 		this.employeeRepository.delete(employee);
 	}
 
 	/**
-	 * Determines whether an employee identified by the given email address is
+	 * Determines whether an employee identified by its internal persistence ID is
 	 * assigned to a schedule with the specified business code.
 	 * <p>
-	 * This method checks for the existence of an {@link Employee} whose natural
-	 * internal identifier ({@code id}) matches the provided value and whose
-	 * associated {@link Schedule} has the given {@code code}.
+	 * This method checks for the existence of an {@link Employee} whose internal
+	 * identifier ({@code id}) matches the provided value and whose associated
+	 * {@link Schedule} has the given {@code code}.
 	 * </p>
 	 * <p>
 	 * The employee id is an internal key and the schedule code is a business
@@ -269,28 +322,31 @@ public class EmployeeService {
 	 * is found.
 	 * </p>
 	 *
-	 * @param  employeeId   the internal id of the employee; must not be
-	 *                      {@code null}
-	 * @param  scheduleCode the business code of the schedule; must not be
-	 *                      {@code null}
-	 * @return              {@code true} if the employee is assigned to the
-	 *                      specified schedule; {@code false} otherwise
+	 * @param  employeeId                   the internal id of the employee; must
+	 *                                      not be {@code null}
+	 * @param  scheduleCode                 the business code of the schedule; must
+	 *                                      not be {@code null}
+	 * @return                              {@code true} if the employee is assigned
+	 *                                      to the specified schedule; {@code false}
+	 *                                      otherwise
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
 	 */
-	public boolean isAssignedToSchedule(final Long employeeId, final String scheduleCode) {
-		Objects.requireNonNull(employeeId, "employeeId cannot be null.");
-		Objects.requireNonNull(scheduleCode, "scheduleCode cannot be null.");
-
+	@Transactional(readOnly = true)
+	public boolean isAssignedToSchedule(
+			final @NotNull Long employeeId,
+			final @NotBlank @ScheduleCode String scheduleCode) {
 		logger.debug("Checking if the employee {} is assigned to schedule {}", employeeId, scheduleCode);
 		return this.employeeRepository.existsByIdAndSchedule_Code(employeeId, scheduleCode);
 	}
 
 	/**
-	 * Determines whether an employee identified by the given email address is
+	 * Determines whether an employee identified by its internal persistence ID is
 	 * assigned to a worksite with the specified business code.
 	 * <p>
-	 * This method checks for the existence of an {@link Employee} whose natural
-	 * internal identifier ({@code id}) matches the provided value and whose
-	 * associated {@link Worksite} has the given {@code code}.
+	 * This method checks for the existence of an {@link Employee} whose internal
+	 * identifier ({@code id}) matches the provided value and whose associated
+	 * {@link Worksite} has the given {@code code}.
 	 * </p>
 	 * <p>
 	 * The employee id is an internal key and the worksite code is a business
@@ -298,76 +354,187 @@ public class EmployeeService {
 	 * is found.
 	 * </p>
 	 *
-	 * @param  employeeId   the internal id of the employee; must not be
-	 *                      {@code null}
-	 * @param  worksiteCode the business code of the worksite; must not be
-	 *                      {@code null}
-	 * @return              {@code true} if the employee is assigned to the
-	 *                      specified schedule; {@code false} otherwise
+	 * @param  employeeId                   the internal id of the employee; must
+	 *                                      not be {@code null}
+	 * @param  worksiteCode                 the business code of the worksite; must
+	 *                                      not be {@code null}
+	 * @return                              {@code true} if the employee is assigned
+	 *                                      to the specified worksite; {@code false}
+	 *                                      otherwise
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
 	 */
-	public boolean isAssignedToWorksite(final Long employeeId, final String worksiteCode) {
-		Objects.requireNonNull(employeeId, "employeeId cannot be null.");
-		Objects.requireNonNull(worksiteCode, "worksiteCode cannot be null.");
-
+	@Transactional(readOnly = true)
+	public boolean isAssignedToWorksite(
+			final @NotNull Long employeeId,
+			final @NotBlank @WorksiteCode String worksiteCode) {
 		logger.debug("Checking if the employee {} is assigned to worksite {}", employeeId, worksiteCode);
 		return this.employeeRepository.existsByIdAndWorksites_Code(employeeId, worksiteCode);
 	}
 
+	/**
+	 * Counts distinct employees currently assigned to the exact worksite code.
+	 * Worksite code must match [A-Za-z0-9_-]{1,50}. This operation does not modify
+	 * records.
+	 *
+	 * @param  worksiteCode                 exact worksite business code
+	 * @return                              matching count, zero if no records match
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
+	 */
 	@Transactional(readOnly = true)
-	public long countEmployeesAssignedToWorksite(final String worksiteCode) {
-		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
+	public long countEmployeesAssignedToWorksite(final @NotBlank @WorksiteCode String worksiteCode) {
 		return this.employeeRepository.countByWorksiteCode(worksiteCode);
 	}
 
+	/**
+	 * Counts distinct employees with nondeleted time logs entered in the range.
+	 * Range is [start, end); both bounds must be nonnull and start must precede
+	 * end. Worksite code must match [A-Za-z0-9_-]{1,50}. This operation does not
+	 * modify records.
+	 *
+	 * @param  worksiteCode                 exact worksite business code
+	 * @param  start                        inclusive entry-time bound
+	 * @param  end                          exclusive entry-time bound
+	 * @return                              matching count, zero if no records match
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
+	 * @throws IllegalArgumentException     if start does not precede end
+	 */
 	@Transactional(readOnly = true)
 	public long countDistinctEmployeesWithTimeLogsInRange(
-			final String worksiteCode,
-			final Instant start,
-			final Instant end) {
-		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
-		Objects.requireNonNull(start, "start cannot be null.");
-		Objects.requireNonNull(end, "end cannot be null.");
+			final @NotBlank @WorksiteCode String worksiteCode,
+			final @NotNull Instant start,
+			final @NotNull Instant end) {
 		validateRange(start, end);
 		return this.employeeRepository.countDistinctEmployeesWithTimeLogsInRange(worksiteCode, start, end);
 	}
 
+	/**
+	 * Counts nondeleted time logs entered in the range, including open logs. Range
+	 * is [start, end); both bounds must be nonnull and start must precede end.
+	 * Worksite code must match [A-Za-z0-9_-]{1,50}. This operation does not modify
+	 * records.
+	 *
+	 * @param  worksiteCode                 exact worksite business code
+	 * @param  start                        inclusive entry-time bound
+	 * @param  end                          exclusive entry-time bound
+	 * @return                              matching count, zero if no records match
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
+	 * @throws IllegalArgumentException     if start does not precede end
+	 */
 	@Transactional(readOnly = true)
-	public long countTimeLogsInRange(final String worksiteCode, final Instant start, final Instant end) {
-		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
-		Objects.requireNonNull(start, "start cannot be null.");
-		Objects.requireNonNull(end, "end cannot be null.");
+	public long countTimeLogsInRange(
+			final @NotBlank @WorksiteCode String worksiteCode,
+			final @NotNull Instant start,
+			final @NotNull Instant end) {
 		validateRange(start, end);
 		return this.employeeRepository.countTimeLogsInRange(worksiteCode, start, end);
 	}
 
+	/**
+	 * Counts nondeleted open time logs entered in the range. Range is [start, end);
+	 * both bounds must be nonnull and start must precede end. Worksite code must
+	 * match [A-Za-z0-9_-]{1,50}. This operation does not modify records.
+	 *
+	 * @param  worksiteCode                 exact worksite business code
+	 * @param  start                        inclusive entry-time bound
+	 * @param  end                          exclusive entry-time bound
+	 * @return                              matching count, zero if no records match
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
+	 * @throws IllegalArgumentException     if start does not precede end
+	 */
 	@Transactional(readOnly = true)
-	public long countOpenTimeLogsInRange(final String worksiteCode, final Instant start, final Instant end) {
-		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
-		Objects.requireNonNull(start, "start cannot be null.");
-		Objects.requireNonNull(end, "end cannot be null.");
+	public long countOpenTimeLogsInRange(
+			final @NotBlank @WorksiteCode String worksiteCode,
+			final @NotNull Instant start,
+			final @NotNull Instant end) {
 		validateRange(start, end);
 		return this.employeeRepository.countOpenTimeLogsInRange(worksiteCode, start, end);
 	}
 
+	/**
+	 * Counts distinct current employee schedules represented by nondeleted time
+	 * logs in the range. Range is [start, end); both bounds must be nonnull and
+	 * start must precede end. Worksite code must match [A-Za-z0-9_-]{1,50}. This
+	 * operation does not modify records.
+	 *
+	 * @param  worksiteCode                 exact worksite business code
+	 * @param  start                        inclusive entry-time bound
+	 * @param  end                          exclusive entry-time bound
+	 * @return                              matching count, zero if no records match
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
+	 * @throws IllegalArgumentException     if start does not precede end
+	 */
 	@Transactional(readOnly = true)
-	public long countDistinctSchedulesInRange(final String worksiteCode, final Instant start, final Instant end) {
-		Strings.requireNonBlank(worksiteCode, "worksiteCode cannot be null or blank.");
-		Objects.requireNonNull(start, "start cannot be null.");
-		Objects.requireNonNull(end, "end cannot be null.");
+	public long countDistinctSchedulesInRange(
+			final @NotBlank @WorksiteCode String worksiteCode,
+			final @NotNull Instant start,
+			final @NotNull Instant end) {
 		validateRange(start, end);
 		return this.employeeRepository.countDistinctSchedulesInRange(worksiteCode, start, end);
 	}
 
+	/**
+	 * Searches employees without changing them. The caller must authorize search
+	 * and supply a nonnull paged request. Query is optional single-line text of
+	 * 1-100 characters; optional codes match [A-Za-z0-9_-]{1,50} without trimming.
+	 * Text matches employee number, name, surname or email partially,
+	 * case-insensitively and literally. Code filters match exactly and combine with
+	 * AND; null filters disable their restriction. Schedules are loaded. Public
+	 * sort fields are employeeNumber, name, surname, email and scheduleCode.
+	 * Default ordering and the tie-breaker are ascending employee number, unless
+	 * explicitly sorted. Page size is capped at spring.data.rest.max-page-size.
+	 *
+	 * @param  query                        optional literal text fragment, used
+	 *                                      without trimming
+	 * @param  scheduleCode                 optional exact schedule code
+	 * @param  worksiteCode                 optional exact worksite code
+	 * @param  pageable                     requested page and public ordering
+	 * @return                              page of matching employees with readable
+	 *                                      schedules, possibly empty
+	 * @throws ConstraintViolationException if a parameter constraint fails through
+	 *                                      the Spring proxy
+	 * @throws IllegalArgumentException     if pageable is unpaged or a sort field
+	 *                                      is unsupported
+	 */
 	@Transactional(readOnly = true)
 	public Page<Employee> searchEmployees(
-			final String query,
-			final String scheduleCode,
-			final String worksiteCode,
-			final Pageable pageable) {
+			final @SearchQuery String query,
+			final @ScheduleCode String scheduleCode,
+			final @WorksiteCode String worksiteCode,
+			final @NotNull Pageable pageable) {
+		final Pageable normalizedPageable = this.normalizePageable(pageable);
+		final String escapedQuery = query == null ? "" : LikePatterns.escape(query);
+		logger.atDebug().addKeyValue("query", query).addKeyValue("scheduleCode", scheduleCode)
+				.addKeyValue("worksiteCode", worksiteCode).addKeyValue("page", normalizedPageable.getPageNumber())
+				.addKeyValue("pageSize", normalizedPageable.getPageSize())
+				.addKeyValue("sort", normalizedPageable.getSort().toString()).log("Searching employees");
+		return this.employeeRepository.search(escapedQuery, scheduleCode, worksiteCode, normalizedPageable);
+	}
+
+	private Pageable normalizePageable(final Pageable pageable) {
 		Objects.requireNonNull(pageable, "pageable cannot be null.");
-		logger.debug("Searching employees by query {}, schedule {} and worksite {}", query, scheduleCode, worksiteCode);
-		return this.employeeRepository
-				.search(query == null ? "" : LikePatterns.escape(query), scheduleCode, worksiteCode, pageable);
+		if (pageable.isUnpaged()) {
+			throw new IllegalArgumentException("Must be paged");
+		}
+		final List<Order> orders = new ArrayList<>();
+		for (final Order order : pageable.getSort()) {
+			final String property = switch (order.getProperty()) {
+			case "employeeNumber", "name", "surname", "email" -> order.getProperty();
+			case "scheduleCode" -> "schedule.code";
+			default -> throw new IllegalArgumentException("Unsupported Employee sort field: " + order.getProperty());
+			};
+			orders.add(order.withProperty(property));
+		}
+		if (orders.stream().noneMatch(order -> "employeeNumber".equals(order.getProperty()))) {
+			orders.add(Order.asc("employeeNumber"));
+		}
+		return PageRequest
+				.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), this.maxPageSize), Sort.by(orders));
 	}
 
 	private static void validateRange(final Instant start, final Instant end) {

@@ -21,7 +21,11 @@ import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
 
 /**
- * Maps {@link Employee} entities into {@link EmployeeResponse} DTOs.
+ * Maps employees to immutable public snapshots under the Mapper contract. A
+ * nonnull source must have a readable, nonnull schedule, initialized or
+ * accessible in an active persistence context. Mapping leaves the employee
+ * unchanged and exposes business numbers and codes without internal IDs, local
+ * profiles or time records. A null source produces null.
  */
 @Component
 public class EmployeeResponseMapper implements Mapper<Employee, EmployeeResponse> {
