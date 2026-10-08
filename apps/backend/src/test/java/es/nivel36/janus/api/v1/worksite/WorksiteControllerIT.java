@@ -15,10 +15,10 @@
  */
 package es.nivel36.janus.api.v1.worksite;
 
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,9 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
-import jakarta.persistence.EntityManager;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -42,15 +39,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
+
+import jakarta.persistence.EntityManager;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -187,7 +189,7 @@ class WorksiteControllerIT {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','GLOBAL')" })
 	void testFindByCodeShouldReturnWorksite() throws Exception {
-		final var result = this.mvc
+		final MvcResult result = this.mvc
 				.perform(
 						get(BASE + "/{code}", "BCN-HQ")
 								.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
@@ -197,7 +199,7 @@ class WorksiteControllerIT {
 				.andExpect(jsonPath("$.timeZone").value("UTC+02:00")).andExpect(jsonPath("$.scope").value("GLOBAL"))
 				.andExpect(jsonPath("$.active").value(true)).andReturn();
 
-		final var response = this.objectMapper.readTree(result.getResponse().getContentAsByteArray());
+		final JsonNode response = this.objectMapper.readTree(result.getResponse().getContentAsByteArray());
 		assertThat(response.propertyNames()).as("JSON properties must match the public WorksiteResponse model")
 				.containsExactlyInAnyOrder("code", "name", "timeZone", "scope", "description", "address", "active");
 	}
@@ -211,7 +213,7 @@ class WorksiteControllerIT {
 			"INSERT INTO worksite(id,code,name,time_zone,scope) VALUES(2,'OUTSIDE','Outside Worksite','UTC','ASSIGNED')",
 			"INSERT INTO employee_worksite(employee_id,worksite_id) VALUES(1,1)" })
 	void employeeCanFindVisibleWorksiteButNotOneOutsideTheirScope() throws Exception {
-		final var employeeJwt = verifiedJwt().jwt(jwt -> jwt.subject("employee-EMP-0001"))
+		final JwtRequestPostProcessor employeeJwt = verifiedJwt().jwt(jwt -> jwt.subject("employee-EMP-0001"))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));
 
 		this.mvc.perform(get(BASE + "/{code}", "VISIBLE").with(employeeJwt)).andExpect(status().isOk())
@@ -383,7 +385,7 @@ class WorksiteControllerIT {
 	@Test
 	@Sql("/sql/worksite-contract.sql")
 	void searchCombinesTextWithGlobalAndAssignedVisibilityAndExcludesDeletedWorksites() throws Exception {
-		final var employee = actor("employee-EMP-0201", "ROLE_JANUS_EMPLOYEE");
+		final JwtRequestPostProcessor employee = actor("employee-EMP-0201", "ROLE_JANUS_EMPLOYEE");
 		this.mvc.perform(get(BASE).with(employee)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.page.totalElements").value(2))
 				.andExpect(jsonPath("$.content[0].code").value("CONTRACT-A"))

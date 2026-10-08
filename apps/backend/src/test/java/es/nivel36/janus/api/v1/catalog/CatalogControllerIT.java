@@ -15,9 +15,9 @@
  */
 package es.nivel36.janus.api.v1.catalog;
 
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -31,6 +31,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
@@ -49,7 +50,8 @@ class CatalogControllerIT {
 
 	@Test
 	void testSearchTimeZonesShouldEnforceSearchQueryContract() throws Exception {
-		final var request = get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")));
+		final MockHttpServletRequestBuilder request = get(BASE)
+				.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN")));
 
 		this.mvc.perform(request.queryParam("query", "a".repeat(100))).andExpect(status().isOk());
 		this.mvc.perform(

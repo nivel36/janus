@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.validation.EmployeeNumber;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -72,7 +73,7 @@ class ValidationProblemDetailTest {
 
 	@Test
 	void composedIdentifierConstraintHasTheSameResultInPathQueryAndBody() throws Exception {
-		final var reason = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)";
+		final String reason = "employeeNumber must contain only letters, digits, underscores or hyphens (1-50 characters)";
 		this.mvc.perform(get("/validation/employee/{employeeNumber}", "invalid value")).andExpectAll(
 				status().isBadRequest(),
 				jsonPath("$.errors[0].code").value("EmployeeNumber"),

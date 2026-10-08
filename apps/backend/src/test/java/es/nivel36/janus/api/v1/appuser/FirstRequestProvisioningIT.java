@@ -13,15 +13,16 @@
  */
 package es.nivel36.janus.api.v1.appuser;
 
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +36,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -156,7 +158,7 @@ class FirstRequestProvisioningIT {
 			final String secondEmail) throws Exception {
 		final CountDownLatch ready = new CountDownLatch(2);
 		final CountDownLatch start = new CountDownLatch(1);
-		try (var executor = Executors.newFixedThreadPool(2)) {
+		try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
 			final Future<MvcResult> first = executor
 					.submit(() -> this.performProvisioning(firstSubject, firstEmail, ready, start));
 			final Future<MvcResult> second = executor
@@ -254,7 +256,7 @@ class FirstRequestProvisioningIT {
 	@Test
 	void firstEmployeeVisitCanSearchTimeLogsAfterLoadingProfile() throws Exception {
 		this.insertEmployee();
-		final var authentication = verifiedJwt().jwt(
+		final JwtRequestPostProcessor authentication = verifiedJwt().jwt(
 				token -> token.issuer(this.issuer).subject(SUBJECT).claim("preferred_username", "first-employee")
 						.claim("email", LINK_EMAIL).claim("employeeNumber", "EMP-0901").claim("email_verified", true))
 				.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"));

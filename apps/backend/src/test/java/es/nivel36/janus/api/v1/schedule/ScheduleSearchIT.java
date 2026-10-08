@@ -15,14 +15,14 @@
  */
 package es.nivel36.janus.api.v1.schedule;
 
+import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
-import static es.nivel36.janus.api.v1.SecurityTestConfiguration.verifiedJwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,16 +37,18 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.nivel36.janus.api.v1.EmployeeIdentityTestExecutionListener;
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleService;
+
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceUnitUtil;
 
 /**
  * Exercises filtering, database pagination, authorization and invalid payloads.
@@ -91,7 +93,8 @@ class ScheduleSearchIT {
 	@Test
 	void summariesAreReadableAfterLeavingThePersistenceContextWithoutLoadingRules() {
 		final Page<Schedule> page = this.service.searchSchedules("shift", null, PageRequest.of(0, 2));
-		final var persistenceUnit = this.entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+		final PersistenceUnitUtil persistenceUnit = this.entityManager.getEntityManagerFactory()
+				.getPersistenceUnitUtil();
 		assertThat(page.getContent())
 				.allSatisfy(schedule -> assertThat(persistenceUnit.isLoaded(schedule, "rules")).isFalse());
 		this.entityManager.clear();

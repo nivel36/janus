@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.api.v1;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -22,12 +24,11 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 @TestConfiguration
 public class SecurityTestConfiguration {
@@ -49,7 +50,7 @@ public class SecurityTestConfiguration {
 				builder.claim("email_verified", true);
 			}
 			final Jwt jwt = builder.build();
-			final var result = jwtValidator.validate(jwt);
+			final OAuth2TokenValidatorResult result = jwtValidator.validate(jwt);
 			if (result.hasErrors()) {
 				throw new JwtValidationException("Invalid test JWT", result.getErrors());
 			}

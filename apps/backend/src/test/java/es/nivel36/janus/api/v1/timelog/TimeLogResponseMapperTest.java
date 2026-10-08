@@ -26,16 +26,16 @@ class TimeLogResponseMapperTest {
 
 	@Test
 	void mapsStableEmployeeNumberFromEmployee() {
-		final var employee = mock(Employee.class);
-		final var worksite = mock(Worksite.class);
-		final var timeLog = mock(TimeLog.class);
+		final Employee employee = mock(Employee.class);
+		final Worksite worksite = mock(Worksite.class);
+		final TimeLog timeLog = mock(TimeLog.class);
 		@SuppressWarnings("unchecked")
 		final Mapper<Duration, DurationResponse> durationMapper = mock(Mapper.class);
 		when(employee.getEmployeeNumber()).thenReturn("EMP-0042");
 		when(timeLog.getEmployee()).thenReturn(employee);
 		when(timeLog.getWorksite()).thenReturn(worksite);
 
-		final var response = new TimeLogResponseMapper(durationMapper).map(timeLog);
+		final TimeLogResponse response = new TimeLogResponseMapper(durationMapper).map(timeLog);
 
 		assertThat(response.employeeNumber()).isEqualTo("EMP-0042");
 	}

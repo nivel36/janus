@@ -23,6 +23,7 @@ import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.appuser.Role;
+import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.employee.EmployeeService;
 
 class ClockOutWithoutClockInEventAuthorizationAdapterTest {
@@ -88,7 +89,7 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 	private ClockOutWithoutClockInEventAuthorizationAdapter adapterWith(
 			final Policy<Long> resolvePolicy,
 			final Policy<Long> invalidatePolicy) {
-		final var employee = employee();
+		final Employee employee = employee();
 		when(this.actors.resolve(this.authentication)).thenReturn(actor());
 		when(this.employees.findEmployeeByEmployeeNumber("EMP-0001")).thenReturn(employee);
 		return new ClockOutWithoutClockInEventAuthorizationAdapter(
@@ -110,8 +111,8 @@ class ClockOutWithoutClockInEventAuthorizationAdapterTest {
 		return new Actor(UUID.fromString("11111111-1111-4111-8111-111111111111"), Set.of(Role.JANUS_ADMIN), null);
 	}
 
-	private static es.nivel36.janus.service.employee.Employee employee() {
-		final var employee = mock(es.nivel36.janus.service.employee.Employee.class);
+	private static Employee employee() {
+		final Employee employee = mock(Employee.class);
 		when(employee.getId()).thenReturn(42L);
 		return employee;
 	}

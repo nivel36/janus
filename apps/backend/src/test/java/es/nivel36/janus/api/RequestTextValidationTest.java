@@ -11,22 +11,24 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.api.Test;
 
+import es.nivel36.janus.api.v1.applicationsettings.UpdateApplicationSettingsRequest;
+import es.nivel36.janus.api.v1.appuser.UpdateAppUserRequest;
 import es.nivel36.janus.api.v1.employee.CreateEmployeeRequest;
 import es.nivel36.janus.api.v1.employee.UpdateEmployeeRequest;
+import es.nivel36.janus.api.v1.schedule.CreateScheduleRequest;
+import es.nivel36.janus.api.v1.schedule.ScheduleRuleRequest;
+import es.nivel36.janus.api.v1.schedule.UpdateScheduleRequest;
+import es.nivel36.janus.api.v1.timelog.TransitionClockOutWithoutClockInEventRequest;
 import es.nivel36.janus.api.v1.worksite.CreateWorksiteRequest;
 import es.nivel36.janus.api.v1.worksite.UpdateWorksiteRequest;
-import es.nivel36.janus.api.v1.schedule.CreateScheduleRequest;
-import es.nivel36.janus.api.v1.schedule.UpdateScheduleRequest;
-import es.nivel36.janus.api.v1.schedule.ScheduleRuleRequest;
-import es.nivel36.janus.api.v1.appuser.UpdateAppUserRequest;
-import es.nivel36.janus.api.v1.applicationsettings.UpdateApplicationSettingsRequest;
-import es.nivel36.janus.api.v1.timelog.TransitionClockOutWithoutClockInEventRequest;
+
 import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
 class RequestTextValidationTest {
@@ -57,7 +59,7 @@ class RequestTextValidationTest {
 	@ParameterizedTest
 	@MethodSource("boundedText")
 	void acceptsMaximumAndRejectsOneMore(final Class<?> type, final String field, final int maximum) {
-		final var validator = FACTORY.getValidator();
+		final Validator validator = FACTORY.getValidator();
 		assertThat(validator.validateValue(type, field, "a".repeat(maximum))).isEmpty();
 		assertThat(validator.validateValue(type, field, "a".repeat(maximum + 1))).isNotEmpty();
 	}
@@ -69,7 +71,7 @@ class RequestTextValidationTest {
 	@ParameterizedTest
 	@MethodSource("employeeRequests")
 	void emailHasAnExplicitTotalLengthLimit(final Class<?> type) {
-		final var validator = FACTORY.getValidator();
+		final Validator validator = FACTORY.getValidator();
 		final String prefix = "a".repeat(64) + "@" + "b".repeat(63) + "." + "c".repeat(63) + ".";
 		assertThat(validator.validateValue(type, "email", prefix + "d".repeat(61))).isEmpty();
 		assertThat(validator.validateValue(type, "email", prefix + "d".repeat(62))).anySatisfy(
@@ -80,7 +82,7 @@ class RequestTextValidationTest {
 
 	@Test
 	void localeAndTimezonesAreBoundedBeforeNormalization() {
-		final var validator = FACTORY.getValidator();
+		final Validator validator = FACTORY.getValidator();
 		final String locale64 = "en-x-" + "abcdefgh-".repeat(6) + "abcde";
 		assertThat(locale64).hasSize(64);
 		assertThat(validator.validateValue(UpdateAppUserRequest.class, "locale", locale64)).isEmpty();
@@ -100,7 +102,7 @@ class RequestTextValidationTest {
 
 	@Test
 	void optionalTextAllowsNullAndMultilineUnicodeButRejectsNul() {
-		final var validator = FACTORY.getValidator();
+		final Validator validator = FACTORY.getValidator();
 		for (final Class<?> type : List.of(
 				CreateWorksiteRequest.class,
 				UpdateWorksiteRequest.class,
@@ -114,9 +116,9 @@ class RequestTextValidationTest {
 
 	@Test
 	void nestedRuleNamesAreValidatedThroughScheduleRequests() {
-		final var valid = new ScheduleRuleRequest("a".repeat(250), null, null, List.of());
-		final var invalid = new ScheduleRuleRequest("a".repeat(251), null, null, List.of());
-		final var validator = FACTORY.getValidator();
+		final ScheduleRuleRequest valid = new ScheduleRuleRequest("a".repeat(250), null, null, List.of());
+		final ScheduleRuleRequest invalid = new ScheduleRuleRequest("a".repeat(251), null, null, List.of());
+		final Validator validator = FACTORY.getValidator();
 		assertThat(
 				validator.validate(
 						new CreateScheduleRequest("SCHED", "Schedule", Duration.ZERO, Duration.ZERO, List.of(valid))))

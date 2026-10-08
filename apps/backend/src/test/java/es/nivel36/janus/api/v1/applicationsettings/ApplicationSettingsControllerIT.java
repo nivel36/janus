@@ -27,9 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -45,13 +47,12 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.databind.ObjectMapper;
 
 import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 import es.nivel36.janus.service.appuser.Role;
+
 import jakarta.persistence.EntityManager;
-import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -310,7 +311,7 @@ class ApplicationSettingsControllerIT {
 		this.entityManager.flush();
 		this.entityManager.clear();
 
-		final var rows = this.jdbc.queryForList("SELECT * FROM application_settings");
+		final List<Map<String, Object>> rows = this.jdbc.queryForList("SELECT * FROM application_settings");
 
 		assertThat(rows).hasSize(1);
 

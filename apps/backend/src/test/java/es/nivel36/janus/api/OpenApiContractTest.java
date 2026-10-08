@@ -17,10 +17,12 @@ package es.nivel36.janus.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.RecordComponent;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -33,13 +35,15 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ValueConstants;
 import org.yaml.snakeyaml.Yaml;
@@ -57,8 +61,8 @@ class OpenApiContractTest {
 
 	@Test
 	void openApiOperationsMatchEveryRestResourceBidirectionally() throws Exception {
-		final var documented = documentedOperations(contract());
-		final var implemented = implementedOperations();
+		final Map<String, DocumentedOperation> documented = documentedOperations(contract());
+		final Map<String, ImplementedOperation> implemented = implementedOperations();
 
 		assertThat(documented.keySet()).as("documented operations must equal canonical implemented operations")
 				.containsExactlyInAnyOrderElementsOf(implemented.keySet());
@@ -66,12 +70,12 @@ class OpenApiContractTest {
 
 	@Test
 	void openApiDocumentsParametersBodiesValidationsAndSuccessResponses() throws Exception {
-		final var documented = documentedOperations(contract());
+		final Map<String, DocumentedOperation> documented = documentedOperations(contract());
 
-		for (final var entry : implementedOperations().entrySet()) {
-			final var operationKey = entry.getKey();
-			final var implementation = entry.getValue();
-			final var documentation = documented.get(operationKey);
+		for (final Map.Entry<String, ImplementedOperation> entry : implementedOperations().entrySet()) {
+			final String operationKey = entry.getKey();
+			final ImplementedOperation implementation = entry.getValue();
+			final DocumentedOperation documentation = documented.get(operationKey);
 			assertThat(documentation).as("documentation for %s", operationKey).isNotNull();
 			assertParameters(operationKey, implementation, documentation);
 			assertRequestBody(operationKey, implementation.method(), documentation.operation());
@@ -88,13 +92,14 @@ class OpenApiContractTest {
 	@SuppressWarnings("unchecked")
 
 	void timeLogResponsesRequireStableEmployeeNumber() throws Exception {
-		final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
-				.get("schemas");
+		final Map<String, Map<String, Object>> schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract()
+				.get("components")).get("schemas");
 
-		for (final var schemaName : List.of("TimeLogResponse", "ClockOutWithoutClockInEventResponse")) {
-			final var schema = schemas.get(schemaName);
-			final var required = (List<String>) schema.get("required");
-			final var properties = (Map<String, Map<String, Object>>) schema.get("properties");
+		for (final String schemaName : List.of("TimeLogResponse", "ClockOutWithoutClockInEventResponse")) {
+			final Map<String, Object> schema = schemas.get(schemaName);
+			final List<String> required = (List<String>) schema.get("required");
+			final Map<String, Map<String, Object>> properties = (Map<String, Map<String, Object>>) schema
+					.get("properties");
 			assertThat(required).as("required properties for %s", schemaName).contains("employeeNumber");
 			assertThat(properties.get("employeeNumber")).containsEntry("type", "string");
 			assertThat(properties).doesNotContainKey("employeeEmail");
@@ -104,8 +109,8 @@ class OpenApiContractTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	void openApiDoesNotPublishRetiredClockOutEventRequestSchemas() throws Exception {
-		final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
-				.get("schemas");
+		final Map<String, Map<String, Object>> schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract()
+				.get("components")).get("schemas");
 
 		assertThat(schemas).containsKey("TransitionClockOutWithoutClockInEventRequest").doesNotContainKeys(
 				"ResolveClockOutWithoutClockInEventRequest",
@@ -115,19 +120,20 @@ class OpenApiContractTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	void applicationSettingsDocumentsCanonicalFieldsValidationsAndErrors() throws Exception {
-		final var spec = contract();
-		final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) spec.get("components"))
-				.get("schemas");
-		final var fields = List.of(
+		final Map<String, Object> spec = contract();
+		final Map<String, Map<String, Object>> schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) spec
+				.get("components")).get("schemas");
+		final List<String> fields = List.of(
 				"daysUntilLocked",
 				"employeeWorksiteCreationAllowed",
 				"worksiteChangeDuringShiftAllowed",
 				"employeeManualTimeLogEntryAllowed",
 				"defaultTimezone");
 		for (final String schemaName : List.of("ApplicationSettingsResponse", "UpdateApplicationSettingsRequest")) {
-			final var schema = schemas.get(schemaName);
+			final Map<String, Object> schema = schemas.get(schemaName);
 			assertThat((List<String>) schema.get("required")).containsExactlyInAnyOrderElementsOf(fields);
-			final var properties = (Map<String, Map<String, Object>>) schema.get("properties");
+			final Map<String, Map<String, Object>> properties = (Map<String, Map<String, Object>>) schema
+					.get("properties");
 			assertThat(properties.keySet()).containsExactlyInAnyOrderElementsOf(fields);
 			assertThat(properties.get("daysUntilLocked")).containsEntry("type", "integer").containsEntry("minimum", 0);
 			for (final String field : fields.subList(1, 4)) {
@@ -135,12 +141,13 @@ class OpenApiContractTest {
 			}
 			assertThat(properties.get("defaultTimezone")).containsEntry("type", "string");
 		}
-		final var request = schemas.get("UpdateApplicationSettingsRequest");
-		final var properties = (Map<String, Map<String, Object>>) request.get("properties");
+		final Map<String, Object> request = schemas.get("UpdateApplicationSettingsRequest");
+		final Map<String, Map<String, Object>> properties = (Map<String, Map<String, Object>>) request
+				.get("properties");
 		assertThat(properties.get("defaultTimezone")).containsEntry("minLength", 1);
-		final var operations = documentedOperations(spec);
+		final Map<String, DocumentedOperation> operations = documentedOperations(spec);
 		for (final String verb : List.of("GET", "PUT")) {
-			final var operation = operations.get(verb + " /application-settings").operation();
+			final Map<String, Object> operation = operations.get(verb + " /application-settings").operation();
 			assertThat((Map<String, Object>) operation.get("responses")).containsKeys("200", "401", "403", "500");
 			assertThat((String) operation.get("description")).contains("provisioned JWT identity", "JANUS_ADMIN");
 		}
@@ -149,16 +156,16 @@ class OpenApiContractTest {
 	}
 
 	private static Map<String, Object> contract() throws Exception {
-		try (var stream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
-				var reader = new InputStreamReader(stream)) {
+		try (InputStream stream = OpenApiContractTest.class.getResourceAsStream("/janus.yaml");
+				InputStreamReader reader = new InputStreamReader(stream)) {
 			return new Yaml().load(reader);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private static Map<String, DocumentedOperation> documentedOperations(final Map<String, Object> contract) {
-		final var result = new LinkedHashMap<String, DocumentedOperation>();
-		final var paths = (Map<String, Map<String, Object>>) contract.get("paths");
+		final LinkedHashMap<String, DocumentedOperation> result = new LinkedHashMap<String, DocumentedOperation>();
+		final Map<String, Map<String, Object>> paths = (Map<String, Map<String, Object>>) contract.get("paths");
 		paths.forEach((path, pathItem) -> pathItem.forEach((verb, value) -> {
 			if (HTTP_METHODS.contains(verb)) {
 				result.put(
@@ -170,23 +177,24 @@ class OpenApiContractTest {
 	}
 
 	private static Map<String, ImplementedOperation> implementedOperations() throws Exception {
-		final var result = new LinkedHashMap<String, ImplementedOperation>();
-		for (final var resource : restResources()) {
-			final var baseMapping = AnnotatedElementUtils.findMergedAnnotation(resource, RequestMapping.class);
+		final LinkedHashMap<String, ImplementedOperation> result = new LinkedHashMap<String, ImplementedOperation>();
+		for (final Class<?> resource : restResources()) {
+			final RequestMapping baseMapping = AnnotatedElementUtils
+					.findMergedAnnotation(resource, RequestMapping.class);
 			assertThat(baseMapping.value()).as("mapping for %s", resource.getSimpleName()).isNotEmpty();
-			final var basePaths = baseMapping.value();
-			for (final var method : resource.getDeclaredMethods()) {
-				final var mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
+			final String[] basePaths = baseMapping.value();
+			for (final Method method : resource.getDeclaredMethods()) {
+				final RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
 				if (mapping == null)
 					continue;
-				final var methodPaths = mapping.value().length == 0 ? new String[] { "" } : mapping.value();
+				final String[] methodPaths = mapping.value().length == 0 ? new String[] { "" } : mapping.value();
 				for (int baseIndex = 0; baseIndex < basePaths.length; baseIndex++) {
-					final var baseMappingPath = basePaths[baseIndex];
-					final var basePath = baseMappingPath.substring(API_PREFIX.length());
+					final String baseMappingPath = basePaths[baseIndex];
+					final String basePath = baseMappingPath.substring(API_PREFIX.length());
 					for (int methodIndex = 0; methodIndex < methodPaths.length; methodIndex++) {
-						final var methodPath = methodPaths[methodIndex];
-						for (final var httpMethod : mapping.method()) {
-							final var key = httpMethod.name() + " " + normalize(basePath + methodPath);
+						final String methodPath = methodPaths[methodIndex];
+						for (final RequestMethod httpMethod : mapping.method()) {
+							final String key = httpMethod.name() + " " + normalize(basePath + methodPath);
 							result.putIfAbsent(
 									key,
 									new ImplementedOperation(
@@ -203,12 +211,12 @@ class OpenApiContractTest {
 	}
 
 	private static Set<Class<?>> restResources() throws Exception {
-		final var resolver = new PathMatchingResourcePatternResolver();
-		final var readers = new CachingMetadataReaderFactory(resolver);
-		final var resources = new LinkedHashSet<Class<?>>();
-		for (final var resource : resolver.getResources(RESOURCE_PATTERN)) {
-			final var className = readers.getMetadataReader(resource).getClassMetadata().getClassName();
-			final var type = Class.forName(className);
+		final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+		final CachingMetadataReaderFactory readers = new CachingMetadataReaderFactory(resolver);
+		final LinkedHashSet<Class<?>> resources = new LinkedHashSet<Class<?>>();
+		for (final Resource resource : resolver.getResources(RESOURCE_PATTERN)) {
+			final String className = readers.getMetadataReader(resource).getClassMetadata().getClassName();
+			final Class<?> type = Class.forName(className);
 			if (type.isInterface() && AnnotatedElementUtils.hasAnnotation(type, RequestMapping.class))
 				resources.add(type);
 		}
@@ -221,13 +229,13 @@ class OpenApiContractTest {
 			final String key,
 			final ImplementedOperation implementation,
 			final DocumentedOperation documentation) {
-		final var documented = new ArrayList<Map<String, Object>>();
+		final ArrayList<Map<String, Object>> documented = new ArrayList<Map<String, Object>>();
 		documented.addAll((List<Map<String, Object>>) documentation.pathItem().getOrDefault("parameters", List.of()));
 		documented.addAll((List<Map<String, Object>>) documentation.operation().getOrDefault("parameters", List.of()));
 
-		for (final var parameter : implementation.method().getParameters()) {
-			final var pathVariable = parameter.getAnnotation(PathVariable.class);
-			final var requestParam = parameter.getAnnotation(RequestParam.class);
+		for (final Parameter parameter : implementation.method().getParameters()) {
+			final PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
+			final RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
 			if (pathVariable != null) {
 				assertParameter(
 						key,
@@ -261,7 +269,7 @@ class OpenApiContractTest {
 			final List<Map<String, Object>> documented,
 			final Parameter parameter) {
 		assertThat(parameter.getType().isRecord()).as("model attribute for %s must be a record", key).isTrue();
-		for (final var component : parameter.getType().getRecordComponents()) {
+		for (final RecordComponent component : parameter.getType().getRecordComponents()) {
 			assertParameter(key, documented, component.getName(), "query", false, component.getType(), component);
 		}
 	}
@@ -275,24 +283,24 @@ class OpenApiContractTest {
 			final boolean required,
 			final Class<?> implementationType,
 			final AnnotatedElement implementation) {
-		final var parameter = findParameter(key, documented, name, location);
+		final Map<String, Object> parameter = findParameter(key, documented, name, location);
 		if (required) {
 			assertThat(parameter.get("required")).as("required flag for %s parameter %s", key, name).isEqualTo(true);
 		} else {
 			assertThat(parameter.get("required")).as("required flag for %s parameter %s", key, name).isIn(null, false);
 		}
-		final var schema = resolveSchema((Map<String, Object>) parameter.get("schema"));
+		final Map<String, Object> schema = resolveSchema((Map<String, Object>) parameter.get("schema"));
 		assertThat(schema.get("type")).as("type for %s parameter %s", key, name)
 				.isEqualTo(openApiType(implementationType));
 		if (implementationType == Instant.class)
 			assertThat(schema.get("format")).isEqualTo("date-time");
 		if (implementationType == UUID.class)
 			assertThat(schema.get("format")).isEqualTo("uuid");
-		final var pattern = mergedPattern(implementation);
+		final Pattern pattern = mergedPattern(implementation);
 		if (pattern != null)
 			assertThat(schema.get("pattern")).as("validation for %s parameter %s", key, name)
 					.isEqualTo(fullValuePattern(pattern.regexp()));
-		final var size = AnnotatedElementUtils.findMergedAnnotation(implementation, Size.class);
+		final Size size = AnnotatedElementUtils.findMergedAnnotation(implementation, Size.class);
 		if (size != null && implementationType == String.class) {
 			assertThat(schema.get("maxLength")).as("maximum length for %s parameter %s", key, name)
 					.isEqualTo(size.max());
@@ -306,12 +314,12 @@ class OpenApiContractTest {
 
 	@SuppressWarnings("unchecked")
 	private static Map<String, Object> resolveSchema(final Map<String, Object> schema) {
-		final var reference = (String) schema.get("$ref");
+		final String reference = (String) schema.get("$ref");
 		if (reference == null)
 			return schema;
 		try {
-			final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
-					.get("schemas");
+			final Map<String, Map<String, Object>> schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract()
+					.get("components")).get("schemas");
 			return schemas.get(reference.substring(reference.lastIndexOf('/') + 1));
 		} catch (final Exception exception) {
 			throw new IllegalStateException("Could not resolve OpenAPI schema " + reference, exception);
@@ -325,7 +333,7 @@ class OpenApiContractTest {
 			final String location,
 			final boolean required,
 			final String type) {
-		final var synthetic = findParameter(key, parameters, name, location);
+		final Map<String, Object> synthetic = findParameter(key, parameters, name, location);
 		assertThat(synthetic.get("required")).isIn(null, required);
 		assertThat(schema(synthetic).get("type")).as("type for %s parameter %s", key, name).isEqualTo(type);
 	}
@@ -346,15 +354,15 @@ class OpenApiContractTest {
 
 	@SuppressWarnings("unchecked")
 	private static void assertRequestBody(final String key, final Method method, final Map<String, Object> operation) {
-		for (final var parameter : method.getParameters()) {
-			final var body = parameter.getAnnotation(RequestBody.class);
+		for (final Parameter parameter : method.getParameters()) {
+			final RequestBody body = parameter.getAnnotation(RequestBody.class);
 			if (body == null)
 				continue;
-			final var documented = (Map<String, Object>) operation.get("requestBody");
+			final Map<String, Object> documented = (Map<String, Object>) operation.get("requestBody");
 			assertThat(documented).as("request body for %s", key).isNotNull();
 			assertThat(documented.get("required")).isEqualTo(body.required());
-			final var content = (Map<String, Object>) documented.get("content");
-			final var json = (Map<String, Object>) content.get("application/json");
+			final Map<String, Object> content = (Map<String, Object>) documented.get("content");
+			final Map<String, Object> json = (Map<String, Object>) content.get("application/json");
 			assertThat(schema(json).get("$ref"))
 					.isEqualTo("#/components/schemas/" + parameter.getType().getSimpleName());
 			assertBodyPatterns(key, parameter.getType());
@@ -369,23 +377,24 @@ class OpenApiContractTest {
 			return;
 		final Map<String, Object> bodySchema;
 		try {
-			final var schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract().get("components"))
-					.get("schemas");
+			final Map<String, Map<String, Object>> schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract()
+					.get("components")).get("schemas");
 			bodySchema = schemas.get(bodyType.getSimpleName());
 		} catch (final Exception exception) {
 			throw new IllegalStateException(
 					"Could not resolve OpenAPI body schema " + bodyType.getSimpleName(),
 					exception);
 		}
-		final var properties = (Map<String, Map<String, Object>>) bodySchema.get("properties");
-		for (final var component : bodyType.getRecordComponents()) {
-			final var pattern = mergedPattern(component.getAccessor());
-			final var property = resolveSchema(properties.get(component.getName()));
+		final Map<String, Map<String, Object>> properties = (Map<String, Map<String, Object>>) bodySchema
+				.get("properties");
+		for (final RecordComponent component : bodyType.getRecordComponents()) {
+			final Pattern pattern = mergedPattern(component.getAccessor());
+			final Map<String, Object> property = resolveSchema(properties.get(component.getName()));
 			if (pattern != null) {
 				assertThat(property.get("pattern")).as("validation for %s body property %s", key, component.getName())
 						.isEqualTo(fullValuePattern(pattern.regexp()));
 			}
-			final var size = AnnotatedElementUtils.findMergedAnnotation(component.getAccessor(), Size.class);
+			final Size size = AnnotatedElementUtils.findMergedAnnotation(component.getAccessor(), Size.class);
 			if (size != null) {
 				assertThat(property.get("maxLength"))
 						.as("maximum length for %s body property %s", key, component.getName()).isEqualTo(size.max());
@@ -398,7 +407,7 @@ class OpenApiContractTest {
 			final String key,
 			final Method method,
 			final Map<String, Object> operation) {
-		final var responses = (Map<String, Object>) operation.get("responses");
+		final Map<String, Object> responses = (Map<String, Object>) operation.get("responses");
 		assertThat(responses).as("responses for %s", key).containsKey(expectedSuccessCode(method));
 	}
 
@@ -430,7 +439,7 @@ class OpenApiContractTest {
 	}
 
 	private static String fullValuePattern(final String pattern) {
-		final var withStartAnchor = pattern.startsWith("^") ? pattern : "^" + pattern;
+		final String withStartAnchor = pattern.startsWith("^") ? pattern : "^" + pattern;
 		return withStartAnchor.endsWith("$") ? withStartAnchor : withStartAnchor + "$";
 	}
 

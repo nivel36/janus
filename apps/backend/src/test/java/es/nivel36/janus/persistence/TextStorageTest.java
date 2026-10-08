@@ -9,7 +9,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -49,7 +52,7 @@ class TextStorageTest {
 	}
 
 	private void update(final String sql, final Object... values) throws SQLException {
-		try (final var statement = this.connection.prepareStatement(sql)) {
+		try (final PreparedStatement statement = this.connection.prepareStatement(sql)) {
 			for (int i = 0; i < values.length; i++) {
 				statement.setObject(i + 1, values[i]);
 			}
@@ -77,8 +80,8 @@ class TextStorageTest {
 	void storesTextBeyondTheOldColumnLimit(final String table, final String column) throws Exception {
 		final String value = "á😀".repeat(300);
 		update("UPDATE " + table + " SET " + column + " = ?", value);
-		try (final var statement = this.connection.createStatement();
-				final var result = statement.executeQuery("SELECT " + column + " FROM " + table)) {
+		try (final Statement statement = this.connection.createStatement();
+				final ResultSet result = statement.executeQuery("SELECT " + column + " FROM " + table)) {
 			assertThat(result.next()).isTrue();
 			assertThat(result.getString(1)).isEqualTo(value);
 		}
