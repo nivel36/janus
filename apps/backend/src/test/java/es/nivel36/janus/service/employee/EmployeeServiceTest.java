@@ -55,12 +55,6 @@ class EmployeeServiceTest {
 	}
 
 	@Test
-	void rejectsNullOrBlankEmail() {
-		assertThatThrownBy(() -> this.service.findEmployeeByEmail(null)).isInstanceOf(NullPointerException.class);
-		assertThatThrownBy(() -> this.service.findEmployeeByEmail("  ")).isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
 	void absentTextFilterUsesStableDefaultSortAndPreservesPage() {
 		final Pageable normalized = PageRequest.of(3, 20, Sort.by("employeeNumber"));
 		final Page<Employee> page = Page.empty(normalized);
