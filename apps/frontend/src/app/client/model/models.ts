@@ -13,6 +13,7 @@ export * from './schedulePage';
 export * from './scheduleResponse';
 export * from './scheduleRuleRequest';
 export * from './scheduleRuleTimeRangeRequest';
+export * from './scheduleSummaryResponse';
 export * from './scheduleTimeRangeRequest';
 export * from './theme';
 export * from './timeFormat';

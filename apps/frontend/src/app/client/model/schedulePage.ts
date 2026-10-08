@@ -8,11 +8,11 @@
  * Do not edit the class manually.
  */
 import { PageMetadata } from './pageMetadata';
-import { ScheduleResponse } from './scheduleResponse';
+import { ScheduleSummaryResponse } from './scheduleSummaryResponse';
 
 
 export interface SchedulePage {
-    content: Array<ScheduleResponse>;
+    content: Array<ScheduleSummaryResponse>;
     page: PageMetadata;
 }
 

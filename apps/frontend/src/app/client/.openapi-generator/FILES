@@ -31,6 +31,7 @@ model/schedulePage.ts
 model/scheduleResponse.ts
 model/scheduleRuleRequest.ts
 model/scheduleRuleTimeRangeRequest.ts
+model/scheduleSummaryResponse.ts
 model/scheduleTimeRangeRequest.ts
 model/theme.ts
 model/timeFormat.ts
