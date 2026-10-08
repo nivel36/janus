@@ -36,7 +36,8 @@ import jakarta.validation.constraints.Pattern;
  * @param exitTolerance  allowed tolerance for exit times; must not be
  *                       {@code null} or negative
  * @param rules          collection of rule definitions that replace the
- *                       previous ones; must not be {@code null}
+ *                       previous ones; list and elements must not be
+ *                       {@code null}
  */
 public record UpdateScheduleRequest(
 		@NotBlank(message = "name must not be blank")
@@ -52,5 +53,5 @@ public record UpdateScheduleRequest(
 		Duration exitTolerance,
 
 		@NotNull(message = "rules must not be null")
-		List<@Valid ScheduleRuleRequest> rules) {
+		List<@NotNull @Valid ScheduleRuleRequest> rules) {
 }

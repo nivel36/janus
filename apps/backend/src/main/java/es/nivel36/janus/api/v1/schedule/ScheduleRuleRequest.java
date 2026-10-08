@@ -37,7 +37,8 @@ import jakarta.validation.constraints.Pattern;
  * @param endDate         optional end date delimiting when the rule stops being
  *                        active
  * @param dayOfWeekRanges day-specific working ranges that compose the rule;
- *                        must not be {@code null}; each item must be valid
+ *                        list and elements must not be {@code null}; each item
+ *                        must be valid
  */
 public record ScheduleRuleRequest(
 		@NotBlank(message = "name must not be blank")
@@ -49,7 +50,7 @@ public record ScheduleRuleRequest(
 		LocalDate endDate,
 
 		@NotNull(message = "dayOfWeekRanges must not be null")
-		List<@Valid ScheduleRuleTimeRangeRequest> dayOfWeekRanges) {
+		List<@NotNull @Valid ScheduleRuleTimeRangeRequest> dayOfWeekRanges) {
 
 	/**
 	 * Validates that {@code endDate} is not before {@code startDate} when both are

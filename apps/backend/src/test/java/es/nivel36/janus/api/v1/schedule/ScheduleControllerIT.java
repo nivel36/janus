@@ -54,6 +54,9 @@ class ScheduleControllerIT {
 
 	private @Autowired MockMvc mvc;
 
+	private @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
+	private @Autowired jakarta.persistence.EntityManager entityManager;
+
 	@Test
 	void searchSchedulesShouldEnforceSearchQueryContract() throws Exception {
 		this.mvc.perform(
@@ -96,29 +99,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testCreateScheduleShouldReturn201AndBody() throws Exception {
-		final String body = """
-				{
-				  "code": "STD-WH",
-				  "name": "Standard Work Hours",
-				  "entryTolerance": "PT1H",
-				  "exitTolerance": "PT1H",
-				  "rules": [
-				    {
-				      "name": "Weekday Rule",
-				      "dayOfWeekRanges": [
-				        {
-				          "dayOfWeek": "MONDAY",
-				          "effectiveWorkHours": "PT8H",
-				          "timeRange": {
-				            "startTime": "09:00",
-				            "endTime": "17:00"
-				          }
-				        }
-				      ]
-				    }
-				  ]
-				}
-				""";
+		final String body = standardScheduleBody();
 
 		this.mvc.perform(
 				post(BASE).contentType(APPLICATION_JSON).content(body)
@@ -155,29 +136,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testCreateDuplicatedScheduleShouldReturn409() throws Exception {
-		final String body = """
-				{
-				  "code": "STD-WH",
-				  "name": "Standard Work Hours",
-				  "entryTolerance": "PT1H",
-				  "exitTolerance": "PT1H",
-				  "rules": [
-				    {
-				      "name": "Weekday Rule",
-				      "dayOfWeekRanges": [
-				        {
-				          "dayOfWeek": "MONDAY",
-				          "effectiveWorkHours": "PT8H",
-				          "timeRange": {
-				            "startTime": "09:00",
-				            "endTime": "17:00"
-				          }
-				        }
-				      ]
-				    }
-				  ]
-				}
-				""";
+		final String body = standardScheduleBody();
 
 		this.mvc.perform(
 				post(BASE).contentType(APPLICATION_JSON).content(body)
@@ -193,29 +152,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testSearchSchedulesShouldReturn200AndBody() throws Exception {
-		final String body = """
-				{
-				  "code": "STD-WH",
-				  "name": "Standard Work Hours",
-				  "entryTolerance": "PT1H",
-				  "exitTolerance": "PT1H",
-				  "rules": [
-				    {
-				      "name": "Weekday Rule",
-				      "dayOfWeekRanges": [
-				        {
-				          "dayOfWeek": "MONDAY",
-				          "effectiveWorkHours": "PT8H",
-				          "timeRange": {
-				            "startTime": "09:00",
-				            "endTime": "17:00"
-				          }
-				        }
-				      ]
-				    }
-				  ]
-				}
-				""";
+		final String body = standardScheduleBody();
 
 		this.mvc.perform(
 				post(BASE).contentType(APPLICATION_JSON).content(body)
@@ -266,7 +203,8 @@ class ScheduleControllerIT {
 
 	@ParameterizedTest
 	@CsvSource({ "ROLE_JANUS_EMPLOYEE,employee-EMP-0001", "ROLE_JANUS_USER,user" })
-	@Sql(statements = { "INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
+	@Sql(statements = {
+			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours'),(2,'OTHER','Other Schedule')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)" })
 	void employeeNumberFilterIsAppliedForRestrictedAndPrivilegedUsers(final String role, final String subject)
 			throws Exception {
@@ -279,29 +217,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testFindScheduleShouldReturn200AndBody() throws Exception {
-		final String body = """
-				{
-				  "code": "STD-WH",
-				  "name": "Standard Work Hours",
-				  "entryTolerance": "PT1H",
-				  "exitTolerance": "PT1H",
-				  "rules": [
-				    {
-				      "name": "Weekday Rule",
-				      "dayOfWeekRanges": [
-				        {
-				          "dayOfWeek": "MONDAY",
-				          "effectiveWorkHours": "PT8H",
-				          "timeRange": {
-				            "startTime": "09:00",
-				            "endTime": "17:00"
-				          }
-				        }
-				      ]
-				    }
-				  ]
-				}
-				""";
+		final String body = standardScheduleBody();
 
 		this.mvc.perform(
 				post(BASE).contentType(APPLICATION_JSON).content(body)
@@ -318,29 +234,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testUpdateScheduleShouldReturn200AndBody() throws Exception {
-		final String createBody = """
-				{
-				  "code": "STD-WH",
-				  "name": "Standard Work Hours",
-				  "entryTolerance": "PT1H",
-				  "exitTolerance": "PT1H",
-				  "rules": [
-				    {
-				      "name": "Weekday Rule",
-				      "dayOfWeekRanges": [
-				        {
-				          "dayOfWeek": "MONDAY",
-				          "effectiveWorkHours": "PT8H",
-				          "timeRange": {
-				            "startTime": "09:00",
-				            "endTime": "17:00"
-				          }
-				        }
-				      ]
-				    }
-				  ]
-				}
-				""";
+		final String createBody = standardScheduleBody();
 
 		this.mvc.perform(
 				post(BASE).contentType(APPLICATION_JSON).content(createBody)
@@ -376,6 +270,17 @@ class ScheduleControllerIT {
 				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.name").value("Updated Work Hours"))
 				.andExpect(jsonPath("$.rules[0].dayOfWeekRanges[0].dayOfWeek").value("SATURDAY"));
+		this.entityManager.flush();
+		this.entityManager.clear();
+		org.assertj.core.api.Assertions
+				.assertThat(this.jdbc.queryForObject("SELECT COUNT(*) FROM schedule_rule", Long.class)).isEqualTo(1L);
+		org.assertj.core.api.Assertions
+				.assertThat(this.jdbc.queryForObject("SELECT COUNT(*) FROM day_of_week_time_range", Long.class))
+				.isEqualTo(1L);
+		this.mvc.perform(get(BASE + "/STD-WH").with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.rules.length()").value(1))
+				.andExpect(jsonPath("$.rules[0].name").value("Weekend Rule"));
+
 	}
 
 	@Test
@@ -412,29 +317,7 @@ class ScheduleControllerIT {
 
 	@Test
 	void testDeleteScheduleShouldReturn204() throws Exception {
-		final String body = """
-				{
-				  "code": "STD-WH",
-				  "name": "Standard Work Hours",
-				  "entryTolerance": "PT1H",
-				  "exitTolerance": "PT1H",
-				  "rules": [
-				    {
-				      "name": "Weekday Rule",
-				      "dayOfWeekRanges": [
-				        {
-				          "dayOfWeek": "MONDAY",
-				          "effectiveWorkHours": "PT8H",
-				          "timeRange": {
-				            "startTime": "09:00",
-				            "endTime": "17:00"
-				          }
-				        }
-				      ]
-				    }
-				  ]
-				}
-				""";
+		final String body = standardScheduleBody();
 
 		this.mvc.perform(
 				post(BASE).contentType(APPLICATION_JSON).content(body)
@@ -456,6 +339,10 @@ class ScheduleControllerIT {
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isConflict())
 				.andExpect(content().contentTypeCompatibleWith(APPLICATION_PROBLEM_JSON));
+	}
+
+	private static String standardScheduleBody() {
+		return scheduleCreateBody("STD-WH", "PT8H", "09:00", "17:00").replace("Schedule STD-WH", "Standard Work Hours");
 	}
 
 	private static String scheduleCreateBody(

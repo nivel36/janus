@@ -24,33 +24,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.policy.schedule.ScheduleAuthorizationAdapter;
-import es.nivel36.janus.service.employee.EmployeeService;
+
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
 import es.nivel36.janus.service.schedule.ScheduleService;
+import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.validation.ScheduleCode;
+import es.nivel36.janus.validation.SearchQuery;
+import jakarta.validation.Valid;
 
 /**
- * REST controller responsible for exposing CRUD operations for {@link Schedule}
- * aggregates.
- * <p>
- * This controller provides endpoints to create, retrieve, update, delete, and
- * search schedules. It enforces security constraints based on user roles and
- * ensures that employees can only access their own schedules where applicable.
- * <p>
- * The controller delegates business logic to {@link ScheduleService} and
- * {@link EmployeeService}, and uses {@link Mapper} components to transform
- * between domain models and API representations.
- * <p>
- * Typical usage involves interacting with the exposed HTTP endpoints under
- * {@code /api/v1/schedules}.
+ * Spring MVC implementation of {@link ScheduleResource}.
  */
 @RestController
 public class ScheduleController implements ScheduleResource {
@@ -63,17 +56,19 @@ public class ScheduleController implements ScheduleResource {
 	private final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper;
 
 	/**
-	 * Constructs a new {@code ScheduleController} with required dependencies.
+	 * Creates a controller ready to delegate resource operations without accessing
+	 * persistence during construction.
 	 *
-	 * @param scheduleService              service for schedule operations; can't be
-	 *                                     {@code null}
-	 * @param authorization                component that determines the
-	 *                                     authenticated user's schedule access;
-	 *                                     can't be {@code null}
-	 * @param scheduleResponseMapper       mapper for schedule responses; can't be
-	 *                                     {@code null}
-	 * @param scheduleRuleDefinitionMapper mapper for schedule rule definitions;
-	 *                                     can't be {@code null}
+	 * @param  scheduleService              service for schedule operations; can't
+	 *                                      be {@code null}
+	 * @param  authorization                component that determines the
+	 *                                      authenticated user's schedule access;
+	 *                                      can't be {@code null}
+	 * @param  scheduleResponseMapper       mapper for schedule responses; can't be
+	 *                                      {@code null}
+	 * @param  scheduleRuleDefinitionMapper mapper for schedule rule definitions;
+	 *                                      can't be {@code null}
+	 * @throws NullPointerException         if any dependency is null
 	 */
 	public ScheduleController(
 		final ScheduleService scheduleService,
@@ -88,29 +83,12 @@ public class ScheduleController implements ScheduleResource {
 				.requireNonNull(scheduleRuleDefinitionMapper, "scheduleRuleDefinitionMapper can't be null");
 	}
 
-	/**
-	 * Searches schedules based on optional filtering criteria.
-	 * <p>
-	 * Employees with only the {@code JANUS_EMPLOYEE} role are restricted to
-	 * searching their own schedules and the server derives their employee number
-	 * from the authenticated actor.
-	 *
-	 * @param  query                 optional search query; may be {@code null}
-	 * @param  employeeNumber        optional employee number filter; may be
-	 *                               {@code null}
-	 * @param  pageable              pagination information; can't be {@code null}
-	 * @param  authentication        current authentication context; can't be
-	 *                               {@code null}
-	 * @return                       a {@link ResponseEntity} containing a paginated
-	 *                               list of matching schedules
-	 * @throws AccessDeniedException if the authenticated user is not allowed to
-	 *                               perform the search
-	 */
 	@Override
+	@PreAuthorize("@scheduleAuthorization.canSearch(authentication, #employeeNumber)")
 	public ResponseEntity<Page<ScheduleResponse>> searchSchedules(
-			final String query,
-			final String employeeNumber,
-			final Pageable pageable,
+			final @SearchQuery String query,
+			final @EmployeeNumber String employeeNumber,
+			final @PageableDefault(size = 20, sort = "code") Pageable pageable,
 			final Authentication authentication) {
 		logger.debug("Search schedules ACTION performed");
 		final String effectiveEmployeeNumber = this.authorization
@@ -121,21 +99,9 @@ public class ScheduleController implements ScheduleResource {
 		return ResponseEntity.ok(schedules);
 	}
 
-	/**
-	 * Retrieves a specific schedule by its unique code.
-	 * <p>
-	 * Employees with only the {@code JANUS_EMPLOYEE} role can only access schedules
-	 * they are assigned to.
-	 *
-	 * @param  scheduleCode          the unique code of the schedule; must not be
-	 *                               {@code null}
-	 * @return                       a {@link ResponseEntity} containing the
-	 *                               requested schedule
-	 * @throws AccessDeniedException if the authenticated user is not allowed to
-	 *                               access the schedule
-	 */
 	@Override
-	public ResponseEntity<ScheduleResponse> findSchedule(final String scheduleCode) {
+	@PreAuthorize("@scheduleAuthorization.canView(authentication, #scheduleCode)")
+	public ResponseEntity<ScheduleResponse> findSchedule(final @ScheduleCode String scheduleCode) {
 		logger.debug("Find schedule ACTION performed");
 
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
@@ -143,16 +109,9 @@ public class ScheduleController implements ScheduleResource {
 		return ResponseEntity.ok(response);
 	}
 
-	/**
-	 * Creates a new schedule.
-	 *
-	 * @param  request the payload describing the schedule to create; can't be
-	 *                 {@code null}
-	 * @return         a {@link ResponseEntity} containing the created schedule with
-	 *                 HTTP status {@code 201 CREATED}
-	 */
 	@Override
-	public ResponseEntity<ScheduleResponse> createSchedule(final CreateScheduleRequest request) {
+	@PreAuthorize("@scheduleAuthorization.canCreate(authentication)")
+	public ResponseEntity<ScheduleResponse> createSchedule(final @Valid CreateScheduleRequest request) {
 		logger.debug("Create schedule ACTION performed");
 
 		final String code = request.code().trim();
@@ -170,19 +129,11 @@ public class ScheduleController implements ScheduleResource {
 		return rules.stream().map(this.scheduleRuleDefinitionMapper::map).toList();
 	}
 
-	/**
-	 * Updates an existing schedule identified by its code.
-	 *
-	 * @param  scheduleCode the code of the schedule to update; can't be
-	 *                      {@code null}
-	 * @param  request      the payload describing the new schedule data; can't be
-	 *                      {@code null}
-	 * @return              a {@link ResponseEntity} containing the updated schedule
-	 */
 	@Override
+	@PreAuthorize("@scheduleAuthorization.canUpdate(authentication)")
 	public ResponseEntity<ScheduleResponse> updateSchedule(
-			final String scheduleCode,
-			final UpdateScheduleRequest request) {
+			final @ScheduleCode String scheduleCode,
+			final @Valid UpdateScheduleRequest request) {
 		logger.debug("Update schedule ACTION performed");
 
 		final String name = request.name().trim();
@@ -195,16 +146,9 @@ public class ScheduleController implements ScheduleResource {
 		return ResponseEntity.ok(response);
 	}
 
-	/**
-	 * Deletes the schedule identified by the given code.
-	 *
-	 * @param  scheduleCode the unique code of the schedule; must not be
-	 *                      {@code null}
-	 * @return              a {@link ResponseEntity} with an empty body and HTTP
-	 *                      status {@code 204 NO CONTENT}
-	 */
 	@Override
-	public ResponseEntity<Void> deleteSchedule(final String scheduleCode) {
+	@PreAuthorize("@scheduleAuthorization.canDelete(authentication)")
+	public ResponseEntity<Void> deleteSchedule(final @ScheduleCode String scheduleCode) {
 		logger.debug("Delete schedule ACTION performed");
 
 		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);

@@ -18,6 +18,8 @@ package es.nivel36.janus.api.v1.schedule;
 import java.time.DayOfWeek;
 import java.time.Duration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import es.nivel36.janus.service.schedule.DayOfWeekTimeRange;
 import es.nivel36.janus.validation.NonNegativeDuration;
 import jakarta.validation.Valid;
@@ -48,6 +50,13 @@ DayOfWeek dayOfWeek,
 		@Valid
 		ScheduleTimeRangeRequest timeRange) {
 
+	/**
+	 * Checks effective work against the full range duration, including overnight
+	 * ranges. Missing required values are rejected by their own constraints.
+	 *
+	 * @return true if complete values fit the range or required values are missing
+	 */
+	@JsonIgnore
 	@AssertTrue(message = "effectiveWorkHours must not exceed the time range duration")
 	public boolean isEffectiveWorkHoursWithinTimeRange() {
 		return this.effectiveWorkHours == null || this.timeRange == null
