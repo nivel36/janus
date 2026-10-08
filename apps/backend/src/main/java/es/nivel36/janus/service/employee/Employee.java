@@ -269,6 +269,44 @@ public class Employee implements Serializable {
 	}
 
 	/**
+	 * Idempotently assigns a worksite and synchronizes both sides of the
+	 * association. This entity owns the persistent employee-worksite link;
+	 * persistence is deferred to the caller's transaction.
+	 *
+	 * @param  worksite             nonnull worksite to assign
+	 * @return                      true if the worksite was added, false if already
+	 *                              assigned
+	 * @throws NullPointerException if worksite is null
+	 */
+	public boolean assignWorksite(final Worksite worksite) {
+		Objects.requireNonNull(worksite, "worksite can't be null");
+		final boolean added = this.worksites.add(worksite);
+		if (!worksite.getEmployees().contains(this)) {
+			worksite.assignEmployee(this);
+		}
+		return added;
+	}
+
+	/**
+	 * Idempotently removes a worksite and synchronizes both sides of the
+	 * association. Persistence is deferred to the caller's transaction; neither
+	 * entity is deleted.
+	 *
+	 * @param  worksite             nonnull worksite to remove
+	 * @return                      true if the worksite was removed, false if no
+	 *                              assignment existed
+	 * @throws NullPointerException if worksite is null
+	 */
+	public boolean removeWorksite(final Worksite worksite) {
+		Objects.requireNonNull(worksite, "worksite can't be null");
+		final boolean removed = this.worksites.remove(worksite);
+		if (worksite.getEmployees().contains(this)) {
+			worksite.removeEmployee(this);
+		}
+		return removed;
+	}
+
+	/**
 	 * Returns the local profile association without changing it. Callers must have
 	 * an initialized relationship or an active persistence context when accessing
 	 * lazy profile data.

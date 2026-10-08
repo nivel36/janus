@@ -32,6 +32,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import es.nivel36.janus.service.ResourceNotFoundException;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
+import es.nivel36.janus.validation.EmployeeNumber;
 
 /**
  * HTTP contract for local application profiles at {@code /api/v1/app-users}.
@@ -76,9 +79,14 @@ public interface AppUserResource {
 	 *                                      the administrator role
 	 */
 	@GetMapping
-	ResponseEntity<Page<AppUserResponse>> searchAppUsers(@RequestParam(name = "email", required = false)
-	String email, @RequestParam(required = false)
-	String employeeNumber, Pageable pageable);
+	ResponseEntity<Page<AppUserResponse>> searchAppUsers(
+			@RequestParam(name = "email", required = false)
+			@Size(max = 254)
+			String email,
+			@RequestParam(required = false)
+			@EmployeeNumber
+			String employeeNumber,
+			Pageable pageable);
 
 	/**
 	 * Retrieves or provisions the profile identified by the authenticated subject.
@@ -133,8 +141,10 @@ public interface AppUserResource {
 	 */
 	@PutMapping("/{id}")
 	ResponseEntity<AppUserResponse> updateAppUser(@PathVariable
-	UUID id, @RequestBody
-	UpdateAppUserRequest request);
+	UUID id,
+			@RequestBody
+			@Valid
+			UpdateAppUserRequest request);
 
 	/**
 	 * Deletes a local profile as a provisioned administrator.

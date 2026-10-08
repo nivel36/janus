@@ -19,10 +19,8 @@ import java.time.Instant;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,19 +31,56 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import es.nivel36.janus.validation.EmployeeNumber;
+import es.nivel36.janus.service.ResourceAlreadyExistsException;
+import es.nivel36.janus.service.ResourceNotFoundException;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 import es.nivel36.janus.validation.SearchQuery;
 import es.nivel36.janus.validation.WorksiteCode;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.validation.Valid;
+import es.nivel36.janus.validation.EmployeeNumber;
 
+/**
+ * HTTP contract for worksites at {@code /api/v1/worksites}. Requests require a
+ * validated bearer JWT and a previously provisioned actor. Authorization
+ * precedes execution; restricted employees operate within their persistent
+ * employee association. Worksite deletion is logical and preserves time logs.
+ */
 @RequestMapping("/api/v1/worksites")
 public interface WorksiteResource {
 
+	/**
+	 * Returns a page of worksites within the caller's authorized employee scope.
+	 * <p>
+	 * JANUS_USER and JANUS_ADMIN may search all worksites or request an employee
+	 * filter. JANUS_EMPLOYEE requires a persistent employee link and may only
+	 * request their own number; omitting it applies that number automatically. An
+	 * employee filter includes GLOBAL worksites and worksites assigned to that
+	 * employee. Text and visibility restrictions combine with AND.
+	 * </p>
+	 * <p>
+	 * Query matches code, name, description or address literally, partially and
+	 * case-insensitively, without trimming. Null disables the text filter; a
+	 * supplied query must contain 1-100 single-line characters. Employee numbers
+	 * match {@code [A-Za-z0-9_-]{1,50}} exactly without trimming. Sort fields are
+	 * code, name, timeZone, scope, description and address. Page size is capped at
+	 * {@code spring.data.rest.max-page-size}; default ordering is ascending code.
+	 * Ascending code breaks ties unless code is explicitly ordered.
+	 * </p>
+	 *
+	 * @param  query                        optional literal worksite fragment
+	 * @param  employeeNumber               optional employee visibility filter
+	 * @param  pageable                     requested page and public ordering;
+	 *                                      defaults to page 0, size 20
+	 * @param  authentication               trusted authentication of the current
+	 *                                      caller
+	 * @return                              HTTP 200 containing worksite responses
+	 *                                      and page metadata, possibly empty
+	 * @throws ConstraintViolationException if a service parameter constraint fails
+	 * @throws IllegalArgumentException     if paging or a sort field is unsupported
+	 * @throws AccessDeniedException        if the caller cannot search the
+	 *                                      requested scope
+	 */
 	@GetMapping
-	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
-	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
-	@PreAuthorize("@worksiteAuthorization.canSearch(authentication, #employeeNumber)")
 	ResponseEntity<Page<WorksiteResponse>> searchWorksites(
 			@RequestParam(required = false)
 			@SearchQuery
@@ -53,70 +88,160 @@ public interface WorksiteResource {
 			@RequestParam(required = false)
 			@EmployeeNumber
 			String employeeNumber,
-			@PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC)
 			Pageable pageable,
 			Authentication authentication);
 
+	/**
+	 * Returns an existing visible worksite by its exact business code. JANUS_USER
+	 * and JANUS_ADMIN may view any worksite; a linked JANUS_EMPLOYEE may view
+	 * GLOBAL worksites and their assigned worksites. Code must match
+	 * {@code [A-Za-z0-9_-]{1,50}} without trimming. Deleted worksites are absent.
+	 *
+	 * @param  worksiteCode              exact worksite code
+	 * @return                           HTTP 200 containing the visible worksite
+	 * @throws ResourceNotFoundException if the target is absent for an elevated
+	 *                                   caller
+	 * @throws AccessDeniedException     if the caller cannot view the target
+	 */
 	@GetMapping("/{worksiteCode}")
-	@PreAuthorize("@worksiteAuthorization.canView(authentication, #worksiteCode)")
 	ResponseEntity<WorksiteResponse> findWorksite(
-			@PathVariable("worksiteCode")
+			@PathVariable
 			@WorksiteCode
 			String worksiteCode);
 
+	/**
+	 * Returns statistics for an existing worksite over {@code [start, end)}.
+	 * JANUS_USER and JANUS_ADMIN may query any worksite; JANUS_EMPLOYEE must be
+	 * assigned to it. Code must match {@code [A-Za-z0-9_-]{1,50}} without trimming.
+	 * Both instants are required and end must be strictly after start. Counts use
+	 * time-log entry times; erroneous logs are logs without an exit time. The
+	 * allowed-employee count reports current explicit assignments, including for
+	 * GLOBAL worksites.
+	 *
+	 * @param  worksiteCode              exact worksite code
+	 * @param  start                     inclusive entry-time boundary
+	 * @param  end                       exclusive entry-time boundary
+	 * @return                           HTTP 200 containing the interval and its
+	 *                                   statistics
+	 * @throws IllegalArgumentException  if end is not strictly after start
+	 * @throws ResourceNotFoundException if the target is absent
+	 * @throws AccessDeniedException     if the caller cannot query its statistics
+	 */
 	@GetMapping("/{worksiteCode}/stats")
-	@PreAuthorize("@worksiteAuthorization.canViewStats(authentication, #worksiteCode)")
 	ResponseEntity<WorksiteStatsResponse> stats(
-			@PathVariable("worksiteCode")
+			@PathVariable
 			@WorksiteCode
 			String worksiteCode,
-			@RequestParam("start")
+			@RequestParam
 			Instant start,
-			@RequestParam("end")
+			@RequestParam
 			Instant end);
 
+	/**
+	 * Creates a worksite from a complete validated request. JANUS_USER and
+	 * JANUS_ADMIN may create either scope. JANUS_EMPLOYEE may create ASSIGNED
+	 * worksites only when employee creation is enabled. Text values are trimmed;
+	 * null description and address remain null. Creating a worksite does not assign
+	 * employees to it.
+	 *
+	 * @param  request                        nonnull validated identifying and
+	 *                                        descriptive data
+	 * @return                                HTTP 201 containing the persisted
+	 *                                        worksite
+	 * @throws ResourceAlreadyExistsException if a visible worksite already uses the
+	 *                                        code
+	 * @throws AccessDeniedException          if creation is not authorized
+	 */
 	@PostMapping
-	@PreAuthorize("@worksiteAuthorization.canCreate(authentication, #request.scope())")
 	ResponseEntity<WorksiteResponse> createWorksite(
-			@Valid
 			@RequestBody
+			@Valid
 			CreateWorksiteRequest request);
 
-	@PreAuthorize("@worksiteAuthorization.canUpdate(authentication, #worksiteCode, #request.scope())")
+	/**
+	 * Replaces the descriptive data and scope of an existing worksite. Code must
+	 * match {@code [A-Za-z0-9_-]{1,50}} without trimming and the complete request
+	 * must pass Bean Validation. JANUS_USER and JANUS_ADMIN may update any
+	 * worksite. JANUS_EMPLOYEE must be assigned, employee creation must be enabled
+	 * and the requested scope must be ASSIGNED. Scope may remain unchanged or
+	 * expand from ASSIGNED to GLOBAL. Text values are trimmed; null description and
+	 * address clear those fields. Code, assignments and time logs are preserved.
+	 *
+	 * @param  worksiteCode              exact code of the worksite to update
+	 * @param  request                   nonnull validated replacement data
+	 * @return                           HTTP 200 containing the updated worksite
+	 * @throws IllegalArgumentException  if the scope transition is not allowed
+	 * @throws ResourceNotFoundException if the target is absent
+	 * @throws AccessDeniedException     if the caller cannot update the target
+	 */
 	@PutMapping("/{worksiteCode}")
 	ResponseEntity<WorksiteResponse> updateWorksite(
-			@PathVariable("worksiteCode")
+			@PathVariable
 			@WorksiteCode
 			String worksiteCode,
-			@Valid
 			@RequestBody
+			@Valid
 			UpdateWorksiteRequest request);
 
-	@PreAuthorize("@worksiteAuthorization.canDelete(authentication)")
+	/**
+	 * Logically deletes an existing worksite as JANUS_USER or JANUS_ADMIN. Code
+	 * must match {@code [A-Za-z0-9_-]{1,50}} without trimming. Assigned employees
+	 * must be removed first. Deleted worksites disappear from lookup and search
+	 * while historical time logs remain stored.
+	 *
+	 * @param  worksiteCode              exact code of the worksite to delete
+	 * @return                           HTTP 204 with an empty body
+	 * @throws ResourceNotFoundException if the target is absent
+	 * @throws IllegalStateException     if employees are still assigned
+	 * @throws AccessDeniedException     if the caller cannot delete worksites
+	 */
 	@DeleteMapping("/{worksiteCode}")
 	ResponseEntity<Void> deleteWorksite(
-			@PathVariable("worksiteCode")
+			@PathVariable
 			@WorksiteCode
 			String worksiteCode);
 
-	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
-	@PutMapping({ "/{worksiteCode}/employees/{employeeNumber}" })
+	/**
+	 * Idempotently assigns an existing employee to an existing worksite as
+	 * JANUS_USER or JANUS_ADMIN. Both identifiers must match
+	 * {@code [A-Za-z0-9_-]{1,50}} without trimming. Either scope accepts explicit
+	 * assignments; both sides of the association are updated.
+	 *
+	 * @param  worksiteCode              exact worksite code
+	 * @param  employeeNumber            exact employee number
+	 * @return                           HTTP 204 with an empty body, including if
+	 *                                   already assigned
+	 * @throws ResourceNotFoundException if either resource is absent
+	 * @throws AccessDeniedException     if the caller cannot manage assignments
+	 */
+	@PutMapping("/{worksiteCode}/employees/{employeeNumber}")
 	ResponseEntity<Void> assignEmployeeToWorksite(
-			@PathVariable("worksiteCode")
+			@PathVariable
 			@WorksiteCode
 			String worksiteCode,
-			@PathVariable("employeeNumber")
+			@PathVariable
 			@EmployeeNumber
 			String employeeNumber);
 
-	@PreAuthorize("@worksiteAuthorization.canManageAssignments(authentication)")
-	@DeleteMapping({ "/{worksiteCode}/employees/{employeeNumber}" })
+	/**
+	 * Idempotently removes an employee assignment as JANUS_USER or JANUS_ADMIN.
+	 * Both resources must exist and their identifiers must match
+	 * {@code [A-Za-z0-9_-]{1,50}} without trimming. Both sides of the association
+	 * are updated; employee and worksite records are preserved.
+	 *
+	 * @param  worksiteCode              exact worksite code
+	 * @param  employeeNumber            exact employee number
+	 * @return                           HTTP 204 with an empty body, including if
+	 *                                   no assignment existed
+	 * @throws ResourceNotFoundException if either resource is absent
+	 * @throws AccessDeniedException     if the caller cannot manage assignments
+	 */
+	@DeleteMapping("/{worksiteCode}/employees/{employeeNumber}")
 	ResponseEntity<Void> removeEmployeeFromWorksite(
-			@PathVariable("worksiteCode")
+			@PathVariable
 			@WorksiteCode
 			String worksiteCode,
-			@PathVariable("employeeNumber")
+			@PathVariable
 			@EmployeeNumber
 			String employeeNumber);
-
 }

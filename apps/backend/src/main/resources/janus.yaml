@@ -138,7 +138,7 @@ paths:
         in: query
         description: "Exact, case-sensitive employee number without trimming surrounding whitespace; must match ^[A-Za-z0-9_-]{1,50}$."
         schema:
-          type: string
+          $ref: '#/components/schemas/EmployeeNumber'
       - name: page
         in: query
         schema:
@@ -316,11 +316,13 @@ paths:
           default: 0
       - name: size
         in: query
+        description: Values above spring.data.rest.max-page-size are capped at that configured limit (100 by default).
         schema:
           type: integer
           default: 20
       - name: sort
         in: query
+        description: Sort by code, name, timeZone, scope, description or address. Ascending code breaks ties unless code is explicitly ordered.
         schema:
           type: array
           default: ['code,asc']
@@ -329,6 +331,8 @@ paths:
         style: form
         explode: true
       responses:
+        '400':
+          description: Invalid query, employee number or unsupported sort field.
         '403':
           description: Employee association missing, employee filter outside the authorized scope, or actor without a permitted role.
         '200':

@@ -187,7 +187,7 @@ public class Worksite implements Serializable {
 	private Set<TimeLog> timeLogs = new HashSet<>();
 
 	/**
-	 * Protected no-argument constructor required by persistence frameworks.
+	 * Package-private no-argument constructor required by persistence frameworks.
 	 * <p>
 	 * This constructor must not be used directly in application code. It exists
 	 * solely to allow frameworks such as JPA to instantiate the entity.
@@ -197,7 +197,7 @@ public class Worksite implements Serializable {
 	}
 
 	/**
-	 * Creates a new global {@code Worksite} with the given attributes.
+	 * Creates a new GLOBAL {@code Worksite} with the given attributes.
 	 *
 	 * @param  code                     the unique business code of the worksite;
 	 *                                  must not be {@code null} or blank
@@ -205,7 +205,8 @@ public class Worksite implements Serializable {
 	 *                                  must not be {@code null} or blank
 	 * @param  timeZone                 the time zone associated with the worksite;
 	 *                                  must not be {@code null}
-	 * @throws NullPointerException     if {@code timeZone} is {@code null}
+	 * @throws NullPointerException     if {@code code}, {@code name} or
+	 *                                  {@code timeZone} is {@code null}
 	 * @throws IllegalArgumentException if {@code code} or {@code name} is blank
 	 */
 	public Worksite(final String code, final String name, final ZoneId timeZone) {
@@ -222,14 +223,10 @@ public class Worksite implements Serializable {
 	 * @param  timeZone                 the time zone associated with the worksite;
 	 *                                  must not be {@code null}
 	 * @param  scope                    the worksite scope; must not be {@code null}
-	 * @param  ownerEmployee            the owner employee for personal worksites;
-	 *                                  must be {@code null} for global worksites
-	 *                                  and non-null for personal ones
-	 * @throws NullPointerException     if {@code timeZone} or {@code scope} is
-	 *                                  {@code null}, or if {@code ownerEmployee} is
-	 *                                  missing for a personal worksite
-	 * @throws IllegalArgumentException if {@code code} or {@code name} is blank, or
-	 *                                  if a global worksite receives an owner
+	 * @throws NullPointerException     if {@code code}, {@code name},
+	 *                                  {@code timeZone} or {@code scope} is
+	 *                                  {@code null}
+	 * @throws IllegalArgumentException if {@code code} or {@code name} is blank
 	 */
 	public Worksite(final String code, final String name, final ZoneId timeZone, final WorksiteScope scope) {
 		this.code = Strings.requireNonBlank(code, "code can't be null or blank");
@@ -401,7 +398,7 @@ public class Worksite implements Serializable {
 
 	/**
 	 * Returns an unmodifiable view of the employees explicitly assigned to this
-	 * worksite through the legacy association.
+	 * worksite through the employee-worksite association.
 	 * <p>
 	 * The returned collection may be temporarily out of sync if employees are added
 	 * to or removed from this worksite after the entity has been loaded and before
@@ -459,7 +456,8 @@ public class Worksite implements Serializable {
 	}
 
 	/**
-	 * Assigns an employee to the worksite.
+	 * Idempotently assigns an employee and synchronizes both sides of the
+	 * association. Persistence is deferred to the caller's transaction.
 	 *
 	 * @param  employee             the {@link Employee} to assign; must not be
 	 *                              {@code null}
@@ -469,11 +467,16 @@ public class Worksite implements Serializable {
 	 */
 	public boolean assignEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "employee can't be null");
-		return this.employees.add(employee);
+		final boolean added = this.employees.add(employee);
+		if (!employee.getWorksites().contains(this)) {
+			employee.assignWorksite(this);
+		}
+		return added;
 	}
 
 	/**
-	 * Removes an employee from the worksite.
+	 * Idempotently removes an employee and synchronizes both sides of the
+	 * association. Persistence is deferred to the caller's transaction.
 	 *
 	 * @param  employee             the {@link Employee} to remove; must not be
 	 *                              {@code null}
@@ -482,7 +485,11 @@ public class Worksite implements Serializable {
 	 */
 	public boolean removeEmployee(final Employee employee) {
 		Objects.requireNonNull(employee, "employee can't be null");
-		return this.employees.remove(employee);
+		final boolean removed = this.employees.remove(employee);
+		if (employee.getWorksites().contains(this)) {
+			employee.removeWorksite(this);
+		}
+		return removed;
 	}
 
 	@Override

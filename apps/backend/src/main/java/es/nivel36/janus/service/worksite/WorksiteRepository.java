@@ -22,28 +22,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
- * Repository interface for managing {@link Worksite} entities.
- * <p>
- * Provides data access operations for {@link Worksite}, including lookup by
- * code, existence checks, employee association validation, and advanced search
- * with optional filtering based on employee visibility.
- * </p>
- * <p>
- * This repository extends {@link JpaRepository}, inheriting standard CRUD
- * operations such as save, delete, and find by identifier, as well as
- * pagination and sorting capabilities.
- * </p>
- * <p>
- * Example usage:
- *
- * <pre>
- * {@code
- * Optional<Worksite> worksite = repository.findById(1L);
- * boolean exists = repository.existsByCode("WS-001");
- * Page<Worksite> results = repository.search("central", null, PageRequest.of(0, 10));
- * }
- * </pre>
- * </p>
+ * Internal persistence contract for nondeleted worksites.
  */
 @Repository
 interface WorksiteRepository extends JpaRepository<Worksite, Long> {
@@ -82,31 +61,19 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	boolean hasEmployees(String worksiteCode);
 
 	/**
-	 * Searches for {@link Worksite} entities whose name, code, description or
-	 * address matches the given query string, with optional filtering based on
-	 * employee visibility.
-	 * <p>
-	 * A worksite is included in the result if:
-	 * <ul>
-	 * <li>Its name or code contains the provided query string
-	 * (case-insensitive).</li>
-	 * <li>And one of the following conditions is met:
-	 * <ul>
-	 * <li>{@code employeeNumber} is {@code null}.</li>
-	 * <li>The worksite scope is {@code GLOBAL}.</li>
-	 * <li>The worksite has an associated employee with the given number.</li>
-	 * </ul>
-	 * </li>
-	 * </ul>
-	 * </p>
+	 * Queries worksites with an already escaped literal text fragment. Code, name,
+	 * description and address match case-insensitively. An empty query disables the
+	 * text restriction. Filters combine with AND. A null employee number includes
+	 * all scopes; otherwise GLOBAL and explicitly assigned worksites are included.
+	 * No worksite or employee association is changed.
 	 *
-	 * @param  query          the search text to match against worksite name, code,
-	 *                        description or address. Can't be {@code null}.
-	 * @param  employeeNumber the number of the employee used to filter visible
-	 *                        worksites. Can be {@code null}.
-	 * @param  pageable       the pagination information. Can't be {@code null}.
-	 * @return                a {@link Page} of {@link Worksite} instances matching
-	 *                        the criteria; never {@code null}.
+	 * @param  query          nonnull fragment escaped with LikePatterns.escape for
+	 *                        SQL LIKE
+	 * @param  employeeNumber exact validated number, or null to disable visibility
+	 *                        filtering
+	 * @param  pageable       nonnull normalized paging and entity-property sorting
+	 * @return                matching page, possibly empty; deleted worksites are
+	 *                        excluded
 	 */
 	@Query("""
 			SELECT DISTINCT w

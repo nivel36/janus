@@ -18,8 +18,8 @@ package es.nivel36.janus.service.worksite;
 /**
  * Scope of a {@link Worksite}.
  * <p>
- * The scope determines who can see the worksite and whether an owner employee
- * relation is expected.
+ * The scope determines whether visibility and time logging require an explicit
+ * employee assignment.
  * </p>
  */
 public enum WorksiteScope {

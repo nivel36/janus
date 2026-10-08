@@ -29,6 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
+import jakarta.persistence.EntityManager;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -58,6 +61,8 @@ class WorksiteControllerIT {
 
 	private @Autowired MockMvc mvc;
 	private @Autowired ObjectMapper objectMapper;
+	private @Autowired JdbcTemplate jdbc;
+	private @Autowired EntityManager entityManager;
 
 	private static final String BASE = "/api/v1/worksites";
 
@@ -141,7 +146,9 @@ class WorksiteControllerIT {
 		this.mvc.perform(
 				get(BASE).param("employeeNumber", "EMP-0002").with(
 						verifiedJwt().jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
-								.jwt(jwt -> jwt.claim("email", "aferrer@nivel36.es").claim("email_verified", true))
+								.jwt(
+										jwt -> jwt.subject("employee-EMP-0001").claim("email", "aferrer@nivel36.es")
+												.claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE", "SCOPE_read"))))
 				.andExpect(status().isForbidden());
 	}
@@ -167,7 +174,7 @@ class WorksiteControllerIT {
 	@Sql(statements = {
 			"INSERT INTO application_settings (id, days_until_locked, employee_workplace_creation_allowed, worksite_change_during_shift_allowed, employee_manual_timelog_entry_allowed, default_timezone) VALUES (1, 7, true, false, false, 'Europe/Madrid')",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('GLOBAL-1','Global Worksite','UTC+2','GLOBAL')" })
-	void testListAsEmployeeShouldRejectWhenJwtEmailClaimMissing() throws Exception {
+	void employeeWithoutPersistentEmployeeLinkCannotSearch() throws Exception {
 		this.mvc.perform(
 				get(BASE).with(
 						verifiedJwt().jwt(jwt -> jwt.claim("realm_access", Map.of("roles", List.of("janus_employee"))))
@@ -296,7 +303,7 @@ class WorksiteControllerIT {
 			"INSERT INTO schedule(id,code,name) VALUES(1,'STD-WH', 'Standard Work Hours')",
 			"INSERT INTO employee(id,employee_number,name,surname,email,schedule_id) VALUES(1,'EMP-0001','Abel','Ferrer','aferrer@nivel36.es',1)",
 			"INSERT INTO worksite(code,name,time_zone,scope) VALUES('BCN-HQ','Barcelona Headquarters','UTC+2','ASSIGNED')" })
-	void testUpdateToPersonalShouldReturn200AndUpdatedBody() throws Exception {
+	void updateAssignedScopeToGlobalShouldReturnUpdatedBody() throws Exception {
 		final String body = """
 				  {"name":"Barcelona Home","timeZone":"UTC+1","scope":"GLOBAL"}
 				""";
@@ -367,5 +374,212 @@ class WorksiteControllerIT {
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isNoContent()).andExpect(header().doesNotExist("Content-Type"))
 				.andExpect(content().string(""));
+	}
+
+	private static JwtRequestPostProcessor actor(final String subject, final String role) {
+		return verifiedJwt().jwt(jwt -> jwt.subject(subject)).authorities(createAuthorityList(role));
+	}
+
+	@Test
+	@Sql("/sql/worksite-contract.sql")
+	void searchCombinesTextWithGlobalAndAssignedVisibilityAndExcludesDeletedWorksites() throws Exception {
+		final var employee = actor("employee-EMP-0201", "ROLE_JANUS_EMPLOYEE");
+		this.mvc.perform(get(BASE).with(employee)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.page.totalElements").value(2))
+				.andExpect(jsonPath("$.content[0].code").value("CONTRACT-A"))
+				.andExpect(jsonPath("$.content[1].code").value("CONTRACT-G"));
+		this.mvc.perform(get(BASE).param("query", "DEPOT").with(employee)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.page.totalElements").value(1))
+				.andExpect(jsonPath("$.content[0].code").value("CONTRACT-A"));
+		this.mvc.perform(get(BASE).param("query", "depot").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(2));
+		this.mvc.perform(get(BASE).param("query", " depot ").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
+		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0202").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(2))
+				.andExpect(jsonPath("$.content[0].code").value("CONTRACT-B"))
+				.andExpect(jsonPath("$.content[1].code").value("CONTRACT-G"));
+		this.mvc.perform(
+				get(BASE).param("query", "CONTRACT-A").param("employeeNumber", "EMP-0202")
+						.with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
+	}
+
+	@Test
+	@Sql("/sql/worksite-contract.sql")
+	void searchUsesCodeTieBreakerAcrossPagesAndPreservesExplicitDirection() throws Exception {
+		this.mvc.perform(
+				get(BASE).param("query", "depot").param("sort", "name,desc").param("size", "1")
+						.with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content[0].code").value("CONTRACT-A"))
+				.andExpect(jsonPath("$.page.totalElements").value(2)).andExpect(jsonPath("$.page.totalPages").value(2));
+		this.mvc.perform(
+				get(BASE).param("query", "depot").param("sort", "name,desc").param("size", "1").param("page", "1")
+						.with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content[0].code").value("CONTRACT-B"));
+		this.mvc.perform(
+				get(BASE).param("query", "depot").param("sort", "code,desc").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content[0].code").value("CONTRACT-B"));
+		this.mvc.perform(get(BASE).param("size", "1000").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.page.size").value(100));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "code", "name", "timeZone", "scope", "description", "address" })
+	@Sql("/sql/worksite-contract.sql")
+	void searchAcceptsSupportedPublicSortFields(final String property) throws Exception {
+		this.mvc.perform(get(BASE).param("sort", property + ",desc").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(3));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "id", "deleted", "employees.employeeNumber", "timeLogs.entryTime", "unknown" })
+	void searchRejectsUnsupportedSortFieldsWith400(final String property) throws Exception {
+		this.mvc.perform(get(BASE).param("sort", property + ",asc").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isBadRequest());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "", " ", " EMP-0201 ", "bad employee!" })
+	void searchRejectsInvalidEmployeeFilterWith400(final String number) throws Exception {
+		this.mvc.perform(get(BASE).param("employeeNumber", number).with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	@Sql("/sql/worksite-contract.sql")
+	void searchRequiresAuthenticationAndProvisionedActor() throws Exception {
+		this.mvc.perform(get(BASE)).andExpect(status().isUnauthorized());
+		this.mvc.perform(get(BASE).with(actor("missing-worksite-actor", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get(BASE).with(actor("user", "ROLE_JANUS_EMPLOYEE"))).andExpect(status().isForbidden());
+	}
+
+	@Test
+	@Sql("/sql/worksite-contract.sql")
+	void updatePersistsTrimmedFieldsAndPreservesAssignments() throws Exception {
+		this.mvc.perform(
+				put(BASE + "/CONTRACT-A").with(actor("user", "ROLE_JANUS_ADMIN")).contentType(APPLICATION_JSON).content(
+						"""
+								{"name":" Updated depot ","timeZone":"Europe/Madrid","scope":"GLOBAL","description":" Description ","address":" Address "}
+								"""))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Updated depot"))
+				.andExpect(jsonPath("$.description").value("Description"))
+				.andExpect(jsonPath("$.address").value("Address"));
+		this.entityManager.flush();
+		this.entityManager.clear();
+		assertThat(this.jdbc.queryForObject("SELECT name FROM worksite WHERE code='CONTRACT-A'", String.class))
+				.isEqualTo("Updated depot");
+		assertThat(
+				this.jdbc.queryForObject("SELECT COUNT(*) FROM employee_worksite WHERE worksite_id=201", Integer.class))
+				.isOne();
+		this.mvc.perform(get(BASE + "/CONTRACT-A").with(actor("user", "ROLE_JANUS_ADMIN"))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.timeZone").value("Europe/Madrid")).andExpect(jsonPath("$.scope").value("GLOBAL"))
+				.andExpect(jsonPath("$.description").value("Description"))
+				.andExpect(jsonPath("$.address").value("Address"));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "{\"name\": \" \", \"timeZone\": \"UTC\", \"scope\": \"ASSIGNED\"}",
+			"{\"name\": \"Changed\", \"timeZone\": \"invalid/zone\", \"scope\": \"ASSIGNED\"}",
+			"{\"name\": \"Changed\", \"timeZone\": \"UTC\"}" })
+	@Sql("/sql/worksite-contract.sql")
+	void invalidUpdateDoesNotChangeWorksite(final String body) throws Exception {
+		this.mvc.perform(
+				put(BASE + "/CONTRACT-A").with(actor("user", "ROLE_JANUS_ADMIN")).contentType(APPLICATION_JSON)
+						.content(body))
+				.andExpect(status().isBadRequest());
+		this.entityManager.flush();
+		assertThat(this.jdbc.queryForObject("SELECT name FROM worksite WHERE code='CONTRACT-A'", String.class))
+				.isEqualTo("Shared depot");
+		assertThat(this.jdbc.queryForObject("SELECT description FROM worksite WHERE code='CONTRACT-A'", String.class))
+				.isEqualTo("Old description");
+	}
+
+	@Test
+	@Sql("/sql/worksite-contract.sql")
+	void repeatedAssignmentAndRemovalPersistOneLinkThenNoLinks() throws Exception {
+		for (int attempt = 0; attempt < 2; attempt++) {
+			this.mvc.perform(put(BASE + "/CONTRACT-A/employees/EMP-0202").with(actor("user", "ROLE_JANUS_ADMIN")))
+					.andExpect(status().isNoContent());
+		}
+		this.entityManager.flush();
+		this.entityManager.clear();
+		assertThat(
+				this.jdbc.queryForObject(
+						"SELECT COUNT(*) FROM employee_worksite WHERE employee_id=202 AND worksite_id=201",
+						Integer.class))
+				.isOne();
+		for (int attempt = 0; attempt < 2; attempt++) {
+			this.mvc.perform(delete(BASE + "/CONTRACT-A/employees/EMP-0202").with(actor("user", "ROLE_JANUS_ADMIN")))
+					.andExpect(status().isNoContent());
+		}
+		this.entityManager.flush();
+		assertThat(
+				this.jdbc.queryForObject(
+						"SELECT COUNT(*) FROM employee_worksite WHERE employee_id=202 AND worksite_id=201",
+						Integer.class))
+				.isZero();
+	}
+
+	@Test
+	@Sql("/sql/worksite-contract.sql")
+	void logicalDeletionPreservesHistoricalTimeLogsAndHidesWorksite() throws Exception {
+		this.mvc.perform(delete(BASE + "/CONTRACT-A/employees/EMP-0201").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isNoContent());
+		this.mvc.perform(delete(BASE + "/CONTRACT-A").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isNoContent());
+		this.entityManager.flush();
+		this.entityManager.clear();
+		assertThat(this.jdbc.queryForObject("SELECT deleted FROM worksite WHERE code='CONTRACT-A'", Boolean.class))
+				.isTrue();
+		assertThat(this.jdbc.queryForObject("SELECT COUNT(*) FROM time_log WHERE worksite_id=201", Integer.class))
+				.isEqualTo(6);
+		this.mvc.perform(get(BASE + "/CONTRACT-A").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isNotFound());
+		this.mvc.perform(get(BASE).param("query", "CONTRACT-A").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
+	}
+
+	@Test
+	@Sql("/sql/worksite-contract.sql")
+	void statisticsCountDistinctEmployeesAndSchedulesWithinHalfOpenInterval() throws Exception {
+		this.mvc.perform(
+				get(BASE + "/CONTRACT-A/stats").param("start", "2026-10-01T08:00:00Z")
+						.param("end", "2026-10-01T12:00:00Z").with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.worksiteCode").value("CONTRACT-A"))
+				.andExpect(jsonPath("$.start").value("2026-10-01T08:00:00Z"))
+				.andExpect(jsonPath("$.end").value("2026-10-01T12:00:00Z"))
+				.andExpect(jsonPath("$.employeesWhoClockedIn").value(2))
+				.andExpect(jsonPath("$.erroneousTimeLogs").value(1)).andExpect(jsonPath("$.totalTimeLogs").value(3))
+				.andExpect(jsonPath("$.employeesAllowedToClockIn").value(1))
+				.andExpect(jsonPath("$.distinctSchedulesFromEmployeesWhoClockedIn").value(2));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "2026-10-01T08:00:00Z", "2026-10-01T07:00:00Z" })
+	@Sql("/sql/worksite-contract.sql")
+	void statisticsRejectEmptyOrReversedInterval(final String end) throws Exception {
+		this.mvc.perform(
+				get(BASE + "/CONTRACT-A/stats").param("start", "2026-10-01T08:00:00Z").param("end", end)
+						.with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	@Sql("/sql/worksite-contract.sql")
+	void statisticsRequireAssignmentForEmployeesAndExistingWorksiteForElevatedActors() throws Exception {
+		this.mvc.perform(
+				get(BASE + "/CONTRACT-A/stats").param("start", "2026-10-01T08:00:00Z")
+						.param("end", "2026-10-01T12:00:00Z").with(actor("employee-EMP-0201", "ROLE_JANUS_EMPLOYEE")))
+				.andExpect(status().isOk());
+		this.mvc.perform(
+				get(BASE + "/CONTRACT-A/stats").param("start", "2026-10-01T08:00:00Z")
+						.param("end", "2026-10-01T12:00:00Z").with(actor("employee-EMP-0202", "ROLE_JANUS_EMPLOYEE")))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(
+				get(BASE + "/MISSING/stats").param("start", "2026-10-01T08:00:00Z").param("end", "2026-10-01T12:00:00Z")
+						.with(actor("user", "ROLE_JANUS_ADMIN")))
+				.andExpect(status().isNotFound());
 	}
 }

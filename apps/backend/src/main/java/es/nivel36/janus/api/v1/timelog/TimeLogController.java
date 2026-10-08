@@ -119,7 +119,7 @@ public class TimeLogController implements TimeLogResource {
 
 	private Worksite findWorksiteForNewRecord(final Employee employee, final String worksiteCode) {
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
-		this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
+		this.worksiteService.assertEmployeeCanUseWorksite(employee.getEmployeeNumber(), worksiteCode);
 		return worksite;
 	}
 
@@ -166,7 +166,7 @@ public class TimeLogController implements TimeLogResource {
 	private Worksite findWorksiteForClockOut(final Employee employee, final String worksiteCode) {
 		final Worksite worksite = this.worksiteService.findWorksiteByCode(worksiteCode);
 		try {
-			this.worksiteService.assertEmployeeCanUseWorksite(employee, worksite);
+			this.worksiteService.assertEmployeeCanUseWorksite(employee.getEmployeeNumber(), worksiteCode);
 		} catch (final WorksiteAccessDeniedException ex) {
 			// The worksite may have changed between clock-in and clock-out, so we allow the
 			// clock-out.

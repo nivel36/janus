@@ -91,7 +91,7 @@ public class AppUserController implements AppUserResource {
 			final @PageableDefault(size = 20, sort = "email") Pageable pageable) {
 		logger.debug("Search app users ACTION performed");
 
-		final Page<AppUser> appUsers = this.appUserService.searchAppUsers(emailFilter.trim(), employeeNumber, pageable);
+		final Page<AppUser> appUsers = this.appUserService.searchAppUsers(emailFilter, employeeNumber, pageable);
 
 		final Page<AppUserResponse> response = appUsers.map(this.appUserResponseMapper::map);
 		return ResponseEntity.ok(response);
