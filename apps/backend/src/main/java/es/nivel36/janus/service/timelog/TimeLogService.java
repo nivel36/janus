@@ -152,8 +152,8 @@ public class TimeLogService {
 			final @NotNull Instant exitTime) {
 		logger.debug(
 				"Creating closed time log for employee {} at worksite {} with entry time {} and exit time {}",
-				employee.getId(),
-				worksite.getCode(),
+				employee,
+				worksite,
 				entryTime,
 				exitTime);
 		final Instant now = this.clock.instant();
@@ -235,8 +235,8 @@ public class TimeLogService {
 			final @NotNull Instant entryTime) {
 		logger.debug(
 				"Creating open time log for employee {} at worksite {} with entry time {}",
-				employee.getId(),
-				worksite.getCode(),
+				employee,
+				worksite,
 				entryTime);
 		final Instant now = this.clock.instant();
 
@@ -307,8 +307,8 @@ public class TimeLogService {
 		final Instant truncatedExitTime = exitTime.truncatedTo(ChronoUnit.SECONDS);
 		logger.debug(
 				"Closing time log for employee {} at worksite {} and time {}",
-				employee.getId(),
-				worksite.getCode(),
+				employee,
+				worksite,
 				truncatedExitTime);
 
 		final Instant now = this.clock.instant();
