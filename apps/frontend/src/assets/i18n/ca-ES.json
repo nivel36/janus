@@ -1,7 +1,7 @@
 {
   "navigation": {
     "janus": "Janus",
-    "dashboard": "Panell de control",
+    "timelogs": "Fitxatges",
     "applicationSettings": "Configuració",
     "userPreferences": "Preferències d'usuari",
     "worksites": "Llocs de treball",

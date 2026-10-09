@@ -76,11 +76,16 @@ export const appRoutes: Routes = [
           ),
       },
       {
-        path: '',
+        path: 'timelogs',
         loadComponent: () =>
-          import('./features/dashboard/pages/dashboard-page.component').then(
-            (m) => m.DashboardPageComponent,
+          import('./features/timelogs/pages/timelogs-page.component').then(
+            (m) => m.TimelogsPageComponent,
           ),
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'timelogs',
       },
     ],
   },

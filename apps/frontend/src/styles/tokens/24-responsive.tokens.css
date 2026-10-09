@@ -7,8 +7,8 @@
     --responsive-transition-reduced-motion: none;
 
     /* Tablet layouts */
-    --responsive-dashboard-grid-columns-tablet: 1fr;
-    --responsive-dashboard-grid-areas-tablet:
+    --responsive-timelogs-grid-columns-tablet: 1fr;
+    --responsive-timelogs-grid-areas-tablet:
         'clock'
         'employee'
         'records';

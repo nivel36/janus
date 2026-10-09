@@ -1,7 +1,7 @@
 {
   "navigation": {
     "janus": "Janus",
-    "dashboard": "Panel de control",
+    "timelogs": "Fichajes",
     "applicationSettings": "Configuración",
     "userPreferences": "Preferencias de usuario",
     "worksites": "Puestos de trabajo",

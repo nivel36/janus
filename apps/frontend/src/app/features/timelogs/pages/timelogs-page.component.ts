@@ -5,23 +5,23 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 
 import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
-import { TimelogClockCardComponent } from '../../timelogs/components/timelog-clock-card/timelog-clock-card.component';
-import { TimelogTableComponent } from '../../timelogs/components/timelog-table/timelog-table.component';
+import { TimelogClockCardComponent } from '../components/timelog-clock-card/timelog-clock-card.component';
+import { TimelogTableComponent } from '../components/timelog-table/timelog-table.component';
 import { EmployeeCardComponent } from '../../employees/components/employee-card/employee-card.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-dashboard-page',
+  selector: 'app-timelogs-page',
   imports: [
     PageTemplateComponent,
     EmployeeCardComponent,
     TimelogTableComponent,
     TimelogClockCardComponent,
   ],
-  templateUrl: './dashboard-page.component.html',
-  styleUrl: './dashboard-page.component.css',
+  templateUrl: './timelogs-page.component.html',
+  styleUrl: './timelogs-page.component.css',
 })
-export class DashboardPageComponent {
+export class TimelogsPageComponent {
   private readonly currentUser = inject(CurrentUserFacade);
 
   readonly tableRefreshToken = signal(0);

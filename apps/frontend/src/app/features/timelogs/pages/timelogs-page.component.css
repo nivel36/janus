@@ -1,4 +1,4 @@
-.dashboard-page__content {
+.timelogs-page__content {
     display: grid;
     grid-template-columns: minmax(0, 1fr) clamp(
             calc(var(--layout-page-max-width) * 0.25),
@@ -24,8 +24,8 @@
 }
 
 @media (max-width: 900px) {
-    .dashboard-page__content {
-        grid-template-columns: var(--responsive-dashboard-grid-columns-tablet);
-        grid-template-areas: var(--responsive-dashboard-grid-areas-tablet);
+    .timelogs-page__content {
+        grid-template-columns: var(--responsive-timelogs-grid-columns-tablet);
+        grid-template-areas: var(--responsive-timelogs-grid-areas-tablet);
     }
 }

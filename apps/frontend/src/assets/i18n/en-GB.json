@@ -1,7 +1,7 @@
 {
   "navigation": {
     "janus": "Janus",
-    "dashboard": "Dashboard",
+    "timelogs": "Time logs",
     "applicationSettings": "Application settings",
     "userPreferences": "User preferences",
     "worksites": "Worksites",
