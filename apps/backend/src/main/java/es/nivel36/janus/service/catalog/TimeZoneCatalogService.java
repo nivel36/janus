@@ -28,10 +28,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Application service that exposes catalog data for Java time zones.
  */
+@Validated
 @Service
 public class TimeZoneCatalogService {
 
@@ -61,9 +65,7 @@ public class TimeZoneCatalogService {
 	 *                  {@code utc}
 	 * @return          a page of catalog items matching the input filters
 	 */
-	public Page<TimeZoneCatalogItem> search(final String query, final Pageable pageable) {
-		Objects.requireNonNull(pageable, "pageable can't be null");
-
+	public Page<TimeZoneCatalogItem> search(final String query, final @NotNull Pageable pageable) {
 		final String normalizedQuery = query == null ? null : query.toLowerCase(Locale.ROOT);
 		final ZonedDateTime now = ZonedDateTime.now(this.clock);
 

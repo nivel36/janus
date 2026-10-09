@@ -148,11 +148,6 @@ public class TimeLogService {
 			final @NotNull Worksite worksite,
 			final @NotNull Instant entryTime,
 			final @NotNull Instant exitTime) {
-		Objects.requireNonNull(employee, "employee cannot be null.");
-		Objects.requireNonNull(worksite, "worksite cannot be null.");
-		Objects.requireNonNull(entryTime, "entryTime request cannot be null.");
-		Objects.requireNonNull(exitTime, "exitTime request cannot be null.");
-
 		logger.debug(
 				"Creating closed time log for employee {} at worksite {} with entry time {} and exit time {}",
 				employee.getId(),
@@ -235,10 +230,6 @@ public class TimeLogService {
 			final @NotNull Employee employee,
 			final @NotNull Worksite worksite,
 			final @NotNull Instant entryTime) {
-		Objects.requireNonNull(employee, "employee cannot be null.");
-		Objects.requireNonNull(worksite, "worksite cannot be null.");
-		Objects.requireNonNull(entryTime, "entryTime request cannot be null.");
-
 		logger.debug(
 				"Creating open time log for employee {} at worksite {} with entry time {}",
 				employee.getId(),
@@ -309,10 +300,6 @@ public class TimeLogService {
 			final @NotNull Employee employee,
 			final @NotNull Worksite worksite,
 			final @NotNull Instant exitTime) throws ClockOutWithoutClockInException {
-		Objects.requireNonNull(employee, "employee cannot be null.");
-		Objects.requireNonNull(worksite, "worksite cannot be null.");
-		Objects.requireNonNull(exitTime, "exitTime request cannot be null.");
-
 		final Instant truncatedExitTime = exitTime.truncatedTo(ChronoUnit.SECONDS);
 		logger.debug(
 				"Closing time log for employee {} at worksite {} and time {}",
@@ -365,8 +352,6 @@ public class TimeLogService {
 	 */
 	@Transactional
 	public void deleteTimeLog(final @NotBlank @EmployeeNumber String employeeNumber, final @NotNull Instant entryTime) {
-		Objects.requireNonNull(employeeNumber, "employeeNumber cannot be null");
-		Objects.requireNonNull(entryTime, "entryTime cannot be null");
 		logger.debug("Deleting time log for employee {} at {}", employeeNumber, entryTime);
 		final Instant now = this.clock.instant();
 		final Duration lockDuration = Duration.ofDays(this.applicationSettingsService.getDaysUntilLocked());
@@ -411,8 +396,6 @@ public class TimeLogService {
 	public TimeLog findTimeLogByEmployeeAndEntryTime(
 			final @NotNull Employee employee,
 			final @NotNull Instant entryTime) {
-		Objects.requireNonNull(employee, "employee can't be null");
-		Objects.requireNonNull(entryTime, "entryTime can't be null");
 		logger.debug("Finding time log by employee {} and entry time {}", employee.getId(), entryTime);
 
 		final TimeLog timeLog = this.timeLogRepository.findByEmployeeIdAndEntryTime(employee.getId(), entryTime);
@@ -442,8 +425,6 @@ public class TimeLogService {
 	 */
 	@Transactional(readOnly = true)
 	public TimeLogs findOrphanTimeLogs(final @NotNull Employee employee, final @NotNull Instant from) {
-		Objects.requireNonNull(from, "from must not be null");
-		Objects.requireNonNull(employee, "employee must not be null");
 		logger.debug("Finding orphan timeLog from {} and employee {}", from, employee.getId());
 
 		final Long employeeId = employee.getId();
@@ -489,9 +470,6 @@ public class TimeLogService {
 			final @NotNull @Valid TimeLogSearchCriteria criteria,
 			final @NotNull TimeLogSearchScope scope,
 			final @NotNull Pageable pageable) {
-		Objects.requireNonNull(criteria, "criteria can't be null");
-		Objects.requireNonNull(scope, "scope can't be null");
-		Objects.requireNonNull(pageable, "pageable can't be null");
 		if ((criteria.start() == null) != (criteria.end() == null)
 				|| (criteria.start() != null && !criteria.start().isBefore(criteria.end()))) {
 			throw new IllegalArgumentException("start and end must be provided together and end must be after start");

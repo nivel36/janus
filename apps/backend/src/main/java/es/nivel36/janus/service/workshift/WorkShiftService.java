@@ -29,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
@@ -40,6 +41,7 @@ import es.nivel36.janus.service.timelog.TimeLogSearchScope;
 import es.nivel36.janus.service.timelog.TimeLogService;
 import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.worksite.Worksite;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Service responsible for retrieving {@link WorkShift} instances.
@@ -57,6 +59,7 @@ import es.nivel36.janus.service.worksite.Worksite;
  * The service relies on multiple collaborators to ensure that shifts are built
  * consistently and according to administrative constraints.
  */
+@Validated
 @Service
 public class WorkShiftService {
 
@@ -125,11 +128,10 @@ public class WorkShiftService {
 	 *                              {@code null}
 	 */
 	@Transactional(readOnly = true)
-	public WorkShift findWorkShift(final Employee employee, final Worksite worksite, final LocalDate date) {
-		Objects.requireNonNull(employee, "employee must not be null");
-		Objects.requireNonNull(worksite, "worksite must not be null");
-		Objects.requireNonNull(date, "date must not be null");
-
+	public WorkShift findWorkShift(
+			final @NotNull Employee employee,
+			final @NotNull Worksite worksite,
+			final @NotNull LocalDate date) {
 		final ZoneId timeZone = worksite.getTimeZone();
 
 		logger.debug("Finding work shift for employee {} at worksite {} at {}", employee, worksite, date);

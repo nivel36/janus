@@ -55,7 +55,6 @@ public class WorksiteService {
 	private static final Logger logger = LoggerFactory.getLogger(WorksiteService.class);
 
 	private final WorksiteRepository worksiteRepository;
-
 	private final EmployeeService employeeService;
 	private final int maxPageSize;
 
