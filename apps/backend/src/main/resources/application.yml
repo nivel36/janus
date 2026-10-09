@@ -54,7 +54,7 @@ logging:
   pattern:
     console: "%d{HH:mm:ss.SSS} [%-5level] %logger{36} - %msg %kvp%n"
     level:
-      es.nivel36.janus: DEBUG"
+      es.nivel36.janus: DEBUG
 
 janus:
   api:
