@@ -16,7 +16,10 @@
         <div class="detail__row worksite-detail__row">
             <dt>{{ 'worksite.scope' | translate }}</dt>
             <dd>
-                <app-chip [label]="'worksite.scopes.' + worksite().scope | translate"></app-chip>
+                <app-chip
+                    [label]="'worksite.scopes.' + worksite().scope | translate"
+                    [type]="worksite().scope === 'ASSIGNED' ? 'primary' : 'default'"
+                ></app-chip>
             </dd>
         </div>
 

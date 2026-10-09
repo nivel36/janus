@@ -10,7 +10,10 @@
             </h2>
             <p class="app-header-detail__info worksite-header-detail__info">
                 <span>{{ worksite().code }}</span>
-                <app-chip [label]="'worksite.scopes.' + worksite().scope | translate"></app-chip>
+                <app-chip
+                    [label]="'worksite.scopes.' + worksite().scope | translate"
+                    [type]="worksite().scope === 'ASSIGNED' ? 'primary' : 'default'"
+                ></app-chip>
             </p>
         </div>
     </div>
