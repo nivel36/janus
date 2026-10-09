@@ -45,6 +45,9 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 */
 	boolean existsByCode(String code);
 
+	/** Deletes matching entities through JPA, returning the number removed. */
+	long deleteByCode(String code);
+
 	/**
 	 * Determines whether the {@link Worksite} identified by the given code has at
 	 * least one associated employee.
@@ -54,8 +57,8 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 *                      employees; {@code false} otherwise.
 	 */
 	@Query("""
-			SELECT (SIZE(w.employees) > 0)
-			FROM Worksite w
+			SELECT (COUNT(e) > 0)
+			FROM Worksite w JOIN w.employees e
 			WHERE w.code = :worksiteCode
 			""")
 	boolean hasEmployees(String worksiteCode);

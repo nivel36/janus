@@ -137,4 +137,12 @@ class ScheduleServiceValidationTest {
 				.isInstanceOf(ConstraintViolationException.class);
 		verifyNoInteractions(this.repository);
 	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "", " ", "bad key", " KEY ", "!" })
+	void invalidDeletionKeyIsRejectedBeforePersistence(final String key) {
+		assertThatThrownBy(() -> this.service.deleteSchedule(key)).isInstanceOf(ConstraintViolationException.class);
+		verifyNoInteractions(this.repository);
+	}
+
 }

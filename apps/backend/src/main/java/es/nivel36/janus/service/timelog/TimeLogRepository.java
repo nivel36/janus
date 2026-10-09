@@ -71,6 +71,16 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	TimeLog findByEmployeeIdAndEntryTime(Long employeeId, Instant entryTime);
 
 	/**
+	 * Deletes a time log by employee number and entry time through JPA, preserving
+	 * its logical deletion mapping.
+	 *
+	 * @return number of matching time logs removed
+	 */
+	long deleteByEmployeeEmployeeNumberAndEntryTime(String employeeNumber, Instant entryTime);
+
+	boolean existsByEmployeeEmployeeNumberAndEntryTime(String employeeNumber, Instant entryTime);
+
+	/**
 	 * Checks whether a {@link TimeLog} exists for the specified employee and exact
 	 * {@code entryTime}.
 	 *

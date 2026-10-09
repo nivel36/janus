@@ -145,8 +145,7 @@ public class ScheduleController implements ScheduleResource {
 	public ResponseEntity<Void> deleteSchedule(final String scheduleCode) {
 		logger.debug("Delete schedule ACTION performed");
 
-		final Schedule schedule = this.scheduleService.findScheduleByCode(scheduleCode);
-		this.scheduleService.deleteSchedule(schedule);
+		this.scheduleService.deleteSchedule(scheduleCode);
 		return ResponseEntity.noContent().build();
 	}
 }

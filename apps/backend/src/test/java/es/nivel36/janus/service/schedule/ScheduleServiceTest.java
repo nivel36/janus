@@ -224,19 +224,26 @@ class ScheduleServiceTest {
 	}
 
 	@Test
-	void assignedScheduleCannotBeDeleted() {
-		final Schedule schedule = schedule();
-		when(this.repository.hasEmployees("STD")).thenReturn(true);
-		assertThatThrownBy(() -> this.service.deleteSchedule(schedule)).isInstanceOf(IllegalStateException.class);
+	void missingScheduleCannotBeDeleted() {
+		assertThatThrownBy(() -> this.service.deleteSchedule("MISSING")).isInstanceOf(ResourceNotFoundException.class);
 		verify(this.repository, never()).delete(any());
 	}
 
 	@Test
+	void assignedScheduleCannotBeDeleted() {
+		when(this.repository.hasEmployees("STD")).thenReturn(true);
+		assertThatThrownBy(() -> this.service.deleteSchedule("STD")).isInstanceOf(IllegalStateException.class);
+		verify(this.repository, never()).deleteByCode(any());
+		verify(this.repository, never()).findByCode(any());
+	}
+
+	@Test
 	void unassignedScheduleIsDeleted() {
-		final Schedule schedule = schedule();
-		this.service.deleteSchedule(schedule);
+		when(this.repository.deleteByCode("STD")).thenReturn(1L);
+		this.service.deleteSchedule("STD");
 		verify(this.repository).hasEmployees("STD");
-		verify(this.repository).delete(schedule);
+		verify(this.repository).deleteByCode("STD");
+		verify(this.repository, never()).findByCode(any());
 	}
 
 	@Test

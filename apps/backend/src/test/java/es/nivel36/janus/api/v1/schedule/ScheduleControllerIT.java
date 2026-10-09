@@ -388,4 +388,13 @@ class ScheduleControllerIT {
 				}
 				""".formatted(effectiveWorkHours, startTime, endTime);
 	}
+
+	@Test
+	void deletingMissingNaturalKeyReturns404() throws Exception {
+		this.mvc.perform(
+				delete(BASE + "/{code}", "MISSING-DELETE")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isNotFound());
+	}
+
 }

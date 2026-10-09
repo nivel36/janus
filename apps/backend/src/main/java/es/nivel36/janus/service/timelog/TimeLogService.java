@@ -40,8 +40,10 @@ import es.nivel36.janus.service.ResourceNotFoundException;
 import es.nivel36.janus.service.applicationsettings.ApplicationSettingsService;
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.worksite.Worksite;
+import es.nivel36.janus.validation.EmployeeNumber;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -346,40 +348,50 @@ public class TimeLogService {
 	}
 
 	/**
-	 * Deletes the specified {@link TimeLog}.
+	 * Deletes a {@link TimeLog} by employee number and exact entry time.
 	 * <p>
 	 * Deletion is only allowed while the time log is still within the editable
 	 * window defined by the administrative configuration.
 	 * </p>
 	 *
-	 * @param  timeLog                                time log to delete. Can't be
-	 *                                                {@code null}.
-	 * @throws ConstraintViolationException           if a required argument is null
+	 * @param  employeeNumber                         natural key of the employee
+	 * @param  entryTime                              exact entry time of the time
+	 *                                                log
+	 * @throws ConstraintViolationException           if a key argument is invalid
 	 *                                                through the Spring proxy
-	 * @throws NullPointerException                   if {@code timeLog} is
-	 *                                                {@code null}.
+	 * @throws NullPointerException                   if either argument is null
+	 * @throws ResourceNotFoundException              if no matching time log exists
 	 * @throws TimeLogModificationNotAllowedException if deletion is locked.
 	 */
 	@Transactional
-	public void deleteTimeLog(final @NotNull TimeLog timeLog) {
-		Objects.requireNonNull(timeLog, "timeLog cannot be null.");
-		logger.debug("Deleting time log {}", timeLog.getId());
-
+	public void deleteTimeLog(final @NotBlank @EmployeeNumber String employeeNumber, final @NotNull Instant entryTime) {
+		Objects.requireNonNull(employeeNumber, "employeeNumber cannot be null");
+		Objects.requireNonNull(entryTime, "entryTime cannot be null");
+		logger.debug("Deleting time log for employee {} at {}", employeeNumber, entryTime);
 		final Instant now = this.clock.instant();
 		final Duration lockDuration = Duration.ofDays(this.applicationSettingsService.getDaysUntilLocked());
-
-		if (!timeLog.getEntryTime().plus(lockDuration).isAfter(now)) {
+		if (!entryTime.plus(lockDuration).isAfter(now)) {
+			// A locked key must still resolve to a record before reporting a conflict.
+			if (!this.timeLogRepository.existsByEmployeeEmployeeNumberAndEntryTime(employeeNumber, entryTime)) {
+				throw missingTimeLog(employeeNumber, entryTime);
+			}
 			throw new TimeLogModificationNotAllowedException(
 					String.format(
-							"Deletion locked for TimeLog %s with entryTime %s after %s days. Now: %s",
-							timeLog.getId(),
-							timeLog.getEntryTime(),
+							"Deletion locked for employee %s with entryTime %s after %s days. Now: %s",
+							employeeNumber,
+							entryTime,
 							lockDuration.toDays(),
 							now));
 		}
+		if (this.timeLogRepository.deleteByEmployeeEmployeeNumberAndEntryTime(employeeNumber, entryTime) == 0) {
+			throw missingTimeLog(employeeNumber, entryTime);
+		}
+		logger.trace("Time log for employee {} at {} deleted", employeeNumber, entryTime);
+	}
 
-		this.timeLogRepository.delete(timeLog);
-		logger.trace("Time log {} deleted", timeLog.getId());
+	private static ResourceNotFoundException missingTimeLog(final String employeeNumber, final Instant entryTime) {
+		return new ResourceNotFoundException(
+				String.format("TimeLog for employee %s at entry time %s was not found", employeeNumber, entryTime));
 	}
 
 	/**

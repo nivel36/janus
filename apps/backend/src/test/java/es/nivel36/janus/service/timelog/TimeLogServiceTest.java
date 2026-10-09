@@ -24,6 +24,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import es.nivel36.janus.service.ResourceNotFoundException;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -329,6 +331,28 @@ class TimeLogServiceTest {
 	}
 
 	@Test
+	void missingTimeLogCannotBeDeleted() {
+		when(this.clock.instant()).thenReturn(Instant.EPOCH);
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+		assertThrows(
+				ResourceNotFoundException.class,
+				() -> this.timeLogService.deleteTimeLog(this.employee.getEmployeeNumber(), Instant.EPOCH));
+		verify(this.timeLogRepository)
+				.deleteByEmployeeEmployeeNumberAndEntryTime(this.employee.getEmployeeNumber(), Instant.EPOCH);
+		verify(this.timeLogRepository, times(0)).existsByEmployeeEmployeeNumberAndEntryTime(any(), any());
+	}
+
+	@Test
+	void missingLockedTimeLogReportsNotFoundInsteadOfConflict() {
+		when(this.clock.instant()).thenReturn(Instant.EPOCH.plus(4, ChronoUnit.DAYS));
+		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
+		assertThrows(
+				ResourceNotFoundException.class,
+				() -> this.timeLogService.deleteTimeLog(this.employee.getEmployeeNumber(), Instant.EPOCH));
+		verify(this.timeLogRepository, times(0)).deleteByEmployeeEmployeeNumberAndEntryTime(any(), any());
+	}
+
+	@Test
 	void testDeleteTimeLogSuccessWithinEditingWindow() {
 		logger.info("Test delete time log succes within editing window");
 		// Arrange
@@ -337,19 +361,26 @@ class TimeLogServiceTest {
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		final Instant entryTime = fixedNow.minus(2, ChronoUnit.DAYS);
-		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
+		when(
+				this.timeLogRepository
+						.deleteByEmployeeEmployeeNumberAndEntryTime(this.employee.getEmployeeNumber(), entryTime))
+				.thenReturn(1L);
 
 		// Act
-		this.timeLogService.deleteTimeLog(timeLog);
+		this.timeLogService.deleteTimeLog(this.employee.getEmployeeNumber(), entryTime);
 
 		// Assert
-		verify(this.timeLogRepository, times(1)).delete(timeLog);
+		verify(this.timeLogRepository)
+				.deleteByEmployeeEmployeeNumberAndEntryTime(this.employee.getEmployeeNumber(), entryTime);
 	}
 
 	@Test
 	void testDeleteTimeLogThrowsWhenNull() {
 		logger.info("Test delete time log throws when null");
-		assertThrows(NullPointerException.class, () -> this.timeLogService.deleteTimeLog(null));
+		assertThrows(NullPointerException.class, () -> this.timeLogService.deleteTimeLog(null, Instant.EPOCH));
+		assertThrows(
+				NullPointerException.class,
+				() -> this.timeLogService.deleteTimeLog(this.employee.getEmployeeNumber(), null));
 	}
 
 	@Test
@@ -361,11 +392,16 @@ class TimeLogServiceTest {
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		final Instant entryTime = fixedNow.minus(4, ChronoUnit.DAYS).atZone(ZoneOffset.UTC).toInstant();
-		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
+		when(
+				this.timeLogRepository
+						.existsByEmployeeEmployeeNumberAndEntryTime(this.employee.getEmployeeNumber(), entryTime))
+				.thenReturn(true);
 
 		// Act & Assert
-		assertThrows(TimeLogModificationNotAllowedException.class, () -> this.timeLogService.deleteTimeLog(timeLog));
-		verify(this.timeLogRepository, times(0)).delete(timeLog);
+		assertThrows(
+				TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.deleteTimeLog(this.employee.getEmployeeNumber(), entryTime));
+		verify(this.timeLogRepository, times(0)).deleteByEmployeeEmployeeNumberAndEntryTime(any(), any());
 	}
 
 	@Test
@@ -377,10 +413,15 @@ class TimeLogServiceTest {
 		when(this.applicationSettingsService.getDaysUntilLocked()).thenReturn(3);
 
 		final Instant entryTime = fixedNow.minus(3, ChronoUnit.DAYS);
-		final TimeLog timeLog = new TimeLog(this.employee, this.worksite, entryTime);
+		when(
+				this.timeLogRepository
+						.existsByEmployeeEmployeeNumberAndEntryTime(this.employee.getEmployeeNumber(), entryTime))
+				.thenReturn(true);
 
 		// Act & Assert
-		assertThrows(TimeLogModificationNotAllowedException.class, () -> this.timeLogService.deleteTimeLog(timeLog));
-		verify(this.timeLogRepository, times(0)).delete(timeLog);
+		assertThrows(
+				TimeLogModificationNotAllowedException.class,
+				() -> this.timeLogService.deleteTimeLog(this.employee.getEmployeeNumber(), entryTime));
+		verify(this.timeLogRepository, times(0)).deleteByEmployeeEmployeeNumberAndEntryTime(any(), any());
 	}
 }

@@ -293,9 +293,9 @@ public class WorksiteService {
 
 	/**
 	 * Logically deletes an existing worksite by its exact business code. The
-	 * worksite is loaded within this transaction and must have no employee
-	 * assignments. After commit, lookup and search exclude it while historical time
-	 * logs remain stored.
+	 * worksite must have no employee assignments. The code is passed directly to
+	 * the repository for deletion. After commit, lookup and search exclude it while
+	 * historical time logs remain stored.
 	 *
 	 * @param  code                         nonblank code matching
 	 *                                      [A-Za-z0-9_-]{1,50} without trimming
@@ -307,15 +307,15 @@ public class WorksiteService {
 	@Transactional
 	public void deleteWorksite(final @NotBlank @WorksiteCode String code) {
 		logger.debug("Worksite with code {} marked for deletion", code);
-		final Worksite worksite = this.findWorksite(code);
-
 		final boolean inUse = this.worksiteRepository.hasEmployees(code);
 		if (inUse) {
 			throw new IllegalStateException(
-					"The worksite " + worksite + " can't be deleted because it has assigned employees");
+					"The worksite " + code + " can't be deleted because it has assigned employees");
 		}
 
-		this.worksiteRepository.delete(worksite);
+		if (this.worksiteRepository.deleteByCode(code) == 0) {
+			throw new ResourceNotFoundException("There is no worksite with code " + code);
+		}
 	}
 
 	/**

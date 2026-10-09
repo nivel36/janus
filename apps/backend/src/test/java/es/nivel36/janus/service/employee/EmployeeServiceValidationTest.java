@@ -161,4 +161,12 @@ class EmployeeServiceValidationTest {
 		when(this.repository.search(query, code, code, request)).thenReturn(page);
 		assertThat(this.service.searchEmployees(query, code, code, request)).isSameAs(page);
 	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "", " ", "bad key", " KEY ", "!" })
+	void invalidDeletionKeyIsRejectedBeforePersistence(final String key) {
+		assertThatThrownBy(() -> this.service.deleteEmployee(key)).isInstanceOf(ConstraintViolationException.class);
+		verifyNoInteractions(this.repository);
+	}
+
 }

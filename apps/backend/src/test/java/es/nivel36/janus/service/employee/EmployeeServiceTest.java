@@ -40,6 +40,20 @@ class EmployeeServiceTest {
 	private final EmployeeService service = new EmployeeService(this.repository, this.schedules, 100);
 
 	@Test
+	void deletesEmployeeByExactNaturalKey() {
+		when(this.repository.deleteByEmployeeNumber("EMP-42")).thenReturn(1L);
+		this.service.deleteEmployee("EMP-42");
+		verify(this.repository).deleteByEmployeeNumber("EMP-42");
+		verify(this.repository, never()).findByEmployeeNumber(anyString());
+	}
+
+	@Test
+	void missingEmployeeCannotBeDeleted() {
+		assertThatThrownBy(() -> this.service.deleteEmployee("MISSING")).isInstanceOf(ResourceNotFoundException.class);
+		verify(this.repository, never()).delete(any());
+	}
+
+	@Test
 	void findsEmployeeByEmail() {
 		final Employee employee = mock(Employee.class);
 		when(this.repository.findByEmail("person@example.test")).thenReturn(Optional.of(employee));

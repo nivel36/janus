@@ -121,8 +121,7 @@ public class EmployeeController implements EmployeeResource {
 	@Override
 	public ResponseEntity<Void> deleteEmployee(final String employeeNumber) {
 		logger.debug("Delete employee ACTION performed");
-		final Employee employee = this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
-		this.employeeService.deleteEmployee(employee);
+		this.employeeService.deleteEmployee(employeeNumber);
 		return ResponseEntity.noContent().build();
 	}
 }

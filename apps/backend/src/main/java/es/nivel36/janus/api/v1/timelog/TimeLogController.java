@@ -172,9 +172,7 @@ public class TimeLogController implements TimeLogResource {
 	public ResponseEntity<Void> deleteTimeLog(final String employeeNumber, final Instant entryTime) {
 		logger.debug("Delete time log ACTION performed");
 
-		final Employee employee = this.requireEmployee(employeeNumber);
-		final TimeLog timeLog = this.timeLogService.findTimeLogByEmployeeAndEntryTime(employee, entryTime);
-		this.timeLogService.deleteTimeLog(timeLog);
+		this.timeLogService.deleteTimeLog(employeeNumber, entryTime);
 		return ResponseEntity.noContent().build();
 	}
 

@@ -264,27 +264,26 @@ class WorksiteServiceTest {
 
 	@Test
 	void deletionRejectsAssignedEmployees() {
-		final Worksite site = worksite(WorksiteScope.ASSIGNED);
-		when(this.worksiteRepository.findByCode("WS-1")).thenReturn(site);
 		when(this.worksiteRepository.hasEmployees("WS-1")).thenReturn(true);
 		assertThatThrownBy(() -> this.worksiteService.deleteWorksite("WS-1")).isInstanceOf(IllegalStateException.class);
-		verify(this.worksiteRepository, never()).delete(any());
+		verify(this.worksiteRepository, never()).deleteByCode(any());
+		verify(this.worksiteRepository, never()).findByCode(any());
 	}
 
 	@Test
 	void deletionDelegatesToRepositoryWhenNoEmployeeIsAssigned() {
-		final Worksite site = worksite(WorksiteScope.GLOBAL);
-		when(this.worksiteRepository.findByCode("WS-1")).thenReturn(site);
+		when(this.worksiteRepository.deleteByCode("WS-1")).thenReturn(1L);
 		this.worksiteService.deleteWorksite("WS-1");
-		verify(this.worksiteRepository).delete(site);
+		verify(this.worksiteRepository).deleteByCode("WS-1");
+		verify(this.worksiteRepository, never()).findByCode(any());
 	}
 
 	@Test
 	void missingWorksiteCannotBeDeleted() {
 		assertThatThrownBy(() -> this.worksiteService.deleteWorksite("MISSING"))
 				.isInstanceOf(ResourceNotFoundException.class);
-		verify(this.worksiteRepository, never()).hasEmployees(any());
-		verify(this.worksiteRepository, never()).delete(any());
+		verify(this.worksiteRepository).deleteByCode("MISSING");
+		verify(this.worksiteRepository, never()).findByCode(any());
 	}
 
 	@Test

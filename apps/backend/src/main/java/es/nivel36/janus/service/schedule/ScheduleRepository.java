@@ -70,6 +70,9 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 	 */
 	boolean existsByCode(String code);
 
+	/** Deletes matching entities through JPA, returning the number removed. */
+	long deleteByCode(String code);
+
 	/**
 	 * Retrieves the {@link TimeRange} for a given {@link Employee} on a specific
 	 * {@link LocalDate}, considering only the shift that starts on that date.
@@ -118,8 +121,8 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 	 * Checks whether the {@link Schedule} has any associated {@link Employee}
 	 * entities.
 	 * <p>
-	 * This method uses the JPQL {@code size()} function to determine if the
-	 * {@code employees} collection is non-empty without loading it into memory.
+	 * This method counts assigned employees without loading entities. Missing
+	 * schedules return {@code false}.
 	 * </p>
 	 *
 	 * @param  code the schedule code to inspect; must not be {@code null}
@@ -127,8 +130,8 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 	 *              schedule; {@code false} otherwise
 	 */
 	@Query("""
-			SELECT (SIZE(s.employees) > 0)
-			FROM Schedule s
+			SELECT (COUNT(e) > 0)
+			FROM Schedule s JOIN s.employees e
 			WHERE s.code = :code
 			""")
 	boolean hasEmployees(String code);

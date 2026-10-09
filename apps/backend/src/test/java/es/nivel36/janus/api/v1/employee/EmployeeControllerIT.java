@@ -439,4 +439,13 @@ class EmployeeControllerIT {
 				.andExpect(status().isConflict());
 		assertRelationshipCount("SELECT COUNT(*) FROM employee", 1);
 	}
+
+	@Test
+	void deletingMissingNaturalKeyReturns404() throws Exception {
+		this.mvc.perform(
+				delete(BASE + "/{employeeNumber}", "MISSING-DELETE")
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isNotFound());
+	}
+
 }

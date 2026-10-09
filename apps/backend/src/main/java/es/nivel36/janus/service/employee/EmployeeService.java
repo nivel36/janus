@@ -287,7 +287,7 @@ public class EmployeeService {
 	}
 
 	/**
-	 * Deletes the given {@link Employee}.
+	 * Deletes an existing {@link Employee} by its exact employee number.
 	 * <p>
 	 * The caller must authorize deletion. Removal is committed with the
 	 * transaction; references from profiles or time records may prevent it through
@@ -295,17 +295,17 @@ public class EmployeeService {
 	 * profile or a provider account.
 	 * </p>
 	 *
-	 * @param  employee                     the employee to delete. Can't be
-	 *                                      {@code null}.
-	 * @throws NullPointerException         if {@code employee} is {@code null}
+	 * @param  employeeNumber               natural key of the employee to delete
+	 * @throws ResourceNotFoundException    if the employee does not exist
 	 * @throws ConstraintViolationException if a parameter constraint fails through
 	 *                                      the Spring proxy
 	 */
 	@Transactional
-	public void deleteEmployee(final @NotNull Employee employee) {
-		logger.debug("Employee with employee number {} marked for deletion", employee.getEmployeeNumber());
-
-		this.employeeRepository.delete(employee);
+	public void deleteEmployee(final @NotBlank @EmployeeNumber String employeeNumber) {
+		logger.debug("Employee with employee number {} marked for deletion", employeeNumber);
+		if (this.employeeRepository.deleteByEmployeeNumber(employeeNumber) == 0) {
+			throw new ResourceNotFoundException("There is no employee with employee number " + employeeNumber);
+		}
 	}
 
 	/**

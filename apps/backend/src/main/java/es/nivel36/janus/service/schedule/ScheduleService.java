@@ -216,22 +216,25 @@ public class ScheduleService {
 	 * A schedule can only be deleted if it has no employees assigned.
 	 * </p>
 	 *
-	 * @param  schedule                     schedule to delete; can't be
-	 *                                      {@code null}
-	 * @throws ConstraintViolationException if schedule is null through the Spring
+	 * @param  code                         exact business code of the schedule to
+	 *                                      delete
+	 * @throws ResourceNotFoundException    if the schedule does not exist
+	 * @throws ConstraintViolationException if code is invalid through the Spring
 	 *                                      proxy
 	 * @throws IllegalStateException        if the schedule has assigned employees
 	 */
 	@Transactional
-	public void deleteSchedule(final @NotNull Schedule schedule) {
-		logger.debug("Schedule with code {} marked for deletion", schedule.getCode());
+	public void deleteSchedule(final @NotBlank @ScheduleCode String code) {
+		logger.debug("Schedule with code {} marked for deletion", code);
 
-		final boolean inUse = this.scheduleRepository.hasEmployees(schedule.getCode());
+		final boolean inUse = this.scheduleRepository.hasEmployees(code);
 		if (inUse) {
 			throw new IllegalStateException(
-					"The schedule " + schedule.getCode() + " can't be deleted because it has assigned employees");
+					"The schedule " + code + " can't be deleted because it has assigned employees");
 		}
-		this.scheduleRepository.delete(schedule);
+		if (this.scheduleRepository.deleteByCode(code) == 0) {
+			throw new ResourceNotFoundException("There is no schedule with code " + code);
+		}
 	}
 
 	/**

@@ -68,6 +68,9 @@ interface EmployeeRepository extends CrudRepository<Employee, Long> {
 
 	boolean existsByEmployeeNumber(String employeeNumber);
 
+	/** Deletes matching entities through JPA, returning the number removed. */
+	long deleteByEmployeeNumber(String employeeNumber);
+
 	@Query("""
 			SELECT COUNT(DISTINCT e.id)
 			FROM Employee e
