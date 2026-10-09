@@ -19,7 +19,6 @@ import java.time.Instant;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,8 +44,7 @@ public interface TimeLogResource {
 			Instant entryTime,
 			@RequestParam("worksiteCode")
 			@WorksiteCode
-			String worksiteCode,
-			Authentication authentication);
+			String worksiteCode);
 
 	@PostMapping({ "/employees/{employeeNumber}/time-logs/clock-out" })
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, #exitTime != null)")
@@ -58,8 +56,7 @@ public interface TimeLogResource {
 			Instant exitTime,
 			@RequestParam("worksiteCode")
 			@WorksiteCode
-			String worksiteCode,
-			Authentication authentication) throws ClockOutWithoutClockInException;
+			String worksiteCode) throws ClockOutWithoutClockInException;
 
 	@PostMapping({ "/employees/{employeeNumber}/time-logs" })
 	@PreAuthorize("@timeLogAuthorization.canOperate(authentication, #employeeNumber, true)")
@@ -72,8 +69,7 @@ public interface TimeLogResource {
 			String worksiteCode,
 			@RequestBody
 			@Valid
-			CreateTimeLogRequest timeLog,
-			Authentication authentication);
+			CreateTimeLogRequest timeLog);
 
 	@GetMapping({ "/employees/{employeeNumber}/time-logs/{entryTime}" })
 	@PreAuthorize("@timeLogAuthorization.canView(authentication, #employeeNumber)")
