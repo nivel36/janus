@@ -24,8 +24,7 @@ public class EventAlreadyFinalizedException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a new {@code EventAlreadyFinalizedException} with no detail message
-	 * or cause.
+	 * Creates an exception with the default detail message.
 	 */
 	public EventAlreadyFinalizedException() {
 		super("The ClockOutWithoutClockInEvent record cannot be finalized because it has already been finalized.");

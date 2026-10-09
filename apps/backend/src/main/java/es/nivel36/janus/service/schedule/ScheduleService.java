@@ -68,8 +68,8 @@ public class ScheduleService {
 	 *
 	 * @param  scheduleRepository       nonnull schedule repository
 	 * @param  maxPageSize              positive limit from
-	 *                                  spring.data.rest.max-page-size
-	 * @throws NullPointerException     if the repository is null
+	 *                                  {@code spring.data.rest.max-page-size}
+	 * @throws NullPointerException     if the repository is {@code null}
 	 * @throws IllegalArgumentException if maxPageSize is not positive
 	 */
 	public ScheduleService(
@@ -84,11 +84,13 @@ public class ScheduleService {
 
 	/**
 	 * Creates and persists a schedule with a unique immutable business code. Code
-	 * must match [A-Za-z0-9_-]{1,50}; name must contain 1-250 letters, digits,
-	 * spaces or basic punctuation and must not be blank. Tolerances are nonnull and
-	 * nonnegative. Rules and their elements are nonnull; empty rules are allowed.
-	 * Rule dates, day uniqueness and working durations are checked while building
-	 * the aggregate before persistence.
+	 * must match {@code [A-Za-z0-9_-]{1,50}}; name must contain 1-250 letters,
+	 * digits, spaces or basic punctuation and must not be blank. Tolerances are
+	 * nonnull and nonnegative. Rules and their elements are nonnull; empty rules
+	 * are allowed. Rule dates and working-duration upper bounds are checked before
+	 * persistence. Each rule must have at most one range per weekday. Schedule
+	 * names and nonnull rule names must be unique across persisted schedules and
+	 * rules, respectively. Overlapping rule periods are allowed.
 	 *
 	 * @param  code                           unique business code, used without
 	 *                                        trimming
@@ -102,7 +104,7 @@ public class ScheduleService {
 	 * @throws ConstraintViolationException   if parameter validation fails through
 	 *                                        the Spring proxy
 	 * @throws IllegalArgumentException       if a rule definition is inconsistent
-	 * @throws NullPointerException           if a nested definition is null
+	 * @throws NullPointerException           if a nested definition is {@code null}
 	 * @throws ResourceAlreadyExistsException if the code already exists
 	 */
 	@Transactional
@@ -183,7 +185,7 @@ public class ScheduleService {
 	 * @throws ConstraintViolationException if parameter validation fails through
 	 *                                      the Spring proxy
 	 * @throws IllegalArgumentException     if a rule definition is inconsistent
-	 * @throws NullPointerException         if a nested definition is null
+	 * @throws NullPointerException         if a nested definition is {@code null}
 	 * @throws ResourceNotFoundException    if the code does not exist
 	 */
 	@Transactional
@@ -240,13 +242,13 @@ public class ScheduleService {
 	/**
 	 * Retrieves a {@link Schedule} by its unique code.
 	 *
-	 * @param  code                         unique schedule code; can't be
+	 * @param  code                         unique schedule code; must not be
 	 *                                      {@code null}
 	 * @return                              the {@link Schedule} associated with the
 	 *                                      given code
-	 * @throws ConstraintViolationException if code is null or does not match
-	 *                                      [A-Za-z0-9_-]{1,50} through the Spring
-	 *                                      proxy
+	 * @throws ConstraintViolationException if code is {@code null} or does not
+	 *                                      match {@code [A-Za-z0-9_-]{1,50}}
+	 *                                      through the Spring proxy
 	 * @throws ResourceNotFoundException    if no schedule exists with the given
 	 *                                      code
 	 */
@@ -272,13 +274,14 @@ public class ScheduleService {
 	 * </p>
 	 *
 	 * @param  employee                     employee whose working time is
-	 *                                      requested; can't be {@code null}
-	 * @param  date                         date to evaluate; can't be {@code null}
+	 *                                      requested; must not be {@code null}
+	 * @param  date                         date to evaluate; must not be
+	 *                                      {@code null}
 	 * @return                              an {@link Optional} containing the
 	 *                                      applicable {@link TimeRange}, or an
 	 *                                      empty {@code Optional} if none applies
-	 * @throws ConstraintViolationException if employee or date is null through the
-	 *                                      Spring proxy
+	 * @throws ConstraintViolationException if employee or date is {@code null}
+	 *                                      through the Spring proxy
 	 */
 	@Transactional(readOnly = true)
 	public Optional<TimeRange> findTimeRangeForEmployeeByDate(
@@ -300,20 +303,20 @@ public class ScheduleService {
 	 * schedules without employees, rules or time ranges. Public sort fields are
 	 * code and name; code ascending is the default and is added as a unique
 	 * tie-breaker unless explicitly sorted. Page size is capped at
-	 * spring.data.rest.max-page-size. Pagination runs in the database without
-	 * loading rules or their time ranges.
+	 * {@code spring.data.rest.max-page-size}. Pagination runs in the database
+	 * without loading rules or their time ranges.
 	 * </p>
 	 *
 	 * @param  query                        optional single-line fragment of at most
 	 *                                      100 characters
 	 * @param  employeeNumber               optional number matching
-	 *                                      [A-Za-z0-9_-]{1,50}
+	 *                                      {@code [A-Za-z0-9_-]{1,50}}
 	 * @param  pageable                     requested page and public ordering
 	 * @return                              possibly empty page of schedules for
 	 *                                      summary mapping
 	 * @throws ConstraintViolationException if a filter is invalid or pageable is
-	 *                                      null through the Spring proxy; an empty
-	 *                                      query is invalid there
+	 *                                      {@code null} through the Spring proxy;
+	 *                                      an empty query is invalid there
 	 * @throws IllegalArgumentException     if pageable is unpaged or a sort field
 	 *                                      is unsupported
 	 */

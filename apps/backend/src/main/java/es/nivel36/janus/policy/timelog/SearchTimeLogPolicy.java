@@ -24,6 +24,16 @@ public final class SearchTimeLogPolicy implements Policy<EmployeeSearchPolicy.Co
 
 	private final ViewTimeLogPolicy view = new ViewTimeLogPolicy();
 
+	/**
+	 * Returns the row visibility scope for a provisioned actor.
+	 *
+	 * @param  actor                the actor whose roles and employee link define
+	 *                              visibility; must not be {@code null}
+	 * @return                      all rows for elevated callers, the linked
+	 *                              employee's rows for a restricted employee with a
+	 *                              positive identifier, or no rows otherwise
+	 * @throws NullPointerException if {@code actor} is {@code null}
+	 */
 	public TimeLogSearchScope scope(final Actor actor) {
 		Objects.requireNonNull(actor, "actor can't be null");
 		if (this.view.allows(actor, new EmployeeAccessPolicy.Context(false))) {

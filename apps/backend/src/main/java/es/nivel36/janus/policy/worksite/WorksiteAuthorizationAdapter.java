@@ -15,6 +15,14 @@ import es.nivel36.janus.service.employee.EmployeeService;
 import es.nivel36.janus.service.worksite.WorksiteScope;
 import es.nivel36.janus.service.worksite.WorksiteService;
 
+/**
+ * Resolves provisioned identities, scope and assignment facts for worksite
+ * policies.
+ * <p>
+ * Decisions read the current persisted facts without provisioning a profile.
+ * Unresolvable identities raise an access-denied exception rather than
+ * returning a negative policy decision.
+ */
 @Component("worksiteAuthorization")
 public class WorksiteAuthorizationAdapter {
 	private final ActorResolver actors;

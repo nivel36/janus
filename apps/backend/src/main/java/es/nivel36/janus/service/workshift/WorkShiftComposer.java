@@ -26,22 +26,16 @@ import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.timelog.TimeLogs;
 
 /**
- * Composes {@link WorkShift} instances from a set of ordered {@link TimeLog}
- * entries using a {@link ShiftInferenceStrategy}.
+ * Composes work shifts from time logs selected by a
+ * {@link ShiftInferenceStrategy}.
  * <p>
- * This class delegates the responsibility of selecting and optionally clipping
- * relevant time logs to the configured inference strategy, and then derives
- * aggregate values such as total work time and total pause time.
- * <p>
- * Instances of this class are immutable and thread-safe provided that the
- * supplied {@link ShiftInferenceStrategy} is thread-safe.
+ * Selected logs are associated with the new shift. Work time is the duration
+ * covered by their merged intervals, and pause time is the sum of gaps between
+ * those intervals. Logs with missing bounds or an exit before entry remain
+ * associated with the shift but do not contribute to its durations.
  */
 final class WorkShiftComposer {
 
-	/**
-	 * Strategy used to infer which time logs belong to a work shift and how they
-	 * should be interpreted. Can't be {@code null}.
-	 */
 	private final ShiftInferenceStrategy inferenceStrategy;
 
 	/**
@@ -49,7 +43,7 @@ final class WorkShiftComposer {
 	 * strategy.
 	 *
 	 * @param  inferenceStrategy    the strategy used to infer work shifts from time
-	 *                              logs. Can't be {@code null}.
+	 *                              logs. Must not be {@code null}.
 	 * @throws NullPointerException if {@code inferenceStrategy} is {@code null}
 	 */
 	WorkShiftComposer(final ShiftInferenceStrategy inferenceStrategy) {
@@ -57,23 +51,21 @@ final class WorkShiftComposer {
 	}
 
 	/**
-	 * Composes a {@link WorkShift} for the given employee and date based on the
-	 * provided ordered time logs.
+	 * Creates a shift for the selected logs and assigns those logs to it.
 	 * <p>
-	 * The inference strategy determines which logs are relevant and whether a
-	 * clipping window applies. The resulting work shift contains the selected logs
-	 * and has its total work time and pause time calculated accordingly.
+	 * Full recorded intervals contribute to work and pause durations; they are not
+	 * clipped to scheduled bounds. An empty selection produces a shift with no logs
+	 * and zero durations. The shift is not persisted by this operation.
 	 *
-	 * @param  employee             the employee for whom the work shift is
-	 *                              composed. Can't be {@code null}.
-	 * @param  date                 the date of the work shift. Can't be
-	 *                              {@code null}.
-	 * @param  orderedLogs          the ordered list of time logs to evaluate. Can't
-	 *                              be {@code null}.
-	 * @return                      a composed {@code WorkShift} instance. If no
-	 *                              logs are selected, the returned work shift will
-	 *                              contain no time logs and zero durations.
-	 * @throws NullPointerException if any of the parameters is {@code null}
+	 * @param  employee              the employee owning the shift; must not be
+	 *                               {@code null}
+	 * @param  date                  the local shift date; must not be {@code null}
+	 * @param  orderedLogs           candidate logs in entry-time order; must not be
+	 *                               {@code null}
+	 * @return                       the newly composed shift
+	 * @throws NullPointerException  if any argument is {@code null}
+	 * @throws IllegalStateException if a selected log is assigned to a different
+	 *                               employee/date shift
 	 */
 	WorkShift compose(final Employee employee, final LocalDate date, final TimeLogs orderedLogs) {
 		Objects.requireNonNull(employee, "employee can't be null");

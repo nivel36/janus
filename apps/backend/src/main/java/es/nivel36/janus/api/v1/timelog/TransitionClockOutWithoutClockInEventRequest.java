@@ -14,8 +14,18 @@ import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
 
 /**
- * Uniform payload for either final transition of a clock-out-without-clock-in
+ * Request payload for resolving or invalidating a clock-out-without-clock-in
  * event.
+ * <p>
+ * Bean Validation checks the action, reason and action-specific entry-time
+ * requirement; construction alone performs no validation.
+ *
+ * @param action    the final transition to apply; must not be {@code null} when
+ *                  validated
+ * @param entryTime the proposed entry instant; required for {@code RESOLVE} and
+ *                  forbidden for {@code INVALIDATE}
+ * @param reason    an optional explanation of at most {@code 255} characters
+ *                  without NUL characters; {@code null} is allowed
  */
 public record TransitionClockOutWithoutClockInEventRequest(
 
@@ -28,6 +38,12 @@ public record TransitionClockOutWithoutClockInEventRequest(
 		@Pattern(regexp = "^[^\\x00]*$", message = "reason must not contain NUL")
 		String reason) {
 
+	/**
+	 * Returns whether the entry-time presence matches the selected action.
+	 *
+	 * @return {@code true} if the action is absent, resolution has an entry time,
+	 *         or invalidation has no entry time; {@code false} otherwise
+	 */
 	@JsonIgnore
 	@AssertTrue(message = "entryTime is required when action is RESOLVE and forbidden when action is INVALIDATE")
 	public boolean isEntryTimeCompatibleWithAction() {

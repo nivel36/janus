@@ -16,16 +16,14 @@
 package es.nivel36.janus.service.timelog;
 
 /**
- * Exception thrown when attempting to close a {@code TimeLog} record that does
- * not have an entry time.
+ * Signals that an employee has no open time log to close during clock-out.
  */
 public class ClockOutWithoutClockInException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a new {@code ClockOutWithoutClockInException} with no detail message
-	 * or cause.
+	 * Creates an exception with the default detail message.
 	 */
 	public ClockOutWithoutClockInException() {
 		super("The TimeLog record cannot be closed because it does not have an entry time.");

@@ -22,7 +22,11 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 
 /**
  * Maps {@link ApplicationSettings} entities into
- * {@link ApplicationSettingsResponse} DTOs.
+ * {@link ApplicationSettingsResponse} payloads.
+ * <p>
+ * Each non-null input produces a new response containing all configuration
+ * values, with the time zone represented by its {@link java.time.ZoneId#getId()
+ * identifier}. A {@code null} input produces {@code null}.
  */
 @Component("appSettingsResponseMapper")
 public class ApplicationSettingsResponseMapper implements Mapper<ApplicationSettings, ApplicationSettingsResponse> {

@@ -31,25 +31,16 @@ public class WorksiteMismatchOnClockOutException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * The expected {@link Worksite} where the clock-out operation should occur.
-	 * Can't be {@code null}.
-	 */
 	private final Worksite expected;
 
-	/**
-	 * The actual {@link Worksite} where the clock-out operation was attempted.
-	 * Can't be {@code null}.
-	 */
 	private final Worksite actual;
 
 	/**
 	 * Constructs a new {@code WorksiteMismatchOnClockOutException} with the
 	 * specified expected and actual worksites.
 	 *
-	 * @param expected the expected {@link Worksite} where the user should clock out
-	 * @param actual   the actual {@link Worksite} where the user attempted to clock
-	 *                 out
+	 * @param expected the clock-in worksite; may be {@code null}
+	 * @param actual   the requested clock-out worksite; may be {@code null}
 	 */
 	public WorksiteMismatchOnClockOutException(final Worksite expected, final Worksite actual) {
 		this.expected = expected;
@@ -60,7 +51,7 @@ public class WorksiteMismatchOnClockOutException extends RuntimeException {
 	 * Returns the expected {@link Worksite} where the clock-out operation should
 	 * occur.
 	 *
-	 * @return the expected {@link Worksite}, never {@code null}
+	 * @return the expected {@link Worksite}, possibly {@code null}
 	 */
 	public Worksite getExpected() {
 		return this.expected;
@@ -70,7 +61,7 @@ public class WorksiteMismatchOnClockOutException extends RuntimeException {
 	 * Returns the actual {@link Worksite} where the clock-out operation was
 	 * attempted.
 	 *
-	 * @return the actual {@link Worksite}, never {@code null}
+	 * @return the actual {@link Worksite}, possibly {@code null}
 	 */
 	public Worksite getActual() {
 		return this.actual;

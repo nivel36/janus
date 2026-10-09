@@ -65,9 +65,6 @@ public class EmployeeService {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
-	/**
-	 * Repository used to access {@link Employee} persistence operations.
-	 */
 	private final EmployeeRepository employeeRepository;
 	private final ScheduleService scheduleService;
 	private final int maxPageSize;
@@ -81,7 +78,7 @@ public class EmployeeService {
 	 * @param  scheduleService          service used to resolve schedules inside
 	 *                                  secured employee operations
 	 * @param  maxPageSize              positive limit from
-	 *                                  spring.data.rest.max-page-size
+	 *                                  {@code spring.data.rest.max-page-size}
 	 * @throws NullPointerException     if either dependency is {@code null}
 	 * @throws IllegalArgumentException if maxPageSize is not positive
 	 */
@@ -98,16 +95,17 @@ public class EmployeeService {
 	}
 
 	/**
-	 * Retrieves an {@link Employee} by its primary identifier.
+	 * Returns an employee by its persistent identifier.
 	 *
-	 * @param  id                           the unique identifier of the employee.
-	 *                                      Can't be {@code null}.
-	 * @return                              the {@link Employee} with the given
+	 * @param  id                           the persistent employee identifier; must
+	 *                                      not be {@code null}
+	 * @return                              the matching employee
+	 * @throws ResourceNotFoundException    if no employee exists with that
 	 *                                      identifier
-	 * @throws NullPointerException         if {@code id} is {@code null}
-	 * @throws ResourceNotFoundException    if no employee exists with the given id
-	 * @throws ConstraintViolationException if a parameter constraint fails through
-	 *                                      the Spring proxy
+	 * @throws ConstraintViolationException if {@code id} is {@code null} when
+	 *                                      method validation is active
+	 * @throws IllegalArgumentException     if {@code id} is {@code null} on a
+	 *                                      direct call to the repository
 	 */
 	@Transactional(readOnly = true)
 	public Employee findEmployeeById(final @NotNull Long id) {
@@ -117,17 +115,17 @@ public class EmployeeService {
 	}
 
 	/**
-	 * Retrieves an {@link Employee} identified by its email address.
+	 * Returns the employee whose stored email exactly matches the supplied value.
+	 * <p>
+	 * The input is not trimmed or lowercased. Callers seeking normalized contact
+	 * matching must normalize it before invoking this operation.
 	 *
-	 * @param  email                        the email of the employee to retrieve.
-	 *                                      Can't be {@code null} or blank.
-	 * @return                              the {@link Employee} associated with the
-	 *                                      given email, or {@link Optional#empty()}
-	 *                                      when the valid email has no match
-	 * @throws NullPointerException         if {@code email} is {@code null}
-	 * @throws IllegalArgumentException     if {@code email} is blank
-	 * @throws ConstraintViolationException if a parameter constraint fails through
-	 *                                      the Spring proxy
+	 * @param  email                        the nonblank valid email of at most
+	 *                                      {@code 254} characters
+	 * @return                              the matching employee, or an empty
+	 *                                      optional if no email matches
+	 * @throws ConstraintViolationException if a parameter constraint fails when
+	 *                                      method validation is active
 	 */
 	@Transactional(readOnly = true)
 	public Optional<Employee> findEmployeeByEmail(final @NotBlank @Email @Size(max = 254) String email) {
@@ -136,8 +134,8 @@ public class EmployeeService {
 
 	/**
 	 * Looks up an employee by its exact immutable number without changing it.
-	 * Number must match [A-Za-z0-9_-]{1,50} without trimming. The schedule is
-	 * loaded. A missing employee does not mark the caller's transaction for
+	 * Number must match {@code [A-Za-z0-9_-]{1,50}} without trimming. The schedule
+	 * is loaded. A missing employee does not mark the caller's transaction for
 	 * rollback.
 	 *
 	 * @param  employeeNumber               exact stable employee number
@@ -161,11 +159,12 @@ public class EmployeeService {
 	 * {@link TimeLog} entered since the specified instant and not associated with a
 	 * {@link WorkShift}.
 	 *
-	 * @param  start                the lower bound instant (inclusive). Can't be
-	 *                              {@code null}.
-	 * @return                      a list of employee identifiers matching the
-	 *                              criteria
-	 * @throws NullPointerException if {@code start} is {@code null}
+	 * @param  start                        the lower bound instant (inclusive).
+	 *                                      Must not be {@code null}.
+	 * @return                              a list of employee identifiers matching
+	 *                                      the criteria
+	 * @throws ConstraintViolationException if {@code start} is {@code null} when
+	 *                                      method validation is active
 	 */
 	@Transactional(readOnly = true)
 	public List<Long> findEmployeesWithoutWorkshiftsSince(final @NotNull Instant start) {
@@ -181,25 +180,28 @@ public class EmployeeService {
 	 * Creates and persists a new {@link Employee}.
 	 * <p>
 	 * The caller must authorize creation. Employee number must match
-	 * [A-Za-z0-9_-]{1,50}; names must be nonblank and contain 1-255 letters,
-	 * spaces, dots, commas, apostrophes or hyphens. Email must satisfy @Email and
-	 * have at most 254 characters; schedule must be nonnull. Employee number and
-	 * normalized email must be unique. Creation trims and lowercases email, retains
-	 * the number and names as supplied and does not link a local profile.
+	 * {@code [A-Za-z0-9_-]{1,50}}; names must be nonblank and contain 1-255
+	 * letters, spaces, dots, commas, apostrophes or hyphens. Email must
+	 * satisfy @Email and have at most 254 characters; schedule must be nonnull.
+	 * Employee number and normalized email must be unique. Creation trims and
+	 * lowercases email, retains the number and names as supplied and does not link
+	 * a local profile.
 	 * </p>
 	 *
 	 * @param  employeeNumber                 immutable unique employee number
-	 * @param  name                           the first name of the employee. Can't
+	 * @param  name                           the first name of the employee. Must
+	 *                                        not be {@code null} or blank.
+	 * @param  surname                        the surname of the employee. Must not
 	 *                                        be {@code null} or blank.
-	 * @param  surname                        the surname of the employee. Can't be
-	 *                                        {@code null} or blank.
-	 * @param  email                          the unique email of the employee.
-	 *                                        Can't be {@code null} or blank.
+	 * @param  email                          the unique email of the employee. Must
+	 *                                        not be {@code null} or blank.
 	 * @param  schedule                       the {@link Schedule} assigned to the
-	 *                                        employee. Can't be {@code null}.
+	 *                                        employee. Must not be {@code null}.
 	 * @return                                the newly created {@link Employee}
 	 * @throws NullPointerException           if any parameter is {@code null}
-	 * @throws IllegalArgumentException       if any string parameter is blank
+	 * @throws IllegalArgumentException       if any string parameter is blank or
+	 *                                        the normalized email exceeds 254
+	 *                                        characters
 	 * @throws ResourceAlreadyExistsException if employee number or normalized email
 	 *                                        is in use
 	 * @throws ConstraintViolationException   if a parameter constraint fails
@@ -244,18 +246,21 @@ public class EmployeeService {
 	 * </p>
 	 *
 	 * @param  employeeNumber                 the immutable employee number to
-	 *                                        update. Can't be {@code null} or
+	 *                                        update. Must not be {@code null} or
 	 *                                        blank.
-	 * @param  newName                        the new first name. Can't be
+	 * @param  newName                        the new first name. Must not be
 	 *                                        {@code null} or blank.
-	 * @param  newSurname                     the new surname. Can't be {@code null}
-	 *                                        or blank.
+	 * @param  newSurname                     the new surname. Must not be
+	 *                                        {@code null} or blank.
 	 * @param  newEmail                       replacement unique contact email
-	 * @param  scheduleCode                   code of the new {@link Schedule}.
-	 *                                        Can't be {@code null}.
+	 * @param  scheduleCode                   code of the new {@link Schedule}. Must
+	 *                                        not be {@code null}.
 	 * @return                                the updated {@link Employee}
-	 * @throws NullPointerException           if any parameter is {@code null}
-	 * @throws IllegalArgumentException       if any string parameter is blank
+	 * @throws NullPointerException           if a replacement name or email is
+	 *                                        {@code null} on a direct call
+	 * @throws IllegalArgumentException       if a name or email is blank or the
+	 *                                        normalized email exceeds 254
+	 *                                        characters
 	 * @throws ResourceNotFoundException      if no employee exists with the given
 	 *                                        number or no schedule exists with the
 	 *                                        given code
@@ -374,8 +379,8 @@ public class EmployeeService {
 
 	/**
 	 * Counts distinct employees currently assigned to the exact worksite code.
-	 * Worksite code must match [A-Za-z0-9_-]{1,50}. This operation does not modify
-	 * records.
+	 * Worksite code must match {@code [A-Za-z0-9_-]{1,50}}. This operation does not
+	 * modify records.
 	 *
 	 * @param  worksiteCode                 exact worksite business code
 	 * @return                              matching count, zero if no records match
@@ -390,8 +395,8 @@ public class EmployeeService {
 	/**
 	 * Counts distinct employees with nondeleted time logs entered in the range.
 	 * Range is [start, end); both bounds must be nonnull and start must precede
-	 * end. Worksite code must match [A-Za-z0-9_-]{1,50}. This operation does not
-	 * modify records.
+	 * end. Worksite code must match {@code [A-Za-z0-9_-]{1,50}}. This operation
+	 * does not modify records.
 	 *
 	 * @param  worksiteCode                 exact worksite business code
 	 * @param  start                        inclusive entry-time bound
@@ -413,8 +418,8 @@ public class EmployeeService {
 	/**
 	 * Counts nondeleted time logs entered in the range, including open logs. Range
 	 * is [start, end); both bounds must be nonnull and start must precede end.
-	 * Worksite code must match [A-Za-z0-9_-]{1,50}. This operation does not modify
-	 * records.
+	 * Worksite code must match {@code [A-Za-z0-9_-]{1,50}}. This operation does not
+	 * modify records.
 	 *
 	 * @param  worksiteCode                 exact worksite business code
 	 * @param  start                        inclusive entry-time bound
@@ -436,7 +441,7 @@ public class EmployeeService {
 	/**
 	 * Counts nondeleted open time logs entered in the range. Range is [start, end);
 	 * both bounds must be nonnull and start must precede end. Worksite code must
-	 * match [A-Za-z0-9_-]{1,50}. This operation does not modify records.
+	 * match {@code [A-Za-z0-9_-]{1,50}}. This operation does not modify records.
 	 *
 	 * @param  worksiteCode                 exact worksite business code
 	 * @param  start                        inclusive entry-time bound
@@ -458,8 +463,8 @@ public class EmployeeService {
 	/**
 	 * Counts distinct current employee schedules represented by nondeleted time
 	 * logs in the range. Range is [start, end); both bounds must be nonnull and
-	 * start must precede end. Worksite code must match [A-Za-z0-9_-]{1,50}. This
-	 * operation does not modify records.
+	 * start must precede end. Worksite code must match {@code [A-Za-z0-9_-]{1,50}}.
+	 * This operation does not modify records.
 	 *
 	 * @param  worksiteCode                 exact worksite business code
 	 * @param  start                        inclusive entry-time bound
@@ -481,13 +486,14 @@ public class EmployeeService {
 	/**
 	 * Searches employees without changing them. The caller must authorize search
 	 * and supply a nonnull paged request. Query is optional single-line text of
-	 * 1-100 characters; optional codes match [A-Za-z0-9_-]{1,50} without trimming.
-	 * Text matches employee number, name, surname or email partially,
+	 * 1-100 characters; optional codes match {@code [A-Za-z0-9_-]{1,50}} without
+	 * trimming. Text matches employee number, name, surname or email partially,
 	 * case-insensitively and literally. Code filters match exactly and combine with
-	 * AND; null filters disable their restriction. Schedules are loaded. Public
-	 * sort fields are employeeNumber, name, surname, email and scheduleCode.
+	 * AND; {@code null} filters disable their restriction. Schedules are loaded.
+	 * Public sort fields are employeeNumber, name, surname, email and scheduleCode.
 	 * Default ordering and the tie-breaker are ascending employee number, unless
-	 * explicitly sorted. Page size is capped at spring.data.rest.max-page-size.
+	 * explicitly sorted. Page size is capped at
+	 * {@code spring.data.rest.max-page-size}.
 	 *
 	 * @param  query                        optional literal text fragment, used
 	 *                                      without trimming

@@ -16,28 +16,7 @@
 package es.nivel36.janus.service;
 
 /**
- * Exception thrown to indicate that a requested resource could not be found.
- * <p>
- * This exception is a generic alternative to persistence-specific exceptions
- * (such as {@code EntityNotFoundException}) and can be used across different
- * layers of the application, including service and web layers, without
- * introducing dependencies on JPA or other persistence frameworks.
- * <p>
- * Typical use cases include scenarios where a lookup by identifier or unique
- * attribute does not return a result.
- * <p>
- * <b>Examples:</b>
- * </p>
- *
- * <pre>{@code
- * // Service layer example
- * public Employee findEmployeeByEmail(String email) {
- * 	return employeeRepository.findByEmail(email)
- * 			.orElseThrow(() -> new ResourceNotFoundException("Employee not found: " + email));
- * }
- * }</pre>
- *
- * @see RuntimeException
+ * Signals that the resource required by an operation cannot be found.
  */
 public class ResourceNotFoundException extends RuntimeException {
 

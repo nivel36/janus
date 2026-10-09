@@ -30,7 +30,7 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	/**
 	 * Retrieves a {@link Worksite} by its unique code.
 	 *
-	 * @param  code the unique identifier of the worksite. Can't be {@code null}.
+	 * @param  code the unique identifier of the worksite. Must not be {@code null}.
 	 * @return      the {@link Worksite} associated with the given code, or
 	 *              {@code null} if no worksite matches the provided code.
 	 */
@@ -39,7 +39,7 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	/**
 	 * Checks whether a {@link Worksite} exists with the specified code.
 	 *
-	 * @param  code the unique identifier of the worksite. Can't be {@code null}.
+	 * @param  code the unique identifier of the worksite. Must not be {@code null}.
 	 * @return      {@code true} if a worksite exists with the given code;
 	 *              {@code false} otherwise.
 	 */
@@ -52,7 +52,8 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	 * Determines whether the {@link Worksite} identified by the given code has at
 	 * least one associated employee.
 	 *
-	 * @param  worksiteCode the unique code of the worksite. Can't be {@code null}.
+	 * @param  worksiteCode the unique code of the worksite. Must not be
+	 *                      {@code null}.
 	 * @return              {@code true} if the worksite has one or more associated
 	 *                      employees; {@code false} otherwise.
 	 */
@@ -66,14 +67,14 @@ interface WorksiteRepository extends JpaRepository<Worksite, Long> {
 	/**
 	 * Queries worksites with an already escaped literal text fragment. Code, name,
 	 * description and address match case-insensitively. An empty query disables the
-	 * text restriction. Filters combine with AND. A null employee number includes
-	 * all scopes; otherwise GLOBAL and explicitly assigned worksites are included.
-	 * No worksite or employee association is changed.
+	 * text restriction. Filters combine with AND. A {@code null} employee number
+	 * includes all scopes; otherwise GLOBAL and explicitly assigned worksites are
+	 * included. No worksite or employee association is changed.
 	 *
 	 * @param  query          nonnull fragment escaped with LikePatterns.escape for
 	 *                        SQL LIKE
-	 * @param  employeeNumber exact validated number, or null to disable visibility
-	 *                        filtering
+	 * @param  employeeNumber exact validated number, or {@code null} to disable
+	 *                        visibility filtering
 	 * @param  pageable       nonnull normalized paging and entity-property sorting
 	 * @return                matching page, possibly empty; deleted worksites are
 	 *                        excluded

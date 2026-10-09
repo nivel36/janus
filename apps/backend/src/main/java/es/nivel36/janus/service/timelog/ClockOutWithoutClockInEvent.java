@@ -44,7 +44,8 @@ import jakarta.validation.constraints.NotNull;
  * </p>
  * <p>
  * An event is considered <em>finalized</em> once it has been resolved or
- * invalidated. After finalization, no further state changes are allowed.
+ * invalidated. After finalization, further resolution or invalidation is
+ * rejected.
  * </p>
  */
 @Entity
@@ -52,74 +53,41 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Primary key that uniquely identifies this event.
-	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	/**
-	 * The employee who performed the clock-out action without a prior clock-in.
-	 * Can't be {@code null}. This value is immutable after creation.
-	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "employee_id", updatable = false)
 	private Employee employee;
 
-	/**
-	 * The worksite where the clock-out action was registered. Can't be
-	 * {@code null}. This value is immutable after creation.
-	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "worksite_id", updatable = false)
 	private Worksite worksite;
 
-	/**
-	 * The instant when the employee clocked out. This value is immutable after
-	 * creation.
-	 */
 	@NotNull
 	@Column(updatable = false)
 	private Instant exitTime;
 
-	/**
-	 * The instant when this anomaly was detected by the system. This value is
-	 * immutable after creation.
-	 */
 	@NotNull
 	@Column(updatable = false)
 	private Instant detectedAt;
 
-	/**
-	 * Indicates whether this event has been resolved by linking it to a valid
-	 * {@link TimeLog}.
-	 */
 	private boolean resolved;
 
-	/**
-	 * Indicates whether this event has been invalidated and should be ignored for
-	 * further processing.
-	 */
 	private boolean invalidated;
 
-	/**
-	 * Optional reason explaining why the event was resolved or invalidated.
-	 */
 	@Column(columnDefinition = "text")
 	private String reason;
 
-	/**
-	 * The {@link TimeLog} that resolves this event, if it has been resolved.
-	 */
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "resolved_timelog_id", unique = true)
 	private TimeLog resolvedTimeLog;
 
 	/**
-	 * Default constructor required by JPA.
+	 * Constructs an empty instance for persistence hydration.
 	 */
 	ClockOutWithoutClockInEvent() {
 	}
@@ -138,15 +106,16 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * </p>
 	 *
 	 * @param  employee                 the employee who performed the clock-out.
-	 *                                  Can't be {@code null}.
+	 *                                  Must not be {@code null}.
 	 * @param  worksite                 the worksite where the clock-out occurred.
-	 *                                  Can't be {@code null}.
+	 *                                  Must not be {@code null}.
 	 * @param  exitTime                 the instant when the clock-out occurred.
-	 *                                  Can't be {@code null}.
+	 *                                  Must not be {@code null}.
 	 * @param  detectedAt               the instant when the event was detected by
-	 *                                  the system. Can't be {@code null}.
+	 *                                  the system. Must not be {@code null}.
 	 * @throws IllegalArgumentException if {@code exitTime} is after
 	 *                                  {@code detectedAt}.
+	 * @throws NullPointerException     if any argument is {@code null}
 	 */
 	public ClockOutWithoutClockInEvent(
 		final Employee employee,
@@ -284,9 +253,10 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	/**
 	 * Invalidates this event and associates a reason with the invalidation.
 	 *
-	 * @param  reason                         explanation for the invalidation.
-	 *                                        Can't be {@code null}.
+	 * @param  reason                         explanation for the invalidation. Must
+	 *                                        not be {@code null}.
 	 * @throws EventAlreadyFinalizedException if the event is already finalized.
+	 * @throws NullPointerException           if {@code reason} is {@code null}
 	 */
 	public void invalidate(final String reason) {
 		this.assertNotFinalized();
@@ -301,8 +271,9 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * </p>
 	 *
 	 * @param  resolvedTimeLog                the time log that resolves this event.
-	 *                                        Can't be {@code null}.
+	 *                                        Must not be {@code null}.
 	 * @throws EventAlreadyFinalizedException if the event is already finalized.
+	 * @throws NullPointerException           if a required argument is {@code null}
 	 */
 	public void resolve(final TimeLog resolvedTimeLog) {
 		this.assertNotFinalized();
@@ -315,10 +286,11 @@ public class ClockOutWithoutClockInEvent implements Serializable {
 	 * resolution reason.
 	 *
 	 * @param  resolvedTimeLog                the time log that resolves this event.
-	 *                                        Can't be {@code null}.
-	 * @param  reason                         explanation for the resolution. Can't
-	 *                                        be {@code null}.
+	 *                                        Must not be {@code null}.
+	 * @param  reason                         explanation for the resolution. Must
+	 *                                        not be {@code null}.
 	 * @throws EventAlreadyFinalizedException if the event is already finalized.
+	 * @throws NullPointerException           if a required argument is {@code null}
 	 */
 	public void resolve(final TimeLog resolvedTimeLog, final String reason) {
 		this.assertNotFinalized();

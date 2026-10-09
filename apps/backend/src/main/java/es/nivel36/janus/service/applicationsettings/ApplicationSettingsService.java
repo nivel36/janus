@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.service.applicationsettings;
 
+import jakarta.validation.ConstraintViolationException;
+
 import java.time.ZoneId;
 import java.util.Objects;
 
@@ -43,7 +45,7 @@ public class ApplicationSettingsService {
 	 * Constructs the service with the required repository.
 	 *
 	 * @param  applicationSettingsRepository repository used to manage application
-	 *                                       settings. Can't be {@code null}.
+	 *                                       settings. Must not be {@code null}.
 	 * @throws NullPointerException          if
 	 *                                       {@code applicationSettingsRepository}
 	 *                                       is {@code null}.
@@ -54,29 +56,32 @@ public class ApplicationSettingsService {
 	}
 
 	/**
-	 * Updates the global {@link ApplicationSettings} with the provided values.
+	 * Replaces all values of the existing global application settings.
 	 * <p>
-	 * The existing settings are retrieved using
-	 * {@link ApplicationSettings#GLOBAL_SETTINGS_ID} and then updated with the
-	 * supplied parameters.
+	 * The complete input is validated before any configuration value is changed.
+	 * This operation does not create the global configuration if it is absent.
 	 *
-	 * @param  daysUntilLocked                   number of days before an entity
-	 *                                           becomes locked; must be greater
-	 *                                           than or equal to {@code 0}
-	 * @param  employeeWorksiteCreationAllowed   whether employees are allowed to
-	 *                                           create personal worksites.
-	 * @param  worksiteChangeDuringShiftAllowed  whether worksite changes are
-	 *                                           allowed during a shift.
-	 * @param  employeeManualTimeLogEntryAllowed whether employees are allowed to
-	 *                                           set custom entry/exit instants in
-	 *                                           timelog operations.
-	 * @param  defaultTimezone                   default application time zone; must
-	 *                                           not be {@code null}
-	 * @return                                   the updated
-	 *                                           {@link ApplicationSettings}
-	 *                                           instance.
-	 * @throws IllegalStateException             if the global application settings
-	 *                                           entry does not exist.
+	 * @param  daysUntilLocked                     the non-negative time-log
+	 *                                             modification window in days
+	 * @param  employeeWorksiteCreationAllowed     whether employees may create
+	 *                                             personal worksites
+	 * @param  worksiteChangeDuringShiftAllowed    whether clock-out at another
+	 *                                             worksite is allowed
+	 * @param  employeeManualTimeLogEntryAllowed   whether employees may supply
+	 *                                             manual timestamps
+	 * @param  defaultTimezone                     the stored global time zone; must
+	 *                                             not be {@code null}
+	 * @return                                     the updated global configuration
+	 * @throws MissingApplicationSettingsException if the global configuration is
+	 *                                             absent
+	 * @throws ConstraintViolationException        if the modification window is
+	 *                                             negative or the zone is
+	 *                                             {@code null} when method
+	 *                                             validation is active
+	 * @throws IllegalArgumentException            if the window is negative without
+	 *                                             method validation
+	 * @throws NullPointerException                if the zone is {@code null}
+	 *                                             without method validation
 	 */
 	@Transactional
 	public ApplicationSettings update(
@@ -104,9 +109,10 @@ public class ApplicationSettingsService {
 	/**
 	 * Retrieves the global {@link ApplicationSettings}.
 	 *
-	 * @return                       the current global {@link ApplicationSettings}.
-	 * @throws IllegalStateException if the global application settings entry does
-	 *                               not exist.
+	 * @return                                     the current global
+	 *                                             {@link ApplicationSettings}.
+	 * @throws MissingApplicationSettingsException if the global application
+	 *                                             settings entry does not exist.
 	 */
 	@Transactional(readOnly = true)
 	public ApplicationSettings findApplicationSettings() {
@@ -119,11 +125,11 @@ public class ApplicationSettingsService {
 	}
 
 	/**
-	 * Retrieves the number of days before entities become locked.
+	 * Returns the configured time-log modification window in days.
 	 *
-	 * @return                       the number of days until locked.
-	 * @throws IllegalStateException if the global application settings entry does
-	 *                               not exist.
+	 * @return                                     the number of days until locked.
+	 * @throws MissingApplicationSettingsException if the global application
+	 *                                             settings entry does not exist.
 	 */
 	@Transactional(readOnly = true)
 	public int getDaysUntilLocked() {
@@ -133,10 +139,12 @@ public class ApplicationSettingsService {
 	/**
 	 * Indicates whether employees are allowed to create personal worksites.
 	 *
-	 * @return                       {@code true} if personal worksite creation is
-	 *                               allowed for employees; {@code false} otherwise.
-	 * @throws IllegalStateException if the global application settings entry does
-	 *                               not exist.
+	 * @return                                     {@code true} if personal worksite
+	 *                                             creation is allowed for
+	 *                                             employees; {@code false}
+	 *                                             otherwise.
+	 * @throws MissingApplicationSettingsException if the global application
+	 *                                             settings entry does not exist.
 	 */
 	@Transactional(readOnly = true)
 	public boolean isEmployeeWorksiteCreationAllowed() {
@@ -146,10 +154,11 @@ public class ApplicationSettingsService {
 	/**
 	 * Indicates whether worksite changes are allowed during a shift.
 	 *
-	 * @return                       {@code true} if worksite changes during a shift
-	 *                               are allowed; {@code false} otherwise.
-	 * @throws IllegalStateException if the global application settings entry does
-	 *                               not exist.
+	 * @return                                     {@code true} if worksite changes
+	 *                                             during a shift are allowed;
+	 *                                             {@code false} otherwise.
+	 * @throws MissingApplicationSettingsException if the global application
+	 *                                             settings entry does not exist.
 	 */
 	@Transactional(readOnly = true)
 	public boolean isWorksiteChangeDuringShiftAllowed() {
@@ -160,10 +169,11 @@ public class ApplicationSettingsService {
 	 * Indicates whether employees are allowed to create manual timelog entries with
 	 * explicit timestamps.
 	 *
-	 * @return                       {@code true} if manual timelog entry is
-	 *                               allowed; {@code false} otherwise.
-	 * @throws IllegalStateException if the global application settings entry does
-	 *                               not exist.
+	 * @return                                     {@code true} if manual timelog
+	 *                                             entry is allowed; {@code false}
+	 *                                             otherwise.
+	 * @throws MissingApplicationSettingsException if the global application
+	 *                                             settings entry does not exist.
 	 */
 	@Transactional(readOnly = true)
 	public boolean isEmployeeManualTimeLogEntryAllowed() {
@@ -174,8 +184,10 @@ public class ApplicationSettingsService {
 	 * Returns the stored global time zone; does not override worksite or account
 	 * zones.
 	 *
-	 * @return                       ZoneId with the stored global time zone
-	 * @throws IllegalStateException if the global settings row is missing
+	 * @return                                     ZoneId with the stored global
+	 *                                             time zone
+	 * @throws MissingApplicationSettingsException if the global settings row is
+	 *                                             missing
 	 */
 	@Transactional(readOnly = true)
 	public ZoneId getDefaultTimezone() {

@@ -5,6 +5,8 @@
  */
 package es.nivel36.janus.policy.timelog;
 
+import org.springframework.security.access.AccessDeniedException;
+
 import java.util.Objects;
 import java.util.OptionalLong;
 
@@ -75,9 +77,18 @@ public final class ClockOutWithoutClockInEventAuthorizationAdapter {
 	}
 
 	/**
-	 * Authorizes only the policy associated with the requested transition.
+	 * Returns the permission decision for the requested final event transition.
+	 * <p>
+	 * An absent action or employee produces {@code false}. Authentication is
+	 * resolved only when an action is supplied, and only the selected action's
+	 * policy is evaluated.
 	 *
-	 * @return {@code false} when no action was supplied
+	 * @param  authentication        the trusted caller authentication
+	 * @param  employeeNumber        the employee owning the event
+	 * @param  action                the requested transition, or {@code null}
+	 * @return                       the selected policy decision, or {@code false}
+	 *                               if action or employee is absent
+	 * @throws AccessDeniedException if the caller cannot be resolved
 	 */
 	public boolean canTransition(
 			final Authentication authentication,

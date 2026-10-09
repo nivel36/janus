@@ -44,66 +44,23 @@ public class ApplicationSettings implements Serializable {
 
 	static final Long GLOBAL_SETTINGS_ID = 1L;
 
-	/**
-	 * Unique identifier of the application settings entity.
-	 * <p>
-	 * As there can only be one setting per app and it cannot be created or deleted,
-	 * the ID value is fixed at 1
-	 * </p>
-	 */
 	@Id
 	@Column(name = "ID", nullable = false, updatable = false)
 	private Long id = GLOBAL_SETTINGS_ID;
 
-	/**
-	 * Number of days during which a {@link TimeLog} remains modifiable.
-	 * <p>
-	 * Must be greater than or equal to {@code 0}. After this period, the
-	 * {@link TimeLog} becomes locked and cannot be modified.
-	 * </p>
-	 */
 	@PositiveOrZero
 	@Column(name = "DAYS_UNTIL_LOCKED", nullable = false)
 	private int daysUntilLocked;
 
-	/**
-	 * Indicates whether employees are allowed to create their own worksite.
-	 * <p>
-	 * When {@code true}, employees can create personal worksite entries. When
-	 * {@code false}, this action is restricted.
-	 * </p>
-	 */
 	@Column(name = "EMPLOYEE_WORKPLACE_CREATION_ALLOWED", nullable = false)
 	private boolean employeeWorksiteCreationAllowed;
 
-	/**
-	 * Indicates whether employees are allowed to change their worksite during an
-	 * active shift.
-	 * <p>
-	 * When {@code true}, worksite changes during a shift are permitted. When
-	 * {@code false}, employees must remain in the same worksite for the duration of
-	 * the shift.
-	 * </p>
-	 */
 	@Column(name = "WORKSITE_CHANGE_DURING_SHIFT_ALLOWED", nullable = false)
 	private boolean worksiteChangeDuringShiftAllowed;
 
-	/**
-	 * Indicates whether employees are allowed to register time logs with manually
-	 * specified timestamps (entry/exit time).
-	 * <p>
-	 * When {@code true}, employees can provide {@code entryTime} / {@code exitTime}
-	 * values and create complete time logs manually. When {@code false}, they can
-	 * only clock in/out using the current instant.
-	 * </p>
-	 */
 	@Column(name = "EMPLOYEE_MANUAL_TIMELOG_ENTRY_ALLOWED", nullable = false)
 	private boolean employeeManualTimeLogEntryAllowed;
 
-	/**
-	 * Stored global time zone. Currently exposed for configuration; business
-	 * operations use worksite zones and account provisioning uses its own defaults.
-	 */
 	@NotNull
 	@Column(name = "DEFAULT_TIMEZONE", nullable = false, columnDefinition = "text")
 	private ZoneId defaultTimezone = ZoneId.of("Europe/Madrid");
@@ -119,7 +76,8 @@ public class ApplicationSettings implements Serializable {
 	}
 
 	/**
-	 * Creates a global configuration with all five values validated.
+	 * Creates a global configuration with a non-negative modification window and a
+	 * non-null stored time zone.
 	 *
 	 * @param  daysUntilLocked                   number of days a {@link TimeLog}
 	 *                                           can be modified; must be greater
@@ -215,7 +173,6 @@ public class ApplicationSettings implements Serializable {
 
 	/**
 	 * Replaces all configuration values after validating the complete input.
-	 * Package access confines mutation to the application settings service.
 	 *
 	 * @param  daysUntilLocked                   non-negative modification window in
 	 *                                           days
@@ -227,7 +184,7 @@ public class ApplicationSettings implements Serializable {
 	 *                                           allowed
 	 * @param  defaultTimezone                   stored global time zone
 	 * @throws IllegalArgumentException          if daysUntilLocked is negative
-	 * @throws NullPointerException              if defaultTimezone is null
+	 * @throws NullPointerException              if defaultTimezone is {@code null}
 	 */
 	void update(
 			final int daysUntilLocked,

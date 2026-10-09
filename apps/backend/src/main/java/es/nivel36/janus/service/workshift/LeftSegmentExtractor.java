@@ -24,39 +24,27 @@ import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.workshift.UnscheduledShiftStrategy.PauseInfo;
 
 /**
- * Extractor implementation that returns the left-hand segment of a list of
- * {@link TimeLog TimeLogs} based on the first {@link PauseInfo} provided.
+ * Selects the segment through the log preceding the first supplied long pause.
  * <p>
- * The extractor identifies the first pause and returns all {@link TimeLog}
- * instances that appear <em>before or at</em> the pause index. This is
- * typically used to separate time logs occurring before a pause within a given
- * day.
- * </p>
- * <p>
- * This class is immutable and stateless.
- * </p>
+ * Selection uses the pause's {@code before} log in the supplied collection. The
+ * required date does not affect segment selection.
  */
 final class LeftSegmentExtractor implements TimeLogsExtractor {
 
 	/**
-	 * Extracts the portion of the {@link TimeLog} list that comes before or at the
-	 * first {@link PauseInfo}.
-	 * <p>
-	 * The method requires at least one pause and one time log to be present. The
-	 * returned list contains all {@link TimeLog} elements whose index is less than
-	 * or equal to the index of the first pause.
-	 * </p>
+	 * Returns the segment through the log preceding the first pause.
 	 *
-	 * @param  date                  the date associated with the time logs; can't
-	 *                               be {@code null}
-	 * @param  timeLogs              the complete list of time logs; can't be
-	 *                               {@code null} or empty
-	 * @param  pauses                the list of pauses used to split the time logs;
-	 *                               can't be {@code null} or empty
-	 * @return                       a list containing the time logs located before
-	 *                               or at the first pause; never {@code null}
-	 * @throws NullPointerException  if any argument is {@code null}
-	 * @throws IllegalStateException if {@code pauses} or {@code timeLogs} is empty
+	 * @param  date                  the required shift date; does not affect
+	 *                               selection
+	 * @param  timeLogs              the non-null, non-empty logs to split
+	 * @param  pauses                the non-null, non-empty pauses in chronological
+	 *                               order
+	 * @return                       the selected segment
+	 * @throws NullPointerException  if an argument or the first pause is
+	 *                               {@code null}
+	 * @throws IllegalStateException if logs or pauses are empty or the first
+	 *                               pause's {@code before} log is absent from
+	 *                               {@code timeLogs}
 	 */
 	@Override
 	public TimeLogs extract(final LocalDate date, final TimeLogs timeLogs, final List<PauseInfo> pauses) {

@@ -54,23 +54,27 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	 * Builds a controller for managing {@link ClockOutWithoutClockInEvent}
 	 * resources.
 	 *
-	 * @param clockOutWithoutClockInEventService  application service handling event
-	 *                                            resolution and invalidation; must
-	 *                                            not be {@code null}
-	 * @param employeeService                     service used to resolve
-	 *                                            {@link Employee} entities; must
-	 *                                            not be {@code null}
-	 * @param applicationSettingsService          service used to read global
-	 *                                            application settings; must not be
-	 *                                            {@code null}
-	 * @param worksiteService                     service used to resolve
-	 *                                            {@link Worksite} entities; must
-	 *                                            not be {@code null}
-	 * @param clockOutWithoutClockInEventResponse mapper converting
-	 *                                            {@link ClockOutWithoutClockInEvent}
-	 *                                            domain objects to
-	 *                                            {@link ClockOutWithoutClockInEventResponse}
-	 *                                            DTOs; must not be {@code null}
+	 * @param  clockOutWithoutClockInEventService        application service
+	 *                                                   handling event resolution
+	 *                                                   and invalidation; must not
+	 *                                                   be {@code null}
+	 * @param  employeeService                           service used to resolve
+	 *                                                   {@link Employee} entities;
+	 *                                                   must not be {@code null}
+	 * @param  applicationSettingsService                service used to read global
+	 *                                                   application settings; must
+	 *                                                   not be {@code null}
+	 * @param  worksiteService                           service used to resolve
+	 *                                                   {@link Worksite} entities;
+	 *                                                   must not be {@code null}
+	 * @param  clockOutWithoutClockInEventResponseMapper mapper converting
+	 *                                                   {@link ClockOutWithoutClockInEvent}
+	 *                                                   domain objects to
+	 *                                                   {@link ClockOutWithoutClockInEventResponse}
+	 *                                                   DTOs; must not be
+	 *                                                   {@code null}
+	 * @throws NullPointerException                      if any required dependency
+	 *                                                   is {@code null}
 	 */
 	public ClockOutWithoutClockInEventController(
 		final ClockOutWithoutClockInEventService clockOutWithoutClockInEventService,
@@ -114,15 +118,7 @@ public class ClockOutWithoutClockInEventController implements ClockOutWithoutClo
 	}
 
 	/**
-	 * Retrieves a {@link ClockOutWithoutClockInEvent} by employee, worksite, and
-	 * exit time.
-	 *
-	 * @param  employeeNumber the number of the employee; must not be {@code null}
-	 * @param  worksiteCode   the code of the worksite where the event was recorded;
-	 *                        must not be {@code null}
-	 * @param  exitTime       the exit time of the event; must not be {@code null}
-	 * @return                the requested
-	 *                        {@link ClockOutWithoutClockInEventResponse}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public ResponseEntity<ClockOutWithoutClockInEventResponse> findClockOutWithoutClockInEvent(

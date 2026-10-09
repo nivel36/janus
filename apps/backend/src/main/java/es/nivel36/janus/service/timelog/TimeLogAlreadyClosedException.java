@@ -24,8 +24,7 @@ public class TimeLogAlreadyClosedException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a new {@code TimeLogAlreadyClosedException} with no detail message or
-	 * cause.
+	 * Creates an exception with the default detail message.
 	 */
 	public TimeLogAlreadyClosedException() {
 		super("The TimeLog record cannot be closed because it has already been closed.");

@@ -24,25 +24,22 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Request payload for creating a new {@link TimeLog}.
+ * Request payload for creating a closed {@link TimeLog}.
  * <p>
- * This record encapsulates the entry and exit instants associated with a time
- * log. Both fields are non {@code null} and in UTC (ISO-8601) format (e.g.
- * 2025-09-12T08:30:00Z).
- * <p>
- * The entry time must be before the exit time.
+ * Validation requires both instants and an exit strictly after entry.
+ * Construction alone does not validate these conditions.
  *
- * @param entryTime the entry instant in UTC (ISO-8601); must not be
- *                  {@code null}
- * @param exitTime  the exit instant in UTC (ISO-8601); must not be {@code null}
- *                  and must be after {@code entryTime}
+ * @param entryTime the clock-in instant; must not be {@code null} when
+ *                  validated
+ * @param exitTime  the clock-out instant; must be non-null and strictly after
+ *                  {@code entryTime} when validated
  */
 public record CreateTimeLogRequest(@NotNull(message = "entryTime must not be null")
 Instant entryTime, @NotNull(message = "exitTime must not be null")
 Instant exitTime) {
 
 	/**
-	 * Validates that {@code exitTime} is after {@code entryTime} when both are
+	 * Returns whether {@code exitTime} is after {@code entryTime} when both are
 	 * provided.
 	 *
 	 * @return {@code true} if the time range is valid or incomplete, {@code false}

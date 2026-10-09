@@ -16,30 +16,8 @@
 package es.nivel36.janus.service;
 
 /**
- * Exception thrown to indicate that a requested resource already exists.
- * <p>
- * This exception is a generic alternative to persistence-specific exceptions
- * (such as {@code EntityExistsException}) and can be used across different
- * layers of the application, including service and web layers, without
- * introducing dependencies on JPA or other persistence frameworks.
- * <p>
- * Typical use cases include scenarios where a creation attempt fails because a
- * resource with the same identifier or unique attribute already exists.
- * <p>
- * <b>Example:</b>
- * </p>
- *
- * <pre>{@code
- * // Service layer example
- * public void registerEmployee(String email) {
- * 	if (employeeRepository.existsByEmail(email)) {
- * 		throw new ResourceAlreadyExistsException("Employee already exists: " + email);
- * 	}
- * 	employeeRepository.save(new Employee(email));
- * }
- * }</pre>
- *
- * @see RuntimeException
+ * Signals that an operation conflicts with an existing resource or unique
+ * attribute.
  */
 public class ResourceAlreadyExistsException extends RuntimeException {
 

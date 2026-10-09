@@ -37,13 +37,16 @@ public class CatalogController implements CatalogResource {
 	private final Mapper<TimeZoneCatalogItem, TimeZoneCatalogItemResponse> timeZoneCatalogItemResponseMapper;
 
 	/**
-	 * Builds a controller with the required catalog service dependency.
+	 * Constructs a controller for time-zone catalog searches.
 	 *
-	 * @param timeZoneCatalogService            service used to retrieve time zone
-	 *                                          catalog data
-	 * @param timeZoneCatalogItemResponseMapper mapper converting catalog items to
-	 *                                          API responses; must not be
-	 *                                          {@code null}
+	 * @param  timeZoneCatalogService            service used to retrieve time zone
+	 *                                           catalog data; must not be
+	 *                                           {@code null}
+	 * @param  timeZoneCatalogItemResponseMapper mapper converting catalog items to
+	 *                                           API responses; must not be
+	 *                                           {@code null}
+	 * @throws NullPointerException              if any required dependency is
+	 *                                           {@code null}
 	 */
 	public CatalogController(
 		final TimeZoneCatalogService timeZoneCatalogService,
@@ -55,12 +58,7 @@ public class CatalogController implements CatalogResource {
 	}
 
 	/**
-	 * Returns a paginated list of Java time zones with formatted literal and split
-	 * levels.
-	 *
-	 * @param  query    optional search text over full zone id values
-	 * @param  pageable pagination and sorting information
-	 * @return          a page with matching time zone catalog items
+	 * {@inheritDoc}
 	 */
 	@Override
 	public ResponseEntity<Page<TimeZoneCatalogItemResponse>> searchTimeZones(

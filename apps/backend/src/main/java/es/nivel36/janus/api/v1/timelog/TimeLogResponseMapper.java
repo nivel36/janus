@@ -41,7 +41,7 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 	 * Creates a mapper without accessing persistence.
 	 *
 	 * @param  durationResponseMapper nonnull duration mapper
-	 * @throws NullPointerException   if the mapper is null
+	 * @throws NullPointerException   if the mapper is {@code null}
 	 */
 	public TimeLogResponseMapper(
 		final @Qualifier("durationResponseMapper") Mapper<Duration, DurationResponse> durationResponseMapper) {
@@ -50,12 +50,13 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 	}
 
 	/**
-	 * Maps stable business identifiers, worksite timezone and recorded instants.
+	 * Maps stable business identifiers, worksite time zone and recorded instants.
 	 *
 	 * @param  entity               time log with readable employee and worksite
-	 *                              associations; may be null
-	 * @return                      response, or null for a null entity; open logs
-	 *                              have null exit and duration
+	 *                              associations; may be {@code null}
+	 * @return                      response, or {@code null} for a {@code null}
+	 *                              entity; open logs have {@code null} exit and
+	 *                              duration
 	 * @throws NullPointerException if an association is absent
 	 */
 	@Override

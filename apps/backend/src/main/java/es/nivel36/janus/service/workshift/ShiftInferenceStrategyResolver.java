@@ -36,10 +36,10 @@ class ShiftInferenceStrategyResolver {
 	 *
 	 * @param  timeRange            an optional scheduled time range for the shift.
 	 *                              If present, it influences the strategy
-	 *                              selection. Can't be {@code null}.
-	 * @param  timeZone             the timeZone associated with the shift. Can't be
-	 *                              {@code null}.
-	 * @param  policy               the shift policy to apply. Can't be
+	 *                              selection. Must not be {@code null}.
+	 * @param  timeZone             the timeZone associated with the shift. Must not
+	 *                              be {@code null}.
+	 * @param  policy               the shift policy to apply. Must not be
 	 *                              {@code null}.
 	 * @return                      the resolved {@code ShiftInferenceStrategy}
 	 *                              implementation matching the provided context

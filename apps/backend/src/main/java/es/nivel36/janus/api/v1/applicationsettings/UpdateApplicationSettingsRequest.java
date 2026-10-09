@@ -22,22 +22,31 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 /**
- * Request payload used to update global application settings. Uses only the
- * canonical JSON property names shown below.
+ * Request payload for replacing all global application settings.
+ * <p>
+ * All components are required when the payload is validated. Construction alone
+ * does not enforce the validation constraints or normalize the values.
  *
  * @param daysUntilLocked                   number of days a time log remains
- *                                          editable; must be greater than or
- *                                          equal to zero
+ *                                          editable; must not be {@code null}
+ *                                          and must be greater than or equal to
+ *                                          {@code 0}
  * @param employeeWorksiteCreationAllowed   whether employees can create
- *                                          personal worksites
+ *                                          personal worksites; must not be
+ *                                          {@code null}
  * @param worksiteChangeDuringShiftAllowed  whether changing worksite during a
- *                                          shift is allowed
+ *                                          shift is allowed; must not be
+ *                                          {@code null}
  * @param employeeManualTimeLogEntryAllowed whether employees can set custom
- *                                          entry/exit instants in timelog
- *                                          operations
- * @param defaultTimezone                   valid time-zone identifier accepted
- *                                          by ZoneId; must not be blank;
- *                                          surrounding spaces are trimmed
+ *                                          entry and exit timestamps in time
+ *                                          log operations; must not be
+ *                                          {@code null}
+ * @param defaultTimezone                   global time-zone identifier; must
+ *                                          not be {@code null} or blank and
+ *                                          must not exceed {@code 64}
+ *                                          characters before trimming; the
+ *                                          trimmed value must be accepted by
+ *                                          {@link java.time.ZoneId#of(String)}
  */
 public record UpdateApplicationSettingsRequest(
 

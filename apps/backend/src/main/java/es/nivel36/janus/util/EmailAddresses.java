@@ -24,7 +24,7 @@ public final class EmailAddresses {
 	 *
 	 * @param  email                    nonnull, nonblank contact email
 	 * @return                          trimmed, lowercase email using Locale.ROOT
-	 * @throws NullPointerException     if email is null
+	 * @throws NullPointerException     if email is {@code null}
 	 * @throws IllegalArgumentException if email is blank or its normalized length
 	 *                                  exceeds 254
 	 */

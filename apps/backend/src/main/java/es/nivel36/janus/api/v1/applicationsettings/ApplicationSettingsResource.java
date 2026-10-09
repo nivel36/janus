@@ -22,30 +22,51 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import es.nivel36.janus.service.applicationsettings.MissingApplicationSettingsException;
+
 import jakarta.validation.Valid;
 
 /**
- * HTTP contract for reading and replacing the single global configuration.
+ * HTTP contract for reading and replacing global application settings.
+ * <p>
+ * Operations require an authenticated identity with an existing application
+ * profile and the roles specified for each operation.
  */
 @RequestMapping({ "/api/v1/application-settings" })
 public interface ApplicationSettingsResource {
 
 	/**
-	 * Retrieves the global application settings.
+	 * Returns the current global application settings.
+	 * <p>
+	 * Access requires the {@code JANUS_EMPLOYEE}, {@code JANUS_USER}, or
+	 * {@code JANUS_ADMIN} role.
 	 *
-	 * @return a {@link ResponseEntity} containing the current application settings
+	 * @return                                     an HTTP {@code 200 OK} response
+	 *                                             containing the current settings
+	 * @throws MissingApplicationSettingsException if the global application
+	 *                                             settings do not exist
 	 */
 	@GetMapping
 	@PreAuthorize("@applicationSettingsAuthorization.canView(authentication)")
 	ResponseEntity<ApplicationSettingsResponse> findApplicationSettings();
 
 	/**
-	 * Updates the global application settings.
+	 * Replaces all global application settings with the supplied values.
+	 * <p>
+	 * Access requires the {@code JANUS_ADMIN} role. HTTP requests are validated
+	 * against the constraints on {@link UpdateApplicationSettingsRequest}; invalid
+	 * payloads produce an HTTP {@code 400 Bad Request} response without changing
+	 * the settings. Leading and trailing whitespace in the time-zone identifier is
+	 * removed before the zone is stored.
 	 *
-	 * @param  request the payload describing the new settings; must not be
-	 *                 {@code null}
-	 * @return         a {@link ResponseEntity} containing the updated application
-	 *                 settings
+	 * @param  request                             the complete replacement
+	 *                                             settings; must not be
+	 *                                             {@code null} and must satisfy the
+	 *                                             request validation constraints
+	 * @return                                     an HTTP {@code 200 OK} response
+	 *                                             containing the updated settings
+	 * @throws MissingApplicationSettingsException if the global application
+	 *                                             settings do not exist
 	 */
 	@PutMapping
 	@PreAuthorize("@applicationSettingsAuthorization.canUpdate(authentication)")

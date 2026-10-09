@@ -44,26 +44,33 @@ public class TimeZoneCatalogService {
 	/**
 	 * Creates a time zone catalog service.
 	 *
-	 * @param clock clock used to determine the current instant; must not be
-	 *              {@code null}
+	 * @param  clock                clock used to determine the current instant;
+	 *                              must not be {@code null}
+	 * @throws NullPointerException if any required dependency is {@code null}
 	 */
 	public TimeZoneCatalogService(final Clock clock) {
 		this.clock = Objects.requireNonNull(clock, "clock can't be null");
 	}
 
 	/**
-	 * Searches available Java {@link ZoneId} values and returns a paginated
-	 * catalog.
+	 * Returns a page of available Java time zones with their current UTC offsets.
 	 * <p>
-	 * Search is a simple case-insensitive {@code contains} over the full zone id
-	 * string.
-	 * </p>
+	 * A nonblank query matches the full zone identifier case-insensitively and
+	 * literally, without trimming. A {@code null} or blank query disables
+	 * filtering. Offsets are evaluated at the instant supplied by this service's
+	 * clock.
+	 * <p>
+	 * Supported sort properties are {@code level1}, {@code level2}, and
+	 * {@code utc}; UTC sorting uses the numeric offset. Full zone identifiers break
+	 * ties and provide the default ascending order when no sort is supplied.
 	 *
-	 * @param  query    optional search text applied to the full zone id
-	 * @param  pageable pagination and sorting information; supported sort
-	 *                  properties are {@code level1}, {@code level2}, and
-	 *                  {@code utc}
-	 * @return          a page of catalog items matching the input filters
+	 * @param  query                    the optional zone-identifier fragment
+	 * @param  pageable                 the requested page and ordering; must be
+	 *                                  non-null and paged
+	 * @return                          the matching catalog page, possibly empty
+	 * @throws IllegalArgumentException if a sort property is unsupported
+	 * @throws ArithmeticException      if the requested offset cannot be
+	 *                                  represented as an integer
 	 */
 	public Page<TimeZoneCatalogItem> search(final String query, final @NotNull Pageable pageable) {
 		final String normalizedQuery = query == null ? null : query.toLowerCase(Locale.ROOT);

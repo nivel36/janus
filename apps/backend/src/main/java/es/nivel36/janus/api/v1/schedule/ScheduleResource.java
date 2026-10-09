@@ -43,8 +43,9 @@ import jakarta.validation.Valid;
 /**
  * HTTP contract for schedules at {@code /api/v1/schedules}. Requests require a
  * validated bearer JWT and a provisioned actor. Authorization precedes
- * execution. JANUS_ADMIN and JANUS_USER have full access; callers with only
- * JANUS_EMPLOYEE may search and view their own assigned schedule.
+ * execution. {@code JANUS_ADMIN} and {@code JANUS_USER} have full access;
+ * callers with only {@code JANUS_EMPLOYEE} may search and view their own
+ * assigned schedule.
  */
 @RequestMapping("/api/v1/schedules")
 public interface ScheduleResource {
@@ -67,10 +68,11 @@ public interface ScheduleResource {
 	 * {@code spring.data.rest.max-page-size} (100 by default).
 	 * </p>
 	 *
-	 * @param  query                        optional literal fragment; null disables
-	 *                                      text filtering
-	 * @param  employeeNumber               optional exact employee filter; null
-	 *                                      omits the filter for elevated callers
+	 * @param  query                        optional literal fragment; {@code null}
+	 *                                      disables text filtering
+	 * @param  employeeNumber               optional exact employee filter;
+	 *                                      {@code null} omits the filter for
+	 *                                      elevated callers
 	 * @param  pageable                     requested page and ordering; HTTP
 	 *                                      defaults are page 0, size 20
 	 * @param  authentication               current validated authentication
@@ -116,13 +118,15 @@ public interface ScheduleResource {
 			String scheduleCode);
 
 	/**
-	 * Creates a schedule as a provisioned JANUS_ADMIN or JANUS_USER. The nonnull
-	 * payload must pass Bean Validation, including nested definitions. Code is
-	 * unique and immutable. Name is trimmed and tolerances are nonnegative. Empty
-	 * rules or day ranges are allowed. Rule dates must be ordered, each rule has at
-	 * most one range per weekday, and effective work cannot exceed the range
-	 * duration. Overnight ranges are supported. Invalid requests do not persist a
-	 * schedule.
+	 * Creates a schedule as a provisioned {@code JANUS_ADMIN} or
+	 * {@code JANUS_USER}. The nonnull payload must pass Bean Validation, including
+	 * nested definitions. Code is unique and immutable. Name is trimmed and
+	 * tolerances are nonnegative. Empty rules or day ranges are allowed. Rule dates
+	 * must be ordered and effective work cannot exceed the range duration. Each
+	 * rule must have at most one range per weekday. Schedule names and nonnull rule
+	 * names must be unique across persisted schedules and rules, respectively.
+	 * Overlapping rule periods and overnight ranges are supported. Invalid requests
+	 * do not persist a schedule.
 	 *
 	 * @param  request                        complete validated schedule definition
 	 * @return                                HTTP 201 containing the created
@@ -139,11 +143,12 @@ public interface ScheduleResource {
 			CreateScheduleRequest request);
 
 	/**
-	 * Replaces an existing schedule as a provisioned JANUS_ADMIN or JANUS_USER.
-	 * Code must match {@code [A-Za-z0-9_-]{1,50}} without trimming; the nonnull
-	 * payload has creation's constraints. Name is trimmed, tolerances and all rules
-	 * are replaced, and code and employee assignments are preserved. Empty rules
-	 * remove the complete rule set. Invalid requests do not modify the schedule.
+	 * Replaces an existing schedule as a provisioned {@code JANUS_ADMIN} or
+	 * {@code JANUS_USER}. Code must match {@code [A-Za-z0-9_-]{1,50}} without
+	 * trimming; the nonnull payload has creation's constraints. Name is trimmed,
+	 * tolerances and all rules are replaced, and code and employee assignments are
+	 * preserved. Empty rules remove the complete rule set. Invalid requests do not
+	 * modify the schedule.
 	 *
 	 * @param  scheduleCode                 exact immutable business code of the
 	 *                                      target
@@ -165,10 +170,10 @@ public interface ScheduleResource {
 			UpdateScheduleRequest request);
 
 	/**
-	 * Deletes an unassigned schedule as a provisioned JANUS_ADMIN or JANUS_USER.
-	 * Code must match {@code [A-Za-z0-9_-]{1,50}} without trimming and the target
-	 * must exist. Rules and ranges are removed with the schedule; assigned
-	 * schedules are preserved and return HTTP 409.
+	 * Deletes an unassigned schedule as a provisioned {@code JANUS_ADMIN} or
+	 * {@code JANUS_USER}. Code must match {@code [A-Za-z0-9_-]{1,50}} without
+	 * trimming and the target must exist. Rules and ranges are removed with the
+	 * schedule; assigned schedules are preserved and return HTTP 409.
 	 *
 	 * @param  scheduleCode                 exact immutable business code of the
 	 *                                      target

@@ -33,11 +33,11 @@ import java.util.Objects;
  * non-negative and not {@code null}.
  *
  * @param selectionMargin    Temporal margin applied when selecting candidate
- *                           logs around a scheduled shift window. Can't be
+ *                           logs around a scheduled shift window. Must not be
  *                           {@code null} and must be non-negative.
  * @param longPauseThreshold Duration that defines when a pause is considered
- *                           long enough to separate two inferred shifts. Can't
- *                           be {@code null} and must be non-negative.
+ *                           long enough to separate two inferred shifts. Must
+ *                           not be {@code null} and must be non-negative.
  */
 record ShiftPolicy(Duration selectionMargin, Duration longPauseThreshold) {
 
@@ -45,10 +45,10 @@ record ShiftPolicy(Duration selectionMargin, Duration longPauseThreshold) {
 	 * Creates a new {@code ShiftPolicy} with the specified thresholds.
 	 *
 	 * @param  selectionMargin          Temporal margin used during scheduled shift
-	 *                                  selection. Can't be {@code null} and must be
-	 *                                  non-negative.
+	 *                                  selection. Must not be {@code null} and must
+	 *                                  be non-negative.
 	 * @param  longPauseThreshold       Threshold that defines a long pause between
-	 *                                  shifts. Can't be {@code null} and must be
+	 *                                  shifts. Must not be {@code null} and must be
 	 *                                  non-negative.
 	 * @throws NullPointerException     if {@code selectionMargin} or
 	 *                                  {@code longPauseThreshold} is {@code null}

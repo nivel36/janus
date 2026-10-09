@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.service.schedule;
 
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -29,18 +31,10 @@ import org.springframework.stereotype.Repository;
 import es.nivel36.janus.service.employee.Employee;
 
 /**
- * Repository interface responsible for interacting with the persistence layer
- * to manage {@link Schedule} entities.
+ * Persistence contract for schedules, their rules and employee assignments.
  * <p>
- * This repository extends {@link JpaRepository}, providing standard CRUD
- * operations as well as custom query methods for retrieving schedules and
- * related data such as {@link TimeRange} and employee associations.
- * </p>
- * <p>
- * It includes optimized queries using {@link Query} and {@link EntityGraph} to
- * efficiently fetch related entities and enforce business constraints defined
- * at the persistence level.
- * </p>
+ * Queries return stored data without validating the consistency or uniqueness
+ * of rule periods and weekday ranges.
  */
 @Repository
 interface ScheduleRepository extends JpaRepository<Schedule, Long> {
@@ -74,35 +68,23 @@ interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 	long deleteByCode(String code);
 
 	/**
-	 * Retrieves the {@link TimeRange} for a given {@link Employee} on a specific
-	 * {@link LocalDate}, considering only the shift that starts on that date.
+	 * Returns the scheduled range starting on the supplied weekday within an active
+	 * rule.
 	 * <p>
-	 * Business rules assumed for this query:
-	 * </p>
-	 * <ul>
-	 * <li>Within a {@link Schedule}, {@link ScheduleRule} date ranges never
-	 * overlap.</li>
-	 * <li>Each {@link ScheduleRule} can have at most one {@link DayOfWeekTimeRange}
-	 * starting on a given {@link DayOfWeek}.</li>
-	 * <li>Night shifts starting on the previous day and extending past midnight are
-	 * not considered.</li>
-	 * </ul>
-	 * <p>
-	 * These constraints guarantee that at most one matching {@link TimeRange}
-	 * exists for a given date.
-	 * </p>
+	 * Both date bounds are inclusive; a {@code null} rule bound is open-ended.
+	 * Overnight shifts starting on the previous date are excluded. Callers must
+	 * ensure that at most one range matches: this query does not select between
+	 * overlapping rules or duplicate weekday ranges.
 	 *
-	 * @param  employeeId           the internal id of the employee whose time range
-	 *                              is to be retrieved; must not be {@code null}
-	 * @param  date                 the date for which the time range is to be
-	 *                              retrieved; must not be {@code null}
-	 * @param  dayOfWeek            the {@link DayOfWeek} corresponding to
-	 *                              {@code date}; must not be {@code null}
-	 * @return                      an {@link Optional} containing the
-	 *                              {@link TimeRange} if one starts on that date, or
-	 *                              an empty {@link Optional} if no shift starts on
-	 *                              that date
-	 * @throws NullPointerException if any parameter is {@code null}
+	 * @param  employeeId                             the persistent employee
+	 *                                                identifier
+	 * @param  date                                   the local date used to test
+	 *                                                rule validity
+	 * @param  dayOfWeek                              the weekday corresponding to
+	 *                                                {@code date}
+	 * @return                                        the matching range, or an
+	 *                                                empty optional if none matches
+	 * @throws IncorrectResultSizeDataAccessException if more than one range matches
 	 */
 	@Query("""
 			SELECT d.timeRange

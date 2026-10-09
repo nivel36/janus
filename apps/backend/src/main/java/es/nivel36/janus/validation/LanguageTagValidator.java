@@ -6,6 +6,10 @@ import java.util.Locale;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+/**
+ * Validates the well-formedness of language tags under the {@link LanguageTag}
+ * contract.
+ */
 public class LanguageTagValidator implements ConstraintValidator<LanguageTag, String> {
 
 	@Override

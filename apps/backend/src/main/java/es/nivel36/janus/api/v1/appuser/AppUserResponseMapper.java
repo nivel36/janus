@@ -30,16 +30,15 @@ import es.nivel36.janus.service.employee.Employee;
  * {@link es.nivel36.janus.api.Mapper} contract. A nonnull source must have
  * nonnull preferences and a readable employee association (initialized or
  * accessible in an open persistence context). Mapping leaves the entity
- * unchanged, converts locale/timezone to identifiers, and exposes only the
- * employee number, never the provider subject. A null source produces null; an
- * unlinked source produces a null employee number.
+ * unchanged, converts locale/time zone to identifiers, and exposes only the
+ * employee number, never the provider subject. A {@code null} source produces
+ * {@code null}; an unlinked source produces a {@code null} employee number.
  */
 @Component
 public class AppUserResponseMapper implements Mapper<AppUser, AppUserResponse> {
 
 	/**
-	 * Creates a stateless mapper with no dependencies or persistence effects. The
-	 * mapper is ready to map initialized profiles under the Mapper contract.
+	 * Constructs a stateless application-profile response mapper.
 	 */
 	public AppUserResponseMapper() {
 	}

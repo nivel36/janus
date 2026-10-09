@@ -43,13 +43,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
- * Local application profile with an immutable provider subject and mutable
- * contact information, preferences and optional employee association. Public
- * constructors require valid nonnull identity/contact values and preferences. A
- * new profile is unpersisted, unlinked and uses DARK theme. Persistence
- * enforces one profile per subject and at most one per employee; email is not
- * unique. Association changes synchronize both entity references but callers
- * must arrange authorization and transactional persistence.
+ * Local profile with an immutable provider subject and mutable contact
+ * preferences.
+ * <p>
+ * Public constructors require nonblank identity and contact values within their
+ * length limits and non-null preferences. They do not validate email syntax.
+ * New profiles have no identifier or employee link and use {@link Theme#DARK}.
+ * <p>
+ * Persistence enforces subject uniqueness and at most one profile per employee;
+ * contact email is not unique. Association changes synchronize both entity
+ * references. Authorization and transactional persistence remain the caller's
+ * responsibility.
  */
 @Entity
 public class AppUser implements Serializable {
@@ -61,79 +65,53 @@ public class AppUser implements Serializable {
 	 */
 	public static final ZoneId DEFAULT_TIMEZONE = ZoneId.of("UTC");
 
-	/**
-	 * Persistence-generated profile UUID; null before assignment.
-	 */
 	@Id
 	@GeneratedValue
 	@UuidGenerator
 	private UUID id;
 
-	/**
-	 * Normalized mutable contact email; nonblank and not a unique identity key.
-	 */
 	@NotBlank
 	@Email
 	@Size(max = 254)
 	@Column(columnDefinition = "text")
 	private String email;
 
-	/**
-	 * Immutable nonblank provider subject, unique within the configured issuer.
-	 */
 	@NaturalId
 	@NotBlank
 	@Size(max = 255)
 	@Column(updatable = false, unique = true, columnDefinition = "text")
 	private String keycloakSubject;
 
-	/**
-	 * Nonnull preferred locale once constructed or hydrated.
-	 */
 	@NotNull
 	@Column(columnDefinition = "text")
 	private Locale locale;
 
-	/**
-	 * Nonnull preferred time display format once constructed or hydrated.
-	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(columnDefinition = "text")
 	private TimeFormat timeFormat;
 
-	/**
-	 * Nonnull preferred color scheme, initially DARK.
-	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(columnDefinition = "text")
 	private Theme theme = Theme.DARK;
 
-	/**
-	 * Nonnull preferred timezone once constructed or hydrated.
-	 */
 	@NotNull
 	@Column(columnDefinition = "text")
 	private ZoneId defaultTimezone;
 
-	/**
-	 * Optional one-to-one employee association; may require lazy initialization.
-	 */
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "employee_id")
 	private Employee employee;
 
 	/**
-	 * Creates the empty persistence shell required by JPA. Identity, preferences
-	 * and associations must be hydrated before normal use; construction performs no
-	 * persistence or input validation.
+	 * Constructs an empty instance for persistence hydration.
 	 */
 	AppUser() {
 	}
 
 	/**
-	 * Creates an unpersisted, unlinked DARK profile with UTC timezone. All
+	 * Creates an unpersisted, unlinked DARK profile with UTC time zone. All
 	 * arguments must be nonnull; email must be nonblank and at most 254 characters
 	 * after normalization. Subject must be nonblank and at most 255 characters, is
 	 * opaque and is retained exactly.
@@ -142,7 +120,7 @@ public class AppUser implements Serializable {
 	 * @param  keycloakSubject          immutable provider subject
 	 * @param  locale                   initial locale
 	 * @param  timeFormat               initial time display format
-	 * @throws NullPointerException     if any argument is null
+	 * @throws NullPointerException     if any argument is {@code null}
 	 * @throws IllegalArgumentException if email or subject is blank or oversized
 	 */
 	public AppUser(final String email, final String keycloakSubject, final Locale locale, final TimeFormat timeFormat) {
@@ -161,8 +139,8 @@ public class AppUser implements Serializable {
 	 *                                  supplied
 	 * @param  locale                   initial locale
 	 * @param  timeFormat               initial time display format
-	 * @param  defaultTimezone          initial timezone
-	 * @throws NullPointerException     if any argument is null
+	 * @param  defaultTimezone          initial time zone
+	 * @throws NullPointerException     if any argument is {@code null}
 	 * @throws IllegalArgumentException if email or subject is blank or oversized
 	 */
 	public AppUser(
@@ -181,7 +159,7 @@ public class AppUser implements Serializable {
 	/**
 	 * Returns the profile's persistence identifier without changing the profile.
 	 *
-	 * @return generated UUID, or null before persistence assigns it
+	 * @return generated UUID, or {@code null} before persistence assigns it
 	 */
 	public UUID getId() {
 		return this.id;
@@ -191,7 +169,7 @@ public class AppUser implements Serializable {
 	 * Assigns an identifier for package-internal hydration or test setup. This
 	 * method does not persist the profile or check identifier uniqueness.
 	 *
-	 * @param id assigned UUID, or null to represent an unpersisted profile
+	 * @param id assigned UUID, or {@code null} to represent an unpersisted profile
 	 */
 	void setId(final UUID id) {
 		this.id = id;
@@ -212,7 +190,7 @@ public class AppUser implements Serializable {
 	 * Invalid input leaves the previous email unchanged.
 	 *
 	 * @param  email                    contact email to trim and lowercase
-	 * @throws NullPointerException     if email is null
+	 * @throws NullPointerException     if email is {@code null}
 	 * @throws IllegalArgumentException if normalized email is blank or oversized
 	 */
 	void setEmail(final String email) {
@@ -234,7 +212,7 @@ public class AppUser implements Serializable {
 	 * @param  keycloakSubject          nonnull, nonblank subject of at most 255
 	 *                                  characters
 	 * @return                          the exact supplied subject
-	 * @throws NullPointerException     if subject is null
+	 * @throws NullPointerException     if subject is {@code null}
 	 * @throws IllegalArgumentException if subject is blank or oversized
 	 */
 	static String validateKeycloakSubject(final String keycloakSubject) {
@@ -252,7 +230,7 @@ public class AppUser implements Serializable {
 	 *                                  lowercase
 	 * @return                          normalized nonblank email of at most 254
 	 *                                  characters
-	 * @throws NullPointerException     if email is null
+	 * @throws NullPointerException     if email is {@code null}
 	 * @throws IllegalArgumentException if normalized email is blank or oversized
 	 */
 	static String validateEmail(final String email) {
@@ -267,9 +245,9 @@ public class AppUser implements Serializable {
 	 *
 	 * @param  locale               replacement locale
 	 * @param  timeFormat           replacement time display format
-	 * @param  defaultTimezone      replacement timezone
+	 * @param  defaultTimezone      replacement time zone
 	 * @param  theme                replacement color theme
-	 * @throws NullPointerException if any argument is null
+	 * @throws NullPointerException if any argument is {@code null}
 	 */
 	void updatePreferences(
 			final Locale locale,
@@ -301,7 +279,7 @@ public class AppUser implements Serializable {
 	 * does not write to the database.
 	 *
 	 * @param  locale               nonnull replacement locale
-	 * @throws NullPointerException if locale is null
+	 * @throws NullPointerException if locale is {@code null}
 	 */
 	void setLocale(final Locale locale) {
 		this.locale = Objects.requireNonNull(locale, "locale can't be null");
@@ -322,7 +300,7 @@ public class AppUser implements Serializable {
 	 * This method does not write to the database.
 	 *
 	 * @param  timeFormat           nonnull replacement time display format
-	 * @throws NullPointerException if timeFormat is null
+	 * @throws NullPointerException if timeFormat is {@code null}
 	 */
 	void setTimeFormat(final TimeFormat timeFormat) {
 		this.timeFormat = Objects.requireNonNull(timeFormat, "timeFormat can't be null");
@@ -343,28 +321,28 @@ public class AppUser implements Serializable {
 	 * method does not write to the database.
 	 *
 	 * @param  theme                nonnull replacement color theme
-	 * @throws NullPointerException if theme is null
+	 * @throws NullPointerException if theme is {@code null}
 	 */
 	void setTheme(final Theme theme) {
 		this.theme = Objects.requireNonNull(theme, "theme can't be null");
 	}
 
 	/**
-	 * Returns the current timezone preference without changing it.
+	 * Returns the current time zone preference without changing it.
 	 *
-	 * @return nonnull preferred timezone
+	 * @return nonnull preferred time zone
 	 */
 	public ZoneId getDefaultTimezone() {
 		return this.defaultTimezone;
 	}
 
 	/**
-	 * Replaces the timezone without changing other profile attributes. The value
+	 * Replaces the time zone without changing other profile attributes. The value
 	 * must be nonnull; invalid input leaves the previous value unchanged. This
 	 * method does not write to the database.
 	 *
-	 * @param  defaultTimezone      nonnull replacement timezone
-	 * @throws NullPointerException if defaultTimezone is null
+	 * @param  defaultTimezone      nonnull replacement time zone
+	 * @throws NullPointerException if defaultTimezone is {@code null}
 	 */
 	void setDefaultTimezone(final ZoneId defaultTimezone) {
 		this.defaultTimezone = Objects.requireNonNull(defaultTimezone, "defaultTimezone can't be null or blank");
@@ -375,7 +353,7 @@ public class AppUser implements Serializable {
 	 * accessing a lazy association must have an initialized association or an
 	 * active persistence context.
 	 *
-	 * @return associated employee, or null when unlinked
+	 * @return associated employee, or {@code null} when unlinked
 	 */
 	public Employee getEmployee() {
 		return this.employee;
@@ -396,7 +374,8 @@ public class AppUser implements Serializable {
 	 * enclosing transaction.
 	 * </p>
 	 *
-	 * @param employee employee to associate, or null to clear the association
+	 * @param employee employee to associate, or {@code null} to clear the
+	 *                 association
 	 */
 	public void setEmployee(final Employee employee) {
 		if (this.employee == employee) {
@@ -415,10 +394,10 @@ public class AppUser implements Serializable {
 	/**
 	 * Compares persisted identity without changing either profile.
 	 *
-	 * @param  obj any object, including null
-	 * @return     true for the same instance, or an AppUser of the same runtime
-	 *             class with the same nonnull UUID; distinct unpersisted profiles
-	 *             are unequal
+	 * @param  obj any object, including {@code null}
+	 * @return     {@code true} for the same instance, or an AppUser of the same
+	 *             runtime class with the same nonnull UUID; distinct unpersisted
+	 *             profiles are unequal
 	 */
 	@Override
 	public boolean equals(final Object obj) {

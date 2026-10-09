@@ -16,18 +16,17 @@
 package es.nivel36.janus.api.v1.timelog;
 
 /**
- * Response record representing a duration in multiple formats.
+ * Response payload representing a duration as numeric parts and ISO-8601 text.
  * <p>
- * This DTO is designed to be returned by REST controllers when exposing a time
- * span to clients. It provides the duration broken down into hours, minutes,
- * and seconds, as well as the full ISO-8601 textual representation.
- * </p>
+ * The duration mapper uses total hours and the remaining minute and second
+ * parts. For negative durations these numeric values may be negative.
+ * Fractional seconds are retained in the text representation.
  *
- * @param hours   the total number of elapsed hours; may exceed 24
- * @param minutes the minute part of the duration, from {@code 0} to {@code 59}
- * @param seconds the second part of the duration, from {@code 0} to {@code 59}
- * @param iso8601 the ISO-8601 compliant string representation of the duration,
- *                e.g. {@code "PT4H30M15S"}
+ * @param hours   the total whole hours; may exceed {@code 24} in magnitude
+ * @param minutes the remaining minute part, from {@code -59} to {@code 59}
+ * @param seconds the remaining second part, from {@code -59} to {@code 59}
+ * @param iso8601 the ISO-8601 duration representation, including fractional
+ *                seconds
  */
 public record DurationResponse(long hours, int minutes, int seconds, String iso8601) {
 }

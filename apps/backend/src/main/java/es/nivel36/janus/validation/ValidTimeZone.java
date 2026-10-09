@@ -24,6 +24,14 @@ import java.lang.annotation.Target;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
+/**
+ * Validates a time-zone identifier accepted by
+ * {@link java.time.ZoneId#of(String)} after trimming leading and trailing
+ * whitespace.
+ * <p>
+ * {@code null} and blank values are accepted; a separate constraint is required
+ * to reject them. Validation does not change the supplied string.
+ */
 /** Validates that a string identifies a supported time zone. */
 @Documented
 @Constraint(validatedBy = ValidTimeZoneValidator.class)

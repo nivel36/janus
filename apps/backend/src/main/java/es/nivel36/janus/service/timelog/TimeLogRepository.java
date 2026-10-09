@@ -17,7 +17,6 @@ package es.nivel36.janus.service.timelog;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,16 +27,17 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import es.nivel36.janus.service.employee.Employee;
-import es.nivel36.janus.service.workshift.WorkShift;
-import es.nivel36.janus.service.worksite.Worksite;
-
 /**
  * Repository class for managing {@link TimeLog} entities.
  */
 @Repository
 interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificationExecutor<TimeLog> {
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Employee and worksite associations are loaded for the returned records.
+	 */
 	/**
 	 * Applies one specification to both the records and their total, before
 	 * pagination.
@@ -51,8 +51,9 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	 * been closed yet (i.e. {@code exitTime IS NULL}), ordered by {@code entryTime}
 	 * descending.
 	 *
-	 * @param  employee the employee whose last open time log is to be found
-	 * @return          the most recent open time log, or {@code null} if none exist
+	 * @param  employeeId the persistent identifier of the employee
+	 * @return            the most recent open time log, or {@code null} if none
+	 *                    exist
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
 	TimeLog findTopByEmployeeIdAndExitTimeIsNullOrderByEntryTimeDesc(Long employeeId);
@@ -64,8 +65,7 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	 * @param  employeeId the internal id of the employee whose time log is to be
 	 *                    retrieved
 	 * @param  entryTime  the exact entry timestamp of the record
-	 * @return            an {@link Optional} containing the matching time log, or
-	 *                    empty if not found
+	 * @return            the matching active time log, or {@code null} if absent
 	 */
 	@EntityGraph(attributePaths = { "employee", "worksite" })
 	TimeLog findByEmployeeIdAndEntryTime(Long employeeId, Instant entryTime);
@@ -92,34 +92,15 @@ interface TimeLogRepository extends JpaRepository<TimeLog, Long>, JpaSpecificati
 	boolean existsByEmployeeIdAndEntryTimeAndDeletedFalse(Long employeeId, Instant entryTime);
 
 	/**
-	 * Returns the list of {@link TimeLog} records for the given employee that are
-	 * considered "orphans" since the specified instant; i.e., time logs that are
-	 * not linked to any {@link WorkShift} (their {@code workShift} association is
-	 * {@code null}).
+	 * Returns closed, nondeleted logs with no assigned shift, in descending
+	 * entry-time order.
 	 * <p>
-	 * The result is returned with the associated {@link Employee} and
-	 * {@link Worksite} eagerly loaded (via <em>fetch join</em>) to prevent
-	 * lazy-loading overhead and N+1 queries.
-	 * </p>
-	 * <p>
-	 * Selection rules:
-	 * <ul>
-	 * <li>Only non-deleted time logs are considered
-	 * ({@code t.deleted = false}).</li>
-	 * <li>Only time logs with {@code entryTime >= :from} are included.</li>
-	 * <li>Only time logs of the specified employee are included.</li>
-	 * <li>A time log is "orphan" when it has no assigned {@link WorkShift}.</li>
-	 * <li>Results are ordered by {@code entryTime} in descending order (most recent
-	 * first).</li>
-	 * </ul>
-	 * </p>
+	 * Employee and worksite associations are loaded with the result.
 	 *
-	 * @param  employeeId the internal id of the employee whose orphan time logs
-	 *                    will be returned
-	 * @param  from       lower bound (inclusive) for {@code entryTime}
-	 * @return            a list of orphan {@link TimeLog} entities (with
-	 *                    {@link Employee} and {@link Worksite} initialized) since
-	 *                    {@code from}, ordered most recent first
+	 * @param  employeeId the persistent employee identifier
+	 * @param  from       the inclusive entry-time lower bound
+	 * @return            the eligible logs, most recent first, or an empty list if
+	 *                    none match
 	 */
 	@Query("""
 			SELECT t

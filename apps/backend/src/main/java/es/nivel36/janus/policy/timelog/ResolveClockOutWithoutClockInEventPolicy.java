@@ -12,7 +12,13 @@ import es.nivel36.janus.policy.Policy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 
-/** Authorizes resolving a clock-out-without-clock-in incident. */
+/**
+ * Authorizes resolving a clock-out-without-clock-in event.
+ * <p>
+ * Users and administrators may target any employee. Employees may target only
+ * their persistent employee identifier. Actor and target identifier must be
+ * non-null.
+ */
 public final class ResolveClockOutWithoutClockInEventPolicy implements Policy<Long> {
 
 	@Override

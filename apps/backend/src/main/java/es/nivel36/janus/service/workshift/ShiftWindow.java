@@ -25,21 +25,11 @@ import java.util.Objects;
 import es.nivel36.janus.service.schedule.TimeRange;
 
 /**
- * Immutable time window representing a scheduled shift, defined using
- * {@link Instant} boundaries.
+ * Immutable half-open window for a scheduled shift in a specific time zone.
  * <p>
- * The window is delimited by a start instant (inclusive) and an end instant
- * that represents a hard boundary. While the end may be interpreted as
- * exclusive or inclusive by convention, this implementation does not allow any
- * instant strictly after {@code end} to be considered part of the window.
- * <p>
- * Instances of this record are immutable and validate that the end instant is
- * not before the start instant.
- *
- * @param start The start of the shift window (inclusive). Can't be
- *              {@code null}.
- * @param end   The end of the shift window. Can't be {@code null} and must not
- *              be before {@code start}.
+ * The start is inclusive and the end is exclusive. Overnight ranges end on the
+ * following local date; local date-time boundaries are resolved using
+ * {@link java.time.LocalDateTime#atZone(ZoneId)}.
  */
 final class ShiftWindow {
 
@@ -50,22 +40,21 @@ final class ShiftWindow {
 	}
 
 	/**
-	 * Computes the scheduled shift window for the given date and time range.
+	 * Returns the scheduled shift window for the supplied local date and zone.
 	 * <p>
-	 * If the end time occurs before the start time, the end of the window is
-	 * assumed to fall on the following day.
+	 * An end time before or equal to the start time belongs to the following day.
 	 *
-	 * @param  worksite             Worksite providing the time zone context. Can't
-	 *                              be {@code null}.
-	 * @param  date                 Local date expressed in the worksite time zone.
-	 *                              Can't be {@code null}.
-	 * @param  timeRange            Scheduled time range within the given date.
-	 *                              Can't be {@code null}.
-	 * @return                      A {@link ShiftWindow} representing the scheduled
-	 *                              shift as absolute instants
-	 * @throws NullPointerException if {@code worksite}, {@code date},
-	 *                              {@code timeRange}, or any of their required
-	 *                              components is {@code null}
+	 * @param  date                     the local date on which the shift starts;
+	 *                                  must not be {@code null}
+	 * @param  timeRange                the scheduled local time bounds; must not be
+	 *                                  {@code null}
+	 * @param  zoneId                   the zone used to resolve local date-times;
+	 *                                  must not be {@code null}
+	 * @return                          the scheduled window as absolute instants
+	 * @throws NullPointerException     if any argument or required time bound is
+	 *                                  {@code null}
+	 * @throws IllegalArgumentException if the resolved end instant is before the
+	 *                                  start
 	 */
 	static ShiftWindow scheduled(final LocalDate date, final TimeRange timeRange, final ZoneId zoneId) {
 		Objects.requireNonNull(date);

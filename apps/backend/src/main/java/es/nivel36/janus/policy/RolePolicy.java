@@ -21,13 +21,19 @@ public class RolePolicy implements Policy<Void> {
 	 * @param  roles                    nonnull array of distinct nonnull accepted
 	 *                                  roles; an empty array creates a policy that
 	 *                                  denies every actor
-	 * @throws NullPointerException     if the array or any role is null
+	 * @throws NullPointerException     if the array or any role is {@code null}
 	 * @throws IllegalArgumentException if a role is repeated
 	 */
 	protected RolePolicy(final Role... roles) {
 		this.roles = Set.of(roles);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * The context is ignored and may be {@code null}. An actor with any configured
+	 * role is accepted; an empty accepted-role set rejects every actor.
+	 */
 	@Override
 	public boolean allows(final Actor actor, final Void context) {
 		Objects.requireNonNull(actor, "actor can't be null");

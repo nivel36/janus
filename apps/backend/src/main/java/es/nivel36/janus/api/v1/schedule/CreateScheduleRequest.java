@@ -28,6 +28,9 @@ import jakarta.validation.constraints.Pattern;
 
 /**
  * Request payload used to create a new {@link Schedule} aggregate.
+ * <p>
+ * The constraints below apply during Bean Validation. Construction alone stores
+ * the supplied values without validation or normalization.
  *
  * @param code           unique business identifier assigned to the schedule;
  *                       must not be blank and must follow the

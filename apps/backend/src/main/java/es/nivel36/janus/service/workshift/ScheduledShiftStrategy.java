@@ -43,32 +43,22 @@ import es.nivel36.janus.service.timelog.TimeLogs;
  */
 final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 
-	/**
-	 * Policy defining the selection margin used to expand the scheduled shift
-	 * window.
-	 */
 	private final ShiftPolicy policy;
 
-	/**
-	 * Scheduled time range defining the base shift window.
-	 */
 	private final TimeRange timeRange;
 
-	/**
-	 * Time zone used to compute the scheduled shift window.
-	 */
 	private final ZoneId timeZone;
 
 	/**
 	 * Creates a new {@code ScheduledShiftStrategy}.
 	 *
 	 * @param  policy               Policy containing the selection margin used to
-	 *                              expand the scheduled shift window. Can't be
+	 *                              expand the scheduled shift window. Must not be
 	 *                              {@code null}.
 	 * @param  timeRange            Scheduled time range used to build the shift
-	 *                              window. Can't be {@code null}.
+	 *                              window. Must not be {@code null}.
 	 * @param  timeZone             Time zone used to compute the scheduled shift
-	 *                              window. Can't be {@code null}.
+	 *                              window. Must not be {@code null}.
 	 * @throws NullPointerException if any argument is {@code null}
 	 */
 	ScheduledShiftStrategy(final ShiftPolicy policy, final TimeRange timeRange, final ZoneId timeZone) {
@@ -86,9 +76,9 @@ final class ScheduledShiftStrategy implements ShiftInferenceStrategy {
 	 * defined in the {@link ShiftPolicy}.
 	 *
 	 * @param  date                 Date for which the scheduled shift window is
-	 *                              computed. Can't be {@code null}.
+	 *                              computed. Must not be {@code null}.
 	 * @param  orderedLogs          Ordered collection of time logs to be evaluated.
-	 *                              Can't be {@code null}.
+	 *                              Must not be {@code null}.
 	 * @return                      A {@link TimeLogs} instance containing all logs
 	 *                              that overlap the expanded scheduled shift
 	 *                              window.

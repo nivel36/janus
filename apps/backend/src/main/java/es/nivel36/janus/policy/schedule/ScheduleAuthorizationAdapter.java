@@ -11,6 +11,14 @@ import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.employee.EmployeeService;
 
+/**
+ * Resolves provisioned identities and employee assignments for schedule
+ * policies.
+ * <p>
+ * Decisions read the current persisted facts without provisioning a profile.
+ * Unresolvable identities raise an access-denied exception rather than
+ * returning a negative policy decision.
+ */
 @Component("scheduleAuthorization")
 public class ScheduleAuthorizationAdapter {
 	private final ActorResolver actors;

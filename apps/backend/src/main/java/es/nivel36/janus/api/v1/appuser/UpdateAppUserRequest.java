@@ -27,15 +27,18 @@ import jakarta.validation.constraints.NotNull;
  * Immutable payload for replacing all application-user preferences.
  * Construction stores values without validation. Before resource execution,
  * Bean Validation requires a nonblank valid BCP 47 tag, nonnull time format and
- * theme, and a nonblank valid timezone. Successful application replaces all
+ * theme, and a nonblank valid time zone. Successful application replaces all
  * preferences while preserving identity, contact email and employee
  * association.
  *
- * @param locale          valid nonblank BCP 47 tag; surrounding whitespace is
+ * @param locale          valid nonblank BCP 47 tag of at most {@code 64}
+ *                        characters before trimming; surrounding whitespace is
  *                        trimmed on use
  * @param timeFormat      nonnull time display format
- * @param defaultTimezone nonblank identifier accepted by java.time.ZoneId;
- *                        surrounding whitespace is trimmed on use
+ * @param defaultTimezone nonblank identifier accepted by
+ *                        {@link java.time.ZoneId#of(String)} of at most
+ *                        {@code 64} characters before trimming; surrounding
+ *                        whitespace is trimmed on use
  * @param theme           nonnull color theme
  */
 public record UpdateAppUserRequest(

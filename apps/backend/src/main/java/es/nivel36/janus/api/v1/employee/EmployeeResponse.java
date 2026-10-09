@@ -21,7 +21,7 @@ import es.nivel36.janus.service.employee.Employee;
  * Response DTO exposing the public representation of an {@link Employee}.
  *
  * @param employeeNumber immutable stable employee number matching
- *                       [A-Za-z0-9_-]{1,50}
+ *                       {@code [A-Za-z0-9_-]{1,50}}
  * @param name           the employee's first name
  * @param surname        the employee's surname
  * @param email          the employee's unique email address

@@ -56,7 +56,7 @@ public class EmployeeController implements EmployeeResource {
 	 * @param  employeeResponseMapper mapper converting {@link Employee} entities to
 	 *                                {@link EmployeeResponse} DTOs; must not be
 	 *                                {@code null}
-	 * @throws NullPointerException   if any dependency is null
+	 * @throws NullPointerException   if any dependency is {@code null}
 	 */
 	public EmployeeController(
 		final EmployeeService employeeService,

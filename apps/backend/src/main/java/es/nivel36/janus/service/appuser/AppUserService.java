@@ -75,8 +75,8 @@ public class AppUserService {
 	 * @param  provisioningDefaults     nonnull, validated initial preferences
 	 * @param  employeeService          nonnull employee lookup service
 	 * @param  maxPageSize              positive limit from
-	 *                                  spring.data.rest.max-page-size
-	 * @throws NullPointerException     if any dependency is null
+	 *                                  {@code spring.data.rest.max-page-size}
+	 * @throws NullPointerException     if any dependency is {@code null}
 	 * @throws IllegalArgumentException if maxPageSize is not positive
 	 */
 	public AppUserService(
@@ -101,8 +101,9 @@ public class AppUserService {
 	 * <p>
 	 * The caller must supply a trusted, verified email and subject and authorize
 	 * provisioning. Subject must match {@code [A-Za-z0-9_-]{1,255}}; email must be
-	 * nonblank and satisfy {@code @Email}. An optional employee number must match
-	 * {@code [A-Za-z0-9_-]{1,50}} without trimming.
+	 * nonblank, at most {@code 254} characters and satisfy {@code @Email}. An
+	 * optional employee number must match {@code [A-Za-z0-9_-]{1,50}} without
+	 * trimming.
 	 * </p>
 	 * <p>
 	 * An existing profile is returned unchanged, including its email, preferences
@@ -117,8 +118,8 @@ public class AppUserService {
 	 * @param  keycloakSubject              immutable opaque provider subject
 	 * @param  email                        verified contact email; normalized only
 	 *                                      when creating a profile
-	 * @param  employeeNumber               optional initial employee number; null
-	 *                                      omits association
+	 * @param  employeeNumber               optional initial employee number;
+	 *                                      {@code null} omits association
 	 * @return                              persisted profile belonging to the
 	 *                                      subject, with employee data readable
 	 * @throws ConstraintViolationException if a parameter constraint fails through
@@ -243,12 +244,12 @@ public class AppUserService {
 	 * @param  id                           persistent UUID of the target profile
 	 * @param  newLocale                    replacement locale
 	 * @param  newTimeFormat                replacement time display format
-	 * @param  newDefaultTimezone           replacement timezone
+	 * @param  newDefaultTimezone           replacement time zone
 	 * @param  newTheme                     replacement color theme
 	 * @return                              updated profile whose changes commit
 	 *                                      with the transaction
-	 * @throws ConstraintViolationException if id or a preference is null when
-	 *                                      invoked through the Spring proxy
+	 * @throws ConstraintViolationException if id or a preference is {@code null}
+	 *                                      when invoked through the Spring proxy
 	 * @throws ResourceNotFoundException    if the target is absent
 	 */
 	@Transactional
@@ -278,8 +279,8 @@ public class AppUserService {
 	 * identity-provider account remain unchanged.
 	 *
 	 * @param  id                           persistent UUID of the profile to delete
-	 * @throws ConstraintViolationException if id is null when invoked through the
-	 *                                      Spring proxy
+	 * @throws ConstraintViolationException if id is {@code null} when invoked
+	 *                                      through the Spring proxy
 	 * @throws ResourceNotFoundException    if the target is absent
 	 */
 	@Transactional
@@ -308,7 +309,7 @@ public class AppUserService {
 	 *
 	 * @param  emailFilter                  optional literal fragment, used without
 	 *                                      trimming and limited to 254 characters;
-	 *                                      null or empty disables the email
+	 *                                      {@code null} or empty disables the email
 	 *                                      restriction
 	 * @param  employeeNumber               optional employee number matching
 	 *                                      {@code [A-Za-z0-9_-]{1,50}} without
@@ -316,9 +317,9 @@ public class AppUserService {
 	 * @param  pageable                     requested page and public ordering
 	 * @return                              page of matching profiles, possibly
 	 *                                      empty, with employee data readable
-	 * @throws ConstraintViolationException if employeeNumber is invalid or pageable
-	 *                                      is null when invoked through the Spring
-	 *                                      proxy
+	 * @throws ConstraintViolationException if a filter violates its constraints or
+	 *                                      {@code pageable} is {@code null} when
+	 *                                      method validation is active
 	 * @throws IllegalArgumentException     if pageable is unpaged or a sort field
 	 *                                      is unsupported
 	 */

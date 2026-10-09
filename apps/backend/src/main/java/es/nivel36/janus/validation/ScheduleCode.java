@@ -21,6 +21,12 @@ import jakarta.validation.Payload;
 import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.constraints.Pattern;
 
+/**
+ * Validates a schedule code matching {@code [A-Za-z0-9_-]{1,50}}.
+ * <p>
+ * Values are checked without trimming. {@code null} is accepted; a separate
+ * constraint is required to reject it.
+ */
 /** Validates the stable business code assigned to a schedule. */
 @Documented
 @Constraint(validatedBy = {})

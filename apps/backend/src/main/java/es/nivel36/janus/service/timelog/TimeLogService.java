@@ -77,16 +77,16 @@ public class TimeLogService {
 	 *
 	 * @param  timeLogRepository                     repository used to manage
 	 *                                               {@link TimeLog} persistence.
-	 *                                               Can't be {@code null}.
+	 *                                               Must not be {@code null}.
 	 * @param  clockOutWithoutClockInEventRepository repository used to store
 	 *                                               {@link ClockOutWithoutClockInEvent}
-	 *                                               instances. Can't be
+	 *                                               instances. Must not be
 	 *                                               {@code null}.
 	 * @param  applicationSettingsService            service providing
 	 *                                               administrative configuration.
-	 *                                               Can't be {@code null}.
+	 *                                               Must not be {@code null}.
 	 * @param  clock                                 clock used to retrieve the
-	 *                                               current time. Can't be
+	 *                                               current time. Must not be
 	 *                                               {@code null}.
 	 * @param  maxPageSize                           positive configured page-size
 	 *                                               limit
@@ -122,19 +122,21 @@ public class TimeLogService {
 	 * </p>
 	 *
 	 * @param  employee                               employee associated with the
-	 *                                                time log. Can't be
+	 *                                                time log. Must not be
 	 *                                                {@code null}.
 	 * @param  worksite                               worksite where the employee
-	 *                                                worked. Can't be {@code null}.
+	 *                                                worked. Must not be
+	 *                                                {@code null}.
 	 * @param  entryTime                              entry time of the time log.
-	 *                                                Can't be {@code null}.
+	 *                                                Must not be {@code null}.
 	 * @param  exitTime                               exit time of the time log.
-	 *                                                Can't be {@code null}.
+	 *                                                Must not be {@code null}.
 	 * @return                                        the persisted {@link TimeLog}.
-	 * @throws ConstraintViolationException           if a required argument is null
-	 *                                                through the Spring proxy
-	 * @throws NullPointerException                   if any argument is null on a
-	 *                                                direct call
+	 * @throws ConstraintViolationException           if a required argument is
+	 *                                                {@code null} through the
+	 *                                                Spring proxy
+	 * @throws NullPointerException                   if any argument is
+	 *                                                {@code null} on a direct call
 	 * @throws TimeLogModificationNotAllowedException if the time log cannot be
 	 *                                                created due to business rules.
 	 * @throws TimeLogFutureTimeException             if a truncated time is in the
@@ -207,17 +209,18 @@ public class TimeLogService {
 	 * for the same employee and entry time.
 	 * </p>
 	 *
-	 * @param  employee                               employee clocking in. Can't be
-	 *                                                {@code null}.
+	 * @param  employee                               employee clocking in. Must not
+	 *                                                be {@code null}.
 	 * @param  worksite                               worksite where the employee is
-	 *                                                clocking in. Can't be
+	 *                                                clocking in. Must not be
 	 *                                                {@code null}.
 	 * @param  entryTime                              entry time of the time log.
-	 *                                                Can't be {@code null}.
+	 *                                                Must not be {@code null}.
 	 * @return                                        the persisted open
 	 *                                                {@link TimeLog}.
-	 * @throws ConstraintViolationException           if a required argument is null
-	 *                                                through the Spring proxy
+	 * @throws ConstraintViolationException           if a required argument is
+	 *                                                {@code null} through the
+	 *                                                Spring proxy
 	 * @throws NullPointerException                   if any argument is
 	 *                                                {@code null}.
 	 * @throws TimeLogModificationNotAllowedException if the time log cannot be
@@ -272,17 +275,18 @@ public class TimeLogService {
 	 * recorded and a {@link ClockOutWithoutClockInException} is thrown.
 	 * </p>
 	 *
-	 * @param  employee                               employee clocking out. Can't
-	 *                                                be {@code null}.
+	 * @param  employee                               employee clocking out. Must
+	 *                                                not be {@code null}.
 	 * @param  worksite                               worksite where the employee is
-	 *                                                clocking out. Can't be
+	 *                                                clocking out. Must not be
 	 *                                                {@code null}.
 	 * @param  exitTime                               exit time to set on the open
-	 *                                                time log. Can't be
+	 *                                                time log. Must not be
 	 *                                                {@code null}.
 	 * @return                                        the updated {@link TimeLog}.
-	 * @throws ConstraintViolationException           if a required argument is null
-	 *                                                through the Spring proxy
+	 * @throws ConstraintViolationException           if a required argument is
+	 *                                                {@code null} through the
+	 *                                                Spring proxy
 	 * @throws NullPointerException                   if any argument is
 	 *                                                {@code null}.
 	 * @throws ClockOutWithoutClockInException        if no open time log exists.
@@ -346,7 +350,8 @@ public class TimeLogService {
 	 *                                                log
 	 * @throws ConstraintViolationException           if a key argument is invalid
 	 *                                                through the Spring proxy
-	 * @throws NullPointerException                   if either argument is null
+	 * @throws NullPointerException                   if {@code entryTime} is
+	 *                                                {@code null} on a direct call
 	 * @throws ResourceNotFoundException              if no matching time log exists
 	 * @throws TimeLogModificationNotAllowedException if deletion is locked.
 	 */
@@ -383,13 +388,14 @@ public class TimeLogService {
 	 * Finds a {@link TimeLog} by employee and entry time.
 	 *
 	 * @param  employee                     employee associated with the time log.
-	 *                                      Can't be {@code null}.
-	 * @param  entryTime                    entry time of the time log. Can't be
+	 *                                      Must not be {@code null}.
+	 * @param  entryTime                    entry time of the time log. Must not be
 	 *                                      {@code null}.
 	 * @return                              the matching {@link TimeLog}.
-	 * @throws ConstraintViolationException if a required argument is null through
-	 *                                      the Spring proxy
-	 * @throws NullPointerException         if any argument is {@code null}.
+	 * @throws ConstraintViolationException if a required argument is {@code null}
+	 *                                      through the Spring proxy
+	 * @throws NullPointerException         if {@code employee} is {@code null} on a
+	 *                                      direct call
 	 * @throws ResourceNotFoundException    if no matching time log is found.
 	 */
 	@Transactional(readOnly = true)
@@ -407,21 +413,23 @@ public class TimeLogService {
 	}
 
 	/**
-	 * Finds orphan {@link TimeLog} instances for an employee since a given instant.
+	 * Returns closed, unassigned time logs entered at or after the supplied
+	 * instant.
 	 * <p>
-	 * An orphan time log is a log that is not properly paired or finalized
-	 * according to business rules.
-	 * </p>
+	 * Deleted logs are excluded. Returned references are sorted by ascending entry
+	 * time, with employee and worksite associations loaded. Overlapping or touching
+	 * periods cannot be represented by {@link TimeLogs} and are rejected.
 	 *
-	 * @param  employee                     employee for whom orphan time logs are
-	 *                                      searched. Can't be {@code null}.
-	 * @param  from                         lower bound instant for the search.
-	 *                                      Can't be {@code null}.
-	 * @return                              a list of orphan {@link TimeLog}
-	 *                                      instances. Never {@code null}.
-	 * @throws ConstraintViolationException if a required argument is null through
-	 *                                      the Spring proxy
-	 * @throws NullPointerException         if any argument is {@code null}.
+	 * @param  employee                     the employee whose logs are requested;
+	 *                                      must not be {@code null}
+	 * @param  from                         the inclusive entry-time lower bound;
+	 *                                      must not be {@code null}
+	 * @return                              the ordered eligible logs, possibly
+	 *                                      empty
+	 * @throws ConstraintViolationException if a required argument is {@code null}
+	 *                                      when method validation is active
+	 * @throws IllegalArgumentException     if the returned log periods overlap or
+	 *                                      touch
 	 */
 	@Transactional(readOnly = true)
 	public TimeLogs findOrphanTimeLogs(final @NotNull Employee employee, final @NotNull Instant from) {
@@ -444,9 +452,9 @@ public class TimeLogService {
 	 * includes start and excludes end. Deleted logs are omitted.
 	 * </p>
 	 * <p>
-	 * Page size is capped at configured spring.data.rest.max-page-size. Results
-	 * default to descending entry time, with ascending id as a tie-breaker unless
-	 * explicitly sorted. Public sort fields are id, entryTime, exitTime,
+	 * Page size is capped at configured {@code spring.data.rest.max-page-size}.
+	 * Results default to descending entry time, with ascending id as a tie-breaker
+	 * unless explicitly sorted. Public sort fields are id, entryTime, exitTime,
 	 * employeeNumber and worksiteCode. This operation changes no records.
 	 * </p>
 	 *
@@ -456,11 +464,11 @@ public class TimeLogService {
 	 * @param  pageable                     requested page and public ordering
 	 * @return                              page of matching, authorized time logs,
 	 *                                      possibly empty
-	 * @throws ConstraintViolationException if a required argument is null or the
-	 *                                      employee number is invalid through the
-	 *                                      Spring proxy
-	 * @throws NullPointerException         if criteria, scope or pageable is null
-	 *                                      on a direct call
+	 * @throws ConstraintViolationException if a required argument is {@code null}
+	 *                                      or the employee number is invalid
+	 *                                      through the Spring proxy
+	 * @throws NullPointerException         if criteria, scope or pageable is
+	 *                                      {@code null} on a direct call
 	 * @throws IllegalArgumentException     if the range is incomplete or
 	 *                                      nonincreasing, paging is unpaged or a
 	 *                                      sort field is unsupported

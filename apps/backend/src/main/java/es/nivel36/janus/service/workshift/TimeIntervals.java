@@ -56,7 +56,7 @@ final class TimeIntervals {
 	 * @param  intervals            the list of intervals to include
 	 * @return                      a new {@code TimeIntervals} instance containing
 	 *                              the merged intervals
-	 * @throws NullPointerException if {@code intervals} is {@code null}
+	 * @throws NullPointerException if the list or any element is {@code null}
 	 */
 	static TimeIntervals of(final List<TimeInterval> intervals) {
 		return new TimeIntervals(mergeInternal(intervals));

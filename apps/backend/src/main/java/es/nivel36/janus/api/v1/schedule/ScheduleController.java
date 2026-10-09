@@ -53,18 +53,18 @@ public class ScheduleController implements ScheduleResource {
 	 * Creates a controller ready to delegate resource operations without accessing
 	 * persistence during construction.
 	 *
-	 * @param  scheduleService               service for schedule operations; can't
-	 *                                       be {@code null}
+	 * @param  scheduleService               service for schedule operations; must
+	 *                                       not be {@code null}
 	 * @param  authorization                 component that determines the
 	 *                                       authenticated user's schedule access;
-	 *                                       can't be {@code null}
-	 * @param  scheduleResponseMapper        mapper for schedule responses; can't be
-	 *                                       {@code null}
-	 * @param  scheduleSummaryResponseMapper mapper for schedule summaries; can't be
-	 *                                       {@code null}
+	 *                                       must not be {@code null}
+	 * @param  scheduleResponseMapper        mapper for schedule responses; must not
+	 *                                       be {@code null}
+	 * @param  scheduleSummaryResponseMapper mapper for schedule summaries; must not
+	 *                                       be {@code null}
 	 * @param  scheduleRuleDefinitionMapper  mapper for schedule rule definitions;
-	 *                                       can't be {@code null}
-	 * @throws NullPointerException          if any dependency is null
+	 *                                       must not be {@code null}
+	 * @throws NullPointerException          if any dependency is {@code null}
 	 */
 	public ScheduleController(
 		final ScheduleService scheduleService,

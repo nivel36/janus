@@ -8,18 +8,16 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Immutable value object representing a validated, ordered collection of closed
- * {@link TimeLog} entries.
+ * Unmodifiable collection of closed {@link TimeLog} references in entry-time
+ * order.
  * <p>
- * This class guarantees by construction that:
- * </p>
- * <ul>
- * <li>The collection is not {@code null}</li>
- * <li>No {@link TimeLog} is {@code null}</li>
- * <li>All time logs are closed</li>
- * <li>The collection is ordered by {@code entryTime} ascending</li>
- * <li>No time ranges overlap</li>
- * </ul>
+ * Construction copies and sorts the supplied references. Each log must be
+ * closed, and every exit must be strictly before the next entry: overlapping
+ * and touching periods are rejected. An empty collection is valid.
+ * <p>
+ * The contained entities remain mutable. Later entity changes are visible and
+ * are not revalidated, so the collection does not provide a thread-safety
+ * guarantee.
  */
 public final class TimeLogs implements Iterable<TimeLog> {
 
@@ -28,13 +26,14 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	private final List<TimeLog> timeLogsList;
 
 	/**
-	 * Creates a {@code TimeLogs} instance from the given collection.
+	 * Creates an ordered collection of closed logs with strictly separated periods.
 	 *
-	 * @param  timeLogsList             the collection of {@link TimeLog} entries
-	 * @throws NullPointerException     if the collection or any element is
-	 *                                  {@code null}
-	 * @throws IllegalArgumentException if any time log is open or overlaps with
-	 *                                  another
+	 * @param  timeLogs                 the logs to copy and sort; collection and
+	 *                                  elements must not be {@code null}
+	 * @throws NullPointerException     if the collection, an element or a required
+	 *                                  entry time is {@code null}
+	 * @throws IllegalArgumentException if a log is open or consecutive periods
+	 *                                  overlap or touch
 	 */
 	public TimeLogs(final Collection<TimeLog> timeLogs) {
 		Objects.requireNonNull(timeLogs, "timeLogsList cannot be null");
@@ -65,7 +64,9 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	}
 
 	/**
-	 * Returns an unmodifiable view of the underlying time logs.
+	 * Returns the unmodifiable list of log references in entry-time order.
+	 *
+	 * @return the stored list; contained entities remain mutable
 	 */
 	public List<TimeLog> asList() {
 		return this.timeLogsList;
@@ -89,12 +90,20 @@ public final class TimeLogs implements Iterable<TimeLog> {
 	}
 
 	/**
-	 * Returns the total worked duration across all time logs.
+	 * Returns the sum of the recorded work durations of the contained logs.
+	 *
+	 * @return the total work duration, or {@link Duration#ZERO} for an empty
+	 *         collection
 	 */
 	public Duration getTotalDuration() {
 		return this.timeLogsList.stream().map(TimeLog::getWorkDuration).reduce(Duration.ZERO, Duration::plus);
 	}
 
+	/**
+	 * Returns an iterator over the logs in ascending entry-time order.
+	 *
+	 * @return an iterator that does not support removal
+	 */
 	@Override
 	public Iterator<TimeLog> iterator() {
 		return this.timeLogsList.iterator();

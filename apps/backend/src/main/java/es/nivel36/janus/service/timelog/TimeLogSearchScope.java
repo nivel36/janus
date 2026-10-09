@@ -16,8 +16,19 @@ public sealed interface TimeLogSearchScope {
 	record All() implements TimeLogSearchScope {
 	}
 
-	/** Only time logs belonging to this persistent employee are visible. */
+	/**
+	 * Visibility limited to the time logs of one persistent employee.
+	 *
+	 * @param employeeId the positive persistent employee identifier
+	 */
 	record Employee(Long employeeId) implements TimeLogSearchScope {
+		/**
+		 * Creates a visibility scope for a persistent employee.
+		 *
+		 * @param  employeeId               the positive persistent employee identifier
+		 * @throws NullPointerException     if the identifier is {@code null}
+		 * @throws IllegalArgumentException if the identifier is not positive
+		 */
 		public Employee {
 			Objects.requireNonNull(employeeId, "employeeId can't be null");
 			if (employeeId <= 0) {

@@ -24,6 +24,11 @@ import java.lang.annotation.Target;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
+/**
+ * Validates that a duration is zero or positive.
+ * <p>
+ * {@code null} is accepted; a separate constraint is required to reject it.
+ */
 /** Validates that a duration is zero or positive. */
 @Documented
 @Constraint(validatedBy = NonNegativeDurationValidator.class)

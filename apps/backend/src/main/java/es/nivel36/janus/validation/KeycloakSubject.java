@@ -32,6 +32,12 @@ import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.constraints.Pattern;
 
 /**
+ * Validates a provider subject matching {@code [A-Za-z0-9_-]{1,255}}.
+ * <p>
+ * Values are checked without trimming. {@code null} is accepted; a separate
+ * constraint is required to reject it.
+ */
+/**
  * Validates a provider subject containing 1-255 letters, digits, underscores or
  * hyphens, without trimming.
  */

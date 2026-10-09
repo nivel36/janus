@@ -61,11 +61,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
 /**
- * Exception handler that translates common exceptions into RFC 7807 problem
- * details.
+ * Translates controller exceptions into HTTP problem details.
  * <p>
- * It centralizes error responses for controllers, providing consistent status
- * codes and payloads.
+ * Responses include a problem type, status, request URI and timestamp.
+ * Validation failures also expose field or parameter errors. Authentication,
+ * authorization, and unexpected internal failures use fixed client-facing
+ * detail messages; internal exception messages are not exposed for those
+ * failures.
  */
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -100,8 +102,9 @@ public class JanusExceptionHandler {
 	 * Creates an exception handler that timestamps generated {@link ProblemDetail}
 	 * instances.
 	 *
-	 * @param clock clock used to populate the {@code timestamp} attribute; must not
-	 *              be {@code null}
+	 * @param  clock                clock used to populate the {@code timestamp}
+	 *                              attribute; must not be {@code null}
+	 * @throws NullPointerException if any required dependency is {@code null}
 	 */
 	public JanusExceptionHandler(final Clock clock) {
 		this.clock = Objects.requireNonNull(clock);

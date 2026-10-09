@@ -38,9 +38,8 @@ import es.nivel36.janus.service.worksite.Worksite;
  * it is considered incorrect or unusable.
  * </p>
  * <p>
- * All operations are transactional and persist the updated state of the
- * {@link ClockOutWithoutClockInEvent} using
- * {@link ClockOutWithoutClockInEventRepository}.
+ * Resolution and invalidation persist the final state transactionally. Lookup
+ * returns an existing event without changing it.
  * </p>
  */
 @Service
@@ -56,11 +55,11 @@ public class ClockOutWithoutClockInEventService {
 	 *
 	 * @param  clockOutWithoutClockInEventRepository repository used to persist
 	 *                                               {@link ClockOutWithoutClockInEvent}
-	 *                                               entities. Can't be
+	 *                                               entities. Must not be
 	 *                                               {@code null}.
 	 * @param  timeLogService                        service used to create
-	 *                                               {@link TimeLog} records. Can't
-	 *                                               be {@code null}.
+	 *                                               {@link TimeLog} records. Must
+	 *                                               not be {@code null}.
 	 * @throws NullPointerException                  if any dependency is
 	 *                                               {@code null}
 	 */
@@ -74,22 +73,32 @@ public class ClockOutWithoutClockInEventService {
 	}
 
 	/**
-	 * Resolves the specified {@link ClockOutWithoutClockInEvent} by creating a
-	 * corresponding {@link TimeLog}.
+	 * Resolves an event by creating and associating a closed time log.
 	 * <p>
-	 * The event is marked as resolved and associated with the newly created
-	 * {@link TimeLog}. An optional reason can be provided to justify the
-	 * resolution.
-	 * </p>
+	 * The supplied entry and the event's exit are subject to
+	 * {@link TimeLogService#createTimeLog(Employee, Worksite, Instant, Instant)}
+	 * validation. A successful operation finalizes the event; a final event cannot
+	 * be resolved again. A present reason is stored as supplied.
 	 *
-	 * @param  clockOutWithoutClockInEvent event to be resolved. Can't be
-	 *                                     {@code null}.
-	 * @param  entryTime                   entry time to be used when creating the
-	 *                                     {@link TimeLog}. Can't be {@code null}.
-	 * @param  reason                      optional reason explaining the
-	 *                                     resolution. May be {@code empty}.
-	 * @return                             the resolved and persisted
-	 *                                     {@link ClockOutWithoutClockInEvent}.
+	 * @param  clockOutWithoutClockInEvent            the event to resolve; must not
+	 *                                                be {@code null}
+	 * @param  entryTime                              the proposed clock-in instant;
+	 *                                                must not be {@code null}
+	 * @param  reason                                 the optional explanation; the
+	 *                                                optional must not be
+	 *                                                {@code null}
+	 * @return                                        the resolved and persisted
+	 *                                                event
+	 * @throws NullPointerException                   if any argument is
+	 *                                                {@code null}
+	 * @throws EventAlreadyFinalizedException         if the event is already final
+	 * @throws TimeLogModificationNotAllowedException if either instant is locked or
+	 *                                                the employee already has a log
+	 *                                                with the proposed entry time
+	 * @throws TimeLogFutureTimeException             if a truncated instant is in
+	 *                                                the future
+	 * @throws TimeLogChronologyException             if truncated exit is not
+	 *                                                strictly after entry
 	 */
 	@Transactional
 	public ClockOutWithoutClockInEvent resolve(
@@ -117,18 +126,18 @@ public class ClockOutWithoutClockInEventService {
 	}
 
 	/**
-	 * Invalidates the specified {@link ClockOutWithoutClockInEvent}.
+	 * Invalidates and persists an event, optionally recording a reason.
 	 * <p>
-	 * The event is marked as invalid and persisted. An optional reason can be
-	 * provided to explain why the event has been invalidated.
-	 * </p>
+	 * Invalidation finalizes the event without creating a time log. A present
+	 * reason is stored as supplied.
 	 *
-	 * @param  clockOutWithoutClockInEvent event to be invalidated. Can't be
-	 *                                     {@code null}.
-	 * @param  reason                      optional reason explaining the
-	 *                                     invalidation. May be {@code empty}.
-	 * @return                             the invalidated and persisted
-	 *                                     {@link ClockOutWithoutClockInEvent}.
+	 * @param  clockOutWithoutClockInEvent    the event to invalidate; must not be
+	 *                                        {@code null}
+	 * @param  reason                         the optional explanation; the optional
+	 *                                        must not be {@code null}
+	 * @return                                the invalidated and persisted event
+	 * @throws NullPointerException           if either argument is {@code null}
+	 * @throws EventAlreadyFinalizedException if the event is already final
 	 */
 	@Transactional
 	public ClockOutWithoutClockInEvent invalidate(
@@ -147,22 +156,18 @@ public class ClockOutWithoutClockInEventService {
 	}
 
 	/**
-	 * Retrieves a {@link ClockOutWithoutClockInEvent} associated with the given
-	 * {@link Employee}, {@link Worksite}, and exit {@link Instant}.
+	 * Returns the event matching the supplied employee, worksite and exact exit
+	 * instant.
 	 *
-	 * @param  employee                  the employee associated with the event.
-	 *                                   Can't be {@code null}.
-	 * @param  worksite                  the worksite where the event occurred.
-	 *                                   Can't be {@code null}.
-	 * @param  exitTime                  the exit time of the event. Can't be
-	 *                                   {@code null}.
-	 * @return                           the matching
-	 *                                   {@link ClockOutWithoutClockInEvent}, or
-	 *                                   {@code null} if no event exists for the
-	 *                                   specified employee, worksite, and exit
-	 *                                   time.
-	 * @throws NullPointerException      if any of the parameters is {@code null}.
-	 * @throws ResourceNotFoundException if the event is not found.
+	 * @param  employee                  the employee associated with the event;
+	 *                                   must not be {@code null}
+	 * @param  worksite                  the worksite associated with the event;
+	 *                                   must not be {@code null}
+	 * @param  exitTime                  the exact exit instant; must not be
+	 *                                   {@code null}
+	 * @return                           the matching event
+	 * @throws NullPointerException      if any argument is {@code null}
+	 * @throws ResourceNotFoundException if no event matches
 	 */
 	@Transactional(readOnly = true)
 	public ClockOutWithoutClockInEvent findClockOutWithoutClockInEventByEmployeeAndWorksiteAndExitTime(

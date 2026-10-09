@@ -26,20 +26,23 @@ import jakarta.validation.constraints.Pattern;
 
 /**
  * Request payload for creating a new {@link Employee}.
+ * <p>
+ * The constraints below apply during Bean Validation. Construction alone stores
+ * the supplied values without validation or normalization.
  *
  * @param employeeNumber immutable stable employee number matching
- *                       [A-Za-z0-9_-]{1,50}
+ *                       {@code [A-Za-z0-9_-]{1,50}}
  * @param name           the employee's first name; must not be blank and must
- *                       be between 1 and 255 characters using the allowed
- *                       characters
+ *                       be between 1 and 255 characters drawn from letters,
+ *                       spaces, dots, commas, apostrophes or hyphens
  * @param surname        the employee's surname; must not be blank and must be
- *                       between 1 and 255 characters using the allowed
- *                       characters
+ *                       between 1 and 255 characters drawn from letters,
+ *                       spaces, dots, commas, apostrophes or hyphens
  * @param email          the unique email address identifying the employee; must
  *                       be a valid email address and contain at most 254
  *                       characters
  * @param scheduleCode   the code of the schedule of the employee; must not be
- *                       blank and must be at most 50 characters
+ *                       blank and must match {@code [A-Za-z0-9_-]{1,50}}
  */
 public record CreateEmployeeRequest(
 		@NotNull(message = "employeeNumber must not be null")

@@ -40,7 +40,8 @@ interface AppUserRepository extends JpaRepository<AppUser, UUID> {
 	 *
 	 * @param  emailFilter    nonnull fragment escaped with LikePatterns.escape for
 	 *                        SQL LIKE
-	 * @param  employeeNumber exact validated number, or null to disable this filter
+	 * @param  employeeNumber exact validated number, or {@code null} to disable
+	 *                        this filter
 	 * @param  pageable       nonnull paging with entity property paths for sorting
 	 * @return                matching page with employee associations loaded,
 	 *                        possibly empty

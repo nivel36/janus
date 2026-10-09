@@ -12,7 +12,13 @@ import es.nivel36.janus.policy.Policy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 
-/** Authorizes changes to an employee's profile. */
+/**
+ * Authorizes updating an employee record.
+ * <p>
+ * Users and administrators may target any employee. Employees may target only
+ * their persistent employee identifier. Actor and target identifier must be
+ * non-null.
+ */
 public final class UpdateEmployeePolicy implements Policy<Long> {
 
 	@Override

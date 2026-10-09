@@ -20,10 +20,10 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Bound initial preferences under janus.user-provisioning.defaults. Setters
- * retain raw configuration values and may temporarily accept null during
- * binding; they do not validate or provision users. Before consumption, Bean
- * Validation requires a supported BCP 47 locale, nonnull time format and a
- * valid nonnull timezone identifier. Conversion methods return typed defaults
+ * retain raw configuration values and may temporarily accept {@code null}
+ * during binding; they do not validate or provision users. Before consumption,
+ * Bean Validation requires a supported BCP 47 locale, nonnull time format and a
+ * valid nonnull time zone identifier. Conversion methods return typed defaults
  * without changing the configuration or existing profiles.
  */
 @Validated
@@ -50,7 +50,7 @@ public class UserProvisioningProperties {
 	/**
 	 * Returns the raw configured locale without conversion or validation.
 	 *
-	 * @return locale string, possibly null before binding completes
+	 * @return locale string, possibly {@code null} before binding completes
 	 */
 	public String getLocale() {
 		return this.locale;
@@ -59,8 +59,8 @@ public class UserProvisioningProperties {
 	/**
 	 * Stores the raw locale for subsequent configuration validation.
 	 *
-	 * @param locale configured BCP 47 tag; may be null during binding, but must be
-	 *               nonblank and supported before the configuration is used
+	 * @param locale configured BCP 47 tag; may be {@code null} during binding, but
+	 *               must be nonblank and supported before the configuration is used
 	 */
 	public void setLocale(final String locale) {
 		this.locale = locale;
@@ -69,7 +69,7 @@ public class UserProvisioningProperties {
 	/**
 	 * Returns the configured time format without changing it.
 	 *
-	 * @return time format, possibly null before binding completes
+	 * @return time format, possibly {@code null} before binding completes
 	 */
 	public TimeFormat getTimeFormat() {
 		return this.timeFormat;
@@ -78,27 +78,28 @@ public class UserProvisioningProperties {
 	/**
 	 * Stores the time format for subsequent configuration validation.
 	 *
-	 * @param timeFormat configured preference; may be null during binding, but must
-	 *                   be nonnull before the configuration is used
+	 * @param timeFormat configured preference; may be {@code null} during binding,
+	 *                   but must be nonnull before the configuration is used
 	 */
 	public void setTimeFormat(final TimeFormat timeFormat) {
 		this.timeFormat = timeFormat;
 	}
 
 	/**
-	 * Returns the raw configured timezone without conversion or validation.
+	 * Returns the raw configured time zone without conversion or validation.
 	 *
-	 * @return timezone identifier, possibly null before binding completes
+	 * @return time zone identifier, possibly {@code null} before binding completes
 	 */
 	public String getDefaultTimezone() {
 		return this.defaultTimezone;
 	}
 
 	/**
-	 * Stores the raw timezone for subsequent configuration validation.
+	 * Stores the raw time zone for subsequent configuration validation.
 	 *
-	 * @param defaultTimezone configured identifier; may be null during binding, but
-	 *                        must be nonblank and accepted by ZoneId before use
+	 * @param defaultTimezone configured identifier; may be {@code null} during
+	 *                        binding, but must be nonblank and accepted by ZoneId
+	 *                        before use
 	 */
 	public void setDefaultTimezone(final String defaultTimezone) {
 		this.defaultTimezone = defaultTimezone;
@@ -118,13 +119,13 @@ public class UserProvisioningProperties {
 	}
 
 	/**
-	 * Converts the configured timezone without changing configuration. The raw
-	 * value must have passed nonblank and valid-timezone validation.
+	 * Converts the configured time zone without changing configuration. The raw
+	 * value must have passed nonblank and valid-time zone validation.
 	 *
-	 * @return                             timezone corresponding to the configured
-	 *                                     identifier
-	 * @throws NullPointerException        if the raw timezone has not been supplied
-	 * @throws java.time.DateTimeException if the identifier cannot be resolved
+	 * @return                      time zone corresponding to the configured
+	 *                              identifier
+	 * @throws NullPointerException if the raw time zone has not been supplied
+	 * @throws DateTimeException    if the identifier cannot be resolved
 	 */
 	public ZoneId defaultTimezone() {
 		return ZoneId.of(this.defaultTimezone);
@@ -134,7 +135,8 @@ public class UserProvisioningProperties {
 	 * Tests configured locale availability without changing configuration. Null is
 	 * accepted here so the separate NotBlank constraint can report absence.
 	 *
-	 * @return true when unset or exactly equal to an available locale's BCP 47 tag
+	 * @return {@code true} when unset or exactly equal to an available locale's BCP
+	 *         47 tag
 	 */
 	@AssertTrue(message = "must identify a supported locale")
 	boolean isLocaleSupported() {
@@ -143,11 +145,11 @@ public class UserProvisioningProperties {
 	}
 
 	/**
-	 * Tests timezone resolution without changing configuration. Null is accepted
+	 * Tests time zone resolution without changing configuration. Null is accepted
 	 * here so the separate NotBlank constraint can report absence.
 	 *
-	 * @return true when unset or accepted by ZoneId.of; false for invalid
-	 *         identifiers
+	 * @return {@code true} when unset or accepted by ZoneId.of; {@code false} for
+	 *         invalid identifiers
 	 */
 	@AssertTrue(message = "must be a valid timezone identifier")
 	boolean isDefaultTimezoneValid() {

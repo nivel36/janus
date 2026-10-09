@@ -48,7 +48,8 @@ import jakarta.validation.Valid;
 public interface EmployeeResource {
 
 	/**
-	 * Returns a page of employees for a provisioned JANUS_ADMIN or JANUS_USER.
+	 * Returns a page of employees for a provisioned {@code JANUS_ADMIN} or
+	 * {@code JANUS_USER}.
 	 * <p>
 	 * Optional query text contains 1-100 single-line characters and is used
 	 * literally without trimming. Optional schedule and worksite codes must match
@@ -64,12 +65,12 @@ public interface EmployeeResource {
 	 * {@code spring.data.rest.max-page-size} (100 by default).
 	 * </p>
 	 *
-	 * @param  query                        optional literal text fragment; null
-	 *                                      disables this filter
-	 * @param  scheduleCode                 optional exact schedule code; null
-	 *                                      disables this filter
-	 * @param  worksiteCode                 optional exact worksite code; null
-	 *                                      disables this filter
+	 * @param  query                        optional literal text fragment;
+	 *                                      {@code null} disables this filter
+	 * @param  scheduleCode                 optional exact schedule code;
+	 *                                      {@code null} disables this filter
+	 * @param  worksiteCode                 optional exact worksite code;
+	 *                                      {@code null} disables this filter
 	 * @param  pageable                     requested page and ordering; HTTP
 	 *                                      defaults are page 0, size 20
 	 * @return                              HTTP 200 containing employee responses
@@ -96,8 +97,9 @@ public interface EmployeeResource {
 	/**
 	 * Retrieves an employee by its exact immutable number without changing it. The
 	 * number must match {@code [A-Za-z0-9_-]{1,50}} without trimming. Provisioned
-	 * JANUS_ADMIN and JANUS_USER may read any employee; JANUS_EMPLOYEE may read
-	 * only the employee linked to their persistent profile.
+	 * {@code JANUS_ADMIN} and {@code JANUS_USER} may read any employee;
+	 * {@code JANUS_EMPLOYEE} may read only the employee linked to their persistent
+	 * profile.
 	 *
 	 * @param  employeeNumber               exact stable number of the employee
 	 * @return                              HTTP 200 containing the employee's
@@ -116,7 +118,8 @@ public interface EmployeeResource {
 			String employeeNumber);
 
 	/**
-	 * Creates an employee as a provisioned JANUS_ADMIN or JANUS_USER.
+	 * Creates an employee as a provisioned {@code JANUS_ADMIN} or
+	 * {@code JANUS_USER}.
 	 * <p>
 	 * Request must be nonnull and pass Bean Validation. Employee number and
 	 * schedule code must match {@code [A-Za-z0-9_-]{1,50}} and the schedule must
@@ -149,8 +152,9 @@ public interface EmployeeResource {
 	 * <p>
 	 * Employee number must match {@code [A-Za-z0-9_-]{1,50}} without trimming,
 	 * request must be nonnull and satisfy the same payload constraints as creation,
-	 * and employee and schedule must exist. Provisioned JANUS_ADMIN and JANUS_USER
-	 * may edit any employee; JANUS_EMPLOYEE may edit only their linked employee.
+	 * and employee and schedule must exist. Provisioned {@code JANUS_ADMIN} and
+	 * {@code JANUS_USER} may edit any employee; {@code JANUS_EMPLOYEE} may edit
+	 * only their linked employee.
 	 * </p>
 	 * <p>
 	 * Returns HTTP 200 with trimmed names, normalized email and the new schedule.
@@ -182,10 +186,11 @@ public interface EmployeeResource {
 			UpdateEmployeeRequest request);
 
 	/**
-	 * Deletes an existing employee as a provisioned JANUS_ADMIN or JANUS_USER. The
-	 * number must match {@code [A-Za-z0-9_-]{1,50}} without trimming. Returns HTTP
-	 * 204 with no body after deletion. Referenced employees may be rejected by
-	 * persistence constraints; this operation does not delete a provider account.
+	 * Deletes an existing employee as a provisioned {@code JANUS_ADMIN} or
+	 * {@code JANUS_USER}. The number must match {@code [A-Za-z0-9_-]{1,50}} without
+	 * trimming. Returns HTTP 204 with no body after deletion. Referenced employees
+	 * may be rejected by persistence constraints; this operation does not delete a
+	 * provider account.
 	 *
 	 * @param  employeeNumber               exact immutable number of the employee
 	 *                                      to delete

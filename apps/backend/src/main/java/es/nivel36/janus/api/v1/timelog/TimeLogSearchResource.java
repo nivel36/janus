@@ -29,11 +29,12 @@ public interface TimeLogSearchResource {
 	/**
 	 * Returns active time logs within the caller's authorized employee scope.
 	 * <p>
-	 * JANUS_ADMIN and JANUS_USER may search all employees. JANUS_EMPLOYEE requires
-	 * a persistent employee association and may only filter by that employee.
-	 * Employee numbers match exactly without trimming and must satisfy
-	 * {@code [A-Za-z0-9_-]{1,50}}. Start and end must both be omitted or supplied
-	 * with start strictly before end. Entry times include start and exclude end.
+	 * {@code JANUS_ADMIN} and {@code JANUS_USER} may search all employees.
+	 * {@code JANUS_EMPLOYEE} requires a persistent employee association and may
+	 * only filter by that employee. Employee numbers match exactly without trimming
+	 * and must satisfy {@code [A-Za-z0-9_-]{1,50}}. Start and end must both be
+	 * omitted or supplied with start strictly before end. Entry times include start
+	 * and exclude end.
 	 * </p>
 	 * <p>
 	 * Returns HTTP 200, possibly empty. Filters combine with AND and restrict both

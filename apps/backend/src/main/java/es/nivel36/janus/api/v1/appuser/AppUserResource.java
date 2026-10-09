@@ -53,8 +53,8 @@ public interface AppUserResource {
 	 * <p>
 	 * The optional employee number must match {@code [A-Za-z0-9_-]{1,50}} without
 	 * trimming and {@code pageable} must be nonnull and paged. Email fragments are
-	 * used literally without trimming and limited to 254 characters; null or empty
-	 * email disables the email restriction. Sort fields are {@code id},
+	 * used literally without trimming and limited to 254 characters; {@code null}
+	 * or empty email disables the email restriction. Sort fields are {@code id},
 	 * {@code email} and {@code employeeNumber}.
 	 * </p>
 	 * <p>
@@ -67,15 +67,15 @@ public interface AppUserResource {
 	 * explicitly sorted.
 	 * </p>
 	 *
-	 * @param  email                        optional email fragment; null disables
-	 *                                      this filter
-	 * @param  employeeNumber               optional employee number; null disables
-	 *                                      this filter
+	 * @param  email                        optional email fragment; {@code null}
+	 *                                      disables this filter
+	 * @param  employeeNumber               optional employee number; {@code null}
+	 *                                      disables this filter
 	 * @param  pageable                     requested page and ordering; HTTP
 	 *                                      defaults are page 0 and size 20
 	 * @return                              HTTP 200 containing profile responses
 	 *                                      and page metadata, possibly empty
-	 * @throws ConstraintViolationException if employee number is invalid
+	 * @throws ConstraintViolationException if a filter violates its constraints
 	 * @throws IllegalArgumentException     if paging or a sort field is unsupported
 	 * @throws AccessDeniedException        if the caller is unprovisioned or lacks
 	 *                                      the administrator role
@@ -97,10 +97,10 @@ public interface AppUserResource {
 	 * <p>
 	 * Authentication must be a nonnull validated JWT with a recognized Janus role
 	 * and verified email. Its subject must match {@code [A-Za-z0-9_-]{1,255}}, its
-	 * email must be nonblank and satisfy {@code @Email}, and an optional
-	 * employee-number claim must match {@code [A-Za-z0-9_-]{1,50}} without
-	 * trimming. Creation trims and lowercases email and limits it to 254 normalized
-	 * characters.
+	 * email must be nonblank, contain at most {@code 254} characters and satisfy
+	 * {@code @Email}, and an optional employee-number claim must match
+	 * {@code [A-Za-z0-9_-]{1,50}} without trimming. Creation trims and lowercases
+	 * email and limits it to 254 normalized characters.
 	 * </p>
 	 * <p>
 	 * Returns HTTP 200 for the subject's unique local profile. Existing profiles
@@ -130,10 +130,11 @@ public interface AppUserResource {
 	 * <p>
 	 * Both id and request must be nonnull, the target must exist, and the payload
 	 * must pass Bean Validation. A provisioned administrator may edit any profile;
-	 * JANUS_USER and JANUS_EMPLOYEE may edit only their own persistent UUID.
+	 * {@code JANUS_USER} and {@code JANUS_EMPLOYEE} may edit only their own
+	 * persistent UUID.
 	 * </p>
 	 * <p>
-	 * Returns HTTP 200 with the persisted locale, time format, timezone and theme.
+	 * Returns HTTP 200 with the persisted locale, time format, time zone and theme.
 	 * Subject, contact email and employee association are preserved. Invalid
 	 * requests and authorization denials do not modify profiles.
 	 * </p>
@@ -156,7 +157,7 @@ public interface AppUserResource {
 	 * Deletes a local profile as a provisioned administrator.
 	 * <p>
 	 * The id must be nonnull, the target must exist, and the caller must have
-	 * JANUS_ADMIN.
+	 * {@code JANUS_ADMIN}.
 	 * </p>
 	 * <p>
 	 * Returns HTTP 204 with no body after removing the profile and clearing its

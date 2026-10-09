@@ -60,9 +60,9 @@ public class TimeLogController implements TimeLogResource {
 	 * @param  timeLogResponseMapper mapper that converts {@link TimeLog} domain
 	 *                               objects to {@link TimeLogResponse} DTOs; must
 	 *                               not be {@code null}
-	 * @throws NullPointerException  if any dependency is null
-	 * @param  clock                 clock used to retrieve the current time. Can't
-	 *                               be {@code null}.
+	 * @throws NullPointerException  if any dependency is {@code null}
+	 * @param  clock                 clock used to retrieve the current time. Must
+	 *                               not be {@code null}.
 	 */
 	public TimeLogController(
 		final TimeLogService timeLogService,

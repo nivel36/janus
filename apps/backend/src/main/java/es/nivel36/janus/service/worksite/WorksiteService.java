@@ -65,8 +65,8 @@ public class WorksiteService {
 	 * @param  worksiteRepository       nonnull worksite repository
 	 * @param  employeeService          nonnull employee assignment lookup service
 	 * @param  maxPageSize              positive limit from
-	 *                                  spring.data.rest.max-page-size
-	 * @throws NullPointerException     if a dependency is null
+	 *                                  {@code spring.data.rest.max-page-size}
+	 * @throws NullPointerException     if a dependency is {@code null}
 	 * @throws IllegalArgumentException if maxPageSize is not positive
 	 */
 	public WorksiteService(
@@ -100,7 +100,7 @@ public class WorksiteService {
 	 * @param  query                        optional literal single-line fragment of
 	 *                                      1-100 characters
 	 * @param  employeeNumber               optional exact number matching
-	 *                                      [A-Za-z0-9_-]{1,50}
+	 *                                      {@code [A-Za-z0-9_-]{1,50}}
 	 * @param  pageable                     nonnull paged request with public sort
 	 *                                      fields
 	 * @return                              matching page, possibly empty
@@ -151,11 +151,12 @@ public class WorksiteService {
 	 * Creates a worksite without assigning employees. The caller supplies
 	 * validated, already normalized data. Code must match
 	 * {@code [A-Za-z0-9_-]{1,50}}; name must be nonblank. Zone and scope are
-	 * required. Description and address may be null and are stored as supplied.
+	 * required. Description and address may be {@code null} and are stored as
+	 * supplied.
 	 *
 	 * @param  code                           exact immutable business code
 	 * @param  name                           nonblank display name
-	 * @param  timeZone                       nonnull worksite timezone
+	 * @param  timeZone                       nonnull worksite time zone
 	 * @param  scope                          nonnull visibility scope
 	 * @param  description                    optional descriptive text
 	 * @param  address                        optional address
@@ -193,7 +194,8 @@ public class WorksiteService {
 	 * Looks up an exact business code without changing the worksite.
 	 *
 	 * @param  code                         nonblank code matching
-	 *                                      [A-Za-z0-9_-]{1,50} without trimming
+	 *                                      {@code [A-Za-z0-9_-]{1,50}} without
+	 *                                      trimming
 	 * @return                              existing nondeleted worksite
 	 * @throws ConstraintViolationException if code fails validation through the
 	 *                                      Spring proxy
@@ -220,9 +222,9 @@ public class WorksiteService {
 	 * association. Neither resource is modified.
 	 *
 	 * @param  employeeNumber                exact nonblank number matching
-	 *                                       [A-Za-z0-9_-]{1,50}
+	 *                                       {@code [A-Za-z0-9_-]{1,50}}
 	 * @param  worksiteCode                  exact nonblank code matching
-	 *                                       [A-Za-z0-9_-]{1,50}
+	 *                                       {@code [A-Za-z0-9_-]{1,50}}
 	 * @throws ConstraintViolationException  if an identifier fails validation
 	 *                                       through the Spring proxy
 	 * @throws ResourceNotFoundException     if either resource is absent
@@ -250,15 +252,15 @@ public class WorksiteService {
 
 	/**
 	 * Replaces descriptive data and scope of an existing worksite. Values are
-	 * supplied already normalized; null description and address clear those fields.
-	 * Code, employee assignments and time logs remain unchanged. Scope may remain
-	 * unchanged or expand from ASSIGNED to GLOBAL. Changes commit with the
+	 * supplied already normalized; {@code null} description and address clear those
+	 * fields. Code, employee assignments and time logs remain unchanged. Scope may
+	 * remain unchanged or expand from ASSIGNED to GLOBAL. Changes commit with the
 	 * transaction; a rejected transition rolls it back.
 	 *
 	 * @param  code                         exact nonblank business code matching
-	 *                                      [A-Za-z0-9_-]{1,50}
+	 *                                      {@code [A-Za-z0-9_-]{1,50}}
 	 * @param  newName                      replacement nonblank display name
-	 * @param  newTimeZone                  nonnull replacement timezone
+	 * @param  newTimeZone                  nonnull replacement time zone
 	 * @param  newScope                     nonnull replacement scope
 	 * @param  newDescription               optional replacement description
 	 * @param  newAddress                   optional replacement address
@@ -297,7 +299,8 @@ public class WorksiteService {
 	 * historical time logs remain stored.
 	 *
 	 * @param  code                         nonblank code matching
-	 *                                      [A-Za-z0-9_-]{1,50} without trimming
+	 *                                      {@code [A-Za-z0-9_-]{1,50}} without
+	 *                                      trimming
 	 * @throws ConstraintViolationException if code fails validation through the
 	 *                                      Spring proxy
 	 * @throws ResourceNotFoundException    if the target is absent
@@ -323,11 +326,13 @@ public class WorksiteService {
 	 * association are updated. Existing assignments do not trigger a save; neither
 	 * resource is created or deleted.
 	 *
-	 * @param  worksiteCode                 exact code matching [A-Za-z0-9_-]{1,50}
+	 * @param  worksiteCode                 exact code matching
+	 *                                      {@code [A-Za-z0-9_-]{1,50}}
 	 * @param  employeeNumber               exact number matching
-	 *                                      [A-Za-z0-9_-]{1,50}
-	 * @return                              true when an assignment was added, false
-	 *                                      when it already existed
+	 *                                      {@code [A-Za-z0-9_-]{1,50}}
+	 * @return                              {@code true} when an assignment was
+	 *                                      added, {@code false} when it already
+	 *                                      existed
 	 * @throws ConstraintViolationException if an identifier fails validation
 	 *                                      through the Spring proxy
 	 * @throws ResourceNotFoundException    if either resource is absent
@@ -357,11 +362,13 @@ public class WorksiteService {
 	 * updated. Missing assignments do not trigger a save; neither resource is
 	 * deleted.
 	 *
-	 * @param  worksiteCode                 exact code matching [A-Za-z0-9_-]{1,50}
+	 * @param  worksiteCode                 exact code matching
+	 *                                      {@code [A-Za-z0-9_-]{1,50}}
 	 * @param  employeeNumber               exact number matching
-	 *                                      [A-Za-z0-9_-]{1,50}
-	 * @return                              true when an assignment was removed,
-	 *                                      false when it was absent
+	 *                                      {@code [A-Za-z0-9_-]{1,50}}
+	 * @return                              {@code true} when an assignment was
+	 *                                      removed, {@code false} when it was
+	 *                                      absent
 	 * @throws ConstraintViolationException if an identifier fails validation
 	 *                                      through the Spring proxy
 	 * @throws ResourceNotFoundException    if either resource is absent

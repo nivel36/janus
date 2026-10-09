@@ -51,17 +51,18 @@ public interface TimeLogResource {
 	/**
 	 * Creates an open time log for the caller's linked employee.
 	 * <p>
-	 * The caller must have JANUS_EMPLOYEE. Explicit entry times additionally
-	 * require manual entry to be enabled. The employee and worksite must exist and
-	 * the employee must be allowed to use the worksite. A missing entry time uses
-	 * the injected clock. Times are truncated to seconds, must not be in the future
-	 * and must be strictly after the configured lock threshold. Duplicate active
-	 * employee/entry-time pairs are rejected.
+	 * The caller must have {@code JANUS_EMPLOYEE}. Explicit entry times
+	 * additionally require manual entry to be enabled. The employee and worksite
+	 * must exist and the employee must be allowed to use the worksite. A missing
+	 * entry time uses the injected clock. Times are truncated to seconds, must not
+	 * be in the future and must be strictly after the configured lock threshold.
+	 * Duplicate active employee/entry-time pairs are rejected.
 	 * </p>
 	 *
 	 * @param  employeeNumber                         exact employee identifier
-	 * @param  entryTime                              optional entry instant; null
-	 *                                                uses the current time
+	 * @param  entryTime                              optional entry instant;
+	 *                                                {@code null} uses the current
+	 *                                                time
 	 * @param  worksiteCode                           exact accessible worksite code
 	 * @return                                        HTTP 201 containing the
 	 *                                                persisted open time log
@@ -91,7 +92,7 @@ public interface TimeLogResource {
 	/**
 	 * Closes the employee's most recent open time log.
 	 * <p>
-	 * The caller must have JANUS_EMPLOYEE and own the employee association;
+	 * The caller must have {@code JANUS_EMPLOYEE} and own the employee association;
 	 * explicit exit times require manual entry to be enabled. Null exit time uses
 	 * the injected clock. The truncated exit time must be editable, not in the
 	 * future and strictly after entry. The worksite must exist. If an open log
@@ -101,8 +102,9 @@ public interface TimeLogResource {
 	 * </p>
 	 *
 	 * @param  employeeNumber                         exact employee identifier
-	 * @param  exitTime                               optional exit instant; null
-	 *                                                uses the current time
+	 * @param  exitTime                               optional exit instant;
+	 *                                                {@code null} uses the current
+	 *                                                time
 	 * @param  worksiteCode                           exact worksite code
 	 * @return                                        HTTP 200 containing the closed
 	 *                                                time log
@@ -134,10 +136,10 @@ public interface TimeLogResource {
 	/**
 	 * Creates a closed time log for the caller's linked employee.
 	 * <p>
-	 * The caller must have JANUS_EMPLOYEE and manual entry must be enabled. Both
-	 * payload times are required and exit must be strictly after entry, including
-	 * after truncation to seconds. Both must be editable and not in the future. The
-	 * employee and accessible worksite must exist. Duplicate active
+	 * The caller must have {@code JANUS_EMPLOYEE} and manual entry must be enabled.
+	 * Both payload times are required and exit must be strictly after entry,
+	 * including after truncation to seconds. Both must be editable and not in the
+	 * future. The employee and accessible worksite must exist. Duplicate active
 	 * employee/entry-time pairs are rejected.
 	 * </p>
 	 *
@@ -176,9 +178,9 @@ public interface TimeLogResource {
 	/**
 	 * Retrieves an active time log by its employee and exact entry instant.
 	 * <p>
-	 * JANUS_ADMIN and JANUS_USER may view any employee's logs. JANUS_EMPLOYEE may
-	 * view only the persistent linked employee. This operation does not modify
-	 * records and does not truncate the lookup instant.
+	 * {@code JANUS_ADMIN} and {@code JANUS_USER} may view any employee's logs.
+	 * {@code JANUS_EMPLOYEE} may view only the persistent linked employee. This
+	 * operation does not modify records and does not truncate the lookup instant.
 	 * </p>
 	 *
 	 * @param  employeeNumber            exact employee identifier
@@ -197,7 +199,7 @@ public interface TimeLogResource {
 			Instant entryTime);
 
 	/**
-	 * Soft-deletes an editable time log as a provisioned JANUS_ADMIN.
+	 * Soft-deletes an editable time log as a provisioned {@code JANUS_ADMIN}.
 	 * <p>
 	 * The employee and active log must exist. Deletion is allowed only while entry
 	 * time is strictly after the configured lock threshold. Subsequent lookups and

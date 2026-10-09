@@ -29,6 +29,9 @@ import jakarta.validation.constraints.Pattern;
 /**
  * Defines the structure of a rule contained in {@link CreateScheduleRequest} or
  * {@link UpdateScheduleRequest}.
+ * <p>
+ * The constraints below apply during Bean Validation. Construction alone stores
+ * the supplied values without validation or normalization.
  *
  * @param name            human-readable name of the rule; must not be blank and
  *                        must contain between 1 and 250 allowed characters
@@ -53,7 +56,7 @@ public record ScheduleRuleRequest(
 		List<@NotNull @Valid ScheduleRuleTimeRangeRequest> dayOfWeekRanges) {
 
 	/**
-	 * Validates that {@code endDate} is not before {@code startDate} when both are
+	 * Returns whether {@code endDate} is not before {@code startDate} when both are
 	 * provided.
 	 *
 	 * @return {@code true} if the validity period is valid or incomplete,

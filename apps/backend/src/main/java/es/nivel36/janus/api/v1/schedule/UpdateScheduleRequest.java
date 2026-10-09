@@ -27,6 +27,9 @@ import jakarta.validation.constraints.Pattern;
 
 /**
  * Request payload used to update an existing {@link Schedule} aggregate.
+ * <p>
+ * The constraints below apply during Bean Validation. Construction alone stores
+ * the supplied values without validation or normalization.
  *
  * @param name           new human-readable name describing the schedule; must
  *                       not be blank and must contain between 1 and 250 allowed

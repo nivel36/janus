@@ -21,35 +21,21 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 /**
- * JPA attribute converter for mapping {@link Duration} objects to their numeric
- * representation in the database and vice versa.
+ * Converts JPA duration attributes to stored whole seconds and back.
  * <p>
- * This converter stores {@link Duration} values as the total number of seconds
- * in a {@code BIGINT} column and reconstructs them back when reading.
- * </p>
- * <p>
- * Annotated with {@link Converter}(autoApply = true) to apply automatically to
- * all entity attributes of type {@link Duration}.
- * </p>
- * <p>
- * <b>Example:</b>
- * </p>
- * <ul>
- * <li>{@code Duration.ofHours(8).plusMinutes(30)} → stored as
- * {@code 30600}</li>
- * <li>{@code 30600} → converted back to
- * {@code Duration.ofHours(8).plusMinutes(30)}</li>
- * </ul>
+ * The seconds component is obtained from {@link Duration#getSeconds()};
+ * fractional nanoseconds are discarded. {@code null} values remain {@code null}
+ * in both directions.
  */
 @Converter(autoApply = true)
 public class DurationConverter implements AttributeConverter<Duration, Long> {
 
 	/**
-	 * Converts a {@link Duration} into its database column representation.
+	 * Returns the duration's seconds component for storage.
 	 *
-	 * @param  duration the {@link Duration} to convert; may be {@code null}
-	 * @return          the total number of seconds represented by the duration, or
-	 *                  {@code null} if input was {@code null}
+	 * @param  duration the duration to convert, or {@code null}
+	 * @return          the seconds component without fractional nanoseconds, or
+	 *                  {@code null} if the input is {@code null}
 	 */
 	@Override
 	public Long convertToDatabaseColumn(final Duration duration) {

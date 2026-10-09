@@ -18,7 +18,7 @@ package es.nivel36.janus.service;
 /**
  * Supported time display preferences for profiles and application defaults.
  * These values control presentation only; they do not change stored timestamps
- * or timezones.
+ * or time zones.
  */
 public enum TimeFormat {
 	/**

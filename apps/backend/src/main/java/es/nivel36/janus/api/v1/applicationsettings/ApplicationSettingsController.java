@@ -41,14 +41,16 @@ public class ApplicationSettingsController implements ApplicationSettingsResourc
 	private final Mapper<ApplicationSettings, ApplicationSettingsResponse> appSettingsResponseMapper;
 
 	/**
-	 * Builds a controller for managing global {@link ApplicationSettings}.
+	 * Constructs a controller for reading and replacing global application
+	 * settings.
 	 *
-	 * @param applicationSettingsService service handling application settings
-	 *                                   operations; must not be {@code null}
-	 * @param appSettingsResponseMapper  mapper translating
-	 *                                   {@link ApplicationSettings} entities into
-	 *                                   {@link ApplicationSettingsResponse} DTOs;
-	 *                                   must not be {@code null}
+	 * @param  applicationSettingsService service handling application settings
+	 *                                    operations; must not be {@code null}
+	 * @param  appSettingsResponseMapper  mapper translating
+	 *                                    {@link ApplicationSettings} entities into
+	 *                                    {@link ApplicationSettingsResponse} DTOs;
+	 *                                    must not be {@code null}
+	 * @throws NullPointerException       if either dependency is {@code null}
 	 */
 	public ApplicationSettingsController(
 		final ApplicationSettingsService applicationSettingsService,

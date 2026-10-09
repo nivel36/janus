@@ -12,7 +12,13 @@ import es.nivel36.janus.policy.Policy;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.service.appuser.Role;
 
-/** Authorizes access to an employee's profile. */
+/**
+ * Authorizes reading an employee record.
+ * <p>
+ * Users and administrators may target any employee. Employees may target only
+ * their persistent employee identifier. Actor and target identifier must be
+ * non-null.
+ */
 public final class ViewEmployeePolicy implements Policy<Long> {
 
 	@Override

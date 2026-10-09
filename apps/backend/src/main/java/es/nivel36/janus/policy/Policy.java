@@ -22,9 +22,10 @@ public interface Policy<C> {
 	 * @param  actor                nonnull provisioned caller with recognized roles
 	 * @param  context              minimum operation context; its nullability and
 	 *                              invariants are defined by the concrete policy
-	 * @return                      true when the actor satisfies this policy for
-	 *                              the context, false otherwise
-	 * @throws NullPointerException if actor is null or a required context is null
+	 * @return                      {@code true} when the actor satisfies this
+	 *                              policy for the context, {@code false} otherwise
+	 * @throws NullPointerException if actor is {@code null} or a required context
+	 *                              is {@code null}
 	 */
 	boolean allows(Actor actor, C context);
 }

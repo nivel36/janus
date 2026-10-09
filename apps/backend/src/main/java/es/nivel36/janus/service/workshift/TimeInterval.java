@@ -32,15 +32,8 @@ import java.util.Objects;
  */
 class TimeInterval {
 
-	/**
-	 * The starting instant of the interval (inclusive). Can't be {@code null}.
-	 */
 	private final Instant start;
 
-	/**
-	 * The ending instant of the interval (exclusive). Can't be {@code null} and
-	 * must not be before {@link #start}.
-	 */
 	private final Instant end;
 
 	/**
@@ -65,9 +58,9 @@ class TimeInterval {
 	/**
 	 * Determines whether this interval overlaps the specified interval.
 	 * <p>
-	 * Two intervals overlap if they share any instant in time. Adjacent intervals
-	 * (where one ends exactly when the other starts) are <em>not</em> considered
-	 * overlapping.
+	 * Overlap requires each start to be strictly before the other end. Adjacent
+	 * intervals are excluded. A zero-duration interval satisfies this comparison
+	 * when its boundary lies strictly inside the other interval.
 	 *
 	 * @param  other                the interval to test for overlap
 	 * @return                      {@code true} if the intervals overlap,
@@ -153,9 +146,12 @@ class TimeInterval {
 	 * The returned interval starts {@code margin} earlier and ends {@code margin}
 	 * later than this interval.
 	 *
-	 * @param  margin               the duration to expand the interval by
-	 * @return                      a new expanded {@code TimeInterval}
-	 * @throws NullPointerException if {@code margin} is {@code null}
+	 * @param  margin                   the margin applied to both bounds; a
+	 *                                  negative margin contracts the interval
+	 * @return                          a new interval with the adjusted bounds
+	 * @throws IllegalArgumentException if contraction places the end before the
+	 *                                  start
+	 * @throws NullPointerException     if {@code margin} is {@code null}
 	 */
 	TimeInterval expandBy(final Duration margin) {
 		Objects.requireNonNull(margin);

@@ -26,6 +26,9 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Defines the bounds of a {@link TimeRange} in schedule requests.
+ * <p>
+ * The constraints below apply during Bean Validation. Construction alone stores
+ * the supplied values without validation or normalization.
  *
  * @param startTime lower bound for the allowed time window; must not be
  *                  {@code null}
@@ -42,7 +45,7 @@ public record ScheduleTimeRangeRequest(
 		LocalTime endTime) {
 
 	/**
-	 * Validates that the bounds do not describe a zero-length range. An end time
+	 * Returns whether the bounds do not describe a zero-length range. An end time
 	 * before the start time is valid and represents a range spanning midnight into
 	 * the following day.
 	 *
@@ -59,8 +62,10 @@ public record ScheduleTimeRangeRequest(
 	}
 
 	/**
-	 * Returns the duration represented by this request, adding one day when the
-	 * range spans midnight.
+	 * Returns the duration of this range, adding one day when it spans midnight.
+	 *
+	 * @return the range duration, or {@link Duration#ZERO} if either bound is
+	 *         {@code null} or the bounds are equal
 	 */
 	@JsonIgnore
 	public Duration duration() {

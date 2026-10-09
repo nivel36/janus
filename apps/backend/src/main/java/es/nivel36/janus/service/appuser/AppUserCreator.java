@@ -37,7 +37,7 @@ class AppUserCreator {
 
 	/**
 	 * Creates the internal writer without database access. Both dependencies must
-	 * be nonnull; this constructor stores them without validation.
+	 * be non-null and are checked during construction.
 	 *
 	 * @param  appUserRepository    profile repository. Must be nonnull.
 	 * @param  entityManager        transaction-bound persistence context Must be
@@ -69,12 +69,12 @@ class AppUserCreator {
 	 *                                  characters
 	 * @param  locale                   nonnull initial locale
 	 * @param  timeFormat               nonnull initial time format
-	 * @param  defaultTimezone          nonnull initial timezone
-	 * @param  employeeId               optional employee database identifier; null
-	 *                                  creates unlinked
+	 * @param  defaultTimezone          nonnull initial time zone
+	 * @param  employeeId               optional employee database identifier;
+	 *                                  {@code null} creates unlinked
 	 * @return                          newly persisted profile with readable
 	 *                                  employee data
-	 * @throws NullPointerException     if a required profile value is null
+	 * @throws NullPointerException     if a required profile value is {@code null}
 	 * @throws IllegalArgumentException if email or subject is blank or oversized
 	 * @throws AppUserCreationConflict  if the employee was claimed or insertion
 	 *                                  violates a database integrity constraint

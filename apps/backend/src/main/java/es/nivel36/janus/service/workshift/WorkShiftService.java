@@ -15,6 +15,8 @@
  */
 package es.nivel36.janus.service.workshift;
 
+import jakarta.validation.ConstraintViolationException;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -76,15 +78,15 @@ public class WorkShiftService {
 	 * Creates a new {@code WorkShiftService} with all required dependencies.
 	 *
 	 * @param  workshiftRepository        Repository used to persist and retrieve
-	 *                                    work shifts. Can't be {@code null}.
+	 *                                    work shifts. Must not be {@code null}.
 	 * @param  timeLogService             Service used to retrieve employee time
-	 *                                    logs. Can't be {@code null}.
+	 *                                    logs. Must not be {@code null}.
 	 * @param  scheduleService            Service used to obtain scheduled time
-	 *                                    ranges. Can't be {@code null}.
+	 *                                    ranges. Must not be {@code null}.
 	 * @param  applicationSettingsService Service providing administrative
-	 *                                    configuration. Can't be {@code null}.
+	 *                                    configuration. Must not be {@code null}.
 	 * @param  clock                      Clock used to determine the current date
-	 *                                    and time. Can't be {@code null}.
+	 *                                    and time. Must not be {@code null}.
 	 * @throws NullPointerException       if any dependency is {@code null}
 	 */
 	public WorkShiftService(
@@ -103,29 +105,29 @@ public class WorkShiftService {
 	}
 
 	/**
-	 * Retrieves or composes a {@link WorkShift} for the given employee, worksite
-	 * and date.
+	 * Returns a stored locked shift or composes a shift for the requested date.
 	 * <p>
-	 * If the requested date is already locked according to administrative rules and
-	 * a persisted shift exists, that shift is returned.
-	 * <p>
-	 * Otherwise, the shift is inferred by:
-	 * <ul>
-	 * <li>retrieving relevant {@link TimeLog} entries around the target date,</li>
-	 * <li>obtaining the scheduled {@link TimeRange}, if any, and</li>
-	 * <li>delegating composition to the {@link WorkShiftFactory}.</li>
-	 * </ul>
+	 * A date is locked when it plus the configured modification window is on or
+	 * before today in the worksite zone. A stored shift for that employee and date
+	 * is returned when available. Otherwise, the applicable schedule determines the
+	 * inference strategy. Composition associates the selected logs with the new
+	 * shift and computes work and pause durations without explicitly saving it.
 	 *
-	 * @param  employee             Employee for whom the work shift is requested.
-	 *                              Can't be {@code null}.
-	 * @param  worksite             Worksite defining the time zone context. Can't
-	 *                              be {@code null}.
-	 * @param  date                 Date for which the work shift is requested.
-	 *                              Can't be {@code null}.
-	 * @return                      the existing or newly composed {@link WorkShift}
-	 * @throws NullPointerException if {@code employee}, {@code worksite},
-	 *                              {@code worksite} time zone or {@code date} is
-	 *                              {@code null}
+	 * @param  employee                     the employee whose shift is requested;
+	 *                                      must not be {@code null}
+	 * @param  worksite                     the worksite supplying the inference
+	 *                                      zone; must not be {@code null}
+	 * @param  date                         the local shift date; must not be
+	 *                                      {@code null}
+	 * @return                              the stored or newly composed shift
+	 * @throws IllegalArgumentException     if candidate retrieval is rejected
+	 *                                      because the time-log search requires a
+	 *                                      paged request
+	 * @throws ConstraintViolationException if a required argument is {@code null}
+	 *                                      when method validation is active
+	 * @throws NullPointerException         if a required argument or the worksite
+	 *                                      zone is {@code null} when accessed
+	 *                                      without method validation
 	 */
 	@Transactional(readOnly = true)
 	public WorkShift findWorkShift(

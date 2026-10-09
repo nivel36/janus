@@ -5,6 +5,8 @@
  */
 package es.nivel36.janus.security;
 
+import jakarta.validation.ConstraintViolationException;
+
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
@@ -42,35 +44,35 @@ public class ActorResolver {
 	 * no authentication or database lookup.
 	 *
 	 * @param  appUserService       nonnull application-profile lookup service
-	 * @throws NullPointerException if appUserService is null
+	 * @throws NullPointerException if appUserService is {@code null}
 	 */
 	public ActorResolver(final AppUserService appUserService) {
 		this.appUserService = Objects.requireNonNull(appUserService, "appUserService can't be null");
 	}
 
 	/**
-	 * Resolves a validated JWT to an immutable authorization snapshot.
+	 * Returns an immutable authorization snapshot for a provisioned JWT identity.
 	 * <p>
-	 * Authentication must be an authenticated JwtAuthenticationToken from the
-	 * trusted resource server; its nonblank subject must match the principal name
-	 * and satisfy the profile subject length limit. The profile must already exist
-	 * with a persistence UUID.
-	 * </p>
+	 * Authentication must be an authenticated {@link JwtAuthenticationToken} whose
+	 * nonblank subject matches the principal name. The subject must satisfy the
+	 * profile service's subject constraints, and its profile must already have a
+	 * UUID. Issuer, audience and verified-email validation are the resource
+	 * server's responsibility.
 	 * <p>
-	 * Returns the persisted UUID, optional employee database id and recognized
-	 * Janus roles. Mutable token email, username and employeeNumber do not select
-	 * the actor or replace its employee association. No profile is created or
-	 * modified; unrecognized authorities are ignored.
-	 * </p>
+	 * The snapshot contains the profile UUID, optional persistent employee
+	 * identifier and recognized Janus roles. Token email and employee-number claims
+	 * do not select the actor or change its associations; unknown authorities are
+	 * ignored.
 	 *
-	 * @param  authentication           trusted resource-server authentication;
-	 *                                  unsupported values including null are denied
-	 * @return                          provisioned actor snapshot, possibly with no
-	 *                                  employee or recognized roles
-	 * @throws AccessDeniedException    if authentication is unsupported, invalid,
-	 *                                  unauthenticated or unprovisioned
-	 * @throws IllegalArgumentException if the subject exceeds the profile column
-	 *                                  limit
+	 * @param  authentication               the trusted resource-server
+	 *                                      authentication
+	 * @return                              the provisioned actor snapshot, possibly
+	 *                                      without an employee or roles
+	 * @throws AccessDeniedException        if authentication is unsupported,
+	 *                                      invalid, unauthenticated or
+	 *                                      unprovisioned
+	 * @throws ConstraintViolationException if the subject fails profile-service
+	 *                                      validation
 	 */
 	@Transactional(readOnly = true)
 	public Actor resolve(final Authentication authentication) {

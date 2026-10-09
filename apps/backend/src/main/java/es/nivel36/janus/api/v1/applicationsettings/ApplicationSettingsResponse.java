@@ -19,7 +19,6 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
 
 /**
  * Response payload that represents global {@link ApplicationSettings} values.
- * Uses only the canonical JSON property names shown below.
  *
  * @param daysUntilLocked                   number of days a time log remains
  *                                          editable
@@ -28,8 +27,8 @@ import es.nivel36.janus.service.applicationsettings.ApplicationSettings;
  * @param worksiteChangeDuringShiftAllowed  whether changing worksite during a
  *                                          shift is allowed
  * @param employeeManualTimeLogEntryAllowed whether employees can set custom
- *                                          entry/exit instants in timelog
- *                                          operations
+ *                                          entry and exit timestamps in time
+ *                                          log operations
  * @param defaultTimezone                   stored global time-zone identifier
  */
 public record ApplicationSettingsResponse(

@@ -43,7 +43,7 @@ public class TimeLogSearchController implements TimeLogSearchResource {
 	 * @param  authorization         nonnull component resolving the authenticated
 	 *                               search scope
 	 * @param  timeLogResponseMapper nonnull response mapper
-	 * @throws NullPointerException  if any dependency is null
+	 * @throws NullPointerException  if any dependency is {@code null}
 	 */
 	public TimeLogSearchController(
 		final TimeLogService timeLogs,

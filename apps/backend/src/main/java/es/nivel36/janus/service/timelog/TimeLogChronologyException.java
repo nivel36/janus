@@ -16,27 +16,14 @@
 package es.nivel36.janus.service.timelog;
 
 /**
- * Exception thrown to indicate that a {@code TimeLog} entity has an invalid
- * chronological order between its {@code entryTime} and {@code exitTime}.
- * <p>
- * Typical scenarios where this exception may be raised:
- * <ul>
- * <li>When {@code entryTime} is set after {@code exitTime}.</li>
- * <li>When updating a {@code TimeLog} would result in an inconsistent
- * timeline.</li>
- * </ul>
- * <p>
- * This is an unchecked exception (subclass of {@link RuntimeException}) because
- * it usually represents a violation of business rules rather than a recoverable
- * condition.
+ * Signals that a time log's exit is not strictly after its entry.
  */
 public class TimeLogChronologyException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a new {@code TimeLogChronologyException} with no detail message or
-	 * cause.
+	 * Creates an exception with the default detail message.
 	 */
 	public TimeLogChronologyException() {
 		super("The TimeLog record cannot be modified or created because has an invalid chronological order.");

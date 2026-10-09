@@ -21,41 +21,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Spring {@link Configuration} class that provides time-related beans.
- * <p>
- * Exposes a {@link Clock} bean representing the system's default time-zone.
- * <p>
- * Using {@link Clock} instead of calling {@code LocalDateTime.now()} directly
- * improves testability by allowing the clock to be injected and controlled in
- * unit tests (e.g., by providing a fixed or offset clock).
- * <p>
- * Example usage in a service:
- *
- * <pre>
- * &#64;Service
- * public class TimeLogService {
- * 	private final Clock clock;
- *
- * 	public TimeLogService(Clock clock) {
- * 		this.clock = clock;
- * 	}
- *
- * 	public Instant now() {
- * 		return clock(now);
- * 	}
- * }
- * </pre>
+ * Provides the application clock in the UTC time zone.
  */
 @Configuration
 public class TimeConfig {
 
 	/**
-	 * Provides a {@link Clock} instance based on the UTC time-zone.
-	 * <p>
-	 * This bean can be injected into services that require a source of current
-	 * time, enabling deterministic testing.
+	 * Returns a clock that reads the current system time in UTC.
 	 *
-	 * @return a system {@link Clock} using the UTC time-zone
+	 * @return the system clock in the UTC time zone
 	 */
 	@Bean
 	public Clock systemClock() {

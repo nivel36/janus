@@ -46,31 +46,14 @@ public class TimeRange implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * The inclusive start time of the range.
-	 * <p>
-	 * Must not be {@code null}.
-	 * </p>
-	 */
 	@NotNull
 	private LocalTime startTime;
 
-	/**
-	 * The exclusive end time of the range.
-	 * <p>
-	 * Must not be {@code null}. If the end time is before the start time, the range
-	 * is interpreted as spanning midnight.
-	 * </p>
-	 */
 	@NotNull
 	private LocalTime endTime;
 
 	/**
-	 * Protected no-argument constructor required by persistence frameworks.
-	 * <p>
-	 * This constructor must not be used directly in application code. It exists
-	 * solely to allow frameworks such as JPA to instantiate the embeddable.
-	 * </p>
+	 * Constructs an empty instance for persistence hydration.
 	 */
 	TimeRange() {
 	}
@@ -90,7 +73,7 @@ public class TimeRange implements Serializable {
 	 * @throws NullPointerException     if {@code startTime} or {@code endTime} is
 	 *                                  {@code null}
 	 * @throws IllegalArgumentException if {@code startTime} and {@code endTime}
-	 *                                  represent the same instant
+	 *                                  have the same local time
 	 */
 	public TimeRange(final LocalTime startTime, final LocalTime endTime) {
 		this.startTime = Objects.requireNonNull(startTime, "startTime can't be null");

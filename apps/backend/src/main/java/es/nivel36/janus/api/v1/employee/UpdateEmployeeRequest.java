@@ -24,17 +24,20 @@ import jakarta.validation.constraints.Pattern;
 
 /**
  * Request payload for updating an existing {@link Employee}.
+ * <p>
+ * The constraints below apply during Bean Validation. Construction alone stores
+ * the supplied values without validation or normalization.
  *
  * @param name         the new first name of the employee; must not be blank and
- *                     must be between 1 and 255 characters using the allowed
- *                     characters
+ *                     must be between 1 and 255 characters drawn from letters,
+ *                     spaces, dots, commas, apostrophes or hyphens
  * @param surname      the new surname of the employee; must not be blank and
- *                     must be between 1 and 255 characters using the allowed
- *                     characters
+ *                     must be between 1 and 255 characters drawn from letters,
+ *                     spaces, dots, commas, apostrophes or hyphens
  * @param email        new contact email; valid, nonblank and at most 254
  *                     characters
  * @param scheduleCode the code of the new schedule of the employee; must not be
- *                     blank and must be at most 50 characters
+ *                     blank and must match {@code [A-Za-z0-9_-]{1,50}}
  */
 public record UpdateEmployeeRequest(
 		@NotBlank(message = "name must not be blank")

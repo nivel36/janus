@@ -38,8 +38,8 @@ public class AppUserAuthorizationAdapter {
 	 *
 	 * @param  authentication        trusted authentication for an existing local
 	 *                               profile
-	 * @return                       true exactly when the resolved actor has
-	 *                               JANUS_ADMIN
+	 * @return                       {@code true} exactly when the resolved actor
+	 *                               has {@code JANUS_ADMIN}
 	 * @throws AccessDeniedException if the actor cannot be resolved from
 	 *                               authentication
 	 */
@@ -52,11 +52,12 @@ public class AppUserAuthorizationAdapter {
 	 *
 	 * @param  a                     trusted authentication for an existing local
 	 *                               profile
-	 * @param  id                    target UUID; null cannot match personal
+	 * @param  id                    target UUID; {@code null} cannot match personal
 	 *                               ownership
-	 * @return                       true for JANUS_ADMIN, or for
-	 *                               JANUS_USER/JANUS_EMPLOYEE targeting their own
-	 *                               persistent UUID; false otherwise
+	 * @return                       {@code true} for {@code JANUS_ADMIN}, or for
+	 *                               {@code JANUS_USER}/{@code JANUS_EMPLOYEE}
+	 *                               targeting their own persistent UUID;
+	 *                               {@code false} otherwise
 	 * @throws AccessDeniedException if the actor cannot be resolved from
 	 *                               authentication
 	 */
@@ -70,8 +71,8 @@ public class AppUserAuthorizationAdapter {
 	 *
 	 * @param  a                     trusted authentication for an existing local
 	 *                               profile
-	 * @return                       true exactly when the resolved actor has
-	 *                               JANUS_ADMIN
+	 * @return                       {@code true} exactly when the resolved actor
+	 *                               has {@code JANUS_ADMIN}
 	 * @throws AccessDeniedException if the actor cannot be resolved from
 	 *                               authentication
 	 */

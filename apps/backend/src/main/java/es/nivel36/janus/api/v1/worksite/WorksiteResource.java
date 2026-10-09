@@ -53,11 +53,12 @@ public interface WorksiteResource {
 	/**
 	 * Returns a page of worksites within the caller's authorized employee scope.
 	 * <p>
-	 * JANUS_USER and JANUS_ADMIN may search all worksites or request an employee
-	 * filter. JANUS_EMPLOYEE requires a persistent employee link and may only
-	 * request their own number; omitting it applies that number automatically. An
-	 * employee filter includes GLOBAL worksites and worksites assigned to that
-	 * employee. Text and visibility restrictions combine with AND.
+	 * {@code JANUS_USER} and {@code JANUS_ADMIN} may search all worksites or
+	 * request an employee filter. {@code JANUS_EMPLOYEE} requires a persistent
+	 * employee link and may only request their own number; omitting it applies that
+	 * number automatically. An employee filter includes GLOBAL worksites and
+	 * worksites assigned to that employee. Text and visibility restrictions combine
+	 * with AND.
 	 * </p>
 	 * <p>
 	 * Query matches code, name, description or address literally, partially and
@@ -96,10 +97,11 @@ public interface WorksiteResource {
 			Authentication authentication);
 
 	/**
-	 * Returns an existing visible worksite by its exact business code. JANUS_USER
-	 * and JANUS_ADMIN may view any worksite; a linked JANUS_EMPLOYEE may view
-	 * GLOBAL worksites and their assigned worksites. Code must match
-	 * {@code [A-Za-z0-9_-]{1,50}} without trimming. Deleted worksites are absent.
+	 * Returns an existing visible worksite by its exact business code.
+	 * {@code JANUS_USER} and {@code JANUS_ADMIN} may view any worksite; a linked
+	 * {@code JANUS_EMPLOYEE} may view GLOBAL worksites and their assigned
+	 * worksites. Code must match {@code [A-Za-z0-9_-]{1,50}} without trimming.
+	 * Deleted worksites are absent.
 	 *
 	 * @param  worksiteCode              exact worksite code
 	 * @return                           HTTP 200 containing the visible worksite
@@ -116,12 +118,12 @@ public interface WorksiteResource {
 
 	/**
 	 * Returns statistics for an existing worksite over {@code [start, end)}.
-	 * JANUS_USER and JANUS_ADMIN may query any worksite; JANUS_EMPLOYEE must be
-	 * assigned to it. Code must match {@code [A-Za-z0-9_-]{1,50}} without trimming.
-	 * Both instants are required and end must be strictly after start. Counts use
-	 * time-log entry times; erroneous logs are logs without an exit time. The
-	 * allowed-employee count reports current explicit assignments, including for
-	 * GLOBAL worksites.
+	 * {@code JANUS_USER} and {@code JANUS_ADMIN} may query any worksite;
+	 * {@code JANUS_EMPLOYEE} must be assigned to it. Code must match
+	 * {@code [A-Za-z0-9_-]{1,50}} without trimming. Both instants are required and
+	 * end must be strictly after start. Counts use time-log entry times; erroneous
+	 * logs are logs without an exit time. The allowed-employee count reports
+	 * current explicit assignments, including for GLOBAL worksites.
 	 *
 	 * @param  worksiteCode              exact worksite code
 	 * @param  start                     inclusive entry-time boundary
@@ -144,11 +146,11 @@ public interface WorksiteResource {
 			Instant end);
 
 	/**
-	 * Creates a worksite from a complete validated request. JANUS_USER and
-	 * JANUS_ADMIN may create either scope. JANUS_EMPLOYEE may create ASSIGNED
-	 * worksites only when employee creation is enabled. Text values are trimmed;
-	 * null description and address remain null. Creating a worksite does not assign
-	 * employees to it.
+	 * Creates a worksite from a complete validated request. {@code JANUS_USER} and
+	 * {@code JANUS_ADMIN} may create either scope. {@code JANUS_EMPLOYEE} may
+	 * create ASSIGNED worksites only when employee creation is enabled. Text values
+	 * are trimmed; {@code null} description and address remain {@code null}.
+	 * Creating a worksite does not assign employees to it.
 	 *
 	 * @param  request                        nonnull validated identifying and
 	 *                                        descriptive data
@@ -168,11 +170,12 @@ public interface WorksiteResource {
 	/**
 	 * Replaces the descriptive data and scope of an existing worksite. Code must
 	 * match {@code [A-Za-z0-9_-]{1,50}} without trimming and the complete request
-	 * must pass Bean Validation. JANUS_USER and JANUS_ADMIN may update any
-	 * worksite. JANUS_EMPLOYEE must be assigned, employee creation must be enabled
-	 * and the requested scope must be ASSIGNED. Scope may remain unchanged or
-	 * expand from ASSIGNED to GLOBAL. Text values are trimmed; null description and
-	 * address clear those fields. Code, assignments and time logs are preserved.
+	 * must pass Bean Validation. {@code JANUS_USER} and {@code JANUS_ADMIN} may
+	 * update any worksite. {@code JANUS_EMPLOYEE} must be assigned, employee
+	 * creation must be enabled and the requested scope must be ASSIGNED. Scope may
+	 * remain unchanged or expand from ASSIGNED to GLOBAL. Text values are trimmed;
+	 * {@code null} description and address clear those fields. Code, assignments
+	 * and time logs are preserved.
 	 *
 	 * @param  worksiteCode              exact code of the worksite to update
 	 * @param  request                   nonnull validated replacement data
@@ -192,10 +195,10 @@ public interface WorksiteResource {
 			UpdateWorksiteRequest request);
 
 	/**
-	 * Logically deletes an existing worksite as JANUS_USER or JANUS_ADMIN. Code
-	 * must match {@code [A-Za-z0-9_-]{1,50}} without trimming. Assigned employees
-	 * must be removed first. Deleted worksites disappear from lookup and search
-	 * while historical time logs remain stored.
+	 * Logically deletes an existing worksite as {@code JANUS_USER} or
+	 * {@code JANUS_ADMIN}. Code must match {@code [A-Za-z0-9_-]{1,50}} without
+	 * trimming. Assigned employees must be removed first. Deleted worksites
+	 * disappear from lookup and search while historical time logs remain stored.
 	 *
 	 * @param  worksiteCode              exact code of the worksite to delete
 	 * @return                           HTTP 204 with an empty body
@@ -212,7 +215,7 @@ public interface WorksiteResource {
 
 	/**
 	 * Idempotently assigns an existing employee to an existing worksite as
-	 * JANUS_USER or JANUS_ADMIN. Both identifiers must match
+	 * {@code JANUS_USER} or {@code JANUS_ADMIN}. Both identifiers must match
 	 * {@code [A-Za-z0-9_-]{1,50}} without trimming. Either scope accepts explicit
 	 * assignments; both sides of the association are updated.
 	 *
@@ -234,10 +237,10 @@ public interface WorksiteResource {
 			String employeeNumber);
 
 	/**
-	 * Idempotently removes an employee assignment as JANUS_USER or JANUS_ADMIN.
-	 * Both resources must exist and their identifiers must match
-	 * {@code [A-Za-z0-9_-]{1,50}} without trimming. Both sides of the association
-	 * are updated; employee and worksite records are preserved.
+	 * Idempotently removes an employee assignment as {@code JANUS_USER} or
+	 * {@code JANUS_ADMIN}. Both resources must exist and their identifiers must
+	 * match {@code [A-Za-z0-9_-]{1,50}} without trimming. Both sides of the
+	 * association are updated; employee and worksite records are preserved.
 	 *
 	 * @param  worksiteCode              exact worksite code
 	 * @param  employeeNumber            exact employee number

@@ -26,37 +26,22 @@ import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.workshift.UnscheduledShiftStrategy.PauseInfo;
 
 /**
- * {@link TimeLogsExtractor} implementation that extracts a contiguous segment
- * of {@link TimeLog} entries anchored to the start of a work shift.
+ * Selects a contiguous segment anchored on the first log starting on a local
+ * date.
  * <p>
- * The extractor identifies the first {@link TimeLog} whose entry time falls on
- * the specified {@link LocalDate}, using the local date derived from the
- * configured {@link ZoneId}. This log is used as the anchor point.
- * </p>
- * <p>
- * Once the anchor is found, the extractor determines the segment boundaries by
- * using long pauses (represented by {@link PauseInfo}) as separators. The
- * resulting segment includes all {@link TimeLog} entries between the closest
- * separator before the anchor and the closest separator at or after the anchor.
- * </p>
- * <p>
- * If no anchor can be found for the given date, or if the calculated segment is
- * empty, an empty list is returned.
- * </p>
+ * The configured zone determines the anchor date. Chronologically ordered long
+ * pauses delimit the segment; a missing separator extends the segment to the
+ * corresponding end of the log collection. No anchor produces an empty result.
  */
 final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 
-	/**
-	 * Time zone used to convert {@link java.time.Instant} entry times into local
-	 * dates when determining the anchor {@link TimeLog}.
-	 */
 	private final ZoneId zoneId;
 
 	/**
 	 * Creates a new extractor bound to the given time zone.
 	 *
 	 * @param  zoneId               the time zone used to resolve local dates from
-	 *                              entry times; can't be {@code null}
+	 *                              entry times; must not be {@code null}
 	 * @throws NullPointerException if {@code zoneId} is {@code null}
 	 */
 	ShiftStartAnchoredExtractor(final ZoneId zoneId) {
@@ -64,34 +49,24 @@ final class ShiftStartAnchoredExtractor implements TimeLogsExtractor {
 	}
 
 	/**
-	 * Extracts a list of {@link TimeLog} entries for the work shift anchored on the
-	 * specified date.
+	 * Returns the segment containing the first log starting on the requested date.
 	 * <p>
-	 * The method locates the first {@link TimeLog} whose entry time falls on the
-	 * given {@code date} (according to the configured {@link ZoneId}). This log
-	 * acts as the anchor. The returned list includes all logs between the nearest
-	 * long pause before the anchor and the nearest long pause at or after the
-	 * anchor.
-	 * </p>
-	 * <p>
-	 * If no anchor is found, if the input list is empty, or if the computed range
-	 * is invalid, an empty list is returned.
-	 * </p>
-	 * Precondition:</br>
-	 * - pauses must contain at least two pause</br>
-	 * - timeLogs must contain at least two timeLog
+	 * At least two logs and two pauses are required. Pause references must identify
+	 * logs in the supplied collection and define consistent segment boundaries.
 	 *
-	 * @param  date                  the date used to determine the shift start;
-	 *                               can't be {@code null}
-	 * @param  timeLogs              ordered list of time logs to extract from;
-	 *                               can't be {@code null}
-	 * @param  pauses                list of long pauses used as segment separators;
-	 *                               can't be {@code null}
-	 * @return                       a list containing the extracted {@link TimeLog}
-	 *                               segment, or an empty list if no segment can be
-	 *                               determined
-	 * @throws NullPointerException  if any argument is {@code null}
-	 * @throws IllegalStateException if preconditions are not met
+	 * @param  date                  the local date used to select the anchor; must
+	 *                               not be {@code null}
+	 * @param  timeLogs              the chronologically ordered logs; must not be
+	 *                               {@code null}
+	 * @param  pauses                the chronologically ordered long pauses; must
+	 *                               not be {@code null}
+	 * @return                       the anchored segment, or an empty collection if
+	 *                               no anchor exists
+	 * @throws NullPointerException  if an argument or required pause reference is
+	 *                               {@code null}
+	 * @throws IllegalStateException if fewer than two logs or pauses are supplied,
+	 *                               a boundary log is absent, or the segment
+	 *                               boundaries are reversed
 	 */
 	@Override
 	public TimeLogs extract(final LocalDate date, final TimeLogs timeLogs, final List<PauseInfo> pauses) {

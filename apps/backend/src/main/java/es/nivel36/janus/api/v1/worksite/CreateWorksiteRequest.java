@@ -26,19 +26,28 @@ import jakarta.validation.constraints.Size;
 
 /**
  * Request payload for creating a new {@link Worksite}.
+ * <p>
+ * The constraints below apply during Bean Validation. Construction alone stores
+ * the supplied values without validation or normalization.
  *
  * @param code        the unique business code identifying the worksite; must
  *                    not be blank and must follow the
  *                    {@code [A-Za-z0-9_-]{1,50}} pattern
  * @param name        the human-readable name of the worksite; must not be blank
- *                    and must contain between 1 and 250 allowed characters
+ *                    and must contain between {@code 1} and {@code 250}
+ *                    characters drawn from letters, digits, spaces,
+ *                    underscores, apostrophes, dots, commas or hyphens
  * @param timeZone    valid {@link java.time.ZoneId} identifier associated with
  *                    the worksite; must not be blank and must contain at most
- *                    64 characters
+ *                    {@code 64} characters. Only ASCII letters, digits,
+ *                    underscores, dots, slashes, plus signs, hyphens and colons
+ *                    are allowed
  * @param scope       the visibility scope of the worksite; must not be
  *                    {@code null}
- * @param description optional worksite description of at most 500 characters
- * @param address     optional worksite address of at most 500 characters
+ * @param description optional worksite description of at most {@code 500}
+ *                    characters without NUL characters
+ * @param address     optional worksite address of at most {@code 500}
+ *                    characters without NUL characters
  */
 public record CreateWorksiteRequest(
 		@NotBlank(message = "code must not be blank")

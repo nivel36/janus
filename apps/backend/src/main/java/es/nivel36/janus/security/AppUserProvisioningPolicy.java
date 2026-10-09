@@ -40,10 +40,11 @@ public class AppUserProvisioningPolicy {
 	/**
 	 * Tests whether current-profile provisioning is permitted without side effects.
 	 *
-	 * @param  authentication validated resource-server authentication, or null
-	 * @return                true only for an authenticated JWT with at least one
-	 *                        recognized Janus authority; false for null,
-	 *                        unsupported types or missing roles
+	 * @param  authentication validated resource-server authentication, or
+	 *                        {@code null}
+	 * @return                {@code true} only for an authenticated JWT with at
+	 *                        least one recognized Janus authority; {@code false}
+	 *                        for {@code null}, unsupported types or missing roles
 	 */
 	public boolean canProvision(final Authentication authentication) {
 		return authentication instanceof JwtAuthenticationToken && authentication.isAuthenticated() && authentication

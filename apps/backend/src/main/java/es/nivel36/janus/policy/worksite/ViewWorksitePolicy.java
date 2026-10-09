@@ -18,6 +18,15 @@ public final class ViewWorksitePolicy implements Policy<ViewWorksitePolicy.Conte
 				&& (context.scope() == WorksiteScope.GLOBAL || context.assignedToWorksite());
 	}
 
+	/**
+	 * Visibility facts for a worksite read.
+	 *
+	 * @param worksiteExists     whether the target worksite exists
+	 * @param scope              the resolved worksite scope, or {@code null} if
+	 *                           absent
+	 * @param assignedToWorksite whether the actor is assigned to the target
+	 *                           worksite
+	 */
 	public record Context(boolean worksiteExists, WorksiteScope scope, boolean assignedToWorksite) {
 	}
 }

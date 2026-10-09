@@ -16,15 +16,13 @@
 package es.nivel36.janus.api;
 
 /**
- * Generic contract for mapping objects between two types.
+ * Transforms source objects into values of a target type.
  * <p>
- * This interface defines a transformation from an input type {@code IN} to an
- * output type {@code OUT}. It can be used to convert between domain entities,
- * DTOs, API responses, or any other data structures that require adaptation.
- * </p>
+ * A {@code null} source produces {@code null}. Concrete mappers define the
+ * transformation and any additional input requirements.
  *
- * @param <IN>  the type of the source object to be mapped
- * @param <OUT> the type of the target object resulting from the mapping
+ * @param <IN>  the source type
+ * @param <OUT> the target type
  */
 public interface Mapper<IN, OUT> {
 

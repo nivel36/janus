@@ -15,33 +15,18 @@
  */
 package es.nivel36.janus.service;
 
+import java.time.DateTimeException;
+
 import java.time.ZoneId;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 /**
- * JPA attribute converter for mapping {@link ZoneId} objects to their string
- * representations in the database and vice versa.
+ * Converts JPA time-zone attributes to their identifiers and back.
  * <p>
- * This converter ensures that {@link ZoneId} values are stored as their textual
- * identifiers (e.g., {@code "Europe/Madrid"}) in database columns and restored
- * back into {@link ZoneId} instances when reading from the database.
- * </p>
- * <p>
- * It is annotated with {@link Converter}(autoApply = true), which means it will
- * be automatically applied to all entity attributes of type {@link ZoneId}
- * without requiring explicit configuration.
- * </p>
- * <p>
- * <b>Example:</b>
- * </p>
- * <ul>
- * <li>{@code ZoneId.of("Europe/Madrid")} → stored as
- * {@code "Europe/Madrid"}</li>
- * <li>{@code "America/New_York"} → converted back to
- * {@code ZoneId.of("America/New_York")}</li>
- * </ul>
+ * {@code null} values remain {@code null} in both directions. Stored
+ * identifiers are resolved with {@link ZoneId#of(String)} without trimming.
  */
 @Converter(autoApply = true)
 public class ZoneIdConverter implements AttributeConverter<ZoneId, String> {
@@ -60,12 +45,12 @@ public class ZoneIdConverter implements AttributeConverter<ZoneId, String> {
 	}
 
 	/**
-	 * Converts a database column value into a {@link ZoneId}.
+	 * Returns the zone identified by the stored value.
 	 *
-	 * @param  dbData the string identifier of the zone as stored in the database;
-	 *                may be {@code null}
-	 * @return        the corresponding {@link ZoneId} instance, or {@code null} if
-	 *                the input was {@code null}
+	 * @param  dbData            the stored zone identifier, or {@code null}
+	 * @return                   the resolved zone, or {@code null} if the input is
+	 *                           {@code null}
+	 * @throws DateTimeException if a non-null identifier is invalid or unknown
 	 */
 	@Override
 	public ZoneId convertToEntityAttribute(final String dbData) {

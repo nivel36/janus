@@ -16,8 +16,8 @@
 package es.nivel36.janus.service.timelog;
 
 /**
- * Exception thrown when attempting to modify a {@code TimeLog} record that has
- * exceeded its allowed modification window or the TimeLog already exist.
+ * Signals that a time-log operation is rejected by the modification window or a
+ * duplicate entry.
  */
 public class TimeLogModificationNotAllowedException extends RuntimeException {
 

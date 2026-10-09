@@ -43,9 +43,9 @@ import jakarta.validation.constraints.NotNull;
  * ({@code exitTime}) instants of an employee at a specific {@link Worksite}.
  * </p>
  * <p>
- * Each time log is uniquely identified by the combination of the employee and
- * the entry time, which together form the natural key. This constraint is
- * enforced at the database level.
+ * Equality and hashing use the employee and entry instant. Database uniqueness
+ * applies to active employee/entry-time pairs; logically deleted records do not
+ * prevent reuse of that pair.
  * </p>
  * <p>
  * For calculation efficiency reasons, the duration of the object is calculated
@@ -67,93 +67,36 @@ public class TimeLog implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Unique identifier of the time log.
-	 * <p>
-	 * This value is auto-generated and has no business meaning.
-	 * </p>
-	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	/**
-	 * The employee associated with this time log.
-	 * <p>
-	 * This association is mandatory and cannot be changed once the entity is
-	 * persisted.
-	 * </p>
-	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "employee_id", updatable = false)
 	private Employee employee;
 
-	/**
-	 * The worksite where the employee performed the logged work.
-	 * <p>
-	 * This association is mandatory and cannot be changed once the entity is
-	 * persisted.
-	 * </p>
-	 */
 	@NotNull
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "worksite_id", updatable = false)
 	private Worksite worksite;
 
-	/**
-	 * The work shift to which this time log belongs.
-	 * <p>
-	 * This association is optional while the work shift is being composed, but once
-	 * assigned it should remain immutable.
-	 * </p>
-	 */
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "workshift_id")
 	private WorkShift workShift;
 
-	/**
-	 * The clock-in time for this time log.
-	 * <p>
-	 * This value is immutable once set and defines the start of the working period.
-	 * </p>
-	 */
 	@NotNull
 	@Column(updatable = false)
 	private Instant entryTime;
 
-	/**
-	 * The clock-out time for this time log.
-	 * <p>
-	 * This value is {@code null} while the time log is open.
-	 * </p>
-	 */
 	private Instant exitTime;
 
-	/**
-	 * The total duration of work between {@code entryTime} and {@code exitTime}.
-	 * <p>
-	 * This value is {@code null} while the time log is open and it's calculated
-	 * when the method {@link #close(Instant)} is called.
-	 * </p>
-	 */
 	private Duration workDuration;
 
-	/**
-	 * Indicates whether this time log has been logically deleted.
-	 * <p>
-	 * When {@code true}, the record is considered deleted but remains stored in the
-	 * database for auditing purposes.
-	 * </p>
-	 */
 	private boolean deleted = false;
 
 	/**
-	 * Protected no-argument constructor required by persistence frameworks.
-	 * <p>
-	 * This constructor should not be used directly in application code. It exists
-	 * solely to allow frameworks such as JPA to instantiate the entity.
-	 * </p>
+	 * Constructs an empty instance for persistence hydration.
 	 */
 	TimeLog() {
 	}
@@ -162,11 +105,11 @@ public class TimeLog implements Serializable {
 	 * Creates a new open {@link TimeLog} with the given employee, worksite and
 	 * entry time.
 	 *
-	 * @param  employee             the employee associated with this time log;
-	 *                              can't be {@code null}
-	 * @param  worksite             the worksite associated with this time log;
-	 *                              can't be {@code null}
-	 * @param  entryTime            the clock-in time; can't be {@code null}
+	 * @param  employee             the employee associated with this time log; must
+	 *                              not be {@code null}
+	 * @param  worksite             the worksite associated with this time log; must
+	 *                              not be {@code null}
+	 * @param  entryTime            the clock-in time; must not be {@code null}
 	 * @throws NullPointerException if any argument is {@code null}
 	 */
 	public TimeLog(final Employee employee, final Worksite worksite, final Instant entryTime) {
@@ -179,14 +122,17 @@ public class TimeLog implements Serializable {
 	 * Creates a new closed {@link TimeLog} with the given employee, worksite, entry
 	 * time and exit time.
 	 *
-	 * @param  employee             the employee associated with this time log;
-	 *                              can't be {@code null}
-	 * @param  worksite             the worksite associated with this time log;
-	 *                              can't be {@code null}
-	 * @param  entryTime            the clock-in time; can't be {@code null}
-	 * @param  exitTime             the clock-out time; can't be {@code null}
-	 * @throws NullPointerException if {@code employee}, {@code worksite} or
-	 *                              {@code entryTime} is {@code null}
+	 * @param  employee                   the employee associated with this time
+	 *                                    log; must not be {@code null}
+	 * @param  worksite                   the worksite associated with this time
+	 *                                    log; must not be {@code null}
+	 * @param  entryTime                  the clock-in time; must not be
+	 *                                    {@code null}
+	 * @param  exitTime                   the clock-out time; must not be
+	 *                                    {@code null}
+	 * @throws NullPointerException       if any argument is {@code null}
+	 * @throws TimeLogChronologyException if {@code exitTime} is not strictly after
+	 *                                    {@code entryTime}
 	 */
 	public TimeLog(final Employee employee, final Worksite worksite, final Instant entryTime, final Instant exitTime) {
 		this.employee = Objects.requireNonNull(employee, "Employee can't be null");
@@ -314,18 +260,17 @@ public class TimeLog implements Serializable {
 	}
 
 	/**
-	 * Closes this time log by setting the exit time.
+	 * Closes this log and records the elapsed duration between entry and exit.
 	 * <p>
-	 * Once closed, a time log cannot be reopened.
-	 * </p>
+	 * A successful closure sets the exit and work duration. The log cannot be
+	 * reopened or closed again. Rejected input leaves these values unchanged.
 	 *
-	 * @param  exitTime                      the clock-out time; can't be
+	 * @param  exitTime                      the clock-out instant; must not be
 	 *                                       {@code null}
 	 * @throws NullPointerException          if {@code exitTime} is {@code null}
-	 * @throws TimeLogAlreadyClosedException if the time log is already closed
-	 * @throws TimeLogDeletedException       if the time log is logically deleted
-	 * @throws TimeLogChronologyException    if {@code exitTime} is not strictly
-	 *                                       after {@code entryTime}
+	 * @throws TimeLogAlreadyClosedException if the log is already closed
+	 * @throws TimeLogDeletedException       if the log is logically deleted
+	 * @throws TimeLogChronologyException    if exit is not strictly after entry
 	 */
 	public void close(final Instant exitTime) {
 		Objects.requireNonNull(exitTime, "exitTime cannot be null");

@@ -57,7 +57,7 @@ public class WorksiteController implements WorksiteResource {
 	 * @param  employeeService        nonnull employee lookup and statistics service
 	 * @param  authorization          nonnull employee-scope resolver
 	 * @param  worksiteResponseMapper nonnull response mapper
-	 * @throws NullPointerException   if any dependency is null
+	 * @throws NullPointerException   if any dependency is {@code null}
 	 */
 	public WorksiteController(
 		final WorksiteService worksiteService,

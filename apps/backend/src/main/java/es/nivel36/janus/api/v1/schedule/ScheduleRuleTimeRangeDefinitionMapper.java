@@ -9,6 +9,13 @@ import org.springframework.stereotype.Component;
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.schedule.ScheduleRuleTimeRangeDefinition;
 
+/**
+ * Maps day-specific range requests to schedule definitions under the
+ * {@link Mapper} contract.
+ * <p>
+ * A non-null request must contain a non-null time range. Values are copied
+ * without validation or normalization.
+ */
 @Component
 public class ScheduleRuleTimeRangeDefinitionMapper
 		implements Mapper<ScheduleRuleTimeRangeRequest, ScheduleRuleTimeRangeDefinition> {

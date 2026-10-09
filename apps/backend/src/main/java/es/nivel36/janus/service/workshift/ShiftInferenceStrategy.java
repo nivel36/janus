@@ -20,17 +20,18 @@ import java.time.LocalDate;
 import es.nivel36.janus.service.timelog.TimeLogs;
 
 /**
- * Strategy interface that decides which logs belong to a shift for a given
- * date/context.
+ * Selects time logs belonging to a shift on a given local date.
  */
 interface ShiftInferenceStrategy {
 
 	/**
-	 * Infers which logs belong to the shift described by the given context.
+	 * Returns the time logs selected for the requested shift date.
 	 *
-	 * @param  context shift context, not null
-	 * @return         inference result with selected logs and an optional clip
-	 *                 window
+	 * @param  date                 the local shift date; must not be {@code null}
+	 * @param  orderedLogs          the candidate logs in chronological entry-time
+	 *                              order; must not be {@code null}
+	 * @return                      the selected logs, possibly empty
+	 * @throws NullPointerException if either argument is {@code null}
 	 */
 	TimeLogs infer(LocalDate date, TimeLogs orderedLogs);
 }

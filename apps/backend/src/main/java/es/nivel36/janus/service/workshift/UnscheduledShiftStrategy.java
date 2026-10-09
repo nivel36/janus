@@ -51,22 +51,18 @@ import es.nivel36.janus.service.worksite.Worksite;
  */
 final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 
-	/**
-	 * Policy defining thresholds and rules used to detect long pauses between
-	 * {@link TimeLog} entries.
-	 */
 	private final ShiftPolicy policy;
 
-	/**
-	 * Used to resolve time zone–dependent date calculations.
-	 */
 	private final ZoneId timeZone;
 
 	/**
 	 * Creates a new {@code UnscheduledShiftStrategy}.
 	 *
-	 * @param policy   policy defining long pause thresholds; can't be {@code null}
-	 * @param timeZone timeZone used for time zone resolution; can't be {@code null}
+	 * @param  policy               policy defining long pause thresholds; must not
+	 *                              be {@code null}
+	 * @param  timeZone             timeZone used for time zone resolution; must not
+	 *                              be {@code null}
+	 * @throws NullPointerException if any required dependency is {@code null}
 	 */
 	UnscheduledShiftStrategy(final ShiftPolicy policy, final ZoneId timeZone) {
 		this.policy = Objects.requireNonNull(policy, "policy must not be null.");
@@ -74,18 +70,25 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 	}
 
 	/**
-	 * Infers the {@link TimeLog} entries that belong to the shift for the given
-	 * date.
+	 * Returns the logs belonging to the inferred shift on the requested date.
 	 * <p>
-	 * The input logs must be ordered chronologically. The method detects long
-	 * pauses according to the configured {@link ShiftPolicy} and delegates the
-	 * selection of the appropriate segment to specialized extractors.
+	 * The input must remain a valid closed chronological sequence. Long pauses have
+	 * a duration greater than or equal to the configured threshold. With no long
+	 * pause, all logs are returned. With one, the preceding segment is chosen
+	 * unless that pause's preceding exit falls before the target date in its
+	 * worksite zone. With two or more, selection is anchored on the first entry on
+	 * the date in the configured zone.
 	 *
-	 * @param  date        date for which the shift is being inferred; can't be
-	 *                     {@code null}
-	 * @param  orderedLogs chronologically ordered time logs; can't be {@code null}
-	 * @return             an immutable list of {@link TimeLog} entries belonging to
-	 *                     the inferred shift; never {@code null}
+	 * @param  date                  the requested local shift date; must not be
+	 *                               {@code null}
+	 * @param  orderedLogs           the closed candidate sequence; must not be
+	 *                               {@code null}
+	 * @return                       the selected collection of log references,
+	 *                               possibly empty
+	 * @throws NullPointerException  if either argument or a required log
+	 *                               association is {@code null}
+	 * @throws IllegalStateException if a log before another has no exit or exits
+	 *                               after the next entry
 	 */
 	@Override
 	public TimeLogs infer(final LocalDate date, final TimeLogs orderedLogs) {
@@ -150,11 +153,11 @@ final class UnscheduledShiftStrategy implements ShiftInferenceStrategy {
 	 * Value object representing a long pause between two consecutive
 	 * {@link TimeLog} entries.
 	 *
-	 * @param before   the {@link TimeLog} occurring before the pause; can't be
+	 * @param before   the {@link TimeLog} occurring before the pause; must not be
 	 *                 {@code null}
-	 * @param after    the {@link TimeLog} occurring after the pause; can't be
+	 * @param after    the {@link TimeLog} occurring after the pause; must not be
 	 *                 {@code null}
-	 * @param duration duration of the pause; can't be {@code null}
+	 * @param duration duration of the pause; must not be {@code null}
 	 */
 	record PauseInfo(TimeLog before, TimeLog after, Duration duration) {
 

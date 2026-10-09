@@ -45,11 +45,11 @@ import es.nivel36.janus.service.timelog.TimeLogs;
 import es.nivel36.janus.service.worksite.Worksite;
 
 /**
- * Nightly precomputation of historical {@link WorkShift} summaries.
+ * Scheduled precomputation of {@link WorkShift} summaries from unassigned logs.
  * <p>
- * Identifies employees with orphan {@link TimeLog} entries up to a target day,
- * buckets their logs by natural day and worksite, and persists the resulting
- * {@link WorkShift} aggregates.
+ * Eligible logs are closed, nondeleted records whose entry time is at or after
+ * the computed cutoff. Selected logs are associated with persisted shifts, with
+ * local dates determined by worksite zones and overnight schedules.
  */
 @Component
 public class WorkShiftPrecomputeJob {
@@ -75,7 +75,7 @@ public class WorkShiftPrecomputeJob {
 	 * @param  employeeService            service that provides employees pending
 	 *                                    precomputation; never {@code null}
 	 * @param  scheduleService            Service used to obtain scheduled time
-	 *                                    ranges. Can't be {@code null}.
+	 *                                    ranges. Must not be {@code null}.
 	 * @param  applicationSettingsService service that provides admin policies
 	 *                                    (e.g., locking horizon); never
 	 *                                    {@code null}
@@ -101,17 +101,16 @@ public class WorkShiftPrecomputeJob {
 	}
 
 	/**
-	 * Executes the nightly batch that generates {@link WorkShift} records from
-	 * orphan {@link TimeLog} entries older than the locking horizon defined by
-	 * {@link ApplicationSettingsService}.
+	 * Persists shifts from closed, unassigned time logs at or after the cutoff.
 	 * <p>
-	 * Policy: {@code targetAnchor = now(clock) - (daysUntilLocked + 1)}. For each
-	 * employee, all orphan logs with {@code entryTime} in
-	 * {@code [startOfDay, startOfDay+1d)} for that anchor day are grouped and
-	 * materialized into a {@link WorkShift}.
+	 * The cutoff is the current instant minus the configured modification window
+	 * plus one additional day. Consecutive eligible logs are grouped by worksite
+	 * and local shift date. An early-morning entry within the previous day's
+	 * scheduled overnight range is assigned to that previous date.
 	 * <p>
-	 * Scheduling: the cron expression {@code 0 15 2 * * *} runs daily at 02:15 in
-	 * the JVM default time zone unless {@code zone} is set on {@link Scheduled}.
+	 * The job runs daily at {@code 02:15} in the scheduler's default time zone.
+	 * Selected logs are associated with the persisted shift, whose work and pause
+	 * totals cover the selected recorded intervals.
 	 */
 	@Scheduled(cron = "0 15 2 * * *")
 	@Transactional

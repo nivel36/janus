@@ -23,9 +23,6 @@ package es.nivel36.janus.util;
  */
 public class Strings {
 
-	/**
-	 * Private constructor to prevent instantiation.
-	 */
 	private Strings() {
 	}
 

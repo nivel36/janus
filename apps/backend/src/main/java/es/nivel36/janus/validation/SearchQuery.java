@@ -33,7 +33,9 @@ import jakarta.validation.constraints.Size;
 /**
  * Validates bounded, single-line free text used by repository search queries.
  * Unicode letters, marks, numbers, spaces, punctuation and symbols are
- * accepted; control characters are deliberately excluded.
+ * accepted; control characters are excluded. Non-null values must contain
+ * between {@code 1} and {@code 100} characters. {@code null} is accepted, and
+ * values are checked without trimming.
  */
 @Documented
 @Constraint(validatedBy = {})

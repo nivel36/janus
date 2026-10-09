@@ -24,8 +24,7 @@ import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.worksite.Worksite;
 
 /**
- * Repository class for managing {@link ClockOutWithoutClockInEventRepository}
- * entities.
+ * Persistence contract for {@link ClockOutWithoutClockInEvent} entities.
  */
 @Repository
 interface ClockOutWithoutClockInEventRepository extends JpaRepository<ClockOutWithoutClockInEvent, Long> {

@@ -29,11 +29,11 @@ import es.nivel36.janus.service.appuser.Theme;
  *
  * @param id              persistent public UUID
  * @param email           normalized contact email; not necessarily unique
- * @param employeeNumber  linked employee number, or null for an unlinked
- *                        profile
+ * @param employeeNumber  linked employee number, or {@code null} for an
+ *                        unlinked profile
  * @param locale          preferred BCP 47 language tag
  * @param timeFormat      preferred time display format
- * @param defaultTimezone preferred timezone identifier
+ * @param defaultTimezone preferred time zone identifier
  * @param theme           preferred color theme
  */
 public record AppUserResponse(

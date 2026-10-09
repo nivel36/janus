@@ -69,20 +69,8 @@ import es.nivel36.janus.util.KeycloakJwtRolesConverter;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	/**
-	 * Content Security Policy applied to API responses.
-	 * <p>
-	 * This policy denies all resource loading and disables potentially unsafe
-	 * browser behaviors such as embedding, form submission, and base URI usage.
-	 */
 	private static final String API_CONTENT_SECURITY_POLICY = "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
 
-	/**
-	 * Permissions Policy applied to API responses.
-	 * <p>
-	 * This policy disables access to a set of browser features for API endpoints,
-	 * reducing the exposed surface for client-side capabilities.
-	 */
 	private static final String API_PERMISSIONS_POLICY = "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()";
 
 	/**
@@ -96,7 +84,7 @@ public class SecurityConfig {
 	 * or invalid.
 	 *
 	 * @param  http      the {@link HttpSecurity} builder used to configure web
-	 *                   security. Can't be {@code null}.
+	 *                   security. Must not be {@code null}.
 	 * @return           the configured {@link SecurityFilterChain}.
 	 * @throws Exception if the security configuration cannot be built.
 	 */

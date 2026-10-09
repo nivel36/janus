@@ -29,6 +29,9 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Defines the request payload for day-specific {@link DayOfWeekTimeRange}
  * definitions.
+ * <p>
+ * The constraints below apply during Bean Validation. Construction alone stores
+ * the supplied values without validation or normalization.
  *
  * @param dayOfWeek          day of the week when the shift starts; must not be
  *                           {@code null}
@@ -51,10 +54,14 @@ DayOfWeek dayOfWeek,
 		ScheduleTimeRangeRequest timeRange) {
 
 	/**
-	 * Checks effective work against the full range duration, including overnight
-	 * ranges. Missing required values are rejected by their own constraints.
+	 * Returns whether effective work fits within the requested range duration.
+	 * <p>
+	 * An absent duration or range is accepted here and rejected by its
+	 * required-value constraint. A range with missing or equal bounds has zero
+	 * duration for this comparison.
 	 *
-	 * @return true if complete values fit the range or required values are missing
+	 * @return {@code true} if a required value is absent or effective work does not
+	 *         exceed the range duration; {@code false} otherwise
 	 */
 	@JsonIgnore
 	@AssertTrue(message = "effectiveWorkHours must not exceed the time range duration")

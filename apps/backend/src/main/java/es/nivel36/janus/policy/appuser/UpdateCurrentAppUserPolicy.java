@@ -9,11 +9,12 @@ import es.nivel36.janus.service.appuser.Role;
 
 /**
  * Pure policy for editing profile preferences. The actor must be nonnull.
- * Administrators may target any UUID; JANUS_USER and JANUS_EMPLOYEE may target
- * only their own persistent UUID. A null target cannot match personal
- * ownership, but does not remove the administrator override. Evaluation returns
- * a decision without modifying a profile or checking whether the target exists;
- * resource validation and the service handle those checks.
+ * Administrators may target any UUID; {@code JANUS_USER} and
+ * {@code JANUS_EMPLOYEE} may target only their own persistent UUID. A
+ * {@code null} target cannot match personal ownership, but does not remove the
+ * administrator override. Evaluation returns a decision without modifying a
+ * profile or checking whether the target exists; resource validation and the
+ * service handle those checks.
  */
 public final class UpdateCurrentAppUserPolicy implements Policy<UUID> {
 

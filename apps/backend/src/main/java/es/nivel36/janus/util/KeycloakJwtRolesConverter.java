@@ -24,43 +24,31 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
- * Utility class responsible for extracting {@link GrantedAuthority} instances
- * from a Keycloak {@link Jwt}.
+ * Extracts Spring Security authorities from the configured Keycloak client's
+ * roles.
  * <p>
- * This converter reads client roles only from the configured client's entry in
- * {@code resource_access}. Realm roles and roles belonging to any other client
- * are deliberately ignored. Extracted roles are normalized by:
- * <ul>
- * <li>Trimming whitespace</li>
- * <li>Filtering out blank values</li>
- * <li>Converting to uppercase</li>
- * <li>Prefixing with {@code ROLE_}</li>
- * </ul>
+ * Only the client's entry in {@code resource_access} is considered. Realm roles
+ * and other clients' roles are ignored. String roles are trimmed, blank values
+ * are omitted, and remaining values are uppercased using the default locale and
+ * prefixed with {@code ROLE_}. Duplicate authorities are removed.
  * <p>
- * The resulting authorities are returned as a distinct collection, meaning
- * duplicated roles across different sections of the token are removed.
- * <p>
- * This class is not intended to be instantiated.
+ * Missing client data or a non-collection {@code roles} value produces an empty
+ * collection. Non-string role elements are ignored.
  */
 public class KeycloakJwtRolesConverter {
 
-	/**
-	 * Private constructor to prevent instantiation of this utility class.
-	 */
 	private KeycloakJwtRolesConverter() {
 	}
 
 	/**
-	 * Extracts the configured client's roles from the given {@link Jwt} and
-	 * converts them into a collection of {@link GrantedAuthority}.
-	 * <p>
+	 * Returns the unique authorities derived from the configured client's roles.
 	 *
-	 * @param  jwt      the JWT token from which roles are extracted. Can't be
-	 *                  {@code null}.
-	 * @param  clientId the resource client whose roles are trusted. Can't be
-	 *                  {@code null}.
-	 * @return          a collection of unique {@link GrantedAuthority} derived from
-	 *                  the token.
+	 * @param  jwt                  the token whose client roles are read; must not
+	 *                              be {@code null}
+	 * @param  clientId             the resource client whose roles are selected
+	 * @return                      an unmodifiable collection of authorities,
+	 *                              possibly empty
+	 * @throws NullPointerException if {@code jwt} is {@code null}
 	 */
 	public static Collection<GrantedAuthority> extract(final Jwt jwt, final String clientId) {
 		final Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");

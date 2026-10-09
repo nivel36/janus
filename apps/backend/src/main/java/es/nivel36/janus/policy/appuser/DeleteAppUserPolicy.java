@@ -4,16 +4,15 @@ import es.nivel36.janus.policy.RolePolicy;
 import es.nivel36.janus.service.appuser.Role;
 
 /**
- * Pure role policy permitting only JANUS_ADMIN to delete local profiles. A
- * nonnull actor is required; the operation context is unused. Evaluation
- * returns a boolean without persistence or identity-provider effects. Actor
- * provisioning and target existence are checked by the adapter and service,
- * respectively.
+ * Allows administrators to delete local application profiles.
+ * <p>
+ * Evaluation requires a non-null actor and ignores the operation context. It
+ * checks role membership without checking target existence.
  */
 public final class DeleteAppUserPolicy extends RolePolicy {
 
 	/**
-	 * Creates a policy accepting only JANUS_ADMIN. Construction requires no
+	 * Creates a policy accepting only {@code JANUS_ADMIN}. Construction requires no
 	 * arguments and performs no delete operation.
 	 */
 	public DeleteAppUserPolicy() {

@@ -26,6 +26,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import es.nivel36.janus.validation.SearchQuery;
 
+/**
+ * Returns a page of time-zone catalog entries with their current UTC offsets.
+ * <p>
+ * A query matches zone identifiers case-insensitively and literally without
+ * trimming; {@code null} or blank text disables filtering. Supplied queries
+ * must satisfy {@link SearchQuery}. Supported sort fields are {@code level1},
+ * {@code level2} and {@code utc}, with the last ordered by numeric offset. Zone
+ * identifiers break ties.
+ *
+ * @param  query                    the optional zone-identifier fragment
+ * @param  pageable                 the requested page and sort; defaults to
+ *                                  page {@code 0}, size {@code 20}, and
+ *                                  ascending {@code level1}
+ * @return                          an HTTP {@code 200 OK} response containing
+ *                                  the matching catalog page
+ * @throws IllegalArgumentException if a sort property is unsupported
+ */
+/**
+ * HTTP contract for reference catalogs at {@code /api/v1/catalogs}.
+ * <p>
+ * Access requires an authenticated identity with an existing application
+ * profile and a recognized Janus role.
+ */
 @RequestMapping("/api/v1/catalogs")
 public interface CatalogResource {
 	@GetMapping("/time-zones")

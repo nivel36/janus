@@ -53,7 +53,7 @@ public class AppUserController implements AppUserResource {
 	 *
 	 * @param  appUserService        nonnull application-user service
 	 * @param  appUserResponseMapper nonnull response mapper
-	 * @throws NullPointerException  if either dependency is null
+	 * @throws NullPointerException  if either dependency is {@code null}
 	 */
 	public AppUserController(
 		final AppUserService appUserService,

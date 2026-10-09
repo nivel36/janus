@@ -18,7 +18,8 @@ final class AppUserCreationConflict extends RuntimeException {
 	 * Records the rejected insertion cause for service-level reconciliation.
 	 * Construction itself performs no rollback or profile lookup.
 	 *
-	 * @param cause employee-claim or database-integrity failure; may be null
+	 * @param cause employee-claim or database-integrity failure; may be
+	 *              {@code null}
 	 */
 	AppUserCreationConflict(final Throwable cause) {
 		super(cause);

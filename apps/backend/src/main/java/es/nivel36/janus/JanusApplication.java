@@ -22,6 +22,9 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
+/**
+ * Spring Boot entry point for the Janus application.
+ */
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EntityScan("es.nivel36.janus.service")
