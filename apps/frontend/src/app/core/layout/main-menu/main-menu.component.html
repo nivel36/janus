@@ -17,6 +17,28 @@
         variant="text"
         icon
         class="main-menu__icon-button"
+        routerLink="/clock"
+        [ariaLabel]="'navigation.clock' | translate"
+        [title]="'navigation.clock' | translate"
+      >
+        <span aria-hidden="true"><fa-icon [icon]="faUserClock"></fa-icon></span>
+      </app-button>
+
+      <app-button
+        variant="text"
+        icon
+        class="main-menu__icon-button"
+        routerLink="/timelogs"
+        [ariaLabel]="'navigation.timelogs' | translate"
+        [title]="'navigation.timelogs' | translate"
+      >
+        <span aria-hidden="true"><fa-icon [icon]="faClock"></fa-icon></span>
+      </app-button>
+
+      <app-button
+        variant="text"
+        icon
+        class="main-menu__icon-button"
         routerLink="/worksites"
         [ariaLabel]="'navigation.worksites' | translate"
         [title]="'navigation.worksites' | translate"

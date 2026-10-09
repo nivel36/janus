@@ -76,6 +76,13 @@ export const appRoutes: Routes = [
           ),
       },
       {
+        path: 'clock',
+        loadComponent: () =>
+          import('./features/clock/pages/clock-page.component').then(
+            (m) => m.ClockPageComponent,
+          ),
+      },
+      {
         path: 'timelogs',
         loadComponent: () =>
           import('./features/timelogs/pages/timelogs-page.component').then(
@@ -85,7 +92,7 @@ export const appRoutes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'timelogs',
+        redirectTo: 'clock',
       },
     ],
   },

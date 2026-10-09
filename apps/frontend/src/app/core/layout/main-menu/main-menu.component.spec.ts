@@ -48,6 +48,8 @@ describe('MainMenuComponent', () => {
 
     expect(buttons.map((button) => button.routerLink())).toEqual([
       '/user-preferences',
+      '/clock',
+      '/timelogs',
       '/worksites',
       '/schedules',
       ...(isAdmin ? ['/application-settings'] : []),

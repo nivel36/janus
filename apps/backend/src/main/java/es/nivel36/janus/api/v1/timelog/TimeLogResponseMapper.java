@@ -50,7 +50,7 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 	}
 
 	/**
-	 * Maps stable business identifiers, worksite time zone and recorded instants.
+	 * Maps employee and worksite details, recorded instants and work duration.
 	 *
 	 * @param  entity               time log with readable employee and worksite
 	 *                              associations; may be {@code null}
@@ -68,16 +68,24 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		final Worksite worksite = Objects.requireNonNull(entity.getWorksite(), "Worksite can't be null");
 
 		final String employeeNumber = employee.getEmployeeNumber();
+		final String employeeFullName = employee.getName() + " " + employee.getSurname();
+		final TimeLogEmployeeResponse employeeResponse = new TimeLogEmployeeResponse(employeeNumber, employeeFullName);
 		final String worksiteCode = worksite.getCode();
+		final String worksiteName = worksite.getName();
 
 		final ZoneId worksiteZoneId = worksite.getTimeZone();
+		final TimeLogWorksiteResponse worksiteResponse = new TimeLogWorksiteResponse(
+				worksiteCode,
+				worksiteName,
+				worksiteZoneId);
 
 		final Instant entryTime = entity.getEntryTime();
 		final Instant exitTime = entity.getExitTime();
 
-		final DurationResponse workTime = this.durationResponseMapper.map(entity.getWorkDuration());
+		final Duration workDuration = entity.getWorkDuration();
+		final DurationResponse workTime = this.durationResponseMapper.map(workDuration);
 
-		return new TimeLogResponse(employeeNumber, worksiteCode, worksiteZoneId, entryTime, exitTime, workTime);
+		return new TimeLogResponse(employeeResponse, worksiteResponse, entryTime, exitTime, workTime);
 	}
 
 }

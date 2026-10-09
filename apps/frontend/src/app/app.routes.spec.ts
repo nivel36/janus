@@ -8,18 +8,18 @@ import { JANUS_CLIENT_ROLES } from './core/auth/auth.models';
 import { appRoutes } from './app.routes';
 
 describe('application routes', () => {
-  it('redirects the root to the time logs page', async () => {
+  it('redirects the root to the clock page', async () => {
     const children = appRoutes.find((route) => route.path === '')?.children;
     const root = children?.find((route) => route.path === '');
-    const timelogs = children?.find((route) => route.path === 'timelogs');
+    const clock = children?.find((route) => route.path === 'clock');
 
-    expect(root).toMatchObject({ pathMatch: 'full', redirectTo: 'timelogs' });
-    expect(timelogs?.loadComponent).toBeDefined();
-    const component = await timelogs!.loadComponent!();
-    const { TimelogsPageComponent } = await import(
-      './features/timelogs/pages/timelogs-page.component'
+    expect(root).toMatchObject({ pathMatch: 'full', redirectTo: 'clock' });
+    expect(clock?.loadComponent).toBeDefined();
+    const component = await clock!.loadComponent!();
+    const { ClockPageComponent } = await import(
+      './features/clock/pages/clock-page.component'
     );
-    expect(component).toBe(TimelogsPageComponent);
+    expect(component).toBe(ClockPageComponent);
   });
 
   it('keeps forbidden public and protects all application routes through their parent', () => {

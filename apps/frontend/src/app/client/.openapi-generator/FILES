@@ -35,8 +35,10 @@ model/scheduleSummaryResponse.ts
 model/scheduleTimeRangeRequest.ts
 model/theme.ts
 model/timeFormat.ts
+model/timeLogEmployeeResponse.ts
 model/timeLogPage.ts
 model/timeLogResponse.ts
+model/timeLogWorksiteResponse.ts
 model/timeZoneCatalogItemResponse.ts
 model/timeZoneCatalogPage.ts
 model/transitionClockOutWithoutClockInEventRequest.ts

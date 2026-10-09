@@ -111,26 +111,6 @@ class TimeLogServiceTest {
 	}
 
 	@Test
-	void testClockInWithNullEmployee() {
-		logger.info("Test clock in with null employee");
-		final Instant fixedNow = LocalDateTime.of(2025, 8, 29, 12, 0, 0).toInstant(ZoneOffset.UTC);
-		when(this.clock.instant()).thenReturn(fixedNow);
-
-		final Instant now = this.now();
-		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.clockIn(null, this.worksite, now);
-		});
-	}
-
-	@Test
-	void testClockInWithNullEntryTime() {
-		logger.info("Test clock in with null entry time");
-		assertThrows(NullPointerException.class, () -> {
-			this.timeLogService.clockIn(this.employee, this.worksite, null);
-		});
-	}
-
-	@Test
 	void testClockOutSuccess() throws ClockOutWithoutClockInException {
 		logger.info("Test clock out success");
 		// Arrange

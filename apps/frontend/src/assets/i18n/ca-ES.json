@@ -1,6 +1,7 @@
 {
   "navigation": {
     "janus": "Janus",
+    "clock": "Fitxar",
     "timelogs": "Fitxatges",
     "applicationSettings": "Configuració",
     "userPreferences": "Preferències d'usuari",

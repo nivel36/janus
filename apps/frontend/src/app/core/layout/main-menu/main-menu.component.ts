@@ -3,7 +3,13 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendarDays, faBuilding } from '@fortawesome/free-regular-svg-icons';
-import { faPowerOff, faGear, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import {
+  faPowerOff,
+  faGear,
+  faUserCircle,
+  faUserClock,
+  faClock,
+} from '@fortawesome/free-solid-svg-icons';
 import { CurrentUserFacade } from '../../user/services/current-user.facade';
 import { AuthService } from '../../auth/auth.service';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
@@ -26,6 +32,8 @@ export class MainMenuComponent {
   readonly faCalendarDays = faCalendarDays;
   readonly faBuilding = faBuilding;
   readonly faUserCircle = faUserCircle;
+  readonly faUserClock = faUserClock;
+  readonly faClock = faClock;
 
   async logout(): Promise<void> {
     await this.auth.logout();

@@ -55,6 +55,13 @@ export class TimeLogService {
   }
 
   private mapTimeLog(response: TimeLogResponse): TimeLog {
-    return response as TimeLog;
+    return {
+      employeeNumber: response.employee.number,
+      worksiteCode: response.worksite.code,
+      worksiteZoneId: response.worksite.zoneId,
+      entryTime: response.entryTime,
+      exitTime: response.exitTime,
+      workTime: response.workTime as TimeLog['workTime'],
+    };
   }
 }

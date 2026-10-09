@@ -95,8 +95,8 @@ class TimeLogControllerIT {
 												.claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001"))
-				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+				.andExpect(jsonPath("$.employee.number").value("EMP-0001"))
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksite.code").value("BCN-HQ"));
 	}
 
 	@Test
@@ -118,7 +118,7 @@ class TimeLogControllerIT {
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.entryTime").value(entry))
-				.andExpect(jsonPath("$.worksiteCode").value("BCN-PROJ"));
+				.andExpect(jsonPath("$.worksite.code").value("BCN-PROJ"));
 	}
 
 	@Test
@@ -178,7 +178,7 @@ class TimeLogControllerIT {
 												.claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksite.code").value("BCN-HQ"));
 	}
 
 	@Test
@@ -261,7 +261,7 @@ class TimeLogControllerIT {
 												.claim("email_verified", true))
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksite.code").value("BCN-HQ"));
 	}
 
 	@Test
@@ -284,7 +284,7 @@ class TimeLogControllerIT {
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.exitTime").value(exit))
-				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+				.andExpect(jsonPath("$.worksite.code").value("BCN-HQ"));
 	}
 
 	@Test
@@ -330,7 +330,7 @@ class TimeLogControllerIT {
 				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.exitTime").value(exit))
 				.andExpect(jsonPath("$.workTime.iso8601").value("PT8H30M"))
-				.andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+				.andExpect(jsonPath("$.worksite.code").value("BCN-HQ"));
 	}
 
 	@Test
@@ -433,7 +433,7 @@ class TimeLogControllerIT {
 				get(BASE + "/{entryTime}", "EMP-0001", entry)
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksiteCode").value("BCN-HQ"));
+				.andExpect(jsonPath("$.entryTime").value(entry)).andExpect(jsonPath("$.worksite.code").value("BCN-HQ"));
 	}
 
 	@Test

@@ -1,0 +1,31 @@
+.clock-page__content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(
+            calc(var(--layout-page-max-width) * 0.25),
+            34%,
+            calc(var(--layout-page-max-width) * 0.5)
+        );
+    grid-template-areas:
+        'clock employee'
+        'records records';
+}
+
+#clock {
+    grid-area: clock;
+}
+
+#employee {
+    grid-area: employee;
+}
+
+#records {
+    grid-area: records;
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .clock-page__content {
+        grid-template-columns: var(--responsive-timelogs-grid-columns-tablet);
+        grid-template-areas: var(--responsive-timelogs-grid-areas-tablet);
+    }
+}

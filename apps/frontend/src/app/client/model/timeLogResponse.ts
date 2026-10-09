@@ -7,15 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { TimeLogEmployeeResponse } from './timeLogEmployeeResponse';
+import { TimeLogWorksiteResponse } from './timeLogWorksiteResponse';
 
 
 export interface TimeLogResponse {
-    /**
-     * Stable employee identifier used by canonical employee routes.
-     */
-    employeeNumber: string;
-    worksiteCode: string;
-    worksiteZoneId: string;
+    employee: TimeLogEmployeeResponse;
+    worksite: TimeLogWorksiteResponse;
     entryTime: string;
     exitTime?: string | null;
     workTime: { [key: string]: any; } | null;

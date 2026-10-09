@@ -1,6 +1,7 @@
 {
   "navigation": {
     "janus": "Janus",
+    "clock": "Clock",
     "timelogs": "Time logs",
     "applicationSettings": "Application settings",
     "userPreferences": "User preferences",

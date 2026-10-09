@@ -95,7 +95,7 @@ class OpenApiContractTest {
 		final Map<String, Map<String, Object>> schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract()
 				.get("components")).get("schemas");
 
-		for (final String schemaName : List.of("TimeLogResponse", "ClockOutWithoutClockInEventResponse")) {
+		for (final String schemaName : List.of("ClockOutWithoutClockInEventResponse")) {
 			final Map<String, Object> schema = schemas.get(schemaName);
 			final List<String> required = (List<String>) schema.get("required");
 			final Map<String, Map<String, Object>> properties = (Map<String, Map<String, Object>>) schema
@@ -104,6 +104,26 @@ class OpenApiContractTest {
 			assertThat(properties.get("employeeNumber")).containsEntry("type", "string");
 			assertThat(properties).doesNotContainKey("employeeEmail");
 		}
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void timeLogResponseDocumentsEmployeeAndWorksiteDetails() throws Exception {
+		final Map<String, Object> spec = contract();
+		final Map<String, Object> components = (Map<String, Object>) spec.get("components");
+		final Map<String, Map<String, Object>> schemas = (Map<String, Map<String, Object>>) components.get("schemas");
+		final Map<String, Object> response = schemas.get("TimeLogResponse");
+		final List<String> required = (List<String>) response.get("required");
+		final Map<String, Map<String, Object>> properties = (Map<String, Map<String, Object>>) response
+				.get("properties");
+		assertThat(required).contains("employee", "worksite");
+		assertThat(properties).doesNotContainKeys("employeeNumber", "worksiteCode", "worksiteZoneId");
+		assertThat(properties.get("employee")).containsEntry("$ref", "#/components/schemas/TimeLogEmployeeResponse");
+		assertThat(properties.get("worksite")).containsEntry("$ref", "#/components/schemas/TimeLogWorksiteResponse");
+		assertThat((List<String>) schemas.get("TimeLogEmployeeResponse").get("required"))
+				.containsExactly("number", "fullName");
+		assertThat((List<String>) schemas.get("TimeLogWorksiteResponse").get("required"))
+				.containsExactly("code", "name", "zoneId");
 	}
 
 	@Test

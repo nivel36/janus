@@ -36,12 +36,14 @@ class TimeLogResponseMapperTest {
 		@SuppressWarnings("unchecked")
 		final Mapper<Duration, DurationResponse> durationMapper = mock(Mapper.class);
 		when(employee.getEmployeeNumber()).thenReturn("EMP-0042");
+		when(employee.getName()).thenReturn("Abel");
+		when(employee.getSurname()).thenReturn("Ferrer");
 		when(timeLog.getEmployee()).thenReturn(employee);
 		when(timeLog.getWorksite()).thenReturn(worksite);
 
 		final TimeLogResponse response = new TimeLogResponseMapper(durationMapper).map(timeLog);
 
-		assertThat(response.employeeNumber()).isEqualTo("EMP-0042");
+		assertThat(response.employee().number()).isEqualTo("EMP-0042");
 	}
 
 	@ParameterizedTest
@@ -50,7 +52,10 @@ class TimeLogResponseMapperTest {
 		final Employee employee = mock(Employee.class);
 		final Worksite worksite = mock(Worksite.class);
 		when(employee.getEmployeeNumber()).thenReturn("EMP-0042");
+		when(employee.getName()).thenReturn("Abel");
+		when(employee.getSurname()).thenReturn("Ferrer");
 		when(worksite.getCode()).thenReturn("MAD-HQ");
+		when(worksite.getName()).thenReturn("Madrid Headquarters");
 		when(worksite.getTimeZone()).thenReturn(ZoneId.of("Europe/Madrid"));
 		final Instant entry = Instant.parse("2026-10-01T08:00:00Z");
 		final Instant exit = entry.plusSeconds(3661);
@@ -59,9 +64,8 @@ class TimeLogResponseMapperTest {
 		final TimeLogResponse response = new TimeLogResponseMapper(new DurationResponseMapper()).map(log);
 		assertThat(response).isEqualTo(
 				new TimeLogResponse(
-						"EMP-0042",
-						"MAD-HQ",
-						ZoneId.of("Europe/Madrid"),
+						new TimeLogEmployeeResponse("EMP-0042", "Abel Ferrer"),
+						new TimeLogWorksiteResponse("MAD-HQ", "Madrid Headquarters", ZoneId.of("Europe/Madrid")),
 						entry,
 						closed ? exit : null,
 						closed ? new DurationResponse(1, 1, 1, "PT1H1M1S") : null));

@@ -15,22 +15,11 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
-import java.time.Instant;
-
 /**
- * Response representing an employee's work session at a worksite.
+ * Employee details included in a time log response.
  *
- * @param employee  the employee's number and full name
- * @param worksite  the worksite's code, name and time zone
- * @param entryTime the timestamp when the employee clocked in
- * @param exitTime  the timestamp when the employee clocked out; {@code null}
- *                  for an open log
- * @param workTime  the elapsed work duration; {@code null} for an open log
+ * @param number   the stable employee number
+ * @param fullName the employee's name followed by their surname
  */
-public record TimeLogResponse(
-		TimeLogEmployeeResponse employee,
-		TimeLogWorksiteResponse worksite,
-		Instant entryTime,
-		Instant exitTime,
-		DurationResponse workTime) {
+public record TimeLogEmployeeResponse(String number, String fullName) {
 }

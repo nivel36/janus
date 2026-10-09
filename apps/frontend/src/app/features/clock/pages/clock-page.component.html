@@ -1,0 +1,18 @@
+<app-page-template appNameKey="navigation.janus" pageNameKey="navigation.clock">
+    <div pageContent class="app-page-content clock-page__content">
+        @if (employeeNumber(); as employeeNumber) {
+            <app-timelog-clock-card
+                id="clock"
+                [employeeNumber]="employeeNumber"
+                (clockActionDone)="onClockActionDone()"
+            />
+
+            <app-employee-card id="employee" [fullName]="fullName()" />
+
+            <app-timelog-table
+                id="records"
+                [refreshToken]="tableRefreshToken()"
+            />
+        }
+    </div>
+</app-page-template>

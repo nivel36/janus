@@ -42,7 +42,13 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -71,6 +77,8 @@ public class SecurityConfig {
 
 	private static final String API_CONTENT_SECURITY_POLICY = "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
 
+	private static final String SWAGGER_CONTENT_SECURITY_POLICY = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
+
 	private static final String API_PERMISSIONS_POLICY = "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()";
 
 	/**
@@ -92,6 +100,21 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(
 			final HttpSecurity http,
 			final JwtAuthenticationConverter jwtAuthenticationConverter) {
+		final PathPatternRequestMatcher.Builder matcherBuilder = PathPatternRequestMatcher.withDefaults();
+		final RequestMatcher swaggerUi = matcherBuilder.matcher("/swagger-ui/**");
+		final RequestMatcher swaggerRedirect = matcherBuilder.matcher("/swagger-ui.html");
+		final RequestMatcher swaggerRequests = new OrRequestMatcher(swaggerUi, swaggerRedirect);
+		final RequestMatcher otherRequests = new NegatedRequestMatcher(swaggerRequests);
+		final ContentSecurityPolicyHeaderWriter swaggerPolicy = new ContentSecurityPolicyHeaderWriter(
+				SWAGGER_CONTENT_SECURITY_POLICY);
+		final ContentSecurityPolicyHeaderWriter apiPolicy = new ContentSecurityPolicyHeaderWriter(
+				API_CONTENT_SECURITY_POLICY);
+		final DelegatingRequestMatcherHeaderWriter swaggerHeaders = new DelegatingRequestMatcherHeaderWriter(
+				swaggerRequests,
+				swaggerPolicy);
+		final DelegatingRequestMatcherHeaderWriter otherHeaders = new DelegatingRequestMatcherHeaderWriter(
+				otherRequests,
+				apiPolicy);
 		return http.cors(Customizer.withDefaults()).csrf(CsrfConfigurer::disable)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.headers(headers -> {
@@ -99,7 +122,8 @@ public class SecurityConfig {
 					headers.frameOptions(FrameOptionsConfig::deny);
 					headers.referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.NO_REFERRER));
 					headers.permissionsPolicyHeader(permissions -> permissions.policy(API_PERMISSIONS_POLICY));
-					headers.contentSecurityPolicy(csp -> csp.policyDirectives(API_CONTENT_SECURITY_POLICY));
+					headers.addHeaderWriter(swaggerHeaders);
+					headers.addHeaderWriter(otherHeaders);
 					headers.cacheControl(Customizer.withDefaults());
 				}).authorizeHttpRequests(this::getAuthorizations)
 				.oauth2ResourceServer(

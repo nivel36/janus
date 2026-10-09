@@ -1315,19 +1315,15 @@ components:
     TimeLogResponse:
       type: object
       required:
-      - employeeNumber
-      - worksiteCode
-      - worksiteZoneId
+      - employee
+      - worksite
       - entryTime
       - workTime
       properties:
-        employeeNumber:
-          type: string
-          description: Stable employee identifier used by canonical employee routes.
-        worksiteCode:
-          type: string
-        worksiteZoneId:
-          type: string
+        employee:
+          $ref: '#/components/schemas/TimeLogEmployeeResponse'
+        worksite:
+          $ref: '#/components/schemas/TimeLogWorksiteResponse'
         entryTime:
           type: string
           format: date-time
@@ -1339,6 +1335,25 @@ components:
           nullable: true
           allOf:
           - $ref: '#/components/schemas/DurationResponse'
+    TimeLogEmployeeResponse:
+      type: object
+      required: [number, fullName]
+      properties:
+        number:
+          type: string
+          description: Stable employee identifier used by canonical employee routes.
+        fullName:
+          type: string
+    TimeLogWorksiteResponse:
+      type: object
+      required: [code, name, zoneId]
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        zoneId:
+          type: string
     WorksitePage:
       type: object
       required:
