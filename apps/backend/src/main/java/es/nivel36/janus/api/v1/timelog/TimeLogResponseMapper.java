@@ -37,12 +37,27 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 
 	private final Mapper<Duration, DurationResponse> durationResponseMapper;
 
+	/**
+	 * Creates a mapper without accessing persistence.
+	 *
+	 * @param  durationResponseMapper nonnull duration mapper
+	 * @throws NullPointerException   if the mapper is null
+	 */
 	public TimeLogResponseMapper(
 		final @Qualifier("durationResponseMapper") Mapper<Duration, DurationResponse> durationResponseMapper) {
 		this.durationResponseMapper = Objects
 				.requireNonNull(durationResponseMapper, "durationResponseMapper can't be null");
 	}
 
+	/**
+	 * Maps stable business identifiers, worksite timezone and recorded instants.
+	 *
+	 * @param  entity               time log with readable employee and worksite
+	 *                              associations; may be null
+	 * @return                      response, or null for a null entity; open logs
+	 *                              have null exit and duration
+	 * @throws NullPointerException if an association is absent
+	 */
 	@Override
 	public TimeLogResponse map(final TimeLog entity) {
 		if (entity == null) {
@@ -57,18 +72,11 @@ public class TimeLogResponseMapper implements Mapper<TimeLog, TimeLogResponse> {
 		final ZoneId worksiteZoneId = worksite.getTimeZone();
 
 		final Instant entryTime = entity.getEntryTime();
-		final Instant exitTimeValue = entity.getExitTime();
-		final Instant exitTime = exitTimeValue;
+		final Instant exitTime = entity.getExitTime();
 
-		final Duration workDurationValue = entity.getWorkDuration();
-		final DurationResponse workDurationResponse = this.mapWorkDuration(workDurationValue);
-		final DurationResponse workTime = workDurationResponse;
+		final DurationResponse workTime = this.durationResponseMapper.map(entity.getWorkDuration());
 
 		return new TimeLogResponse(employeeNumber, worksiteCode, worksiteZoneId, entryTime, exitTime, workTime);
-	}
-
-	private DurationResponse mapWorkDuration(final Duration duration) {
-		return this.durationResponseMapper.map(duration);
 	}
 
 }

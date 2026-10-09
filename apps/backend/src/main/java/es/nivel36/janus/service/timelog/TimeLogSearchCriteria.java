@@ -7,12 +7,14 @@ package es.nivel36.janus.service.timelog;
 
 import java.time.Instant;
 
+import es.nivel36.janus.validation.EmployeeNumber;
+
 /**
  * Optional client filters, independent of the authorized search scope. The
  * entry-time range includes {@code start} and excludes {@code end}.
  */
-public record TimeLogSearchCriteria(
-		String employeeNumber,
+public record TimeLogSearchCriteria(@EmployeeNumber
+String employeeNumber,
 
 		Instant start,
 

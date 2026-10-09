@@ -73,13 +73,12 @@ class TimeLogSearchControllerIT {
 				get(BASE).param("employeeNumber", "EMP-0101")
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_USER"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(5))
-				.andExpect(jsonPath("$.content[*].employeeEmail", everyItem(is("alice.changed@example.test"))));
+				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))));
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void searchWithoutFiltersReturnsOnlyVisibleRecords(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).param("sort", "entryTime,asc").with(employee())).andExpect(status().isOk())
+	@Test
+	void searchWithoutFiltersReturnsOnlyVisibleRecords() throws Exception {
+		this.mvc.perform(get(BASE).param("sort", "entryTime,asc").with(employee())).andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()").value(5))
 				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))))
 				.andExpect(
@@ -94,13 +93,12 @@ class TimeLogSearchControllerIT {
 				.andExpect(jsonPath("$.page.totalElements").value(5));
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void scopeIsAppliedBeforePaginationAndCounting(final String endpoint) throws Exception {
-		assertOwnPage(endpoint, 0, "2025-07-01T08:00:00Z", "2025-07-02T08:00:00Z");
-		assertOwnPage(endpoint, 1, "2025-07-03T08:00:00Z", "2025-07-04T08:00:00Z");
-		assertOwnPage(endpoint, 2, "2025-07-05T08:00:00Z");
-		assertOwnPage(endpoint, 3);
+	@Test
+	void scopeIsAppliedBeforePaginationAndCounting() throws Exception {
+		assertOwnPage(BASE, 0, "2025-07-01T08:00:00Z", "2025-07-02T08:00:00Z");
+		assertOwnPage(BASE, 1, "2025-07-03T08:00:00Z", "2025-07-04T08:00:00Z");
+		assertOwnPage(BASE, 2, "2025-07-05T08:00:00Z");
+		assertOwnPage(BASE, 3);
 	}
 
 	@Test
@@ -125,19 +123,17 @@ class TimeLogSearchControllerIT {
 				.andExpect(jsonPath("$.content[*].employeeNumber", everyItem(is("EMP-0101"))));
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void clientCannotExpandScopeByFilteringAnotherEmployee(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).param("employeeNumber", "EMP-0102").param("size", "1").with(employee()))
+	@Test
+	void clientCannotExpandScopeByFilteringAnotherEmployee() throws Exception {
+		this.mvc.perform(get(BASE).param("employeeNumber", "EMP-0102").param("size", "1").with(employee()))
 				.andExpect(status().isForbidden());
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void dateRangeIsInclusiveAtStartExclusiveAtEndAndStillScoped(final String endpoint) throws Exception {
+	@Test
+	void dateRangeIsInclusiveAtStartExclusiveAtEndAndStillScoped() throws Exception {
 		for (int page = 0; page < 2; page++) {
 			this.mvc.perform(
-					get(endpoint).param("start", "2025-07-02T08:00:00Z").param("end", "2025-07-04T08:00:00Z")
+					get(BASE).param("start", "2025-07-02T08:00:00Z").param("end", "2025-07-04T08:00:00Z")
 							.param("page", Integer.toString(page)).param("size", "1").param("sort", "entryTime,asc")
 							.with(employee()))
 					.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1))
@@ -175,12 +171,11 @@ class TimeLogSearchControllerIT {
 				.andExpect(jsonPath("$.page.totalElements").value(4)).andExpect(jsonPath("$.page.totalPages").value(2));
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void employeeWithoutPersistentEmployeeAssociationCannotSearch(final String endpoint) throws Exception {
+	@Test
+	void employeeWithoutPersistentEmployeeAssociationCannotSearch() throws Exception {
 		for (int page : new int[] { 0, 3 }) {
 			this.mvc.perform(
-					get(endpoint).param("page", Integer.toString(page)).param("size", "2").with(
+					get(BASE).param("page", Integer.toString(page)).param("size", "2").with(
 							verifiedJwt().jwt(token -> token.claim("email", OWN_EMAIL).claim("email_verified", true))
 									.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 					.andExpect(status().isForbidden());
@@ -199,10 +194,9 @@ class TimeLogSearchControllerIT {
 				.andExpect(jsonPath("$.page.totalElements").value(5));
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void actorWithoutSearchRoleIsForbidden(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).with(verifiedJwt().authorities(createAuthorityList())))
+	@Test
+	void actorWithoutSearchRoleIsForbidden() throws Exception {
+		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList())))
 				.andExpect(status().isForbidden());
 	}
 
@@ -212,35 +206,17 @@ class TimeLogSearchControllerIT {
 				.andExpect(jsonPath("$.employeeNumber").value("EMP-0101"));
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void bothDateRangeBoundsMayBeAbsent(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).with(employee())).andExpect(status().isOk());
-	}
-
-	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void bothDateRangeBoundsMayBePresent(final String endpoint) throws Exception {
-		this.mvc.perform(
-				get(endpoint).param("start", "2025-07-02T08:00:00Z").param("end", "2025-07-04T08:00:00Z")
-						.with(employee()))
-				.andExpect(status().isOk());
-	}
-
-	@ParameterizedTest
-	@ValueSource(strings = { BASE })
-	void incompleteOrNonIncreasingDateRangesAreRejected(final String endpoint) throws Exception {
-		this.mvc.perform(get(endpoint).param("start", "2025-07-02T08:00:00Z").with(employee()))
+	@Test
+	void incompleteOrNonIncreasingDateRangesAreRejected() throws Exception {
+		this.mvc.perform(get(BASE).param("start", "2025-07-02T08:00:00Z").with(employee()))
 				.andExpect(status().isBadRequest());
-		this.mvc.perform(get(endpoint).param("end", "2025-07-04T08:00:00Z").with(employee()))
+		this.mvc.perform(get(BASE).param("end", "2025-07-04T08:00:00Z").with(employee()))
 				.andExpect(status().isBadRequest());
 		this.mvc.perform(
-				get(endpoint).param("start", "2025-07-04T08:00:00Z").param("end", "2025-07-02T08:00:00Z")
-						.with(employee()))
+				get(BASE).param("start", "2025-07-04T08:00:00Z").param("end", "2025-07-02T08:00:00Z").with(employee()))
 				.andExpect(status().isBadRequest());
 		this.mvc.perform(
-				get(endpoint).param("start", "2025-07-04T08:00:00Z").param("end", "2025-07-04T08:00:00Z")
-						.with(employee()))
+				get(BASE).param("start", "2025-07-04T08:00:00Z").param("end", "2025-07-04T08:00:00Z").with(employee()))
 				.andExpect(status().isBadRequest());
 	}
 
@@ -248,6 +224,36 @@ class TimeLogSearchControllerIT {
 	void missingEmployeeFilterDoesNotDiscloseExistenceToRestrictedActors() throws Exception {
 		this.mvc.perform(get(BASE).param("employeeNumber", "MISSING").with(employee()))
 				.andExpect(status().isForbidden());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "missing", "employee.email", "deleted" })
+	void unsupportedSortReturnsBadRequest(final String field) throws Exception {
+		this.mvc.perform(get(BASE).param("sort", field + ",asc").with(employee())).andExpect(status().isBadRequest());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { " EMP-0101 ", "EMP.0101" })
+	void invalidEmployeeNumberReturnsBadRequest(final String employeeNumber) throws Exception {
+		this.mvc.perform(
+				get(BASE).param("employeeNumber", employeeNumber)
+						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void defaultSearchOrdersNewestFirst() throws Exception {
+		this.mvc.perform(get(BASE).with(employee())).andExpect(status().isOk())
+				.andExpect(
+						jsonPath(
+								"$.content[*].entryTime",
+								contains(
+										"2025-07-05T08:00:00Z",
+										"2025-07-04T08:00:00Z",
+										"2025-07-03T08:00:00Z",
+										"2025-07-02T08:00:00Z",
+										"2025-07-01T08:00:00Z")))
+				.andExpect(jsonPath("$.page.size").value(20));
 	}
 
 	private void assertOwnPage(final String endpoint, final int page, final String... expectedEntries)

@@ -39,7 +39,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
@@ -60,13 +59,19 @@ class TimeLogServiceTest {
 	private @Mock WorksiteService worksiteService;
 	private @Mock Clock clock;
 	private @Mock ClockOutWithoutClockInEventRepository clockOutWithoutClockInEventRepository;
-	private @InjectMocks TimeLogService timeLogService;
+	private TimeLogService timeLogService;
 	private Employee employee;
 	private Worksite worksite;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
+		this.timeLogService = new TimeLogService(
+				this.timeLogRepository,
+				this.clockOutWithoutClockInEventRepository,
+				this.applicationSettingsService,
+				this.clock,
+				100);
 		this.employee = new Employee(
 				"EMP-0001",
 				"Abel",

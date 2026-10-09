@@ -36,13 +36,7 @@ import es.nivel36.janus.service.worksite.Worksite;
 import es.nivel36.janus.service.worksite.WorksiteAccessDeniedException;
 import es.nivel36.janus.service.worksite.WorksiteService;
 
-/**
- * REST controller responsible for exposing operations related to employee time
- * logs.
- * <p>
- * Provides endpoints for creating, retrieving, and deleting {@link TimeLog}
- * entries, as well as clock-in/clock-out operations and duration calculations.
- */
+/** Spring MVC implementation of {@link TimeLogResource}. */
 @RestController
 public class TimeLogController implements TimeLogResource {
 
@@ -57,17 +51,18 @@ public class TimeLogController implements TimeLogResource {
 	/**
 	 * Creates a controller exposing time log operations.
 	 *
-	 * @param timeLogService        application service handling {@link TimeLog}
-	 *                              logic; must not be {@code null}
-	 * @param employeeService       service used to resolve {@link Employee}
-	 *                              entities; must not be {@code null}
-	 * @param worksiteService       service resolving {@link Worksite} entities;
-	 *                              must not be {@code null}
-	 * @param timeLogResponseMapper mapper that converts {@link TimeLog} domain
-	 *                              objects to {@link TimeLogResponse} DTOs; must
-	 *                              not be {@code null}
-	 * @param clock                 clock used to retrieve the current time. Can't
-	 *                              be {@code null}.
+	 * @param  timeLogService        application service handling {@link TimeLog}
+	 *                               logic; must not be {@code null}
+	 * @param  employeeService       service used to resolve {@link Employee}
+	 *                               entities; must not be {@code null}
+	 * @param  worksiteService       service resolving {@link Worksite} entities;
+	 *                               must not be {@code null}
+	 * @param  timeLogResponseMapper mapper that converts {@link TimeLog} domain
+	 *                               objects to {@link TimeLogResponse} DTOs; must
+	 *                               not be {@code null}
+	 * @throws NullPointerException  if any dependency is null
+	 * @param  clock                 clock used to retrieve the current time. Can't
+	 *                               be {@code null}.
 	 */
 	public TimeLogController(
 		final TimeLogService timeLogService,
@@ -83,18 +78,6 @@ public class TimeLogController implements TimeLogResource {
 		this.clock = Objects.requireNonNull(clock, "clock can't be null");
 	}
 
-	/**
-	 * Clocks in an employee at a specified entry time or at the current time if
-	 * none is provided.
-	 *
-	 * @param  employeeNumber the number of the employee; must not be {@code null}
-	 * @param  entryTime      the entry time as ISO-8601 string (e.g.,
-	 *                        "2025-08-04T09:30:00Z"); if {@code null}, the current
-	 *                        system time will be used
-	 * @param  worksiteCode   the code of the worksite where the time log is
-	 *                        created; must not be {@code null}
-	 * @return                the created {@link TimeLogResponse}
-	 */
 	@Override
 	public ResponseEntity<TimeLogResponse> clockIn(
 			final String employeeNumber,
@@ -103,7 +86,7 @@ public class TimeLogController implements TimeLogResource {
 		logger.debug("Clock-in ACTION performed");
 
 		final Employee employee = this.requireEmployee(employeeNumber);
-		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode.trim());
+		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
 		final TimeLog clockIn;
 		if (entryTime != null) {
 			clockIn = this.timeLogService.clockIn(employee, worksite, entryTime);
@@ -120,24 +103,6 @@ public class TimeLogController implements TimeLogResource {
 		return worksite;
 	}
 
-	/**
-	 * Clocks out an employee at a specified exit time or at the current time if
-	 * none is provided.
-	 *
-	 * @param  employeeNumber                  the number of the employee; must not
-	 *                                         be {@code null}
-	 * @param  exitTime                        the exit time as ISO-8601 string
-	 *                                         (e.g., "2025-08-04T18:00:00Z"); if
-	 *                                         {@code null}, the current system time
-	 *                                         will be used
-	 * @param  worksiteCode                    the code of the worksite where the
-	 *                                         time log is updated; must not be
-	 *                                         {@code null}
-	 * @return                                 the updated {@link TimeLogResponse}
-	 * @throws ClockOutWithoutClockInException if the TimeLog record cannot be
-	 *                                         closed because it does not have an
-	 *                                         entry time
-	 */
 	@Override
 	public ResponseEntity<TimeLogResponse> clockOut(
 			final String employeeNumber,
@@ -171,16 +136,6 @@ public class TimeLogController implements TimeLogResource {
 		return worksite;
 	}
 
-	/**
-	 * Creates a new time log entry for a specific employee and worksite.
-	 *
-	 * @param  employeeNumber the number of the employee; must not be {@code null}
-	 * @param  worksiteCode   the code of the worksite where the time log is
-	 *                        created; must not be {@code null}
-	 * @param  timeLog        the {@link CreateTimeLogRequest} payload containing
-	 *                        the entry and exit times; must not be {@code null}
-	 * @return                the created {@link TimeLogResponse}
-	 */
 	@Override
 	public ResponseEntity<TimeLogResponse> createTimeLog(
 			final String employeeNumber,
@@ -189,7 +144,7 @@ public class TimeLogController implements TimeLogResource {
 		logger.debug("Create time log ACTION performed");
 
 		final Employee employee = this.requireEmployee(employeeNumber);
-		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode.trim());
+		final Worksite worksite = this.findWorksiteForNewRecord(employee, worksiteCode);
 		final Instant entryTime = timeLog.entryTime();
 		final Instant exitTime = timeLog.exitTime();
 		final TimeLog createdTimeLog = this.timeLogService.createTimeLog(employee, worksite, entryTime, exitTime);
@@ -197,14 +152,6 @@ public class TimeLogController implements TimeLogResource {
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdTimeLogResponse);
 	}
 
-	/**
-	 * Finds a specific time log for an employee by its entry time.
-	 *
-	 * @param  employeeNumber the number of the employee; must not be {@code null}
-	 * @param  entryTime      the entry time of the time log; must not be
-	 *                        {@code null}
-	 * @return                the {@link TimeLogResponse} entry
-	 */
 	@Override
 	public ResponseEntity<TimeLogResponse> findTimeLogByEmployeeAndEntryTime(
 			final String employeeNumber,
@@ -221,15 +168,6 @@ public class TimeLogController implements TimeLogResource {
 		return this.employeeService.findEmployeeByEmployeeNumber(employeeNumber);
 	}
 
-	/**
-	 * Deletes a time log entry for an employee by its entry time.
-	 *
-	 * @param  employeeNumber the number of the employee; must not be {@code null}
-	 * @param  entryTime      the entry time of the time log to delete; must not be
-	 *                        {@code null}
-	 * @return                a {@link ResponseEntity} with no content (HTTP 204) if
-	 *                        the deletion succeeds
-	 */
 	@Override
 	public ResponseEntity<Void> deleteTimeLog(final String employeeNumber, final Instant entryTime) {
 		logger.debug("Delete time log ACTION performed");

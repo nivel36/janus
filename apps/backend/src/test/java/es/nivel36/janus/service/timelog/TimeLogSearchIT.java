@@ -7,7 +7,11 @@
 package es.nivel36.janus.service.timelog;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.Instant;
 
@@ -30,12 +34,15 @@ import es.nivel36.janus.api.v1.SecurityTestConfiguration;
 class TimeLogSearchIT {
 
 	private @Autowired TimeLogService service;
+	private @Autowired JdbcTemplate jdbc;
+	private @Value("${spring.data.rest.max-page-size}") int maxPageSize;
 
 	@Test
 	void searchRequiresExplicitScope() {
-		assertThatNullPointerException().isThrownBy(
+		assertThatThrownBy(
 				() -> this.service
-						.searchTimeLogs(new TimeLogSearchCriteria(null, null, null), null, PageRequest.of(0, 2)));
+						.searchTimeLogs(new TimeLogSearchCriteria(null, null, null), null, PageRequest.of(0, 2)))
+				.isInstanceOf(ConstraintViolationException.class);
 	}
 
 	@Test
@@ -82,4 +89,75 @@ class TimeLogSearchIT {
 		assertThat(result.getTotalElements()).isEqualTo(2);
 		assertThat(result.getTotalPages()).isEqualTo(2);
 	}
+
+	@Test
+	void searchCapsSizeAndDefaultsToDescendingEntryTime() {
+		final Page<TimeLog> result = this.service.searchTimeLogs(
+				new TimeLogSearchCriteria(null, null, null),
+				new TimeLogSearchScope.All(),
+				PageRequest.of(0, this.maxPageSize + 1));
+		assertThat(result.getSize()).isEqualTo(this.maxPageSize);
+		assertThat(result.getContent()).extracting(TimeLog::getEntryTime)
+				.isSortedAccordingTo(java.util.Comparator.reverseOrder());
+		assertThat(result.getTotalElements()).isEqualTo(11);
+	}
+
+	@Test
+	void equalEntryTimesHaveStableIdOrderingAcrossPages() {
+		this.jdbc.update(
+				"UPDATE time_log SET entry_time = (SELECT entry_time FROM time_log WHERE id = 102) WHERE id IN (101, 103)");
+		for (int page = 0; page < 3; page++) {
+			final Page<TimeLog> result = this.service.searchTimeLogs(
+					new TimeLogSearchCriteria(null, null, null),
+					new TimeLogSearchScope.All(),
+					PageRequest.of(page, 1, Sort.by("entryTime")));
+			assertThat(result.getContent()).extracting(TimeLog::getId).containsExactly(101L + page);
+			assertThat(result.getTotalElements()).isEqualTo(11);
+		}
+	}
+
+	@Test
+	void publicAssociationSortFieldsAreResolved() {
+		final Page<TimeLog> result = this.service.searchTimeLogs(
+				new TimeLogSearchCriteria(null, null, null),
+				new TimeLogSearchScope.All(),
+				PageRequest.of(0, 20, Sort.by("employeeNumber", "worksiteCode")));
+		assertThat(result.getContent()).extracting(log -> log.getEmployee().getEmployeeNumber()).isSorted();
+		assertThat(result.getContent()).extracting(TimeLog::getId)
+				.containsExactly(102L, 105L, 107L, 110L, 111L, 101L, 104L, 106L, 109L, 103L, 108L);
+	}
+
+	@Test
+	void unpagedAndUnsupportedSortsAreRejected() {
+		final TimeLogSearchCriteria criteria = new TimeLogSearchCriteria(null, null, null);
+		for (final Pageable pageable : new Pageable[] { Pageable.unpaged(),
+				PageRequest.of(0, 2, Sort.by("employee.email")), PageRequest.of(0, 2, Sort.by("missing")) }) {
+			assertThatThrownBy(() -> this.service.searchTimeLogs(criteria, new TimeLogSearchScope.All(), pageable))
+					.isInstanceOf(IllegalArgumentException.class);
+		}
+	}
+
+	@Test
+	void directServiceCallsRejectIncompleteAndNonIncreasingRanges() {
+		final Instant start = Instant.parse("2025-07-02T08:00:00Z");
+		for (final TimeLogSearchCriteria criteria : new TimeLogSearchCriteria[] {
+				new TimeLogSearchCriteria(null, start, null), new TimeLogSearchCriteria(null, null, start),
+				new TimeLogSearchCriteria(null, start, start),
+				new TimeLogSearchCriteria(null, start, start.minusSeconds(1)) }) {
+			assertThatThrownBy(
+					() -> this.service.searchTimeLogs(criteria, new TimeLogSearchScope.All(), PageRequest.of(0, 2)))
+					.isInstanceOf(IllegalArgumentException.class);
+		}
+	}
+
+	@Test
+	void directServiceCallsValidateEmployeeNumber() {
+		assertThatThrownBy(
+				() -> this.service.searchTimeLogs(
+						new TimeLogSearchCriteria(" EMP-0101 ", null, null),
+						new TimeLogSearchScope.All(),
+						PageRequest.of(0, 2)))
+				.isInstanceOf(ConstraintViolationException.class);
+	}
+
 }
