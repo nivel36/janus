@@ -37,6 +37,12 @@
       <table class="app-table timelog-table__table">
         <thead>
           <tr>
+            @if (showEmployeeName()) {
+              <th scope="col">{{ 'timelog.employeeName' | translate }}</th>
+            }
+            @if (showWorksiteName()) {
+              <th scope="col">{{ 'timelog.worksiteName' | translate }}</th>
+            }
             <th scope="col">{{ 'timelog.date' | translate }}</th>
             <th scope="col">{{ 'timelog.clockin' | translate }}</th>
             <th scope="col">{{ 'timelog.clockout' | translate }}</th>
@@ -49,6 +55,12 @@
             track timelog.entryTime + '-' + (timelog.exitTime ?? 'open')
           ) {
             <tr>
+              @if (showEmployeeName()) {
+                <td>{{ timelog.employeeName || '—' }}</td>
+              }
+              @if (showWorksiteName()) {
+                <td>{{ timelog.worksiteName || '—' }}</td>
+              }
               <td>
                 {{ timelog.entryTime | date: 'shortDate' : userTimezone() : userLocale() }}
               </td>

@@ -51,6 +51,8 @@
     "missingAccessibleNameWarning": "AutocompleteTextboxComponent ha de rebre ariaLabel o ariaLabelledBy per tenir un nom accessible."
   },
   "timelog": {
+    "employeeName": "Employee name",
+    "worksiteName": "Worksite name",
     "activeWorkday": "Active Workday",
     "workdayNotStarted": "Workday not started",
     "clockin": "Clock in",

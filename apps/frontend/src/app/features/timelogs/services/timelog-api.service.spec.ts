@@ -29,7 +29,9 @@ describe('TimeLogService', () => {
     const service = TestBed.inject(TimeLogService);
     const expected = {
       employeeNumber: 'EMP-0042',
+      employeeName: 'Abel Ferrer',
       worksiteCode: 'MAD-HQ',
+      worksiteName: 'Madrid Headquarters',
       worksiteZoneId: 'Europe/Madrid',
       entryTime: response.entryTime,
       exitTime: null,

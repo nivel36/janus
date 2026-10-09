@@ -78,6 +78,41 @@ describe('TimelogTableComponent', () => {
     expect(pageControls().timelogs()).toEqual([lastValidTimelog]);
   });
 
+  it.each([
+    [false, false],
+    [true, false],
+    [false, true],
+    [true, true],
+  ])('shows optional name columns independently (%s, %s)', async (showEmployee, showWorksite) => {
+    if (showEmployee) fixture.componentRef.setInput('showEmployeeName', true);
+    if (showWorksite) fixture.componentRef.setInput('showWorksiteName', true);
+    pages[0].next(pageWith([{
+      ...timelog('2026-09-01T08:00:00Z'),
+      employeeName: 'Abel Ferrer',
+      worksiteName: 'Madrid Headquarters',
+    }], 1, 0));
+    await settleEffects();
+    fixture.detectChanges();
+
+    const table = fixture.nativeElement.querySelector('table') as HTMLTableElement;
+    expect(table.querySelectorAll('th')).toHaveLength(4 + Number(showEmployee) + Number(showWorksite));
+    expect(table.querySelectorAll('tbody td')).toHaveLength(4 + Number(showEmployee) + Number(showWorksite));
+    expect(table.textContent?.includes('Abel Ferrer')).toBe(showEmployee);
+    expect(table.textContent?.includes('Madrid Headquarters')).toBe(showWorksite);
+  });
+
+  it('shows placeholders when optional names are missing', async () => {
+    fixture.componentRef.setInput('showEmployeeName', true);
+    fixture.componentRef.setInput('showWorksiteName', true);
+    pages[0].next(pageWith([timelog('2026-09-01T08:00:00Z')], 1, 0));
+    await settleEffects();
+    fixture.detectChanges();
+
+    const cells = fixture.nativeElement.querySelectorAll('tbody td') as NodeListOf<HTMLTableCellElement>;
+    expect(cells[0].textContent?.trim()).toBe('—');
+    expect(cells[1].textContent?.trim()).toBe('—');
+  });
+
   function pageControls(): TimelogTablePageControls {
     return component as unknown as TimelogTablePageControls;
   }

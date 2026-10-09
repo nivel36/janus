@@ -54,6 +54,8 @@ export class TimelogTableComponent {
   private readonly currentUser = inject(CurrentUserFacade);
 
   readonly refreshToken = input(0);
+  readonly showEmployeeName = input(false);
+  readonly showWorksiteName = input(false);
 
   protected readonly userLocale = computed(
     () => this.currentUser.preferences()?.locale ?? FALLBACK_LANGUAGE,
