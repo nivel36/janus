@@ -9,7 +9,7 @@ import {
   HTTP_RETRY_POLICY,
 } from '../../../core/http/http-retry.interceptor';
 
-import { TimelogSearchRange } from '../models/timelog-search-range';
+import { TimelogSearchFilters } from '../models/timelog-search-range';
 
 export interface TimeLogPage {
   items: TimeLog[];
@@ -26,10 +26,10 @@ export class TimeLogService {
   /**
    * The `page` parameter follows Spring Data pagination (0-based index).
    */
-  search(page = 0, size = 10, range?: TimelogSearchRange): Observable<TimeLogPage> {
+  search(page = 0, size = 10, range?: TimelogSearchFilters): Observable<TimeLogPage> {
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
     return this.api
-      .searchTimeLogs(undefined, range?.start, range?.end, page, size, ['entryTime,desc'], 'body', false, { context })
+      .searchTimeLogs(range?.employeeNumber, range?.start, range?.end, page, size, ['entryTime,desc'], 'body', false, { context })
       .pipe(
         map((r) => ({
           items: r.content.map((item) => this.mapTimeLog(item)),

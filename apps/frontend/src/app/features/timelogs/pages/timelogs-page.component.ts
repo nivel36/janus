@@ -7,7 +7,7 @@ import { PageTemplateComponent } from '../../../core/layout/page-template/page-t
 import { TimelogTableComponent } from '../components/timelog-table/timelog-table.component';
 
 import { TimelogSearchCardComponent } from '../components/timelog-search-card/timelog-search-card.component';
-import { TimelogSearchRange } from '../models/timelog-search-range';
+import { TimelogSearchFilters } from '../models/timelog-search-range';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,10 +17,10 @@ import { TimelogSearchRange } from '../models/timelog-search-range';
   styleUrl: './timelogs-page.component.css',
 })
 export class TimelogsPageComponent {
-  protected readonly searchRange = signal<TimelogSearchRange | undefined>(undefined);
+  protected readonly searchRange = signal<TimelogSearchFilters | undefined>(undefined);
   protected readonly searchToken = signal(0);
 
-  protected onSearch(range: TimelogSearchRange | undefined): void {
+  protected onSearch(range: TimelogSearchFilters | undefined): void {
     this.searchRange.set(range);
     this.searchToken.update((token) => token + 1);
   }

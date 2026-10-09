@@ -43,6 +43,10 @@ describe('TimeLogService', () => {
     const range = { start: '2026-10-01T00:00:00Z', end: '2026-10-03T00:00:00Z' };
     await firstValueFrom(service.search(1, 5, range));
     expect(api.searchTimeLogs).toHaveBeenLastCalledWith(undefined, range.start, range.end, 1, 5, ['entryTime,desc'], 'body', false, expect.any(Object));
+    await firstValueFrom(service.search(0, 10, { employeeNumber: 'EMP-0042' }));
+    expect(api.searchTimeLogs).toHaveBeenLastCalledWith('EMP-0042', undefined, undefined, 0, 10, ['entryTime,desc'], 'body', false, expect.any(Object));
+    await firstValueFrom(service.search(1, 5, { ...range, employeeNumber: 'EMP-0042' }));
+    expect(api.searchTimeLogs).toHaveBeenLastCalledWith('EMP-0042', range.start, range.end, 1, 5, ['entryTime,desc'], 'body', false, expect.any(Object));
     expect(await firstValueFrom(service.searchLatestByEmployee('EMP-0042'))).toEqual(expected);
     expect(await firstValueFrom(service.clockIn('EMP-0042', 'MAD-HQ'))).toEqual(expected);
     expect(await firstValueFrom(service.clockOut('EMP-0042', 'MAD-HQ'))).toEqual(expected);

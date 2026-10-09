@@ -24,7 +24,7 @@ import {
   emptyListPage,
   synchronizeListPage,
 } from '../../../../shared/utils/list-query-params.util';
-import { TimelogSearchRange } from '../../models/timelog-search-range';
+import { TimelogSearchFilters } from '../../models/timelog-search-range';
 import { TimeLog } from '../../models/timelog';
 
 import {
@@ -55,7 +55,7 @@ export class TimelogTableComponent {
   private readonly currentUser = inject(CurrentUserFacade);
 
   readonly refreshToken = input(0);
-  readonly searchRange = input<TimelogSearchRange>();
+  readonly searchRange = input<TimelogSearchFilters>();
   readonly searchToken = input(0);
   readonly pageSize = input(DEFAULT_LIST_PAGE_SIZE);
   readonly showEmployeeName = input(false);
@@ -83,7 +83,7 @@ export class TimelogTableComponent {
 
   protected readonly timelogsResource = rxResource<
     TimeLogPage,
-    { refreshToken: number; searchToken: number; range: TimelogSearchRange | undefined; page: number; pageSize: number }
+    { refreshToken: number; searchToken: number; range: TimelogSearchFilters | undefined; page: number; pageSize: number }
   >({
     params: () => ({
       refreshToken: this.refreshToken(),
