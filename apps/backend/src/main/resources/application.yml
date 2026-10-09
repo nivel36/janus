@@ -54,15 +54,15 @@ logging:
   pattern:
     console: "%d{HH:mm:ss.SSS} [%-5level] %logger{36} - %msg %kvp%n"
     level:
-      es.nivel36.janus: DEBUG
+      root: INFO
 
 janus:
   api:
     base-path: /api/v1
   user-provisioning:
     defaults:
-      locale: en-US
+      locale: es-ES
       time-format: H24
-      default-timezone: UTC
+      default-timezone: Europe/Madrid
   cors:
     allowed-origins: ${JANUS_CORS_ALLOWED_ORIGINS:http://localhost:4200}

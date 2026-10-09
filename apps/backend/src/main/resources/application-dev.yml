@@ -49,11 +49,6 @@ logging:
     es.nivel36.janus: TRACE
 
 janus:
-  user-provisioning:
-    defaults:
-      locale: es-ES
-      time-format: H24
-      default-timezone: Europe/Madrid
   security:
     client-id: ${JANUS_SECURITY_CLIENT_ID:janus-api}
   cors:
