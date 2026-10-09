@@ -50,21 +50,23 @@ export class WorksiteTableComponent {
   readonly query = input('', { transform: normalizeListQuery });
   readonly page = input(DEFAULT_LIST_PAGE, { transform: normalizeListPage });
   readonly refreshToken = input(0);
+  readonly pageSize = input(DEFAULT_LIST_PAGE_SIZE);
   readonly pageChange = output<number>();
 
   protected readonly currentPage = this.page;
 
   protected readonly worksitesResource = rxResource<
     WorksitePage,
-    { refreshToken: number; page: number; query: string }
+    { refreshToken: number; page: number; pageSize: number; query: string }
   >({
     params: () => ({
       refreshToken: this.refreshToken(),
       page: this.currentPage(),
+      pageSize: this.pageSize(),
       query: this.query(),
     }),
     stream: ({ params }) =>
-      this.worksiteApiService.search(params.page - 1, DEFAULT_LIST_PAGE_SIZE, params.query),
+      this.worksiteApiService.search(params.page - 1, params.pageSize, params.query),
     defaultValue: emptyListPage<Worksite>(),
   });
 
@@ -79,6 +81,7 @@ export class WorksiteTableComponent {
     this.totalItems,
     this.worksitesResource.isLoading,
     (page) => this.pageChange.emit(page),
+    this.pageSize,
   );
 
   protected readonly isEmpty = computed(
@@ -94,9 +97,5 @@ export class WorksiteTableComponent {
 
   protected openWorksite(worksite: Worksite): void {
     this.router.navigate(['/worksites', worksite.code]);
-  }
-
-  protected get pageSize(): number {
-    return DEFAULT_LIST_PAGE_SIZE;
   }
 }

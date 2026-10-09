@@ -54,6 +54,7 @@ export class TimelogTableComponent {
   private readonly currentUser = inject(CurrentUserFacade);
 
   readonly refreshToken = input(0);
+  readonly pageSize = input(DEFAULT_LIST_PAGE_SIZE);
   readonly showEmployeeName = input(false);
   readonly showWorksiteName = input(false);
 
@@ -76,14 +77,15 @@ export class TimelogTableComponent {
 
   protected readonly timelogsResource = rxResource<
     TimeLogPage,
-    { refreshToken: number; page: number }
+    { refreshToken: number; page: number; pageSize: number }
   >({
     params: () => ({
       refreshToken: this.refreshToken(),
       page: this.currentPage(),
+      pageSize: this.pageSize(),
     }),
     stream: ({ params }) =>
-      this.timeLogService.search(params.page - DEFAULT_LIST_PAGE, DEFAULT_LIST_PAGE_SIZE),
+      this.timeLogService.search(params.page - DEFAULT_LIST_PAGE, params.pageSize),
     defaultValue: emptyListPage<TimeLog>(),
   });
 
@@ -107,6 +109,7 @@ export class TimelogTableComponent {
     this.totalItems,
     this.timelogsResource.isLoading,
     (page) => this.currentPage.set(page),
+    this.pageSize,
   );
 
   protected readonly isEmpty = computed(
@@ -118,9 +121,5 @@ export class TimelogTableComponent {
 
   protected onPageChange(page: number): void {
     this.currentPage.set(page);
-  }
-
-  protected get pageSize(): number {
-    return DEFAULT_LIST_PAGE_SIZE;
   }
 }

@@ -6,7 +6,7 @@
     @if (totalItems() > 0) {
       <app-paginator
         [totalItems]="totalItems()"
-        [pageSize]="pageSize"
+        [pageSize]="pageSize()"
         [currentPage]="currentPage()"
         [betweenLabel]="'paginator.of' | translate"
         [previousLabel]="'paginator.previousPage' | translate"

@@ -38,14 +38,14 @@ export function synchronizeListPage(
   totalItems: Signal<number>,
   isLoading: Signal<boolean>,
   onPageChange: (page: number) => void,
-  pageSize = DEFAULT_LIST_PAGE_SIZE,
+  pageSize: Signal<number>,
 ): EffectRef {
   return effect(() => {
     if (isLoading()) {
       return;
     }
 
-    const maxPage = Math.max(DEFAULT_LIST_PAGE, Math.ceil(totalItems() / pageSize));
+    const maxPage = Math.max(DEFAULT_LIST_PAGE, Math.ceil(totalItems() / pageSize()));
     if (page() > maxPage) {
       onPageChange(maxPage);
     }

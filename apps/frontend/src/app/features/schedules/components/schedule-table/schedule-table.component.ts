@@ -45,21 +45,23 @@ export class ScheduleTableComponent {
   readonly query = input('', { transform: normalizeListQuery });
   readonly page = input(DEFAULT_LIST_PAGE, { transform: normalizeListPage });
   readonly refreshToken = input(0);
+  readonly pageSize = input(DEFAULT_LIST_PAGE_SIZE);
   readonly pageChange = output<number>();
 
   protected readonly currentPage = this.page;
 
   protected readonly schedulesResource = rxResource<
     SchedulePage,
-    { refreshToken: number; page: number; query: string }
+    { refreshToken: number; page: number; pageSize: number; query: string }
   >({
     params: () => ({
       refreshToken: this.refreshToken(),
       page: this.currentPage(),
+      pageSize: this.pageSize(),
       query: this.query(),
     }),
     stream: ({ params }) =>
-      this.scheduleApiService.search(params.page - 1, DEFAULT_LIST_PAGE_SIZE, params.query),
+      this.scheduleApiService.search(params.page - 1, params.pageSize, params.query),
     defaultValue: emptyListPage<Schedule>(),
   });
 
@@ -74,6 +76,7 @@ export class ScheduleTableComponent {
     this.totalItems,
     this.schedulesResource.isLoading,
     (page) => this.pageChange.emit(page),
+    this.pageSize,
   );
 
   protected readonly isEmpty = computed(
@@ -85,9 +88,5 @@ export class ScheduleTableComponent {
 
   protected onPageChange(page: number): void {
     this.pageChange.emit(page);
-  }
-
-  protected get pageSize(): number {
-    return DEFAULT_LIST_PAGE_SIZE;
   }
 }

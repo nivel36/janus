@@ -8,7 +8,6 @@ import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
-import { DEFAULT_LIST_PAGE_SIZE } from '../../../../shared/utils/list-query-params.util';
 import { TimeLog } from '../../models/timelog';
 import { TimeLogPage, TimeLogService } from '../../services/timelog-api.service';
 import { TimelogTableComponent } from './timelog-table.component';
@@ -53,24 +52,26 @@ describe('TimelogTableComponent', () => {
     TestBed.tick();
   });
 
-  it('returns from an empty page to the last valid page when the total shrinks', async () => {
-    pages[0].next(pageWith([timelog('2026-09-01T08:00:00Z')], 11, 0));
+  it.each([5, 10])('returns to the last valid page when the total shrinks (size %s)', async (size) => {
+    fixture.componentRef.setInput('pageSize', size);
+    await settleEffects();
+    pages[0].next(pageWith([timelog('2026-09-01T08:00:00Z')], size * 2 + 1, 0));
     pages[0].complete();
     await settleEffects();
 
     pageControls().onPageChange(3);
     await settleEffects();
-    expect(search).toHaveBeenLastCalledWith(2, DEFAULT_LIST_PAGE_SIZE);
+    expect(search).toHaveBeenLastCalledWith(2, size);
 
-    pages[2].next(pageWith([], 6, 2));
+    pages[2].next(pageWith([], size + 1, 2));
     pages[2].complete();
     await settleEffects();
 
     expect(pageControls().currentPage()).toBe(2);
-    expect(search).toHaveBeenLastCalledWith(1, DEFAULT_LIST_PAGE_SIZE);
+    expect(search).toHaveBeenLastCalledWith(1, size);
 
     const lastValidTimelog = timelog('2026-09-02T08:00:00Z');
-    pages[1].next(pageWith([lastValidTimelog], 6, 1));
+    pages[1].next(pageWith([lastValidTimelog], size + 1, 1));
     pages[1].complete();
     await settleEffects();
 
@@ -127,8 +128,8 @@ describe('TimelogTableComponent', () => {
       items,
       totalItems,
       page,
-      pageSize: DEFAULT_LIST_PAGE_SIZE,
-      totalPages: Math.ceil(totalItems / DEFAULT_LIST_PAGE_SIZE),
+      pageSize: component.pageSize(),
+      totalPages: Math.ceil(totalItems / component.pageSize()),
     };
   }
 
