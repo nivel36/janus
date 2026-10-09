@@ -51,6 +51,17 @@
     "missingAccessibleNameWarning": "AutocompleteTextboxComponent ha de rebre ariaLabel o ariaLabelledBy per tenir un nom accessible."
   },
   "timelog": {
+    "search": {
+      "title": "Search time logs",
+      "to": "To",
+      "submit": "Search",
+      "errors": {
+        "bothRequired": "Enter both dates or leave both empty.",
+        "order": "From must be on or before To.",
+        "invalid": "The date range is invalid."
+      },
+      "from": "From"
+    },
     "employeeName": "Employee name",
     "worksiteName": "Worksite name",
     "activeWorkday": "Active Workday",

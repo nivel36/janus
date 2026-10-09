@@ -1,0 +1,18 @@
+<app-card [title]="'timelog.search.title' | translate">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="timelog-search__fields">
+      <app-field [controlId]="fromId" [label]="'timelog.search.from' | translate" [invalid]="!!errorKey()">
+        <app-input type="date" [inputId]="fromId" formControlName="from"
+          [ariaInvalid]="!!errorKey()" [ariaDescribedBy]="errorKey() ? errorId : null" />
+      </app-field>
+      <app-field [controlId]="toId" [label]="'timelog.search.to' | translate" [invalid]="!!errorKey()">
+        <app-input type="date" [inputId]="toId" formControlName="to"
+          [ariaInvalid]="!!errorKey()" [ariaDescribedBy]="errorKey() ? errorId : null" />
+      </app-field>
+      <app-button type="submit" variant="main">{{ 'timelog.search.submit' | translate }}</app-button>
+    </div>
+    @if (errorKey()) {
+      <p class="timelog-search__error" [id]="errorId" role="alert">{{ errorKey() | translate }}</p>
+    }
+  </form>
+</app-card>

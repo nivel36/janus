@@ -5,7 +5,7 @@ import {
   computed,
   inject,
   input,
-  signal,
+  linkedSignal,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 
@@ -24,6 +24,7 @@ import {
   emptyListPage,
   synchronizeListPage,
 } from '../../../../shared/utils/list-query-params.util';
+import { TimelogSearchRange } from '../../models/timelog-search-range';
 import { TimeLog } from '../../models/timelog';
 
 import {
@@ -54,6 +55,8 @@ export class TimelogTableComponent {
   private readonly currentUser = inject(CurrentUserFacade);
 
   readonly refreshToken = input(0);
+  readonly searchRange = input<TimelogSearchRange>();
+  readonly searchToken = input(0);
   readonly pageSize = input(DEFAULT_LIST_PAGE_SIZE);
   readonly showEmployeeName = input(false);
   readonly showWorksiteName = input(false);
@@ -73,19 +76,24 @@ export class TimelogTableComponent {
   /**
    * Current visible page in the UI (1-based).
    */
-  protected readonly currentPage = signal(DEFAULT_LIST_PAGE);
+  protected readonly currentPage = linkedSignal({
+    source: () => ({ range: this.searchRange(), token: this.searchToken() }),
+    computation: () => DEFAULT_LIST_PAGE,
+  });
 
   protected readonly timelogsResource = rxResource<
     TimeLogPage,
-    { refreshToken: number; page: number; pageSize: number }
+    { refreshToken: number; searchToken: number; range: TimelogSearchRange | undefined; page: number; pageSize: number }
   >({
     params: () => ({
       refreshToken: this.refreshToken(),
+      searchToken: this.searchToken(),
+      range: this.searchRange(),
       page: this.currentPage(),
       pageSize: this.pageSize(),
     }),
     stream: ({ params }) =>
-      this.timeLogService.search(params.page - DEFAULT_LIST_PAGE, params.pageSize),
+      this.timeLogService.search(params.page - DEFAULT_LIST_PAGE, params.pageSize, params.range),
     defaultValue: emptyListPage<TimeLog>(),
   });
 

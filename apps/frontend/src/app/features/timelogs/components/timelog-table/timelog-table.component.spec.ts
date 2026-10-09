@@ -61,14 +61,14 @@ describe('TimelogTableComponent', () => {
 
     pageControls().onPageChange(3);
     await settleEffects();
-    expect(search).toHaveBeenLastCalledWith(2, size);
+    expect(search).toHaveBeenLastCalledWith(2, size, undefined);
 
     pages[2].next(pageWith([], size + 1, 2));
     pages[2].complete();
     await settleEffects();
 
     expect(pageControls().currentPage()).toBe(2);
-    expect(search).toHaveBeenLastCalledWith(1, size);
+    expect(search).toHaveBeenLastCalledWith(1, size, undefined);
 
     const lastValidTimelog = timelog('2026-09-02T08:00:00Z');
     pages[1].next(pageWith([lastValidTimelog], size + 1, 1));
@@ -77,6 +77,30 @@ describe('TimelogTableComponent', () => {
 
     expect(pageControls().currentPage()).toBe(2);
     expect(pageControls().timelogs()).toEqual([lastValidTimelog]);
+  });
+
+  it('resets pagination and retains the search interval', async () => {
+    pages[0].next(pageWith([], 30, 0));
+    await settleEffects();
+    pageControls().onPageChange(3);
+    await settleEffects();
+    const range = { start: '2026-10-01T00:00:00Z', end: '2026-10-03T00:00:00Z' };
+    fixture.componentRef.setInput('searchRange', range);
+    fixture.componentRef.setInput('searchToken', 1);
+    await settleEffects();
+    expect(pageControls().currentPage()).toBe(1);
+    expect(search).toHaveBeenLastCalledWith(0, component.pageSize(), range);
+    pages[0].next(pageWith([], 30, 0));
+    await settleEffects();
+    pageControls().onPageChange(2);
+    await settleEffects();
+    expect(search).toHaveBeenLastCalledWith(1, component.pageSize(), range);
+    fixture.componentRef.setInput('searchToken', 2);
+    await settleEffects();
+    expect(pageControls().currentPage()).toBe(1);
+    fixture.componentRef.setInput('searchRange', undefined);
+    await settleEffects();
+    expect(search).toHaveBeenLastCalledWith(0, component.pageSize(), undefined);
   });
 
   it.each([

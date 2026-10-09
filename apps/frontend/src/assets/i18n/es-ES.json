@@ -51,6 +51,17 @@
     "missingAccessibleNameWarning": "AutocompleteTextboxComponent debe recibir ariaLabel o ariaLabelledBy para tener un nombre accesible."
   },
   "timelog": {
+    "search": {
+      "title": "Buscar fichajes",
+      "to": "Hasta",
+      "submit": "Buscar",
+      "errors": {
+        "bothRequired": "Indica ambas fechas o deja las dos vacías.",
+        "order": "La fecha Desde debe ser anterior o igual a Hasta.",
+        "invalid": "El intervalo de fechas no es válido."
+      },
+      "from": "Desde"
+    },
     "employeeName": "Nombre del empleado",
     "worksiteName": "Nombre del puesto de trabajo",
     "activeWorkday": "Jornada en curso",

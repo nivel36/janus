@@ -20,8 +20,8 @@ import es.nivel36.janus.validation.EmployeeNumber;
  * @param start          the optional inclusive entry-time bound
  * @param end            the optional exclusive entry-time bound
  */
-public record TimeLogSearchCriteria(@EmployeeNumber
-String employeeNumber,
+public record TimeLogSearchCriteria(
+		@EmployeeNumber String employeeNumber,
 
 		Instant start,
 

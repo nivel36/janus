@@ -51,6 +51,17 @@
     "missingAccessibleNameWarning": "AutocompleteTextboxComponent ha de rebre ariaLabel o ariaLabelledBy per tenir un nom accessible."
   },
   "timelog": {
+    "search": {
+      "title": "Cercar fitxatges",
+      "to": "Fins a",
+      "submit": "Cercar",
+      "errors": {
+        "bothRequired": "Indica totes dues dates o deixa-les buides.",
+        "order": "La data inicial ha de ser anterior o igual a la final.",
+        "invalid": "L’interval de dates no és vàlid."
+      },
+      "from": "Des de"
+    },
     "employeeName": "Nom de l'empleat",
     "worksiteName": "Nom del lloc de treball",
     "activeWorkday": "Jornada en curs",

@@ -1,0 +1,17 @@
+.timelog-search__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--panel-gap);
+}
+
+.timelog-search__error {
+  margin-top: var(--panel-gap);
+  color: var(--form-error-text-color);
+}
+
+@media (max-width: 640px) {
+  .timelog-search__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

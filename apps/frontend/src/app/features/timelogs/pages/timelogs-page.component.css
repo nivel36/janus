@@ -1,5 +1,6 @@
 .timelogs-page__content {
     display: grid;
+    gap: var(--panel-gap);
     grid-template-columns: minmax(0, 1fr);
     min-width: 0;
 }
