@@ -12,12 +12,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
 
+import { WorksiteFormComponent } from '../../components/worksite-form/worksite-form.component';
 import { WorksiteApiService } from '../../services/worksite-api.service';
 import { WorksiteEditPageComponent } from './worksite-edit-page.component';
 import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
 
 describe('WorksiteEditPageComponent', () => {
-  let component: WorksiteEditPageComponent;
   let fixture: ComponentFixture<WorksiteEditPageComponent>;
   let worksiteApiService: {
     findByCode: ReturnType<typeof vi.fn>;
@@ -62,11 +62,14 @@ describe('WorksiteEditPageComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(WorksiteEditPageComponent);
-    component = fixture.componentInstance;
     fixture.componentRef.setInput('code', 'BCN-HQ');
     fixture.detectChanges();
     await fixture.whenStable();
   });
+
+  function formComponent(): WorksiteFormComponent {
+    return fixture.debugElement.query(By.directive(WorksiteFormComponent)).componentInstance;
+  }
 
   it('loads the worksite and keeps the code field immutable', async () => {
     await fixture.whenStable();
@@ -75,8 +78,8 @@ describe('WorksiteEditPageComponent', () => {
       'BCN-HQ',
       ACTIVE_SCREEN_HTTP_RETRY_POLICY,
     );
-    expect(component.form.controls.code.disabled).toBe(true);
-    expect(component.form.getRawValue().code).toBe('BCN-HQ');
+    expect(formComponent().form.controls.code.disabled).toBe(true);
+    expect(formComponent().form.getRawValue().code).toBe('BCN-HQ');
   });
 
   it('updates editable fields without sending a new code', () => {
@@ -93,7 +96,7 @@ describe('WorksiteEditPageComponent', () => {
       }),
     );
 
-    component.form.patchValue({
+    formComponent().form.patchValue({
       code: 'MAD-HUB',
       name: ' Barcelona HQ ',
       scope: 'ASSIGNED',
@@ -116,7 +119,7 @@ describe('WorksiteEditPageComponent', () => {
   it('updates save feedback after an asynchronous RxJS callback without manual detection', async () => {
     const update = new Subject<never>();
     worksiteApiService.update.mockReturnValue(update);
-    component.form.patchValue({ name: 'Barcelona HQ' });
+    formComponent().form.patchValue({ name: 'Barcelona HQ' });
 
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     update.error(new Error('request failed'));
@@ -168,7 +171,7 @@ describe('WorksiteEditPageComponent', () => {
 
     expect(lateUpdate.observed).toBe(false);
     lateUpdate.error(new Error('late update failure'));
-    expect(component.errorMessage()).not.toBe('worksite.errors.update');
+    expect(fixture.componentInstance.errorMessage()).not.toBe('worksite.errors.update');
 
     secondLoad.next({
       code: 'MAD-HUB',
@@ -184,7 +187,7 @@ describe('WorksiteEditPageComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(component.form.getRawValue()).toEqual({
+    expect(formComponent().form.getRawValue()).toEqual({
       code: 'MAD-HUB',
       name: 'Madrid Hub',
       timeZone: 'Europe/Madrid',
@@ -204,6 +207,15 @@ describe('WorksiteEditPageComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('worksite.detailLoadError');
+    expect(formComponent().form.controls.code.disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
+    fixture.nativeElement.querySelector('form').dispatchEvent(
+      new Event('submit', { bubbles: true, cancelable: true }),
+    );
+    expect(worksiteApiService.update).not.toHaveBeenCalled();
+
+    fixture.nativeElement.querySelector('.app-form-actions button[type="button"]').click();
+    expect(router.navigate).toHaveBeenCalledWith(['/worksites', 'MISSING']);
   });
 
   it('cancels the previous load and updates only the worksite for the latest route code', async () => {
@@ -277,7 +289,7 @@ describe('WorksiteEditPageComponent', () => {
       'SECOND',
       ACTIVE_SCREEN_HTTP_RETRY_POLICY,
     );
-    expect(component.form.getRawValue().code).toBe('SECOND');
+    expect(formComponent().form.getRawValue().code).toBe('SECOND');
     expect(worksiteApiService.update).toHaveBeenCalledTimes(1);
     expect(worksiteApiService.update).toHaveBeenCalledWith('SECOND', {
       name: 'Second worksite',

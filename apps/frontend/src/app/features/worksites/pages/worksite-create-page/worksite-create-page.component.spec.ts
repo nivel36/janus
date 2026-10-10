@@ -13,11 +13,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Keycloak from 'keycloak-js';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
 
+import { WorksiteFormComponent } from '../../components/worksite-form/worksite-form.component';
 import { WorksiteApiService } from '../../services/worksite-api.service';
 import { WorksiteCreatePageComponent } from './worksite-create-page.component';
 
 describe('WorksiteCreatePageComponent', () => {
-  let component: WorksiteCreatePageComponent;
   let fixture: ComponentFixture<WorksiteCreatePageComponent>;
   let worksiteApiService: {
     findByCode: ReturnType<typeof vi.fn>;
@@ -45,10 +45,13 @@ describe('WorksiteCreatePageComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(WorksiteCreatePageComponent);
-    component = fixture.componentInstance;
     vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     fixture.detectChanges();
   });
+
+  function formComponent(): WorksiteFormComponent {
+    return fixture.debugElement.query(By.directive(WorksiteFormComponent)).componentInstance;
+  }
 
   it('checks the code when the field loses focus', async () => {
     worksiteApiService.findByCode.mockReturnValue(
@@ -72,17 +75,17 @@ describe('WorksiteCreatePageComponent', () => {
     fixture.detectChanges();
 
     expect(worksiteApiService.findByCode).toHaveBeenCalledWith('BCN-HQ');
-    expect(component.form.controls.code.hasError('duplicatedCode')).toBe(true);
+    expect(formComponent().form.controls.code.hasError('duplicatedCode')).toBe(true);
     expect(fixture.nativeElement.textContent).toContain('worksite.errors.duplicatedCode');
   });
 
   it('does not call the backend when the code format is invalid', async () => {
-    component.form.controls.code.setValue('BAD CODE');
+    formComponent().form.controls.code.setValue('BAD CODE');
 
     await fixture.whenStable();
 
     expect(worksiteApiService.findByCode).not.toHaveBeenCalled();
-    expect(component.form.controls.code.hasError('pattern')).toBe(true);
+    expect(formComponent().form.controls.code.hasError('pattern')).toBe(true);
   });
 
   it('leaves the code valid when the backend returns not found', async () => {
@@ -90,19 +93,19 @@ describe('WorksiteCreatePageComponent', () => {
       throwError(() => new HttpErrorResponse({ status: 404 })),
     );
 
-    component.form.controls.code.setValue('MAD-HUB');
+    formComponent().form.controls.code.setValue('MAD-HUB');
 
     await fixture.whenStable();
 
     expect(worksiteApiService.findByCode).toHaveBeenCalledWith('MAD-HUB');
-    expect(component.form.controls.code.errors).toBeNull();
+    expect(formComponent().form.controls.code.errors).toBeNull();
   });
 
   it('does not save while the code check is pending', () => {
     const codeLookup = new Subject<never>();
     worksiteApiService.findByCode.mockReturnValue(codeLookup.asObservable());
 
-    component.form.setValue({
+    formComponent().form.setValue({
       code: 'MAD-HUB',
       name: 'Madrid Hub',
       timeZone: 'Europe/Madrid',
@@ -113,7 +116,7 @@ describe('WorksiteCreatePageComponent', () => {
 
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
-    expect(component.form.pending).toBe(true);
+    expect(formComponent().form.pending).toBe(true);
     expect(worksiteApiService.create).not.toHaveBeenCalled();
   });
 
@@ -121,7 +124,7 @@ describe('WorksiteCreatePageComponent', () => {
     const codeLookup = new Subject<never>();
     worksiteApiService.findByCode.mockReturnValue(codeLookup.asObservable());
 
-    component.form.setValue({
+    formComponent().form.setValue({
       code: 'MAD-HUB',
       name: 'Madrid Hub',
       timeZone: 'Europe/Madrid',
@@ -139,7 +142,7 @@ describe('WorksiteCreatePageComponent', () => {
     codeLookup.error(new HttpErrorResponse({ status: 404 }));
     await fixture.whenStable();
 
-    expect(component.form.valid).toBe(true);
+    expect(formComponent().form.valid).toBe(true);
     expect(saveButton.disabled).toBe(false);
   });
 
@@ -160,7 +163,7 @@ describe('WorksiteCreatePageComponent', () => {
       }),
     );
 
-    component.form.setValue({
+    formComponent().form.setValue({
       code: 'MAD-HUB',
       name: 'Madrid Hub',
       timeZone: 'Europe/Madrid',
@@ -181,6 +184,7 @@ describe('WorksiteCreatePageComponent', () => {
       description: 'Main office',
       address: 'Calle Mayor 1',
     });
+    expect(TestBed.inject(Router).navigate).toHaveBeenCalledWith(['/worksites']);
   });
 
   it('updates save feedback after an asynchronous RxJS callback without manual detection', async () => {
@@ -189,7 +193,7 @@ describe('WorksiteCreatePageComponent', () => {
     );
     const create = new Subject<never>();
     worksiteApiService.create.mockReturnValue(create);
-    component.form.setValue({
+    formComponent().form.setValue({
       code: 'MAD-HUB',
       name: 'Madrid Hub',
       timeZone: 'Europe/Madrid',
