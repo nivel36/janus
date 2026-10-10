@@ -82,12 +82,14 @@
     "clockActionWorksiteUnavailable": "No tienes un único puesto de trabajo asignado para fichar."
   },
   "employee": {
+    "edit": "Editar empleado",
     "new": "Nuevo empleado",
     "scheduleHint": "Busca un horario por código o nombre (al menos 3 caracteres).",
     "messages": {
       "numberChecking": "Comprobando número de empleado…"
     },
     "errors": {
+      "update": "No se pudo actualizar el empleado. Inténtalo de nuevo.",
       "invalidNumber": "El número debe tener entre 1 y 50 letras, números, guiones o guiones bajos.",
       "duplicatedNumber": "Ya existe un empleado con este número.",
       "numberLookupFailed": "No se pudo comprobar el número de empleado. Inténtalo de nuevo.",

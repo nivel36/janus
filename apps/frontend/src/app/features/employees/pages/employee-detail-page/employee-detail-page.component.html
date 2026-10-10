@@ -34,6 +34,11 @@
       <app-button variant="secondary" routerLink="/employees">
         {{ 'actions.back' | translate }}
       </app-button>
+      @if (!employeeResource.isLoading() && employee(); as employee) {
+        <app-button variant="main" [routerLink]="['/employees', employee.employeeNumber, 'edit']">
+          {{ 'actions.edit' | translate }}
+        </app-button>
+      }
     </div>
   </section>
 </app-page-template>

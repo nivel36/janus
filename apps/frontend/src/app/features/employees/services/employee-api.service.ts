@@ -8,6 +8,7 @@ import { map, Observable } from 'rxjs';
 import { EmployeesService } from '../../../client/api/employees.service';
 import { CreateEmployeeRequest } from '../../../client/model/createEmployeeRequest';
 import { EmployeeResponse } from '../../../client/model/employeeResponse';
+import { UpdateEmployeeRequest } from '../../../client/model/updateEmployeeRequest';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
   HTTP_RETRY_POLICY,
@@ -32,6 +33,10 @@ export class EmployeeApiService {
 
   create(payload: CreateEmployeeRequest): Observable<EmployeeResponse> {
     return this.api.createEmployee(payload);
+  }
+
+  update(employeeNumber: string, payload: UpdateEmployeeRequest): Observable<EmployeeResponse> {
+    return this.api.updateEmployee(employeeNumber, payload);
   }
 
   search(page = 0, size = 5, query = ''): Observable<EmployeePage> {

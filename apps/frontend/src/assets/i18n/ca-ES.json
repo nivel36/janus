@@ -82,12 +82,14 @@
     "clockActionWorksiteUnavailable": "No tens un únic lloc de treball assignat per fitxar."
   },
   "employee": {
+    "edit": "Editar empleat",
     "new": "Nou empleat",
     "scheduleHint": "Cerca un horari per codi o nom (almenys 3 caràcters).",
     "messages": {
       "numberChecking": "Comprovant el número d’empleat…"
     },
     "errors": {
+      "update": "No s’ha pogut actualitzar l’empleat. Torna-ho a provar.",
       "invalidNumber": "El número ha de tenir entre 1 i 50 lletres, números, guions o guions baixos.",
       "duplicatedNumber": "Ja existeix un empleat amb aquest número.",
       "numberLookupFailed": "No s’ha pogut comprovar el número d’empleat. Torna-ho a provar.",

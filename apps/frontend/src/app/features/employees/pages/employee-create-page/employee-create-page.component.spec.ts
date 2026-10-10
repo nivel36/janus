@@ -15,6 +15,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { CurrentUserFacade } from '../../../../core/user/services/current-user.facade';
 import { ScheduleApiService } from '../../../schedules/services/schedule-api.service';
+import { EmployeeFormComponent } from '../../components/employee-form/employee-form.component';
 import { EmployeeApiService } from '../../services/employee-api.service';
 import { EmployeeCreatePageComponent } from './employee-create-page.component';
 
@@ -25,7 +26,6 @@ const validForm = {
 
 describe('EmployeeCreatePageComponent', () => {
   let fixture: ComponentFixture<EmployeeCreatePageComponent>;
-  let component: EmployeeCreatePageComponent;
   const employeeApi = { findByEmployeeNumber: vi.fn(), create: vi.fn() };
   const scheduleApi = { search: vi.fn() };
 
@@ -47,10 +47,13 @@ describe('EmployeeCreatePageComponent', () => {
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(EmployeeCreatePageComponent);
-    component = fixture.componentInstance;
     vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     fixture.detectChanges();
   });
+
+  function employeeForm(): EmployeeFormComponent {
+    return fixture.debugElement.query(By.directive(EmployeeFormComponent)).componentInstance;
+  }
 
   it('checks duplicate numbers on blur and blocks saving', async () => {
     employeeApi.findByEmployeeNumber.mockReturnValue(of({ employeeNumber: 'EMP-1' }));
@@ -68,11 +71,11 @@ describe('EmployeeCreatePageComponent', () => {
 
   it('validates required fields, identifier format, names and email before saving', () => {
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    expect(component.form.controls.schedule.touched).toBe(true);
-    component.form.patchValue({ employeeNumber: 'BAD NUMBER', name: '   ', surname: '123', email: 'bad-email' });
+    expect(employeeForm().form.controls.schedule.touched).toBe(true);
+    employeeForm().form.patchValue({ employeeNumber: 'BAD NUMBER', name: '   ', surname: '123', email: 'bad-email' });
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(employeeApi.findByEmployeeNumber).not.toHaveBeenCalled();
-    for (const control of Object.values(component.form.controls)) {
+    for (const control of Object.values(employeeForm().form.controls)) {
       expect(control.invalid).toBe(true);
     }
     expect(employeeApi.create).not.toHaveBeenCalled();
@@ -81,19 +84,19 @@ describe('EmployeeCreatePageComponent', () => {
   it('blocks saving while number validation is pending or fails', async () => {
     const lookup = new Subject<never>();
     employeeApi.findByEmployeeNumber.mockReturnValue(lookup);
-    component.form.setValue(validForm);
+    employeeForm().form.setValue(validForm);
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    expect(component.form.pending).toBe(true);
+    expect(employeeForm().form.pending).toBe(true);
     expect(employeeApi.create).not.toHaveBeenCalled();
     lookup.error(new HttpErrorResponse({ status: 500 }));
     await fixture.whenStable();
-    expect(component.form.controls.employeeNumber.hasError('numberLookupFailed')).toBe(true);
+    expect(employeeForm().form.controls.employeeNumber.hasError('numberLookupFailed')).toBe(true);
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(employeeApi.create).not.toHaveBeenCalled();
   });
 
   it('searches schedules, selects one and submits its code with trimmed names', async () => {
-    component.form.setValue({ ...validForm, schedule: null });
+    employeeForm().form.setValue({ ...validForm, schedule: null });
     const input = fixture.nativeElement.querySelector('#employee-schedule') as HTMLInputElement;
     input.value = 'Day';
     input.dispatchEvent(new Event('input'));
@@ -103,7 +106,7 @@ describe('EmployeeCreatePageComponent', () => {
     expect(option.textContent).toContain('Day shift (DAY)');
     option.click();
     await fixture.whenStable();
-    expect(component.form.controls.schedule.value).toEqual(schedule);
+    expect(employeeForm().form.controls.schedule.value).toEqual(schedule);
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(employeeApi.create).toHaveBeenCalledWith({
       employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', scheduleCode: 'DAY',
@@ -114,7 +117,7 @@ describe('EmployeeCreatePageComponent', () => {
   it.each([500, 409])('shows save errors (%s), preserves data and allows retry', async (status) => {
     const response = new Subject<never>();
     employeeApi.create.mockReturnValue(response);
-    component.form.setValue(validForm);
+    employeeForm().form.setValue(validForm);
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(employeeApi.create).toHaveBeenCalledTimes(1);
@@ -122,7 +125,7 @@ describe('EmployeeCreatePageComponent', () => {
     response.error(new HttpErrorResponse({ status }));
     await fixture.whenStable();
     expect(fixture.debugElement.query(By.directive(FormComponent)).componentInstance.saving()).toBe(false);
-    expect(component.form.getRawValue()).toEqual(validForm);
+    expect(employeeForm().form.getRawValue()).toEqual(validForm);
     expect(fixture.nativeElement.textContent).toContain(
       status === 409 ? 'employee.errors.conflict' : 'employee.errors.create',
     );

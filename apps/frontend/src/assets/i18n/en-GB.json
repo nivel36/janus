@@ -82,12 +82,14 @@
     "clockActionWorksiteUnavailable": "You do not have exactly one assigned worksite for clocking."
   },
   "employee": {
+    "edit": "Edit employee",
     "new": "New employee",
     "scheduleHint": "Search for a schedule by code or name (at least 3 characters).",
     "messages": {
       "numberChecking": "Checking employee number…"
     },
     "errors": {
+      "update": "Could not update the employee. Please try again.",
       "invalidNumber": "Use 1 to 50 letters, digits, hyphens or underscores.",
       "duplicatedNumber": "An employee with this number already exists.",
       "numberLookupFailed": "Could not check the employee number. Please try again.",

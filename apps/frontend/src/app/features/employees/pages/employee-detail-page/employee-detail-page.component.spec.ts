@@ -72,6 +72,7 @@ describe('EmployeeDetailPageComponent', () => {
     await settle();
     expect(findByEmployeeNumber).toHaveBeenCalledWith('EMP-1');
     expect(fixture.nativeElement.textContent).toContain('employee.detailLoading');
+    expect(fixture.nativeElement.querySelector('a[href="/employees/EMP-1/edit"]')).toBeNull();
     response.next(employee);
     response.complete();
     await settle();
@@ -81,6 +82,12 @@ describe('EmployeeDetailPageComponent', () => {
     expect(header.textContent).toContain('EMP-1');
     expect(header.querySelector(':scope > a[href="mailto:abel@example.com"]').textContent.trim()).toBe('abel@example.com');
     expect(fixture.nativeElement.querySelector('app-button a').getAttribute('href')).toBe('/employees');
+    const editLink = fixture.nativeElement.querySelector('a[href="/employees/EMP-1/edit"]') as HTMLAnchorElement;
+    expect(editLink.textContent).toContain('actions.edit');
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    editLink.click();
+    expect(navigate).toHaveBeenCalled();
+    expect(navigate.mock.calls[0][0].toString()).toBe('/employees/EMP-1/edit');
   });
 
   it('shows an error, keeps back navigation available and recovers after retry', async () => {
@@ -88,6 +95,7 @@ describe('EmployeeDetailPageComponent', () => {
     response.error(new Error('Employee unavailable'));
     await settle();
     expect(fixture.nativeElement.textContent).toContain('employee.detailLoadError');
+    expect(fixture.nativeElement.querySelector('a[href="/employees/EMP-1/edit"]')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-card')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-button a').getAttribute('href')).toBe('/employees');
 

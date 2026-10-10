@@ -38,6 +38,18 @@ describe('EmployeeApiService', () => {
     expect(result).toEqual(employee);
   });
 
+  it('updates the employee by number without sending the identifier in the payload', () => {
+    const payload = { name: 'Marta', surname: 'Ferrer', email: 'marta@example.com', scheduleCode: 'DAY' };
+    const employee = { ...payload, employeeNumber: 'EMP-1', schedule: { code: 'DAY', name: 'Day shift' } };
+    let result: unknown;
+    service.update('EMP-1', payload).subscribe((value) => result = value);
+    const request = http.expectOne((r) => r.url.endsWith('/employees/EMP-1'));
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(payload);
+    request.flush(employee);
+    expect(result).toEqual(employee);
+  });
+
   it('sends normalized search and pagination and maps the response', () => {
     let result: unknown;
     service.search(1, 5, '  Abel  ').subscribe((value) => result = value);

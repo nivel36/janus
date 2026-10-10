@@ -1,0 +1,34 @@
+<app-page-template appNameKey="navigation.janus" pageNameKey="employee.edit">
+  <div pageContent class="app-page-content">
+    <section class="app-card">
+      <div class="app-card__body">
+        <app-async-state
+          [loading]="employeeResource.isLoading()"
+          [error]="employeeResource.error() !== undefined"
+        >
+          <ng-template appAsyncLoading>{{ 'employee.detailLoading' | translate }}</ng-template>
+          <ng-template appAsyncError>
+            {{ 'employee.detailLoadError' | translate }}
+            <app-button variant="secondary" (clicked)="employeeResource.reload()">
+              {{ 'actions.retry' | translate }}
+            </app-button>
+          </ng-template>
+        </app-async-state>
+
+        @if (!employeeResource.isLoading() && employee()) {
+          <app-employee-form
+            [employee]="employee()"
+            [save]="save"
+            [saveErrorKey]="saveErrorKey"
+            [cancelLink]="['/employees', employeeNumber()]"
+            (saved)="onSaved($event)"
+          />
+        } @else {
+          <app-button variant="secondary" [routerLink]="['/employees', employeeNumber()]">
+            {{ 'actions.cancel' | translate }}
+          </app-button>
+        }
+      </div>
+    </section>
+  </div>
+</app-page-template>
