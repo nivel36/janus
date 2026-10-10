@@ -18,6 +18,15 @@ describe('EmployeeApiService', () => {
   });
   afterEach(() => http.verify());
 
+  it('posts employee creation data to the API', () => {
+    const payload = { employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', scheduleCode: 'DAY' };
+    service.create(payload).subscribe();
+    const request = http.expectOne((r) => r.url.endsWith('/employees'));
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(payload);
+    request.flush({ ...payload, schedule: { code: 'DAY', name: 'Day shift' } });
+  });
+
   it('loads an employee by number with the active screen retry policy', () => {
     const employee = { employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', schedule: { code: 'DAY', name: 'Day shift' } };
     let result: unknown;

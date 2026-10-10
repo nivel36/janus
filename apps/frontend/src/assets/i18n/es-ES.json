@@ -81,6 +81,22 @@
     "clockActionWorksiteUnavailable": "No tienes un único puesto de trabajo asignado para fichar."
   },
   "employee": {
+    "new": "Nuevo empleado",
+    "scheduleHint": "Busca un horario por código o nombre (al menos 3 caracteres).",
+    "messages": {
+      "numberChecking": "Comprobando número de empleado…"
+    },
+    "errors": {
+      "invalidNumber": "El número debe tener entre 1 y 50 letras, números, guiones o guiones bajos.",
+      "duplicatedNumber": "Ya existe un empleado con este número.",
+      "numberLookupFailed": "No se pudo comprobar el número de empleado. Inténtalo de nuevo.",
+      "invalidName": "Introduce un nombre válido de hasta 255 caracteres.",
+      "invalidSurname": "Introduce unos apellidos válidos de hasta 255 caracteres.",
+      "invalidEmail": "Introduce un correo electrónico válido de hasta 254 caracteres.",
+      "invalidSchedule": "Selecciona un horario de la lista.",
+      "create": "No se pudo crear el empleado. Inténtalo de nuevo.",
+      "conflict": "Ya existe un empleado con este número o correo electrónico."
+    },
     "employee": "Empleado",
     "fullName": "Nombre completo",
     "location": "Lugar",

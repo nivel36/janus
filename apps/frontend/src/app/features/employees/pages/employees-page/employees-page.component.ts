@@ -3,6 +3,9 @@
  */
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { SearchBarComponent } from '../../../../shared/ui/search-bar/search-bar.component';
@@ -17,7 +20,7 @@ import {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-employees-page',
-  imports: [PageTemplateComponent, SearchBarComponent, EmployeeTableComponent],
+  imports: [ButtonComponent, TranslatePipe, PageTemplateComponent, SearchBarComponent, EmployeeTableComponent],
   templateUrl: './employees-page.component.html',
 })
 export class EmployeesPageComponent {

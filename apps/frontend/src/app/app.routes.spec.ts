@@ -33,6 +33,18 @@ describe('application routes', () => {
     expect(await route!.loadComponent!()).toBe(EmployeesPageComponent);
   });
 
+  it('loads employee creation before the employee detail route for users and administrators', async () => {
+    const children = appRoutes.find((route) => route.path === '')!.children!;
+    const index = children.findIndex((route) => route.path === 'employees/new');
+    expect(index).toBeGreaterThanOrEqual(0);
+    expect(index).toBeLessThan(children.findIndex((route) => route.path === 'employees/:employeeNumber'));
+    expect(children[index].data?.['clientRole']).toEqual([JANUS_CLIENT_ROLES.USER, JANUS_CLIENT_ROLES.ADMIN]);
+    const { EmployeeCreatePageComponent } = await import(
+      './features/employees/pages/employee-create-page/employee-create-page.component'
+    );
+    expect(await children[index].loadComponent!()).toBe(EmployeeCreatePageComponent);
+  });
+
   it('loads employee details for users and administrators', async () => {
     const route = appRoutes.find((route) => route.path === '')?.children?.find(
       (route) => route.path === 'employees/:employeeNumber',

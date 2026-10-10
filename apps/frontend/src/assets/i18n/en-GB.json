@@ -81,6 +81,22 @@
     "clockActionWorksiteUnavailable": "You do not have exactly one assigned worksite for clocking."
   },
   "employee": {
+    "new": "New employee",
+    "scheduleHint": "Search for a schedule by code or name (at least 3 characters).",
+    "messages": {
+      "numberChecking": "Checking employee number…"
+    },
+    "errors": {
+      "invalidNumber": "Use 1 to 50 letters, digits, hyphens or underscores.",
+      "duplicatedNumber": "An employee with this number already exists.",
+      "numberLookupFailed": "Could not check the employee number. Please try again.",
+      "invalidName": "Enter a valid first name of up to 255 characters.",
+      "invalidSurname": "Enter a valid surname of up to 255 characters.",
+      "invalidEmail": "Enter a valid email address of up to 254 characters.",
+      "invalidSchedule": "Select a schedule from the list.",
+      "create": "Could not create the employee. Please try again.",
+      "conflict": "An employee with this number or email address already exists."
+    },
     "employee": "Employee",
     "fullName": "Full Name",
     "location": "Location",

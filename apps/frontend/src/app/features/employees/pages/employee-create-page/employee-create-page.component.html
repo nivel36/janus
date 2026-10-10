@@ -1,0 +1,131 @@
+<app-page-template appNameKey="navigation.janus" pageNameKey="employee.new">
+  <div pageContent class="app-page-content">
+    <section class="app-card">
+      <div class="app-card__body">
+        <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
+          <app-field
+            controlId="employee-number"
+            [label]="'employee.employeeNumber' | translate"
+            [hint]="employeeNumberHintKey | translate"
+            [error]="fieldErrorKey('employeeNumber') | translate"
+            [invalid]="isInvalid('employeeNumber')"
+            [disabled]="form.controls.employeeNumber.disabled"
+            required
+          >
+            <app-input
+              inputId="employee-number"
+              formControlName="employeeNumber"
+              autocomplete="off"
+              ariaLabelledBy="employee-number-label"
+              [ariaDescribedBy]="fieldDescribedBy('employeeNumber')"
+              [ariaInvalid]="isInvalid('employeeNumber')"
+              [ariaErrorMessage]="fieldErrorId('employeeNumber')"
+              required
+            />
+          </app-field>
+
+          <app-field
+            controlId="employee-name"
+            [label]="'employee.name' | translate"
+            [error]="fieldErrorKey('name') | translate"
+            [invalid]="isInvalid('name')"
+            [disabled]="form.controls.name.disabled"
+            required
+          >
+            <app-input
+              inputId="employee-name"
+              formControlName="name"
+              autocomplete="given-name"
+              ariaLabelledBy="employee-name-label"
+              [ariaDescribedBy]="fieldDescribedBy('name')"
+              [ariaInvalid]="isInvalid('name')"
+              [ariaErrorMessage]="fieldErrorId('name')"
+              required
+            />
+          </app-field>
+
+          <app-field
+            controlId="employee-surname"
+            [label]="'employee.surname' | translate"
+            [error]="fieldErrorKey('surname') | translate"
+            [invalid]="isInvalid('surname')"
+            [disabled]="form.controls.surname.disabled"
+            required
+          >
+            <app-input
+              inputId="employee-surname"
+              formControlName="surname"
+              autocomplete="family-name"
+              ariaLabelledBy="employee-surname-label"
+              [ariaDescribedBy]="fieldDescribedBy('surname')"
+              [ariaInvalid]="isInvalid('surname')"
+              [ariaErrorMessage]="fieldErrorId('surname')"
+              required
+            />
+          </app-field>
+
+          <app-field
+            controlId="employee-email"
+            [label]="'employee.email' | translate"
+            [error]="fieldErrorKey('email') | translate"
+            [invalid]="isInvalid('email')"
+            [disabled]="form.controls.email.disabled"
+            required
+          >
+            <app-input
+              inputId="employee-email"
+              formControlName="email"
+              type="email"
+              autocomplete="email"
+              ariaLabelledBy="employee-email-label"
+              [ariaDescribedBy]="fieldDescribedBy('email')"
+              [ariaInvalid]="isInvalid('email')"
+              [ariaErrorMessage]="fieldErrorId('email')"
+              required
+            />
+          </app-field>
+
+          <app-field
+            controlId="employee-schedule"
+            [label]="'employee.schedule' | translate"
+            [error]="fieldErrorKey('schedule') | translate"
+            [invalid]="isInvalid('schedule')"
+            required
+          >
+            <app-autocomplete-textbox
+              appAutocompleteValueAccessor
+              inputId="employee-schedule"
+              formControlName="schedule"
+              [items]="scheduleSearch.items()"
+              [loading]="scheduleSearch.loading()"
+              [error]="scheduleSearch.error()"
+              [panelOpen]="scheduleSearch.panelOpen()"
+              (queryChange)="scheduleSearch.search($event)"
+              [displayWith]="displaySchedule"
+              [emptyHint]="'employee.scheduleHint' | translate"
+              ariaLabelledBy="employee-schedule-label"
+              [ariaDescribedBy]="fieldDescribedBy('schedule')"
+              [ariaInvalid]="isInvalid('schedule')"
+            />
+          </app-field>
+
+          @if (errorMessage()) {
+            <app-message type="error" presentation="inline">
+              {{ errorMessage() | translate }}
+            </app-message>
+          }
+
+          <div class="app-form-actions">
+            <app-button variant="secondary" routerLink="/employees">
+              {{ 'actions.cancel' | translate }}
+            </app-button>
+
+            <app-button type="submit" variant="main" [disabled]="saveDisabled()">
+              {{ 'actions.save' | translate }}
+            </app-button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+</app-page-template>

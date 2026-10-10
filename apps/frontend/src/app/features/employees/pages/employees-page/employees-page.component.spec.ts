@@ -51,6 +51,13 @@ describe('EmployeesPageComponent', () => {
     await harness.fixture.whenStable();
   }
 
+  it('offers a link to create a new employee', async () => {
+    await harness.navigateByUrl('/employees', EmployeesPageComponent);
+    const link = harness.routeNativeElement!.querySelector('a[href="/employees/new"]');
+    expect(link).not.toBeNull();
+    expect(link!.textContent).toContain('actions.new');
+  });
+
   it('restores query and page from the URL and requests the backend page', async () => {
     await harness.navigateByUrl('/employees?query=Abel&page=2', EmployeesPageComponent);
     await harness.fixture.whenStable();

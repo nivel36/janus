@@ -6,6 +6,7 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
 import { EmployeesService } from '../../../client/api/employees.service';
+import { CreateEmployeeRequest } from '../../../client/model/createEmployeeRequest';
 import { EmployeeResponse } from '../../../client/model/employeeResponse';
 import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
@@ -27,6 +28,10 @@ export class EmployeeApiService {
   findByEmployeeNumber(employeeNumber: string): Observable<EmployeeResponse> {
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
     return this.api.findEmployee(employeeNumber, 'body', false, { context });
+  }
+
+  create(payload: CreateEmployeeRequest): Observable<EmployeeResponse> {
+    return this.api.createEmployee(payload);
   }
 
   search(page = 0, size = 5, query = ''): Observable<EmployeePage> {

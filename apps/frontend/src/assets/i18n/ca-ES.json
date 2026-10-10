@@ -81,6 +81,22 @@
     "clockActionWorksiteUnavailable": "No tens un únic lloc de treball assignat per fitxar."
   },
   "employee": {
+    "new": "Nou empleat",
+    "scheduleHint": "Cerca un horari per codi o nom (almenys 3 caràcters).",
+    "messages": {
+      "numberChecking": "Comprovant el número d’empleat…"
+    },
+    "errors": {
+      "invalidNumber": "El número ha de tenir entre 1 i 50 lletres, números, guions o guions baixos.",
+      "duplicatedNumber": "Ja existeix un empleat amb aquest número.",
+      "numberLookupFailed": "No s’ha pogut comprovar el número d’empleat. Torna-ho a provar.",
+      "invalidName": "Introdueix un nom vàlid de fins a 255 caràcters.",
+      "invalidSurname": "Introdueix uns cognoms vàlids de fins a 255 caràcters.",
+      "invalidEmail": "Introdueix un correu electrònic vàlid de fins a 254 caràcters.",
+      "invalidSchedule": "Selecciona un horari de la llista.",
+      "create": "No s’ha pogut crear l’empleat. Torna-ho a provar.",
+      "conflict": "Ja existeix un empleat amb aquest número o correu electrònic."
+    },
     "employee": "Empleat",
     "fullName": "Nom complet",
     "location": "Lloc",

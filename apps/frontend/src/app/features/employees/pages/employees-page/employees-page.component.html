@@ -7,6 +7,9 @@
         helpTextKey="employee.search.helpText"
         (queryChange)="onQueryChange($event)"
       />
+      <app-button variant="main" routerLink="/employees/new">
+        {{ 'actions.new' | translate }}
+      </app-button>
     </div>
     <app-employee-table
       class="app-list-page__results"
