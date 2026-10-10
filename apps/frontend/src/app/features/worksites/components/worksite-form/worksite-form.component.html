@@ -1,0 +1,122 @@
+<app-form
+  [form]="form"
+  [save]="submit"
+  [saveErrorKey]="saveErrorKey()"
+  [errorKey]="errorKey()"
+  [disabled]="disabled()"
+  [cancelLink]="cancelLink()"
+  (saved)="saved.emit($event)"
+  (cancelled)="cancelled.emit()"
+>
+  <app-field
+    controlId="worksite-code"
+    [label]="'worksite.code' | translate"
+    [hint]="codeHintKey | translate"
+    [error]="fieldErrorKey('code') | translate"
+    [invalid]="isInvalid('code')"
+    [disabled]="form.controls.code.disabled"
+    [required]="!form.controls.code.disabled"
+  >
+    <app-input
+      inputId="worksite-code"
+      [formControl]="form.controls.code"
+      autocomplete="off"
+      ariaLabelledBy="worksite-code-label"
+      [ariaDescribedBy]="fieldDescribedBy('code')"
+      [ariaInvalid]="isInvalid('code')"
+      [ariaErrorMessage]="fieldErrorId('code')"
+      [required]="!form.controls.code.disabled"
+    />
+  </app-field>
+
+  <app-field
+    controlId="worksite-name"
+    [label]="'worksite.name' | translate"
+    [error]="fieldErrorKey('name') | translate"
+    [invalid]="isInvalid('name')"
+    [disabled]="form.controls.name.disabled"
+    required
+  >
+    <app-input
+      inputId="worksite-name"
+      [formControl]="form.controls.name"
+      autocomplete="off"
+      ariaLabelledBy="worksite-name-label"
+      [ariaDescribedBy]="fieldDescribedBy('name')"
+      [ariaInvalid]="isInvalid('name')"
+      [ariaErrorMessage]="fieldErrorId('name')"
+      required
+    />
+  </app-field>
+
+  <app-field controlId="worksite-scope" [label]="'worksite.scope' | translate" required>
+    <app-select
+      inputId="worksite-scope"
+      [formControl]="form.controls.scope"
+      [options]="scopeOptions"
+      required
+    />
+  </app-field>
+
+  <app-field
+    controlId="worksite-timezone"
+    [label]="'worksite.timeZone' | translate"
+    [error]="fieldErrorKey('timeZone') | translate"
+    [invalid]="isInvalid('timeZone')"
+    required
+  >
+    <app-autocomplete-textbox
+      appAutocompleteValueAccessor
+      inputId="worksite-timezone"
+      [formControl]="form.controls.timeZone"
+      [items]="timezoneSearch.items()"
+      [loading]="timezoneSearch.loading()"
+      [error]="timezoneSearch.error()"
+      [panelOpen]="timezoneSearch.panelOpen()"
+      (queryChange)="timezoneSearch.search($event)"
+      [displayWith]="timezoneCatalog.displayWith"
+      [valueWith]="timezoneCatalog.valueWith"
+      [resolveByValue]="timezoneCatalog.resolve"
+      [emptyHint]="'worksite.fields.timeZoneHint' | translate"
+      ariaLabelledBy="worksite-timezone-label"
+      [ariaDescribedBy]="fieldDescribedBy('timeZone')"
+      [ariaInvalid]="isInvalid('timeZone')"
+    />
+  </app-field>
+
+  <app-field
+    controlId="worksite-address"
+    [label]="'worksite.address' | translate"
+    [error]="fieldErrorKey('address') | translate"
+    [invalid]="isInvalid('address')"
+    [disabled]="form.controls.address.disabled"
+  >
+    <app-input
+      inputId="worksite-address"
+      [formControl]="form.controls.address"
+      autocomplete="street-address"
+      ariaLabelledBy="worksite-address-label"
+      [ariaDescribedBy]="fieldDescribedBy('address')"
+      [ariaInvalid]="isInvalid('address')"
+      [ariaErrorMessage]="fieldErrorId('address')"
+    />
+  </app-field>
+
+  <app-field
+    controlId="worksite-description"
+    [label]="'worksite.description' | translate"
+    [error]="fieldErrorKey('description') | translate"
+    [invalid]="isInvalid('description')"
+    [disabled]="form.controls.description.disabled"
+  >
+    <app-input
+      inputId="worksite-description"
+      [formControl]="form.controls.description"
+      autocomplete="off"
+      ariaLabelledBy="worksite-description-label"
+      [ariaDescribedBy]="fieldDescribedBy('description')"
+      [ariaInvalid]="isInvalid('description')"
+      [ariaErrorMessage]="fieldErrorId('description')"
+    />
+  </app-field>
+</app-form>
