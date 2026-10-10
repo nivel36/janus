@@ -35,11 +35,11 @@ describe('EmployeeTableComponent', () => {
   it('shows loading then renders all employee fields without row actions', async () => {
     await settle();
     expect(fixture.nativeElement.textContent).toContain('employee.loading');
-    response.next({ ...emptyPage(), totalItems: 1, totalPages: 1, items: [{ employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', scheduleCode: 'DAY' }] });
+    response.next({ ...emptyPage(), totalItems: 1, totalPages: 1, items: [{ employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', schedule: { code: 'DAY', name: 'Day shift' } }] });
     response.complete();
     await settle();
     const row = fixture.nativeElement.querySelector('tbody tr');
-    expect(Array.from(row.querySelectorAll('td'), (td: unknown) => (td as HTMLElement).textContent?.trim())).toEqual(['EMP-1', 'Abel', 'Ferrer', 'abel@example.com', 'DAY']);
+    expect(Array.from(row.querySelectorAll('td'), (td: unknown) => (td as HTMLElement).textContent?.trim())).toEqual(['EMP-1', 'Abel', 'Ferrer', 'abel@example.com', 'Day shift']);
     expect(row.hasAttribute('tabindex')).toBe(false);
   });
   it('distinguishes an empty list from an empty search', async () => {

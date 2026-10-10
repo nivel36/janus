@@ -8,6 +8,7 @@ export * from './createTimeLogRequest';
 export * from './createWorksiteRequest';
 export * from './employeePage';
 export * from './employeeResponse';
+export * from './employeeScheduleResponse';
 export * from './pageMetadata';
 export * from './schedulePage';
 export * from './scheduleResponse';

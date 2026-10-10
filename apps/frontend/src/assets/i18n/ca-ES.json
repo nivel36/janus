@@ -90,7 +90,7 @@
     "name": "Nom",
     "surname": "Cognoms",
     "email": "Correu electrònic",
-    "scheduleCode": "Codi d’horari",
+    "schedule": "Horari",
     "loading": "Carregant empleats...",
     "empty": "Encara no hi ha empleats disponibles.",
     "searchEmpty": "No hi ha empleats que coincideixin amb la cerca.",

@@ -48,7 +48,7 @@
             <th scope="col">{{ 'employee.name' | translate }}</th>
             <th scope="col">{{ 'employee.surname' | translate }}</th>
             <th scope="col">{{ 'employee.email' | translate }}</th>
-            <th scope="col">{{ 'employee.scheduleCode' | translate }}</th>
+            <th scope="col">{{ 'employee.schedule' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -58,7 +58,7 @@
               <td>{{ employee.name }}</td>
               <td>{{ employee.surname }}</td>
               <td>{{ employee.email }}</td>
-              <td>{{ employee.scheduleCode }}</td>
+              <td>{{ employee.schedule.name }}</td>
             </tr>
           }
         </tbody>

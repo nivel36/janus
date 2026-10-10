@@ -840,7 +840,7 @@ components:
       - name
       - surname
       - email
-      - scheduleCode
+      - schedule
       properties:
         employeeNumber:
           $ref: '#/components/schemas/EmployeeNumber'
@@ -851,8 +851,18 @@ components:
         email:
           type: string
           format: email
-        scheduleCode:
+        schedule:
+          $ref: '#/components/schemas/EmployeeScheduleResponse'
+    EmployeeScheduleResponse:
+      type: object
+      required:
+      - code
+      - name
+      properties:
+        code:
           $ref: '#/components/schemas/ScheduleCode'
+        name:
+          type: string
     EmployeePage:
       type: object
       required:

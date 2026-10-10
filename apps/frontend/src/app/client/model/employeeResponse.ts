@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EmployeeScheduleResponse } from './employeeScheduleResponse';
 
 
 export interface EmployeeResponse {
@@ -17,9 +18,6 @@ export interface EmployeeResponse {
     name: string;
     surname: string;
     email: string;
-    /**
-     * Stable schedule code containing 1 to 50 letters, digits, underscores, or hyphens.
-     */
-    scheduleCode: string;
+    schedule: EmployeeScheduleResponse;
 }
 

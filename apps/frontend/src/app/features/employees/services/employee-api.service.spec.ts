@@ -29,7 +29,7 @@ describe('EmployeeApiService', () => {
     expect(request.request.params.has('scheduleCode')).toBe(false);
     expect(request.request.params.has('worksiteCode')).toBe(false);
     expect(request.request.context.get(HTTP_RETRY_POLICY)).toBe(ACTIVE_SCREEN_HTTP_RETRY_POLICY);
-    const employee = { employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', scheduleCode: 'DAY' };
+    const employee = { employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', schedule: { code: 'DAY', name: 'Day shift' } };
     request.flush({ content: [employee], page: { number: 1, size: 5, totalElements: 6, totalPages: 2 } });
     expect(result).toEqual({ items: [employee], page: 1, pageSize: 5, totalItems: 6, totalPages: 2 });
   });

@@ -59,7 +59,11 @@ class EmployeeSearchIT {
 		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(4))
 				.andExpect(jsonPath("$.content.length()").value(4)).andExpect(jsonPath("$.page.size").value(20))
-				.andExpect(jsonPath("$.content[3].employeeNumber").value("EMP-0004"));
+				.andExpect(jsonPath("$.content[3].employeeNumber").value("EMP-0004"))
+				.andExpect(jsonPath("$.content[0].schedule.code").value("DAY"))
+				.andExpect(jsonPath("$.content[0].schedule.name").value("Day"))
+				.andExpect(jsonPath("$.content[0].schedule.length()").value(2))
+				.andExpect(jsonPath("$.content[*].scheduleCode").doesNotExist());
 	}
 
 	@Test

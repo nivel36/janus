@@ -15,7 +15,7 @@ describe('TimelogSearchCardComponent', () => {
   const preferences = signal<{ defaultTimezone: string } | null>({ defaultTimezone: 'Europe/Madrid' });
   const employee: EmployeeResponse = {
     employeeNumber: 'EMP-0042', name: 'Abel', surname: 'Ferrer',
-    email: 'abel@example.com', scheduleCode: 'STANDARD',
+    email: 'abel@example.com', schedule: { code: 'STANDARD', name: 'Standard shift' },
   };
   const employees = { searchEmployees: vi.fn(() => of({ content: [employee] })) };
   beforeEach(async () => {

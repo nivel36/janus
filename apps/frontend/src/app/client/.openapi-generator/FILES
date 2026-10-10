@@ -25,6 +25,7 @@ model/createTimeLogRequest.ts
 model/createWorksiteRequest.ts
 model/employeePage.ts
 model/employeeResponse.ts
+model/employeeScheduleResponse.ts
 model/models.ts
 model/pageMetadata.ts
 model/schedulePage.ts

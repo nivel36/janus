@@ -90,7 +90,7 @@
     "name": "Name",
     "surname": "Surname",
     "email": "Email",
-    "scheduleCode": "Schedule code",
+    "schedule": "Schedule",
     "loading": "Loading employees...",
     "empty": "No employees are available yet.",
     "searchEmpty": "No employees match your search.",

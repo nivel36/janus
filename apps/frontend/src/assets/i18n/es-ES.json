@@ -90,7 +90,7 @@
     "name": "Nombre",
     "surname": "Apellidos",
     "email": "Correo electrónico",
-    "scheduleCode": "Código de horario",
+    "schedule": "Horario",
     "loading": "Cargando empleados...",
     "empty": "Todavía no hay empleados disponibles.",
     "searchEmpty": "No hay empleados que coincidan con la búsqueda.",

@@ -168,7 +168,9 @@ class EmployeeControllerIT {
 				.andExpect(jsonPath("$.name").value("Abel")).andExpect(jsonPath("$.surname").value("Ferrer"))
 				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001"))
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"))
-				.andExpect(jsonPath("$.scheduleCode").value("STD-WH"));
+				.andExpect(jsonPath("$.schedule.code").value("STD-WH"))
+				.andExpect(jsonPath("$.schedule.name").value("Standard Work Hours"))
+				.andExpect(jsonPath("$.scheduleCode").doesNotExist());
 	}
 
 	@Test
@@ -269,7 +271,9 @@ class EmployeeControllerIT {
 				.andExpect(status().isCreated()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
 				.andExpect(jsonPath("$.name").value("Abel")).andExpect(jsonPath("$.surname").value("Ferrer"))
 				.andExpect(jsonPath("$.email").value("aferrer@nivel36.es"))
-				.andExpect(jsonPath("$.scheduleCode").value("STD-WH"));
+				.andExpect(jsonPath("$.schedule.code").value("STD-WH"))
+				.andExpect(jsonPath("$.schedule.name").value("Standard Work Hours"))
+				.andExpect(jsonPath("$.scheduleCode").doesNotExist());
 
 		this.mvc.perform(
 				get(BASE + "/{employeeNumber}", "EMP-0001")
@@ -330,12 +334,16 @@ class EmployeeControllerIT {
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("new@nivel36.es"))
 				.andExpect(jsonPath("$.name").value("Abel")).andExpect(jsonPath("$.surname").value("Ferrer Jiménez"))
-				.andExpect(jsonPath("$.scheduleCode").value("STD-WH-AUG-VAR"));
+				.andExpect(jsonPath("$.schedule.code").value("STD-WH-AUG-VAR"))
+				.andExpect(jsonPath("$.schedule.name").value("Standard Work Hours with August Variation"))
+				.andExpect(jsonPath("$.scheduleCode").doesNotExist());
 		this.mvc.perform(
 				get(BASE + "/{employeeNumber}", "EMP-0001")
 						.with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.email").value("new@nivel36.es"))
-				.andExpect(jsonPath("$.scheduleCode").value("STD-WH-AUG-VAR"));
+				.andExpect(jsonPath("$.schedule.code").value("STD-WH-AUG-VAR"))
+				.andExpect(jsonPath("$.schedule.name").value("Standard Work Hours with August Variation"))
+				.andExpect(jsonPath("$.scheduleCode").doesNotExist());
 	}
 
 	@Test

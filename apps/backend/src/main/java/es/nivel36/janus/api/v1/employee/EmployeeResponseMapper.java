@@ -19,13 +19,15 @@ import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
 import es.nivel36.janus.service.employee.Employee;
+import es.nivel36.janus.service.schedule.Schedule;
 
 /**
  * Maps employees to immutable public snapshots under the Mapper contract. A
  * nonnull source must have a readable, nonnull schedule, initialized or
  * accessible in an active persistence context. Mapping leaves the employee
- * unchanged and exposes business numbers and codes without internal IDs, local
- * profiles or time records. A {@code null} source produces {@code null}.
+ * unchanged and exposes business numbers and schedule codes and names without
+ * internal IDs, local profiles or time records. A {@code null} source produces
+ * {@code null}.
  */
 @Component
 public class EmployeeResponseMapper implements Mapper<Employee, EmployeeResponse> {
@@ -35,11 +37,14 @@ public class EmployeeResponseMapper implements Mapper<Employee, EmployeeResponse
 		if (employee == null) {
 			return null;
 		}
-		return new EmployeeResponse(
-				employee.getEmployeeNumber(),
-				employee.getName(),
-				employee.getSurname(),
-				employee.getEmail(),
-				employee.getSchedule().getCode());
+		final String employeeNumber = employee.getEmployeeNumber();
+		final String name = employee.getName();
+		final String surname = employee.getSurname();
+		final String email = employee.getEmail();
+		final Schedule schedule = employee.getSchedule();
+		final String scheduleCode = schedule.getCode();
+		final String scheduleName = schedule.getName();
+		final EmployeeScheduleResponse scheduleResponse = new EmployeeScheduleResponse(scheduleCode, scheduleName);
+		return new EmployeeResponse(employeeNumber, name, surname, email, scheduleResponse);
 	}
 }
