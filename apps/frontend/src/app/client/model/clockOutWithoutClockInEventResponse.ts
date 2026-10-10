@@ -7,7 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { TimeLogResponse } from './timeLogResponse';
+import { ClockOutWithoutClockInEventResolutionResponse } from './clockOutWithoutClockInEventResolutionResponse';
 import { TimeLogEmployeeResponse } from './timeLogEmployeeResponse';
 import { TimeLogWorksiteResponse } from './timeLogWorksiteResponse';
 
@@ -20,6 +20,6 @@ export interface ClockOutWithoutClockInEventResponse {
     resolved: boolean;
     invalidated: boolean;
     reason?: string;
-    resolvedTimeLog?: TimeLogResponse;
+    resolution?: ClockOutWithoutClockInEventResolutionResponse;
 }
 

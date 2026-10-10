@@ -18,6 +18,7 @@ index.ts
 model/appUserPage.ts
 model/appUserResponse.ts
 model/applicationSettingsResponse.ts
+model/clockOutWithoutClockInEventResolutionResponse.ts
 model/clockOutWithoutClockInEventResponse.ts
 model/createEmployeeRequest.ts
 model/createScheduleRequest.ts

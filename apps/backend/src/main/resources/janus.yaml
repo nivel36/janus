@@ -1446,6 +1446,15 @@ components:
           type: boolean
         reason:
           type: string
-        resolvedTimeLog:
-          $ref: '#/components/schemas/TimeLogResponse'
-          description: The resolving time log, when present.
+        resolution:
+          $ref: '#/components/schemas/ClockOutWithoutClockInEventResolutionResponse'
+    ClockOutWithoutClockInEventResolutionResponse:
+      type: object
+      description: The supplied clock-in and resulting duration; absent when the event has not been resolved.
+      required:
+      - entryTime
+      - workTime
+      properties:
+        entryTime: *id006
+        workTime:
+          $ref: '#/components/schemas/DurationResponse'

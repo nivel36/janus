@@ -15,6 +15,7 @@
  */
 package es.nivel36.janus.api.v1.timelog;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Objects;
@@ -36,18 +37,18 @@ import es.nivel36.janus.service.worksite.Worksite;
 public class ClockOutWithoutClockInEventResponseMapper
 		implements Mapper<ClockOutWithoutClockInEvent, ClockOutWithoutClockInEventResponse> {
 
-	private final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper;
+	private final Mapper<Duration, DurationResponse> durationResponseMapper;
 
 	/**
-	 * Creates a mapper that includes the resolving time log when present.
+	 * Creates a mapper that includes resolution details when present.
 	 *
-	 * @param  timeLogResponseMapper nonnull time log mapper
-	 * @throws NullPointerException  if the mapper is {@code null}
+	 * @param  durationResponseMapper nonnull duration mapper
+	 * @throws NullPointerException   if the mapper is {@code null}
 	 */
 	public ClockOutWithoutClockInEventResponseMapper(
-		final @Qualifier("timeLogResponseMapper") Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper) {
-		this.timeLogResponseMapper = Objects
-				.requireNonNull(timeLogResponseMapper, "timeLogResponseMapper can't be null");
+		final @Qualifier("durationResponseMapper") Mapper<Duration, DurationResponse> durationResponseMapper) {
+		this.durationResponseMapper = Objects
+				.requireNonNull(durationResponseMapper, "durationResponseMapper can't be null");
 	}
 
 	@Override
@@ -75,7 +76,15 @@ public class ClockOutWithoutClockInEventResponseMapper
 		final String reason = entity.getReason();
 
 		final TimeLog resolvedTimeLog = entity.getResolvedTimeLog();
-		final TimeLogResponse resolvedTimeLogResponse = this.timeLogResponseMapper.map(resolvedTimeLog);
+		final ClockOutWithoutClockInEventResolutionResponse resolution;
+		if (resolvedTimeLog == null) {
+			resolution = null;
+		} else {
+			final Instant entryTime = resolvedTimeLog.getEntryTime();
+			final Duration workDuration = resolvedTimeLog.getWorkDuration();
+			final DurationResponse workTime = this.durationResponseMapper.map(workDuration);
+			resolution = new ClockOutWithoutClockInEventResolutionResponse(entryTime, workTime);
+		}
 
 		return new ClockOutWithoutClockInEventResponse(
 				employeeResponse,
@@ -85,7 +94,7 @@ public class ClockOutWithoutClockInEventResponseMapper
 				resolved,
 				invalidated,
 				reason,
-				resolvedTimeLogResponse);
+				resolution);
 	}
 
 }

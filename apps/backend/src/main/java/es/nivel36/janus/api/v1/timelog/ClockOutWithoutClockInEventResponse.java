@@ -20,16 +20,16 @@ import java.time.Instant;
 /**
  * Response payload describing a {@code ClockOutWithoutClockInEvent}.
  *
- * @param employee        the employee's number and full name
- * @param worksite        the worksite's code, name and time zone
- * @param exitTime        instant when the employee clocked out without a
- *                        previous clock-in
- * @param detectedAt      instant when the anomaly was detected
- * @param resolved        indicates whether the event has been resolved
- * @param invalidated     indicates whether the event has been invalidated
- * @param reason          optional reason explaining the resolution or
- *                        invalidation
- * @param resolvedTimeLog the resolving time log; {@code null} when absent
+ * @param employee    the employee's number and full name
+ * @param worksite    the worksite's code, name and time zone
+ * @param exitTime    instant when the employee clocked out without a previous
+ *                    clock-in
+ * @param detectedAt  instant when the anomaly was detected
+ * @param resolved    indicates whether the event has been resolved
+ * @param invalidated indicates whether the event has been invalidated
+ * @param reason      optional reason explaining the resolution or invalidation
+ * @param resolution  the supplied clock-in and resulting duration; {@code null}
+ *                    when the event has not been resolved
  */
 public record ClockOutWithoutClockInEventResponse(
 		TimeLogEmployeeResponse employee,
@@ -39,5 +39,5 @@ public record ClockOutWithoutClockInEventResponse(
 		boolean resolved,
 		boolean invalidated,
 		String reason,
-		TimeLogResponse resolvedTimeLog) {
+		ClockOutWithoutClockInEventResolutionResponse resolution) {
 }

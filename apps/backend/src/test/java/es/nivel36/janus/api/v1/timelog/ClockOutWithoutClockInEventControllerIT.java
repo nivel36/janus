@@ -160,7 +160,7 @@ class ClockOutWithoutClockInEventControllerIT {
 				.andExpect(jsonPath("$.employee.fullName").value("Abel Ferrer"))
 				.andExpect(jsonPath("$.worksite.name").value("Home Office Abel"))
 				.andExpect(jsonPath("$.worksite.zoneId").value("UTC+02:00"))
-				.andExpect(jsonPath("$.resolvedTimeLog").doesNotExist())
+				.andExpect(jsonPath("$.resolution").doesNotExist())
 				.andExpect(jsonPath("$.worksite.code").value("HOME-AF")).andExpect(jsonPath("$.exitTime").value(exit))
 				.andExpect(jsonPath("$.resolved").value(false)).andExpect(jsonPath("$.invalidated").value(false));
 	}
@@ -190,11 +190,15 @@ class ClockOutWithoutClockInEventControllerIT {
 				.andExpect(jsonPath("$.employee.number").value("EMP-0001"))
 				.andExpect(jsonPath("$.resolved").value(true)).andExpect(jsonPath("$.invalidated").value(false))
 				.andExpect(jsonPath("$.reason").value("Worked from home before the transfer"))
-				.andExpect(jsonPath("$.resolvedTimeLog.entryTime").value(entry))
-				.andExpect(jsonPath("$.resolvedTimeLog.exitTime").value(exit))
-				.andExpect(jsonPath("$.resolvedTimeLog.employee.fullName").value("Abel Ferrer"))
-				.andExpect(jsonPath("$.resolvedTimeLog.worksite.name").value("Home Office Abel"))
-				.andExpect(jsonPath("$.resolvedTimeLog.workTime.iso8601").value("PT7H"));
+				.andExpect(jsonPath("$.resolution.entryTime").value(entry))
+				.andExpect(jsonPath("$.exitTime").value(exit))
+				.andExpect(jsonPath("$.employee.fullName").value("Abel Ferrer"))
+				.andExpect(jsonPath("$.worksite.name").value("Home Office Abel"))
+				.andExpect(jsonPath("$.resolution.workTime.iso8601").value("PT7H"))
+				.andExpect(jsonPath("$.resolution.employee").doesNotExist())
+				.andExpect(jsonPath("$.resolution.worksite").doesNotExist())
+				.andExpect(jsonPath("$.resolution.exitTime").doesNotExist())
+				.andExpect(jsonPath("$.resolvedTimeLog").doesNotExist());
 
 		this.mvc.perform(
 				patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit).contentType(APPLICATION_JSON).content(body)

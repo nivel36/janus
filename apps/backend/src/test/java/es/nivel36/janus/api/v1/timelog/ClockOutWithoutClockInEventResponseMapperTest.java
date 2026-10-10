@@ -27,9 +27,8 @@ import es.nivel36.janus.service.worksite.Worksite;
 class ClockOutWithoutClockInEventResponseMapperTest {
 
 	private final DurationResponseMapper durationMapper = new DurationResponseMapper();
-	private final TimeLogResponseMapper timeLogMapper = new TimeLogResponseMapper(this.durationMapper);
 	private final ClockOutWithoutClockInEventResponseMapper mapper = new ClockOutWithoutClockInEventResponseMapper(
-			this.timeLogMapper);
+			this.durationMapper);
 
 	@Test
 	void mapsEmployeeAndWorksiteDetailsForUnresolvedEvent() {
@@ -47,22 +46,18 @@ class ClockOutWithoutClockInEventResponseMapperTest {
 		assertThat(response.detectedAt()).isEqualTo(exitTime);
 		assertThat(response.resolved()).isFalse();
 		assertThat(response.invalidated()).isFalse();
-		assertThat(response.resolvedTimeLog()).isNull();
+		assertThat(response.resolution()).isNull();
 	}
 
 	@Test
-	void mapsResolvingTimeLogWithDetailsAndDuration() {
+	void mapsResolutionWithEntryTimeAndDuration() {
 		final ClockOutWithoutClockInEvent event = event();
 		final TimeLog timeLog = mock(TimeLog.class);
-		final Employee employee = event.getEmployee();
-		final Worksite worksite = event.getWorksite();
 		final Instant entryTime = Instant.parse("2026-10-09T09:00:00Z");
 		final Instant exitTime = Instant.parse("2026-10-09T16:00:00Z");
 		final Duration duration = Duration.ofHours(7);
-		when(timeLog.getEmployee()).thenReturn(employee);
-		when(timeLog.getWorksite()).thenReturn(worksite);
+		when(event.getExitTime()).thenReturn(exitTime);
 		when(timeLog.getEntryTime()).thenReturn(entryTime);
-		when(timeLog.getExitTime()).thenReturn(exitTime);
 		when(timeLog.getWorkDuration()).thenReturn(duration);
 		when(event.getResolvedTimeLog()).thenReturn(timeLog);
 		when(event.isResolved()).thenReturn(true);
@@ -72,11 +67,8 @@ class ClockOutWithoutClockInEventResponseMapperTest {
 
 		assertThat(response.resolved()).isTrue();
 		assertThat(response.reason()).isEqualTo("Missing clock-in corrected");
-		assertThat(response.resolvedTimeLog().employee()).isEqualTo(response.employee());
-		assertThat(response.resolvedTimeLog().worksite()).isEqualTo(response.worksite());
-		assertThat(response.resolvedTimeLog().entryTime()).isEqualTo(entryTime);
-		assertThat(response.resolvedTimeLog().exitTime()).isEqualTo(exitTime);
-		assertThat(response.resolvedTimeLog().workTime()).isEqualTo(new DurationResponse(7, 0, 0, "PT7H"));
+		assertThat(response.resolution().entryTime()).isEqualTo(entryTime);
+		assertThat(response.resolution().workTime()).isEqualTo(new DurationResponse(7, 0, 0, "PT7H"));
 	}
 
 	@Test
@@ -90,7 +82,7 @@ class ClockOutWithoutClockInEventResponseMapperTest {
 		assertThat(response.invalidated()).isTrue();
 		assertThat(response.resolved()).isFalse();
 		assertThat(response.reason()).isEqualTo("Accidental clock-out");
-		assertThat(response.resolvedTimeLog()).isNull();
+		assertThat(response.resolution()).isNull();
 	}
 
 	@Test

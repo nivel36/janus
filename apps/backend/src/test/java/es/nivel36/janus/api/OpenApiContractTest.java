@@ -108,9 +108,13 @@ class OpenApiContractTest {
 		}
 		final Map<String, Map<String, Object>> eventProperties = (Map<String, Map<String, Object>>) schemas
 				.get("ClockOutWithoutClockInEventResponse").get("properties");
-		assertThat(eventProperties.get("resolvedTimeLog"))
-				.containsEntry("$ref", "#/components/schemas/TimeLogResponse");
-		assertThat(eventProperties).doesNotContainKeys("resolvedTimeLogEntry", "resolvedTimeLogExitTime");
+		assertThat(eventProperties.get("resolution"))
+				.containsEntry("$ref", "#/components/schemas/ClockOutWithoutClockInEventResolutionResponse");
+		assertThat(eventProperties)
+				.doesNotContainKeys("resolvedTimeLog", "resolvedTimeLogEntry", "resolvedTimeLogExitTime");
+		final Map<String, Map<String, Object>> resolutionProperties = (Map<String, Map<String, Object>>) schemas
+				.get("ClockOutWithoutClockInEventResolutionResponse").get("properties");
+		assertThat(resolutionProperties).containsOnlyKeys("entryTime", "workTime");
 		assertThat((List<String>) schemas.get("TimeLogEmployeeResponse").get("required"))
 				.containsExactly("number", "fullName");
 		assertThat((List<String>) schemas.get("TimeLogWorksiteResponse").get("required"))
