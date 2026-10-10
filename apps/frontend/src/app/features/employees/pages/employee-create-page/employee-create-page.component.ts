@@ -2,21 +2,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { finalize, map } from 'rxjs';
+import { map } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { AutocompleteSearchState } from '../../../../shared/state/autocomplete-search.state';
 import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { AutocompleteValueAccessorDirective } from '../../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
-import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { FormComponent } from '../../../../shared/ui/form/form.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
 import { InputComponent } from '../../../../shared/ui/input/input.component';
-import { MessageComponent } from '../../../../shared/ui/message/message.component';
 import { Schedule } from '../../../schedules/models/schedule';
 import { ScheduleApiService } from '../../../schedules/services/schedule-api.service';
 import { EmployeeApiService } from '../../services/employee-api.service';
@@ -41,10 +39,9 @@ type EmployeeFormField = keyof typeof FIELD_ERROR_KEYS;
     PageTemplateComponent,
     AutocompleteTextboxComponent,
     AutocompleteValueAccessorDirective,
-    ButtonComponent,
+    FormComponent,
     FieldComponent,
     InputComponent,
-    MessageComponent,
   ],
   templateUrl: './employee-create-page.component.html',
 })
@@ -83,13 +80,6 @@ export class EmployeeCreatePageComponent {
     email: this.fb.nonNullable.control('', [Validators.required, Validators.email, Validators.maxLength(254)]),
     schedule: this.fb.control<Schedule | null>(null, Validators.required),
   });
-  readonly formStatus = toSignal(this.form.statusChanges, { initialValue: this.form.status });
-  readonly saving = signal(false);
-  readonly errorMessage = signal('');
-
-  protected readonly saveDisabled = computed(
-    () => this.formStatus() === 'INVALID' || this.formStatus() === 'PENDING' || this.saving(),
-  );
 
   protected get employeeNumberHintKey(): string {
     if (this.form.controls.employeeNumber.pending) {
@@ -141,33 +131,23 @@ export class EmployeeCreatePageComponent {
     return null;
   }
 
-  save(): void {
-    if (this.saving() || this.form.pending || this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+  readonly saveErrorKey = (error: unknown): string =>
+    error instanceof HttpErrorResponse && error.status === 409
+      ? 'employee.errors.conflict'
+      : 'employee.errors.create';
 
+  readonly save = () => {
     const value = this.form.getRawValue();
-    this.saving.set(true);
-    this.errorMessage.set('');
-    this.employeeApi.create({
+    return this.employeeApi.create({
       employeeNumber: value.employeeNumber.trim(),
       name: value.name.trim(),
       surname: value.surname.trim(),
       email: value.email.trim(),
       scheduleCode: value.schedule!.code,
-    }).pipe(
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => this.saving.set(false)),
-    ).subscribe({
-      next: () => { this.router.navigate(['/employees']); },
-      error: (error: unknown) => {
-        this.errorMessage.set(
-          error instanceof HttpErrorResponse && error.status === 409
-            ? 'employee.errors.conflict'
-            : 'employee.errors.create',
-        );
-      },
     });
+  };
+
+  onSaved(): void {
+    this.router.navigate(['/employees']);
   }
 }

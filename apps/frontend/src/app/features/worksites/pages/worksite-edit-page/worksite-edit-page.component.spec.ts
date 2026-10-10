@@ -2,6 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { FormComponent } from '../../../../shared/ui/form/form.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -63,6 +65,7 @@ describe('WorksiteEditPageComponent', () => {
     component = fixture.componentInstance;
     fixture.componentRef.setInput('code', 'BCN-HQ');
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('loads the worksite and keeps the code field immutable', async () => {
@@ -98,7 +101,7 @@ describe('WorksiteEditPageComponent', () => {
       address: ' ',
     });
 
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
     expect(worksiteApiService.update).toHaveBeenCalledWith('BCN-HQ', {
       name: 'Barcelona HQ',
@@ -115,11 +118,11 @@ describe('WorksiteEditPageComponent', () => {
     worksiteApiService.update.mockReturnValue(update);
     component.form.patchValue({ name: 'Barcelona HQ' });
 
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     update.error(new Error('request failed'));
     await fixture.whenStable();
 
-    expect(component.saving()).toBe(false);
+    expect(fixture.debugElement.query(By.directive(FormComponent)).componentInstance.saving()).toBe(false);
     expect(fixture.nativeElement.textContent).toContain('worksite.errors.update');
   });
 
@@ -151,14 +154,14 @@ describe('WorksiteEditPageComponent', () => {
     worksiteApiService.update.mockReturnValue(throwError(() => new Error('update failed')));
     await fixture.whenStable();
 
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('worksite.errors.update');
 
     const lateUpdate = new Subject<never>();
     worksiteApiService.update.mockReturnValue(lateUpdate);
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
     fixture.componentRef.setInput('code', 'MAD-HUB');
     fixture.detectChanges();
@@ -261,7 +264,7 @@ describe('WorksiteEditPageComponent', () => {
     secondLoad.complete();
     await fixture.whenStable();
 
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
     expect(worksiteApiService.findByCode).toHaveBeenCalledTimes(2);
     expect(worksiteApiService.findByCode).toHaveBeenNthCalledWith(

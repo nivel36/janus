@@ -1,0 +1,35 @@
+<form class="app-form" [formGroup]="form()" (ngSubmit)="submit()" [attr.aria-busy]="saving()">
+  <fieldset
+    class="app-form__fields"
+    [disabled]="saving() || disabled()"
+    [attr.inert]="saving() || disabled() ? '' : null"
+  >
+    <ng-content />
+  </fieldset>
+
+  @if (errorKey() || saveError(); as error) {
+    <app-message type="error" presentation="inline">{{ error | translate }}</app-message>
+  }
+
+  <div class="app-form-actions">
+    @if (cancelLink() && !saving()) {
+      <app-button variant="secondary" [routerLink]="cancelLink()">
+        {{ cancelLabel() | translate }}
+      </app-button>
+    } @else {
+      <app-button variant="secondary" [disabled]="saving()" (clicked)="cancel()">
+        {{ cancelLabel() | translate }}
+      </app-button>
+    }
+
+    @if (showSave()) {
+      <app-button
+        type="submit"
+        variant="main"
+        [disabled]="saving() || disabled() || status() !== 'VALID'"
+      >
+        {{ (saving() ? 'actions.saving' : saveLabel()) | translate }}
+      </app-button>
+    }
+  </div>
+</form>

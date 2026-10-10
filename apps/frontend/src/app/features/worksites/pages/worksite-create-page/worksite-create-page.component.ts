@@ -1,18 +1,16 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { finalize } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { TimezoneCatalog } from '../../../../shared/services/timezone-catalog.service';
 import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { AutocompleteValueAccessorDirective } from '../../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
-import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { FormComponent } from '../../../../shared/ui/form/form.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
 import { SelectComponent } from '../../../../shared/ui/select/select.component';
 import { InputComponent } from '../../../../shared/ui/input/input.component';
@@ -20,18 +18,15 @@ import { createWorksiteFormControls, WORKSITE_SCOPE_OPTIONS } from '../../forms/
 import { WorksiteApiService } from '../../services/worksite-api.service';
 import { UniqueWorksiteCodeValidator } from '../../validators/unique-worksite-code.validator';
 
-import { MessageComponent } from '../../../../shared/ui/message/message.component';
-
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-worksite-create-page',
   imports: [
-    MessageComponent,
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,
     AutocompleteValueAccessorDirective,
-    ButtonComponent,
+    FormComponent,
     FieldComponent,
     SelectComponent,
     InputComponent,
@@ -64,45 +59,19 @@ export class WorksiteCreatePageComponent {
 
   readonly scopeOptions = WORKSITE_SCOPE_OPTIONS;
 
-  readonly formStatus = toSignal(this.form.statusChanges, { initialValue: this.form.status });
-
-  readonly saving = signal(false);
-
-  readonly errorMessage = signal('');
-
-  save(): void {
-    if (this.saving() || this.form.pending || this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
+  readonly save = () => {
     const rawValue = this.form.getRawValue();
+    return this.worksiteApiService.create({
+      code: rawValue.code.trim(),
+      name: rawValue.name.trim(),
+      timeZone: rawValue.timeZone!,
+      scope: rawValue.scope,
+      description: rawValue.description?.trim() || null,
+      address: rawValue.address?.trim() || null,
+    });
+  };
 
-    this.saving.set(true);
-    this.errorMessage.set('');
-
-    this.worksiteApiService
-      .create({
-        code: rawValue.code.trim(),
-        name: rawValue.name.trim(),
-        timeZone: rawValue.timeZone!,
-        scope: rawValue.scope,
-        description: rawValue.description?.trim() || null,
-        address: rawValue.address?.trim() || null,
-      })
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.saving.set(false);
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.router.navigate(['/worksites']);
-        },
-        error: () => {
-          this.errorMessage.set('worksite.errors.create');
-        },
-      });
+  onSaved(): void {
+    this.router.navigate(['/worksites']);
   }
 }

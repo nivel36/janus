@@ -18,6 +18,7 @@
   "actions": {
     "retry": "Retry",
     "save": "Save",
+    "saving": "Saving…",
     "edit": "Edit",
     "cancel": "Cancel",
     "cleanSelection": "Clean selection",

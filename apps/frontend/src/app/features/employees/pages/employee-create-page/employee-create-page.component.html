@@ -2,7 +2,13 @@
   <div pageContent class="app-page-content">
     <section class="app-card">
       <div class="app-card__body">
-        <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
+        <app-form
+          [form]="form"
+          [save]="save"
+          [saveErrorKey]="saveErrorKey"
+          cancelLink="/employees"
+          (saved)="onSaved()"
+        >
           <app-field
             controlId="employee-number"
             [label]="'employee.employeeNumber' | translate"
@@ -14,7 +20,7 @@
           >
             <app-input
               inputId="employee-number"
-              formControlName="employeeNumber"
+              [formControl]="form.controls.employeeNumber"
               autocomplete="off"
               ariaLabelledBy="employee-number-label"
               [ariaDescribedBy]="fieldDescribedBy('employeeNumber')"
@@ -34,7 +40,7 @@
           >
             <app-input
               inputId="employee-name"
-              formControlName="name"
+              [formControl]="form.controls.name"
               autocomplete="given-name"
               ariaLabelledBy="employee-name-label"
               [ariaDescribedBy]="fieldDescribedBy('name')"
@@ -54,7 +60,7 @@
           >
             <app-input
               inputId="employee-surname"
-              formControlName="surname"
+              [formControl]="form.controls.surname"
               autocomplete="family-name"
               ariaLabelledBy="employee-surname-label"
               [ariaDescribedBy]="fieldDescribedBy('surname')"
@@ -74,7 +80,7 @@
           >
             <app-input
               inputId="employee-email"
-              formControlName="email"
+              [formControl]="form.controls.email"
               type="email"
               autocomplete="email"
               ariaLabelledBy="employee-email-label"
@@ -95,7 +101,7 @@
             <app-autocomplete-textbox
               appAutocompleteValueAccessor
               inputId="employee-schedule"
-              formControlName="schedule"
+              [formControl]="form.controls.schedule"
               [items]="scheduleSearch.items()"
               [loading]="scheduleSearch.loading()"
               [error]="scheduleSearch.error()"
@@ -108,23 +114,7 @@
               [ariaInvalid]="isInvalid('schedule')"
             />
           </app-field>
-
-          @if (errorMessage()) {
-            <app-message type="error" presentation="inline">
-              {{ errorMessage() | translate }}
-            </app-message>
-          }
-
-          <div class="app-form-actions">
-            <app-button variant="secondary" routerLink="/employees">
-              {{ 'actions.cancel' | translate }}
-            </app-button>
-
-            <app-button type="submit" variant="main" [disabled]="saveDisabled()">
-              {{ 'actions.save' | translate }}
-            </app-button>
-          </div>
-        </form>
+        </app-form>
       </div>
     </section>
   </div>

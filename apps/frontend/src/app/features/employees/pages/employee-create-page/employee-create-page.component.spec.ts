@@ -4,6 +4,8 @@
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { FormComponent } from '../../../../shared/ui/form/form.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -60,15 +62,15 @@ describe('EmployeeCreatePageComponent', () => {
     await fixture.whenStable();
     expect(employeeApi.findByEmployeeNumber).toHaveBeenCalledWith('EMP-1');
     expect(fixture.nativeElement.textContent).toContain('employee.errors.duplicatedNumber');
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(employeeApi.create).not.toHaveBeenCalled();
   });
 
   it('validates required fields, identifier format, names and email before saving', () => {
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(component.form.controls.schedule.touched).toBe(true);
     component.form.patchValue({ employeeNumber: 'BAD NUMBER', name: '   ', surname: '123', email: 'bad-email' });
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(employeeApi.findByEmployeeNumber).not.toHaveBeenCalled();
     for (const control of Object.values(component.form.controls)) {
       expect(control.invalid).toBe(true);
@@ -80,13 +82,13 @@ describe('EmployeeCreatePageComponent', () => {
     const lookup = new Subject<never>();
     employeeApi.findByEmployeeNumber.mockReturnValue(lookup);
     component.form.setValue(validForm);
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(component.form.pending).toBe(true);
     expect(employeeApi.create).not.toHaveBeenCalled();
     lookup.error(new HttpErrorResponse({ status: 500 }));
     await fixture.whenStable();
     expect(component.form.controls.employeeNumber.hasError('numberLookupFailed')).toBe(true);
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(employeeApi.create).not.toHaveBeenCalled();
   });
 
@@ -113,20 +115,20 @@ describe('EmployeeCreatePageComponent', () => {
     const response = new Subject<never>();
     employeeApi.create.mockReturnValue(response);
     component.form.setValue(validForm);
-    component.save();
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(employeeApi.create).toHaveBeenCalledTimes(1);
-    expect(component.saving()).toBe(true);
+    expect(fixture.debugElement.query(By.directive(FormComponent)).componentInstance.saving()).toBe(true);
     response.error(new HttpErrorResponse({ status }));
     await fixture.whenStable();
-    expect(component.saving()).toBe(false);
+    expect(fixture.debugElement.query(By.directive(FormComponent)).componentInstance.saving()).toBe(false);
     expect(component.form.getRawValue()).toEqual(validForm);
     expect(fixture.nativeElement.textContent).toContain(
       status === 409 ? 'employee.errors.conflict' : 'employee.errors.create',
     );
     expect(TestBed.inject(Router).navigate).not.toHaveBeenCalled();
     employeeApi.create.mockReturnValue(of({}));
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(TestBed.inject(Router).navigate).toHaveBeenCalledWith(['/employees']);
   });
 

@@ -3,6 +3,8 @@
  */
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { FormComponent } from '../../../../shared/ui/form/form.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -109,7 +111,7 @@ describe('WorksiteCreatePageComponent', () => {
       address: null,
     });
 
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
     expect(component.form.pending).toBe(true);
     expect(worksiteApiService.create).not.toHaveBeenCalled();
@@ -169,7 +171,7 @@ describe('WorksiteCreatePageComponent', () => {
 
     await fixture.whenStable();
 
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
     expect(worksiteApiService.create).toHaveBeenCalledWith({
       code: 'MAD-HUB',
@@ -197,11 +199,11 @@ describe('WorksiteCreatePageComponent', () => {
     });
     await fixture.whenStable();
 
-    component.save();
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     create.error(new Error('request failed'));
     await fixture.whenStable();
 
-    expect(component.saving()).toBe(false);
+    expect(fixture.debugElement.query(By.directive(FormComponent)).componentInstance.saving()).toBe(false);
     expect(fixture.nativeElement.textContent).toContain('worksite.errors.create');
   });
 });

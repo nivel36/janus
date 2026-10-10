@@ -5,20 +5,18 @@ import {
   computed,
   effect,
   inject,
-  signal,
 } from '@angular/core';
-import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { finalize } from 'rxjs';
 
 import { CurrentUserFacade } from '../../../core/user/services/current-user.facade';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
 import { TimezoneCatalog } from '../../../shared/services/timezone-catalog.service';
 import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { AutocompleteValueAccessorDirective } from '../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
-import { ButtonComponent } from '../../../shared/ui/button/button.component';
+import { FormComponent } from '../../../shared/ui/form/form.component';
 import { FieldComponent } from '../../../shared/ui/field/field.component';
 import { RangeSliderComponent } from '../../../shared/ui/range-slider/range-slider.component';
 import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-button.component';
@@ -39,7 +37,7 @@ import { MessageComponent } from '../../../shared/ui/message/message.component';
     FieldComponent,
     RangeSliderComponent,
     ToggleButtonComponent,
-    ButtonComponent,
+    FormComponent,
     PageTemplateComponent,
   ],
   templateUrl: './application-settings-page.component.html',
@@ -77,17 +75,10 @@ export class ApplicationSettingsPageComponent {
   readonly loading = computed(() => this.settingsResource.isLoading());
 
   /**
-   * Indicates whether a save operation is in progress.
-   */
-  readonly saving = signal(false);
-
-  /**
    * Translation key of the current error message, if any.
    */
-  private readonly saveErrorMessage = signal('');
-
   readonly errorMessage = computed(() =>
-    this.settingsResource.error() ? 'applicationSettings.errors.load' : this.saveErrorMessage(),
+    this.settingsResource.error() ? 'applicationSettings.errors.load' : '',
   );
 
   get isAdmin(): boolean {
@@ -113,7 +104,6 @@ export class ApplicationSettingsPageComponent {
     }
   });
 
-
   /**
    * Applies loaded or updated ApplicationSettings to the form and resets
    * form interaction state.
@@ -130,33 +120,10 @@ export class ApplicationSettingsPageComponent {
     });
   }
 
-  save(): void {
-    if (!this.isAdmin || this.saving() || this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+  readonly save = () => this.settingsApiService.update(this.form.getRawValue());
 
-    const payload: ApplicationSettings = this.form.getRawValue();
-
-    this.saving.set(true);
-    this.saveErrorMessage.set('');
-
-    this.settingsApiService
-      .update(payload)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.saving.set(false);
-        }),
-      )
-      .subscribe({
-        next: (updatedSettings) => {
-          this.form.reset(updatedSettings);
-          this.router.navigate(['/']);
-        },
-        error: () => {
-          this.saveErrorMessage.set('applicationSettings.errors.update');
-        },
-      });
+  onSaved(updatedSettings: ApplicationSettings): void {
+    this.form.reset(updatedSettings);
+    this.router.navigate(['/']);
   }
 }

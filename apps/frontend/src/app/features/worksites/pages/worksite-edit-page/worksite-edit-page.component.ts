@@ -9,19 +9,18 @@ import {
   effect,
   inject,
   input,
-  signal,
 } from '@angular/core';
-import { rxResource, takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { rxResource, toObservable } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { filter, finalize, takeUntil } from 'rxjs';
+import { EMPTY, filter, takeUntil } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
 import { AutocompleteTextboxComponent } from '../../../../shared/ui/autocomplete-textbox/autocomplete-textbox.component';
 import { AutocompleteValueAccessorDirective } from '../../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
-import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { FormComponent } from '../../../../shared/ui/form/form.component';
 import { FieldComponent } from '../../../../shared/ui/field/field.component';
 import { InputComponent } from '../../../../shared/ui/input/input.component';
 import { SelectComponent } from '../../../../shared/ui/select/select.component';
@@ -41,7 +40,7 @@ import { MessageComponent } from '../../../../shared/ui/message/message.componen
     TranslatePipe,
     AutocompleteTextboxComponent,
     AutocompleteValueAccessorDirective,
-    ButtonComponent,
+    FormComponent,
     FieldComponent,
     InputComponent,
     SelectComponent,
@@ -84,18 +83,9 @@ export class WorksiteEditPageComponent {
 
   readonly loading = computed(() => this.worksiteResource.isLoading());
 
-  readonly saving = signal(false);
-
-  private readonly saveErrorMessage = signal('');
-
   readonly errorMessage = computed(() =>
-    this.worksiteResource.error() ? 'worksite.detailLoadError' : this.saveErrorMessage(),
+    this.worksiteResource.error() ? 'worksite.detailLoadError' : '',
   );
-
-  private readonly clearSaveErrorOnWorksiteChangeEffect = effect(() => {
-    this.code();
-    this.saveErrorMessage.set('');
-  });
 
   private readonly populateFormEffect = effect(() => {
     const worksite = this.worksite();
@@ -111,19 +101,13 @@ export class WorksiteEditPageComponent {
     }
   });
 
-  save(): void {
+  readonly save = () => {
     const worksite = this.worksite();
-    if (this.saving() || this.loading() || this.form.invalid || worksite === null) {
-      this.form.markAllAsTouched();
-      return;
+    if (!worksite) {
+      return EMPTY;
     }
-
     const rawValue = this.form.getRawValue();
-
-    this.saving.set(true);
-    this.saveErrorMessage.set('');
-
-    this.worksiteApiService
+    return this.worksiteApiService
       .update(worksite.code, {
         name: rawValue.name.trim(),
         timeZone: rawValue.timeZone!,
@@ -131,21 +115,11 @@ export class WorksiteEditPageComponent {
         description: rawValue.description?.trim() || null,
         address: rawValue.address?.trim() || null,
       })
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        takeUntil(this.codeChanges.pipe(filter((code) => code !== worksite.code))),
-        finalize(() => {
-          this.saving.set(false);
-        }),
-      )
-      .subscribe({
-        next: (worksite) => {
-          this.router.navigate(['/worksites', worksite.code]);
-        },
-        error: () => {
-          this.saveErrorMessage.set('worksite.errors.update');
-        },
-      });
+      .pipe(takeUntil(this.codeChanges.pipe(filter((code) => code !== worksite.code))));
+  };
+
+  onSaved(worksite: Worksite): void {
+    this.router.navigate(['/worksites', worksite.code]);
   }
 
   cancel(): void {

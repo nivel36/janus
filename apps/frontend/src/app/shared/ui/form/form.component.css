@@ -1,0 +1,19 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.app-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--form-gap);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.app-form__fields:disabled {
+  opacity: var(--form-disabled-opacity);
+}

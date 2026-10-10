@@ -2,7 +2,13 @@
   <div pageContent class="app-page-content worksite-create-content">
     <section class="app-card worksites-card">
       <div class="app-card__body worksites-card__body">
-        <form class="app-form worksite-form" [formGroup]="form" (ngSubmit)="save()">
+        <app-form
+          [form]="form"
+          [save]="save"
+          saveErrorKey="worksite.errors.create"
+          cancelLink="/worksites"
+          (saved)="onSaved()"
+        >
           <app-field
             controlId="worksite-code"
             [label]="'worksite.code' | translate"
@@ -24,7 +30,7 @@
           >
             <app-input
               inputId="worksite-code"
-              formControlName="code"
+              [formControl]="form.controls.code"
               autocomplete="off"
               ariaLabelledBy="worksite-code-label"
               [ariaDescribedBy]="
@@ -58,7 +64,7 @@
           >
             <app-input
               inputId="worksite-name"
-              formControlName="name"
+              [formControl]="form.controls.name"
               autocomplete="off"
               ariaLabelledBy="worksite-name-label"
               [ariaDescribedBy]="
@@ -79,7 +85,7 @@
           <app-field controlId="worksite-scope" [label]="'worksite.scope' | translate" required>
             <app-select
               inputId="worksite-scope"
-              formControlName="scope"
+              [formControl]="form.controls.scope"
               [options]="scopeOptions"
               required
             />
@@ -99,7 +105,7 @@
             <app-autocomplete-textbox
               appAutocompleteValueAccessor
               inputId="worksite-timezone"
-              formControlName="timeZone"
+              [formControl]="form.controls.timeZone"
               [items]="timezoneSearch.items()"
               [loading]="timezoneSearch.loading()"
               [error]="timezoneSearch.error()"
@@ -132,7 +138,7 @@
           >
             <app-input
               inputId="worksite-address"
-              formControlName="address"
+              [formControl]="form.controls.address"
               autocomplete="street-address"
               ariaLabelledBy="worksite-address-label"
               [ariaDescribedBy]="
@@ -162,7 +168,7 @@
           >
             <app-input
               inputId="worksite-description"
-              formControlName="description"
+              [formControl]="form.controls.description"
               autocomplete="off"
               ariaLabelledBy="worksite-description-label"
               [ariaDescribedBy]="
@@ -178,27 +184,7 @@
               "
             />
           </app-field>
-
-          @if (errorMessage()) {
-            <app-message type="error" presentation="inline">
-              {{ errorMessage() | translate }}
-            </app-message>
-          }
-
-          <div class="app-form-actions">
-            <app-button variant="secondary" routerLink="/worksites">
-              {{ 'actions.cancel' | translate }}
-            </app-button>
-
-            <app-button
-              type="submit"
-              variant="main"
-              [disabled]="formStatus() === 'INVALID' || formStatus() === 'PENDING' || saving()"
-            >
-              {{ 'actions.save' | translate }}
-            </app-button>
-          </div>
-        </form>
+        </app-form>
       </div>
     </section>
   </div>

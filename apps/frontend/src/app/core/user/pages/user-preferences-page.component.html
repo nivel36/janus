@@ -2,7 +2,15 @@
   <div pageContent class="app-page-content user-preferences">
     <section class="app-card preferences-card">
       <div class="app-card__body preferences-card__body">
-        <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
+        <app-form
+          [form]="form"
+          [save]="save"
+          saveErrorKey="userPreferences.errors.update"
+          [errorKey]="errorMessage()"
+          [disabled]="loading() || !!errorMessage()"
+          cancelLink="/"
+          (saved)="onSaved($event)"
+        >
           <app-field
             controlId="preferences-locale"
             [label]="'userPreferences.fields.locale' | translate"
@@ -10,7 +18,7 @@
           >
             <app-select
               inputId="preferences-locale"
-              formControlName="locale"
+              [formControl]="form.controls.locale"
               [options]="localeOptions"
               required
             />
@@ -23,7 +31,7 @@
           >
             <app-select
               inputId="preferences-time-format"
-              formControlName="timeFormat"
+              [formControl]="form.controls.timeFormat"
               [options]="timeFormatOptions"
               required
             />
@@ -45,7 +53,7 @@
             <app-autocomplete-textbox
               appAutocompleteValueAccessor
               inputId="preferences-timezone"
-              formControlName="defaultTimezone"
+              [formControl]="form.controls.defaultTimezone"
               [items]="timezoneSearch.items()"
               [loading]="timezoneSearch.loading()"
               [error]="timezoneSearch.error()"
@@ -74,28 +82,12 @@
           >
             <app-select
               inputId="preferences-theme"
-              formControlName="theme"
+              [formControl]="form.controls.theme"
               [options]="themeOptions"
               required
             />
           </app-field>
-
-          @if (errorMessage()) {
-            <app-message type="error" presentation="inline">
-              {{ errorMessage() | translate }}
-            </app-message>
-          }
-
-          <div class="app-form-actions">
-            <app-button variant="secondary" routerLink="/">
-              {{ 'actions.cancel' | translate }}
-            </app-button>
-
-            <app-button type="submit" variant="main">
-              {{ 'actions.save' | translate }}
-            </app-button>
-          </div>
-        </form>
+        </app-form>
       </div>
     </section>
   </div>

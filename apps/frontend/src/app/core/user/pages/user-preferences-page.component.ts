@@ -8,13 +8,10 @@ import {
   computed,
   effect,
   inject,
-  signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { finalize } from 'rxjs';
 
 import { resolveSupportedLanguage, supportedLanguages } from '../../i18n/language.util';
 import { PageTemplateComponent } from '../../../core/layout/page-template/page-template.component';
@@ -23,7 +20,7 @@ import { AutocompleteTextboxComponent } from '../../../shared/ui/autocomplete-te
 import { AutocompleteValueAccessorDirective } from '../../../shared/ui/autocomplete-textbox/autocomplete-value-accessor.directive';
 import { FieldComponent } from '../../../shared/ui/field/field.component';
 import { SelectComponent, SelectOption } from '../../../shared/ui/select/select.component';
-import { ButtonComponent } from '../../../shared/ui/button/button.component';
+import { FormComponent } from '../../../shared/ui/form/form.component';
 import { Theme, TimeFormat, UserPreferences } from '../models/user-preferences';
 import { CurrentUserFacade } from '../services/current-user.facade';
 
@@ -44,18 +41,16 @@ import { CurrentUserFacade } from '../services/current-user.facade';
  *
  * Those responsibilities belong to CurrentUserFacade and lower layers.
  */
-import { MessageComponent } from '../../../shared/ui/message/message.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-user-preferences-page',
   imports: [
-    MessageComponent,
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,
     AutocompleteValueAccessorDirective,
-    ButtonComponent,
+    FormComponent,
     FieldComponent,
     SelectComponent,
     PageTemplateComponent,
@@ -120,19 +115,10 @@ export class UserPreferencesPageComponent {
   readonly loading = this.currentUserFacade.preferencesLoading;
 
   /**
-   * Indicates whether a save operation is in progress.
-   */
-  readonly saving = signal(false);
-
-  /**
    * Translation key of the current error message, if any.
    */
-  private readonly saveErrorMessage = signal('');
-
   readonly errorMessage = computed(() =>
-    this.currentUserFacade.preferencesError()
-      ? 'userPreferences.errors.load'
-      : this.saveErrorMessage(),
+    this.currentUserFacade.preferencesError() ? 'userPreferences.errors.load' : '',
   );
 
   private readonly populateFormEffect = effect(() => {
@@ -143,54 +129,22 @@ export class UserPreferencesPageComponent {
   });
 
   /**
-   * Persists the current form values as preferences for the
-   * authenticated user.
-   *
-   * When the form is invalid, all controls are marked as touched
-   * so validation feedback becomes visible.
-   *
-   * On successful save, the form is synchronized with the values
-   * returned by the backend and the page navigates back.
+   * Builds the preference update consumed by the shared form.
    */
-  save(): void {
-    if (this.saving() || this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
+  readonly save = () => {
     const rawValue = this.form.getRawValue();
-
-    /**
-     * The form is validated before this point, so defaultTimezone is expected
-     * to contain a non-null IANA timezone identifier.
-     */
     const payload: UserPreferences = {
       theme: rawValue.theme,
       locale: rawValue.locale,
       timeFormat: rawValue.timeFormat,
       defaultTimezone: rawValue.defaultTimezone!,
     };
+    return this.currentUserFacade.updatePreferences(payload);
+  };
 
-    this.saving.set(true);
-    this.saveErrorMessage.set('');
-
-    this.currentUserFacade
-      .updatePreferences(payload)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.saving.set(false);
-        }),
-      )
-      .subscribe({
-        next: (updatedPreferences) => {
-          this.applyPreferences(updatedPreferences);
-          this.router.navigate(['/']);
-        },
-        error: () => {
-          this.saveErrorMessage.set('userPreferences.errors.update');
-        },
-      });
+  onSaved(updatedPreferences: UserPreferences): void {
+    this.applyPreferences(updatedPreferences);
+    this.router.navigate(['/']);
   }
 
   /**

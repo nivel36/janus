@@ -7,7 +7,16 @@
             'applicationSettings.messages.loading' | translate
           }}</app-message>
         } @else {
-          <form class="app-form" [formGroup]="form" (ngSubmit)="save()">
+          <app-form
+            [form]="form"
+            [save]="save"
+            saveErrorKey="applicationSettings.errors.update"
+            [errorKey]="errorMessage()"
+            [disabled]="!isAdmin || !!errorMessage()"
+            [showSave]="isAdmin"
+            cancelLink="/"
+            (saved)="onSaved($event)"
+          >
             <app-field
               controlId="daysUntilLocked"
               [label]="'applicationSettings.fields.daysUntilLocked' | translate"
@@ -15,7 +24,7 @@
             >
               <app-range-slider
                 inputId="daysUntilLocked"
-                formControlName="daysUntilLocked"
+                [formControl]="form.controls.daysUntilLocked"
                 [min]="0"
                 [max]="daysUntilLockedSliderMax"
                 [step]="1"
@@ -29,7 +38,7 @@
             >
               <app-toggle-button
                 inputId="employeeWorksiteCreationAllowed"
-                formControlName="employeeWorksiteCreationAllowed"
+                [formControl]="form.controls.employeeWorksiteCreationAllowed"
                 ariaLabelledBy="employeeWorksiteCreationAllowed-label"
               />
             </app-field>
@@ -40,7 +49,7 @@
             >
               <app-toggle-button
                 inputId="worksiteChangeDuringShiftAllowed"
-                formControlName="worksiteChangeDuringShiftAllowed"
+                [formControl]="form.controls.worksiteChangeDuringShiftAllowed"
                 ariaLabelledBy="worksiteChangeDuringShiftAllowed-label"
               />
             </app-field>
@@ -51,7 +60,7 @@
             >
               <app-toggle-button
                 inputId="employeeManualTimeLogEntryAllowed"
-                formControlName="employeeManualTimeLogEntryAllowed"
+                [formControl]="form.controls.employeeManualTimeLogEntryAllowed"
                 ariaLabelledBy="employeeManualTimeLogEntryAllowed-label"
               />
             </app-field>
@@ -72,7 +81,7 @@
               <app-autocomplete-textbox
                 appAutocompleteValueAccessor
                 inputId="default-timezone"
-                formControlName="defaultTimezone"
+                [formControl]="form.controls.defaultTimezone"
                 [items]="timezoneSearch.items()"
                 [loading]="timezoneSearch.loading()"
                 [error]="timezoneSearch.error()"
@@ -93,25 +102,7 @@
                 "
               />
             </app-field>
-
-            @if (errorMessage()) {
-              <app-message type="error" presentation="inline">
-                {{ errorMessage() | translate }}
-              </app-message>
-            }
-
-            <div class="app-form-actions">
-              <app-button variant="secondary" routerLink="/">
-                {{ 'actions.cancel' | translate }}
-              </app-button>
-
-              @if (isAdmin) {
-                <app-button type="submit" [disabled]="form.invalid || saving()" variant="main">
-                  {{ 'actions.save' | translate }}
-                </app-button>
-              }
-            </div>
-          </form>
+          </app-form>
         }
       </div>
     </section>

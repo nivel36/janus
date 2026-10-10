@@ -18,6 +18,7 @@
   "actions": {
     "retry": "Reintentar",
     "save": "Guarda",
+    "saving": "Guardando…",
     "edit": "Edita",
     "cancel": "Cancela",
     "cleanSelection": "Limpia la selección",

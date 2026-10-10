@@ -21,6 +21,43 @@ npm test -- --watch=false
 The project uses Vitest as the runner, but Angular CLI prepares component
 templates, styles and Angular metadata before handing the tests to Vitest.
 
+## Entity forms
+
+Use `FormComponent` (`app-form`) for create/edit screens. It owns the native
+form, Save/Cancel actions, validation before submission, the save subscription,
+busy state and translated error feedback. It blocks repeated submissions,
+disables fields and cancellation while saving, and unsubscribes on destruction.
+Errors preserve entered values and allow another attempt.
+
+```html
+<app-form
+  [form]="form"
+  [save]="save"
+  saveErrorKey="worksite.errors.create"
+  cancelLink="/worksites"
+  (saved)="onSaved()"
+>
+  <app-field controlId="name" [label]="'worksite.name' | translate" required>
+    <app-input inputId="name" [formControl]="form.controls.name" />
+  </app-field>
+</app-form>
+```
+
+Import `FormComponent` and `ReactiveFormsModule` in the page. Bind projected
+fields with `[formControl]`; the form group directive is inside the shared
+component. Supply `save` as an arrow function returning a cold Observable;
+do not subscribe in the page. Build the entity payload in that function and
+handle the typed API response in `(saved)` for navigation or resetting values.
+
+`saveErrorKey` accepts a translation key or an error-to-key function (for example,
+to distinguish conflicts). Use `errorKey` for load errors and `disabled` while
+loading or when editing is unavailable. `showSave` hides the save action for
+read-only screens. `saveLabel` and `cancelLabel` accept alternative translation
+keys. Provide `cancelLink` for navigation, or handle `(cancelled)` when cancelling
+requires page-specific logic. Save is disabled for invalid, pending or disabled
+form groups. Blocking fields while saving preserves each control's model state,
+including controls that were already disabled.
+
 ## Linting
 
 Run the Angular lint and the CSS custom-property validation together before submitting frontend changes:
