@@ -7,20 +7,19 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { TimeLogResponse } from './timeLogResponse';
+import { TimeLogEmployeeResponse } from './timeLogEmployeeResponse';
+import { TimeLogWorksiteResponse } from './timeLogWorksiteResponse';
 
 
 export interface ClockOutWithoutClockInEventResponse {
-    /**
-     * Stable employee identifier used by canonical employee routes.
-     */
-    employeeNumber: string;
-    worksiteCode: string;
+    employee: TimeLogEmployeeResponse;
+    worksite: TimeLogWorksiteResponse;
     exitTime: string;
     detectedAt: string;
     resolved: boolean;
     invalidated: boolean;
     reason?: string;
-    resolvedTimeLogEntry?: string;
-    resolvedTimeLogExitTime?: string;
+    resolvedTimeLog?: TimeLogResponse;
 }
 

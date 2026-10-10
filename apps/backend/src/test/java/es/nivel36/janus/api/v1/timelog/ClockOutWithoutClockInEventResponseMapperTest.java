@@ -13,25 +13,104 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+
 import org.junit.jupiter.api.Test;
 
 import es.nivel36.janus.service.employee.Employee;
 import es.nivel36.janus.service.timelog.ClockOutWithoutClockInEvent;
+import es.nivel36.janus.service.timelog.TimeLog;
 import es.nivel36.janus.service.worksite.Worksite;
 
 class ClockOutWithoutClockInEventResponseMapperTest {
 
+	private final DurationResponseMapper durationMapper = new DurationResponseMapper();
+	private final TimeLogResponseMapper timeLogMapper = new TimeLogResponseMapper(this.durationMapper);
+	private final ClockOutWithoutClockInEventResponseMapper mapper = new ClockOutWithoutClockInEventResponseMapper(
+			this.timeLogMapper);
+
 	@Test
-	void mapsStableEmployeeNumberFromEmployee() {
+	void mapsEmployeeAndWorksiteDetailsForUnresolvedEvent() {
+		final ClockOutWithoutClockInEvent event = event();
+		final Instant exitTime = Instant.parse("2026-10-09T16:00:00Z");
+		when(event.getExitTime()).thenReturn(exitTime);
+		when(event.getDetectedAt()).thenReturn(exitTime);
+
+		final ClockOutWithoutClockInEventResponse response = this.mapper.map(event);
+
+		assertThat(response.employee()).isEqualTo(new TimeLogEmployeeResponse("EMP-0042", "Ada Lovelace"));
+		final ZoneId zoneId = ZoneId.of("Europe/Madrid");
+		assertThat(response.worksite()).isEqualTo(new TimeLogWorksiteResponse("OFFICE", "Main Office", zoneId));
+		assertThat(response.exitTime()).isEqualTo(exitTime);
+		assertThat(response.detectedAt()).isEqualTo(exitTime);
+		assertThat(response.resolved()).isFalse();
+		assertThat(response.invalidated()).isFalse();
+		assertThat(response.resolvedTimeLog()).isNull();
+	}
+
+	@Test
+	void mapsResolvingTimeLogWithDetailsAndDuration() {
+		final ClockOutWithoutClockInEvent event = event();
+		final TimeLog timeLog = mock(TimeLog.class);
+		final Employee employee = event.getEmployee();
+		final Worksite worksite = event.getWorksite();
+		final Instant entryTime = Instant.parse("2026-10-09T09:00:00Z");
+		final Instant exitTime = Instant.parse("2026-10-09T16:00:00Z");
+		final Duration duration = Duration.ofHours(7);
+		when(timeLog.getEmployee()).thenReturn(employee);
+		when(timeLog.getWorksite()).thenReturn(worksite);
+		when(timeLog.getEntryTime()).thenReturn(entryTime);
+		when(timeLog.getExitTime()).thenReturn(exitTime);
+		when(timeLog.getWorkDuration()).thenReturn(duration);
+		when(event.getResolvedTimeLog()).thenReturn(timeLog);
+		when(event.isResolved()).thenReturn(true);
+		when(event.getReason()).thenReturn("Missing clock-in corrected");
+
+		final ClockOutWithoutClockInEventResponse response = this.mapper.map(event);
+
+		assertThat(response.resolved()).isTrue();
+		assertThat(response.reason()).isEqualTo("Missing clock-in corrected");
+		assertThat(response.resolvedTimeLog().employee()).isEqualTo(response.employee());
+		assertThat(response.resolvedTimeLog().worksite()).isEqualTo(response.worksite());
+		assertThat(response.resolvedTimeLog().entryTime()).isEqualTo(entryTime);
+		assertThat(response.resolvedTimeLog().exitTime()).isEqualTo(exitTime);
+		assertThat(response.resolvedTimeLog().workTime()).isEqualTo(new DurationResponse(7, 0, 0, "PT7H"));
+	}
+
+	@Test
+	void mapsInvalidatedEventWithoutResolvingTimeLog() {
+		final ClockOutWithoutClockInEvent event = event();
+		when(event.isInvalidated()).thenReturn(true);
+		when(event.getReason()).thenReturn("Accidental clock-out");
+
+		final ClockOutWithoutClockInEventResponse response = this.mapper.map(event);
+
+		assertThat(response.invalidated()).isTrue();
+		assertThat(response.resolved()).isFalse();
+		assertThat(response.reason()).isEqualTo("Accidental clock-out");
+		assertThat(response.resolvedTimeLog()).isNull();
+	}
+
+	@Test
+	void mapsNullToNull() {
+		assertThat(this.mapper.map(null)).isNull();
+	}
+
+	private ClockOutWithoutClockInEvent event() {
 		final Employee employee = mock(Employee.class);
 		final Worksite worksite = mock(Worksite.class);
 		final ClockOutWithoutClockInEvent event = mock(ClockOutWithoutClockInEvent.class);
+		final ZoneId zoneId = ZoneId.of("Europe/Madrid");
 		when(employee.getEmployeeNumber()).thenReturn("EMP-0042");
+		when(employee.getName()).thenReturn("Ada");
+		when(employee.getSurname()).thenReturn("Lovelace");
+		when(worksite.getCode()).thenReturn("OFFICE");
+		when(worksite.getName()).thenReturn("Main Office");
+		when(worksite.getTimeZone()).thenReturn(zoneId);
 		when(event.getEmployee()).thenReturn(employee);
 		when(event.getWorksite()).thenReturn(worksite);
-
-		final ClockOutWithoutClockInEventResponse response = new ClockOutWithoutClockInEventResponseMapper().map(event);
-
-		assertThat(response.employeeNumber()).isEqualTo("EMP-0042");
+		return event;
 	}
 }

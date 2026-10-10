@@ -1427,18 +1427,17 @@ components:
     ClockOutWithoutClockInEventResponse:
       type: object
       required:
-      - employeeNumber
-      - worksiteCode
+      - employee
+      - worksite
       - exitTime
       - detectedAt
       - resolved
       - invalidated
       properties:
-        employeeNumber:
-          type: string
-          description: Stable employee identifier used by canonical employee routes.
-        worksiteCode:
-          type: string
+        employee:
+          $ref: '#/components/schemas/TimeLogEmployeeResponse'
+        worksite:
+          $ref: '#/components/schemas/TimeLogWorksiteResponse'
         exitTime: *id006
         detectedAt: *id006
         resolved:
@@ -1447,5 +1446,6 @@ components:
           type: boolean
         reason:
           type: string
-        resolvedTimeLogEntry: *id006
-        resolvedTimeLogExitTime: *id006
+        resolvedTimeLog:
+          $ref: '#/components/schemas/TimeLogResponse'
+          description: The resolving time log, when present.

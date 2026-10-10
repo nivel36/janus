@@ -156,8 +156,12 @@ class ClockOutWithoutClockInEventControllerIT {
 						verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 								.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001"))
-				.andExpect(jsonPath("$.worksiteCode").value("HOME-AF")).andExpect(jsonPath("$.exitTime").value(exit))
+				.andExpect(jsonPath("$.employee.number").value("EMP-0001"))
+				.andExpect(jsonPath("$.employee.fullName").value("Abel Ferrer"))
+				.andExpect(jsonPath("$.worksite.name").value("Home Office Abel"))
+				.andExpect(jsonPath("$.worksite.zoneId").value("UTC+02:00"))
+				.andExpect(jsonPath("$.resolvedTimeLog").doesNotExist())
+				.andExpect(jsonPath("$.worksite.code").value("HOME-AF")).andExpect(jsonPath("$.exitTime").value(exit))
 				.andExpect(jsonPath("$.resolved").value(false)).andExpect(jsonPath("$.invalidated").value(false));
 	}
 
@@ -183,11 +187,14 @@ class ClockOutWithoutClockInEventControllerIT {
 								verifiedJwt().jwt(jwt -> jwt.subject("provider-account-id"))
 										.authorities(createAuthorityList("ROLE_JANUS_ADMIN"))))
 				.andExpect(status().isOk()).andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-				.andExpect(jsonPath("$.employeeNumber").value("EMP-0001")).andExpect(jsonPath("$.resolved").value(true))
-				.andExpect(jsonPath("$.invalidated").value(false))
+				.andExpect(jsonPath("$.employee.number").value("EMP-0001"))
+				.andExpect(jsonPath("$.resolved").value(true)).andExpect(jsonPath("$.invalidated").value(false))
 				.andExpect(jsonPath("$.reason").value("Worked from home before the transfer"))
-				.andExpect(jsonPath("$.resolvedTimeLogEntry").value(entry))
-				.andExpect(jsonPath("$.resolvedTimeLogExitTime").value(exit));
+				.andExpect(jsonPath("$.resolvedTimeLog.entryTime").value(entry))
+				.andExpect(jsonPath("$.resolvedTimeLog.exitTime").value(exit))
+				.andExpect(jsonPath("$.resolvedTimeLog.employee.fullName").value("Abel Ferrer"))
+				.andExpect(jsonPath("$.resolvedTimeLog.worksite.name").value("Home Office Abel"))
+				.andExpect(jsonPath("$.resolvedTimeLog.workTime.iso8601").value("PT7H"));
 
 		this.mvc.perform(
 				patch(BASE + "/{exitTime}", "EMP-0001", "HOME-AF", exit).contentType(APPLICATION_JSON).content(body)

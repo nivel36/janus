@@ -16,8 +16,10 @@
 package es.nivel36.janus.api.v1.timelog;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import es.nivel36.janus.api.Mapper;
@@ -34,6 +36,20 @@ import es.nivel36.janus.service.worksite.Worksite;
 public class ClockOutWithoutClockInEventResponseMapper
 		implements Mapper<ClockOutWithoutClockInEvent, ClockOutWithoutClockInEventResponse> {
 
+	private final Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper;
+
+	/**
+	 * Creates a mapper that includes the resolving time log when present.
+	 *
+	 * @param  timeLogResponseMapper nonnull time log mapper
+	 * @throws NullPointerException  if the mapper is {@code null}
+	 */
+	public ClockOutWithoutClockInEventResponseMapper(
+		final @Qualifier("timeLogResponseMapper") Mapper<TimeLog, TimeLogResponse> timeLogResponseMapper) {
+		this.timeLogResponseMapper = Objects
+				.requireNonNull(timeLogResponseMapper, "timeLogResponseMapper can't be null");
+	}
+
 	@Override
 	public ClockOutWithoutClockInEventResponse map(final ClockOutWithoutClockInEvent entity) {
 		if (entity == null) {
@@ -43,7 +59,15 @@ public class ClockOutWithoutClockInEventResponseMapper
 		final Worksite worksite = Objects.requireNonNull(entity.getWorksite(), "worksite can't be null");
 
 		final String employeeNumber = employee.getEmployeeNumber();
+		final String employeeFullName = employee.getName() + " " + employee.getSurname();
+		final TimeLogEmployeeResponse employeeResponse = new TimeLogEmployeeResponse(employeeNumber, employeeFullName);
 		final String worksiteCode = worksite.getCode();
+		final String worksiteName = worksite.getName();
+		final ZoneId worksiteZoneId = worksite.getTimeZone();
+		final TimeLogWorksiteResponse worksiteResponse = new TimeLogWorksiteResponse(
+				worksiteCode,
+				worksiteName,
+				worksiteZoneId);
 		final Instant exitTime = entity.getExitTime();
 		final Instant detectedAt = entity.getDetectedAt();
 		final boolean resolved = entity.isResolved();
@@ -51,19 +75,17 @@ public class ClockOutWithoutClockInEventResponseMapper
 		final String reason = entity.getReason();
 
 		final TimeLog resolvedTimeLog = entity.getResolvedTimeLog();
-		final Instant resolvedTimeLogEntry = resolvedTimeLog == null ? null : resolvedTimeLog.getEntryTime();
-		final Instant resolvedTimeLogExit = resolvedTimeLog == null ? null : resolvedTimeLog.getExitTime();
+		final TimeLogResponse resolvedTimeLogResponse = this.timeLogResponseMapper.map(resolvedTimeLog);
 
 		return new ClockOutWithoutClockInEventResponse(
-				employeeNumber,
-				worksiteCode,
+				employeeResponse,
+				worksiteResponse,
 				exitTime,
 				detectedAt,
 				resolved,
 				invalidated,
 				reason,
-				resolvedTimeLogEntry,
-				resolvedTimeLogExit);
+				resolvedTimeLogResponse);
 	}
 
 }

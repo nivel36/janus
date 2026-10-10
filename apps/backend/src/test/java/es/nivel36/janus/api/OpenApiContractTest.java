@@ -90,36 +90,27 @@ class OpenApiContractTest {
 
 	@Test
 	@SuppressWarnings("unchecked")
-
-	void timeLogResponsesRequireStableEmployeeNumber() throws Exception {
-		final Map<String, Map<String, Object>> schemas = (Map<String, Map<String, Object>>) ((Map<String, Object>) contract()
-				.get("components")).get("schemas");
-
-		for (final String schemaName : List.of("ClockOutWithoutClockInEventResponse")) {
-			final Map<String, Object> schema = schemas.get(schemaName);
-			final List<String> required = (List<String>) schema.get("required");
-			final Map<String, Map<String, Object>> properties = (Map<String, Map<String, Object>>) schema
-					.get("properties");
-			assertThat(required).as("required properties for %s", schemaName).contains("employeeNumber");
-			assertThat(properties.get("employeeNumber")).containsEntry("type", "string");
-			assertThat(properties).doesNotContainKey("employeeEmail");
-		}
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
 	void timeLogResponseDocumentsEmployeeAndWorksiteDetails() throws Exception {
 		final Map<String, Object> spec = contract();
 		final Map<String, Object> components = (Map<String, Object>) spec.get("components");
 		final Map<String, Map<String, Object>> schemas = (Map<String, Map<String, Object>>) components.get("schemas");
-		final Map<String, Object> response = schemas.get("TimeLogResponse");
-		final List<String> required = (List<String>) response.get("required");
-		final Map<String, Map<String, Object>> properties = (Map<String, Map<String, Object>>) response
-				.get("properties");
-		assertThat(required).contains("employee", "worksite");
-		assertThat(properties).doesNotContainKeys("employeeNumber", "worksiteCode", "worksiteZoneId");
-		assertThat(properties.get("employee")).containsEntry("$ref", "#/components/schemas/TimeLogEmployeeResponse");
-		assertThat(properties.get("worksite")).containsEntry("$ref", "#/components/schemas/TimeLogWorksiteResponse");
+		for (final String responseName : List.of("TimeLogResponse", "ClockOutWithoutClockInEventResponse")) {
+			final Map<String, Object> response = schemas.get(responseName);
+			final List<String> required = (List<String>) response.get("required");
+			final Map<String, Map<String, Object>> properties = (Map<String, Map<String, Object>>) response
+					.get("properties");
+			assertThat(required).contains("employee", "worksite");
+			assertThat(properties).doesNotContainKeys("employeeNumber", "worksiteCode", "worksiteZoneId");
+			assertThat(properties.get("employee"))
+					.containsEntry("$ref", "#/components/schemas/TimeLogEmployeeResponse");
+			assertThat(properties.get("worksite"))
+					.containsEntry("$ref", "#/components/schemas/TimeLogWorksiteResponse");
+		}
+		final Map<String, Map<String, Object>> eventProperties = (Map<String, Map<String, Object>>) schemas
+				.get("ClockOutWithoutClockInEventResponse").get("properties");
+		assertThat(eventProperties.get("resolvedTimeLog"))
+				.containsEntry("$ref", "#/components/schemas/TimeLogResponse");
+		assertThat(eventProperties).doesNotContainKeys("resolvedTimeLogEntry", "resolvedTimeLogExitTime");
 		assertThat((List<String>) schemas.get("TimeLogEmployeeResponse").get("required"))
 				.containsExactly("number", "fullName");
 		assertThat((List<String>) schemas.get("TimeLogWorksiteResponse").get("required"))

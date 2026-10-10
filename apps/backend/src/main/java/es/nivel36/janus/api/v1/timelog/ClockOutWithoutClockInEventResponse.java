@@ -20,30 +20,24 @@ import java.time.Instant;
 /**
  * Response payload describing a {@code ClockOutWithoutClockInEvent}.
  *
- * @param employeeNumber          stable number of the employee associated with
- *                                the event
- * @param worksiteCode            code of the worksite where the event occurred
- * @param exitTime                instant when the employee clocked out without
- *                                a previous clock-in
- * @param detectedAt              instant when the anomaly was detected
- * @param resolved                indicates whether the event has been resolved
- * @param invalidated             indicates whether the event has been
- *                                invalidated
- * @param reason                  optional reason explaining the resolution or
- *                                invalidation
- * @param resolvedTimeLogEntry    entry time of the resolving time log, if
- *                                present
- * @param resolvedTimeLogExitTime exit time of the resolving time log, if
- *                                present
+ * @param employee        the employee's number and full name
+ * @param worksite        the worksite's code, name and time zone
+ * @param exitTime        instant when the employee clocked out without a
+ *                        previous clock-in
+ * @param detectedAt      instant when the anomaly was detected
+ * @param resolved        indicates whether the event has been resolved
+ * @param invalidated     indicates whether the event has been invalidated
+ * @param reason          optional reason explaining the resolution or
+ *                        invalidation
+ * @param resolvedTimeLog the resolving time log; {@code null} when absent
  */
 public record ClockOutWithoutClockInEventResponse(
-		String employeeNumber,
-		String worksiteCode,
+		TimeLogEmployeeResponse employee,
+		TimeLogWorksiteResponse worksite,
 		Instant exitTime,
 		Instant detectedAt,
 		boolean resolved,
 		boolean invalidated,
 		String reason,
-		Instant resolvedTimeLogEntry,
-		Instant resolvedTimeLogExitTime) {
+		TimeLogResponse resolvedTimeLog) {
 }
