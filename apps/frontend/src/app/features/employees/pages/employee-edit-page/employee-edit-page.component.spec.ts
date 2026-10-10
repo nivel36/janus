@@ -154,6 +154,10 @@ describe('EmployeeEditPageComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('employee.detailLoadError');
     expect(fixture.nativeElement.querySelector('form')).toBeNull();
     expect(fixture.nativeElement.querySelector('a[href="/employees/EMP-2"]')).not.toBeNull();
+    if (status === 404) {
+      expect(fixture.nativeElement.querySelector('app-async-state button')).toBeNull();
+      return;
+    }
     employeeApi.findByEmployeeNumber.mockReturnValue(of({ ...employee, employeeNumber: 'EMP-2' }));
     fixture.nativeElement.querySelector('app-async-state button').click();
     await settle();

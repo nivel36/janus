@@ -47,7 +47,7 @@ describe('httpRetryInterceptor', () => {
     },
   );
 
-  it.each([408, 500])('does not retry HTTP status %i', async (status) => {
+  it.each([404, 408, 500])('does not retry HTTP status %i', async (status) => {
     let attempts = 0;
     const error = new HttpErrorResponse({ status });
 

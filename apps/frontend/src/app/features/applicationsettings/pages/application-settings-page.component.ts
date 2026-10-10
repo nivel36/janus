@@ -23,13 +23,21 @@ import { ToggleButtonComponent } from '../../../shared/ui/toggle-button/toggle-b
 import { ApplicationSettings } from '../models/application-settings';
 import { ApplicationSettingsApiService } from '../services/application-settings-api.service';
 
-import { MessageComponent } from '../../../shared/ui/message/message.component';
+import {
+  AsyncStateComponent,
+  AsyncLoadingDirective,
+  AsyncErrorDirective,
+} from '../../../shared/ui/async-state/async-state.component';
+import { ButtonComponent } from '../../../shared/ui/button/button.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-application-settings-page',
   imports: [
-    MessageComponent,
+    AsyncStateComponent,
+    AsyncLoadingDirective,
+    AsyncErrorDirective,
+    ButtonComponent,
     ReactiveFormsModule,
     TranslatePipe,
     AutocompleteTextboxComponent,
@@ -51,7 +59,9 @@ export class ApplicationSettingsPageComponent {
   readonly timezoneCatalog = inject(TimezoneCatalog);
   readonly timezoneSearch = this.timezoneCatalog.createSearchState(this.destroyRef);
 
-  private readonly settingsResource = rxResource({
+  protected readonly retryLoad = () => this.settingsResource.reload();
+
+  protected readonly settingsResource = rxResource({
     stream: () => this.settingsApiService.find(),
   });
 

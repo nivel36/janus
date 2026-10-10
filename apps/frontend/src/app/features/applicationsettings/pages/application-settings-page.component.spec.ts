@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -83,6 +84,31 @@ describe('ApplicationSettingsPageComponent', () => {
     expect(component.loading()).toBe(false);
     expect(component.errorMessage()).toBe('applicationSettings.errors.load');
     expect(fixture.nativeElement.textContent).toContain('applicationSettings.errors.load');
+  });
+
+  it.each([404, 500])('handles load error %s and recovers only when retry is available', async (status) => {
+    settingsLoad.error(new HttpErrorResponse({ status }));
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('form')).toBeNull();
+    expect(fixture.nativeElement.querySelector('a[href="/"]')).not.toBeNull();
+    const retry = fixture.nativeElement.querySelector('app-async-state button');
+    if (status === 404) {
+      expect(retry).toBeNull();
+      expect(find).toHaveBeenCalledOnce();
+      return;
+    }
+    const response = new Subject<typeof settings>();
+    find.mockReturnValue(response);
+    retry.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-async-state button')).toBeNull();
+    expect(fixture.nativeElement.querySelector('form')).toBeNull();
+    response.next(settings);
+    response.complete();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('form')).not.toBeNull();
+    expect(component.form.getRawValue()).toEqual(settings);
+    expect(find).toHaveBeenCalledTimes(2);
   });
 
   it('cancels a pending load when the component is destroyed', () => {

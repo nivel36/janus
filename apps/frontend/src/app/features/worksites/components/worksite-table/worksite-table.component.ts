@@ -9,7 +9,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { WorksiteApiService, WorksitePage } from '../../services/worksite-api.service';
 import { Worksite } from '../../models/worksite';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { ChipComponent } from '../../../../shared/ui/chip/chip.component';
 import {
   DEFAULT_LIST_PAGE,
@@ -30,7 +29,6 @@ import {
 @Component({
   selector: 'app-worksite-table',
   imports: [
-    ButtonComponent,
     AsyncStateComponent,
     AsyncLoadingDirective,
     AsyncErrorDirective,
@@ -56,6 +54,8 @@ export class WorksiteTableComponent {
   readonly emptyMessageKey = input('worksite.empty');
 
   protected readonly currentPage = this.page;
+
+  protected readonly retryLoad = () => this.worksitesResource.reload();
 
   protected readonly worksitesResource = rxResource<
     WorksitePage,

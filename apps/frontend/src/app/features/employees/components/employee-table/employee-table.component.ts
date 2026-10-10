@@ -9,7 +9,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { EmployeeApiService, EmployeePage } from '../../services/employee-api.service';
 import { EmployeeResponse } from '../../../../client/model/employeeResponse';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import {
   DEFAULT_LIST_PAGE,
   DEFAULT_LIST_PAGE_SIZE,
@@ -29,7 +28,6 @@ import {
 @Component({
   selector: 'app-employee-table',
   imports: [
-    ButtonComponent,
     AsyncStateComponent,
     AsyncLoadingDirective,
     AsyncErrorDirective,
@@ -52,6 +50,8 @@ export class EmployeeTableComponent {
   readonly pageChange = output<number>();
 
   protected readonly currentPage = this.page;
+
+  protected readonly retryLoad = () => this.employeesResource.reload();
 
   protected readonly employeesResource = rxResource<
     EmployeePage,

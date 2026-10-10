@@ -1,9 +1,11 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { HttpErrorResponse } from '@angular/common/http';
+import { provideTranslateService } from '@ngx-translate/core';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   AsyncEmptyDirective,
@@ -16,7 +18,7 @@ import {
   standalone: true,
   imports: [AsyncStateComponent, AsyncLoadingDirective, AsyncErrorDirective, AsyncEmptyDirective],
   template: `
-    <app-async-state [loading]="loading" [error]="error" [empty]="empty">
+    <app-async-state [loading]="loading" [error]="error" [empty]="empty" [retry]="retry">
       <ng-template appAsyncLoading><span data-state="loading">Loading</span></ng-template>
       <ng-template appAsyncError><span data-state="error">Error</span></ng-template>
       <ng-template appAsyncEmpty><span data-state="empty">Empty</span></ng-template>
@@ -25,7 +27,8 @@ import {
 })
 class TestHostComponent {
   loading = false;
-  error = false;
+  error: unknown = false;
+  retry: (() => void) | undefined;
   empty = false;
 }
 
@@ -34,7 +37,7 @@ describe('AsyncStateComponent', () => {
   let host: TestHostComponent;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [TestHostComponent] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [TestHostComponent], providers: [provideTranslateService()] }).compileComponents();
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
   });
@@ -75,6 +78,25 @@ describe('AsyncStateComponent', () => {
     await fixture.whenStable();
     expect(visibleStates()).toEqual([]);
     expect(message()).toBeNull();
+  });
+
+  it('invokes the supplied retry action for a recoverable error', () => {
+    host.error = new HttpErrorResponse({ status: 500 });
+    host.retry = vi.fn();
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('button').click();
+    expect(host.retry).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    { error: new HttpErrorResponse({ status: 404 }), loading: false, retry: vi.fn() },
+    { error: new Error('failed'), loading: true, retry: vi.fn() },
+    { error: new Error('failed'), loading: false, retry: undefined },
+    { error: undefined, loading: false, retry: vi.fn() },
+  ])('hides retry when unavailable: %o', (state) => {
+    Object.assign(host, state);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('button')).toBeNull();
   });
 
   function visibleStates(): string[] {

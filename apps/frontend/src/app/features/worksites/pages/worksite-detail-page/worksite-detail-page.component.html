@@ -2,14 +2,12 @@
   <section pageContent class="app-page-content worksite-detail__content">
     <app-async-state
       [loading]="worksiteResource.isLoading()"
-      [error]="worksiteResource.error() !== undefined"
+      [error]="worksiteResource.error()"
+      [retry]="retryLoad"
     >
       <ng-template appAsyncLoading>{{ 'worksite.detailLoading' | translate }}</ng-template>
       <ng-template appAsyncError>
         {{ 'worksite.detailLoadError' | translate }}
-        <app-button variant="secondary" (clicked)="worksiteResource.reload()">
-          {{ 'actions.retry' | translate }}
-        </app-button>
       </ng-template>
     </app-async-state>
 

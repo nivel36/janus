@@ -2,19 +2,24 @@
   <div pageContent class="app-page-content worksite-create-content">
     <section class="app-card worksites-card">
       <div class="app-card__body worksites-card__body">
-        @if (loading()) {
-          <app-message type="info">{{ 'worksite.detailLoading' | translate }}</app-message>
-        } @else {
+        <app-async-state [loading]="loading()" [error]="worksiteResource.error()" [retry]="retryLoad">
+          <ng-template appAsyncLoading>{{ 'worksite.detailLoading' | translate }}</ng-template>
+          <ng-template appAsyncError>{{ 'worksite.detailLoadError' | translate }}</ng-template>
+        </app-async-state>
+        @if (!loading() && !worksiteResource.error() && worksite()) {
           <app-worksite-form
             editMode
             [worksite]="worksite()"
             [save]="save"
             saveErrorKey="worksite.errors.update"
-            [errorKey]="errorMessage()"
             [disabled]="loading() || !!errorMessage()"
             (saved)="onSaved($event)"
             (cancelled)="cancel()"
           />
+        } @else {
+          <app-button variant="secondary" (clicked)="cancel()">
+            {{ 'actions.cancel' | translate }}
+          </app-button>
         }
       </div>
     </section>

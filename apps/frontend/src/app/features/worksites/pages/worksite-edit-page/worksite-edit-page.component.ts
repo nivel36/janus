@@ -9,7 +9,12 @@ import { EMPTY, filter, takeUntil } from 'rxjs';
 
 import { PageTemplateComponent } from '../../../../core/layout/page-template/page-template.component';
 import { ACTIVE_SCREEN_HTTP_RETRY_POLICY } from '../../../../core/http/http-retry.interceptor';
-import { MessageComponent } from '../../../../shared/ui/message/message.component';
+import {
+  AsyncStateComponent,
+  AsyncLoadingDirective,
+  AsyncErrorDirective,
+} from '../../../../shared/ui/async-state/async-state.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { WorksiteFormComponent } from '../../components/worksite-form/worksite-form.component';
 import { CreateWorksitePayload, Worksite } from '../../models/worksite';
 import { WorksiteApiService } from '../../services/worksite-api.service';
@@ -17,7 +22,15 @@ import { WorksiteApiService } from '../../services/worksite-api.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-worksite-edit-page',
-  imports: [MessageComponent, TranslatePipe, WorksiteFormComponent, PageTemplateComponent],
+  imports: [
+    AsyncStateComponent,
+    AsyncLoadingDirective,
+    AsyncErrorDirective,
+    ButtonComponent,
+    TranslatePipe,
+    WorksiteFormComponent,
+    PageTemplateComponent,
+  ],
   templateUrl: './worksite-edit-page.component.html',
 })
 export class WorksiteEditPageComponent {
@@ -27,7 +40,9 @@ export class WorksiteEditPageComponent {
   readonly code = input.required<string>();
   private readonly codeChanges = toObservable(this.code);
 
-  private readonly worksiteResource = rxResource<Worksite, { code: string }>({
+  protected readonly retryLoad = () => this.worksiteResource.reload();
+
+  protected readonly worksiteResource = rxResource<Worksite, { code: string }>({
     params: () => ({ code: this.code() }),
     stream: ({ params }) =>
       this.worksiteApiService.findByCode(params.code, ACTIVE_SCREEN_HTTP_RETRY_POLICY),

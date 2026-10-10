@@ -51,6 +51,8 @@ export class WorksiteDetailPageComponent {
 
   readonly code = input.required<string>();
 
+  protected readonly retryLoad = () => this.worksiteResource.reload();
+
   protected readonly worksiteResource = rxResource<Worksite, { code: string }>({
     params: () => ({ code: this.code() }),
     stream: ({ params }) =>

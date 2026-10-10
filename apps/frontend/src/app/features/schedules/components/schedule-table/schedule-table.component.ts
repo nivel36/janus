@@ -8,7 +8,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ScheduleApiService, SchedulePage } from '../../services/schedule-api.service';
 import { Schedule } from '../../models/schedule';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import {
   DEFAULT_LIST_PAGE,
   DEFAULT_LIST_PAGE_SIZE,
@@ -28,7 +27,6 @@ import {
 @Component({
   selector: 'app-schedule-table',
   imports: [
-    ButtonComponent,
     AsyncStateComponent,
     AsyncLoadingDirective,
     AsyncErrorDirective,
@@ -49,6 +47,8 @@ export class ScheduleTableComponent {
   readonly pageChange = output<number>();
 
   protected readonly currentPage = this.page;
+
+  protected readonly retryLoad = () => this.schedulesResource.reload();
 
   protected readonly schedulesResource = rxResource<
     SchedulePage,

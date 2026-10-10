@@ -4,14 +4,12 @@
       <div class="app-card__body">
         <app-async-state
           [loading]="employeeResource.isLoading()"
-          [error]="employeeResource.error() !== undefined"
+          [error]="employeeResource.error()"
+          [retry]="retryLoad"
         >
           <ng-template appAsyncLoading>{{ 'employee.detailLoading' | translate }}</ng-template>
           <ng-template appAsyncError>
             {{ 'employee.detailLoadError' | translate }}
-            <app-button variant="secondary" (clicked)="employeeResource.reload()">
-              {{ 'actions.retry' | translate }}
-            </app-button>
           </ng-template>
         </app-async-state>
 

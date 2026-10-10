@@ -1,6 +1,7 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormComponent } from '../../../../shared/ui/form/form.component';
@@ -198,24 +199,33 @@ describe('WorksiteEditPageComponent', () => {
     expect(fixture.nativeElement.textContent).not.toContain('worksite.errors.update');
   });
 
-  it('shows the load error without reading the resource value', async () => {
-    worksiteApiService.findByCode.mockReturnValue(throwError(() => new Error('request failed')));
-
+  it.each([404, 500])('handles load error %s with cancellation and eligible retry', async (status) => {
+    worksiteApiService.findByCode.mockReturnValue(throwError(() => new HttpErrorResponse({ status })));
     fixture.componentRef.setInput('code', 'MISSING');
-    fixture.detectChanges();
     await fixture.whenStable();
-    fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('worksite.detailLoadError');
-    expect(formComponent().form.controls.code.disabled).toBe(true);
-    expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
-    fixture.nativeElement.querySelector('form').dispatchEvent(
-      new Event('submit', { bubbles: true, cancelable: true }),
-    );
-    expect(worksiteApiService.update).not.toHaveBeenCalled();
-
-    fixture.nativeElement.querySelector('.app-form-actions button[type="button"]').click();
+    expect(fixture.nativeElement.querySelector('form')).toBeNull();
+    const retry = fixture.nativeElement.querySelector('app-async-state button');
+    const cancel = fixture.nativeElement.querySelector('app-async-state + app-button button');
+    cancel.click();
     expect(router.navigate).toHaveBeenCalledWith(['/worksites', 'MISSING']);
+
+    if (status === 404) {
+      expect(retry).toBeNull();
+      return;
+    }
+    const response = new Subject<object>();
+    worksiteApiService.findByCode.mockReturnValue(response);
+    retry.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-async-state button')).toBeNull();
+    expect(fixture.nativeElement.querySelector('form')).toBeNull();
+    response.next({ code: 'MISSING', name: 'Recovered', timeZone: 'Europe/Madrid', scope: 'GLOBAL', active: true });
+    response.complete();
+    await fixture.whenStable();
+    expect(formComponent().form.getRawValue().name).toBe('Recovered');
+    expect(worksiteApiService.update).not.toHaveBeenCalled();
   });
 
   it('cancels the previous load and updates only the worksite for the latest route code', async () => {

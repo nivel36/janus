@@ -2,16 +2,15 @@
   <div pageContent class="app-page-content application-settings__content">
     <section class="app-card settings-card">
       <div class="app-card__body settings-card__body">
-        @if (loading()) {
-          <app-message type="info">{{
-            'applicationSettings.messages.loading' | translate
-          }}</app-message>
-        } @else {
+        <app-async-state [loading]="loading()" [error]="settingsResource.error()" [retry]="retryLoad">
+          <ng-template appAsyncLoading>{{ 'applicationSettings.messages.loading' | translate }}</ng-template>
+          <ng-template appAsyncError>{{ 'applicationSettings.errors.load' | translate }}</ng-template>
+        </app-async-state>
+        @if (!loading() && !settingsResource.error() && settingsResource.hasValue()) {
           <app-form
             [form]="form"
             [save]="save"
             saveErrorKey="applicationSettings.errors.update"
-            [errorKey]="errorMessage()"
             [disabled]="!isAdmin || !!errorMessage()"
             [showSave]="isAdmin"
             cancelLink="/"
@@ -103,6 +102,10 @@
               />
             </app-field>
           </app-form>
+        } @else {
+          <app-button variant="secondary" routerLink="/">
+            {{ 'actions.cancel' | translate }}
+          </app-button>
         }
       </div>
     </section>

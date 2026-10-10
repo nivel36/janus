@@ -17,7 +17,6 @@ import { DurationPipe } from '../../../../shared/pipes/duration.pipe';
 import { TimeLogService, TimeLogPage } from '../../services/timelog-api.service';
 import { FALLBACK_LANGUAGE } from '../../../../core/i18n/language.util';
 import { PaginatorComponent } from '../../../../shared/ui/paginator/paginator.component';
-import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import {
   DEFAULT_LIST_PAGE,
   DEFAULT_LIST_PAGE_SIZE,
@@ -37,7 +36,6 @@ import {
 @Component({
   selector: 'app-timelog-table',
   imports: [
-    ButtonComponent,
     AsyncStateComponent,
     AsyncLoadingDirective,
     AsyncErrorDirective,
@@ -81,6 +79,8 @@ export class TimelogTableComponent {
     source: () => ({ range: this.searchRange(), token: this.searchToken() }),
     computation: () => DEFAULT_LIST_PAGE,
   });
+
+  protected readonly retryLoad = () => this.timelogsResource.reload();
 
   protected readonly timelogsResource = rxResource<
     TimeLogPage,

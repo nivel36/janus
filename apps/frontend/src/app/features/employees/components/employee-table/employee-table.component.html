@@ -19,15 +19,13 @@
 
   <app-async-state
     [loading]="employeesResource.isLoading()"
-    [error]="employeesResource.error() !== undefined"
+    [error]="employeesResource.error()"
+    [retry]="retryLoad"
     [empty]="isEmpty()"
   >
     <ng-template appAsyncLoading>{{ 'employee.loading' | translate }}</ng-template>
     <ng-template appAsyncError>
       {{ 'employee.loadError' | translate }}
-      <app-button variant="secondary" (clicked)="employeesResource.reload()">
-        {{ 'actions.retry' | translate }}
-      </app-button>
     </ng-template>
     <ng-template appAsyncEmpty>
       {{ (query() ? 'employee.searchEmpty' : 'employee.empty') | translate }}

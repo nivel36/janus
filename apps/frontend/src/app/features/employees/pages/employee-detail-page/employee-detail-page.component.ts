@@ -40,6 +40,8 @@ export class EmployeeDetailPageComponent {
 
   readonly employeeNumber = input.required<string>();
 
+  protected readonly retryLoad = () => this.employeeResource.reload();
+
   protected readonly employeeResource = rxResource({
     params: () => ({ employeeNumber: this.employeeNumber() }),
     stream: ({ params }) => this.employeeApiService.findByEmployeeNumber(params.employeeNumber),

@@ -41,6 +41,8 @@ export class EmployeeEditPageComponent {
   readonly employeeNumber = input.required<string>();
   private readonly employeeNumberChanges = toObservable(this.employeeNumber);
 
+  protected readonly retryLoad = () => this.employeeResource.reload();
+
   protected readonly employeeResource = rxResource({
     params: () => ({ employeeNumber: this.employeeNumber() }),
     stream: ({ params }) => this.employeeApi.findByEmployeeNumber(params.employeeNumber),

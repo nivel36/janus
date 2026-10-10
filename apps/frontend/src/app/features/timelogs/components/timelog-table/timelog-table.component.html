@@ -19,15 +19,13 @@
 
   <app-async-state
     [loading]="timelogsResource.isLoading()"
-    [error]="timelogsResource.error() !== undefined"
+    [error]="timelogsResource.error()"
+    [retry]="retryLoad"
     [empty]="isEmpty()"
   >
     <ng-template appAsyncLoading>{{ 'timelog.loading' | translate }}</ng-template>
     <ng-template appAsyncError>
       {{ 'timelog.loadError' | translate }}
-      <app-button variant="secondary" (clicked)="timelogsResource.reload()">
-        {{ 'actions.retry' | translate }}
-      </app-button>
     </ng-template>
     <ng-template appAsyncEmpty>{{ 'timelog.empty' | translate }}</ng-template>
   </app-async-state>

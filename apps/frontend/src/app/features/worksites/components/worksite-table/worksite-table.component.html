@@ -19,15 +19,13 @@
 
   <app-async-state
     [loading]="worksitesResource.isLoading()"
-    [error]="worksitesResource.error() !== undefined"
+    [error]="worksitesResource.error()"
+    [retry]="retryLoad"
     [empty]="isEmpty()"
   >
     <ng-template appAsyncLoading>{{ 'worksite.loading' | translate }}</ng-template>
     <ng-template appAsyncError>
       {{ 'worksite.loadError' | translate }}
-      <app-button variant="secondary" (clicked)="worksitesResource.reload()">
-        {{ 'actions.retry' | translate }}
-      </app-button>
     </ng-template>
     <ng-template appAsyncEmpty>{{ emptyMessageKey() | translate }}</ng-template>
   </app-async-state>
