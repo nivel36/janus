@@ -9,6 +9,7 @@ import {
   faUserCircle,
   faUserClock,
   faClock,
+  faUsersBetweenLines,
 } from '@fortawesome/free-solid-svg-icons';
 import { CurrentUserFacade } from '../../user/services/current-user.facade';
 import { AuthService } from '../../auth/auth.service';
@@ -34,6 +35,7 @@ export class MainMenuComponent {
   readonly faUserCircle = faUserCircle;
   readonly faUserClock = faUserClock;
   readonly faClock = faClock;
+  readonly faUsersBetweenLines = faUsersBetweenLines;
 
   async logout(): Promise<void> {
     await this.auth.logout();

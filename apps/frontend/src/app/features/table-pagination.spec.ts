@@ -16,9 +16,13 @@ import { TimeLogPage, TimeLogService } from './timelogs/services/timelog-api.ser
 import { WorksiteTableComponent } from './worksites/components/worksite-table/worksite-table.component';
 import { WorksiteApiService } from './worksites/services/worksite-api.service';
 
-type TableComponent = TimelogTableComponent | WorksiteTableComponent | ScheduleTableComponent;
+import { EmployeeTableComponent } from './employees/components/employee-table/employee-table.component';
+import { EmployeeApiService } from './employees/services/employee-api.service';
+
+type TableComponent = EmployeeTableComponent | TimelogTableComponent | WorksiteTableComponent | ScheduleTableComponent;
 
 const tables = [
+  { component: EmployeeTableComponent, service: EmployeeApiService, queryArgs: [''] },
   { component: TimelogTableComponent, service: TimeLogService, queryArgs: [] },
   { component: WorksiteTableComponent, service: WorksiteApiService, queryArgs: [''] },
   { component: ScheduleTableComponent, service: ScheduleApiService, queryArgs: [''] },

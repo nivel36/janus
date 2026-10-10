@@ -46,6 +46,19 @@
         <span aria-hidden="true"><fa-icon [icon]="faBuilding"></fa-icon></span>
       </app-button>
 
+      @if (user.isUser || user.isAdmin) {
+        <app-button
+          variant="text"
+          icon
+          class="main-menu__icon-button"
+          routerLink="/employees"
+          [ariaLabel]="'navigation.employees' | translate"
+          [title]="'navigation.employees' | translate"
+        >
+          <span aria-hidden="true"><fa-icon [icon]="faUsersBetweenLines"></fa-icon></span>
+        </app-button>
+      }
+
       <app-button
         variant="text"
         icon

@@ -15,7 +15,7 @@ import { ButtonComponent } from '../../../shared/ui/button/button.component';
 
 describe('MainMenuComponent', () => {
   const logout = vi.fn<() => Promise<void>>();
-  const currentUser = signal<{ fullName: string; isAdmin: boolean } | null>(null);
+  const currentUser = signal<{ fullName: string; isAdmin: boolean; isUser: boolean } | null>(null);
 
   beforeEach(async () => {
     logout.mockReset().mockResolvedValue(undefined);
@@ -37,8 +37,8 @@ describe('MainMenuComponent', () => {
     }).compileComponents();
   });
 
-  it.each([false, true])('uses shared buttons for menu options (admin: %s)', (isAdmin) => {
-    currentUser.set({ fullName: 'Test User', isAdmin });
+  it.each([[false, false], [false, true], [true, false]])('uses shared buttons (admin: %s, user: %s)', (isAdmin, isUser) => {
+    currentUser.set({ fullName: 'Test User', isAdmin, isUser });
     const fixture = TestBed.createComponent(MainMenuComponent);
     fixture.detectChanges();
 
@@ -51,10 +51,17 @@ describe('MainMenuComponent', () => {
       '/clock',
       '/timelogs',
       '/worksites',
+      ...(isAdmin || isUser ? ['/employees'] : []),
       '/schedules',
       ...(isAdmin ? ['/application-settings'] : []),
       undefined,
     ]);
+    const employeeLink = fixture.nativeElement.querySelector('a[href="/employees"]');
+    if (isAdmin || isUser) {
+      expect(employeeLink.querySelector('svg').getAttribute('data-icon')).toBe('users-between-lines');
+    } else {
+      expect(employeeLink).toBeNull();
+    }
     expect(buttons.every((button) => button.variant() === 'text')).toBe(true);
     expect(buttons.slice(1).every((button) => button.icon())).toBe(true);
     expect(buttons.every((button) => !!button.ariaLabel() && !!button.title())).toBe(true);

@@ -7,7 +7,8 @@
     "userPreferences": "User preferences",
     "worksites": "Worksites",
     "schedules": "Schedules",
-    "mainMenu": "Main menu"
+    "mainMenu": "Main menu",
+    "employees": "Employees"
   },
   "locale": {
     "ca-ES": "Catalan",
@@ -83,7 +84,21 @@
     "employee": "Employee",
     "fullName": "Full Name",
     "location": "Location",
-    "todaySchedule": "Today's Schedule"
+    "todaySchedule": "Today's Schedule",
+    "employees": "Employees",
+    "employeeNumber": "Employee number",
+    "name": "Name",
+    "surname": "Surname",
+    "email": "Email",
+    "scheduleCode": "Schedule code",
+    "loading": "Loading employees...",
+    "empty": "No employees are available yet.",
+    "searchEmpty": "No employees match your search.",
+    "loadError": "Unable to load employees at this time.",
+    "search": {
+      "placeholder": "Search employees...",
+      "helpText": "Search by employee number, name, surname or email"
+    }
   },
   "login": {
     "title": "Sign in",

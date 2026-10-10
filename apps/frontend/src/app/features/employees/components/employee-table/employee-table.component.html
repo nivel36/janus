@@ -1,0 +1,68 @@
+<section class="app-section employee-table" aria-labelledby="employee-table-title">
+  <header class="app-section__header employee-table__header">
+    <h2 id="employee-table-title" class="app-section__title employee-table__title">
+      {{ 'employee.employees' | translate }}
+    </h2>
+    @if (totalItems() > 0) {
+      <app-paginator
+        [totalItems]="totalItems()"
+        [pageSize]="pageSize()"
+        [currentPage]="currentPage()"
+        [betweenLabel]="'paginator.of' | translate"
+        [previousLabel]="'paginator.previousPage' | translate"
+        [nextLabel]="'paginator.nextPage' | translate"
+        [ariaLabel]="'paginator.ariaLabel' | translate"
+        (pageRequested)="onPageChange($event)"
+      />
+    }
+  </header>
+
+  <app-async-state
+    [loading]="employeesResource.isLoading()"
+    [error]="employeesResource.error() !== undefined"
+    [empty]="isEmpty()"
+  >
+    <ng-template appAsyncLoading>{{ 'employee.loading' | translate }}</ng-template>
+    <ng-template appAsyncError>
+      {{ 'employee.loadError' | translate }}
+      <app-button variant="secondary" (clicked)="employeesResource.reload()">
+        {{ 'actions.retry' | translate }}
+      </app-button>
+    </ng-template>
+    <ng-template appAsyncEmpty>
+      {{ (query() ? 'employee.searchEmpty' : 'employee.empty') | translate }}
+    </ng-template>
+  </app-async-state>
+
+  @if (!employeesResource.isLoading() && employees().length > 0) {
+    <div
+      class="app-table-wrapper"
+      role="region"
+      tabindex="0"
+      aria-labelledby="employee-table-title"
+    >
+      <table class="app-table employee-table__table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'employee.employeeNumber' | translate }}</th>
+            <th scope="col">{{ 'employee.name' | translate }}</th>
+            <th scope="col">{{ 'employee.surname' | translate }}</th>
+            <th scope="col">{{ 'employee.email' | translate }}</th>
+            <th scope="col">{{ 'employee.scheduleCode' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (employee of employees(); track employee.employeeNumber) {
+            <tr>
+              <td>{{ employee.employeeNumber }}</td>
+              <td>{{ employee.name }}</td>
+              <td>{{ employee.surname }}</td>
+              <td>{{ employee.email }}</td>
+              <td>{{ employee.scheduleCode }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

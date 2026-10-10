@@ -7,7 +7,8 @@
     "userPreferences": "Preferencias de usuario",
     "worksites": "Puestos de trabajo",
     "schedules": "Horarios",
-    "mainMenu": "Menú principal"
+    "mainMenu": "Menú principal",
+    "employees": "Empleados"
   },
   "locale": {
     "ca-ES": "Catalán",
@@ -83,7 +84,21 @@
     "employee": "Empleado",
     "fullName": "Nombre completo",
     "location": "Lugar",
-    "todaySchedule": "Horario de hoy"
+    "todaySchedule": "Horario de hoy",
+    "employees": "Empleados",
+    "employeeNumber": "Número de empleado",
+    "name": "Nombre",
+    "surname": "Apellidos",
+    "email": "Correo electrónico",
+    "scheduleCode": "Código de horario",
+    "loading": "Cargando empleados...",
+    "empty": "Todavía no hay empleados disponibles.",
+    "searchEmpty": "No hay empleados que coincidan con la búsqueda.",
+    "loadError": "No se pueden cargar los empleados en este momento.",
+    "search": {
+      "placeholder": "Buscar empleados...",
+      "helpText": "Busca por número de empleado, nombre, apellidos o correo electrónico"
+    }
   },
   "login": {
     "title": "Iniciar sesión",

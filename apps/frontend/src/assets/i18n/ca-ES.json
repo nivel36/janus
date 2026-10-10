@@ -7,7 +7,8 @@
     "userPreferences": "Preferències d'usuari",
     "worksites": "Llocs de treball",
     "schedules": "Horaris",
-    "mainMenu": "Menú principal"
+    "mainMenu": "Menú principal",
+    "employees": "Empleats"
   },
   "locale": {
     "ca-ES": "Català",
@@ -83,7 +84,21 @@
     "employee": "Empleat",
     "fullName": "Nom complet",
     "location": "Lloc",
-    "todaySchedule": "Horari d'avui"
+    "todaySchedule": "Horari d'avui",
+    "employees": "Empleats",
+    "employeeNumber": "Número d’empleat",
+    "name": "Nom",
+    "surname": "Cognoms",
+    "email": "Correu electrònic",
+    "scheduleCode": "Codi d’horari",
+    "loading": "Carregant empleats...",
+    "empty": "Encara no hi ha empleats disponibles.",
+    "searchEmpty": "No hi ha empleats que coincideixin amb la cerca.",
+    "loadError": "No es poden carregar els empleats en aquest moment.",
+    "search": {
+      "placeholder": "Cercar empleats...",
+      "helpText": "Cerca per número d’empleat, nom, cognoms o correu electrònic"
+    }
   },
   "login": {
     "title": "Inicia sessió",
