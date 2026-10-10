@@ -1,0 +1,14 @@
+.employee-detail__content {
+  flex-direction: column;
+}
+
+.employee-detail__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+  .employee-detail__actions app-button {
+    width: 100%;
+  }
+}

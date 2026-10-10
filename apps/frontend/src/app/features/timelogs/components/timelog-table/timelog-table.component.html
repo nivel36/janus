@@ -1,7 +1,7 @@
 <section class="app-section timelog-table" aria-labelledby="timelog-table-title">
   <header class="app-section__header timelog-table__header">
     <h2 id="timelog-table-title" class="app-section__title timelog-table__title">
-      {{ 'timelog.timelogs' | translate }}
+      {{ titleKey() | translate }}
     </h2>
     @if (totalItems() > 0) {
       <app-paginator

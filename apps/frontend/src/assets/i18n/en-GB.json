@@ -98,7 +98,17 @@
     "search": {
       "placeholder": "Search employees...",
       "helpText": "Search by employee number, name, surname or email"
-    }
+    },
+    "detail": "Employee details",
+    "detailLoading": "Loading employee...",
+    "detailLoadError": "The employee could not be loaded at this time.",
+    "openDetail": "Open details for {{name}}",
+    "sections": {
+      "personalInformation": "Personal information",
+      "assignedSchedule": "Assigned schedule",
+      "latestTimelogs": "Latest time logs"
+    },
+    "noWorksites": "This employee has no global or assigned worksites."
   },
   "login": {
     "title": "Sign in",
@@ -204,7 +214,8 @@
     },
     "status": {
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "label": "Status"
     },
     "errors": {
       "create": "Unable to create the worksite.",

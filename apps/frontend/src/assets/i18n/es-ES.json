@@ -98,7 +98,17 @@
     "search": {
       "placeholder": "Buscar empleados...",
       "helpText": "Busca por número de empleado, nombre, apellidos o correo electrónico"
-    }
+    },
+    "detail": "Detalle del empleado",
+    "detailLoading": "Cargando empleado...",
+    "detailLoadError": "No se puede cargar el empleado en este momento.",
+    "openDetail": "Abrir detalle de {{name}}",
+    "sections": {
+      "personalInformation": "Información personal",
+      "assignedSchedule": "Horario asignado",
+      "latestTimelogs": "Últimos fichajes"
+    },
+    "noWorksites": "Este empleado no tiene puestos de trabajo globales ni asignados."
   },
   "login": {
     "title": "Iniciar sesión",
@@ -204,7 +214,8 @@
     },
     "status": {
       "active": "Activo",
-      "inactive": "Inactivo"
+      "inactive": "Inactivo",
+      "label": "Estado"
     },
     "errors": {
       "create": "No se pudo crear el puesto de trabajo.",

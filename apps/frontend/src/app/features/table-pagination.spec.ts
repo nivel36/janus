@@ -23,8 +23,8 @@ type TableComponent = EmployeeTableComponent | TimelogTableComponent | WorksiteT
 
 const tables = [
   { component: EmployeeTableComponent, service: EmployeeApiService, queryArgs: [''] },
-  { component: TimelogTableComponent, service: TimeLogService, queryArgs: [] },
-  { component: WorksiteTableComponent, service: WorksiteApiService, queryArgs: [''] },
+  { component: TimelogTableComponent, service: TimeLogService, queryArgs: [undefined] },
+  { component: WorksiteTableComponent, service: WorksiteApiService, queryArgs: ['', undefined] },
   { component: ScheduleTableComponent, service: ScheduleApiService, queryArgs: [''] },
 ];
 

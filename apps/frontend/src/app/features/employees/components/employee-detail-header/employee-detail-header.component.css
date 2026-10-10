@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+.employee-header-detail__identity {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.employee-header-detail__email {
+  min-width: 0;
+  color: var(--accent-default);
+  font-size: var(--type-label-lg-font-size);
+  font-weight: var(--type-label-lg-font-weight);
+  line-height: var(--type-label-lg-line-height);
+  overflow-wrap: anywhere;
+}

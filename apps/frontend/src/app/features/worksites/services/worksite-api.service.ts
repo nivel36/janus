@@ -38,14 +38,14 @@ export class WorksiteApiService {
   private readonly api = inject(WorksitesService);
 
   /**
-   * Retrieves all worksites visible to the authenticated user.
+   * Retrieves a page of visible worksites, optionally restricted to an employee’s global and assigned worksites.
    *
-   * @returns Observable emitting the complete list of worksites.
+   * @returns Observable emitting the requested page of worksites.
    */
-  search(page = 0, size = 10, query = ''): Observable<WorksitePage> {
+  search(page = 0, size = 10, query = '', employeeNumber?: string): Observable<WorksitePage> {
     const normalizedQuery = query.trim();
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
-    return this.api.searchWorksites(normalizedQuery || undefined, undefined, page, size, ['code,desc'], 'body', false, { context }).pipe(
+    return this.api.searchWorksites(normalizedQuery || undefined, employeeNumber, page, size, ['code,desc'], 'body', false, { context }).pipe(
       map((r) => ({
         items: (r.content ?? []).map((worksite) => this.mapWorksite(worksite)),
         totalItems: r.page?.totalElements ?? 0,

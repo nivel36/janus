@@ -1,0 +1,39 @@
+<app-page-template appNameKey="navigation.janus" pageNameKey="employee.detail">
+  <section pageContent class="app-page-content employee-detail__content">
+    <app-async-state
+      [loading]="employeeResource.isLoading()"
+      [error]="employeeResource.error() !== undefined"
+    >
+      <ng-template appAsyncLoading>{{ 'employee.detailLoading' | translate }}</ng-template>
+      <ng-template appAsyncError>
+        {{ 'employee.detailLoadError' | translate }}
+        <app-button variant="secondary" (clicked)="employeeResource.reload()">
+          {{ 'actions.retry' | translate }}
+        </app-button>
+      </ng-template>
+    </app-async-state>
+
+    @if (!employeeResource.isLoading() && employee(); as employee) {
+      <app-employee-detail-header [employee]="employee" />
+
+      <app-worksite-table
+        [employeeNumber]="employee.employeeNumber"
+        [page]="worksitePage()"
+        (pageChange)="worksitePage.set($event)"
+        emptyMessageKey="employee.noWorksites"
+      />
+
+      <app-timelog-table
+        titleKey="employee.sections.latestTimelogs"
+        [searchRange]="timelogFilters()"
+        [showWorksiteName]="true"
+      />
+    }
+
+    <div class="employee-detail__actions">
+      <app-button variant="secondary" routerLink="/employees">
+        {{ 'actions.back' | translate }}
+      </app-button>
+    </div>
+  </section>
+</app-page-template>

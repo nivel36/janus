@@ -52,34 +52,41 @@ export class WorksiteTableComponent {
   readonly refreshToken = input(0);
   readonly pageSize = input(DEFAULT_LIST_PAGE_SIZE);
   readonly pageChange = output<number>();
+  readonly employeeNumber = input<string>();
+  readonly emptyMessageKey = input('worksite.empty');
 
   protected readonly currentPage = this.page;
 
   protected readonly worksitesResource = rxResource<
     WorksitePage,
-    { refreshToken: number; page: number; pageSize: number; query: string }
+    { refreshToken: number; page: number; pageSize: number; query: string; employeeNumber: string | undefined }
   >({
     params: () => ({
       refreshToken: this.refreshToken(),
       page: this.currentPage(),
       pageSize: this.pageSize(),
       query: this.query(),
+      employeeNumber: this.employeeNumber(),
     }),
     stream: ({ params }) =>
-      this.worksiteApiService.search(params.page - 1, params.pageSize, params.query),
+      this.worksiteApiService.search(params.page - 1, params.pageSize, params.query, params.employeeNumber),
     defaultValue: emptyListPage<Worksite>(),
   });
 
-  protected readonly worksites = computed(() => this.worksitesResource.value().items);
+  protected readonly worksites = computed(() =>
+    this.worksitesResource.hasValue() ? this.worksitesResource.value().items : [],
+  );
 
-  protected readonly totalItems = computed(() => this.worksitesResource.value().totalItems);
+  protected readonly totalItems = computed(() =>
+    this.worksitesResource.hasValue() ? this.worksitesResource.value().totalItems : 0,
+  );
 
   protected readonly pagedWorksites = computed(() => this.worksites());
 
   private readonly pageSyncEffect = synchronizeListPage(
     this.currentPage,
     this.totalItems,
-    this.worksitesResource.isLoading,
+    computed(() => this.worksitesResource.isLoading() || this.worksitesResource.error() !== undefined),
     (page) => this.pageChange.emit(page),
     this.pageSize,
   );

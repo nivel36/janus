@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,14 +13,20 @@ describe('EmployeeTableComponent', () => {
   let fixture: ComponentFixture<EmployeeTableComponent>;
   let response: Subject<EmployeePage>;
   const search = vi.fn();
+  const navigate = vi.fn();
   beforeEach(async () => {
+    navigate.mockReset();
     search.mockReset().mockImplementation(() => {
       response = new Subject<EmployeePage>();
       return response;
     });
     await TestBed.configureTestingModule({
       imports: [EmployeeTableComponent],
-      providers: [provideTranslateService(), { provide: EmployeeApiService, useValue: { search } }],
+      providers: [
+        provideTranslateService(),
+        { provide: EmployeeApiService, useValue: { search } },
+        { provide: Router, useValue: { navigate } },
+      ],
     }).compileComponents();
     fixture = TestBed.createComponent(EmployeeTableComponent);
   });
@@ -32,7 +39,7 @@ describe('EmployeeTableComponent', () => {
   function emptyPage(): EmployeePage {
     return { items: [], totalItems: 0, page: 0, pageSize: 5, totalPages: 0 };
   }
-  it('shows loading then renders all employee fields without row actions', async () => {
+  it('shows loading then renders employee fields and opens details by mouse or keyboard', async () => {
     await settle();
     expect(fixture.nativeElement.textContent).toContain('employee.loading');
     response.next({ ...emptyPage(), totalItems: 1, totalPages: 1, items: [{ employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', schedule: { code: 'DAY', name: 'Day shift' } }] });
@@ -40,7 +47,17 @@ describe('EmployeeTableComponent', () => {
     await settle();
     const row = fixture.nativeElement.querySelector('tbody tr');
     expect(Array.from(row.querySelectorAll('td'), (td: unknown) => (td as HTMLElement).textContent?.trim())).toEqual(['EMP-1', 'Abel', 'Ferrer', 'abel@example.com', 'Day shift']);
-    expect(row.hasAttribute('tabindex')).toBe(false);
+    expect(row.getAttribute('tabindex')).toBe('0');
+    expect(row.getAttribute('aria-label')).toBeTruthy();
+    row.click();
+    expect(navigate).toHaveBeenLastCalledWith(['/employees', 'EMP-1']);
+    row.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    expect(navigate).toHaveBeenCalledTimes(2);
+    const space = new KeyboardEvent('keydown', { key: ' ', cancelable: true });
+    row.dispatchEvent(space);
+    expect(space.defaultPrevented).toBe(true);
+    expect(navigate).toHaveBeenCalledTimes(3);
+    expect(navigate).toHaveBeenLastCalledWith(['/employees', 'EMP-1']);
   });
   it('distinguishes an empty list from an empty search', async () => {
     await settle();

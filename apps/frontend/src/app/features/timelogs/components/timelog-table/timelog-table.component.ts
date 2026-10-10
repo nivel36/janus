@@ -60,6 +60,7 @@ export class TimelogTableComponent {
   readonly pageSize = input(DEFAULT_LIST_PAGE_SIZE);
   readonly showEmployeeName = input(false);
   readonly showWorksiteName = input(false);
+  readonly titleKey = input('timelog.timelogs');
 
   protected readonly userLocale = computed(
     () => this.currentUser.preferences()?.locale ?? FALLBACK_LANGUAGE,
@@ -100,12 +101,16 @@ export class TimelogTableComponent {
   /**
    * Current page items returned by backend.
    */
-  protected readonly timelogs = computed(() => this.timelogsResource.value().items);
+  protected readonly timelogs = computed(() =>
+    this.timelogsResource.hasValue() ? this.timelogsResource.value().items : [],
+  );
 
   /**
    * Total number of rows available in backend.
    */
-  protected readonly totalItems = computed(() => this.timelogsResource.value().totalItems);
+  protected readonly totalItems = computed(() =>
+    this.timelogsResource.hasValue() ? this.timelogsResource.value().totalItems : 0,
+  );
 
   /**
    * In server-side pagination, the backend already returns the current page slice.
@@ -115,7 +120,7 @@ export class TimelogTableComponent {
   private readonly pageSyncEffect = synchronizeListPage(
     this.currentPage,
     this.totalItems,
-    this.timelogsResource.isLoading,
+    computed(() => this.timelogsResource.isLoading() || this.timelogsResource.error() !== undefined),
     (page) => this.currentPage.set(page),
     this.pageSize,
   );

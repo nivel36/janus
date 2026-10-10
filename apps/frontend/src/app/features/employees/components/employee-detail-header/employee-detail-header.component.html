@@ -1,0 +1,15 @@
+<article class="employee-header-detail app-header-detail">
+  <div class="app-header-detail__identity employee-header-detail__identity">
+    <div class="app-header-detail__icon" aria-hidden="true">
+      <fa-icon [icon]="faUser"></fa-icon>
+    </div>
+    <div class="app-header-detail__content employee-header-detail__identity">
+      <h2 class="app-header-detail__title">{{ employee().name }} {{ employee().surname }}</h2>
+      <p class="app-header-detail__info">{{ employee().employeeNumber }}</p>
+    </div>
+  </div>
+  <a class="app-header-detail__status employee-header-detail__email"
+    [href]="'mailto:' + employee().email">
+    {{ employee().email }}
+  </a>
+</article>

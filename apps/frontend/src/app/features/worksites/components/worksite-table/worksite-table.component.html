@@ -29,7 +29,7 @@
         {{ 'actions.retry' | translate }}
       </app-button>
     </ng-template>
-    <ng-template appAsyncEmpty>{{ 'worksite.empty' | translate }}</ng-template>
+    <ng-template appAsyncEmpty>{{ emptyMessageKey() | translate }}</ng-template>
   </app-async-state>
 
   @if (!worksitesResource.isLoading() && worksites().length > 0) {
@@ -45,6 +45,7 @@
             <th scope="col">{{ 'worksite.code' | translate }}</th>
             <th scope="col">{{ 'worksite.name' | translate }}</th>
             <th scope="col">{{ 'worksite.scope' | translate }}</th>
+            <th scope="col">{{ 'worksite.status.label' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -64,6 +65,12 @@
                 <app-chip
                   [label]="'worksite.scopes.' + worksite.scope | translate"
                   [type]="worksite.scope === 'ASSIGNED' ? 'primary' : 'default'"
+                ></app-chip>
+              </td>
+              <td>
+                <app-chip
+                  [label]="(worksite.active ? 'worksite.status.active' : 'worksite.status.inactive') | translate"
+                  [type]="worksite.active ? 'green' : 'red'"
                 ></app-chip>
               </td>
             </tr>

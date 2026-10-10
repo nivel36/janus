@@ -10,7 +10,7 @@ import {
   ACTIVE_SCREEN_HTTP_RETRY_POLICY,
   HTTP_RETRY_POLICY,
 } from '../../../core/http/http-retry.interceptor';
-import { WorksiteApiService } from './worksite-api.service';
+import { WorksiteApiService, WorksitePage } from './worksite-api.service';
 
 describe('WorksiteApiService', () => {
   let service: WorksiteApiService;
@@ -59,6 +59,49 @@ describe('WorksiteApiService', () => {
     });
 
     expect(worksites).toMatchObject([{ code: 'ASSIGNED' }]);
+  });
+
+  it('filters the requested page by employee and retains global, assigned and inactive worksites', () => {
+    let result: WorksitePage | undefined;
+    service.search(1, 5, ' office ', 'EMP-0001').subscribe((page) => (result = page));
+    const request = httpTesting.expectOne((candidate) => candidate.url.endsWith('/worksites'));
+    expect(request.request.params.get('employeeNumber')).toBe('EMP-0001');
+    expect(request.request.params.get('query')).toBe('office');
+    expect(request.request.params.get('page')).toBe('1');
+    expect(request.request.params.get('size')).toBe('5');
+    expect(request.request.params.getAll('sort')).toEqual(['code,desc']);
+    expect(request.request.context.get(HTTP_RETRY_POLICY)).toBe(ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+    request.flush({
+      content: [worksiteResponse('GLOBAL', 'GLOBAL'), worksiteResponse('ASSIGNED'), worksiteResponse('INACTIVE', 'ASSIGNED', false)],
+      page: { number: 1, totalPages: 2, totalElements: 8, size: 5 },
+    });
+    expect(result).toMatchObject({
+      items: [
+        { code: 'GLOBAL', scope: 'GLOBAL', active: true },
+        { code: 'ASSIGNED', scope: 'ASSIGNED', active: true },
+        { code: 'INACTIVE', scope: 'ASSIGNED', active: false },
+      ],
+      page: 1, pageSize: 5, totalPages: 2, totalItems: 8,
+    });
+  });
+
+  it('keeps the general worksite search unfiltered by employee', () => {
+    service.search().subscribe();
+    const request = httpTesting.expectOne((candidate) => candidate.url.endsWith('/worksites'));
+    expect(request.request.params.has('employeeNumber')).toBe(false);
+    request.flush({ content: [], page: { number: 0, size: 10, totalPages: 0, totalElements: 0 } });
+  });
+
+  it('returns global worksites when the employee has no manual assignments', () => {
+    let worksites: unknown;
+    service.search(0, 5, '', 'EMP-0001').subscribe((result) => (worksites = result.items));
+    const request = httpTesting.expectOne((candidate) => candidate.url.endsWith('/worksites'));
+    expect(request.request.params.get('employeeNumber')).toBe('EMP-0001');
+    request.flush({
+      content: [worksiteResponse('GLOBAL', 'GLOBAL')],
+      page: { number: 0, totalPages: 1, totalElements: 1, size: 100 },
+    });
+    expect(worksites).toMatchObject([{ code: 'GLOBAL', scope: 'GLOBAL' }]);
   });
 });
 

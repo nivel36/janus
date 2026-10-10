@@ -33,6 +33,17 @@ describe('application routes', () => {
     expect(await route!.loadComponent!()).toBe(EmployeesPageComponent);
   });
 
+  it('loads employee details for users and administrators', async () => {
+    const route = appRoutes.find((route) => route.path === '')?.children?.find(
+      (route) => route.path === 'employees/:employeeNumber',
+    );
+    expect(route?.data?.['clientRole']).toEqual([JANUS_CLIENT_ROLES.USER, JANUS_CLIENT_ROLES.ADMIN]);
+    const { EmployeeDetailPageComponent } = await import(
+      './features/employees/pages/employee-detail-page/employee-detail-page.component'
+    );
+    expect(await route!.loadComponent!()).toBe(EmployeeDetailPageComponent);
+  });
+
   it('keeps forbidden public and protects all application routes through their parent', () => {
     const forbidden = appRoutes.find((route) => route.path === 'forbidden');
     const protectedParent = appRoutes.find((route) => route.path === '');
@@ -62,7 +73,7 @@ describe('application routes', () => {
     ).toBe(true);
     expect(
       protectedParent?.children
-        ?.filter((route) => !adminOnlyPaths.includes(route.path ?? '') && route.path !== 'employees')
+        ?.filter((route) => !adminOnlyPaths.includes(route.path ?? '') && !route.path?.startsWith('employees'))
         .every((route) => route.data === undefined),
     ).toBe(true);
   });

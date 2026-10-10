@@ -18,6 +18,17 @@ describe('EmployeeApiService', () => {
   });
   afterEach(() => http.verify());
 
+  it('loads an employee by number with the active screen retry policy', () => {
+    const employee = { employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', schedule: { code: 'DAY', name: 'Day shift' } };
+    let result: unknown;
+    service.findByEmployeeNumber('EMP-1').subscribe((value) => result = value);
+    const request = http.expectOne((r) => r.url.endsWith('/employees/EMP-1'));
+    expect(request.request.method).toBe('GET');
+    expect(request.request.context.get(HTTP_RETRY_POLICY)).toBe(ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+    request.flush(employee);
+    expect(result).toEqual(employee);
+  });
+
   it('sends normalized search and pagination and maps the response', () => {
     let result: unknown;
     service.search(1, 5, '  Abel  ').subscribe((value) => result = value);

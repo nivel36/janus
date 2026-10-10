@@ -56,6 +56,16 @@ export const appRoutes: Routes = [
           ),
       },
       {
+        path: 'employees/:employeeNumber',
+        data: {
+          clientRole: [JANUS_CLIENT_ROLES.USER, JANUS_CLIENT_ROLES.ADMIN],
+        } satisfies AuthRouteData,
+        loadComponent: () =>
+          import('./features/employees/pages/employee-detail-page/employee-detail-page.component').then(
+            (m) => m.EmployeeDetailPageComponent,
+          ),
+      },
+      {
         path: 'worksites/new',
         data: { clientRole: JANUS_CLIENT_ROLES.ADMIN } satisfies AuthRouteData,
         loadComponent: () =>

@@ -24,6 +24,11 @@ export interface EmployeePage {
 export class EmployeeApiService {
   private readonly api = inject(EmployeesService);
 
+  findByEmployeeNumber(employeeNumber: string): Observable<EmployeeResponse> {
+    const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
+    return this.api.findEmployee(employeeNumber, 'body', false, { context });
+  }
+
   search(page = 0, size = 5, query = ''): Observable<EmployeePage> {
     const context = new HttpContext().set(HTTP_RETRY_POLICY, ACTIVE_SCREEN_HTTP_RETRY_POLICY);
     return this.api

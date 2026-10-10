@@ -3,6 +3,7 @@
  */
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { EmployeeApiService, EmployeePage } from '../../services/employee-api.service';
@@ -37,10 +38,12 @@ import {
     PaginatorComponent,
   ],
   templateUrl: './employee-table.component.html',
+  styleUrl: './employee-table.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeTableComponent {
   private readonly employeeApiService = inject(EmployeeApiService);
+  private readonly router = inject(Router);
 
   readonly query = input('', { transform: normalizeListQuery });
   readonly page = input(DEFAULT_LIST_PAGE, { transform: normalizeListPage });
@@ -92,5 +95,9 @@ export class EmployeeTableComponent {
 
   protected onPageChange(page: number): void {
     this.pageChange.emit(page);
+  }
+
+  protected openEmployee(employee: EmployeeResponse): void {
+    this.router.navigate(['/employees', employee.employeeNumber]);
   }
 }

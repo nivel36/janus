@@ -98,7 +98,17 @@
     "search": {
       "placeholder": "Cercar empleats...",
       "helpText": "Cerca per número d’empleat, nom, cognoms o correu electrònic"
-    }
+    },
+    "detail": "Detall de l’empleat",
+    "detailLoading": "Carregant empleat...",
+    "detailLoadError": "No es pot carregar l’empleat en aquest moment.",
+    "openDetail": "Obrir detall de {{name}}",
+    "sections": {
+      "personalInformation": "Informació personal",
+      "assignedSchedule": "Horari assignat",
+      "latestTimelogs": "Últims fitxatges"
+    },
+    "noWorksites": "Aquest empleat no té llocs de treball globals ni assignats."
   },
   "login": {
     "title": "Inicia sessió",
@@ -204,7 +214,8 @@
     },
     "status": {
       "active": "Actiu",
-      "inactive": "Inactiu"
+      "inactive": "Inactiu",
+      "label": "Estat"
     },
     "errors": {
       "create": "No s'ha pogut crear el lloc de treball.",

@@ -53,7 +53,15 @@
         </thead>
         <tbody>
           @for (employee of employees(); track employee.employeeNumber) {
-            <tr>
+            <tr
+              class="employee-table__row"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="'employee.openDetail' | translate: { name: employee.name + ' ' + employee.surname }"
+              (click)="openEmployee(employee)"
+              (keydown.enter)="openEmployee(employee)"
+              (keydown.space)="$event.preventDefault(); openEmployee(employee)"
+            >
               <td>{{ employee.employeeNumber }}</td>
               <td>{{ employee.name }}</td>
               <td>{{ employee.surname }}</td>
