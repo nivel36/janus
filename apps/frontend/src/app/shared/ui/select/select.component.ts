@@ -13,21 +13,17 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
 /**
- * Represents a single option rendered by the select component.
+ * A select option with either a translated label key or a literal label.
  *
  * @typeParam TValue - String-based value type propagated by Angular Forms.
  */
-export interface SelectOption<TValue extends string = string> {
+export type SelectOption<TValue extends string = string> = {
   /**
    * Value assigned to the native option element and propagated to the form model.
    */
   value: TValue;
 
-  /**
-   * Translation key used to render the visible option label.
-   */
-  labelKey: string;
-}
+} & ({ labelKey: string; label?: never } | { label: string; labelKey?: never });
 
 /**
  * Select control with Angular Forms support.

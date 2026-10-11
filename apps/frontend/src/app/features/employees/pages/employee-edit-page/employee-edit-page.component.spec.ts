@@ -1,7 +1,6 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { OverlayContainer } from '@angular/cdk/overlay';
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -35,12 +34,12 @@ const nightSchedule = {
 describe('EmployeeEditPageComponent', () => {
   let fixture: ComponentFixture<EmployeeEditPageComponent>;
   const employeeApi = { findByEmployeeNumber: vi.fn(), update: vi.fn() };
-  const scheduleApi = { search: vi.fn() };
+  const scheduleApi = { listAll: vi.fn() };
 
   beforeEach(async () => {
     employeeApi.findByEmployeeNumber.mockReset().mockReturnValue(of(employee));
     employeeApi.update.mockReset().mockReturnValue(of(employee));
-    scheduleApi.search.mockReset().mockReturnValue(of({ items: [nightSchedule] }));
+    scheduleApi.listAll.mockReset().mockReturnValue(of([nightSchedule]));
     await TestBed.configureTestingModule({
       imports: [EmployeeEditPageComponent],
       providers: [
@@ -80,10 +79,11 @@ describe('EmployeeEditPageComponent', () => {
   it('prefills the employee with an immutable number and the current schedule', () => {
     expect(employeeApi.findByEmployeeNumber).toHaveBeenCalledWith('EMP-1');
     expect(employeeApi.findByEmployeeNumber).toHaveBeenCalledTimes(1);
-    expect(employeeForm().form.getRawValue()).toEqual(employee);
+    expect(employeeForm().form.getRawValue()).toEqual({ ...employee, schedule: 'DAY' });
     expect(fixture.nativeElement.querySelector('#employee-number').disabled).toBe(true);
-    expect(fixture.nativeElement.querySelector('#employee-schedule').value).toBe('Day shift (DAY)');
-    expect(scheduleApi.search).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('#employee-schedule').value).toBe('DAY');
+    expect(fixture.nativeElement.querySelector('#employee-schedule').selectedOptions[0].textContent).toContain('Day shift (DAY)');
+    expect(scheduleApi.listAll).toHaveBeenCalledTimes(1);
   });
 
   it('loads the employee number from a direct edit URL', async () => {
@@ -115,18 +115,14 @@ describe('EmployeeEditPageComponent', () => {
     expect(employeeApi.update).not.toHaveBeenCalled();
   });
 
-  it('searches and selects a new schedule and saves trimmed names using the original number', async () => {
+  it('selects a new schedule and saves trimmed names using the original number', async () => {
     employeeForm().form.patchValue({ employeeNumber: 'TAMPERED', name: ' Marta ', surname: ' Ferrer ' });
-    const input = fixture.nativeElement.querySelector('#employee-schedule') as HTMLInputElement;
-    input.value = 'Night';
-    input.dispatchEvent(new Event('input'));
-    expect(employeeForm().form.controls.schedule.value).toBeNull();
-    await vi.waitFor(() => expect(scheduleApi.search).toHaveBeenCalledWith(0, 50, 'Night'));
+    const select = fixture.nativeElement.querySelector('#employee-schedule') as HTMLSelectElement;
+    expect(select.tagName).toBe('SELECT');
+    select.value = 'NIGHT';
+    select.dispatchEvent(new Event('change'));
     await settle();
-    const option = TestBed.inject(OverlayContainer).getContainerElement().querySelector('[role="option"]') as HTMLElement;
-    expect(option.textContent).toContain('Night shift (NIGHT)');
-    option.click();
-    await settle();
+    expect(employeeForm().form.controls.schedule.value).toBe('NIGHT');
     submit();
     expect(employeeApi.update).toHaveBeenCalledWith('EMP-1', {
       name: 'Marta', surname: 'Ferrer', email: 'abel@example.com', scheduleCode: 'NIGHT',

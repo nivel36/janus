@@ -7,7 +7,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { SelectComponent } from './select.component';
+import { SelectComponent, SelectOption } from './select.component';
 
 @Pipe({
   name: 'translate',
@@ -15,7 +15,7 @@ import { SelectComponent } from './select.component';
 })
 class MockTranslatePipe implements PipeTransform {
   transform(value: string): string {
-    return value;
+    return `translated:${value}`;
   }
 }
 
@@ -35,7 +35,7 @@ class MockTranslatePipe implements PipeTransform {
   imports: [ReactiveFormsModule, SelectComponent],
 })
 class TestHostComponent {
-  readonly options = [
+  options: SelectOption[] = [
     { value: 'es-ES', labelKey: 'locale.es-ES' },
     { value: 'en-GB', labelKey: 'locale.en-GB' },
   ];
@@ -70,6 +70,27 @@ describe('SelectComponent (ControlValueAccessor)', () => {
   function getSelect(): HTMLSelectElement {
     return fixture.debugElement.query(By.css('select')).nativeElement;
   }
+
+  it('translates label keys and leaves literal labels unchanged', async () => {
+    host.options = [...host.options, { value: 'DAY', label: 'Day shift (DAY)' }];
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
+    expect(getSelect().options[0].textContent?.trim()).toBe('translated:locale.es-ES');
+    expect(getSelect().options[2].textContent?.trim()).toBe('Day shift (DAY)');
+  });
+
+  it('represents a null value with the empty option and propagates clearing', async () => {
+    host.options = [{ value: '', labelKey: 'select.placeholder' }, ...host.options];
+    host.form.controls.locale.setValue(null);
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
+    expect(getSelect().value).toBe('');
+    host.form.controls.locale.setValue('es-ES');
+    await fixture.whenStable();
+    getSelect().value = '';
+    getSelect().dispatchEvent(new Event('change'));
+    expect(host.form.controls.locale.value).toBeNull();
+  });
 
   it('should assign the input id to the native select', () => {
     expect(getSelect().id).toBe('preferences-locale');

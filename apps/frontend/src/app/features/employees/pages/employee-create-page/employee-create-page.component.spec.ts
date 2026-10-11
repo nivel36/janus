@@ -1,7 +1,6 @@
 /**
  * SPDX-License-Identifier: Apache-2.0
  */
-import { OverlayContainer } from '@angular/cdk/overlay';
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
@@ -21,20 +20,20 @@ import { EmployeeCreatePageComponent } from './employee-create-page.component';
 
 const schedule = { code: 'DAY', name: 'Day shift', entryTolerance: 'PT0S', exitTolerance: 'PT0S' };
 const validForm = {
-  employeeNumber: 'EMP-1', name: ' Abel ', surname: ' Ferrer ', email: 'abel@example.com', schedule,
+  employeeNumber: 'EMP-1', name: ' Abel ', surname: ' Ferrer ', email: 'abel@example.com', schedule: schedule.code,
 };
 
 describe('EmployeeCreatePageComponent', () => {
   let fixture: ComponentFixture<EmployeeCreatePageComponent>;
   const employeeApi = { findByEmployeeNumber: vi.fn(), create: vi.fn() };
-  const scheduleApi = { search: vi.fn() };
+  const scheduleApi = { listAll: vi.fn() };
 
   beforeEach(async () => {
     employeeApi.findByEmployeeNumber.mockReset().mockReturnValue(
       throwError(() => new HttpErrorResponse({ status: 404 })),
     );
     employeeApi.create.mockReset().mockReturnValue(of({}));
-    scheduleApi.search.mockReset().mockReturnValue(of({ items: [schedule] }));
+    scheduleApi.listAll.mockReset().mockReturnValue(of([schedule]));
     await TestBed.configureTestingModule({
       imports: [EmployeeCreatePageComponent],
       providers: [
@@ -95,18 +94,17 @@ describe('EmployeeCreatePageComponent', () => {
     expect(employeeApi.create).not.toHaveBeenCalled();
   });
 
-  it('searches schedules, selects one and submits its code with trimmed names', async () => {
+  it('selects a schedule from the dropdown and submits its code with trimmed names', async () => {
     employeeForm().form.setValue({ ...validForm, schedule: null });
-    const input = fixture.nativeElement.querySelector('#employee-schedule') as HTMLInputElement;
-    input.value = 'Day';
-    input.dispatchEvent(new Event('input'));
-    await vi.waitFor(() => expect(scheduleApi.search).toHaveBeenCalledWith(0, 50, 'Day'));
+    const select = fixture.nativeElement.querySelector('#employee-schedule') as HTMLSelectElement;
+    expect(select.tagName).toBe('SELECT');
+    expect(select.value).toBe('');
+    expect(select.textContent).toContain('Day shift (DAY)');
+    expect(scheduleApi.listAll).toHaveBeenCalledTimes(1);
+    select.value = 'DAY';
+    select.dispatchEvent(new Event('change'));
     await fixture.whenStable();
-    const option = TestBed.inject(OverlayContainer).getContainerElement().querySelector('[role="option"]') as HTMLElement;
-    expect(option.textContent).toContain('Day shift (DAY)');
-    option.click();
-    await fixture.whenStable();
-    expect(employeeForm().form.controls.schedule.value).toEqual(schedule);
+    expect(employeeForm().form.controls.schedule.value).toBe('DAY');
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(employeeApi.create).toHaveBeenCalledWith({
       employeeNumber: 'EMP-1', name: 'Abel', surname: 'Ferrer', email: 'abel@example.com', scheduleCode: 'DAY',
@@ -133,6 +131,35 @@ describe('EmployeeCreatePageComponent', () => {
     employeeApi.create.mockReturnValue(of({}));
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(TestBed.inject(Router).navigate).toHaveBeenCalledWith(['/employees']);
+  });
+
+  it('shows an empty schedule list without selecting a value', async () => {
+    scheduleApi.listAll.mockReturnValue(of([]));
+    employeeForm().loadSchedules();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('schedule.empty');
+    expect(fixture.nativeElement.querySelector('#employee-schedule').options.length).toBe(1);
+    expect(employeeForm().form.controls.schedule.invalid).toBe(true);
+  });
+
+  it('preserves form data during loading, errors and retry', async () => {
+    const response = new Subject<typeof schedule[]>();
+    scheduleApi.listAll.mockReturnValue(response);
+    employeeForm().form.setValue(validForm);
+    employeeForm().loadSchedules();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('schedule.loading');
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    expect(employeeApi.create).not.toHaveBeenCalled();
+    response.error(new HttpErrorResponse({ status: 500 }));
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('schedule.loadError');
+    expect(employeeForm().form.getRawValue()).toEqual(validForm);
+    scheduleApi.listAll.mockReturnValue(of([schedule]));
+    fixture.nativeElement.querySelector('app-async-state button').click();
+    await fixture.whenStable();
+    expect(employeeForm().form.getRawValue()).toEqual(validForm);
+    expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(false);
   });
 
   it('links cancellation back to the employee list', () => {

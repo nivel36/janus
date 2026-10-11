@@ -26,7 +26,7 @@
       <app-button
         type="submit"
         variant="main"
-        [disabled]="saving() || disabled() || status() !== 'VALID'"
+        [disabled]="saving() || disabled() || saveDisabled() || status() !== 'VALID'"
       >
         {{ (saving() ? 'actions.saving' : saveLabel()) | translate }}
       </app-button>

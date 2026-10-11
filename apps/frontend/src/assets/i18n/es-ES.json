@@ -84,7 +84,7 @@
   "employee": {
     "edit": "Editar empleado",
     "new": "Nuevo empleado",
-    "scheduleHint": "Busca un horario por código o nombre (al menos 3 caracteres).",
+    "scheduleHint": "Selecciona un horario",
     "messages": {
       "numberChecking": "Comprobando número de empleado…"
     },

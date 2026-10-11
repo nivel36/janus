@@ -41,6 +41,7 @@ export class FormComponent<T = unknown> {
   readonly saveErrorKey = input.required<string | ((error: unknown) => string)>();
   readonly errorKey = input('');
   readonly disabled = input(false, { transform: booleanAttribute });
+  readonly saveDisabled = input(false, { transform: booleanAttribute });
   readonly showSave = input(true, { transform: booleanAttribute });
   readonly cancelLink = input<string | readonly unknown[]>();
   readonly saveLabel = input('actions.save');
@@ -73,7 +74,7 @@ export class FormComponent<T = unknown> {
   );
 
   submit(): void {
-    if (this.saving() || this.disabled() || !this.showSave()) {
+    if (this.saving() || this.disabled() || this.saveDisabled() || !this.showSave()) {
       return;
     }
     const form = this.form();

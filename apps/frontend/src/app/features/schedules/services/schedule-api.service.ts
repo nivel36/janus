@@ -3,7 +3,7 @@
  */
 import { HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { EMPTY, expand, map, Observable, reduce } from 'rxjs';
 
 import { SchedulesService } from '../../../client/api/schedules.service';
 import { Schedule } from '../models/schedule';
@@ -23,6 +23,15 @@ export interface SchedulePage {
 @Injectable({ providedIn: 'root' })
 export class ScheduleApiService {
   private readonly api = inject(SchedulesService);
+
+  listAll(): Observable<Schedule[]> {
+    return this.search(0, 100).pipe(
+      expand((page) =>
+        page.page + 1 < page.totalPages ? this.search(page.page + 1, 100) : EMPTY,
+      ),
+      reduce((items, page) => [...items, ...page.items], [] as Schedule[]),
+    );
+  }
 
   search(page = 0, size = 10, query = ''): Observable<SchedulePage> {
     const normalizedQuery = query.trim();

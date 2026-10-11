@@ -84,7 +84,7 @@
   "employee": {
     "edit": "Edit employee",
     "new": "New employee",
-    "scheduleHint": "Search for a schedule by code or name (at least 3 characters).",
+    "scheduleHint": "Select a schedule",
     "messages": {
       "numberChecking": "Checking employee number…"
     },

@@ -84,7 +84,7 @@
   "employee": {
     "edit": "Editar empleat",
     "new": "Nou empleat",
-    "scheduleHint": "Cerca un horari per codi o nom (almenys 3 caràcters).",
+    "scheduleHint": "Selecciona un horari",
     "messages": {
       "numberChecking": "Comprovant el número d’empleat…"
     },

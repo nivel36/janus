@@ -1,5 +1,6 @@
 <app-form
   [form]="form"
+  [saveDisabled]="schedulesLoading() || !!schedulesError()"
   [save]="submit"
   [saveErrorKey]="saveErrorKey()"
   [cancelLink]="cancelLink()"
@@ -94,20 +95,23 @@
     [invalid]="isInvalid('schedule')"
     required
   >
-    <app-autocomplete-textbox
-      appAutocompleteValueAccessor
+    <app-select
       inputId="employee-schedule"
       [formControl]="form.controls.schedule"
-      [items]="scheduleSearch.items()"
-      [loading]="scheduleSearch.loading()"
-      [error]="scheduleSearch.error()"
-      [panelOpen]="scheduleSearch.panelOpen()"
-      (queryChange)="scheduleSearch.search($event)"
-      [displayWith]="displaySchedule"
-      [emptyHint]="'employee.scheduleHint' | translate"
-      ariaLabelledBy="employee-schedule-label"
+      [options]="scheduleOptions()"
       [ariaDescribedBy]="fieldDescribedBy('schedule')"
       [ariaInvalid]="isInvalid('schedule')"
+      required
     />
+    <app-async-state
+      [loading]="schedulesLoading()"
+      [error]="schedulesError()"
+      [empty]="scheduleOptions().length === 1"
+      [retry]="loadSchedules"
+    >
+      <ng-template appAsyncLoading>{{ 'schedule.loading' | translate }}</ng-template>
+      <ng-template appAsyncError>{{ 'schedule.loadError' | translate }}</ng-template>
+      <ng-template appAsyncEmpty>{{ 'schedule.empty' | translate }}</ng-template>
+    </app-async-state>
   </app-field>
 </app-form>
