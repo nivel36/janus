@@ -38,11 +38,16 @@ public class ScheduleAuthorizationAdapter {
 	}
 
 	public boolean canView(final Authentication auth, final String code) {
-		final Actor a = this.actors.resolve(auth);
-		return this.view.allows(
-				a,
-				new ViewSchedulePolicy.Context(
-						a.employeeId() != null && this.employees.isAssignedToSchedule(a.employeeId(), code)));
+		final Actor actor = this.actors.resolve(auth);
+		final Long employeeId = actor.employeeId();
+		final boolean assignedToSchedule;
+		if (employeeId == null) {
+			assignedToSchedule = false;
+		} else {
+			assignedToSchedule = this.employees.isAssignedToSchedule(employeeId, code);
+		}
+		final ViewSchedulePolicy.Context context = new ViewSchedulePolicy.Context(assignedToSchedule);
+		return this.view.allows(actor, context);
 	}
 
 	public boolean canCreate(final Authentication a) {
