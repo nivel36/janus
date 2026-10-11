@@ -26,11 +26,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.nivel36.janus.api.Mapper;
-import es.nivel36.janus.policy.schedule.ScheduleAuthorizationAdapter;
 import es.nivel36.janus.service.schedule.Schedule;
 import es.nivel36.janus.service.schedule.ScheduleRuleDefinition;
 import es.nivel36.janus.service.schedule.ScheduleService;
@@ -44,7 +42,6 @@ public class ScheduleController implements ScheduleResource {
 	private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
 
 	private final ScheduleService scheduleService;
-	private final ScheduleAuthorizationAdapter authorization;
 	private final Mapper<Schedule, ScheduleResponse> scheduleResponseMapper;
 	private final Mapper<Schedule, ScheduleSummaryResponse> scheduleSummaryResponseMapper;
 	private final Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper;
@@ -55,9 +52,6 @@ public class ScheduleController implements ScheduleResource {
 	 *
 	 * @param  scheduleService               service for schedule operations; must
 	 *                                       not be {@code null}
-	 * @param  authorization                 component that determines the
-	 *                                       authenticated user's schedule access;
-	 *                                       must not be {@code null}
 	 * @param  scheduleResponseMapper        mapper for schedule responses; must not
 	 *                                       be {@code null}
 	 * @param  scheduleSummaryResponseMapper mapper for schedule summaries; must not
@@ -68,12 +62,10 @@ public class ScheduleController implements ScheduleResource {
 	 */
 	public ScheduleController(
 		final ScheduleService scheduleService,
-		final ScheduleAuthorizationAdapter authorization,
 		final @Qualifier("scheduleResponseMapper") Mapper<Schedule, ScheduleResponse> scheduleResponseMapper,
 		final @Qualifier("scheduleSummaryResponseMapper") Mapper<Schedule, ScheduleSummaryResponse> scheduleSummaryResponseMapper,
 		final @Qualifier("scheduleRuleDefinitionMapper") Mapper<ScheduleRuleRequest, ScheduleRuleDefinition> scheduleRuleDefinitionMapper) {
 		this.scheduleService = Objects.requireNonNull(scheduleService, "scheduleService can't be null");
-		this.authorization = Objects.requireNonNull(authorization, "authorization can't be null");
 		this.scheduleResponseMapper = Objects
 				.requireNonNull(scheduleResponseMapper, "scheduleResponseMapper can't be null");
 		this.scheduleSummaryResponseMapper = Objects
@@ -86,14 +78,11 @@ public class ScheduleController implements ScheduleResource {
 	public ResponseEntity<Page<ScheduleSummaryResponse>> searchSchedules(
 			final String query,
 			final String employeeNumber,
-			final Pageable pageable,
-			final Authentication authentication) {
+			final Pageable pageable) {
 		logger.debug("Search schedules ACTION performed");
-		final String effectiveEmployeeNumber = this.authorization
-				.effectiveEmployeeNumber(authentication, employeeNumber);
 
 		final Page<ScheduleSummaryResponse> schedules = this.scheduleService
-				.searchSchedules(query, effectiveEmployeeNumber, pageable).map(this.scheduleSummaryResponseMapper::map);
+				.searchSchedules(query, employeeNumber, pageable).map(this.scheduleSummaryResponseMapper::map);
 		return ResponseEntity.ok(schedules);
 	}
 

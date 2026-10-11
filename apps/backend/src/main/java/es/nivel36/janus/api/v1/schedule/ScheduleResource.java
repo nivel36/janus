@@ -21,7 +21,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,22 +43,22 @@ import jakarta.validation.Valid;
  * HTTP contract for schedules at {@code /api/v1/schedules}. Requests require a
  * validated bearer JWT and a provisioned actor. Authorization precedes
  * execution. {@code JANUS_ADMIN} and {@code JANUS_USER} have full access;
- * callers with only {@code JANUS_EMPLOYEE} may search and view their own
- * assigned schedule.
+ * callers with only {@code JANUS_EMPLOYEE} may view their own assigned
+ * schedule.
  */
 @RequestMapping("/api/v1/schedules")
 public interface ScheduleResource {
 
 	/**
-	 * Returns a page of schedule summaries without rules within the caller's
-	 * authorized employee scope.
+	 * Returns a page of schedule summaries without rules as a provisioned
+	 * {@code JANUS_ADMIN} or {@code JANUS_USER}.
 	 * <p>
 	 * Query is optional single-line text with 1-100 characters, used literally
 	 * without trimming against code and name, partially and case-insensitively.
 	 * Employee number must match {@code [A-Za-z0-9_-]{1,50}} without trimming.
 	 * Filters combine with AND. Absent filters include schedules without rules,
-	 * ranges or employees. For employee-only callers, the server derives the
-	 * employee number from the actor; a different requested employee is denied.
+	 * ranges or employees. Callers with only {@code JANUS_EMPLOYEE} cannot search,
+	 * even when requesting their own employee number.
 	 * </p>
 	 * <p>
 	 * Returns HTTP 200 without changing schedules. Public sort fields are
@@ -71,22 +70,21 @@ public interface ScheduleResource {
 	 * @param  query                        optional literal fragment; {@code null}
 	 *                                      disables text filtering
 	 * @param  employeeNumber               optional exact employee filter;
-	 *                                      {@code null} omits the filter for
-	 *                                      elevated callers
+	 *                                      {@code null} omits the filter
 	 * @param  pageable                     requested page and ordering; HTTP
 	 *                                      defaults are page 0, size 20
-	 * @param  authentication               current validated authentication
 	 * @return                              HTTP 200 containing schedule summaries
 	 *                                      and page metadata, possibly empty
 	 * @throws ConstraintViolationException if a filter violates its constraint
 	 * @throws IllegalArgumentException     if paging or sorting is unsupported
 	 * @throws AccessDeniedException        if the actor is unprovisioned or the
-	 *                                      scope is denied
+	 *                                      caller lacks a user or administrator
+	 *                                      role
 	 */
 	@GetMapping
-	@ApiResponse(responseCode = "200", description = "Search results within the authorized employee scope")
-	@ApiResponse(responseCode = "403", description = "Employee association missing or employee filter outside the authorized scope")
-	@PreAuthorize("@scheduleAuthorization.canSearch(authentication, #employeeNumber)")
+	@ApiResponse(responseCode = "200", description = "Schedule search results")
+	@ApiResponse(responseCode = "403", description = "Actor unprovisioned or user or administrator role missing")
+	@PreAuthorize("@scheduleAuthorization.canSearch(authentication)")
 	ResponseEntity<Page<ScheduleSummaryResponse>> searchSchedules(
 			@RequestParam(required = false)
 			@SearchQuery
@@ -95,8 +93,7 @@ public interface ScheduleResource {
 			@EmployeeNumber
 			String employeeNumber,
 			@PageableDefault(size = 20, sort = "code")
-			Pageable pageable,
-			Authentication authentication);
+			Pageable pageable);
 
 	/**
 	 * Retrieves an authorized schedule, including all rules and time ranges. Code

@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -64,13 +65,25 @@ class EmployeeSearchAuthorizationIT {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "/api/v1/time-logs", "/api/v1/schedules", "/api/v1/worksites" })
+	@ValueSource(strings = { "/api/v1/time-logs", "/api/v1/worksites" })
 	void linkedEmployeesCanSearchWithoutFilters(final String endpoint) throws Exception {
 		this.mvc.perform(
 				get(endpoint).param("size", "1").with(
 						verifiedJwt().jwt(token -> token.subject(OWN_SUBJECT))
 								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(1));
+	}
+
+	@ParameterizedTest
+	@NullSource
+	@ValueSource(strings = { "EMP-0101", "EMP-0102" })
+	void linkedEmployeesNeverExecuteScheduleSearch(final String employeeNumber) throws Exception {
+		this.mvc.perform(
+				get("/api/v1/schedules").param("employeeNumber", employeeNumber).with(
+						verifiedJwt().jwt(token -> token.subject(OWN_SUBJECT))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isForbidden());
+		assertNoSearch();
 	}
 
 	@ParameterizedTest
@@ -85,7 +98,7 @@ class EmployeeSearchAuthorizationIT {
 
 	private void assertNoSearch() {
 		verify(this.timeLogs, never()).searchTimeLogs(any(), any(), any());
-		verify(this.schedules, never()).searchSchedules(anyString(), nullable(String.class), any());
+		verify(this.schedules, never()).searchSchedules(nullable(String.class), nullable(String.class), any());
 		verify(this.worksites, never()).searchWorksites(anyString(), nullable(String.class), any());
 	}
 }

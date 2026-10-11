@@ -5,8 +5,6 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import es.nivel36.janus.policy.EmployeeAccessPolicy;
-import es.nivel36.janus.policy.EmployeeNumberResolver;
 import es.nivel36.janus.security.Actor;
 import es.nivel36.janus.security.ActorResolver;
 import es.nivel36.janus.service.employee.EmployeeService;
@@ -23,33 +21,20 @@ import es.nivel36.janus.service.employee.EmployeeService;
 public class ScheduleAuthorizationAdapter {
 	private final ActorResolver actors;
 	private final EmployeeService employees;
-	private final EmployeeNumberResolver employeeNumbers;
 	private final SearchSchedulePolicy search = new SearchSchedulePolicy();
 	private final ViewSchedulePolicy view = new ViewSchedulePolicy();
 	private final CreateSchedulePolicy create = new CreateSchedulePolicy();
 	private final UpdateSchedulePolicy update = new UpdateSchedulePolicy();
 	private final DeleteSchedulePolicy delete = new DeleteSchedulePolicy();
 
-	public ScheduleAuthorizationAdapter(
-		final ActorResolver actors,
-		final EmployeeService employees,
-		final EmployeeNumberResolver employeeNumbers) {
+	public ScheduleAuthorizationAdapter(final ActorResolver actors, final EmployeeService employees) {
 		this.actors = Objects.requireNonNull(actors);
 		this.employees = Objects.requireNonNull(employees);
-		this.employeeNumbers = Objects.requireNonNull(employeeNumbers);
 	}
 
-	public boolean canSearch(final Authentication auth, final String employeeNumber) {
+	public boolean canSearch(final Authentication auth) {
 		final Actor a = this.actors.resolve(auth);
-		return this.search.allows(
-				a,
-				this.employeeNumbers
-						.searchContext(a, employeeNumber, EmployeeAccessPolicy.isRestrictedToOwnEmployee(a)));
-	}
-
-	public String effectiveEmployeeNumber(final Authentication auth, final String requested) {
-		final Actor a = this.actors.resolve(auth);
-		return this.employeeNumbers.effectiveNumber(a, requested, EmployeeAccessPolicy.isRestrictedToOwnEmployee(a));
+		return this.search.allows(a, null);
 	}
 
 	public boolean canView(final Authentication auth, final String code) {

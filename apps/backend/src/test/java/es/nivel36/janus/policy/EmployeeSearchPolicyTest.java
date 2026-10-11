@@ -11,7 +11,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import es.nivel36.janus.policy.schedule.SearchSchedulePolicy;
 import es.nivel36.janus.policy.timelog.SearchTimeLogPolicy;
 import es.nivel36.janus.policy.worksite.SearchWorksitePolicy;
 import es.nivel36.janus.security.Actor;
@@ -28,11 +27,8 @@ class EmployeeSearchPolicyTest {
 			final boolean expected) {
 		final Actor actor = new Actor(UUID.randomUUID(), roles, employeeId);
 		final EmployeeSearchPolicy.Context context = new EmployeeSearchPolicy.Context(filterPresent, ownsEmployee);
-		for (final Policy<EmployeeSearchPolicy.Context> policy : java.util.List.of(
-				new EmployeeSearchPolicy(),
-				new SearchTimeLogPolicy(),
-				new SearchSchedulePolicy(),
-				new SearchWorksitePolicy())) {
+		for (final Policy<EmployeeSearchPolicy.Context> policy : java.util.List
+				.of(new EmployeeSearchPolicy(), new SearchTimeLogPolicy(), new SearchWorksitePolicy())) {
 			assertThat(policy.allows(actor, context)).as(policy.getClass().getSimpleName()).isEqualTo(expected);
 		}
 	}

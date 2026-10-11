@@ -145,18 +145,28 @@ class ScheduleSearchIT {
 				.andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
 	}
 
+	@ParameterizedTest
+	@ValueSource(strings = { "ROLE_JANUS_ADMIN", "ROLE_JANUS_USER" })
+	void elevatedCallersCanSearchAllSchedulesWithoutAnEmployeeFilter(final String role) throws Exception {
+		this.mvc.perform(get(BASE).with(verifiedJwt().authorities(createAuthorityList(role))))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(6));
+	}
+
+	@ParameterizedTest
+	@CsvSource({ ",", "shift,", ",EMP-0102", ",EMP-0101", "shift,EMP-0102" })
+	void employeeCannotSearchEvenWithOwnEmployeeFilter(final String query, final String employeeNumber)
+			throws Exception {
+		this.mvc.perform(
+				get(BASE).param("query", query).param("employeeNumber", employeeNumber).with(
+						verifiedJwt().jwt(jwt -> jwt.subject("employee-EMP-0102"))
+								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				.andExpect(status().isForbidden());
+	}
+
 	@Test
-	void employeeWithoutRequestedFilterOnlySeesOwnScheduleAndCannotRequestAnother() throws Exception {
+	void employeeWithoutAssociationCannotViewSchedule() throws Exception {
 		this.mvc.perform(
-				get(BASE).with(
-						verifiedJwt().jwt(jwt -> jwt.subject("employee-EMP-0102"))
-								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.page.totalElements").value(1))
-				.andExpect(jsonPath("$.content[0].code").value("SCH-B"));
-		this.mvc.perform(
-				get(BASE).param("employeeNumber", "EMP-0101").with(
-						verifiedJwt().jwt(jwt -> jwt.subject("employee-EMP-0102"))
-								.authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
+				get(BASE + "/SCH-B").with(verifiedJwt().authorities(createAuthorityList("ROLE_JANUS_EMPLOYEE"))))
 				.andExpect(status().isForbidden());
 	}
 
